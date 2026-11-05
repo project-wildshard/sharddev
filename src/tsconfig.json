@@ -22,7 +22,7 @@
     "skipLibCheck": true,
     "module": "nodenext",
     "moduleResolution": "nodenext",
-    "lib": ["es2024"],
+    "lib": ["es2024", "webworker"],
     "types": ["node"],
     "noEmit": true
   },

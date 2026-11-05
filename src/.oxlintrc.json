@@ -34,7 +34,8 @@
     "dist/**",
     "node_modules/**",
     "test-results/**",
-    "playwright-report/**"
+    "playwright-report/**",
+    "test/fixtures/**"
   ],
   "rules": {
     "typescript/explicit-function-return-type": [

@@ -37,6 +37,8 @@
     "test-results/**",
     "playwright-report/**",
     "pnpm-lock.yaml",
+    // A real built product: its JSON is canonical, byte for byte.
+    "test/fixtures/**",
     "**/*.md"
   ],
   "overrides": [

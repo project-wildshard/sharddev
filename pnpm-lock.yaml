@@ -12,8 +12,8 @@ importers:
         specifier: 2.1.5
         version: 2.1.5(hono@4.13.13)
       '@wildshard/format':
-        specifier: github:project-wildshard/shardfile#v0.1.0
-        version: git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e(typescript@7.0.2)
+        specifier: github:project-wildshard/shardfile#v0.3.1
+        version: git+ssh://git@github.com/project-wildshard/shardfile.git#9991748d559b1f33ea95e591478618c9494ee759(typescript@7.0.2)
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -77,6 +77,7 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@oxlint-tsgolint/darwin-arm64@7.0.2004':
     resolution: {integrity: sha512-uJk3ttju7Lz+Nv8WG4CsLyewoL1qf/Ny8S8OksJ7Bm/F14Tc9gMfW6arM1PCc57IzH/X/I79YsCWTgxX1FKibQ==}
@@ -99,6 +100,7 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   '@playwright/test@1.60.0':
     resolution: {integrity: sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==}
@@ -120,9 +122,9 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@wildshard/format@git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e':
-    resolution: {commit: 8ad146da18ce83f931911471d7cd807a304e790e, repo: git@github.com:project-wildshard/shardfile.git, type: git}
-    version: 0.1.0
+  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#9991748d559b1f33ea95e591478618c9494ee759':
+    resolution: {commit: 9991748d559b1f33ea95e591478618c9494ee759, repo: git@github.com:project-wildshard/shardfile.git, type: git}
+    version: 0.3.1
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -340,7 +342,7 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@wildshard/format@git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e(typescript@7.0.2)':
+  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#9991748d559b1f33ea95e591478618c9494ee759(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)

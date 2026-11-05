@@ -1,5 +1,5 @@
 // Proof that the private git dependency @wildshard/format (shardfile at
-// v0.1.0) installs and type-checks here (meta repo B7, J42/J53). The import
+// v0.3.1) installs and type-checks here (meta repo B7, J42/J53). The import
 // is type-only: tsc reads the raw .ts under node_modules, and Node erases
 // it, because Node will not strip types inside node_modules at run time.
 import assert from 'node:assert/strict'
