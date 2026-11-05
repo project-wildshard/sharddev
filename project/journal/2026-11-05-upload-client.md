@@ -51,3 +51,15 @@ here, but api-server's design doc says that route works.
 It reads the whole tarball and its Brotli into memory rather than
 streaming. The validator needs the tarball in memory anyway, and it keeps
 the PUT retry to one line. Peak RSS at 250 MB was 2.5 GB.
+
+## The last run
+
+From the pushed 8042527 at the default level: 250.1 MB to 200.3 MB,
+40.7 s of PUT, revision 4. Then the test shard came out of R2 and Neon,
+four revisions and four shardfile rows, and the preview reads empty
+again. Neon has no route for that, so it was SQL scoped to the one slug,
+which aborted unless the catalogue held only that shard.
+
+Level 6 took 3.9 s in that run against 1.6 s in the sweep, which made me
+doubt the table. Repeats gave 1.6 to 2.1 s with the load average at 9, so
+it was the machine.

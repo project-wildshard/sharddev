@@ -9,8 +9,8 @@ import { brotliCompress, constants } from 'node:zlib'
 const compress = promisify(brotliCompress)
 
 // Measured on a 271 MB tarball of real game assets mixed to save what Pine
-// Hollow saves at level 5: level 6 stores 216.9 MB in 1.6 s, the last cheap
-// step. Level 7 takes three times as long to shed 0.4 MB; level 11 sheds
+// Hollow saves at level 5: level 6 stores 216.9 MB in about 2 s, the last
+// cheap step. Level 7 takes three times as long to shed 0.4 MB; level 11 sheds
 // 5.4 MB for 278 s. docs/design.md has the table.
 const DEFAULT_BROTLI_LEVEL = 6
 const MIN_BROTLI_LEVEL = 0

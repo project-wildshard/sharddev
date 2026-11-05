@@ -66,13 +66,16 @@ tarball.
 | 1 | 222.8 MB | 17.9% | 0.5 s |
 | 3 | 220.6 MB | 18.7% | 0.8 s |
 | 5 | 217.5 MB | 19.8% | 1.4 s |
-| **6** | **216.9 MB** | **20.0%** | **1.6 s** |
+| **6** | **216.9 MB** | **20.0%** | **1.6-2.1 s** |
 | 7 | 216.5 MB | 20.2% | 4.2 s |
 | 9 | 215.9 MB | 20.4% | 10.1 s |
 | 10 | 212.2 MB | 21.8% | 247.8 s |
 | 11 | 211.5 MB | 22.0% | 278.0 s |
+| 11, window 24 | 210.9 MB | 22.2% | 389.9 s |
 
-Level 6 is the last cheap step. Level 11 stores 5.4 MB less, about 1 s
+Times are one run each on a busy machine, except level 6, repeated;
+the real upload's level 6 took 3.9 s under load. Level 6 is the last
+cheap step. Level 11 stores 5.4 MB less, about 1 s
 of a 40 s upload, for 276 s more on every revision, and those bytes
 are 0.05% of R2's free tier. Window 24 saved at most 0.1 MB over 22 at
 levels 5 to 7 and took longer, so the window stays at 22.
