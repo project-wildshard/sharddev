@@ -11,6 +11,9 @@ importers:
       '@hono/node-server':
         specifier: 2.1.5
         version: 2.1.5(hono@4.13.13)
+      '@wildshard/format':
+        specifier: github:project-wildshard/shardfile#v0.1.0
+        version: git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e(typescript@7.0.2)
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -117,6 +120,12 @@ packages:
     cpu: [x64]
     os: [linux]
 
+  '@wildshard/format@git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e':
+    resolution: {commit: 8ad146da18ce83f931911471d7cd807a304e790e, repo: git@github.com:project-wildshard/shardfile.git, type: git}
+    version: 0.1.0
+    engines: {node: '>=24.18.0'}
+    hasBin: true
+
   esbuild@0.28.2:
     resolution: {integrity: sha512-HKVLS8dvII+xoKW9kmqxbRKrnWEXfJJr/FZhhJmiqIB0e053QNYFqOBouTMO/k5sID4MvCiUCvv8b9M4h32wIA==}
     engines: {node: '>=18'}
@@ -130,6 +139,9 @@ packages:
   hono@4.13.13:
     resolution: {integrity: sha512-CQ46U0ZkAGmbT/4UxdzzGJpacP2IeKgY4a5/tOI9AABbpOMfK739wfDXmv1usCk+3RkKj1hQy4/fjhiwa2xlrA==}
     engines: {node: '>=16.9.0'}
+
+  meshoptimizer@1.2.0:
+    resolution: {integrity: sha512-davRZeIJbxJrE24cwQle7ZDsxjdk/OphNOV83oX+efQinyoHY9Jcyz3MHbaoG0qySZajldGztNZ1RN/T19PZsg==}
 
   oxfmt@0.74.0:
     resolution: {integrity: sha512-G4OP7FgwGYZR5ttRpCOOfJdyRsSyvtn34vSXnjDq6Oqed5Dufg5mB44mank+51nAdHOKuTJ0lj0mksY7L+N61A==}
@@ -328,6 +340,13 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
+  '@wildshard/format@git+https://git@github.com:project-wildshard/shardfile.git#8ad146da18ce83f931911471d7cd807a304e790e(typescript@7.0.2)':
+    dependencies:
+      meshoptimizer: 1.2.0
+      valibot: 1.5.0(typescript@7.0.2)
+    transitivePeerDependencies:
+      - typescript
+
   esbuild@0.28.2:
     optionalDependencies:
       '@esbuild/darwin-arm64': 0.28.2
@@ -337,6 +356,8 @@ snapshots:
     optional: true
 
   hono@4.13.13: {}
+
+  meshoptimizer@1.2.0: {}
 
   oxfmt@0.74.0:
     dependencies:
