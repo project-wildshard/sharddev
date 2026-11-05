@@ -15,7 +15,7 @@ Run from the repo root.
 - `pnpm build`: builds the web app into `src/dist/web`.
 - `pnpm test:e2e`: Playwright against a built app. CI only.
 - `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
-- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403).
+- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `upload <shardfile>` sends a shardfile to api-server (`docs/design.md`).
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
 - `src/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
@@ -26,10 +26,11 @@ The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md
 .editorconfig, `docs/`, `project/`, `src/` and the dot dirs. Scratch
 goes in `tmp/<task>/` and is deleted when done.
 
-- `src/cli/`: the CLI (`--version`, `--help`; commands arrive with the import).
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `upload`; more commands arrive with the import).
+- `src/cli/upload/`: `sharddev upload`: check, compress, sign, ticket, PUT, commit.
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.
 - `src/server/`: the Hono app (`GET /api/health`) and `serve.ts`.
-- `src/shared/`: zod schemas used on both sides of the wire.
+- `src/shared/`: valibot schemas used on both sides of the wire.
 - `src/web/`: the Preact web app, with its own `tsconfig.json` (DOM lib).
 - `src/tools/build-web.ts`: esbuild into `src/dist/web` (`--dev` watches and serves).
 - `src/e2e/`: Playwright smoke test (CI).

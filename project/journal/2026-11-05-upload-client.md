@@ -45,3 +45,9 @@ count everything a tarball holds. Not chased.
 from Vercel's edge in plain text, before the function. api-server's own
 415 is JSON. The ticket path is unaffected, and that is the only path
 here, but api-server's design doc says that route works.
+
+## The client
+
+It reads the whole tarball and its Brotli into memory rather than
+streaming. The validator needs the tarball in memory anyway, and it keeps
+the PUT retry to one line. Peak RSS at 250 MB was 2.5 GB.
