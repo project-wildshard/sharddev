@@ -47,6 +47,10 @@ Measured on this Mac on products under singleplayer's `out/`, read only:
 | Driftwood Isle | 474 | 112.7 MB | 0.9 s | 547 MB |
 | Pine Hollow | 924 | 270.4 MB | 1.4 s | 902 MB |
 
+Driftwood's tarball then went through `sharddev upload` to a real
+preview: 44.3 MB at Brotli 6, 60.7% saved in 1.1 s, against the proxy's
+20% below.
+
 Those products are not standalone yet: C0 still has to move shard-owned
 `/assets` files into them, and Pine's 270.4 MB has 29.6 MB of room. The
 optional author data (D5: `fence-reads.json`, `packs-set.json`, program
