@@ -16,7 +16,7 @@ Run from the repo root.
 - `pnpm build`: builds the web app into `src/dist/web`.
 - `pnpm test:e2e`: Playwright against a built app. CI only.
 - `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
-- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `upload <shardfile>` sends a shardfile to api-server (`docs/design.md`).
+- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `pack <product>` tars a built product into a shardfile and `upload <shardfile>` sends one to api-server (`docs/design.md`).
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
 - `src/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
@@ -27,7 +27,8 @@ The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md
 .editorconfig, `docs/`, `project/`, `src/` and the dot dirs. Scratch
 goes in `tmp/<task>/` and is deleted when done.
 
-- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `upload`; more commands arrive with the import).
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import).
+- `src/cli/pack/`: `wildshard pack`: read the product, tar, validate, write.
 - `src/cli/upload/`: `sharddev upload`: check, compress, sign, ticket, PUT, commit.
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.
 - `src/server/`: the Hono app (`GET /api/health`) and `serve.ts`.

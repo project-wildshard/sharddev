@@ -2,6 +2,7 @@
 import { parseArgs } from 'node:util'
 
 import { serve } from '../server/serve.ts'
+import { packProduct } from './pack/pack.ts'
 import {
   DEFAULT_BROTLI_LEVEL,
   MAX_BROTLI_LEVEL,
@@ -28,6 +29,9 @@ const USAGE = `Usage: sharddev <command> [options]
 
 Commands:
   serve [--port <n>]   Start the sharddev server on localhost
+  pack <product> [--out <file>]
+                       Tar a built product folder into a shardfile and check
+                       it as api-server will. Writes <slug>.tar by default
   upload <shardfile> [--server <url>] [--level <n>]
                        Check a shardfile tarball, compress it (Brotli level
                        <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and upload it to
@@ -39,6 +43,8 @@ Commands:
 Options:
   --version            Print the version
   --help               Print this help
+
+Also installed as \`wildshard\`.
 `
 
 // The CLI is the one place that reads the environment; it hands it on.
@@ -50,6 +56,7 @@ interface CliArgs {
   readonly operand: string | undefined
   readonly help: boolean
   readonly level: string | undefined
+  readonly out: string | undefined
   readonly port: string | undefined
   readonly server: string | undefined
   readonly version: boolean
@@ -62,6 +69,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     options: {
       help: { type: 'boolean', default: false },
       level: { type: 'string' },
+      out: { type: 'string' },
       port: { type: 'string' },
       server: { type: 'string' },
       version: { type: 'boolean', default: false },
@@ -73,6 +81,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     operand,
     help: values.help,
     level: values.level,
+    out: values.out,
     port: values.port,
     server: values.server,
     version: values.version,
@@ -161,6 +170,25 @@ async function runUpload(args: CliArgs): Promise<number> {
   }
 }
 
+async function runPack(args: CliArgs): Promise<number> {
+  if (args.operand === undefined) {
+    process.stderr.write('sharddev: pack needs a product folder\n')
+    return EXIT_USAGE
+  }
+  try {
+    await packProduct({
+      dir: args.operand,
+      report: reportLine,
+      ...(args.out === undefined ? {} : { out: args.out }),
+    })
+    return EXIT_OK
+  } catch (error: unknown) {
+    const reason = error instanceof Error ? error.message : String(error)
+    process.stderr.write(`sharddev: pack failed: ${reason}\n`)
+    return EXIT_FAILED
+  }
+}
+
 async function printVersion(): Promise<number> {
   process.stdout.write(`${await readVersion()}\n`)
   return EXIT_OK
@@ -177,6 +205,9 @@ async function runCommand(args: CliArgs): Promise<number> {
   }
   if (args.command === 'serve') {
     return await runServe(args.port)
+  }
+  if (args.command === 'pack') {
+    return await runPack(args)
   }
   if (args.command === 'upload') {
     return await runUpload(args)

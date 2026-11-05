@@ -41,6 +41,22 @@ describe('the sharddev CLI', (): void => {
   })
 })
 
+describe('the pack command', (): void => {
+  it('needs a product folder', (): void => {
+    const run = cli(['pack'])
+
+    assert.equal(run.status, 1)
+    assert.match(run.stderr, /pack needs a product folder/u)
+  })
+
+  it('reports a folder that is not a product', (): void => {
+    const run = cli(['pack', 'no-such-folder'])
+
+    assert.equal(run.status, 3)
+    assert.match(run.stderr, /pack failed/u)
+  })
+})
+
 describe('the upload command', (): void => {
   it('needs a shardfile to upload', (): void => {
     const run = cli(['upload'])

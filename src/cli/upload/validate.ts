@@ -1,7 +1,6 @@
 import { createHash } from 'node:crypto'
 
-import { installFormatHook } from './format-hook.ts'
-import { readTar } from './tar.ts'
+import { installFormatHook } from '@wildshard/format/formatHook'
 
 import type { ProductFiles } from '@wildshard/format/productValidation'
 
@@ -44,6 +43,7 @@ async function validateShardfile(
   const { prepareAssetDecoders } = await import('@wildshard/format/product')
   const { validateShardfileProduct } =
     await import('@wildshard/format/productValidation')
+  const { readTar } = await import('@wildshard/format/tar')
   await prepareAssetDecoders()
   const product = productFiles(readTar(tarball))
   const { identity } = validateShardfileProduct(product, { hash: sha256 }).shard

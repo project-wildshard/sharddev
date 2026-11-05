@@ -1,6 +1,6 @@
 # sharddev: import from singleplayer
 
-Status: draft 2026-11-05: waits on F4; engine moved with a dev build exposed (P3).
+Status: draft 2026-11-05: waits on F4; engine moved with a dev build exposed (P3). `wildshard pack` landed ahead of it.
 
 One-page runbook for bringing this repo's code over from
 `Raynos/project-wildshard-singleplayer`. The why and the full plan live in `Raynos/project-wildshard-meta`:
@@ -38,3 +38,10 @@ From `Raynos/project-wildshard-singleplayer@727236c625` (paths may move before t
 | 8 | Unfreeze; record the move in the meta repo's `STATE.md`; set this plan to finished | STATE.md says moved |
 
 Rollback: until step 7 singleplayer still has everything, so drop the import commit.
+
+## Follow-ups from `wildshard pack` (2026-11-05)
+
+| # | Row | Done when |
+|---|---|---|
+| S1 | The shard half of C0, singleplayer's rows: shard-owned `/assets` files become product files, so `pack` has a standalone product to read. Waits on DOWNLOAD (J137) | A packed tarball boots cold with no shard-owned `/assets` read |
+| S2 | D5's optional author data (`fence-reads.json`, `packs-set.json`, `public/programs/<slug>.json`): format has to list them first, or the validator refuses them as unlisted files | `pack` carries them, with a format tag; a missing one costs seconds, never a refused cook |

@@ -1,18 +1,18 @@
 import { safeParse } from 'valibot'
 
 import {
+  DirectUploadTicketSchema,
   ErrorBodySchema,
-  StoredShardfilesSchema,
+  ShardfileListSchema,
   UploadResultSchema,
-  UploadTicketSchema,
-} from '../../shared/upload.ts'
+} from './wire.ts'
 
-import type {
-  StoredShardfile,
-  UploadResult,
-  UploadTicket,
-} from '../../shared/upload.ts'
 import type { SignedShardfile } from './signature.ts'
+import type {
+  DirectUploadTicket,
+  ShardfileSummary,
+  UploadResult,
+} from './wire.ts'
 import type { BaseIssue, BaseSchema, InferOutput } from 'valibot'
 
 // The large-file protocol of api-server (its docs/design.md, V7): ticket,
@@ -106,12 +106,12 @@ async function postSigned<Schema extends AnySchema>(
 async function findStored(
   options: ApiOptions,
   hash: string,
-): Promise<StoredShardfile | undefined> {
+): Promise<ShardfileSummary | undefined> {
   const path = '/api/shardfiles'
   const reply = await fetch(new URL(path, options.server), {
     headers: apiHeaders(options),
   })
-  const { shardfiles } = await replyOf(path, reply, StoredShardfilesSchema)
+  const { shardfiles } = await replyOf(path, reply, ShardfileListSchema)
   return shardfiles.find(
     (stored: Readonly<{ hash: string }>): boolean => stored.hash === hash,
   )
@@ -121,11 +121,11 @@ async function requestTicket(
   options: ApiOptions,
   request: UploadRequest,
   signature: string,
-): Promise<UploadTicket> {
+): Promise<DirectUploadTicket> {
   return await postSigned(
     options,
     { path: '/api/shardfiles/uploads', signature, body: request },
-    UploadTicketSchema,
+    DirectUploadTicketSchema,
   )
 }
 

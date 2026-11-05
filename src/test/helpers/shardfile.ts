@@ -3,7 +3,8 @@ import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { installFormatHook } from '../../cli/upload/format-hook.ts'
+import { installFormatHook } from '@wildshard/format/formatHook'
+
 import { makeTar } from './tar.ts'
 
 // Test shardfiles: the real built product in `src/test/fixtures/product`

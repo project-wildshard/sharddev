@@ -5,10 +5,10 @@ import { storedForm } from './compress.ts'
 import { signTarball } from './signature.ts'
 import { validateShardfile } from './validate.ts'
 
-import type { UploadResult } from '../../shared/upload.ts'
 import type { ApiOptions } from './api.ts'
 import type { StoredForm } from './compress.ts'
 import type { SignedShardfile } from './signature.ts'
+import type { UploadResult } from './wire.ts'
 
 // `sharddev upload` (J60, J96): check the shardfile here, compress it here,
 // sign the tarball, then ticket, PUT, commit. api-server only checks and

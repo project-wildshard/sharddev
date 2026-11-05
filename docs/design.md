@@ -1,15 +1,16 @@
 # sharddev: design
 
-Status: draft 2026-11-05: scaffold plus `sharddev upload`; the rest arrives with the import.
+Status: draft 2026-11-05: scaffold plus `pack` and `upload`; the rest arrives with the import.
 
 Living doc: **how** this repo is built. What it does and why is
 `docs/prd.md`. Keep this true as the code changes.
 
 ## Today
 
-The scaffold, plus the upload client:
+The scaffold, plus the two commands that get a built product to the server:
 
-- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `upload`; more commands arrive with the import).
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import).
+- `src/cli/pack/`: `wildshard pack` (below).
 - `src/cli/upload/`: `sharddev upload` (below).
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.
 - `src/server/`: the Hono app (`GET /api/health`) and `serve.ts`.
@@ -18,6 +19,39 @@ The scaffold, plus the upload client:
 - `src/tools/build-web.ts`: esbuild into `src/dist/web` (`--dev` watches and serves).
 - `src/e2e/`: Playwright smoke test (CI).
 - `src/scripts/`: repo tooling (asks, md-wrap), plain JS.
+
+## Pack
+
+`wildshard pack <product> [--out <file>]` turns a built product folder
+into the tarball `api-server` takes (C0, J137). `wildshard` is the same
+program as `sharddev`, a second name on the `bin`.
+
+1. **Read.** Every file under the folder. A link or anything else that
+   is not a regular file is refused.
+2. **Tar.** Format's `writeTar`, so the writer and the server's strict
+   `readTar` are one module. The same files give the same bytes: sorted
+   paths, no directory entries, no times, no owners. A tarball's hash is
+   its identity, so an unchanged product uploads nothing.
+3. **Check.** The tarball itself goes through `validateShardfileProduct`,
+   as the server's commit does. An unlisted file is refused, so nothing
+   strays in, and a refusal writes no file.
+4. **Write**, by rename, to `<slug>.tar` or `--out`. Over 300 MB
+   (`api-server`'s D31) it warns and still writes: that cap is the
+   server's to raise (J137).
+
+Measured on this Mac on products under singleplayer's `out/`, read only:
+
+| Shard | Files | Tarball | Time | Peak memory |
+| --- | --- | --- | --- | --- |
+| Signal Dunes | 199 | 16.9 MB | 0.5 s | 345 MB |
+| Driftwood Isle | 474 | 112.7 MB | 0.9 s | 547 MB |
+| Pine Hollow | 924 | 270.4 MB | 1.4 s | 902 MB |
+
+Those products are not standalone yet: C0 still has to move shard-owned
+`/assets` files into them, and Pine's 270.4 MB has 29.6 MB of room. The
+optional author data (D5: `fence-reads.json`, `packs-set.json`, program
+lists) needs format to admit it first, or the validator calls it
+unlisted. Both are rows in `docs/plans/`.
 
 ## Upload
 
@@ -47,10 +81,12 @@ carries it.
 be: Vercel's edge answers `content-encoding: br` with its own 415 before
 the function runs.
 
-`src/cli/upload/tar.ts`, `format-hook.ts` and the wire shapes in
-`src/shared/upload.ts` are copies from `api-server`: sharddev does not
-depend on that repo. The reply schemas fail the upload on a mismatch
-rather than guess.
+The tarball reader, the strip-types hook and the wire shapes come from
+`@wildshard/format` (`tar`, `formatHook`, `uploadWire`), which `api-server`
+uses too: neither repo depends on the other (J27). Format ships raw
+.ts, so it never loads by a static import: `upload/wire.ts` installs the
+hook and uses a top-level `await import`. A reply that does not parse
+fails the upload rather than guess.
 
 ### The Brotli level
 
@@ -95,7 +131,7 @@ the whole-tarball one above.
 ## Dependencies
 
 - `engine`, by git tag (`github:project-wildshard/<repo>#vX.Y.Z`)
-- `shardfile` (`@wildshard/format`), by git tag (`github:project-wildshard/shardfile#v0.3.1`), locked with pnpm 10.26+
+- `shardfile` (`@wildshard/format`), by git tag (`github:project-wildshard/shardfile#v0.3.5`), locked with pnpm 10.26+
 
 ## Boundaries the checks enforce
 
