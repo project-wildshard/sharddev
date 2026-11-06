@@ -19,7 +19,7 @@ const ONE_DECIMAL = 1
 // The cap in api-server's D31, on a shardfile stored or decoded. J137 raises
 // it only if a real shard needs it, so going over is news and not a refusal:
 // the server's cap is the one that counts.
-const SERVER_CAP_BYTES = 300_000_000
+const SERVER_CAP_BYTES = 450_000_000
 
 /** What `readdir` says about one entry. */
 interface ProductEntry {
@@ -59,6 +59,10 @@ function mb(bytes: number): string {
   return `${(bytes / BYTES_PER_MB).toFixed(ONE_DECIMAL)} MB`
 }
 
+// A pack repeats files that ship at their own paths: format rebuilds and
+// checks it from them, so a tarball leaves it out (C0). 109 MB of Pine Hollow.
+const PACKS = 'blobs/pack/'
+
 function productPath(root: string, entry: ProductEntry): string {
   const file = path.join(entry.parentPath, entry.name)
   if (entry.isSymbolicLink() || !entry.isFile()) {
@@ -75,6 +79,7 @@ async function readProduct(
   const paths = entries
     .filter((entry: ProductEntry): boolean => !entry.isDirectory())
     .map((entry: ProductEntry): string => productPath(root, entry))
+    .filter((file: string): boolean => !file.startsWith(PACKS))
   const pairs = await Promise.all(
     paths.map(async (file: string): Promise<readonly [string, Uint8Array]> => {
       const bytes = await readFile(path.join(root, file))
@@ -97,7 +102,7 @@ async function tarOf(dir: string): Promise<PackedProduct> {
 function reportOverCap(options: PackOptions, bytes: number): void {
   if (bytes > SERVER_CAP_BYTES) {
     options.report(
-      `warning: ${mb(bytes)} is over api-server's ${mb(SERVER_CAP_BYTES)} cap (its D31)`,
+      `warning: ${mb(bytes)} is over api-server's ${mb(SERVER_CAP_BYTES)} cap (its D34)`,
     )
   }
 }

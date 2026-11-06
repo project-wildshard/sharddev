@@ -35,7 +35,7 @@ program as `sharddev`, a second name on the `bin`.
 3. **Check.** The tarball itself goes through `validateShardfileProduct`,
    as the server's commit does. An unlisted file is refused, so nothing
    strays in, and a refusal writes no file.
-4. **Write**, by rename, to `<slug>.tar` or `--out`. Over 300 MB
+4. **Write**, by rename, to `<slug>.tar` or `--out`. Over 450 MB
    (`api-server`'s D31) it warns and still writes: that cap is the
    server's to raise (J137).
 

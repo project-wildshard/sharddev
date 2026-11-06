@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@hono/node-server": "2.1.5",
-    "@wildshard/format": "github:project-wildshard/shardfile#v0.3.7",
+    "@wildshard/format": "github:project-wildshard/shardfile#v0.3.8",
     "hono": "4.13.13",
     "preact": "11.1.1",
     "valibot": "1.5.0"

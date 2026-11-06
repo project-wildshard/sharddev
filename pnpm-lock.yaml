@@ -12,8 +12,8 @@ importers:
         specifier: 2.1.5
         version: 2.1.5(hono@4.13.13)
       '@wildshard/format':
-        specifier: github:project-wildshard/shardfile#v0.3.7
-        version: git+ssh://git@github.com/project-wildshard/shardfile.git#9224b8e787ea0be788c5bdcecb4bf390bfea69f0(typescript@7.0.2)
+        specifier: github:project-wildshard/shardfile#v0.3.8
+        version: git+ssh://git@github.com/project-wildshard/shardfile.git#1a349328a108f276c73341aba20341c143af8a8b(typescript@7.0.2)
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -122,9 +122,9 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#9224b8e787ea0be788c5bdcecb4bf390bfea69f0':
-    resolution: {commit: 9224b8e787ea0be788c5bdcecb4bf390bfea69f0, repo: git@github.com:project-wildshard/shardfile.git, type: git}
-    version: 0.3.7
+  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#1a349328a108f276c73341aba20341c143af8a8b':
+    resolution: {commit: 1a349328a108f276c73341aba20341c143af8a8b, repo: git@github.com:project-wildshard/shardfile.git, type: git}
+    version: 0.3.8
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -342,7 +342,7 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#9224b8e787ea0be788c5bdcecb4bf390bfea69f0(typescript@7.0.2)':
+  '@wildshard/format@git+ssh://git@github.com/project-wildshard/shardfile.git#1a349328a108f276c73341aba20341c143af8a8b(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)
