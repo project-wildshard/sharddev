@@ -303,6 +303,28 @@ test('collection removes interrupted private publications without retaining orph
   expect(existsSync(staging)).toBe(false)
 })
 
+test('the size budget includes cache allocation outside the shared blob pool', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'current')
+  await populate(store, 'a'.repeat(64), new Uint8Array([1]))
+  await store.finish(true)
+  const history = generationCache(base, base, 'history')
+  await populate(history, 'b'.repeat(64), new Uint8Array([2]))
+  await history.finish(false)
+  const codec = resolve(base, 'codec.memo')
+  writeFileSync(codec, new Uint8Array([3]))
+  const overhead = statSync(codec).blocks * 512
+  const result = pruneGenerationCache(store.root, {
+    maxBytes: overhead,
+    cacheOverheadBytes: overhead,
+  })
+  expect(result?.removed).toBe(1)
+  expect(existsSync(resolve(store.blobs, sha(new Uint8Array([2]))))).toBe(false)
+  expect([
+    ...readFileSync(resolve(store.blobs, sha(new Uint8Array([1])))),
+  ]).toEqual([1])
+})
+
 test('G430 expires history, keeps newest three and protects live and receipt keys under a size cap', async () => {
   const base = fixture(),
     project = resolve(base, 'project')

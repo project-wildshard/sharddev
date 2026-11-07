@@ -5,7 +5,7 @@ import { createHash, randomUUID } from 'node:crypto';
 // oxlint-disable-next-line import/no-nodejs-modules -- Cache paths contain only trusted roots and validated hashes.
 import { basename, dirname, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Pruning runs as a low-priority background process on Mac and Linux.
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve this installed worker even when the CLI itself is bundled.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- The worker yields CPU priority to foreground builds.
@@ -148,8 +148,8 @@ export function generationCache(base: string, project: string, scope: string): {
 /** G430: retain the three most recently used keys per job, expire older history
  * after a day, then evict LRU keys to 20 GB. Current receipts and live builds
  * always win over the limit. Blobs are swept only after every remaining index
- * is marked under the same lock; a partial/malformed census deletes nothing. */
-export function pruneGenerationCache(root: string, options: { now?: number; maxBytes?: number; maxAgeMs?: number } = {}): { removed: number; bytes: number; protected: number } | undefined {
+ * is marked under the same lock; an incomplete inventory cannot sweep public keys or blobs. */
+export function pruneGenerationCache(root: string, options: { now?: number; maxBytes?: number; maxAgeMs?: number; cacheOverheadBytes?: number } = {}): { removed: number; bytes: number; protected: number; cacheAllocatedBytes?: number } | undefined {
   return locked(root, () => {
     const now = options.now ?? Date.now(), maxBytes = options.maxBytes ?? 20_000_000_000;
     const protectedKeys = new Set<string>();
@@ -179,7 +179,7 @@ export function pruneGenerationCache(root: string, options: { now?: number; maxB
         entries.push({ path, key, job: `${project}/${step}`, used: statSync(path).mtimeMs, blobs: manifest.files.map(row => row.hash) });
       }
     }
-    const blobs = resolve(root, '..', 'blobs'), blobSizes = new Map<string, number>(), legacyLinks = new Set<string>();
+    const blobs = resolve(root, '..', 'blobs'), blobSizes = new Map<string, number>(), blobAllocation = new Map<string, number>(), legacyLinks = new Set<string>();
     if (lstatSync(blobs, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Linked generation blob pool');
     const blobNames = existsSync(blobs) ? readdirSync(blobs) : [];
     // No publisher can hold a private temporary while this mutex is held.
@@ -190,11 +190,17 @@ export function pruneGenerationCache(root: string, options: { now?: number; maxB
       const info = lstatSync(resolve(blobs, name));
       if (!info.isFile() || info.isSymbolicLink()) throw new Error('Invalid generation blob');
       blobSizes.set(name, info.size);
+      blobAllocation.set(name, info.blocks * 512);
       if (info.nlink > 1) legacyLinks.add(name);
     }
     const counts = new Map<string, number>();
     for (const entry of entries) for (const name of new Set(entry.blobs)) counts.set(name, (counts.get(name) ?? 0) + 1);
+    // Reclaim orphan publications before spending the budget on valid history.
+    for (const name of blobSizes.keys()) if (!counts.has(name) && !legacyLinks.has(name)) {
+      rmSync(resolve(blobs, name)); blobSizes.delete(name); blobAllocation.delete(name);
+    }
     let bytes = [...blobSizes.values()].reduce((sum, size) => sum + size, 0), removed = 0;
+    let allocated = [...blobAllocation.values()].reduce((sum, size) => sum + size, 0) + (options.cacheOverheadBytes ?? 0);
     const newest = new Map<string, number>(), candidates: Entry[] = [];
     for (const entry of entries.sort((a, b) => b.used - a.used || a.key.localeCompare(b.key))) {
       const rank = (newest.get(entry.job) ?? 0) + 1; newest.set(entry.job, rank);
@@ -202,15 +208,18 @@ export function pruneGenerationCache(root: string, options: { now?: number; maxB
       if (!protectedKeys.has(entry.key)) candidates.push(entry);
     }
     for (const entry of candidates.reverse()) {
-      if (bytes <= maxBytes && (newest.get(entry.path) ?? 0) <= 3 && now - entry.used <= (options.maxAgeMs ?? day)) continue;
+      if (allocated <= maxBytes && (newest.get(entry.path) ?? 0) <= 3 && now - entry.used <= (options.maxAgeMs ?? day)) continue;
       rmSync(entry.path, { recursive: true }); removed++;
       for (const name of new Set(entry.blobs)) {
         const count = (counts.get(name) ?? 0) - 1; counts.set(name, count);
-        if (count === 0 && !legacyLinks.has(name)) { rmSync(resolve(blobs, name), { force: true }); bytes -= blobSizes.get(name) ?? 0; blobSizes.delete(name); }
+        if (count === 0 && !legacyLinks.has(name)) {
+          rmSync(resolve(blobs, name), { force: true }); bytes -= blobSizes.get(name) ?? 0;
+          allocated -= blobAllocation.get(name) ?? 0; blobSizes.delete(name); blobAllocation.delete(name);
+        }
       }
     }
-    for (const [name, size] of blobSizes) if (!counts.has(name) && !legacyLinks.has(name)) { rmSync(resolve(blobs, name)); bytes -= size; }
-    const result = { removed, bytes, protected: protectedKeys.size }; json(resolve(root, '.last-prune.json'), result); return result;
+    const result = { removed, bytes, protected: protectedKeys.size, ...(options.cacheOverheadBytes === undefined ? {} : { cacheAllocatedBytes: allocated }) };
+    json(resolve(root, '.last-prune.json'), result); return result;
   });
 }
 
@@ -231,5 +240,15 @@ if (process.argv[2] === '--prune-generation-cache') {
   setPriority(19);
   const root = process.argv[3];
   if (root === undefined) throw new Error('Generation cache worker needs a root');
-  pruneGenerationCache(root);
+  if (existsSync(root)) {
+    const base = resolve(root, '..'), blobs = resolve(base, 'blobs');
+    // Sample pool allocation before du: concurrent new blobs then reserve
+    // extra space conservatively. The potentially long walk takes no mutex.
+    let pooled = 0;
+    for (const name of existsSync(blobs) ? readdirSync(blobs) : []) if (hash.test(name)) pooled += lstatSync(resolve(blobs, name)).blocks * 512;
+    const usage = execFileSync('du', ['-sk', `${base}/`], { encoding: 'utf8', timeout: 30_000 });
+    const allocated = Number(usage.trim().split(/\s+/u)[0]) * 1024;
+    if (!Number.isSafeInteger(allocated) || allocated < 0) throw new Error('Invalid generation cache size census');
+    pruneGenerationCache(root, { cacheOverheadBytes: Math.max(0, allocated - pooled) });
+  }
 }

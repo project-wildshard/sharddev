@@ -105,7 +105,7 @@ export interface ProjectGenerationContext {
 /** Build entries are trusted functions; their returned declaration still crosses normal shardfile admission. */
 export function isProjectGenerator(input: unknown): input is (ctx: ProjectGenerationContext) => unknown { return typeof input === 'function'; }
 const stores = new WeakMap<ProjectGenerationContext, ReturnType<typeof generationCache>>();
-/** Seal the successful build's current keys, release its lease and schedule G430. */
+/** Seal completed generation's current keys, release its lease and schedule G430. */
 export async function finishProjectGeneration(context: ProjectGenerationContext, success: boolean): Promise<void> {
   const store = stores.get(context);
   if (store === undefined) return;

@@ -53,7 +53,9 @@ keeps the conservative program key. Cache indexes are in
 
 Generation schedules a low-priority collector on Mac and Linux. G430 keeps
 up to three recent keys per job, expires one-day history, then evicts LRU
-keys to a 20 GB blob cap. Live leases, current successful receipts and
+keys toward a 20 GB cache cap. A background allocation census reserves
+space for legacy indexes and codec memos outside the shared pool. Live
+leases, current successful receipts and
 legacy hardlinks survive even when their bytes exceed the cap. Removed
 checkouts release their receipts. Legacy key directories and codec memos
 are outside the new collector until their readers adopt its lock protocol.

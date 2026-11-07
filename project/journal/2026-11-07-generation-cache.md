@@ -56,3 +56,10 @@ Linux also showed the CLI command itself finished in 5.65 seconds, but
 Vitest's enclosing five-second deadline failed. Move that boundary proof
 to native node:test, separate from the transform-heavy loader proof. Both
 explicit CI commands stay under ten seconds; neither enters the hooks.
+
+The final size proof reproduced an omitted cost: flat codec memos and
+legacy indexes were outside the blob budget. The background worker now
+measures whole-cache allocation outside the mutex and reserves that
+overhead before LRU eviction. Physical blob blocks, not only payload
+lengths, spend the budget; live references still win. Sweep orphan
+publications first so they do not evict useful history unnecessarily.
