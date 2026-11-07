@@ -10,10 +10,11 @@ Run from the repo root.
 - `pnpm install`: installs deps and points `core.hooksPath` at `.githooks/`,
   through `pnpm:devPreinstall`. Never use `prepare` here (`../leftover/docs/repo-kit.md`).
 - `pnpm check`: typecheck + lint + format:check + unit tests + asks. The pre-push hook runs it.
-- `pnpm test`: `node:test` on `src/**/*.test.ts`, run as .ts by Node's type stripping.
+- `pnpm test`: `node:test` on `src/**/*.test.ts` outside `src/ci`, run as .ts by Node's type stripping.
 - `pnpm test:hooks`: the `.githooks/` suite (CI, and pre-commit when hooks change).
 - `pnpm dev`: esbuild watch + the server on http://127.0.0.1:4403.
 - `pnpm build`: builds the web app into `src/dist/web`.
+- `pnpm test:ci`: `src/ci`, outer-edge tests: `wildshard` as an install lays it out, on a real product. CI only, never a hook (J186).
 - `pnpm test:e2e`: Playwright against a built app. CI only.
 - `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
 - `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `pack <product>` tars a built product into a shardfile and `upload <shardfile>` sends one to api-server (`docs/design.md`).
@@ -27,7 +28,7 @@ The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md
 .editorconfig, `docs/`, `project/`, `src/` and the dot dirs. Scratch
 goes in `tmp/<task>/` and is deleted when done.
 
-- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import).
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import). `bin.mjs` is the installed entry: Node won't strip types under `node_modules`, so it installs format's hook first.
 - `src/cli/pack/`: `wildshard pack`: read the product, tar, validate, write.
 - `src/cli/upload/`: `sharddev upload`: check, compress, sign, ticket, PUT, commit.
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.

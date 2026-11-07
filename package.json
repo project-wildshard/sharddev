@@ -5,8 +5,8 @@
   "description": "The author's toolbox: the `wildshard` CLI that bakes shard source into a shardfile, the author SDK, the local dev server (engine client against engine server), the explorers, arena and drafts tool.",
   "type": "module",
   "bin": {
-    "sharddev": "./src/cli/main.ts",
-    "wildshard": "./src/cli/main.ts"
+    "sharddev": "./src/cli/bin.mjs",
+    "wildshard": "./src/cli/bin.mjs"
   },
   "engines": {
     "node": ">=24.18.0"
