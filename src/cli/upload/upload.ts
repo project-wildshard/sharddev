@@ -61,6 +61,26 @@ async function alreadyStored(
     : { hash, ...newest, alreadyStored: true }
 }
 
+/**
+ * Stored bytes still ask for a ticket: the listing says they are held, and
+ * only the ticket says today's format takes them. A break refuses them here.
+ */
+async function storedAndAdmitted(
+  options: UploadOptions,
+  signed: SignedShardfile,
+  tarballBytes: number,
+): Promise<UploadOutcome | undefined> {
+  const stored = await alreadyStored(options, signed.hash)
+  if (stored !== undefined) {
+    await requestTicket(
+      options,
+      { hash: signed.hash, storedBytes: tarballBytes },
+      signed.signature,
+    )
+  }
+  return stored
+}
+
 async function compressed(
   options: UploadOptions,
   tarball: Readonly<Uint8Array>,
@@ -129,7 +149,7 @@ async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const { slug, name } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
   const signed = signTarball(options.privateKey, tarball)
-  const stored = await alreadyStored(options, signed.hash)
+  const stored = await storedAndAdmitted(options, signed, tarball.length)
   const outcome = stored ?? (await deliver(options, tarball, signed))
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
   options.report(

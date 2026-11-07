@@ -45,6 +45,8 @@ interface UploadServerState {
   failPuts: number
   /** The reason commits are refused with, if any. */
   refuseCommit: string | undefined
+  /** The reason a ticket for stored bytes is refused with, if any. */
+  refuseStored: string | undefined
   /** Answer every API call with Vercel's HTML, as SSO does. */
   sso: boolean
 }
@@ -165,6 +167,15 @@ function ticket(double: Double, exchange: Exchange, body: string): void {
   const raw: unknown = JSON.parse(body)
   const request: TicketRequest = parse(TicketRequestSchema, raw)
   const { hash, storedBytes, contentEncoding } = request
+  const { refuseStored, revisions } = double.state
+  if (revisions.has(hash)) {
+    sendJson(
+      exchange.response,
+      refuseStored === undefined ? 200 : 422,
+      refuseStored === undefined ? { stored: true } : { error: refuseStored },
+    )
+    return
+  }
   const status = signedBy(double.key, hash, exchange.request) ? 200 : 401
   sendJson(exchange.response, status, {
     stored: false,
@@ -238,6 +249,7 @@ function newState(): UploadServerState {
     revisions: new Map(),
     failPuts: 0,
     refuseCommit: undefined,
+    refuseStored: undefined,
     sso: false,
   }
 }

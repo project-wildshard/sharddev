@@ -26,5 +26,5 @@
     "types": ["node"],
     "noEmit": true
   },
-  "include": ["cli", "test", "server", "shared", "tools", "e2e"]
+  "include": ["ci", "cli", "test", "server", "shared", "tools", "e2e"]
 }
