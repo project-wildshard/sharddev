@@ -12,6 +12,8 @@ import { createRequire } from 'node:module';
 import { setPriority } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Lock contention waits asynchronously, never busy-spins or recomputes a hit.
 import { setTimeout as delay } from 'node:timers/promises';
+// oxlint-disable-next-line import/no-nodejs-modules -- Native transactions release the shared cache mutex even after SIGKILL.
+import { DatabaseSync } from 'node:sqlite';
 
 const digest = (value: string | Uint8Array): string => createHash('sha256').update(value).digest('hex');
 const hash = /^[a-f0-9]{64}$/u;
@@ -37,18 +39,16 @@ function json(path: string, value: unknown): void {
 }
 function locked<T>(root: string, work: () => T): T | undefined {
   mkdirSync(root, { recursive: true });
-  const lock = resolve(root, '.lock');
-  try { mkdirSync(lock); }
-  catch (error) {
-    if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error;
-    try {
-      const owner = Number(readFileSync(resolve(lock, 'pid'), 'utf8'));
-      if (Number.isSafeInteger(owner) && owner > 0 && !live(owner)) rmSync(lock, { recursive: true });
-    } catch { if (existsSync(lock) && Date.now() - statSync(lock).mtimeMs > day) rmSync(lock, { recursive: true }); }
-    return undefined;
-  }
-  try { writeFileSync(resolve(lock, 'pid'), String(process.pid), { flag: 'wx' }); return work(); }
-  finally { rmSync(lock, { recursive: true, force: true }); }
+  const database = new DatabaseSync(resolve(root, '.mutex.sqlite'), { timeout: 0 });
+  try {
+    try { database.exec('BEGIN IMMEDIATE'); }
+    catch (error) {
+      if (error instanceof Error && 'errcode' in error && (error.errcode === 5 || error.errcode === 6)) return undefined;
+      throw error;
+    }
+    try { const value = work(); database.exec('COMMIT'); return value; }
+    catch (error) { database.exec('ROLLBACK'); throw error; }
+  } finally { database.close(); }
 }
 async function waitLocked<T>(root: string, work: () => T): Promise<T> {
   const deadline = Date.now() + 30_000;

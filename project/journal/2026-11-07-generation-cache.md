@@ -28,3 +28,9 @@ in the requested GEN-REPORT.md outside this repository.
 The explicit proof config also runs in the CI check job after pnpm check;
 the hook commands remain unchanged. Its local cold-compiler CLI proof and
 four storage/loader proofs passed in 5.27 seconds.
+
+Crash recovery exposed a real lock publication gap: an empty owner folder
+stranded a reader beyond 300 ms. Replace the owner-folder mutex with a
+native SQLite transaction, whose OS lock dies with its process. Two more
+outer-edge proofs cover that abandoned-folder state and SIGKILL while a
+real child holds the native mutex. No extra dependency or hook test.

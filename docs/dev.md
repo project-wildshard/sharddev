@@ -57,6 +57,8 @@ keys to a 20 GB blob cap. Live leases, current successful receipts and
 legacy hardlinks survive even when their bytes exceed the cap. Removed
 checkouts release their receipts. Legacy key directories and codec memos
 are outside the new collector until their readers adopt its lock protocol.
+The storage mutex uses a native SQLite transaction, released by the OS on
+process death; no stale owner-file repair is needed.
 
 The quick outer-edge proof is explicit, outside the hook test set:
 `pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs`.

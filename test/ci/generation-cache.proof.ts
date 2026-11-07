@@ -1,5 +1,6 @@
-import { spawnSync } from 'node:child_process'
+import { spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { once } from 'node:events'
 import {
   existsSync,
   linkSync,
@@ -195,6 +196,65 @@ test('legacy hardlinks reuse the shared pool and survive collection', async () =
   expect(statSync(blob).ino).toBe(inode)
   expect([...readFileSync(legacy)]).toEqual([7, 8])
   await next.finish(true)
+})
+
+test('a crash before publishing lock ownership cannot strand cache readers', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'default'),
+    key = 'a'.repeat(64)
+  await populate(store, key, new Uint8Array([1]))
+  const abandoned = resolve(store.root, '.lock')
+  mkdirSync(abandoned)
+  const pending = store.read('mesh', key)
+  let result
+  try {
+    result = await Promise.race([
+      pending,
+      new Promise(resolve => setTimeout(() => resolve('blocked'), 300)),
+    ])
+  } finally {
+    rmSync(abandoned, { recursive: true })
+    await pending
+  }
+  expect(result).not.toBe('blocked')
+  await store.finish(false)
+})
+
+test('a killed collector releases the native cache mutex', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'default'),
+    key = 'a'.repeat(64)
+  await populate(store, key, new Uint8Array([1]))
+  const script = `import {DatabaseSync} from 'node:sqlite';
+    const db=new DatabaseSync(${JSON.stringify(resolve(store.root, '.mutex.sqlite'))});
+    db.exec('BEGIN IMMEDIATE'); process.stdout.write('locked'); setInterval(()=>{},10000);`
+  const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  if (child.stdout === null) throw new Error('Missing collector proof output')
+  try {
+    await Promise.race([
+      once(child.stdout, 'data'),
+      once(child, 'exit').then(() => {
+        throw new Error('Collector exited before locking')
+      }),
+    ])
+    let settled = false
+    const pending = store.read('mesh', key).then(value => {
+      settled = true
+      return value
+    })
+    await new Promise(resolve => setTimeout(resolve, 20))
+    expect(settled).toBe(false)
+    const exited = once(child, 'exit')
+    child.kill('SIGKILL')
+    await exited
+    expect((await pending)?.key).toBe(key)
+  } finally {
+    if (child.exitCode === null && child.signalCode === null)
+      child.kill('SIGKILL')
+  }
+  await store.finish(false)
 })
 
 test('G430 expires history, keeps newest three and protects live and receipt keys under a size cap', async () => {
