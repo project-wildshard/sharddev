@@ -63,3 +63,11 @@ measures whole-cache allocation outside the mutex and reserves that
 overhead before LRU eviction. Physical blob blocks, not only payload
 lengths, spend the budget; live references still win. Sweep orphan
 publications first so they do not evict useful history unnecessarily.
+
+The disk pass finished with 1,390,272 file hashes preserved, 93,683
+published keys retained and zero equal-content groups on different
+inodes. Equal bytes now occupy 202,387 inodes. The tool linked 1,187,885
+paths and released 483.90 GB of file allocation; du measured 500.04 GB
+before and 16.22 GB after. The complete implementation passed Linux CI on
+3c544c4. Singleplayer remains a separate port until J189 removes its copy;
+the requested external report gives its precise remaining work.
