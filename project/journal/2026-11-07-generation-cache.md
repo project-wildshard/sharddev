@@ -34,3 +34,15 @@ stranded a reader beyond 300 ms. Replace the owner-folder mutex with a
 native SQLite transaction, whose OS lock dies with its process. Two more
 outer-edge proofs cover that abandoned-folder state and SIGKILL while a
 real child holds the native mutex. No extra dependency or hook test.
+
+Linux CI reproduced the smoke test's six-second child deadline: a full
+product build repeated the compiler-identity work already proved by the
+loader. Use the real CLI new command for the bundling/import boundary
+instead; it still catches the os-shim failure without a second bake.
+
+A real child racing the shared-pool publisher reproduced EEXIST during
+population. The external deduper does not take the store's mutex: accept
+its winning immutable link after checking size and SHA-256. The added
+proof publishes from a second process while the store writes its private
+temporary, so a background dedupe cannot fail an active build.
+All eight explicit proofs pass locally in 4.77 seconds after this change.

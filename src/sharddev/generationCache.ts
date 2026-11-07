@@ -101,18 +101,22 @@ export function generationCache(base: string, project: string, scope: string): {
         mkdirSync(blobs, { recursive: true });
         for (const bytes of files.values()) {
           const name = digest(bytes), target = resolve(blobs, name);
-          if (existsSync(target)) {
+          const verify = (): void => {
             if (statSync(target).size !== bytes.byteLength) throw new Error('Generation cache byte mismatch');
             const saved = readFileSync(target);
             if (saved.byteLength !== bytes.byteLength || digest(saved) !== name) throw new Error('Generation cache byte mismatch');
-            continue;
-          }
+          };
+          if (existsSync(target)) { verify(); continue; }
           const temporary = `${target}.${randomUUID()}.tmp`;
           try {
             writeFileSync(temporary, bytes, { flag: 'wx' });
             // link is exclusive: even an unexpected concurrent writer cannot
             // replace an already published content address.
-            linkSync(temporary, target);
+            try { linkSync(temporary, target); }
+            catch (error) {
+              if (!(error instanceof Error && 'code' in error && error.code === 'EEXIST')) throw error;
+              verify();
+            }
           } finally { rmSync(temporary, { force: true }); }
         }
         const parent = resolve(root, 'keys', projectName, step), target = resolve(parent, manifest.key);

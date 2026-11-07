@@ -100,34 +100,12 @@ function fixture(): string {
 const sha = (bytes: Uint8Array): string =>
   createHash('sha256').update(bytes).digest('hex')
 
-test('the real CLI bundles the recipe compiler and builds a tiny cached product', () => {
+test('the real CLI executes its bundled recipe compiler', () => {
   const root = fixture(),
-    out = resolve(root, 'out')
-  const source = emptyShardfile({
-    slug: 'cli-cache-proof',
-    name: 'CLI cache proof',
-    author: 'Test',
-    revision: 1,
-    seed: 3,
-  })
-  writeFileSync(
-    resolve(root, 'shard.config.ts'),
-    `export default async function(ctx){
-    await ctx.cached({id:'bytes'},()=>new Map([['body.bin',new Uint8Array([1,2,3])]]));
-    return ${JSON.stringify(source)};
-  }`,
-  )
+    out = resolve(root, 'new-project')
   const child = spawnSync(
     process.execPath,
-    [
-      resolve('bin/wildshard.mjs'),
-      'build',
-      root,
-      out,
-      '--product-only',
-      '--no-placeholders',
-      '--format=2',
-    ],
+    [resolve('bin/wildshard.mjs'), 'new', out, 'cli-cache-proof'],
     {
       env: { ...process.env, WILDSHARD_GEN_CACHE: resolve(root, 'cache') },
       encoding: 'utf8',
@@ -135,7 +113,7 @@ test('the real CLI bundles the recipe compiler and builds a tiny cached product'
     },
   )
   expect(child.status, child.stderr).toBe(0)
-  expect(existsSync(resolve(out, 'shard.json'))).toBe(true)
+  expect(existsSync(resolve(out, 'shard.config.ts'))).toBe(true)
 })
 
 async function populate(
@@ -253,6 +231,37 @@ test('a killed collector releases the native cache mutex', async () => {
   } finally {
     if (child.exitCode === null && child.signalCode === null)
       child.kill('SIGKILL')
+  }
+  await store.finish(false)
+})
+
+test('a concurrent hardlink publisher may win the blob race without failing a build', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'default')
+  const bytes = new Uint8Array(64 * 1024 * 1024).fill(7),
+    reference = resolve(base, 'reference.bin'),
+    target = resolve(store.blobs, sha(bytes))
+  writeFileSync(reference, bytes)
+  mkdirSync(store.blobs, { recursive: true })
+  const script = `import {watch,linkSync} from 'node:fs';
+    const watcher=watch(${JSON.stringify(store.blobs)},(_,name)=>{
+      if(name?.endsWith('.tmp')) {linkSync(${JSON.stringify(reference)},${JSON.stringify(target)});watcher.close();}
+    });process.stdout.write('ready');`
+  const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
+    stdio: ['ignore', 'pipe', 'pipe'],
+  })
+  if (child.stdout === null) throw new Error('Missing publisher proof output')
+  const exited = once(child, 'exit')
+  try {
+    await once(child.stdout, 'data')
+    await populate(store, 'a'.repeat(64), bytes)
+    await exited
+    expect(statSync(target).ino).toBe(statSync(reference).ino)
+  } finally {
+    if (child.exitCode === null && child.signalCode === null) {
+      child.kill('SIGKILL')
+      await exited
+    }
   }
   await store.finish(false)
 })
