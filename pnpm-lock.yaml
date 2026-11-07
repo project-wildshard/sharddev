@@ -12,8 +12,8 @@ importers:
         specifier: 2.1.5
         version: 2.1.5(hono@4.13.13)
       '@wildshard/format':
-        specifier: github:project-wildshard/shardfile#v0.4.1
-        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/298f076f4c942036b8c265e25f6cd50d0eff81bd(typescript@7.0.2)
+        specifier: github:project-wildshard/shardfile#v0.4.2
+        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50(typescript@7.0.2)
       hono:
         specifier: 4.13.13
         version: 4.13.13
@@ -122,9 +122,9 @@ packages:
     cpu: [x64]
     os: [linux]
 
-  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/298f076f4c942036b8c265e25f6cd50d0eff81bd':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/298f076f4c942036b8c265e25f6cd50d0eff81bd}
-    version: 0.4.1
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50':
+    resolution: {gitHosted: true, integrity: sha512-8Y4e4XeEqJgWxL+yj7a2R+EDZaR96nGEdlKoezKj7I6TWorA3ZBmWdr3PleCN8pVwa0SSwDsOsl5nTdv2G60ng==, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50}
+    version: 0.4.2
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -342,7 +342,7 @@ snapshots:
   '@typescript/typescript-linux-x64@7.0.2':
     optional: true
 
-  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/298f076f4c942036b8c265e25f6cd50d0eff81bd(typescript@7.0.2)':
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)
