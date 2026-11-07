@@ -62,6 +62,8 @@ process death; no stale owner-file repair is needed.
 
 The quick outer-edge proof is explicit, outside the hook test set:
 `pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs`.
+The separate native CLI boundary proof avoids paying for a second test
+loader: `node --test test/ci/generation-cli.test.mjs`.
 
 ## Code rules
 

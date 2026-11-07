@@ -29,8 +29,12 @@ function live(pid: number): boolean {
   catch (error) { return !(error instanceof Error && 'code' in error && error.code === 'ESRCH'); }
 }
 function directories(path: string): string[] {
-  if (!existsSync(path)) return [];
-  return readdirSync(path, { withFileTypes: true }).filter(row => row.isDirectory() && !row.isSymbolicLink()).map(row => row.name);
+  const top = lstatSync(path, { throwIfNoEntry: false });
+  if (top === undefined) return [];
+  if (top.isSymbolicLink()) throw new Error('Linked generation index tree');
+  const entries = readdirSync(path, { withFileTypes: true });
+  if (entries.some(row => row.isSymbolicLink())) throw new Error('Linked generation index tree');
+  return entries.filter(row => row.isDirectory()).map(row => row.name);
 }
 function json(path: string, value: unknown): void {
   const temporary = `${path}.${randomUUID()}.tmp`;
@@ -39,6 +43,7 @@ function json(path: string, value: unknown): void {
 }
 function locked<T>(root: string, work: () => T): T | undefined {
   mkdirSync(root, { recursive: true });
+  if (lstatSync(root).isSymbolicLink()) throw new Error('Linked generation cache root');
   const database = new DatabaseSync(resolve(root, '.mutex.sqlite'), { timeout: 0 });
   try {
     try { database.exec('BEGIN IMMEDIATE'); }
@@ -166,15 +171,21 @@ export function pruneGenerationCache(root: string, options: { now?: number; maxB
     const entries: Entry[] = [];
     for (const project of directories(resolve(root, 'keys'))) for (const step of directories(resolve(root, 'keys', project))) {
       for (const key of directories(resolve(root, 'keys', project, step))) {
-        if (!hash.test(key)) continue;
         const path = resolve(root, 'keys', project, step, key);
+        if (/^\.writing-[a-zA-Z0-9]{6}$/u.test(key)) { rmSync(path, { recursive: true }); continue; }
+        if (!hash.test(key)) throw new Error('Invalid generation key directory');
         const manifest = JSON.parse(readFileSync(resolve(path, 'index.json'), 'utf8')) as GenerationManifest;
         if (manifest.key !== key || !Array.isArray(manifest.files) || manifest.files.some(row => !hash.test(row.hash))) throw new Error('Invalid generation index');
         entries.push({ path, key, job: `${project}/${step}`, used: statSync(path).mtimeMs, blobs: manifest.files.map(row => row.hash) });
       }
     }
     const blobs = resolve(root, '..', 'blobs'), blobSizes = new Map<string, number>(), legacyLinks = new Set<string>();
-    for (const name of existsSync(blobs) ? readdirSync(blobs) : []) {
+    if (lstatSync(blobs, { throwIfNoEntry: false })?.isSymbolicLink()) throw new Error('Linked generation blob pool');
+    const blobNames = existsSync(blobs) ? readdirSync(blobs) : [];
+    // No publisher can hold a private temporary while this mutex is held.
+    // Drop interrupted private links before classifying real legacy aliases.
+    for (const name of blobNames) if (/^[a-f0-9]{64}\.[a-f0-9-]{36}\.tmp$/u.test(name)) rmSync(resolve(blobs, name));
+    for (const name of blobNames) {
       if (!hash.test(name)) continue;
       const info = lstatSync(resolve(blobs, name));
       if (!info.isFile() || info.isSymbolicLink()) throw new Error('Invalid generation blob');

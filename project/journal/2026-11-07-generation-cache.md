@@ -46,3 +46,13 @@ its winning immutable link after checking size and SHA-256. The added
 proof publishes from a second process while the store writes its private
 temporary, so a background dedupe cannot fail an active build.
 All eight explicit proofs pass locally in 4.77 seconds after this change.
+
+Two final fault proofs reproduced unsafe collection of linked indexes and
+retention of an interrupted private blob link. Reject linked index trees,
+and clear private blob/index staging under the storage mutex before
+classifying legacy links. Current public blobs remain marked and live.
+
+Linux also showed the CLI command itself finished in 5.65 seconds, but
+Vitest's enclosing five-second deadline failed. Move that boundary proof
+to native node:test, separate from the transform-heavy loader proof. Both
+explicit CI commands stay under ten seconds; neither enters the hooks.

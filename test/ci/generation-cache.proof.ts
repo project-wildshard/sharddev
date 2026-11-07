@@ -9,7 +9,9 @@ import {
   readFileSync,
   readdirSync,
   rmSync,
+  renameSync,
   statSync,
+  symlinkSync,
   utimesSync,
   writeFileSync,
 } from 'node:fs'
@@ -99,22 +101,6 @@ function fixture(): string {
 }
 const sha = (bytes: Uint8Array): string =>
   createHash('sha256').update(bytes).digest('hex')
-
-test('the real CLI executes its bundled recipe compiler', () => {
-  const root = fixture(),
-    out = resolve(root, 'new-project')
-  const child = spawnSync(
-    process.execPath,
-    [resolve('bin/wildshard.mjs'), 'new', out, 'cli-cache-proof'],
-    {
-      env: { ...process.env, WILDSHARD_GEN_CACHE: resolve(root, 'cache') },
-      encoding: 'utf8',
-      timeout: 6_000,
-    },
-  )
-  expect(child.status, child.stderr).toBe(0)
-  expect(existsSync(resolve(out, 'shard.config.ts'))).toBe(true)
-})
 
 async function populate(
   store: ReturnType<typeof generationCache>,
@@ -264,6 +250,57 @@ test('a concurrent hardlink publisher may win the blob race without failing a bu
     }
   }
   await store.finish(false)
+})
+
+test('collection fails closed on linked cache trees and retains their live bytes', async () => {
+  for (const location of ['project', 'keys', 'blobs']) {
+    const base = fixture(),
+      project = resolve(base, 'project')
+    mkdirSync(project)
+    const store = generationCache(base, project, 'default'),
+      bytes = new Uint8Array([1])
+    await populate(store, 'a'.repeat(64), bytes)
+    await store.finish(true)
+    const tree =
+        location === 'blobs'
+          ? store.blobs
+          : location === 'keys'
+            ? resolve(store.root, 'keys')
+            : resolve(store.root, 'keys', 'project'),
+      moved = resolve(base, 'moved-keys')
+    renameSync(tree, moved)
+    symlinkSync(moved, tree, 'dir')
+    expect(() => pruneGenerationCache(store.root)).toThrow(/linked/iu)
+    expect([...readFileSync(resolve(store.blobs, sha(bytes)))]).toEqual([1])
+  }
+})
+
+test('collection removes interrupted private publications without retaining orphan blob links', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'default'),
+    bytes = new Uint8Array([1])
+  await populate(store, 'a'.repeat(64), bytes)
+  await store.finish(true)
+  const orphan = new Uint8Array([2]),
+    name = sha(orphan)
+  const temporary = resolve(
+    store.blobs,
+    `${name}.00000000-0000-4000-8000-000000000000.tmp`,
+  )
+  writeFileSync(temporary, orphan)
+  linkSync(temporary, resolve(store.blobs, name))
+  const staging = resolve(
+    store.root,
+    'keys',
+    base.split('/').at(-1) ?? '',
+    'mesh',
+    '.writing-ABC123',
+  )
+  mkdirSync(staging)
+  writeFileSync(resolve(staging, 'index.json'), '{}')
+  expect(pruneGenerationCache(store.root)?.bytes).toBe(1)
+  expect(readdirSync(store.blobs)).toEqual([sha(bytes)])
+  expect(existsSync(staging)).toBe(false)
 })
 
 test('G430 expires history, keeps newest three and protects live and receipt keys under a size cap', async () => {
