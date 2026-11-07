@@ -1,0 +1,2486 @@
+{
+  "rule": "lower CLAP rank wins, ties to the higher p; ships only in the top 5",
+  "wins": {
+    "moss": 57,
+    "sa3-medium": 57,
+    "synth": 4,
+    "kept-round-2": 2
+  },
+  "families": {
+    "bed-forest": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.967
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.993
+      }
+    },
+    "bed-island": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.958
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.931
+      }
+    },
+    "bed-underwater": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.896
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.951
+      }
+    },
+    "hum-pickup": {
+      "winner": "moss",
+      "moss": {
+        "rank": 2,
+        "p": 0.008
+      },
+      "sa3-medium": {
+        "rank": 8,
+        "p": 0.011
+      }
+    },
+    "hum-shrine": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.989
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.468
+      }
+    },
+    "crossbowFire": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 4,
+        "p": 0.0
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.004
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "dryFire": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.643
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.166
+      }
+    },
+    "boltImpact-wood": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.832
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.985
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "boltImpact-ground": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.97
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.996
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "boltImpact-flesh": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 4,
+        "p": 0.002
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.001
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "swordSwing": {
+      "winner": "moss",
+      "moss": {
+        "rank": 3,
+        "p": 0.058
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.007
+      }
+    },
+    "swordHeavy": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.816
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.164
+      }
+    },
+    "swordHit-flesh": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.442
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.644
+      }
+    },
+    "swordHit-wood": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.371
+      },
+      "sa3-medium": {
+        "rank": 6,
+        "p": 0.071
+      }
+    },
+    "dodge": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.905
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.895
+      }
+    },
+    "lunge": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 6,
+        "p": 0.009
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.058
+      }
+    },
+    "reload": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.977
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.183
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "rifleFire": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.508
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.775
+      }
+    },
+    "rifleReload": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.483
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.899
+      }
+    },
+    "weaponSwap": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.812
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.44
+      }
+    },
+    "footstep-litter": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.143
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.322
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "footstep-planks": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.519
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.369
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "footstep-sand": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.285
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.68
+      }
+    },
+    "jump": {
+      "winner": "synth",
+      "moss": {
+        "rank": 11,
+        "p": 0.004
+      },
+      "sa3-medium": {
+        "rank": 32,
+        "p": 0.0
+      }
+    },
+    "land": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 7,
+        "p": 0.021
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.696
+      }
+    },
+    "land-hard": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.993
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.953
+      }
+    },
+    "splash": {
+      "winner": "moss",
+      "moss": {
+        "rank": 3,
+        "p": 0.011
+      },
+      "sa3-medium": {
+        "rank": 14,
+        "p": 0.0
+      }
+    },
+    "wadeStep": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.919
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.856
+      }
+    },
+    "swimStroke": {
+      "winner": "moss",
+      "moss": {
+        "rank": 5,
+        "p": 0.009
+      },
+      "sa3-medium": {
+        "rank": 6,
+        "p": 0.001
+      }
+    },
+    "waterExit": {
+      "winner": "moss",
+      "moss": {
+        "rank": 4,
+        "p": 0.014
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.009
+      }
+    },
+    "dive": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.938
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.831
+      }
+    },
+    "surface": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.95
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.898
+      }
+    },
+    "hitMarker": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 18,
+        "p": 0.0
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.004
+      }
+    },
+    "kill": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.004
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.601
+      }
+    },
+    "gull": {
+      "winner": "moss",
+      "moss": {
+        "rank": 5,
+        "p": 0.008
+      },
+      "sa3-medium": {
+        "rank": 6,
+        "p": 0.014
+      }
+    },
+    "deer_call": {
+      "winner": "kept-round-2",
+      "moss": {
+        "rank": 10,
+        "p": 0.01
+      },
+      "sa3-medium": {
+        "rank": 8,
+        "p": 0.011
+      },
+      "round": "pine-hollow",
+      "into": "best",
+      "kept": {
+        "winner": "kept-round-2",
+        "moss": {
+          "rank": 10,
+          "p": 0.01
+        },
+        "sa3-medium": {
+          "rank": 8,
+          "p": 0.011
+        },
+        "round": "pine-hollow",
+        "into": "best",
+        "kept": {
+          "winner": "kept-round-2",
+          "moss": {
+            "rank": 10,
+            "p": 0.01
+          },
+          "sa3-medium": {
+            "rank": 8,
+            "p": 0.011
+          },
+          "round": "pine-hollow",
+          "into": "best",
+          "kept": {
+            "winner": "moss",
+            "moss": {
+              "rank": 3,
+              "p": 0.047
+            },
+            "sa3-medium": {
+              "rank": 3,
+              "p": 0.008
+            }
+          }
+        }
+      }
+    },
+    "boar_grunt": {
+      "winner": "kept-round-2",
+      "moss": {
+        "rank": 10,
+        "p": 0.001
+      },
+      "sa3-medium": {
+        "rank": 20,
+        "p": 0.001
+      },
+      "round": "pine-hollow",
+      "into": "best",
+      "kept": {
+        "winner": "kept-round-2",
+        "moss": {
+          "rank": 10,
+          "p": 0.001
+        },
+        "sa3-medium": {
+          "rank": 20,
+          "p": 0.001
+        },
+        "round": "pine-hollow",
+        "into": "best",
+        "kept": {
+          "winner": "kept-round-2",
+          "moss": {
+            "rank": 10,
+            "p": 0.001
+          },
+          "sa3-medium": {
+            "rank": 20,
+            "p": 0.001
+          },
+          "round": "pine-hollow",
+          "into": "best",
+          "kept": {
+            "winner": "sa3-medium",
+            "moss": {
+              "rank": 6,
+              "p": 0.004
+            },
+            "sa3-medium": {
+              "rank": 4,
+              "p": 0.025
+            }
+          }
+        }
+      }
+    },
+    "hoofsteps": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.795
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.078
+      }
+    },
+    "boar_squeal": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 10,
+        "p": 0.011
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.04
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "elk_bugle": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.201
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.809
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "bear_growl": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.008
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.023
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "bear_roar": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.933
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.844
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "bear_hurt": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.982
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.248
+      }
+    },
+    "crab_click": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.145
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.365
+      }
+    },
+    "crab_snap": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.533
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.688
+      }
+    },
+    "monkey_chatter": {
+      "winner": "moss",
+      "moss": {
+        "rank": 3,
+        "p": 0.06
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.04
+      }
+    },
+    "monkey_shriek": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.014
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.073
+      }
+    },
+    "sailor_groan": {
+      "winner": "moss",
+      "moss": {
+        "rank": 3,
+        "p": 0.112
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.038
+      }
+    },
+    "sailor_slash": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.956
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.62
+      }
+    },
+    "coconut_hit": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.43
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.149
+      }
+    },
+    "coconut_land": {
+      "winner": "moss",
+      "moss": {
+        "rank": 3,
+        "p": 0.122
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.041
+      }
+    },
+    "boltImpact-rock": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.124
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.148
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "deer_snort": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 8,
+        "p": 0.005
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.037
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "footstep-mud": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.949
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.033
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "footstep-rock": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.466
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.542
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "footstep-wet": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 5,
+        "p": 0.039
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.077
+      },
+      "round": "pine-hollow",
+      "into": "best"
+    },
+    "leverCycle": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.969
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.956
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "leverShot": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.998
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.976
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "leverEcho": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.619
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.701
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "longbowDraw": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.943
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.007
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "longbowLoose": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 7,
+        "p": 0.01
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.114
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "thrall_call": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.204
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.846
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "thrall_groan": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.522
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.796
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "thrall_move": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.421
+      },
+      "sa3-medium": {
+        "rank": 7,
+        "p": 0.01
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "king_bells": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.512
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.056
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "king_stomp": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.978
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.991
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "king_roar": {
+      "winner": "moss",
+      "moss": {
+        "rank": 2,
+        "p": 0.38
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.315
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "doorOpen": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 4,
+        "p": 0.088
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.107
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "doorClose": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.522
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.053
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "lanternLight": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.538
+      },
+      "sa3-medium": {
+        "rank": 10,
+        "p": 0.0
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "lanternCreak": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.776
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.139
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "zipline": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.41
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.038
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-hollow": {
+      "winner": "moss",
+      "moss": {
+        "rank": 4,
+        "p": 0.053
+      },
+      "sa3-medium": {
+        "rank": 8,
+        "p": 0.02
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-pond": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.753
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.143
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-cabin": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.945
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.963
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-creek": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.924
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.703
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-waterfall": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.839
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.554
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-mill": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.957
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.113
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-ridge": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.579
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.156
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-oldgrowth": {
+      "winner": "moss",
+      "moss": {
+        "rank": 2,
+        "p": 0.364
+      },
+      "sa3-medium": {
+        "rank": 9,
+        "p": 0.014
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-cave": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.888
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.465
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-night": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.737
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.918
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-nightfog": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.122
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.314
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-rain-canopy": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.797
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.861
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-rain-open": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.775
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.401
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bed-dawn": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.982
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.978
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-1": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 33,
+        "p": 0.0
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.054
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-2": {
+      "winner": "synth",
+      "moss": {
+        "rank": 8,
+        "p": 0.002
+      },
+      "sa3-medium": {
+        "rank": 11,
+        "p": 0.012
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-3": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.755
+      },
+      "sa3-medium": {
+        "rank": 6,
+        "p": 0.072
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-4": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 10,
+        "p": 0.002
+      },
+      "sa3-medium": {
+        "rank": 5,
+        "p": 0.013
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-5": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.907
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 1.0
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-6": {
+      "winner": "synth",
+      "moss": {
+        "rank": 28,
+        "p": 0.0
+      },
+      "sa3-medium": {
+        "rank": 13,
+        "p": 0.0
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-7": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.298
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.999
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-ranger-8": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 7,
+        "p": 0.015
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.118
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-1": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.363
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.749
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-2": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.588
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.812
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-3": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.801
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.994
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-4": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.974
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.964
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-5": {
+      "winner": "synth",
+      "moss": {
+        "rank": 8,
+        "p": 0.005
+      },
+      "sa3-medium": {
+        "rank": 10,
+        "p": 0.0
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-6": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.996
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.835
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-7": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 6,
+        "p": 0.072
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.015
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-miller-8": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.215
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.374
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-1": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 10,
+        "p": 0.008
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.64
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-2": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 8,
+        "p": 0.01
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.03
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-3": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.215
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.53
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-4": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 15,
+        "p": 0.001
+      },
+      "sa3-medium": {
+        "rank": 3,
+        "p": 0.146
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-5": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.72
+      },
+      "sa3-medium": {
+        "rank": 4,
+        "p": 0.018
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-6": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 4,
+        "p": 0.089
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.027
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-7": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 6,
+        "p": 0.012
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.468
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "bark-trader-8": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 5,
+        "p": 0.025
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.275
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "raven_caw": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.999
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.999
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "raven_pair": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.139
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.223
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "raven_flap": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 3,
+        "p": 0.024
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.657
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "owl_hoot": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 2,
+        "p": 0.291
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.662
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "woodpecker_drum": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.972
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.623
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "woodpecker_call": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 14,
+        "p": 0.002
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.467
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "skinCut-a": {
+      "winner": "moss",
+      "moss": {
+        "rank": 2,
+        "p": 0.155
+      },
+      "sa3-medium": {
+        "rank": 7,
+        "p": 0.001
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "skinCut-b": {
+      "winner": "moss",
+      "moss": {
+        "rank": 1,
+        "p": 0.865
+      },
+      "sa3-medium": {
+        "rank": 6,
+        "p": 0.004
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "leverDry": {
+      "winner": "sa3-medium",
+      "moss": {
+        "rank": 1,
+        "p": 0.875
+      },
+      "sa3-medium": {
+        "rank": 1,
+        "p": 0.904
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    },
+    "leverRoundIn": {
+      "winner": "moss",
+      "moss": {
+        "rank": 2,
+        "p": 0.039
+      },
+      "sa3-medium": {
+        "rank": 2,
+        "p": 0.02
+      },
+      "round": "pine-hollow",
+      "into": "pine-hollow"
+    }
+  },
+  "nalati": {
+    "rule": "per family: each model's best take by CLAP (siblings in a group not competing); the lower rank wins, ties to the higher p; ships only in the top 5",
+    "wins": {
+      "moss": 24,
+      "medium": 27,
+      "synth": 0,
+      "missing": 0
+    },
+    "bytes": 2407229,
+    "families": {
+      "wolf_howl": {
+        "moss": {
+          "rank": 2,
+          "p": 0.41,
+          "seed": 3,
+          "best_match": "a wolf yelping in pain"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.298,
+          "seed": 2,
+          "best_match": "a wolf yelping in pain"
+        },
+        "winner": "moss"
+      },
+      "wolf_snarl": {
+        "moss": {
+          "rank": 1,
+          "p": 1.0,
+          "seed": 1,
+          "best_match": "a wolf snarling and growling through bared teeth"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.911,
+          "seed": 3,
+          "best_match": "a wolf snarling and growling through bared teeth"
+        },
+        "winner": "moss"
+      },
+      "wolf_bite": {
+        "moss": {
+          "rank": 1,
+          "p": 0.326,
+          "seed": 1,
+          "best_match": "a wolf's jaws snapping shut in a bite"
+        },
+        "medium": {
+          "rank": 13,
+          "p": 0.002,
+          "seed": 1,
+          "best_match": "a curved steel sabre swishing through the air"
+        },
+        "winner": "moss"
+      },
+      "wolf_yip": {
+        "moss": {
+          "rank": 1,
+          "p": 0.52,
+          "seed": 3,
+          "best_match": "a wolf yipping excitedly"
+        },
+        "medium": {
+          "rank": 4,
+          "p": 0.132,
+          "seed": 2,
+          "best_match": "a dog yelping in pain"
+        },
+        "winner": "moss"
+      },
+      "wolf_yelp": {
+        "moss": {
+          "rank": 1,
+          "p": 0.8,
+          "seed": 3,
+          "best_match": "a wolf yelping in pain"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.507,
+          "seed": 1,
+          "best_match": "a wolf yelping in pain"
+        },
+        "winner": "moss"
+      },
+      "horse_neigh": {
+        "moss": {
+          "rank": 21,
+          "p": 0.0,
+          "seed": 1,
+          "best_match": "a wolf yelping in pain"
+        },
+        "medium": {
+          "rank": 3,
+          "p": 0.077,
+          "seed": 1,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "winner": "medium"
+      },
+      "horse_snort": {
+        "moss": {
+          "rank": 1,
+          "p": 0.922,
+          "seed": 3,
+          "best_match": "a horse snorting through its nostrils"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.735,
+          "seed": 1,
+          "best_match": "a horse snorting through its nostrils"
+        },
+        "winner": "moss"
+      },
+      "horse_squeal": {
+        "moss": {
+          "rank": 1,
+          "p": 0.705,
+          "seed": 2,
+          "best_match": "an angry stallion squealing"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.942,
+          "seed": 2,
+          "best_match": "an angry stallion squealing"
+        },
+        "winner": "medium"
+      },
+      "dog_bark": {
+        "moss": {
+          "rank": 1,
+          "p": 0.944,
+          "seed": 1,
+          "best_match": "a large herding dog barking"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.811,
+          "seed": 3,
+          "best_match": "a large herding dog barking"
+        },
+        "winner": "moss"
+      },
+      "dog_yelp": {
+        "moss": {
+          "rank": 2,
+          "p": 0.142,
+          "seed": 2,
+          "best_match": "a wolf yelping in pain"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.513,
+          "seed": 1,
+          "best_match": "a dog yelping in pain"
+        },
+        "winner": "medium"
+      },
+      "sheep_bleat": {
+        "moss": {
+          "rank": 1,
+          "p": 0.816,
+          "seed": 2,
+          "best_match": "a sheep bleating"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.998,
+          "seed": 1,
+          "best_match": "a sheep bleating"
+        },
+        "winner": "medium"
+      },
+      "marmot_whistle": {
+        "moss": {
+          "rank": 1,
+          "p": 0.926,
+          "seed": 2,
+          "best_match": "a marmot's piercing alarm whistle"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.991,
+          "seed": 1,
+          "best_match": "a marmot's piercing alarm whistle"
+        },
+        "winner": "medium"
+      },
+      "eagle_cry": {
+        "moss": {
+          "rank": 3,
+          "p": 0.236,
+          "seed": 2,
+          "best_match": "a wolf yelping in pain"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.238,
+          "seed": 3,
+          "best_match": "a curved steel sabre swishing through the air"
+        },
+        "winner": "medium"
+      },
+      "leopard_growl": {
+        "moss": {
+          "rank": 3,
+          "p": 0.017,
+          "seed": 3,
+          "best_match": "a wolf snarling and growling through bared teeth"
+        },
+        "medium": {
+          "rank": 14,
+          "p": 0.0,
+          "seed": 1,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "winner": "moss"
+      },
+      "king_call": {
+        "moss": {
+          "rank": 2,
+          "p": 0.104,
+          "seed": 2,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "medium": {
+          "rank": 16,
+          "p": 0.003,
+          "seed": 3,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "winner": "moss"
+      },
+      "king_hurt": {
+        "moss": {
+          "rank": 1,
+          "p": 0.996,
+          "seed": 3,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.977,
+          "seed": 3,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "winner": "moss"
+      },
+      "hoof-grass": {
+        "moss": {
+          "rank": 2,
+          "p": 0.064,
+          "seed": 2,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "medium": {
+          "rank": 7,
+          "p": 0.022,
+          "seed": 1,
+          "best_match": "an arrow hitting an animal's body"
+        },
+        "winner": "moss"
+      },
+      "hoof-gravel": {
+        "moss": {
+          "rank": 2,
+          "p": 0.0,
+          "seed": 1,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "medium": {
+          "rank": 3,
+          "p": 0.24,
+          "seed": 1,
+          "best_match": "a single footstep on gravel"
+        },
+        "winner": "moss"
+      },
+      "hoof-wood": {
+        "moss": {
+          "rank": 2,
+          "p": 0.083,
+          "seed": 2,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.218,
+          "seed": 1,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "winner": "medium"
+      },
+      "stampede": {
+        "moss": {
+          "rank": 1,
+          "p": 1.0,
+          "seed": 2,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.994,
+          "seed": 2,
+          "best_match": "a herd of wild horses stampeding past"
+        },
+        "winner": "moss"
+      },
+      "footstep-grass": {
+        "moss": {
+          "rank": 1,
+          "p": 0.949,
+          "seed": 2,
+          "best_match": "a single footstep on tall dry grass"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.933,
+          "seed": 1,
+          "best_match": "a single footstep on tall dry grass"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 1 p 0.949 (kept)",
+          "moss seed 1 rank 1 p 0.598 (kept)"
+        ]
+      },
+      "footstep-gravel": {
+        "moss": {
+          "rank": 1,
+          "p": 0.893,
+          "seed": 2,
+          "best_match": "a single footstep on gravel"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.474,
+          "seed": 3,
+          "best_match": "a single footstep on gravel"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 1 p 0.893 (kept)",
+          "moss seed 1 rank 1 p 0.727 (kept)"
+        ]
+      },
+      "bowDraw": {
+        "moss": {
+          "rank": 1,
+          "p": 0.43,
+          "seed": 3,
+          "best_match": "a small click and creak of a bow held at full draw"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.99,
+          "seed": 3,
+          "best_match": "a wooden bow being drawn with a creak"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 3 rank 1 p 0.99 (kept)",
+          "medium seed 2 rank 1 p 0.906 (kept)"
+        ]
+      },
+      "bowFullDraw": {
+        "moss": {
+          "rank": 3,
+          "p": 0.018,
+          "seed": 2,
+          "best_match": "silence"
+        },
+        "medium": {
+          "rank": 5,
+          "p": 0.018,
+          "seed": 2,
+          "best_match": "a bow string twanging as an arrow is shot"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 3 p 0.018 (kept)"
+        ]
+      },
+      "bowLetDown": {
+        "moss": {
+          "rank": 5,
+          "p": 0.047,
+          "seed": 2,
+          "best_match": "a sabre slashing into flesh"
+        },
+        "medium": {
+          "rank": 14,
+          "p": 0.001,
+          "seed": 1,
+          "best_match": "a wooden bow being drawn with a creak"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 5 p 0.047 (kept)"
+        ]
+      },
+      "bowTwang": {
+        "moss": {
+          "rank": 2,
+          "p": 0.235,
+          "seed": 2,
+          "best_match": "an arrow thudding into wood and quivering"
+        },
+        "medium": {
+          "rank": 6,
+          "p": 0.016,
+          "seed": 3,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 2 p 0.235 (kept)",
+          "moss seed 1 rank 2 p 0.161 (kept)"
+        ]
+      },
+      "arrowWhoosh": {
+        "moss": {
+          "rank": 1,
+          "p": 0.829,
+          "seed": 2,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.956,
+          "seed": 2,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 2 rank 1 p 0.956 (kept)",
+          "medium seed 1 rank 1 p 0.92 (kept)"
+        ]
+      },
+      "arrowImpact-wood": {
+        "moss": {
+          "rank": 3,
+          "p": 0.034,
+          "seed": 3,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.775,
+          "seed": 2,
+          "best_match": "an arrow thudding into wood and quivering"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 2 rank 1 p 0.775 (kept)",
+          "medium seed 3 rank 1 p 0.707 (kept)"
+        ]
+      },
+      "arrowImpact-ground": {
+        "moss": {
+          "rank": 20,
+          "p": 0.003,
+          "seed": 1,
+          "best_match": "wind blowing through tall grass on an open steppe"
+        },
+        "medium": {
+          "rank": 5,
+          "p": 0.006,
+          "seed": 2,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 2 rank 5 p 0.006 (kept)"
+        ]
+      },
+      "arrowImpact-flesh": {
+        "moss": {
+          "rank": 3,
+          "p": 0.053,
+          "seed": 3,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.687,
+          "seed": 3,
+          "best_match": "an arrow hitting an animal's body"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 3 rank 1 p 0.687 (kept)",
+          "medium seed 2 rank 2 p 0.367 (kept)"
+        ]
+      },
+      "sabreSwing": {
+        "moss": {
+          "rank": 1,
+          "p": 0.938,
+          "seed": 1,
+          "best_match": "a curved steel sabre swishing through the air"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.226,
+          "seed": 2,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 1 rank 1 p 0.938 (kept)",
+          "moss seed 2 rank 1 p 0.744 (kept)"
+        ]
+      },
+      "sabreHit-flesh": {
+        "moss": {
+          "rank": 1,
+          "p": 0.919,
+          "seed": 3,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.99,
+          "seed": 3,
+          "best_match": "a sabre slashing into flesh"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 3 rank 1 p 0.99 (kept)",
+          "medium seed 2 rank 1 p 0.983 (kept)"
+        ]
+      },
+      "sabreHit-wood": {
+        "moss": {
+          "rank": 1,
+          "p": 0.99,
+          "seed": 2,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.994,
+          "seed": 2,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 2 rank 1 p 0.994 (kept)",
+          "medium seed 1 rank 1 p 0.805 (kept)"
+        ]
+      },
+      "spearThrust": {
+        "moss": {
+          "rank": 3,
+          "p": 0.021,
+          "seed": 12,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.137,
+          "seed": 23,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 23 rank 2 p 0.137 (new)",
+          "medium seed 22 rank 3 p 0.041 (new)"
+        ]
+      },
+      "javelinThrow": {
+        "moss": {
+          "rank": 3,
+          "p": 0.007,
+          "seed": 2,
+          "best_match": "an arrow whooshing past through the air"
+        },
+        "medium": {
+          "rank": 8,
+          "p": 0.01,
+          "seed": 3,
+          "best_match": "an armoured giant roaring in pain"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 3 p 0.007 (kept)"
+        ]
+      },
+      "javelinImpact-wood": {
+        "moss": {
+          "rank": 4,
+          "p": 0.034,
+          "seed": 1,
+          "best_match": "a bow string twanging as an arrow is shot"
+        },
+        "medium": {
+          "rank": 7,
+          "p": 0.007,
+          "seed": 1,
+          "best_match": "an arrow thudding into wood and quivering"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 1 rank 4 p 0.034 (kept)"
+        ]
+      },
+      "javelinImpact-ground": {
+        "moss": {
+          "rank": 3,
+          "p": 0.038,
+          "seed": 2,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "medium": {
+          "rank": 2,
+          "p": 0.016,
+          "seed": 1,
+          "best_match": "a sabre chopping into wood with a ringing blade"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 2 p 0.016 (kept)",
+          "medium seed 3 rank 3 p 0.015 (kept)"
+        ]
+      },
+      "javelinImpact-flesh": {
+        "moss": {
+          "rank": 1,
+          "p": 0.984,
+          "seed": 32,
+          "best_match": "a heavy spear thudding into an animal's body"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.997,
+          "seed": 22,
+          "best_match": "a heavy spear thudding into an animal's body"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 22 rank 1 p 0.997 (new)",
+          "medium seed 38 rank 1 p 0.997 (new)"
+        ]
+      },
+      "thunder-near": {
+        "moss": {
+          "rank": 1,
+          "p": 0.997,
+          "seed": 3,
+          "best_match": "a close thunderclap cracking overhead"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.998,
+          "seed": 1,
+          "best_match": "a close thunderclap cracking overhead"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.998 (kept)",
+          "medium seed 2 rank 1 p 0.995 (kept)"
+        ]
+      },
+      "thunder-far": {
+        "moss": {
+          "rank": 2,
+          "p": 0.236,
+          "seed": 3,
+          "best_match": "static electricity crackling before a lightning strike"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.403,
+          "seed": 1,
+          "best_match": "a close thunderclap cracking overhead"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.403 (kept)",
+          "medium seed 3 rank 1 p 0.353 (kept)"
+        ]
+      },
+      "lightningCrackle": {
+        "moss": {
+          "rank": 1,
+          "p": 0.985,
+          "seed": 3,
+          "best_match": "static electricity crackling before a lightning strike"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.258,
+          "seed": 3,
+          "best_match": "static electricity crackling before a lightning strike"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 3 rank 1 p 0.985 (new)",
+          "moss seed 1 rank 1 p 0.982 (kept)"
+        ]
+      },
+      "bed-steppe-wind": {
+        "moss": {
+          "rank": 8,
+          "p": 0.007,
+          "seed": 1,
+          "best_match": "static electricity crackling before a lightning strike"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.998,
+          "seed": 3,
+          "best_match": "wind blowing through tall grass on an open steppe"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 3 rank 1 p 0.998 (kept)"
+        ]
+      },
+      "bed-steppe-larks": {
+        "moss": {
+          "rank": 1,
+          "p": 0.999,
+          "seed": 2,
+          "best_match": "skylarks singing high above a meadow"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.972,
+          "seed": 2,
+          "best_match": "skylarks singing high above a meadow"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 1 p 0.999 (kept)"
+        ]
+      },
+      "bed-steppe-night": {
+        "moss": {
+          "rank": 1,
+          "p": 0.942,
+          "seed": 1,
+          "best_match": "crickets chirping in grassland at night"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.962,
+          "seed": 1,
+          "best_match": "crickets chirping in grassland at night"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.962 (kept)"
+        ]
+      },
+      "bed-river": {
+        "moss": {
+          "rank": 1,
+          "p": 0.96,
+          "seed": 1,
+          "best_match": "a fast mountain river rushing over stones"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.976,
+          "seed": 1,
+          "best_match": "a fast mountain river rushing over stones"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.976 (kept)"
+        ]
+      },
+      "bed-meltwater": {
+        "moss": {
+          "rank": 1,
+          "p": 0.958,
+          "seed": 2,
+          "best_match": "meltwater trickling and dripping from a glacier"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.982,
+          "seed": 2,
+          "best_match": "meltwater trickling and dripping from a glacier"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 2 rank 1 p 0.982 (kept)"
+        ]
+      },
+      "bed-camp": {
+        "moss": {
+          "rank": 1,
+          "p": 0.757,
+          "seed": 3,
+          "best_match": "a crackling wood fire with tent fabric flapping in the wind"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.914,
+          "seed": 1,
+          "best_match": "a crackling wood fire with tent fabric flapping in the wind"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.914 (kept)"
+        ]
+      },
+      "bed-highwind": {
+        "moss": {
+          "rank": 7,
+          "p": 0.069,
+          "seed": 3,
+          "best_match": "a cold howling wind in snowy mountains"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.707,
+          "seed": 1,
+          "best_match": "wind blowing through tall grass on an open steppe"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.707 (kept)"
+        ]
+      },
+      "bed-coldwind": {
+        "moss": {
+          "rank": 1,
+          "p": 0.959,
+          "seed": 1,
+          "best_match": "a cold howling wind in snowy mountains"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.975,
+          "seed": 3,
+          "best_match": "a cold howling wind in snowy mountains"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 3 rank 1 p 0.975 (kept)"
+        ]
+      },
+      "bed-rain": {
+        "moss": {
+          "rank": 1,
+          "p": 0.935,
+          "seed": 1,
+          "best_match": "heavy rain falling on grassland"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.979,
+          "seed": 1,
+          "best_match": "heavy rain falling on grassland"
+        },
+        "winner": "medium",
+        "round": "b3",
+        "ships": [
+          "medium seed 1 rank 1 p 0.979 (kept)"
+        ]
+      },
+      "bed-stormwind": {
+        "moss": {
+          "rank": 1,
+          "p": 0.987,
+          "seed": 2,
+          "best_match": "a cold howling wind in snowy mountains"
+        },
+        "medium": {
+          "rank": 1,
+          "p": 0.98,
+          "seed": 2,
+          "best_match": "a violent storm wind roaring"
+        },
+        "winner": "moss",
+        "round": "b3",
+        "ships": [
+          "moss seed 2 rank 1 p 0.987 (kept)"
+        ]
+      }
+    }
+  }
+}

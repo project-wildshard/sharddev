@@ -1,0 +1,145 @@
+{
+  "_doc": "MUSIC.md v3 (E33): every MiniMax Music 3 job, keyed <group>/<name>. gen_minimax.py --jobs v3-jobs.json --keys ... renders them; takes land in <out>/<group>-<name>/minimax3-<seed>.wav. Music slots ask for a steady drums + bass groove under the whole piece so demucs can lift it out as the tension layer, and for no fade-out so the loop body stays full. MiniMax ignores key and tempo (round 1), so BPM/key here are requests; the shipped grid comes from beat-tracking. Sound effects are not MiniMax's job (the user, 2026-09-22: MiniMax is music only) - see sfx-jobs.json / gen_sfx.py. The sting-* jobs were rendered (4 seeds x 9) but not used: MiniMax filled all 6 s with mid-song band music (no silence after the gesture, and CLAP heard folk in most piano/orchestral ones), so stems.py cuts the stings from each style's own takes instead.",
+  "lyrics": {
+    "loop": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+    "title": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+    "short": "[Instrumental]"
+  },
+  "jobs": {
+    "piano/pine": {
+      "style": "piano",
+      "slot": "pine",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 88,
+      "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb."
+    },
+    "piano/island": {
+      "style": "piano",
+      "slot": "island",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 100,
+      "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb."
+    },
+    "piano/title": {
+      "style": "piano",
+      "slot": "title",
+      "duration": 75,
+      "lyrics": "title",
+      "bpm": 92,
+      "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb."
+    },
+    "orchestral/pine": {
+      "style": "orchestral",
+      "slot": "pine",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 88,
+      "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb."
+    },
+    "orchestral/island": {
+      "style": "orchestral",
+      "slot": "island",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 100,
+      "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb."
+    },
+    "orchestral/title": {
+      "style": "orchestral",
+      "slot": "title",
+      "duration": 75,
+      "lyrics": "title",
+      "bpm": 92,
+      "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb."
+    },
+    "folk/pine": {
+      "style": "folk",
+      "slot": "pine",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 88,
+      "prompt": "Genre: folk adventure video game soundtrack, acoustic and warm. BPM: 88. Key: D major. Instrumental only, no vocals. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a gentle fiddle and tin whistle melody over fingerpicked acoustic guitar and a soft marimba; an upright bass and a steady groove of bodhran, cajon and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: natural wooden-room sound."
+    },
+    "folk/island": {
+      "style": "folk",
+      "slot": "island",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 104,
+      "prompt": "Genre: folk adventure video game soundtrack in the spirit of Sea of Thieves, sea-shanty flavoured. BPM: 104. Key: D major. Instrumental only, no vocals. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water - wonder first, seafaring adventure second, a little melancholy underneath. Arrangement: a lively fiddle and accordion melody over strummed acoustic guitar and a bright marimba ostinato; an upright bass and a steady groove of frame drum, cajon and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm, natural room sound."
+    },
+    "folk/title": {
+      "style": "folk",
+      "slot": "title",
+      "duration": 75,
+      "lyrics": "title",
+      "bpm": 96,
+      "prompt": "Genre: video game main title theme, folk adventure in the spirit of Sea of Thieves. BPM: 96. Key: D major. Instrumental only, no vocals. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable fiddle melody introduced over fingerpicked guitar, then the full band - accordion, tin whistle, strummed guitars, marimba, upright bass and a driving frame drum and cajon groove; it builds to a rousing climax and ends on a resolved final chord. Production: warm, natural room sound."
+    },
+    "piano/sting-pickup": {
+      "style": "piano",
+      "slot": "sting-pickup",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 3-second video game item pickup sting: a bright rising grand-piano arpeggio in D major ending on a sparkling high chord with a soft bell, then silence. Instrumental, no vocals, no drums."
+    },
+    "piano/sting-death": {
+      "style": "piano",
+      "slot": "sting-death",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game defeat sting: a slow, sad falling grand-piano phrase in D minor ending on a low, soft chord that rings out, then silence. Instrumental, no vocals, no drums."
+    },
+    "piano/sting-chunk": {
+      "style": "piano",
+      "slot": "sting-chunk",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game discovery sting: a shimmering, wondering grand-piano chord with a rising high motif and a soft pad swell in D major (Lydian colour), then silence. Instrumental, no vocals, no drums."
+    },
+    "orchestral/sting-pickup": {
+      "style": "orchestral",
+      "slot": "sting-pickup",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 3-second video game item pickup sting: a bright rising harp glissando and celesta flourish in D major ending on a sparkling string chord, then silence. Instrumental orchestra, no vocals, no drums."
+    },
+    "orchestral/sting-death": {
+      "style": "orchestral",
+      "slot": "sting-death",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game defeat sting: a sad falling phrase for low strings and a solo French horn in D minor ending on a dark held chord, then silence. Instrumental orchestra, no vocals."
+    },
+    "orchestral/sting-chunk": {
+      "style": "orchestral",
+      "slot": "sting-chunk",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game discovery sting: a shimmering swell of high strings, harp and celesta opening onto a wondering D major chord (Lydian colour), then silence. Instrumental orchestra, no vocals, no drums."
+    },
+    "folk/sting-pickup": {
+      "style": "folk",
+      "slot": "sting-pickup",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 3-second video game item pickup sting: a quick bright fiddle and tin whistle flourish over one strummed acoustic guitar chord in D major, then silence. Instrumental folk, no vocals."
+    },
+    "folk/sting-death": {
+      "style": "folk",
+      "slot": "sting-death",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game defeat sting: a slow, sad falling fiddle phrase over a soft low accordion chord in D minor that rings out, then silence. Instrumental folk, no vocals."
+    },
+    "folk/sting-chunk": {
+      "style": "folk",
+      "slot": "sting-chunk",
+      "duration": 6,
+      "lyrics": "short",
+      "prompt": "A very short 4-second video game discovery sting: a rising marimba and mandolin tremolo opening onto a wondering D major chord with a tin whistle note on top, then silence. Instrumental folk, no vocals."
+    }
+  }
+}

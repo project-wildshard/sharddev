@@ -1,0 +1,1806 @@
+{
+  "style": "folk",
+  "scoring": {
+    "loop": {
+      "style": 0.3,
+      "groove": 0.25,
+      "seam": 0.2,
+      "clean": 0.15,
+      "full": 0.1
+    },
+    "title": {
+      "style": 0.45,
+      "seam": 0.15,
+      "clean": 0.2,
+      "full": 0.2
+    },
+    "vocal_disqualify": 0.2
+  },
+  "slots": {
+    "night": {
+      "pick": "minimax3-403",
+      "alternates": [
+        "minimax3-401",
+        "minimax3-404"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.785,
+          "parts": {
+            "style": 0.939,
+            "seam": 0.625,
+            "clean": 0.8,
+            "full": 1.0,
+            "groove": 0.633
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 232.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.1,
+              "lra": 8.6,
+              "true_peak_dbfs": 0.4
+            },
+            "clipping": {
+              "clipped_samples": 16,
+              "clipped_frac": 2.416112571516932e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1630.5,
+              "rolloff95_hz": 6233.0,
+              "flatness": 0.0004,
+              "hf_above_12k": 0.00015,
+              "sub_below_60": 0.1617,
+              "stereo_corr": 0.469
+            },
+            "tempo": {
+              "estimated_bpm": 86.1,
+              "brief_bpm": 104.0,
+              "rel_err": 0.172
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.662,
+              "d_major_r": 0.059,
+              "d_major_rank": 10,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.475,
+              "similarity": 0.521,
+              "level_match": 0.71,
+              "start_s": 20.5,
+              "end_s": 70.66,
+              "bars": 18,
+              "loop_s": 50.16,
+              "grid_bpm": 86.1
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.061,
+                "orchestral": 0.0,
+                "folk": 0.939
+              },
+              "style_sim": {
+                "piano": 0.3203,
+                "orchestral": 0.1465,
+                "folk": 0.4185
+              },
+              "vocal_prob": 0.987
+            },
+            "vocals": {
+              "vocal_energy_share": 0.029,
+              "vocal_active_frac": 0.16,
+              "stem_share": {
+                "drums": 0.1214,
+                "bass": 0.1671,
+                "other": 0.6825,
+                "vocals": 0.029
+              },
+              "groove_active_frac": 0.733,
+              "drums_active_frac": 0.533
+            }
+          }
+        },
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": 0.754,
+          "parts": {
+            "style": 0.815,
+            "seam": 0.728,
+            "clean": 1.0,
+            "full": 0.366,
+            "groove": 0.711
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 197.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 57.31,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.6,
+              "lra": 8.5,
+              "true_peak_dbfs": 0.8
+            },
+            "clipping": {
+              "clipped_samples": 14,
+              "clipped_frac": 2.769828808752026e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2328.1,
+              "rolloff95_hz": 9264.4,
+              "flatness": 0.0016,
+              "hf_above_12k": 0.00057,
+              "sub_below_60": 0.0851,
+              "stereo_corr": 0.419
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 104.0,
+              "rel_err": 0.172
+            },
+            "key": {
+              "best_key": "F minor",
+              "best_r": 0.698,
+              "d_major_r": -0.378,
+              "d_major_rank": 23,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.537,
+              "similarity": 0.574,
+              "level_match": 0.786,
+              "start_s": 19.5,
+              "end_s": 41.79,
+              "bars": 16,
+              "loop_s": 22.29,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.183,
+                "orchestral": 0.001,
+                "folk": 0.815
+              },
+              "style_sim": {
+                "piano": 0.2616,
+                "orchestral": 0.0856,
+                "folk": 0.3152
+              },
+              "vocal_prob": 0.973
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1695,
+                "bass": 0.2136,
+                "other": 0.6169,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.772,
+              "drums_active_frac": 0.649
+            }
+          }
+        },
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.692,
+          "parts": {
+            "style": 0.945,
+            "seam": 0.427,
+            "clean": 1.0,
+            "full": 0.77,
+            "groove": 0.385
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 228.5,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 65.4,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.2,
+              "lra": 8.8,
+              "true_peak_dbfs": -0.2
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9727
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2074.1,
+              "rolloff95_hz": 7797.3,
+              "flatness": 0.0005,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.114,
+              "stereo_corr": 0.493
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 104.0,
+              "rel_err": 0.113
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.757,
+              "d_major_r": -0.262,
+              "d_major_rank": 19,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.356,
+              "similarity": 0.373,
+              "level_match": 0.843,
+              "start_s": 22.25,
+              "end_s": 43.06,
+              "bars": 16,
+              "loop_s": 20.81,
+              "grid_bpm": 184.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.055,
+                "orchestral": 0.0,
+                "folk": 0.945
+              },
+              "style_sim": {
+                "piano": 0.2451,
+                "orchestral": 0.0722,
+                "folk": 0.3473
+              },
+              "vocal_prob": 0.919
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0001,
+              "vocal_active_frac": 0.062,
+              "stem_share": {
+                "drums": 0.0531,
+                "bass": 0.0718,
+                "other": 0.875,
+                "vocals": 0.0001
+              },
+              "groove_active_frac": 0.523,
+              "drums_active_frac": 0.246
+            }
+          }
+        },
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": 0.624,
+          "parts": {
+            "style": 0.501,
+            "seam": 0.45,
+            "clean": 1.0,
+            "full": 1.0,
+            "groove": 0.533
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 239.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.7,
+              "lra": 16.7,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1815.0,
+              "rolloff95_hz": 7936.9,
+              "flatness": 0.0006,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.1831,
+              "stereo_corr": 0.299
+            },
+            "tempo": {
+              "estimated_bpm": 66.3,
+              "brief_bpm": 104.0,
+              "rel_err": 0.274
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.891,
+              "d_major_r": 0.345,
+              "d_major_rank": 4,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.37,
+              "similarity": 0.432,
+              "level_match": 0.524,
+              "start_s": 3.5,
+              "end_s": 72.32,
+              "bars": 19,
+              "loop_s": 68.82,
+              "grid_bpm": 66.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.471,
+                "orchestral": 0.028,
+                "folk": 0.501
+              },
+              "style_sim": {
+                "piano": 0.3002,
+                "orchestral": 0.1992,
+                "folk": 0.3025
+              },
+              "vocal_prob": 0.973
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0284,
+              "vocal_active_frac": 0.053,
+              "stem_share": {
+                "drums": 0.2139,
+                "bass": 0.0481,
+                "other": 0.7096,
+                "vocals": 0.0284
+              },
+              "groove_active_frac": 0.573,
+              "drums_active_frac": 0.493
+            }
+          }
+        },
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.446,
+          "parts": {
+            "style": 0.912,
+            "seam": 0.225,
+            "clean": 0.5,
+            "full": 0.0,
+            "groove": 0.216
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 138.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 44.88,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.5,
+              "lra": 11.8,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 654,
+              "clipped_frac": 0.00016520224392136575,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2151.0,
+              "rolloff95_hz": 7693.8,
+              "flatness": 0.0005,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0893,
+              "stereo_corr": 0.413
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 104.0,
+              "rel_err": 0.129
+            },
+            "key": {
+              "best_key": "G# major",
+              "best_r": 0.724,
+              "d_major_r": -0.661,
+              "d_major_rank": 24,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.235,
+              "similarity": 0.237,
+              "level_match": 0.974,
+              "start_s": 8.5,
+              "end_s": 33.02,
+              "bars": 12,
+              "loop_s": 24.52,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.086,
+                "orchestral": 0.002,
+                "folk": 0.912
+              },
+              "style_sim": {
+                "piano": 0.2955,
+                "orchestral": 0.1612,
+                "folk": 0.3804
+              },
+              "vocal_prob": 0.96
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0341,
+              "vocal_active_frac": 0.25,
+              "stem_share": {
+                "drums": 0.1298,
+                "bass": 0.0067,
+                "other": 0.8294,
+                "vocals": 0.0341
+              },
+              "groove_active_frac": 0.25,
+              "drums_active_frac": 0.182
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 45% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk video game soundtrack, eerie folklore, acoustic. BPM: 76. Key: D minor. Instrumental only, no vocals. Setting: Pine Hollow at night - lanterns glowing between black pines, fog on the ground, old tales of the Antler King told by the fire; hushed and unsettling, never scary. Arrangement: a slow, haunting nyckelharpa and low whistle melody over fingerpicked open-tuned guitar and a bowed-psaltery drone; an upright bass and a soft, steady groove of bodhran, frame drum and shaker run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: intimate wooden-room sound with a dark reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 271.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.6,
+              "lra": 17.1,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 3,
+              "clipped_frac": 4.530211071594248e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 1.13,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 1.13
+            },
+            "spectrum": {
+              "centroid_hz": 2871.5,
+              "rolloff95_hz": 13476.8,
+              "flatness": 0.0012,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.3574,
+              "stereo_corr": 0.244
+            },
+            "tempo": {
+              "estimated_bpm": 29.4,
+              "brief_bpm": 104.0,
+              "rel_err": 0.435
+            },
+            "key": {
+              "best_key": "E minor",
+              "best_r": 0.72,
+              "d_major_r": 0.011,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "score": -1.0,
+              "min_bars": 16,
+              "grid_bpm": 29.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.634,
+                "orchestral": 0.009,
+                "folk": 0.357
+              },
+              "style_sim": {
+                "piano": 0.1833,
+                "orchestral": 0.0289,
+                "folk": 0.1627
+              },
+              "vocal_prob": 0.994
+            },
+            "vocals": {
+              "vocal_energy_share": 0.4545,
+              "vocal_active_frac": 0.733,
+              "stem_share": {
+                "drums": 0.4106,
+                "bass": 0.0121,
+                "other": 0.1228,
+                "vocals": 0.4545
+              },
+              "groove_active_frac": 0.52,
+              "drums_active_frac": 0.48
+            }
+          }
+        }
+      ]
+    },
+    "boss": {
+      "pick": "minimax3-404",
+      "alternates": [
+        "minimax3-403",
+        "minimax3-402"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.88,
+          "parts": {
+            "style": 0.934,
+            "seam": 0.603,
+            "clean": 1.0,
+            "full": 0.926,
+            "groove": 1.0
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 221.4,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 68.52,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.7,
+              "lra": 3.8,
+              "true_peak_dbfs": 0.8
+            },
+            "clipping": {
+              "clipped_samples": 70,
+              "clipped_frac": 1.1582408505591325e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2743.5,
+              "rolloff95_hz": 9747.3,
+              "flatness": 0.0063,
+              "hf_above_12k": 0.00201,
+              "sub_below_60": 0.1716,
+              "stereo_corr": 0.706
+            },
+            "tempo": {
+              "estimated_bpm": 86.1,
+              "brief_bpm": 104.0,
+              "rel_err": 0.172
+            },
+            "key": {
+              "best_key": "A major",
+              "best_r": 0.601,
+              "d_major_r": 0.334,
+              "d_major_rank": 4,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.462,
+              "similarity": 0.471,
+              "level_match": 0.935,
+              "start_s": 9.0,
+              "end_s": 59.16,
+              "bars": 18,
+              "loop_s": 50.16,
+              "grid_bpm": 86.1
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.065,
+                "orchestral": 0.001,
+                "folk": 0.934
+              },
+              "style_sim": {
+                "piano": 0.188,
+                "orchestral": 0.0435,
+                "folk": 0.284
+              },
+              "vocal_prob": 0.999
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0565,
+              "vocal_active_frac": 0.132,
+              "stem_share": {
+                "drums": 0.3766,
+                "bass": 0.1819,
+                "other": 0.385,
+                "vocals": 0.0565
+              },
+              "groove_active_frac": 1.0,
+              "drums_active_frac": 1.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.807,
+          "parts": {
+            "style": 0.902,
+            "seam": 0.792,
+            "clean": 0.5,
+            "full": 1.0,
+            "groove": 0.813
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 252.4,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.8,
+              "lra": 7.8,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 786,
+              "clipped_frac": 0.0001186915300757693,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 2.48,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 2.48
+            },
+            "spectrum": {
+              "centroid_hz": 2211.3,
+              "rolloff95_hz": 7417.7,
+              "flatness": 0.0008,
+              "hf_above_12k": 0.00012,
+              "sub_below_60": 0.4001,
+              "stereo_corr": 0.682
+            },
+            "tempo": {
+              "estimated_bpm": 129.2,
+              "brief_bpm": 104.0,
+              "rel_err": 0.242
+            },
+            "key": {
+              "best_key": "C# major",
+              "best_r": 0.503,
+              "d_major_r": -0.258,
+              "d_major_rank": 20,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.575,
+              "similarity": 0.605,
+              "level_match": 0.832,
+              "start_s": 29.25,
+              "end_s": 58.97,
+              "bars": 16,
+              "loop_s": 29.72,
+              "grid_bpm": 129.2
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.084,
+                "orchestral": 0.014,
+                "folk": 0.902
+              },
+              "style_sim": {
+                "piano": 0.1413,
+                "orchestral": 0.0783,
+                "folk": 0.2267
+              },
+              "vocal_prob": 0.998
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0292,
+              "vocal_active_frac": 0.253,
+              "stem_share": {
+                "drums": 0.5616,
+                "bass": 0.0505,
+                "other": 0.3587,
+                "vocals": 0.0292
+              },
+              "groove_active_frac": 0.813,
+              "drums_active_frac": 0.813
+            }
+          }
+        },
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": 0.647,
+          "parts": {
+            "style": 0.819,
+            "seam": 0.488,
+            "clean": 1.0,
+            "full": 0.552,
+            "groove": 0.393
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 197.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 61.03,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.0,
+              "lra": 10.9,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 68,
+              "clipped_frac": 1.2631966901274492e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2475.1,
+              "rolloff95_hz": 8638.8,
+              "flatness": 0.0012,
+              "hf_above_12k": 0.00045,
+              "sub_below_60": 0.021,
+              "stereo_corr": 0.485
+            },
+            "tempo": {
+              "estimated_bpm": 107.7,
+              "brief_bpm": 104.0,
+              "rel_err": 0.035
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.754,
+              "d_major_r": -0.191,
+              "d_major_rank": 16,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.393,
+              "similarity": 0.47,
+              "level_match": 0.454,
+              "start_s": 12.25,
+              "end_s": 58.4,
+              "bars": 20,
+              "loop_s": 46.15,
+              "grid_bpm": 104.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.143,
+                "orchestral": 0.038,
+                "folk": 0.819
+              },
+              "style_sim": {
+                "piano": 0.2062,
+                "orchestral": 0.1587,
+                "folk": 0.2689
+              },
+              "vocal_prob": 0.912
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1726,
+                "bass": 0.0303,
+                "other": 0.7971,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.393,
+              "drums_active_frac": 0.393
+            }
+          }
+        },
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.62,
+          "parts": {
+            "style": 0.991,
+            "seam": 0.63,
+            "clean": 1.0,
+            "full": 0.163,
+            "groove": 0.453
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 170.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 53.25,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.1,
+              "lra": 10.4,
+              "true_peak_dbfs": -0.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9453
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2529.8,
+              "rolloff95_hz": 9328.8,
+              "flatness": 0.0018,
+              "hf_above_12k": 0.00079,
+              "sub_below_60": 0.3559,
+              "stereo_corr": 0.408
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 104.0,
+              "rel_err": 0.269
+            },
+            "key": {
+              "best_key": "A major",
+              "best_r": 0.707,
+              "d_major_r": 0.583,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.478,
+              "similarity": 0.544,
+              "level_match": 0.594,
+              "start_s": 21.25,
+              "end_s": 38.62,
+              "bars": 11,
+              "loop_s": 17.37,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.006,
+                "orchestral": 0.003,
+                "folk": 0.991
+              },
+              "style_sim": {
+                "piano": 0.2416,
+                "orchestral": 0.2199,
+                "folk": 0.4279
+              },
+              "vocal_prob": 0.994
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1956,
+              "vocal_active_frac": 0.321,
+              "stem_share": {
+                "drums": 0.353,
+                "bass": 0.0513,
+                "other": 0.4001,
+                "vocals": 0.1956
+              },
+              "groove_active_frac": 0.472,
+              "drums_active_frac": 0.434
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": 0.574,
+          "parts": {
+            "style": 0.949,
+            "seam": 0.263,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.347
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 148.1,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 49.69,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.1,
+              "lra": 7.1,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 1,
+              "clipped_frac": 2.2816880841121496e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.4,
+              "total_silence_s": 1.4
+            },
+            "spectrum": {
+              "centroid_hz": 2462.2,
+              "rolloff95_hz": 8214.5,
+              "flatness": 0.001,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.0052,
+              "stereo_corr": 0.328
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 104.0,
+              "rel_err": 0.129
+            },
+            "key": {
+              "best_key": "D major",
+              "best_r": 0.835,
+              "d_major_r": 0.835,
+              "d_major_rank": 1,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.258,
+              "similarity": 0.312,
+              "level_match": 0.424,
+              "start_s": 6.0,
+              "end_s": 28.48,
+              "bars": 11,
+              "loop_s": 22.48,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.002,
+                "orchestral": 0.049,
+                "folk": 0.949
+              },
+              "style_sim": {
+                "piano": 0.0923,
+                "orchestral": 0.2118,
+                "folk": 0.3184
+              },
+              "vocal_prob": 0.961
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.02,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.2456,
+                "other": 0.7543,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.653,
+              "drums_active_frac": 0.041
+            }
+          }
+        },
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 31% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: dark folk battle video game music, Nordic folklore, driving and acoustic. BPM: 120. Key: D minor. Instrumental only, no vocals. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a fierce hardanger fiddle and nyckelharpa melody over hard-strummed guitars and a droning hurdy-gurdy; an upright bass and a powerful, steady groove of war drums, bodhran, frame drum and stomping kick run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: raw, close, a wooden-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 114.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 36.07,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.5,
+              "lra": 8.2,
+              "true_peak_dbfs": 0.8
+            },
+            "clipping": {
+              "clipped_samples": 1270,
+              "clipped_frac": 0.0003991742436433859,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 3.08,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 3.08
+            },
+            "spectrum": {
+              "centroid_hz": 3681.1,
+              "rolloff95_hz": 12110.8,
+              "flatness": 0.0122,
+              "hf_above_12k": 0.00124,
+              "sub_below_60": 0.3035,
+              "stereo_corr": 0.754
+            },
+            "tempo": {
+              "estimated_bpm": 76.0,
+              "brief_bpm": 104.0,
+              "rel_err": 0.269
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.366,
+              "d_major_r": 0.162,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.483,
+              "similarity": 0.492,
+              "level_match": 0.941,
+              "start_s": 2.25,
+              "end_s": 27.51,
+              "bars": 8,
+              "loop_s": 25.26,
+              "grid_bpm": 76.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.013,
+                "orchestral": 0.05,
+                "folk": 0.937
+              },
+              "style_sim": {
+                "piano": 0.027,
+                "orchestral": 0.0765,
+                "folk": 0.1815
+              },
+              "vocal_prob": 0.996
+            },
+            "vocals": {
+              "vocal_energy_share": 0.3125,
+              "vocal_active_frac": 0.417,
+              "stem_share": {
+                "drums": 0.5951,
+                "bass": 0.0,
+                "other": 0.0925,
+                "vocals": 0.3125
+              },
+              "groove_active_frac": 0.75,
+              "drums_active_frac": 0.75
+            }
+          }
+        }
+      ]
+    },
+    "dawn": {
+      "pick": "minimax3-406",
+      "alternates": [
+        "minimax3-402",
+        "minimax3-403"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.756,
+          "parts": {
+            "style": 0.981,
+            "seam": 0.428,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 192.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -12.3,
+              "lra": 12.8,
+              "true_peak_dbfs": -0.4
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.957
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2524.0,
+              "rolloff95_hz": 8933.9,
+              "flatness": 0.001,
+              "hf_above_12k": 0.00034,
+              "sub_below_60": 0.0004,
+              "stereo_corr": 0.452
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 104.0,
+              "rel_err": 0.113
+            },
+            "key": {
+              "best_key": "D major",
+              "best_r": 0.814,
+              "d_major_r": 0.814,
+              "d_major_rank": 1,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.357,
+              "similarity": 0.375,
+              "level_match": 0.837,
+              "start_s": 2.0,
+              "end_s": 47.51,
+              "bars": 35,
+              "loop_s": 45.51,
+              "grid_bpm": 184.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.017,
+                "orchestral": 0.002,
+                "folk": 0.981
+              },
+              "style_sim": {
+                "piano": 0.2489,
+                "orchestral": 0.1672,
+                "folk": 0.3947
+              },
+              "vocal_prob": 0.966
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.9999,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.036,
+              "drums_active_frac": 0.018
+            }
+          }
+        },
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": 0.745,
+          "parts": {
+            "style": 0.99,
+            "seam": 0.363,
+            "clean": 1.0,
+            "full": 0.223
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 165.1,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 54.46,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.8,
+              "lra": 12.5,
+              "true_peak_dbfs": -1.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8398
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2196.2,
+              "rolloff95_hz": 9265.0,
+              "flatness": 0.0006,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0013,
+              "stereo_corr": 0.27
+            },
+            "tempo": {
+              "estimated_bpm": 112.3,
+              "brief_bpm": 104.0,
+              "rel_err": 0.08
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.788,
+              "d_major_r": 0.312,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.318,
+              "similarity": 0.357,
+              "level_match": 0.64,
+              "start_s": 19.0,
+              "end_s": 40.36,
+              "bars": 10,
+              "loop_s": 21.36,
+              "grid_bpm": 112.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.008,
+                "orchestral": 0.001,
+                "folk": 0.99
+              },
+              "style_sim": {
+                "piano": 0.2239,
+                "orchestral": 0.1588,
+                "folk": 0.3962
+              },
+              "vocal_prob": 0.968
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0067,
+              "vocal_active_frac": 0.056,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.9932,
+                "vocals": 0.0067
+              },
+              "groove_active_frac": 0.0,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.737,
+          "parts": {
+            "style": 0.952,
+            "seam": 0.39,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 159.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.6,
+              "lra": 8.7,
+              "true_peak_dbfs": -0.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9844
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2225.7,
+              "rolloff95_hz": 9401.7,
+              "flatness": 0.0015,
+              "hf_above_12k": 0.00018,
+              "sub_below_60": 0.0011,
+              "stereo_corr": 0.777
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 104.0,
+              "rel_err": 0.129
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.763,
+              "d_major_r": 0.299,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.334,
+              "similarity": 0.343,
+              "level_match": 0.91,
+              "start_s": 4.25,
+              "end_s": 45.12,
+              "bars": 20,
+              "loop_s": 40.87,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.048,
+                "orchestral": 0.0,
+                "folk": 0.952
+              },
+              "style_sim": {
+                "piano": 0.3161,
+                "orchestral": 0.1149,
+                "folk": 0.4233
+              },
+              "vocal_prob": 0.995
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0143,
+              "vocal_active_frac": 0.273,
+              "stem_share": {
+                "drums": 0.0015,
+                "bass": 0.1106,
+                "other": 0.8737,
+                "vocals": 0.0143
+              },
+              "groove_active_frac": 0.218,
+              "drums_active_frac": 0.109
+            }
+          }
+        },
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.712,
+          "parts": {
+            "style": 0.989,
+            "seam": 0.373,
+            "clean": 0.8,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 173.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.7,
+              "lra": 8.7,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 35,
+              "clipped_frac": 7.207863243357233e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1663.0,
+              "rolloff95_hz": 5968.8,
+              "flatness": 0.0002,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0004,
+              "stereo_corr": 0.255
+            },
+            "tempo": {
+              "estimated_bpm": 83.4,
+              "brief_bpm": 104.0,
+              "rel_err": 0.199
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.906,
+              "d_major_r": 0.555,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.324,
+              "similarity": 0.379,
+              "level_match": 0.519,
+              "start_s": 14.25,
+              "end_s": 37.28,
+              "bars": 8,
+              "loop_s": 23.03,
+              "grid_bpm": 83.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.011,
+                "orchestral": 0.0,
+                "folk": 0.989
+              },
+              "style_sim": {
+                "piano": 0.2074,
+                "orchestral": 0.0653,
+                "folk": 0.3696
+              },
+              "vocal_prob": 0.938
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0032,
+              "vocal_active_frac": 0.091,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.9968,
+                "vocals": 0.0032
+              },
+              "groove_active_frac": 0.018,
+              "drums_active_frac": 0.018
+            }
+          }
+        },
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": 0.71,
+          "parts": {
+            "style": 0.997,
+            "seam": 0.408,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 123.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 38.6,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.3,
+              "lra": 10.9,
+              "true_peak_dbfs": 0.6
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9727
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 3485.6,
+              "rolloff95_hz": 12557.5,
+              "flatness": 0.0061,
+              "hf_above_12k": 0.00221,
+              "sub_below_60": 0.0011,
+              "stereo_corr": 0.387
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 104.0,
+              "rel_err": 0.129
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.819,
+              "d_major_r": -0.17,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.345,
+              "similarity": 0.355,
+              "level_match": 0.912,
+              "start_s": 6.25,
+              "end_s": 24.64,
+              "bars": 9,
+              "loop_s": 18.39,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.001,
+                "orchestral": 0.002,
+                "folk": 0.997
+              },
+              "style_sim": {
+                "piano": 0.1671,
+                "orchestral": 0.1875,
+                "folk": 0.4105
+              },
+              "vocal_prob": 0.834
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0096,
+                "bass": 0.0,
+                "other": 0.9904,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.158,
+              "drums_active_frac": 0.211
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": 0.589,
+          "parts": {
+            "style": 0.579,
+            "seam": 0.518,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: folk video game victory and dawn theme, acoustic and warm. BPM: 84. Key: D major. Instrumental only, no vocals. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a tender fiddle and tin whistle melody over fingerpicked guitar and mandolin, swelling with the whole band and a frame drum to one radiant climax, then ends on a long resolved major chord that rings out. Production: natural wooden-room sound.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 165.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -21.4,
+              "lra": 10.2,
+              "true_peak_dbfs": -3.7
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.6562
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 1.03,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 1.03
+            },
+            "spectrum": {
+              "centroid_hz": 2109.7,
+              "rolloff95_hz": 10082.3,
+              "flatness": 0.0007,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0091,
+              "stereo_corr": 0.528
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 104.0,
+              "rel_err": 0.224
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.776,
+              "d_major_r": 0.423,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.411,
+              "similarity": 0.429,
+              "level_match": 0.863,
+              "start_s": 6.25,
+              "end_s": 25.57,
+              "bars": 13,
+              "loop_s": 19.32,
+              "grid_bpm": 161.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.4,
+                "orchestral": 0.021,
+                "folk": 0.579
+              },
+              "style_sim": {
+                "piano": 0.3027,
+                "orchestral": 0.1964,
+                "folk": 0.316
+              },
+              "vocal_prob": 0.832
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.2662,
+                "other": 0.7337,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.6,
+              "drums_active_frac": 0.018
+            }
+          }
+        }
+      ]
+    }
+  }
+}

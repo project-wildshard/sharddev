@@ -1,0 +1,16 @@
+[
+  {
+    "id": "template.boss.approach",
+    "kind": "stalk",
+    "speed": 1,
+    "turn": 4,
+    "ground": true,
+    "standOff": 0,
+    "above": 0,
+    "retreat": false,
+    "constantSpeed": false,
+    "ready": {
+      "kind": "range"
+    }
+  }
+]

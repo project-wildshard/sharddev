@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vite/client"
+    ],
+    "isolatedDeclarations": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": ".tsc-layers/sharddev"
+  },
+  "include": [
+    "src/sharddev/**/*.ts"
+  ],
+  "exclude": [
+    "src/sharddev/**/*.test.ts",
+    "src/sharddev/test"
+  ]
+}

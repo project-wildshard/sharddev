@@ -1,0 +1,104 @@
+{
+  "_doc": "NALATI-MERGE A3: the Nalati score (MiniMax Music 3). gen_minimax.py --jobs nalati-jobs.json --keys test/dombra,... renders into <out>/<group>-<name>/minimax3-<seed>.wav. Step 1 = the six-take instrument test (can MiniMax play a dombra, a kobyz, a sybyzgy, a throat-sung drone convincingly?); the score's slots are added under `nalati/*` after the verdict. One Kazakh-folk score whatever the music-style setting (the user, wave 5); the throat drone only in the night + boss cues (wave 6). The instrument test's verdict (by measurement): the sybyzgy and the throat drone come through; the dombra partly (a plucked attack, but CLAP hears a flute over it); the kobyz does NOT (MiniMax plays it plucked, like a kobza) — so the score prompts describe each instrument by its sound (a raspy BOWED horsehair fiddle, a strummed two-string lute, a breathy wooden flute) and keep the arrangements lean (the full-ensemble test drifted to an orchestra + 21 % voice).",
+  "lyrics": {
+    "loop": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+    "title": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+    "chant": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]"
+  },
+  "jobs": {
+    "test/dombra": {
+      "style": "nalati",
+      "slot": "test-dombra",
+      "duration": 45,
+      "lyrics": "title",
+      "prompt": "Genre: Kazakh traditional folk, solo dombra kui. BPM: 120. Instrumental only, no vocals. A solo dombra - the two-string fretted Kazakh long-neck lute - played with fast strummed and plucked right-hand patterns, a galloping 6/8 horse-gait rhythm, open fifths on the drone string, the melody on the high string. Natural close recording in a felt yurt, no other instruments."
+    },
+    "test/kobyz": {
+      "style": "nalati",
+      "slot": "test-kobyz",
+      "duration": 45,
+      "lyrics": "title",
+      "prompt": "Genre: Kazakh traditional folk, solo qobyz. BPM: 70. Instrumental only, no vocals. A solo kyl-kobyz - the ancient two-string horsehair bowed fiddle of the Kazakh shamans - a raw, breathy, rasping bowed tone full of overtones, slow sliding melody over its own low drone, haunting and wild, like wind over the steppe. Natural close recording, no other instruments."
+    },
+    "test/sybyzgy": {
+      "style": "nalati",
+      "slot": "test-sybyzgy",
+      "duration": 45,
+      "lyrics": "title",
+      "prompt": "Genre: Kazakh traditional folk, solo sybyzgy. BPM: 80. Instrumental only, no vocals. A solo sybyzgy - the Kazakh open end-blown reed flute - an airy, breathy, wooden tone with a hummed throat drone under the melody, long free phrases with ornaments and slides, evoking a shepherd on a wide mountain pasture. Natural recording outdoors, no other instruments."
+    },
+    "test/throat": {
+      "style": "nalati",
+      "slot": "test-throat",
+      "duration": 45,
+      "lyrics": "chant",
+      "prompt": "Genre: Central Asian throat singing, overtone drone. BPM: 60. A single male throat singer (khoomei / kargyraa style) holding a deep growling drone with a whistling overtone melody above it, wordless, slow breaths between phrases, over a very soft low kobyz drone. Dark, ancient, night on the steppe. No drums, no other instruments."
+    },
+    "test/ensemble-day": {
+      "style": "nalati",
+      "slot": "test-ensemble-day",
+      "duration": 45,
+      "lyrics": "loop",
+      "prompt": "Genre: video game soundtrack, Kazakh folk ensemble. BPM: 112. Instrumental only, no vocals, no choir. An open-world adventure on the green Kazakh steppe of the Nalati grasslands. Arrangement: a strummed dombra ostinato in a galloping 6/8 horse-gait rhythm, a sybyzgy flute melody over it, a kobyz drone underneath, a jaw harp (shankobyz) twang and a frame drum (dauylpaz) keeping the gait. Wonder first, adventure second. No western orchestra, no piano, no guitar."
+    },
+    "test/ensemble-night": {
+      "style": "nalati",
+      "slot": "test-ensemble-night",
+      "duration": 45,
+      "lyrics": "chant",
+      "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 66. The steppe at night under the stars in an open-world adventure game. Arrangement: a low wordless throat-sung drone (kargyraa) held under everything, a slow bowed kobyz melody, sparse plucked dombra notes, a soft frame drum like a distant heartbeat. Dark, calm, ancient, a little dangerous. No western orchestra, no piano, no guitar."
+    },
+    "nalati/grass": {
+      "style": "nalati",
+      "slot": "grass",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 108,
+      "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 108. Instrumental only, no vocals, no choir. Setting: the Nalati Grasslands, a green river valley of the Kazakh steppe with a nomad yurt camp and horse herds, in an open-world adventure game - wonder first, adventure second, a little melancholy underneath. Arrangement: a warm strummed ostinato on a two-string dombra lute in a galloping 6/8 horse-gait rhythm, a singable melody on a breathy wooden sybyzgy flute with long breaths, a soft drone of a raspy bowed horsehair fiddle (kobyz, a bowed instrument, never plucked) under it; a steady light groove of frame drum (dauylpaz) and soft low hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: natural, close, airy open-air reverb."
+    },
+    "nalati/sky": {
+      "style": "nalati",
+      "slot": "sky",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 116,
+      "prompt": "Genre: Kazakh folk music, a small village folk trio, video game soundtrack. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau where wild horses graze, in an open-world adventure game - bright, light, playful. Arrangement: only three players: a fast strummed two-string dombra lute in a galloping 6/8 horse-gait rhythm, a breathy wooden sybyzgy flute playing a bright dancing melody, and a frame drum with hoof-like hand percussion that runs under the whole piece from the second bar to the end. A jaw harp twang now and then. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no piano, no guitar, no synthesizers. Production: dry, close, a small room.",
+      "prompt_v1": "Genre: video game soundtrack, Kazakh folk. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau under a huge open sky where wild horses run, in an open-world adventure game - freedom and wonder, wind in the grass. Arrangement: two strummed two-string dombra lutes interlocking in a bright galloping 6/8 horse-gait rhythm, a soaring high melody on a breathy wooden sybyzgy flute, a jaw harp (shankobyz) twang, a raspy bowed horsehair-fiddle drone far under it; a steady driving groove of frame drum and hoof-like hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: wide, bright, open-air reverb.",
+      "reroll": "v1 (seeds 301-303) drifted to a cinematic orchestra (CLAP: orchestral strings 44-74 %); v2 is a trio, seeds 311-313"
+    },
+    "nalati/snow": {
+      "style": "nalati",
+      "slot": "snow",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 84,
+      "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 84. Instrumental only, no vocals, no choir. Setting: the Snow Lotus Valley, a cold ring of snowfields and a glacier high above the steppe, in an open-world adventure game - cold, lonely, beautiful, a little dangerous. Arrangement: a sparse low plucked ostinato on a two-string dombra lute, a breathy wooden sybyzgy flute melody over a hummed drone, glassy harmonics on a raspy bowed horsehair fiddle; a soft slow groove of muted frame drum and low hand percussion keeps going under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: cold, spacious reverb."
+    },
+    "nalati/night": {
+      "style": "nalati",
+      "slot": "night",
+      "duration": 75,
+      "lyrics": "chant",
+      "bpm": 72,
+      "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 72. Setting: the Kazakh steppe at night under the stars, wolves somewhere out in the dark, in an open-world adventure game - dark, calm, ancient. Arrangement: a low wordless throat-sung drone (kargyraa) held under the whole piece, a slow mournful melody on a raspy bowed horsehair fiddle (kobyz), sparse plucked notes on a two-string dombra lute; a soft steady frame drum pulse like a distant heartbeat runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: close, dark, deep reverb."
+    },
+    "nalati/storm": {
+      "style": "nalati",
+      "slot": "storm",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 132,
+      "prompt": "Genre: Kazakh folk music, fast and fierce, video game battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm over the steppe and the fight with Jel Ata, the spirit of the wind, in an open-world adventure game. Arrangement: only folk instruments: two fast furiously strummed two-string dombra lutes in a driving 6/8 gallop, a breathy wooden sybyzgy flute shrieking like the wind, a raspy bowed horsehair fiddle sawing a drone, and pounding frame drums (dauylpaz) and big hand drums that drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no electric guitar, no rock drum kit, no piano, no synthesizers. Production: close, raw, live folk ensemble.",
+      "prompt_v1": "Genre: video game soundtrack, Kazakh folk battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm breaks over the steppe and the fight with Jel Ata, the giant spirit of the wind, in an open-world adventure game - fury, speed, danger. Arrangement: furious fast strummed two-string dombra lutes in a driving 6/8 gallop, a screaming raspy bowed horsehair fiddle, breathy wooden-flute flurries like gusts of wind; pounding frame drums and big low war drums drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: loud, wide, stormy.",
+      "reroll": "v1 (seeds 301-303) came out as band / orchestral battle music (CLAP Kazakh share 0.00-0.41); v2 asks for folk instruments only, seeds 311-313"
+    },
+    "nalati/king": {
+      "style": "nalati",
+      "slot": "king",
+      "duration": 75,
+      "lyrics": "chant",
+      "bpm": 96,
+      "prompt": "Genre: video game soundtrack, Kazakh folk boss theme. BPM: 96. Setting: inside a Saka burial mound (kurgan), where the Golden King, an undead warrior king in gold armour, rises, in an open-world adventure game - a funeral dirge that turns into battle. Arrangement: it opens with a deep wordless throat-sung drone (kargyraa) and a mournful raspy bowed horsehair fiddle, then rises into battle: heavy frame drums and a war-drum groove enter in the second bar and drive the whole piece to the end, hammering strums on a two-string dombra lute in a 6/8 ostinato, the throat drone under everything. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: dark, stone-chamber reverb."
+    }
+  }
+}

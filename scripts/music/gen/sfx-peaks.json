@@ -1,0 +1,7 @@
+{
+  "_doc": "peak process RSS in GB (/usr/bin/time -l) per model run on the M5 Max, SFX round 2; MiniMax with its 8B LM streamed from disk",
+  "medium": 19.4,
+  "moss": 16.3,
+  "ezaudio": 8.2,
+  "minimax": 20.9
+}

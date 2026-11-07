@@ -1,0 +1,30 @@
+{
+  "about": "NALATI-FINISH B5 / E302: per camp person, the face remaster's knobs (scripts/img2mesh/face_remaster.py via build_faces.sh). neck = the procedural figure's neck / height (campPeople.ts). paint = the painted face in the --front render's pixels (768² ortho of the head). graft = the generated bust: neck (its neck, fraction of its height from the top), clip (how far under the cut it reaches, fraction of the figure's height), grow / dz / dy nudges. E339: the busts are cut at their own measured neck (neck_auto false: the cook's headscarf hides hers, graft.neck kept).",
+  "people": {
+    "elder": {
+      "neck": 0.769,
+      "paint": { "eyes": [295, 408, 470], "brow_y": 445, "nose_y": 525, "keep_y": 560, "face_y": 505, "top_y": 452, "face": [1.15, 0.8], "mouth": false, "brow": [0.92, 0.9, 0.86], "brow_t": 0.09 },
+      "graft": { "neck": 0.5, "clip": 0.015, "beard": [0.055, 0.2] }
+    },
+    "herder-dauren": {
+      "neck": 0.8,
+      "paint": { "eyes": [327, 447, 398], "brow_y": 376, "nose_y": 466, "mouth_y": 508, "face_y": 462, "top_y": 362, "face": [1.05, 0.95], "moustache": true, "moustache_w": 0.52 },
+      "graft": { "neck": 0.7, "clip": 0.012 }
+    },
+    "herder-erlan": {
+      "neck": 0.8,
+      "paint": { "eyes": [318, 460, 445], "brow_y": 418, "nose_y": 518, "mouth_y": 552, "face_y": 490, "top_y": 400, "face": [1.0, 0.8] },
+      "graft": { "neck": 0.67, "clip": 0.012 }
+    },
+    "child": {
+      "neck": 0.765,
+      "paint": { "eyes": [286, 488, 459], "brow_y": 410, "nose_y": 525, "mouth_y": 562, "face_y": 505, "top_y": 400, "face": [0.85, 0.7], "eye_r": [0.2, 0.13], "smooth": 0.5, "brow_t": 0.05 },
+      "graft": { "neck": 0.68, "clip": 0.012 }
+    },
+    "cook": {
+      "neck": 0.829,
+      "paint": { "eyes": [310, 425, 337], "brow_y": 308, "nose_y": 398, "mouth_y": 442, "face_y": 390, "top_y": 285, "face": [1.1, 1.05] },
+      "graft": { "neck": 0.53, "clip": 0.05, "neck_auto": false }
+    }
+  }
+}

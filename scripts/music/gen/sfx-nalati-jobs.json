@@ -1,0 +1,338 @@
+{
+  "_doc": "`clap_desc` (NALATI-FINISH B3): the text that family's own takes are judged by when `desc` is a weak CLAP anchor; other families still meet `desc` as a rival (sfx_nalati.py). NALATI-MERGE A1: Nalati's sound families, rendered with MOSS-SoundEffect v2 (gen_sfx_moss.py --jobs sfx-nalati-jobs.json) and Stable Audio 3 Medium (gen_sfx.py --model medium --jobs sfx-nalati-jobs.json); sfx_nalati.py ranks both with CLAP and merges the better take per family INTO public/assets/sfx/best/ (the one set). `group`: siblings that are not each other's CLAP competitors (a hoof on grass vs on gravel). Every entry ships tagged shard 'nalati' in sfx.json, so only the steppe decodes it.",
+  "families": {
+    "wolf_howl": {
+      "kind": "oneshot",
+      "duration": 5,
+      "desc": "a lone wolf howling at night",
+      "prompt": "A single grey wolf howling: a long rising, holding and falling howl in the open steppe at night, a second wolf joining far off. Natural field recording, no music."
+    },
+    "wolf_snarl": {
+      "kind": "oneshot",
+      "duration": 2,
+      "desc": "a wolf snarling and growling through bared teeth",
+      "prompt": "A wolf snarling and growling aggressively through bared teeth, close, a rattling throaty growl. No music."
+    },
+    "wolf_bite": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "a wolf's jaws snapping shut in a bite",
+      "prompt": "A wolf lunging and biting: jaws snapping shut with a hard click and a short vicious growl, close. No music."
+    },
+    "wolf_yip": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "desc": "a wolf yipping excitedly",
+      "prompt": "A young wolf giving three short excited high yips and barks, close, outdoors. No music."
+    },
+    "wolf_yelp": {
+      "kind": "oneshot",
+      "duration": 1.2,
+      "desc": "a wolf yelping in pain",
+      "prompt": "A wolf yelping in pain after being hit: a sharp high cry sliding down into a whimper. No music."
+    },
+    "horse_neigh": {
+      "kind": "oneshot",
+      "duration": 2.5,
+      "desc": "a horse neighing",
+      "prompt": "A horse neighing loudly: a high quavering whinny falling in steps, ending in a soft nicker, outdoors on open grassland. No music."
+    },
+    "horse_snort": {
+      "kind": "oneshot",
+      "duration": 1.2,
+      "desc": "a horse snorting through its nostrils",
+      "prompt": "A horse snorting: a blast of air through flapping nostrils, a short blow, close. No music."
+    },
+    "horse_squeal": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "desc": "an angry stallion squealing",
+      "prompt": "An angry stallion squealing shrilly, a short aggressive shriek as it kicks, close. No music."
+    },
+    "dog_bark": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "desc": "a large herding dog barking",
+      "prompt": "A large shepherd dog barking two or three deep chesty barks outdoors in a field. No music."
+    },
+    "dog_yelp": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "a dog yelping in pain",
+      "prompt": "A dog yelping sharply in pain, one high cry and a short whimper. No music."
+    },
+    "sheep_bleat": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "desc": "a sheep bleating",
+      "prompt": "A single sheep bleating baa with a wobbling nasal voice, close, outdoors in a meadow. No music."
+    },
+    "marmot_whistle": {
+      "kind": "oneshot",
+      "duration": 1.2,
+      "desc": "a marmot's piercing alarm whistle",
+      "prompt": "An alpine marmot's alarm call: one or two piercing high sharp whistles echoing across a mountain meadow. No music."
+    },
+    "eagle_cry": {
+      "kind": "oneshot",
+      "duration": 2,
+      "desc": "a golden eagle screeching high in the sky",
+      "prompt": "A golden eagle calling high overhead: a thin piercing screech kee-yeer, twice, over open mountains. No music."
+    },
+    "leopard_growl": {
+      "kind": "oneshot",
+      "duration": 2,
+      "desc": "a snow leopard hissing and growling",
+      "prompt": "A snow leopard growling and hissing: a rasping, sawing big-cat growl with a spit of breath, close. No music."
+    },
+    "king_call": {
+      "kind": "oneshot",
+      "duration": 3,
+      "desc": "an undead warrior king groaning inside a stone tomb",
+      "prompt": "A huge undead warrior king in a stone burial mound: a deep hollow echoing groan and a rattle of gold armour, reverberant tomb, no words. No music."
+    },
+    "king_hurt": {
+      "kind": "oneshot",
+      "duration": 2,
+      "desc": "an armoured giant roaring in pain",
+      "prompt": "A giant armoured undead king struck by a blade: a short deep roar of pain with metal armour clanking, echoing stone chamber, no words. No music."
+    },
+    "hoof-grass": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "hoof",
+      "desc": "horse hooves on soft grass",
+      "prompt": "One horse trotting two steps on soft grass turf: muffled low hoof thuds with a swish of grass, close. No music."
+    },
+    "hoof-gravel": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "hoof",
+      "desc": "horse hooves on gravel",
+      "prompt": "One horse trotting two steps on loose gravel and river stones: a crunching clatter of hooves, close. No music."
+    },
+    "hoof-wood": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "hoof",
+      "desc": "horse hooves on a wooden bridge",
+      "prompt": "One horse trotting two steps across a wooden plank bridge: hollow knocking hoof clops on the boards, close. No music."
+    },
+    "stampede": {
+      "kind": "oneshot",
+      "duration": 5,
+      "desc": "a herd of wild horses stampeding past",
+      "prompt": "A herd of wild horses stampeding past across a grassy plain: a thundering rumble of many galloping hooves shaking the ground, building and passing. No music."
+    },
+    "footstep-grass": {
+      "kind": "oneshot",
+      "duration": 0.8,
+      "group": "footstep",
+      "desc": "a single footstep on tall dry grass",
+      "prompt": "A single footstep of a leather boot on tall dry steppe grass, a soft crush and swish, close. No music."
+    },
+    "footstep-gravel": {
+      "kind": "oneshot",
+      "duration": 0.8,
+      "group": "footstep",
+      "desc": "a single footstep on gravel",
+      "prompt": "A single footstep of a leather boot on a gravel road, a small crunch of stones, close. No music."
+    },
+    "bowDraw": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "group": "bow",
+      "desc": "a wooden bow being drawn with a creak",
+      "prompt": "An archer slowly drawing a horn and wood recurve bow: the string stretching and the limbs creaking under tension, close. No music."
+    },
+    "bowFullDraw": {
+      "kind": "oneshot",
+      "duration": 0.6,
+      "group": "bow",
+      "desc": "a small click and creak of a bow held at full draw",
+      "prompt": "A bow held at full draw: one small tight creak of wood and a soft click of the arrow nock, close, quiet. No music."
+    },
+    "bowLetDown": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "bow",
+      "desc": "a bow string eased back without shooting",
+      "prompt": "An archer easing a drawn bow back down without shooting: the string relaxing with a soft creak and a faint rattle of the arrow, close. No music."
+    },
+    "bowTwang": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "a bow string twanging as an arrow is shot",
+      "prompt": "A recurve bow shooting an arrow: the string releases with a deep twang and a thump of the limbs, close. No music."
+    },
+    "arrowWhoosh": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "an arrow whooshing past through the air",
+      "prompt": "An arrow flying fast past the listener: a short sharp whoosh of air. No music."
+    },
+    "arrowImpact-wood": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "arrowImpact",
+      "desc": "an arrow thudding into wood and quivering",
+      "prompt": "An arrow striking a wooden post: a hard thunk and the shaft quivering, close. No music."
+    },
+    "arrowImpact-ground": {
+      "kind": "oneshot",
+      "duration": 0.8,
+      "group": "arrowImpact",
+      "desc": "an arrow sticking into the ground",
+      "prompt": "An arrow sticking into soft earth and turf: a dull short thud. No music."
+    },
+    "arrowImpact-flesh": {
+      "kind": "oneshot",
+      "duration": 0.8,
+      "group": "arrowImpact",
+      "desc": "an arrow hitting an animal's body",
+      "prompt": "An arrow hitting an animal's body: a short wet thud, close. No music."
+    },
+    "sabreSwing": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "a curved steel sabre swishing through the air",
+      "prompt": "A curved steel cavalry sabre swung fast: a thin sharp swish through the air with a faint ring of the blade, close. No music."
+    },
+    "sabreHit-flesh": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "sabreHit",
+      "desc": "a sabre slashing into flesh",
+      "prompt": "A steel sabre slashing into a body: a sharp cutting slash with a wet thud, close. No music."
+    },
+    "sabreHit-wood": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "sabreHit",
+      "desc": "a sabre chopping into wood with a ringing blade",
+      "prompt": "A steel sabre chopping into wood: a hard chop with the blade ringing afterwards, close. No music."
+    },
+    "spearThrust": {
+      "kind": "oneshot",
+      "duration": 1,
+      "desc": "a spear thrust fast forward",
+      "clap_desc": "a quick swoosh of a spear stabbing forward",
+      "prompt": "A spear thrust hard forward: a short fast rip of air and the wooden shaft creaking, close. No music."
+    },
+    "javelinThrow": {
+      "kind": "oneshot",
+      "duration": 1.2,
+      "desc": "a javelin thrown with a heavy whoosh",
+      "prompt": "A heavy javelin thrown hard: a grunt of effort and a long heavy whoosh of the spear flying away. No music."
+    },
+    "javelinImpact-wood": {
+      "kind": "oneshot",
+      "duration": 1.2,
+      "group": "javelinImpact",
+      "desc": "a javelin slamming into wood",
+      "prompt": "A heavy javelin slamming into a wooden post: a deep thunk and the long shaft ringing, close. No music."
+    },
+    "javelinImpact-ground": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "javelinImpact",
+      "desc": "a javelin stabbing into the earth",
+      "prompt": "A heavy javelin stabbing deep into the earth: a deep thud and a spray of dirt. No music."
+    },
+    "javelinImpact-flesh": {
+      "kind": "oneshot",
+      "duration": 1,
+      "group": "javelinImpact",
+      "desc": "a javelin hitting a body",
+      "clap_desc": "a heavy spear thudding into an animal's body",
+      "prompt": "A heavy javelin hitting a large animal's body: a deep wet thud, close. No music."
+    },
+    "thunder-near": {
+      "kind": "oneshot",
+      "duration": 6,
+      "group": "thunder",
+      "desc": "a close thunderclap cracking overhead",
+      "prompt": "A lightning strike very close: an ear-splitting thunder crack tearing overhead, then a long heavy rolling rumble, open plain. No music."
+    },
+    "thunder-far": {
+      "kind": "oneshot",
+      "duration": 6,
+      "group": "thunder",
+      "desc": "distant thunder rolling",
+      "prompt": "Distant thunder: a low soft rolling rumble far away over the mountains, no crack. No music."
+    },
+    "lightningCrackle": {
+      "kind": "oneshot",
+      "duration": 1.5,
+      "desc": "static electricity crackling before a lightning strike",
+      "prompt": "Crackling static electricity building in the air just before a lightning strike: dry rapid snaps and sizzles rising in intensity. No music."
+    },
+    "bed-steppe-wind": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "wind",
+      "desc": "wind blowing through tall grass on an open steppe",
+      "prompt": "Ambience of an open grassy steppe by day: a steady wind hissing through tall dry grass, soft gusts swelling and fading, no birds, no voices. Continuous field recording, no music."
+    },
+    "bed-steppe-larks": {
+      "kind": "bed",
+      "duration": 24,
+      "desc": "skylarks singing high above a meadow",
+      "prompt": "Ambience of skylarks singing high above a summer meadow: long tumbling bright trills from several birds far overhead, a faint breeze. Continuous field recording, no music."
+    },
+    "bed-steppe-night": {
+      "kind": "bed",
+      "duration": 24,
+      "desc": "crickets chirping in grassland at night",
+      "prompt": "Ambience of a grassland at night: many crickets chirping steadily, a very light cool breeze in the grass, calm and still. Continuous field recording, no music."
+    },
+    "bed-river": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "water",
+      "desc": "a fast mountain river rushing over stones",
+      "prompt": "Ambience beside a fast clear mountain river: water rushing and splashing over gravel and stones, steady and continuous. Field recording, no music."
+    },
+    "bed-meltwater": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "water",
+      "desc": "meltwater trickling and dripping from a glacier",
+      "prompt": "Ambience at the foot of a glacier: meltwater trickling and gurgling in small icy streams, drips of water, a cold faint wind. Continuous field recording, no music."
+    },
+    "bed-camp": {
+      "kind": "bed",
+      "duration": 24,
+      "desc": "a crackling wood fire with tent fabric flapping in the wind",
+      "prompt": "Ambience of a nomad camp: a wood fire crackling and popping close by, heavy felt and canvas tent flaps rustling and flapping in a steady wind, open grassland all around. Continuous field recording, no music, no voices.",
+      "reroll": "round 1 (a stove, felt flaps, a distant goat and camp life) ranked 7 (MOSS) / 10 (SA3): CLAP heard a stampede; re-rolled with a plainer prompt"
+    },
+    "bed-highwind": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "wind",
+      "desc": "strong wind across a high open plateau",
+      "prompt": "Ambience on a high open mountain plateau: a strong steady wind blowing across wide grassland, deep whooshing gusts, far away a herd of horses. Continuous field recording, no music."
+    },
+    "bed-coldwind": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "wind",
+      "desc": "a cold howling wind in snowy mountains",
+      "prompt": "Ambience of a snowy mountain valley: a cold thin howling wind whistling over snow and rock, lonely and icy. Continuous field recording, no music."
+    },
+    "bed-rain": {
+      "kind": "bed",
+      "duration": 24,
+      "desc": "heavy rain falling on grassland",
+      "prompt": "Ambience of heavy rain falling on open grassland: a dense steady patter and hiss of raindrops on grass and earth, no thunder. Continuous field recording, no music."
+    },
+    "bed-stormwind": {
+      "kind": "bed",
+      "duration": 24,
+      "group": "wind",
+      "desc": "a violent storm wind roaring",
+      "prompt": "Ambience of a violent storm wind: a deep roaring gale blasting across an open plain, surging and howling, no rain, no thunder. Continuous field recording, no music."
+    }
+  }
+}

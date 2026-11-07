@@ -1,0 +1,17 @@
+{
+  "name": "text-garbled",
+  "version": 1,
+  "ask": "E394",
+  "about": "An image-generated mockup of the game's HUD (codex image_gen or local Qwen-Image): is any UI text garbled, so the take needs a re-roll? Calibrated in D3 (project/archive/2026-10-03-decision-models.md).",
+  "model": "clef-flash-4bit",
+  "state": "A mockup screenshot of a 3D game's HUD on a phone or desktop. Every piece of UI text should be real, correctly spelled English: button labels like ATTACK, DODGE, JUMP, VITALS, place names, quest titles and short notes.",
+  "questions": {
+    "garbled": {
+      "type": "noul",
+      "instructions": "Is any of the on-screen UI text misspelled, garbled, smeared into unreadable shapes, or made of nonsense letters?"
+    }
+  },
+  "flags": {
+    "garbled": { "noul_at_least": 0.5 }
+  }
+}

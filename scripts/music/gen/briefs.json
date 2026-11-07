@@ -1,0 +1,51 @@
+{
+  "_doc": "The Music v2 bake-off briefs (project/archive/2026-09-23-music.md checkpoint 2). One shared brief + one per style, then the per-model prompt each generator actually sends. Generators read this file; collect.py writes the takes (seed, model, version, metrics) into <style>.json beside it.",
+  "shared": {
+    "game": "Wildshard",
+    "brief": "Instrumental game exploration theme for Wildshard, a world that arrives one chunk at a time: wonder first, adventure second, a little melancholy underneath. No vocals. 60-90 s, loopable (it will be trimmed to a bar-exact loop). The model composes freely - no required motif.",
+    "duration_s": 75,
+    "timesig": "4/4"
+  },
+  "styles": {
+    "piano": {
+      "title": "Sparse piano + ambient",
+      "reference": "Breath of the Wild field music",
+      "key": "D major",
+      "mode_colour": "Lydian (raised 4th, G#)",
+      "bpm": 80,
+      "ace_caption": "Sparse solo piano with ambient pads, open-world exploration video game soundtrack in the style of Breath of the Wild. Gentle, spacious grand piano phrases with long rests between notes, soft felt tone and sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell. Wide natural reverb. Mood: wonder first, quiet adventure second, a little melancholy underneath - a world slowly appearing one piece at a time. Instrumental, no vocals, no drums. D major with a Lydian raised fourth.",
+      "heartmula_tags": "piano,ambient,instrumental,calm,peaceful,melancholic,dreamy,minimal,cinematic,slow",
+      "sao_prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "sao_negative": "drums, vocals, distortion, low quality, noise",
+      "minimax_prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "heartmula_tags_v0_spaced": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft"
+    },
+    "orchestral": {
+      "title": "Warm orchestral",
+      "reference": "Studio Ghibli (Joe Hisaishi) / Ori and the Blind Forest",
+      "key": "D major",
+      "mode_colour": "Lydian lift",
+      "bpm": 96,
+      "ace_caption": "Warm cinematic orchestral exploration theme for a fantasy adventure video game, in the style of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. A lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Mood: wonder first, adventure second, a little melancholy underneath. Rich concert-hall reverb. Instrumental, no lead vocals. D major.",
+      "heartmula_tags": "orchestral,cinematic,classical,instrumental,violin,cello,flute,harp,fantasy,adventure,gentle,dreamy",
+      "sao_prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "sao_negative": "drum kit, vocals, distortion, low quality, noise",
+      "minimax_prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "heartmula_tags_v0_spaced": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure"
+    },
+    "folk": {
+      "title": "Folk-adventure",
+      "reference": "Sea of Thieves",
+      "key": "D major",
+      "mode_colour": "Mixolydian (flat 7th, C natural)",
+      "bpm": 104,
+      "ace_caption": "Folk-adventure exploration theme for a seafaring video game in the style of Sea of Thieves. A lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass and a touch of tin whistle and accordion. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach. Natural room sound. Instrumental, no vocals. D major with a Mixolydian flat seventh.",
+      "heartmula_tags": "folk,acoustic,guitar,violin,accordion,instrumental,adventure,traditional,upbeat,cheerful,playful,nostalgic",
+      "sao_prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "sao_negative": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "minimax_prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "heartmula_tags_v0_spaced": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm"
+    }
+  },
+  "_heartmula_note": "HeartMuLa wants tags comma-separated WITHOUT spaces (heartlib README; issue #17). The bake-off takes (hm-spaced-*) were made with heartmula_tags_v0_spaced before that was known; the no-space heartmula_tags were then A/B-tested (2 seeds x piano/folk, 30 s, with and without '[intro]/[instrumental]/[outro]' lyrics) and did NOT reduce the humming/singing demucs finds, so the run was completed with the original tags for consistency."
+}

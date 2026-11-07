@@ -1,0 +1,17 @@
+{
+  "since": "2026-10-16T12:00:00Z",
+  "revision": "319dbea5bb996e5e0bbe15257532b405b5988385",
+  "basis": "source",
+  "customLines": {
+    "_template": 725,
+    "blender-template": 123,
+    "driftwood-isle": 13201,
+    "far-reach": 6075,
+    "ink-cel-valley": 1917,
+    "nalati-grasslands": 30045,
+    "nine-dragon-stack": 16258,
+    "pastel-plain": 736,
+    "pine-hollow": 18174,
+    "sunscar-dunes": 1794
+  }
+}

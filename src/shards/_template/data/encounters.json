@@ -1,0 +1,96 @@
+{
+  "encounters": [
+    {
+      "id": "template.elite",
+      "entity": "greyback",
+      "kind": "elite",
+      "panel": null,
+      "name": "Greyback",
+      "title": "Greyback",
+      "retry": "Try Greyback again",
+      "arena": {
+        "at": [
+          15,
+          0,
+          -12
+        ],
+        "radius": 15
+      },
+      "intro": 0,
+      "introShort": 0,
+      "respawn": {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "yaw": 0
+      },
+      "phases": [
+        {
+          "at": 1,
+          "name": "First phase",
+          "caption": "First phase",
+          "speed": 2,
+          "stopDistance": 2,
+          "turnRate": 3
+        }
+      ]
+    },
+    {
+      "id": "template.boss",
+      "entity": "big-blob",
+      "kind": "boss",
+      "panel": "big-blob-panel",
+      "name": "Big blob",
+      "title": "Two-phase teaching encounter",
+      "retry": "Try the big blob again",
+      "arena": {
+        "at": [
+          -15,
+          0,
+          -20
+        ],
+        "radius": 8
+      },
+      "intro": 1,
+      "introShort": 0.2,
+      "respawn": {
+        "at": [
+          0,
+          0,
+          0
+        ],
+        "yaw": 0
+      },
+      "phases": [
+        {
+          "at": 1,
+          "name": "First phase",
+          "caption": "First phase",
+          "speed": 1,
+          "stopDistance": 0,
+          "turnRate": 4
+        },
+        {
+          "at": 0.5,
+          "name": "Second phase",
+          "caption": "Second phase",
+          "speed": 2.5,
+          "stopDistance": 0,
+          "turnRate": 4
+        }
+      ]
+    }
+  ],
+  "ui": [
+    {
+      "kind": "bossPanel",
+      "id": "big-blob-panel",
+      "encounter": "template.boss",
+      "name": "Big blob",
+      "title": "Two-phase teaching encounter",
+      "retry": "Try the big blob again"
+    }
+  ]
+}

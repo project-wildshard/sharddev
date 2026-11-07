@@ -1,0 +1,3166 @@
+{
+ "art/thin-ice/round-0-references/aurora-boss.jpg": {
+  "hash": "45553c6a10656f9f",
+  "enc": "orig+402",
+  "w": 733,
+  "h": 1100,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/45553c6a10656f9f-full.webp",
+   "bytes": 43614
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/45553c6a10656f9f-thumb.webp",
+   "bytes": 11390
+  }
+ },
+ "art/thin-ice/round-0-references/aurora-hub.jpg": {
+  "hash": "15f612148af5933a",
+  "enc": "orig+402",
+  "w": 733,
+  "h": 1100,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15f612148af5933a-full.webp",
+   "bytes": 59238
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15f612148af5933a-thumb.webp",
+   "bytes": 15054
+  }
+ },
+ "art/thin-ice/round-0-references/compose-a.jpg": {
+  "hash": "ef1ee87890d55210",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ef1ee87890d55210-full.webp",
+   "bytes": 134062
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ef1ee87890d55210-thumb.webp",
+   "bytes": 11694
+  }
+ },
+ "art/thin-ice/round-0-references/deck.jpg": {
+  "hash": "58727931fc1bcebe",
+  "enc": "orig+402",
+  "w": 1206,
+  "h": 2622,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/58727931fc1bcebe-full.webp",
+   "bytes": 97754
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/58727931fc1bcebe-thumb.webp",
+   "bytes": 8516
+  }
+ },
+ "art/thin-ice/round-0-references/explorer.jpg": {
+  "hash": "a097ed00bc13944d",
+  "enc": "orig+402",
+  "w": 598,
+  "h": 1300,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a097ed00bc13944d-full.webp",
+   "bytes": 77064
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a097ed00bc13944d-thumb.webp",
+   "bytes": 10698
+  }
+ },
+ "art/thin-ice/round-0-references/layout-b.jpg": {
+  "hash": "a55328915a4b636c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1024,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a55328915a4b636c-full.webp",
+   "bytes": 22622
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a55328915a4b636c-thumb.webp",
+   "bytes": 7040
+  }
+ },
+ "art/thin-ice/round-0-references/layout-c.jpg": {
+  "hash": "556b52a5cbb834f2",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1024,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/556b52a5cbb834f2-full.webp",
+   "bytes": 23044
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/556b52a5cbb834f2-thumb.webp",
+   "bytes": 7284
+  }
+ },
+ "art/thin-ice/round-0-references/play.jpg": {
+  "hash": "6e2b21ef2483f199",
+  "enc": "orig+402",
+  "w": 1206,
+  "h": 2622,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6e2b21ef2483f199-full.webp",
+   "bytes": 100206
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6e2b21ef2483f199-thumb.webp",
+   "bytes": 8820
+  }
+ },
+ "art/thin-ice/round-0-references/style-spire.jpg": {
+  "hash": "8c5953f567eb58d9",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c5953f567eb58d9-full.webp",
+   "bytes": 124610
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c5953f567eb58d9-thumb.webp",
+   "bytes": 18408
+  }
+ },
+ "art/thin-ice/round-0-references/terrain-sheet.jpg": {
+  "hash": "ffa483327061d1e2",
+  "enc": "orig+402",
+  "w": 2324,
+  "h": 768,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ffa483327061d1e2-full.webp",
+   "bytes": 137004
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ffa483327061d1e2-thumb.webp",
+   "bytes": 11416
+  }
+ },
+ "art/thin-ice/round-1-pitches/p2-a-last-crossing.jpg": {
+  "hash": "2c140501f7e4585a",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2c140501f7e4585a-full.webp",
+   "bytes": 153856
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2c140501f7e4585a-thumb.webp",
+   "bytes": 16924
+  }
+ },
+ "art/thin-ice/round-1-pitches/p2-b-lantern-line.jpg": {
+  "hash": "dc5cb7504ce5337f",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/dc5cb7504ce5337f-full.webp",
+   "bytes": 115874
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/dc5cb7504ce5337f-thumb.webp",
+   "bytes": 13974
+  }
+ },
+ "art/thin-ice/round-1-pitches/p2-c-thin-ice.jpg": {
+  "hash": "b54d6364ecc3cc1c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b54d6364ecc3cc1c-full.webp",
+   "bytes": 183362
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b54d6364ecc3cc1c-thumb.webp",
+   "bytes": 19410
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step01-2.jpg": {
+  "hash": "b3e83873725ec8ab",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b3e83873725ec8ab-full.webp",
+   "bytes": 124096
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b3e83873725ec8ab-thumb.webp",
+   "bytes": 12908
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step01-3.jpg": {
+  "hash": "89b14ba232a0bddd",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/89b14ba232a0bddd-full.webp",
+   "bytes": 95012
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/89b14ba232a0bddd-thumb.webp",
+   "bytes": 11188
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step01-4.jpg": {
+  "hash": "a40a3e381ac3f6a0",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a40a3e381ac3f6a0-full.webp",
+   "bytes": 49852
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a40a3e381ac3f6a0-thumb.webp",
+   "bytes": 6696
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step02-2.jpg": {
+  "hash": "576610fbb8615a92",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/576610fbb8615a92-full.webp",
+   "bytes": 110966
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/576610fbb8615a92-thumb.webp",
+   "bytes": 13102
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step02-3.jpg": {
+  "hash": "98bbcf49d98b9ec2",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/98bbcf49d98b9ec2-full.webp",
+   "bytes": 102266
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/98bbcf49d98b9ec2-thumb.webp",
+   "bytes": 12978
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step02-4.jpg": {
+  "hash": "ff2f496bd9e69d9d",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff2f496bd9e69d9d-full.webp",
+   "bytes": 50178
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff2f496bd9e69d9d-thumb.webp",
+   "bytes": 8186
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step03-2.jpg": {
+  "hash": "08fe9230710c179f",
+  "enc": "orig+402",
+  "w": 850,
+  "h": 1850,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08fe9230710c179f-full.webp",
+   "bytes": 131220
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08fe9230710c179f-thumb.webp",
+   "bytes": 13506
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step03-3.jpg": {
+  "hash": "6c2f24a4ad5e0636",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6c2f24a4ad5e0636-full.webp",
+   "bytes": 137938
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6c2f24a4ad5e0636-thumb.webp",
+   "bytes": 14358
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step03-4.jpg": {
+  "hash": "ed00ea423f7246e8",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ed00ea423f7246e8-full.webp",
+   "bytes": 40846
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ed00ea423f7246e8-thumb.webp",
+   "bytes": 5712
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step04-2.jpg": {
+  "hash": "f83c51a562ba9fc0",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f83c51a562ba9fc0-full.webp",
+   "bytes": 105438
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f83c51a562ba9fc0-thumb.webp",
+   "bytes": 10486
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step04-3.jpg": {
+  "hash": "7cbc0fc63bbbe795",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7cbc0fc63bbbe795-full.webp",
+   "bytes": 108502
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7cbc0fc63bbbe795-thumb.webp",
+   "bytes": 10412
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step04-4.jpg": {
+  "hash": "549f4c2e302c9547",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/549f4c2e302c9547-full.webp",
+   "bytes": 96854
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/549f4c2e302c9547-thumb.webp",
+   "bytes": 9826
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step05-2.jpg": {
+  "hash": "9d98afba8436fd01",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9d98afba8436fd01-full.webp",
+   "bytes": 119130
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9d98afba8436fd01-thumb.webp",
+   "bytes": 12820
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step05-3.jpg": {
+  "hash": "189eda78bd69b7e8",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/189eda78bd69b7e8-full.webp",
+   "bytes": 109730
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/189eda78bd69b7e8-thumb.webp",
+   "bytes": 12104
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step05-4.jpg": {
+  "hash": "0b660d68e72c09c0",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0b660d68e72c09c0-full.webp",
+   "bytes": 58724
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0b660d68e72c09c0-thumb.webp",
+   "bytes": 6826
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step06-2.jpg": {
+  "hash": "10a67fbadb828257",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/10a67fbadb828257-full.webp",
+   "bytes": 124450
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/10a67fbadb828257-thumb.webp",
+   "bytes": 12182
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step06-3.jpg": {
+  "hash": "94a55731c69cd55d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/94a55731c69cd55d-full.webp",
+   "bytes": 120176
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/94a55731c69cd55d-thumb.webp",
+   "bytes": 12260
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step06-4.jpg": {
+  "hash": "5819749feeff619c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5819749feeff619c-full.webp",
+   "bytes": 54258
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5819749feeff619c-thumb.webp",
+   "bytes": 8492
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step07-2.jpg": {
+  "hash": "82658a06956ddd60",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/82658a06956ddd60-full.webp",
+   "bytes": 137552
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/82658a06956ddd60-thumb.webp",
+   "bytes": 14220
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step07-3.jpg": {
+  "hash": "046c5e97718af980",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/046c5e97718af980-full.webp",
+   "bytes": 122132
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/046c5e97718af980-thumb.webp",
+   "bytes": 12926
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step07-4.jpg": {
+  "hash": "ce5154ffdbbf133e",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ce5154ffdbbf133e-full.webp",
+   "bytes": 103640
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ce5154ffdbbf133e-thumb.webp",
+   "bytes": 12344
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step08-2.jpg": {
+  "hash": "b6d49c8e5467f4f7",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6d49c8e5467f4f7-full.webp",
+   "bytes": 152056
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6d49c8e5467f4f7-thumb.webp",
+   "bytes": 15296
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step08-3.jpg": {
+  "hash": "15b6fb192bcf38f3",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15b6fb192bcf38f3-full.webp",
+   "bytes": 106788
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15b6fb192bcf38f3-thumb.webp",
+   "bytes": 11566
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step08-4.jpg": {
+  "hash": "db0e0fdc6c5b5f7b",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/db0e0fdc6c5b5f7b-full.webp",
+   "bytes": 39402
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/db0e0fdc6c5b5f7b-thumb.webp",
+   "bytes": 4252
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step09-2.jpg": {
+  "hash": "53a5fd9ddc2238ad",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/53a5fd9ddc2238ad-full.webp",
+   "bytes": 99570
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/53a5fd9ddc2238ad-thumb.webp",
+   "bytes": 11652
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step09-3.jpg": {
+  "hash": "c1dcd632cde6bf75",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c1dcd632cde6bf75-full.webp",
+   "bytes": 99084
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c1dcd632cde6bf75-thumb.webp",
+   "bytes": 11042
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step09-4.jpg": {
+  "hash": "1a75aa14f299c7cf",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1a75aa14f299c7cf-full.webp",
+   "bytes": 102340
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1a75aa14f299c7cf-thumb.webp",
+   "bytes": 11068
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step10-2.jpg": {
+  "hash": "255d95bcaf3167bf",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/255d95bcaf3167bf-full.webp",
+   "bytes": 123004
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/255d95bcaf3167bf-thumb.webp",
+   "bytes": 13676
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step10-3.jpg": {
+  "hash": "b6faab57066f79f3",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6faab57066f79f3-full.webp",
+   "bytes": 135134
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6faab57066f79f3-thumb.webp",
+   "bytes": 14192
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step10-4.jpg": {
+  "hash": "6866e6ed26e0401d",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6866e6ed26e0401d-full.webp",
+   "bytes": 73770
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6866e6ed26e0401d-thumb.webp",
+   "bytes": 6814
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step11-2.jpg": {
+  "hash": "5fcbbdf7de74379c",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5fcbbdf7de74379c-full.webp",
+   "bytes": 141838
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5fcbbdf7de74379c-thumb.webp",
+   "bytes": 13260
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step11-3.jpg": {
+  "hash": "df685d2a0a997456",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/df685d2a0a997456-full.webp",
+   "bytes": 154380
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/df685d2a0a997456-thumb.webp",
+   "bytes": 14360
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step11-4.jpg": {
+  "hash": "25a49e6ebdd57d4d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/25a49e6ebdd57d4d-full.webp",
+   "bytes": 127858
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/25a49e6ebdd57d4d-thumb.webp",
+   "bytes": 12552
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step12-2.jpg": {
+  "hash": "c7aec136c6e6d23d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c7aec136c6e6d23d-full.webp",
+   "bytes": 134412
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c7aec136c6e6d23d-thumb.webp",
+   "bytes": 13184
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step12-3.jpg": {
+  "hash": "2f01f6e1d9e44172",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f01f6e1d9e44172-full.webp",
+   "bytes": 107690
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f01f6e1d9e44172-thumb.webp",
+   "bytes": 10868
+  }
+ },
+ "art/thin-ice/round-10-content-round-2/step12-4.jpg": {
+  "hash": "65c88d1bdd482aca",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65c88d1bdd482aca-full.webp",
+   "bytes": 47516
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65c88d1bdd482aca-thumb.webp",
+   "bytes": 5808
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-glass-boss.jpg": {
+  "hash": "c2d7357f8a627cdc",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c2d7357f8a627cdc-full.webp",
+   "bytes": 180744
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c2d7357f8a627cdc-thumb.webp",
+   "bytes": 19120
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-glass-hub.jpg": {
+  "hash": "7be54b51bb01a6a9",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7be54b51bb01a6a9-full.webp",
+   "bytes": 182444
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7be54b51bb01a6a9-thumb.webp",
+   "bytes": 20310
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-glass-landmark.jpg": {
+  "hash": "16de74437f371270",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/16de74437f371270-full.webp",
+   "bytes": 202916
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/16de74437f371270-thumb.webp",
+   "bytes": 21138
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-glass-spawn.jpg": {
+  "hash": "b4c8de8ae63a8e1c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b4c8de8ae63a8e1c-full.webp",
+   "bytes": 215974
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b4c8de8ae63a8e1c-thumb.webp",
+   "bytes": 22132
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-ink-boss.jpg": {
+  "hash": "4551e2787b89953e",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/4551e2787b89953e-full.webp",
+   "bytes": 241346
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/4551e2787b89953e-thumb.webp",
+   "bytes": 20272
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-ink-hub.jpg": {
+  "hash": "642d98717ef4eec4",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/642d98717ef4eec4-full.webp",
+   "bytes": 325728
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/642d98717ef4eec4-thumb.webp",
+   "bytes": 25036
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-ink-landmark.jpg": {
+  "hash": "d0de435a49dd491c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d0de435a49dd491c-full.webp",
+   "bytes": 240088
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d0de435a49dd491c-thumb.webp",
+   "bytes": 19102
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-ink-spawn.jpg": {
+  "hash": "d81bbc388f4a8a01",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d81bbc388f4a8a01-full.webp",
+   "bytes": 241164
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d81bbc388f4a8a01-thumb.webp",
+   "bytes": 21940
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-sodium-boss.jpg": {
+  "hash": "0d90dfa7d08919d5",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0d90dfa7d08919d5-full.webp",
+   "bytes": 159478
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0d90dfa7d08919d5-thumb.webp",
+   "bytes": 15720
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-sodium-hub.jpg": {
+  "hash": "994b85d06b1423e0",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/994b85d06b1423e0-full.webp",
+   "bytes": 203708
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/994b85d06b1423e0-thumb.webp",
+   "bytes": 18864
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-sodium-landmark.jpg": {
+  "hash": "0ebadb6b59d63b66",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0ebadb6b59d63b66-full.webp",
+   "bytes": 160902
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0ebadb6b59d63b66-thumb.webp",
+   "bytes": 14430
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3-sodium-spawn.jpg": {
+  "hash": "3844b1d70b6f1ecd",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/3844b1d70b6f1ecd-full.webp",
+   "bytes": 172330
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/3844b1d70b6f1ecd-thumb.webp",
+   "bytes": 17828
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3m-sled.jpg": {
+  "hash": "6e8ec0054bbd4964",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6e8ec0054bbd4964-full.webp",
+   "bytes": 71436
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6e8ec0054bbd4964-thumb.webp",
+   "bytes": 8654
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3m-spawn.jpg": {
+  "hash": "b225bdc63281d1cb",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b225bdc63281d1cb-full.webp",
+   "bytes": 82304
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b225bdc63281d1cb-thumb.webp",
+   "bytes": 9504
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3s-aurora-boss.jpg": {
+  "hash": "17e38354d29d3b48",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/17e38354d29d3b48-full.webp",
+   "bytes": 71690
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/17e38354d29d3b48-thumb.webp",
+   "bytes": 11642
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3s-aurora-hub.jpg": {
+  "hash": "5b3b0bab2ff4fd0c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5b3b0bab2ff4fd0c-full.webp",
+   "bytes": 98602
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5b3b0bab2ff4fd0c-thumb.webp",
+   "bytes": 15348
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3s-aurora-landmark.jpg": {
+  "hash": "2f28f8d4452bed57",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f28f8d4452bed57-full.webp",
+   "bytes": 111780
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f28f8d4452bed57-thumb.webp",
+   "bytes": 15888
+  }
+ },
+ "art/thin-ice/round-2-art-direction/p3s-aurora-spawn.jpg": {
+  "hash": "7eee933eb7bdf483",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7eee933eb7bdf483-full.webp",
+   "bytes": 90252
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7eee933eb7bdf483-thumb.webp",
+   "bytes": 14392
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-char-bellkeeper.jpg": {
+  "hash": "7b6b0130746ae68e",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7b6b0130746ae68e-full.webp",
+   "bytes": 90642
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7b6b0130746ae68e-thumb.webp",
+   "bytes": 10828
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-char-crawlers.jpg": {
+  "hash": "602f76e8599f5ea1",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/602f76e8599f5ea1-full.webp",
+   "bytes": 58630
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/602f76e8599f5ea1-thumb.webp",
+   "bytes": 7656
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-char-icebear.jpg": {
+  "hash": "506eeb67726482df",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/506eeb67726482df-full.webp",
+   "bytes": 48398
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/506eeb67726482df-thumb.webp",
+   "bytes": 7616
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-char-sigrun.jpg": {
+  "hash": "d40bdd9d81bfdf9c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d40bdd9d81bfdf9c-full.webp",
+   "bytes": 48096
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d40bdd9d81bfdf9c-thumb.webp",
+   "bytes": 7736
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-gear-harpoon.jpg": {
+  "hash": "d42915f6134679ad",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d42915f6134679ad-full.webp",
+   "bytes": 31084
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d42915f6134679ad-thumb.webp",
+   "bytes": 4104
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-gear-sled.jpg": {
+  "hash": "5acb9975dc9ab655",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5acb9975dc9ab655-full.webp",
+   "bytes": 35668
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5acb9975dc9ab655-thumb.webp",
+   "bytes": 4228
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-keyart.jpg": {
+  "hash": "50ecc454e23ed708",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/50ecc454e23ed708-full.webp",
+   "bytes": 131142
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/50ecc454e23ed708-thumb.webp",
+   "bytes": 18960
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-01-landing.jpg": {
+  "hash": "d29f5ec77b1c0551",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d29f5ec77b1c0551-full.webp",
+   "bytes": 117402
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d29f5ec77b1c0551-thumb.webp",
+   "bytes": 17686
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-02-village.jpg": {
+  "hash": "37f9d7e61ca4a8bb",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/37f9d7e61ca4a8bb-full.webp",
+   "bytes": 120522
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/37f9d7e61ca4a8bb-thumb.webp",
+   "bytes": 15706
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-03-lighthouse.jpg": {
+  "hash": "8e74388573d9b2c8",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8e74388573d9b2c8-full.webp",
+   "bytes": 121042
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8e74388573d9b2c8-thumb.webp",
+   "bytes": 18178
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-04-quarry.jpg": {
+  "hash": "b84ab1858d2c0bfb",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b84ab1858d2c0bfb-full.webp",
+   "bytes": 120972
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b84ab1858d2c0bfb-thumb.webp",
+   "bytes": 16578
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-05-spire.jpg": {
+  "hash": "8c5953f567eb58d9",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c5953f567eb58d9-full.webp",
+   "bytes": 124610
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c5953f567eb58d9-thumb.webp",
+   "bytes": 18408
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-06-cave.jpg": {
+  "hash": "58abc09399cabbf7",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/58abc09399cabbf7-full.webp",
+   "bytes": 99362
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/58abc09399cabbf7-thumb.webp",
+   "bytes": 15412
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-07-overlook.jpg": {
+  "hash": "5e799c41cdda3c70",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5e799c41cdda3c70-full.webp",
+   "bytes": 112818
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5e799c41cdda3c70-thumb.webp",
+   "bytes": 15348
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-08-bayrun.jpg": {
+  "hash": "8407d23bb7884b00",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8407d23bb7884b00-full.webp",
+   "bytes": 96276
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8407d23bb7884b00-thumb.webp",
+   "bytes": 14130
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-09-tower.jpg": {
+  "hash": "cf8094f9bb510e5c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cf8094f9bb510e5c-full.webp",
+   "bytes": 110598
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cf8094f9bb510e5c-thumb.webp",
+   "bytes": 17438
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-10-glacier.jpg": {
+  "hash": "402bf9a5e6d761e3",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/402bf9a5e6d761e3-full.webp",
+   "bytes": 124028
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/402bf9a5e6d761e3-thumb.webp",
+   "bytes": 18028
+  }
+ },
+ "art/thin-ice/round-3-concepts/p4-place-11-spring.jpg": {
+  "hash": "311adfb8b468a76d",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/311adfb8b468a76d-full.webp",
+   "bytes": 121912
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/311adfb8b468a76d-thumb.webp",
+   "bytes": 16598
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5-map-a.jpg": {
+  "hash": "227ae779d0129025",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/227ae779d0129025-full.webp",
+   "bytes": 248286
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/227ae779d0129025-thumb.webp",
+   "bytes": 40674
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5-map-b.jpg": {
+  "hash": "6155389dc38506d9",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6155389dc38506d9-full.webp",
+   "bytes": 257686
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6155389dc38506d9-thumb.webp",
+   "bytes": 43456
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5-map-c.jpg": {
+  "hash": "bb263419e61a25ba",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/bb263419e61a25ba-full.webp",
+   "bytes": 256326
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/bb263419e61a25ba-thumb.webp",
+   "bytes": 40552
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5-map2-b.jpg": {
+  "hash": "4ab9eb516140a232",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/4ab9eb516140a232-full.webp",
+   "bytes": 208248
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/4ab9eb516140a232-thumb.webp",
+   "bytes": 36680
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5-map2-c.jpg": {
+  "hash": "68d05a25a97615d4",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/68d05a25a97615d4-full.webp",
+   "bytes": 202364
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/68d05a25a97615d4-thumb.webp",
+   "bytes": 36286
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-e.jpg": {
+  "hash": "e2cefa94ee0b644b",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e2cefa94ee0b644b-full.webp",
+   "bytes": 169818
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e2cefa94ee0b644b-thumb.webp",
+   "bytes": 17736
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-n.jpg": {
+  "hash": "d8f2f4f4c25280d2",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d8f2f4f4c25280d2-full.webp",
+   "bytes": 194864
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d8f2f4f4c25280d2-thumb.webp",
+   "bytes": 17952
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-ne.jpg": {
+  "hash": "5ae30d67aed4f113",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5ae30d67aed4f113-full.webp",
+   "bytes": 197382
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5ae30d67aed4f113-thumb.webp",
+   "bytes": 18050
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-nw.jpg": {
+  "hash": "9439201a0adda1e1",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9439201a0adda1e1-full.webp",
+   "bytes": 197010
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9439201a0adda1e1-thumb.webp",
+   "bytes": 18720
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-s.jpg": {
+  "hash": "0e3c9af1366a4c11",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0e3c9af1366a4c11-full.webp",
+   "bytes": 214244
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0e3c9af1366a4c11-thumb.webp",
+   "bytes": 18944
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-se.jpg": {
+  "hash": "9799c4564651d707",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9799c4564651d707-full.webp",
+   "bytes": 191378
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9799c4564651d707-thumb.webp",
+   "bytes": 17706
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-sw.jpg": {
+  "hash": "014090c5ef20fb0f",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/014090c5ef20fb0f-full.webp",
+   "bytes": 205322
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/014090c5ef20fb0f-thumb.webp",
+   "bytes": 19396
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w-w.jpg": {
+  "hash": "c28b3674d2e0e493",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c28b3674d2e0e493-full.webp",
+   "bytes": 177974
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c28b3674d2e0e493-thumb.webp",
+   "bytes": 18054
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-b-ne.jpg": {
+  "hash": "fa97a5fca023e42c",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/fa97a5fca023e42c-full.webp",
+   "bytes": 160172
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/fa97a5fca023e42c-thumb.webp",
+   "bytes": 16450
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-b-s.jpg": {
+  "hash": "f8c68d3bd0ffd928",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f8c68d3bd0ffd928-full.webp",
+   "bytes": 165644
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f8c68d3bd0ffd928-thumb.webp",
+   "bytes": 16522
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-b-w.jpg": {
+  "hash": "a555b7613fa0ce0b",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a555b7613fa0ce0b-full.webp",
+   "bytes": 170288
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a555b7613fa0ce0b-thumb.webp",
+   "bytes": 17178
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-c-ne.jpg": {
+  "hash": "8d3d350f5d727d79",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8d3d350f5d727d79-full.webp",
+   "bytes": 178372
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8d3d350f5d727d79-thumb.webp",
+   "bytes": 18600
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-c-s.jpg": {
+  "hash": "778d17bec4b62628",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/778d17bec4b62628-full.webp",
+   "bytes": 172500
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/778d17bec4b62628-thumb.webp",
+   "bytes": 16762
+  }
+ },
+ "art/thin-ice/round-4-map-wave-1/p5w2-c-w.jpg": {
+  "hash": "797fbf6271bd0d3f",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/797fbf6271bd0d3f-full.webp",
+   "bytes": 175522
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/797fbf6271bd0d3f-thumb.webp",
+   "bytes": 18828
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-e.jpg": {
+  "hash": "7532262f8dd64f3a",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7532262f8dd64f3a-full.webp",
+   "bytes": 104894
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7532262f8dd64f3a-thumb.webp",
+   "bytes": 12032
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-n.jpg": {
+  "hash": "65fad17a90af28e0",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65fad17a90af28e0-full.webp",
+   "bytes": 87586
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65fad17a90af28e0-thumb.webp",
+   "bytes": 10294
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-ne.jpg": {
+  "hash": "b976f69aef743993",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b976f69aef743993-full.webp",
+   "bytes": 71570
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b976f69aef743993-thumb.webp",
+   "bytes": 8684
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-nw.jpg": {
+  "hash": "e2c839c15836dfb8",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e2c839c15836dfb8-full.webp",
+   "bytes": 101966
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e2c839c15836dfb8-thumb.webp",
+   "bytes": 12238
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-s.jpg": {
+  "hash": "213449ca9b5b7ebe",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/213449ca9b5b7ebe-full.webp",
+   "bytes": 96616
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/213449ca9b5b7ebe-thumb.webp",
+   "bytes": 11746
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-se.jpg": {
+  "hash": "401c1780c26c3d28",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/401c1780c26c3d28-full.webp",
+   "bytes": 90148
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/401c1780c26c3d28-thumb.webp",
+   "bytes": 9578
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-se2.jpg": {
+  "hash": "e05861fd06a6db1d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e05861fd06a6db1d-full.webp",
+   "bytes": 106036
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e05861fd06a6db1d-thumb.webp",
+   "bytes": 11224
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-sw.jpg": {
+  "hash": "bac668ad4cad0438",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/bac668ad4cad0438-full.webp",
+   "bytes": 117578
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/bac668ad4cad0438-thumb.webp",
+   "bytes": 12292
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-top.jpg": {
+  "hash": "eca5e77b2396c4ca",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/eca5e77b2396c4ca-full.webp",
+   "bytes": 197824
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/eca5e77b2396c4ca-thumb.webp",
+   "bytes": 36246
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5b-w.jpg": {
+  "hash": "56d397e9e0b5f083",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/56d397e9e0b5f083-full.webp",
+   "bytes": 82772
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/56d397e9e0b5f083-thumb.webp",
+   "bytes": 10158
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-e.jpg": {
+  "hash": "658d2b846b918df6",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/658d2b846b918df6-full.webp",
+   "bytes": 212360
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/658d2b846b918df6-thumb.webp",
+   "bytes": 18516
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-n.jpg": {
+  "hash": "c749a133a1bb75a4",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c749a133a1bb75a4-full.webp",
+   "bytes": 181134
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c749a133a1bb75a4-thumb.webp",
+   "bytes": 16854
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-ne.jpg": {
+  "hash": "7dbd06615589648f",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7dbd06615589648f-full.webp",
+   "bytes": 192296
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7dbd06615589648f-thumb.webp",
+   "bytes": 18166
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-nw.jpg": {
+  "hash": "8b1948b39c65dc33",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8b1948b39c65dc33-full.webp",
+   "bytes": 214482
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8b1948b39c65dc33-thumb.webp",
+   "bytes": 18490
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-s.jpg": {
+  "hash": "7d45f47b52c48dc5",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7d45f47b52c48dc5-full.webp",
+   "bytes": 207500
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7d45f47b52c48dc5-thumb.webp",
+   "bytes": 19722
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-se.jpg": {
+  "hash": "d25097823fcba478",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d25097823fcba478-full.webp",
+   "bytes": 223530
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d25097823fcba478-thumb.webp",
+   "bytes": 19422
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-sw.jpg": {
+  "hash": "79338e5049b41c6f",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/79338e5049b41c6f-full.webp",
+   "bytes": 211588
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/79338e5049b41c6f-thumb.webp",
+   "bytes": 18608
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-w.jpg": {
+  "hash": "ef9e17ca112a1c15",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ef9e17ca112a1c15-full.webp",
+   "bytes": 238322
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ef9e17ca112a1c15-thumb.webp",
+   "bytes": 20248
+  }
+ },
+ "art/thin-ice/round-5-map-revision-1/p5c-w2.jpg": {
+  "hash": "efe2d7c148bba082",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/efe2d7c148bba082-full.webp",
+   "bytes": 225828
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/efe2d7c148bba082-thumb.webp",
+   "bytes": 19652
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-01-landing.jpg": {
+  "hash": "761aee532022587d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/761aee532022587d-full.webp",
+   "bytes": 8628
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/761aee532022587d-thumb.webp",
+   "bytes": 1018
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-02-village.jpg": {
+  "hash": "48c5a330dea9b026",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/48c5a330dea9b026-full.webp",
+   "bytes": 8568
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/48c5a330dea9b026-thumb.webp",
+   "bytes": 1054
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-03-lighthouse.jpg": {
+  "hash": "a8ab5d60c4b09dcb",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a8ab5d60c4b09dcb-full.webp",
+   "bytes": 10240
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a8ab5d60c4b09dcb-thumb.webp",
+   "bytes": 1332
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-04-quarry.jpg": {
+  "hash": "ff53279f6e67e576",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff53279f6e67e576-full.webp",
+   "bytes": 9220
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff53279f6e67e576-thumb.webp",
+   "bytes": 1342
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-05-spire.jpg": {
+  "hash": "a106e32321207b6e",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a106e32321207b6e-full.webp",
+   "bytes": 12162
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a106e32321207b6e-thumb.webp",
+   "bytes": 1580
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-06-cave.jpg": {
+  "hash": "87795e2a9ad29443",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/87795e2a9ad29443-full.webp",
+   "bytes": 5954
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/87795e2a9ad29443-thumb.webp",
+   "bytes": 642
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-07-overlook.jpg": {
+  "hash": "2e5f1c32db2b67cf",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2e5f1c32db2b67cf-full.webp",
+   "bytes": 15004
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2e5f1c32db2b67cf-thumb.webp",
+   "bytes": 1896
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-08-bayrun.jpg": {
+  "hash": "cf73ca4d10ee05b1",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cf73ca4d10ee05b1-full.webp",
+   "bytes": 7480
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cf73ca4d10ee05b1-thumb.webp",
+   "bytes": 1004
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-09-tower.jpg": {
+  "hash": "180abbce31ac6ec2",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/180abbce31ac6ec2-full.webp",
+   "bytes": 13748
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/180abbce31ac6ec2-thumb.webp",
+   "bytes": 1910
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-10-glacier.jpg": {
+  "hash": "9c2dacb6f04c8f57",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9c2dacb6f04c8f57-full.webp",
+   "bytes": 13804
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9c2dacb6f04c8f57-thumb.webp",
+   "bytes": 1842
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/fp-11-spring.jpg": {
+  "hash": "a1e61c6ac70cb3e5",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a1e61c6ac70cb3e5-full.webp",
+   "bytes": 14862
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a1e61c6ac70cb3e5-thumb.webp",
+   "bytes": 1940
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/guide3.jpg": {
+  "hash": "09fcfdffdd12f7be",
+  "enc": "orig+402",
+  "w": 1536,
+  "h": 1024,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/09fcfdffdd12f7be-full.webp",
+   "bytes": 36720
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/09fcfdffdd12f7be-thumb.webp",
+   "bytes": 5714
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/top.jpg": {
+  "hash": "9f708c6a95e0706a",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9f708c6a95e0706a-full.webp",
+   "bytes": 59160
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9f708c6a95e0706a-thumb.webp",
+   "bytes": 12908
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/top3.jpg": {
+  "hash": "81acea32003e5733",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/81acea32003e5733-full.webp",
+   "bytes": 53276
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/81acea32003e5733-thumb.webp",
+   "bytes": 12466
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-e.jpg": {
+  "hash": "437b5cf07a1b36da",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/437b5cf07a1b36da-full.webp",
+   "bytes": 40868
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/437b5cf07a1b36da-thumb.webp",
+   "bytes": 4980
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-n.jpg": {
+  "hash": "ee4575df56d587ca",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ee4575df56d587ca-full.webp",
+   "bytes": 24998
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ee4575df56d587ca-thumb.webp",
+   "bytes": 3362
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-ne.jpg": {
+  "hash": "664db489750d7f04",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/664db489750d7f04-full.webp",
+   "bytes": 27704
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/664db489750d7f04-thumb.webp",
+   "bytes": 3232
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-nw.jpg": {
+  "hash": "0e20828c77fbb683",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0e20828c77fbb683-full.webp",
+   "bytes": 34162
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0e20828c77fbb683-thumb.webp",
+   "bytes": 4064
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-s.jpg": {
+  "hash": "c005b3ea7cbc83f3",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c005b3ea7cbc83f3-full.webp",
+   "bytes": 26956
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c005b3ea7cbc83f3-thumb.webp",
+   "bytes": 3688
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-se.jpg": {
+  "hash": "cb9faf683a86be09",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cb9faf683a86be09-full.webp",
+   "bytes": 29706
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cb9faf683a86be09-thumb.webp",
+   "bytes": 3042
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-sw.jpg": {
+  "hash": "07cd1f7392b9ccdc",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/07cd1f7392b9ccdc-full.webp",
+   "bytes": 29076
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/07cd1f7392b9ccdc-thumb.webp",
+   "bytes": 3506
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view-w.jpg": {
+  "hash": "85401054d9e19c78",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/85401054d9e19c78-full.webp",
+   "bytes": 36688
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/85401054d9e19c78-thumb.webp",
+   "bytes": 4498
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-e.jpg": {
+  "hash": "7eb5178898e5482b",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7eb5178898e5482b-full.webp",
+   "bytes": 39176
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7eb5178898e5482b-thumb.webp",
+   "bytes": 4810
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-n.jpg": {
+  "hash": "3cc911719912ef4f",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/3cc911719912ef4f-full.webp",
+   "bytes": 23576
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/3cc911719912ef4f-thumb.webp",
+   "bytes": 3302
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-ne.jpg": {
+  "hash": "e569fdc7e7876d51",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e569fdc7e7876d51-full.webp",
+   "bytes": 24934
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e569fdc7e7876d51-thumb.webp",
+   "bytes": 3144
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-nw.jpg": {
+  "hash": "b2dd055752c34d77",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b2dd055752c34d77-full.webp",
+   "bytes": 31266
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b2dd055752c34d77-thumb.webp",
+   "bytes": 4124
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-s.jpg": {
+  "hash": "93287f59147a7af2",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/93287f59147a7af2-full.webp",
+   "bytes": 26006
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/93287f59147a7af2-thumb.webp",
+   "bytes": 3730
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-se.jpg": {
+  "hash": "737b0787af245a77",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/737b0787af245a77-full.webp",
+   "bytes": 27056
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/737b0787af245a77-thumb.webp",
+   "bytes": 2976
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-sw.jpg": {
+  "hash": "013579f01c9979b6",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/013579f01c9979b6-full.webp",
+   "bytes": 27680
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/013579f01c9979b6-thumb.webp",
+   "bytes": 3628
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view2-w.jpg": {
+  "hash": "7a39b3e0dac6d5f5",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7a39b3e0dac6d5f5-full.webp",
+   "bytes": 35710
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7a39b3e0dac6d5f5-thumb.webp",
+   "bytes": 4552
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-e.jpg": {
+  "hash": "77466f1bce32e392",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/77466f1bce32e392-full.webp",
+   "bytes": 40494
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/77466f1bce32e392-thumb.webp",
+   "bytes": 4986
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-n.jpg": {
+  "hash": "c0f9fda12a245201",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c0f9fda12a245201-full.webp",
+   "bytes": 24178
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c0f9fda12a245201-thumb.webp",
+   "bytes": 3192
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-ne.jpg": {
+  "hash": "a8447da310aa8f39",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a8447da310aa8f39-full.webp",
+   "bytes": 23498
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a8447da310aa8f39-thumb.webp",
+   "bytes": 2954
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-nw.jpg": {
+  "hash": "7951a8261be0d4b4",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7951a8261be0d4b4-full.webp",
+   "bytes": 26362
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7951a8261be0d4b4-thumb.webp",
+   "bytes": 3406
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-s.jpg": {
+  "hash": "587bb2b493b33276",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/587bb2b493b33276-full.webp",
+   "bytes": 26476
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/587bb2b493b33276-thumb.webp",
+   "bytes": 3658
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-se.jpg": {
+  "hash": "b0b423cbc1e9e743",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b0b423cbc1e9e743-full.webp",
+   "bytes": 26090
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b0b423cbc1e9e743-thumb.webp",
+   "bytes": 2966
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-sw.jpg": {
+  "hash": "0f3269785b515185",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0f3269785b515185-full.webp",
+   "bytes": 29354
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0f3269785b515185-thumb.webp",
+   "bytes": 3646
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/blockout/view3-w.jpg": {
+  "hash": "7d80a97171d762bd",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7d80a97171d762bd-full.webp",
+   "bytes": 36000
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7d80a97171d762bd-thumb.webp",
+   "bytes": 4570
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/p5r2-3in1.jpg": {
+  "hash": "1142b09e3d0a7359",
+  "enc": "orig+402",
+  "w": 1536,
+  "h": 1024,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1142b09e3d0a7359-full.webp",
+   "bytes": 252196
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1142b09e3d0a7359-thumb.webp",
+   "bytes": 24646
+  }
+ },
+ "art/thin-ice/round-6-map-revision-2/p5r2-map.jpg": {
+  "hash": "8c90329dd8a66730",
+  "enc": "orig+402",
+  "w": 1254,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c90329dd8a66730-full.webp",
+   "bytes": 344162
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8c90329dd8a66730-thumb.webp",
+   "bytes": 46920
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-01-landing.jpg": {
+  "hash": "52f4aa917cd03835",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/52f4aa917cd03835-full.webp",
+   "bytes": 93008
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/52f4aa917cd03835-thumb.webp",
+   "bytes": 11150
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-02-village.jpg": {
+  "hash": "14ca74400e39732a",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/14ca74400e39732a-full.webp",
+   "bytes": 98504
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/14ca74400e39732a-thumb.webp",
+   "bytes": 11692
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-03-lighthouse.jpg": {
+  "hash": "d4d86ef1017c84dd",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d4d86ef1017c84dd-full.webp",
+   "bytes": 92110
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d4d86ef1017c84dd-thumb.webp",
+   "bytes": 10978
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-04-quarry.jpg": {
+  "hash": "6fde6666e36b20dc",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6fde6666e36b20dc-full.webp",
+   "bytes": 99322
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6fde6666e36b20dc-thumb.webp",
+   "bytes": 11394
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-05-spire.jpg": {
+  "hash": "e08732762dc2de5e",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e08732762dc2de5e-full.webp",
+   "bytes": 109972
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/e08732762dc2de5e-thumb.webp",
+   "bytes": 12864
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-06-cave.jpg": {
+  "hash": "17fe33dd4d05a957",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/17fe33dd4d05a957-full.webp",
+   "bytes": 93528
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/17fe33dd4d05a957-thumb.webp",
+   "bytes": 12182
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-07-overlook.jpg": {
+  "hash": "2ed9b7f60694f714",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2ed9b7f60694f714-full.webp",
+   "bytes": 100726
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2ed9b7f60694f714-thumb.webp",
+   "bytes": 11426
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-08-bayrun.jpg": {
+  "hash": "cb7a81496fef0673",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cb7a81496fef0673-full.webp",
+   "bytes": 77044
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/cb7a81496fef0673-thumb.webp",
+   "bytes": 9446
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-09-tower.jpg": {
+  "hash": "127019caa8268672",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/127019caa8268672-full.webp",
+   "bytes": 90686
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/127019caa8268672-thumb.webp",
+   "bytes": 11410
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-10-glacier.jpg": {
+  "hash": "a3270ae4352d3992",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a3270ae4352d3992-full.webp",
+   "bytes": 118430
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a3270ae4352d3992-thumb.webp",
+   "bytes": 13514
+  }
+ },
+ "art/thin-ice/round-7-first-person-try-1/p6-11-spring.jpg": {
+  "hash": "ee207d148dfd4784",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ee207d148dfd4784-full.webp",
+   "bytes": 96880
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ee207d148dfd4784-thumb.webp",
+   "bytes": 11468
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-01-landing.jpg": {
+  "hash": "eb6f2292f9714ab9",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/eb6f2292f9714ab9-full.webp",
+   "bytes": 114652
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/eb6f2292f9714ab9-thumb.webp",
+   "bytes": 11670
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-02-village.jpg": {
+  "hash": "721722ed1cbdb7a0",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/721722ed1cbdb7a0-full.webp",
+   "bytes": 110842
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/721722ed1cbdb7a0-thumb.webp",
+   "bytes": 11712
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-03-lighthouse.jpg": {
+  "hash": "f4e6e82db50f7f61",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f4e6e82db50f7f61-full.webp",
+   "bytes": 93440
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f4e6e82db50f7f61-thumb.webp",
+   "bytes": 10758
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-04-quarry.jpg": {
+  "hash": "fcbf519e87d27cbd",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/fcbf519e87d27cbd-full.webp",
+   "bytes": 118342
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/fcbf519e87d27cbd-thumb.webp",
+   "bytes": 12198
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-05-spire.jpg": {
+  "hash": "f2a4478da8ef1c54",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f2a4478da8ef1c54-full.webp",
+   "bytes": 104118
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/f2a4478da8ef1c54-thumb.webp",
+   "bytes": 10052
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-06-cave.jpg": {
+  "hash": "d99e4eaeaec35e67",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d99e4eaeaec35e67-full.webp",
+   "bytes": 137412
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d99e4eaeaec35e67-thumb.webp",
+   "bytes": 13854
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-07-overlook.jpg": {
+  "hash": "d569b28546c4d139",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d569b28546c4d139-full.webp",
+   "bytes": 142852
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/d569b28546c4d139-thumb.webp",
+   "bytes": 13202
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-08-bayrun.jpg": {
+  "hash": "958f7b8d4511cb32",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/958f7b8d4511cb32-full.webp",
+   "bytes": 95172
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/958f7b8d4511cb32-thumb.webp",
+   "bytes": 9638
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-09-tower.jpg": {
+  "hash": "8e126661f86b5ad0",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8e126661f86b5ad0-full.webp",
+   "bytes": 102420
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/8e126661f86b5ad0-thumb.webp",
+   "bytes": 11162
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-10-glacier.jpg": {
+  "hash": "7b41a98e83818cb6",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7b41a98e83818cb6-full.webp",
+   "bytes": 106792
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/7b41a98e83818cb6-thumb.webp",
+   "bytes": 10420
+  }
+ },
+ "art/thin-ice/round-8-first-person-wave-2/w2-11-spring.jpg": {
+  "hash": "b457ab89bf042552",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b457ab89bf042552-full.webp",
+   "bytes": 121286
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b457ab89bf042552-thumb.webp",
+   "bytes": 12540
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/content-c-1-journey.jpg": {
+  "hash": "041cd2e3d6b69b39",
+  "enc": "orig+402",
+  "w": 2404,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/041cd2e3d6b69b39-full.webp",
+   "bytes": 379632
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/041cd2e3d6b69b39-thumb.webp",
+   "bytes": 18852
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/content-c-2-quests.jpg": {
+  "hash": "61b92e40e55758fe",
+  "enc": "orig+402",
+  "w": 2404,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/61b92e40e55758fe-full.webp",
+   "bytes": 325272
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/61b92e40e55758fe-thumb.webp",
+   "bytes": 15222
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/content-c-3-side.jpg": {
+  "hash": "08b3e2f2f3c4eec4",
+  "enc": "orig+402",
+  "w": 2404,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08b3e2f2f3c4eec4-full.webp",
+   "bytes": 312700
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08b3e2f2f3c4eec4-thumb.webp",
+   "bytes": 15076
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/content-c-4-slice.jpg": {
+  "hash": "12289f54e6ea387a",
+  "enc": "orig+402",
+  "w": 2404,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/12289f54e6ea387a-full.webp",
+   "bytes": 237056
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/12289f54e6ea387a-thumb.webp",
+   "bytes": 10876
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/content-journey-draft.jpg": {
+  "hash": "41ad3d7dfcfcc7b8",
+  "enc": "orig+402",
+  "w": 2354,
+  "h": 1254,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/41ad3d7dfcfcc7b8-full.webp",
+   "bytes": 404506
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/41ad3d7dfcfcc7b8-thumb.webp",
+   "bytes": 19830
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step01-2.jpg": {
+  "hash": "b3e83873725ec8ab",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b3e83873725ec8ab-full.webp",
+   "bytes": 124096
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b3e83873725ec8ab-thumb.webp",
+   "bytes": 12908
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step01-3.jpg": {
+  "hash": "89b14ba232a0bddd",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/89b14ba232a0bddd-full.webp",
+   "bytes": 95012
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/89b14ba232a0bddd-thumb.webp",
+   "bytes": 11188
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step01-4.jpg": {
+  "hash": "a40a3e381ac3f6a0",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a40a3e381ac3f6a0-full.webp",
+   "bytes": 49852
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/a40a3e381ac3f6a0-thumb.webp",
+   "bytes": 6696
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step02-2.jpg": {
+  "hash": "576610fbb8615a92",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/576610fbb8615a92-full.webp",
+   "bytes": 110966
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/576610fbb8615a92-thumb.webp",
+   "bytes": 13102
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step02-3.jpg": {
+  "hash": "98bbcf49d98b9ec2",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/98bbcf49d98b9ec2-full.webp",
+   "bytes": 102266
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/98bbcf49d98b9ec2-thumb.webp",
+   "bytes": 12978
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step02-4.jpg": {
+  "hash": "ff2f496bd9e69d9d",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff2f496bd9e69d9d-full.webp",
+   "bytes": 50178
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ff2f496bd9e69d9d-thumb.webp",
+   "bytes": 8186
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step03-2.jpg": {
+  "hash": "08fe9230710c179f",
+  "enc": "orig+402",
+  "w": 850,
+  "h": 1850,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08fe9230710c179f-full.webp",
+   "bytes": 131220
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/08fe9230710c179f-thumb.webp",
+   "bytes": 13506
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step03-3.jpg": {
+  "hash": "6c2f24a4ad5e0636",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6c2f24a4ad5e0636-full.webp",
+   "bytes": 137938
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6c2f24a4ad5e0636-thumb.webp",
+   "bytes": 14358
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step03-4.jpg": {
+  "hash": "ed00ea423f7246e8",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ed00ea423f7246e8-full.webp",
+   "bytes": 40846
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ed00ea423f7246e8-thumb.webp",
+   "bytes": 5712
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step04-2.jpg": {
+  "hash": "2f70303ede2e3098",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f70303ede2e3098-full.webp",
+   "bytes": 112204
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f70303ede2e3098-thumb.webp",
+   "bytes": 10130
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step04-3.jpg": {
+  "hash": "0d31b73f601f9454",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0d31b73f601f9454-full.webp",
+   "bytes": 126502
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0d31b73f601f9454-thumb.webp",
+   "bytes": 11894
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step04-4.jpg": {
+  "hash": "0f55bbd6db5eb631",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0f55bbd6db5eb631-full.webp",
+   "bytes": 129284
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0f55bbd6db5eb631-thumb.webp",
+   "bytes": 11674
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step05-2.jpg": {
+  "hash": "9d98afba8436fd01",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9d98afba8436fd01-full.webp",
+   "bytes": 119130
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9d98afba8436fd01-thumb.webp",
+   "bytes": 12820
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step05-3.jpg": {
+  "hash": "189eda78bd69b7e8",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/189eda78bd69b7e8-full.webp",
+   "bytes": 109730
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/189eda78bd69b7e8-thumb.webp",
+   "bytes": 12104
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step05-4.jpg": {
+  "hash": "0b660d68e72c09c0",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0b660d68e72c09c0-full.webp",
+   "bytes": 58724
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/0b660d68e72c09c0-thumb.webp",
+   "bytes": 6826
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step06-2.jpg": {
+  "hash": "881aeeb67f3e2812",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/881aeeb67f3e2812-full.webp",
+   "bytes": 126766
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/881aeeb67f3e2812-thumb.webp",
+   "bytes": 12438
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step06-3.jpg": {
+  "hash": "94a55731c69cd55d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/94a55731c69cd55d-full.webp",
+   "bytes": 120176
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/94a55731c69cd55d-thumb.webp",
+   "bytes": 12260
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step06-4.jpg": {
+  "hash": "5819749feeff619c",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5819749feeff619c-full.webp",
+   "bytes": 54258
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5819749feeff619c-thumb.webp",
+   "bytes": 8492
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step07-2.jpg": {
+  "hash": "82658a06956ddd60",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/82658a06956ddd60-full.webp",
+   "bytes": 137552
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/82658a06956ddd60-thumb.webp",
+   "bytes": 14220
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step07-3.jpg": {
+  "hash": "046c5e97718af980",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/046c5e97718af980-full.webp",
+   "bytes": 122132
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/046c5e97718af980-thumb.webp",
+   "bytes": 12926
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step07-4.jpg": {
+  "hash": "ce5154ffdbbf133e",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ce5154ffdbbf133e-full.webp",
+   "bytes": 103640
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/ce5154ffdbbf133e-thumb.webp",
+   "bytes": 12344
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step08-2.jpg": {
+  "hash": "b6d49c8e5467f4f7",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6d49c8e5467f4f7-full.webp",
+   "bytes": 152056
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6d49c8e5467f4f7-thumb.webp",
+   "bytes": 15296
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step08-3.jpg": {
+  "hash": "15b6fb192bcf38f3",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15b6fb192bcf38f3-full.webp",
+   "bytes": 106788
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/15b6fb192bcf38f3-thumb.webp",
+   "bytes": 11566
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step08-4.jpg": {
+  "hash": "db0e0fdc6c5b5f7b",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/db0e0fdc6c5b5f7b-full.webp",
+   "bytes": 39402
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/db0e0fdc6c5b5f7b-thumb.webp",
+   "bytes": 4252
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step09-2.jpg": {
+  "hash": "53a5fd9ddc2238ad",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/53a5fd9ddc2238ad-full.webp",
+   "bytes": 99570
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/53a5fd9ddc2238ad-thumb.webp",
+   "bytes": 11652
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step09-3.jpg": {
+  "hash": "c1dcd632cde6bf75",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c1dcd632cde6bf75-full.webp",
+   "bytes": 99084
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c1dcd632cde6bf75-thumb.webp",
+   "bytes": 11042
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step09-4.jpg": {
+  "hash": "1a75aa14f299c7cf",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1a75aa14f299c7cf-full.webp",
+   "bytes": 102340
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/1a75aa14f299c7cf-thumb.webp",
+   "bytes": 11068
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step10-2.jpg": {
+  "hash": "dd4759bd399202f5",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/dd4759bd399202f5-full.webp",
+   "bytes": 115882
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/dd4759bd399202f5-thumb.webp",
+   "bytes": 13206
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step10-3.jpg": {
+  "hash": "b6faab57066f79f3",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6faab57066f79f3-full.webp",
+   "bytes": 135134
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/b6faab57066f79f3-thumb.webp",
+   "bytes": 14192
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step10-4.jpg": {
+  "hash": "6866e6ed26e0401d",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6866e6ed26e0401d-full.webp",
+   "bytes": 73770
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/6866e6ed26e0401d-thumb.webp",
+   "bytes": 6814
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step11-2.jpg": {
+  "hash": "5fcbbdf7de74379c",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5fcbbdf7de74379c-full.webp",
+   "bytes": 141838
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/5fcbbdf7de74379c-thumb.webp",
+   "bytes": 13260
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step11-3.jpg": {
+  "hash": "998461a5c121bd47",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/998461a5c121bd47-full.webp",
+   "bytes": 139682
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/998461a5c121bd47-thumb.webp",
+   "bytes": 12402
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step11-4.jpg": {
+  "hash": "9f9f3093eaea8678",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1847,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9f9f3093eaea8678-full.webp",
+   "bytes": 116884
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/9f9f3093eaea8678-thumb.webp",
+   "bytes": 11412
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step12-2.jpg": {
+  "hash": "c7aec136c6e6d23d",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1849,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c7aec136c6e6d23d-full.webp",
+   "bytes": 134412
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/c7aec136c6e6d23d-thumb.webp",
+   "bytes": 13184
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step12-3.jpg": {
+  "hash": "2f01f6e1d9e44172",
+  "enc": "orig+402",
+  "w": 851,
+  "h": 1848,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f01f6e1d9e44172-full.webp",
+   "bytes": 107690
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/2f01f6e1d9e44172-thumb.webp",
+   "bytes": 10868
+  }
+ },
+ "art/thin-ice/round-9-content-round-1/step12-4.jpg": {
+  "hash": "65c88d1bdd482aca",
+  "enc": "orig+402",
+  "w": 1024,
+  "h": 1536,
+  "full": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65c88d1bdd482aca-full.webp",
+   "bytes": 47516
+  },
+  "thumb": {
+   "url": "https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/thin-ice/65c88d1bdd482aca-thumb.webp",
+   "bytes": 5808
+  }
+ }
+}

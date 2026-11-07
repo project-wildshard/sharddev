@@ -1,0 +1,3448 @@
+{
+  "rule": "rank 1 of each slot ships until the user picks (art/music/round-4-nalati/index.html)",
+  "weights": {
+    "kazakh": 0.35,
+    "groove": 0.2,
+    "seam": 0.2,
+    "clean": 0.15,
+    "full": 0.1
+  },
+  "verdict": {
+    "summary": "Partly. (Round-4 score: 24 takes over six slots; the Sky Grassland and the storm drifted to an orchestra / a rock band on the first try and were re-rolled as lean folk trios.) The sybyzgy flute and the throat-sung drone come through clearly; the dombra partly; the kobyz does not. So the score describes each instrument by its sound, keeps the throat drone for the night and the King, and keeps the arrangements lean. Measured with CLAP, htdemucs and harmonic / percussive analysis, because nobody could listen: please listen before trusting it.",
+    "instruments": {
+      "Sybyzgy (breathy wooden flute)": "yes: CLAP hears a wooden flute 99.6% of the time, the tone is harmonic and voiced 96% of the time, and the hummed drone under it is there (10% in the vocal stem).",
+      "Throat drone": "yes: solo, CLAP hears throat singing 60% of the time (some flute on top). Under the night ensemble it is 96%, and the drone holds 60% of the energy. It goes into the night and King cues only.",
+      "Dombra (plucked two-string lute)": "partly: the take has a plucked, strummed attack (percussive energy 57% of the harmonic, the drum stem 24%), but CLAP hears a flute over it (84%). Listen for whether it is a dombra or a generic lute.",
+      "Kobyz (bowed horsehair fiddle)": "no: the tone is sustained, but CLAP hears a plucked lute (63%) and a jaw harp, not a raspy bowed fiddle (1%). MiniMax seems to read 'kobyz' as the plucked kobza. The score prompts ask for 'a raspy bowed horsehair fiddle' instead.",
+      "Full ensemble": "drifts: the day ensemble picked up an orchestra (35% in a first CLAP pass) and 21% vocal energy, although the prompt said no vocals. The score's arrangements are leaner and say 'no vocals' again."
+    }
+  },
+  "test": {
+    "dombra": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-dombra",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-dombra",
+          "seed": 201,
+          "prompt": "Genre: Kazakh traditional folk, solo dombra kui. BPM: 120. Instrumental only, no vocals. A solo dombra - the two-string fretted Kazakh long-neck lute - played with fast strummed and plucked right-hand patterns, a galloping 6/8 horse-gait rhythm, open fifths on the drone string, the melody on the high string. Natural close recording in a felt yurt, no other instruments.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 141.6,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.75
+        },
+        "metrics": {
+          "duration_s": 45.05,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -14.3,
+            "lra": 14.4,
+            "true_peak_dbfs": 0.6
+          },
+          "clipping": {
+            "clipped_samples": 103,
+            "clipped_frac": 2.5924210695876288e-05,
+            "peak": 1.0
+          },
+          "silence": {
+            "longest_internal_gap_s": 0.0,
+            "internal_gaps": 0,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 0.0,
+            "total_silence_s": 0
+          },
+          "spectrum": {
+            "centroid_hz": 2776.6,
+            "rolloff95_hz": 10722.6,
+            "flatness": 0.0025,
+            "hf_above_12k": 0.00406,
+            "sub_below_60": 0.1231,
+            "stereo_corr": 0.231
+          },
+          "tempo": {
+            "estimated_bpm": 86.1,
+            "brief_bpm": 100.0,
+            "rel_err": 0.139
+          },
+          "key": {
+            "best_key": "E major",
+            "best_r": 0.809,
+            "d_major_r": 0.09,
+            "d_major_rank": 11,
+            "key_ok": false
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.566,
+            "similarity": 0.575,
+            "level_match": 0.948,
+            "start_s": 17.75,
+            "end_s": 42.83,
+            "bars": 9,
+            "loop_s": 25.08,
+            "grid_bpm": 86.1
+          },
+          "vocals": {
+            "vocal_energy_share": 0.0491,
+            "vocal_active_frac": 0.2,
+            "stem_share": {
+              "drums": 0.2375,
+              "bass": 0.0106,
+              "other": 0.7027,
+              "vocals": 0.0491
+            },
+            "groove_active_frac": 0.733,
+            "drums_active_frac": 0.756
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.004,
+              "kobyz": 0.001,
+              "sybyzgy": 0.843,
+              "throat": 0.001
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.014,
+              "piano": 0.009,
+              "acoustic guitar": 0.003,
+              "electronic synthesizer music": 0.029,
+              "a rock band with electric guitar and drums": 0.008,
+              "a person singing a melody with words": 0.086
+            },
+            "kazakh_prob": 0.85,
+            "best_match": "a breathy wooden flute melody"
+          }
+        },
+        "target_prob": 0.004,
+        "m4a": "test/dombra-201.m4a",
+        "bytes": 371678
+      }
+    ],
+    "kobyz": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-kobyz",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-kobyz",
+          "seed": 201,
+          "prompt": "Genre: Kazakh traditional folk, solo qobyz. BPM: 70. Instrumental only, no vocals. A solo kyl-kobyz - the ancient two-string horsehair bowed fiddle of the Kazakh shamans - a raw, breathy, rasping bowed tone full of overtones, slow sliding melody over its own low drone, haunting and wild, like wind over the steppe. Natural close recording, no other instruments.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 149.1,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.82
+        },
+        "metrics": {
+          "duration_s": 45.05,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -18.3,
+            "lra": 11.6,
+            "true_peak_dbfs": 0.1
+          },
+          "clipping": {
+            "clipped_samples": 16,
+            "clipped_frac": 4.027061855670103e-06,
+            "peak": 1.0
+          },
+          "silence": {
+            "longest_internal_gap_s": 0.0,
+            "internal_gaps": 0,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 0.0,
+            "total_silence_s": 0
+          },
+          "spectrum": {
+            "centroid_hz": 2070.8,
+            "rolloff95_hz": 9201.3,
+            "flatness": 0.0008,
+            "hf_above_12k": 0.00026,
+            "sub_below_60": 0.0024,
+            "stereo_corr": 0.234
+          },
+          "tempo": {
+            "estimated_bpm": 80.7,
+            "brief_bpm": 100.0,
+            "rel_err": 0.193
+          },
+          "key": {
+            "best_key": "D major",
+            "best_r": 0.844,
+            "d_major_r": 0.844,
+            "d_major_rank": 1,
+            "key_ok": true
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.217,
+            "similarity": 0.26,
+            "level_match": 0.45,
+            "start_s": 7.0,
+            "end_s": 42.67,
+            "bars": 12,
+            "loop_s": 35.67,
+            "grid_bpm": 80.7
+          },
+          "vocals": {
+            "vocal_energy_share": 0.1567,
+            "vocal_active_frac": 0.333,
+            "stem_share": {
+              "drums": 0.0001,
+              "bass": 0.0,
+              "other": 0.8432,
+              "vocals": 0.1567
+            },
+            "groove_active_frac": 0.0,
+            "drums_active_frac": 0.0
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.629,
+              "kobyz": 0.014,
+              "sybyzgy": 0.199,
+              "throat": 0.0
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.0,
+              "piano": 0.0,
+              "acoustic guitar": 0.143,
+              "electronic synthesizer music": 0.0,
+              "a rock band with electric guitar and drums": 0.0,
+              "a person singing a melody with words": 0.015
+            },
+            "kazakh_prob": 0.842,
+            "best_match": "a plucked and strummed two-string folk lute"
+          }
+        },
+        "target_prob": 0.014,
+        "m4a": "test/kobyz-201.m4a",
+        "bytes": 370974
+      }
+    ],
+    "sybyzgy": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-sybyzgy",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-sybyzgy",
+          "seed": 201,
+          "prompt": "Genre: Kazakh traditional folk, solo sybyzgy. BPM: 80. Instrumental only, no vocals. A solo sybyzgy - the Kazakh open end-blown reed flute - an airy, breathy, wooden tone with a hummed throat drone under the melody, long free phrases with ornaments and slides, evoking a shepherd on a wide mountain pasture. Natural recording outdoors, no other instruments.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 126.9,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.82
+        },
+        "metrics": {
+          "duration_s": 37.72,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -13.1,
+            "lra": 11.1,
+            "true_peak_dbfs": -0.9
+          },
+          "clipping": {
+            "clipped_samples": 0,
+            "clipped_frac": 0.0,
+            "peak": 0.9062
+          },
+          "silence": {
+            "longest_internal_gap_s": 0.0,
+            "internal_gaps": 0,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 1.25,
+            "total_silence_s": 1.25
+          },
+          "spectrum": {
+            "centroid_hz": 2387.0,
+            "rolloff95_hz": 9582.1,
+            "flatness": 0.0007,
+            "hf_above_12k": 0.00015,
+            "sub_below_60": 0.0004,
+            "stereo_corr": 0.233
+          },
+          "tempo": {
+            "estimated_bpm": 184.6,
+            "brief_bpm": 100.0,
+            "rel_err": 0.077
+          },
+          "key": {
+            "best_key": "D minor",
+            "best_r": 0.764,
+            "d_major_r": 0.703,
+            "d_major_rank": 2,
+            "key_ok": true
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.488,
+            "similarity": 0.535,
+            "level_match": 0.703,
+            "start_s": 11.5,
+            "end_s": 29.7,
+            "bars": 14,
+            "loop_s": 18.2,
+            "grid_bpm": 184.6
+          },
+          "vocals": {
+            "vocal_energy_share": 0.0993,
+            "vocal_active_frac": 0.297,
+            "stem_share": {
+              "drums": 0.0,
+              "bass": 0.0,
+              "other": 0.9007,
+              "vocals": 0.0993
+            },
+            "groove_active_frac": 0.054,
+            "drums_active_frac": 0.054
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.001,
+              "kobyz": 0.0,
+              "sybyzgy": 0.996,
+              "throat": 0.0
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.0,
+              "piano": 0.0,
+              "acoustic guitar": 0.0,
+              "electronic synthesizer music": 0.0,
+              "a rock band with electric guitar and drums": 0.0,
+              "a person singing a melody with words": 0.001
+            },
+            "kazakh_prob": 0.998,
+            "best_match": "a breathy wooden flute melody"
+          }
+        },
+        "target_prob": 0.996,
+        "m4a": "test/sybyzgy-201.m4a",
+        "bytes": 310997
+      }
+    ],
+    "throat": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-throat",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-throat",
+          "seed": 201,
+          "prompt": "Genre: Central Asian throat singing, overtone drone. BPM: 60. A single male throat singer (khoomei / kargyraa style) holding a deep growling drone with a whistling overtone melody above it, wordless, slow breaths between phrases, over a very soft low kobyz drone. Dark, ancient, night on the steppe. No drums, no other instruments.",
+          "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 159.6,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.82
+        },
+        "metrics": {
+          "duration_s": 40.96,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -23.8,
+            "lra": 10.8,
+            "true_peak_dbfs": -1.5
+          },
+          "clipping": {
+            "clipped_samples": 0,
+            "clipped_frac": 0.0,
+            "peak": 0.8398
+          },
+          "silence": {
+            "longest_internal_gap_s": 0.0,
+            "internal_gaps": 0,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 0.0,
+            "total_silence_s": 0
+          },
+          "spectrum": {
+            "centroid_hz": 2673.9,
+            "rolloff95_hz": 13112.6,
+            "flatness": 0.0011,
+            "hf_above_12k": 0.0001,
+            "sub_below_60": 0.2946,
+            "stereo_corr": 0.179
+          },
+          "tempo": {
+            "estimated_bpm": 172.3,
+            "brief_bpm": 100.0,
+            "rel_err": 0.139
+          },
+          "key": {
+            "best_key": "D minor",
+            "best_r": 0.669,
+            "d_major_r": 0.423,
+            "d_major_rank": 2,
+            "key_ok": true
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.554,
+            "similarity": 0.646,
+            "level_match": 0.525,
+            "start_s": 14.5,
+            "end_s": 34.0,
+            "bars": 14,
+            "loop_s": 19.5,
+            "grid_bpm": 172.3
+          },
+          "vocals": {
+            "vocal_energy_share": 0.3193,
+            "vocal_active_frac": 0.875,
+            "stem_share": {
+              "drums": 0.4481,
+              "bass": 0.2296,
+              "other": 0.0031,
+              "vocals": 0.3193
+            },
+            "groove_active_frac": 0.875,
+            "drums_active_frac": 0.775
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.0,
+              "kobyz": 0.0,
+              "sybyzgy": 0.156,
+              "throat": 0.595
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.0,
+              "piano": 0.0,
+              "acoustic guitar": 0.0,
+              "electronic synthesizer music": 0.001,
+              "a rock band with electric guitar and drums": 0.0,
+              "a person singing a melody with words": 0.248
+            },
+            "kazakh_prob": 0.751,
+            "best_match": "throat singing, a deep growling overtone chant"
+          }
+        },
+        "target_prob": 0.595,
+        "m4a": "test/throat-201.m4a",
+        "bytes": 336719
+      }
+    ],
+    "ensemble-day": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-ensemble-day",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-ensemble-day",
+          "seed": 201,
+          "prompt": "Genre: video game soundtrack, Kazakh folk ensemble. BPM: 112. Instrumental only, no vocals, no choir. An open-world adventure on the green Kazakh steppe of the Nalati grasslands. Arrangement: a strummed dombra ostinato in a galloping 6/8 horse-gait rhythm, a sybyzgy flute melody over it, a kobyz drone underneath, a jaw harp (shankobyz) twang and a frame drum (dauylpaz) keeping the gait. Wonder first, adventure second. No western orchestra, no piano, no guitar.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 176.5,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.82
+        },
+        "metrics": {
+          "duration_s": 45.05,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -14.6,
+            "lra": 7.3,
+            "true_peak_dbfs": 0.0
+          },
+          "clipping": {
+            "clipped_samples": 37,
+            "clipped_frac": 9.312580541237114e-06,
+            "peak": 1.0
+          },
+          "silence": {
+            "longest_internal_gap_s": 0.0,
+            "internal_gaps": 0,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 0.0,
+            "total_silence_s": 0
+          },
+          "spectrum": {
+            "centroid_hz": 2522.1,
+            "rolloff95_hz": 9425.5,
+            "flatness": 0.0022,
+            "hf_above_12k": 0.0004,
+            "sub_below_60": 0.0245,
+            "stereo_corr": 0.604
+          },
+          "tempo": {
+            "estimated_bpm": 184.6,
+            "brief_bpm": 100.0,
+            "rel_err": 0.077
+          },
+          "key": {
+            "best_key": "C# major",
+            "best_r": 0.634,
+            "d_major_r": -0.229,
+            "d_major_rank": 17,
+            "key_ok": false
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.404,
+            "similarity": 0.414,
+            "level_match": 0.923,
+            "start_s": 16.5,
+            "end_s": 41.21,
+            "bars": 19,
+            "loop_s": 24.71,
+            "grid_bpm": 184.6
+          },
+          "vocals": {
+            "vocal_energy_share": 0.2137,
+            "vocal_active_frac": 0.4,
+            "stem_share": {
+              "drums": 0.0819,
+              "bass": 0.2073,
+              "other": 0.497,
+              "vocals": 0.2137
+            },
+            "groove_active_frac": 0.844,
+            "drums_active_frac": 0.333
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.0,
+              "kobyz": 0.0,
+              "sybyzgy": 0.855,
+              "throat": 0.0
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.09,
+              "piano": 0.002,
+              "acoustic guitar": 0.0,
+              "electronic synthesizer music": 0.023,
+              "a rock band with electric guitar and drums": 0.003,
+              "a person singing a melody with words": 0.027
+            },
+            "kazakh_prob": 0.855,
+            "best_match": "a breathy wooden flute melody"
+          }
+        },
+        "target_prob": 0.855,
+        "m4a": "test/ensemble-day-201.m4a",
+        "bytes": 370583
+      }
+    ],
+    "ensemble-night": [
+      {
+        "id": "minimax3-201",
+        "folder": "test-ensemble-night",
+        "side": {
+          "model": "MiniMax Music 3",
+          "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "backend": "PyTorch mps bf16",
+          "style": "nalati",
+          "slot": "test-ensemble-night",
+          "seed": 201,
+          "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 66. The steppe at night under the stars in an open-world adventure game. Arrangement: a low wordless throat-sung drone (kargyraa) held under everything, a slow bowed kobyz melody, sparse plucked dombra notes, a soft frame drum like a distant heartbeat. Dark, calm, ancient, a little dangerous. No western orchestra, no piano, no guitar.",
+          "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+          "duration_s": 45,
+          "steps": 30,
+          "gen_time_s": 163.0,
+          "model_load_s": 9.2,
+          "mps_driver_gb": 26.82
+        },
+        "metrics": {
+          "duration_s": 45.05,
+          "sample_rate": 44100,
+          "channels": 2,
+          "loudness": {
+            "lufs": -15.8,
+            "lra": 9.5,
+            "true_peak_dbfs": 0.0
+          },
+          "clipping": {
+            "clipped_samples": 11,
+            "clipped_frac": 2.7686050257731958e-06,
+            "peak": 1.0
+          },
+          "silence": {
+            "longest_internal_gap_s": 1.63,
+            "internal_gaps": 1,
+            "head_silence_s": 0.0,
+            "tail_silence_s": 0.0,
+            "total_silence_s": 1.63
+          },
+          "spectrum": {
+            "centroid_hz": 2471.7,
+            "rolloff95_hz": 10421.9,
+            "flatness": 0.001,
+            "hf_above_12k": 1e-05,
+            "sub_below_60": 0.2511,
+            "stereo_corr": 0.461
+          },
+          "tempo": {
+            "estimated_bpm": 60.1,
+            "brief_bpm": 100.0,
+            "rel_err": 0.202
+          },
+          "key": {
+            "best_key": "C minor",
+            "best_r": 0.706,
+            "d_major_r": -0.1,
+            "d_major_rank": 12,
+            "key_ok": false
+          },
+          "loop": {
+            "min_bars": 8,
+            "score": 0.28,
+            "similarity": 0.299,
+            "level_match": 0.788,
+            "start_s": 2.0,
+            "end_s": 37.94,
+            "bars": 9,
+            "loop_s": 35.94,
+            "grid_bpm": 60.1
+          },
+          "vocals": {
+            "vocal_energy_share": 0.6018,
+            "vocal_active_frac": 0.933,
+            "stem_share": {
+              "drums": 0.3288,
+              "bass": 0.0214,
+              "other": 0.0479,
+              "vocals": 0.6018
+            },
+            "groove_active_frac": 0.689,
+            "drums_active_frac": 0.711
+          },
+          "kazakh": {
+            "instrument_prob": {
+              "dombra": 0.0,
+              "kobyz": 0.0,
+              "sybyzgy": 0.009,
+              "throat": 0.957
+            },
+            "foil_prob": {
+              "orchestral strings and brass": 0.0,
+              "piano": 0.0,
+              "acoustic guitar": 0.0,
+              "electronic synthesizer music": 0.0,
+              "a rock band with electric guitar and drums": 0.0,
+              "a person singing a melody with words": 0.034
+            },
+            "kazakh_prob": 0.966,
+            "best_match": "throat singing, a deep growling overtone chant"
+          }
+        },
+        "target_prob": 0.957,
+        "m4a": "test/ensemble-night-201.m4a",
+        "bytes": 370489
+      }
+    ]
+  },
+  "slots": {
+    "grass": {
+      "pick": "minimax3-302",
+      "takes": [
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-grass",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "grass",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 108. Instrumental only, no vocals, no choir. Setting: the Nalati Grasslands, a green river valley of the Kazakh steppe with a nomad yurt camp and horse herds, in an open-world adventure game - wonder first, adventure second, a little melancholy underneath. Arrangement: a warm strummed ostinato on a two-string dombra lute in a galloping 6/8 horse-gait rhythm, a singable melody on a breathy wooden sybyzgy flute with long breaths, a soft drone of a raspy bowed horsehair fiddle (kobyz, a bowed instrument, never plucked) under it; a steady light groove of frame drum (dauylpaz) and soft low hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: natural, close, airy open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 214.0,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 27.81
+          },
+          "metrics": {
+            "duration_s": 65.79,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.0,
+              "lra": 12.7,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1922.2,
+              "rolloff95_hz": 8104.0,
+              "flatness": 0.0004,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0163,
+              "stereo_corr": 0.39
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 108.0,
+              "rel_err": 0.088
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.868,
+              "d_major_r": -0.498,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.304,
+              "similarity": 0.315,
+              "level_match": 0.877,
+              "start_s": 3.25,
+              "end_s": 46.16,
+              "bars": 21,
+              "loop_s": 42.91,
+              "grid_bpm": 117.5
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0025,
+              "vocal_active_frac": 0.062,
+              "stem_share": {
+                "drums": 0.0002,
+                "bass": 0.1677,
+                "other": 0.8297,
+                "vocals": 0.0025
+              },
+              "groove_active_frac": 0.615,
+              "drums_active_frac": 0.077
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.002,
+                "sybyzgy": 0.98,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.01,
+                "piano": 0.002,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.002,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.003
+              },
+              "kazakh_prob": 0.982,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.731,
+          "parts": {
+            "kazakh": 0.982,
+            "groove": 0.346,
+            "seam": 0.34,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "grass/grass-302.m4a",
+          "bytes": 493658
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-grass",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "grass",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 108. Instrumental only, no vocals, no choir. Setting: the Nalati Grasslands, a green river valley of the Kazakh steppe with a nomad yurt camp and horse herds, in an open-world adventure game - wonder first, adventure second, a little melancholy underneath. Arrangement: a warm strummed ostinato on a two-string dombra lute in a galloping 6/8 horse-gait rhythm, a singable melody on a breathy wooden sybyzgy flute with long breaths, a soft drone of a raspy bowed horsehair fiddle (kobyz, a bowed instrument, never plucked) under it; a steady light groove of frame drum (dauylpaz) and soft low hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: natural, close, airy open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 194.4,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 27.81
+          },
+          "metrics": {
+            "duration_s": 62.28,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.0,
+              "lra": 12.4,
+              "true_peak_dbfs": -0.2
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9805
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1757.8,
+              "rolloff95_hz": 6914.8,
+              "flatness": 0.0004,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0094,
+              "stereo_corr": 0.464
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 108.0,
+              "rel_err": 0.202
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.779,
+              "d_major_r": -0.032,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.567,
+              "similarity": 0.583,
+              "level_match": 0.908,
+              "start_s": 19.75,
+              "end_s": 47.61,
+              "bars": 20,
+              "loop_s": 27.86,
+              "grid_bpm": 172.3
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0019,
+              "vocal_active_frac": 0.065,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.0856,
+                "other": 0.9124,
+                "vocals": 0.0019
+              },
+              "groove_active_frac": 0.339,
+              "drums_active_frac": 0.016
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.002,
+                "kobyz": 0.002,
+                "sybyzgy": 0.924,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.039,
+                "piano": 0.008,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.009,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.015
+              },
+              "kazakh_prob": 0.928,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.722,
+          "parts": {
+            "kazakh": 0.928,
+            "groove": 0.178,
+            "seam": 0.778,
+            "clean": 0.8,
+            "full": 0.864,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "grass/grass-303.m4a",
+          "bytes": 494145
+        },
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-grass",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "grass",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 108. Instrumental only, no vocals, no choir. Setting: the Nalati Grasslands, a green river valley of the Kazakh steppe with a nomad yurt camp and horse herds, in an open-world adventure game - wonder first, adventure second, a little melancholy underneath. Arrangement: a warm strummed ostinato on a two-string dombra lute in a galloping 6/8 horse-gait rhythm, a singable melody on a breathy wooden sybyzgy flute with long breaths, a soft drone of a raspy bowed horsehair fiddle (kobyz, a bowed instrument, never plucked) under it; a steady light groove of frame drum (dauylpaz) and soft low hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: natural, close, airy open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 126.3,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 26.62
+          },
+          "metrics": {
+            "duration_s": 39.52,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.7,
+              "lra": 8.8,
+              "true_peak_dbfs": -1.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8398
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2572.6,
+              "rolloff95_hz": 10237.1,
+              "flatness": 0.0009,
+              "hf_above_12k": 0.00048,
+              "sub_below_60": 0.0107,
+              "stereo_corr": 0.472
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 108.0,
+              "rel_err": 0.252
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.787,
+              "d_major_r": -0.466,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.399,
+              "similarity": 0.402,
+              "level_match": 0.974,
+              "start_s": 11.5,
+              "end_s": 26.36,
+              "bars": 10,
+              "loop_s": 14.86,
+              "grid_bpm": 161.5
+            },
+            "vocals": {
+              "vocal_energy_share": 0.3163,
+              "vocal_active_frac": 0.385,
+              "stem_share": {
+                "drums": 0.0458,
+                "bass": 0.0,
+                "other": 0.6379,
+                "vocals": 0.3163
+              },
+              "groove_active_frac": 0.077,
+              "drums_active_frac": 0.077
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.031,
+                "kobyz": 0.002,
+                "sybyzgy": 0.912,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.022,
+                "piano": 0.007,
+                "acoustic guitar": 0.004,
+                "electronic synthesizer music": 0.009,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.014
+              },
+              "kazakh_prob": 0.944,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": -1.0,
+          "parts": {},
+          "dq": "voice 32% of the energy"
+        }
+      ]
+    },
+    "sky": {
+      "pick": "minimax3-311",
+      "takes": [
+        {
+          "id": "minimax3-311",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 311,
+            "prompt": "Genre: Kazakh folk music, a small village folk trio, video game soundtrack. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau where wild horses graze, in an open-world adventure game - bright, light, playful. Arrangement: only three players: a fast strummed two-string dombra lute in a galloping 6/8 horse-gait rhythm, a breathy wooden sybyzgy flute playing a bright dancing melody, and a frame drum with hoof-like hand percussion that runs under the whole piece from the second bar to the end. A jaw harp twang now and then. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no piano, no guitar, no synthesizers. Production: dry, close, a small room.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 159.8,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 26.91
+          },
+          "metrics": {
+            "duration_s": 47.33,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -12.9,
+              "lra": 11.0,
+              "true_peak_dbfs": 2.3
+            },
+            "clipping": {
+              "clipped_samples": 131,
+              "clipped_frac": 3.137838790777532e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 2.04,
+              "total_silence_s": 2.04
+            },
+            "spectrum": {
+              "centroid_hz": 3648.1,
+              "rolloff95_hz": 13120.2,
+              "flatness": 0.0062,
+              "hf_above_12k": 0.00536,
+              "sub_below_60": 0.0435,
+              "stereo_corr": 0.578
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 116.0,
+              "rel_err": 0.204
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.692,
+              "d_major_r": 0.577,
+              "d_major_rank": 2,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.459,
+              "similarity": 0.459,
+              "level_match": 0.998,
+              "start_s": 17.75,
+              "end_s": 43.76,
+              "bars": 20,
+              "loop_s": 26.01,
+              "grid_bpm": 184.6
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1486,
+                "bass": 0.0105,
+                "other": 0.841,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.702,
+              "drums_active_frac": 0.723
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.001,
+                "kobyz": 0.001,
+                "sybyzgy": 0.537,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.35,
+                "piano": 0.063,
+                "acoustic guitar": 0.001,
+                "electronic synthesizer music": 0.04,
+                "a rock band with electric guitar and drums": 0.005,
+                "a person singing a melody with words": 0.002
+              },
+              "kazakh_prob": 0.539,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.572,
+          "parts": {
+            "kazakh": 0.539,
+            "groove": 0.712,
+            "seam": 0.598,
+            "clean": 1.0,
+            "full": 0.014,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "sky/sky-311.m4a",
+          "bytes": 389968
+        },
+        {
+          "id": "minimax3-312",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 312,
+            "prompt": "Genre: Kazakh folk music, a small village folk trio, video game soundtrack. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau where wild horses graze, in an open-world adventure game - bright, light, playful. Arrangement: only three players: a fast strummed two-string dombra lute in a galloping 6/8 horse-gait rhythm, a breathy wooden sybyzgy flute playing a bright dancing melody, and a frame drum with hoof-like hand percussion that runs under the whole piece from the second bar to the end. A jaw harp twang now and then. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no piano, no guitar, no synthesizers. Production: dry, close, a small room.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 149.7,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 26.97
+          },
+          "metrics": {
+            "duration_s": 47.45,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.5,
+              "lra": 7.7,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 218,
+              "clipped_frac": 5.2089705162711035e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2354.3,
+              "rolloff95_hz": 8793.5,
+              "flatness": 0.0009,
+              "hf_above_12k": 0.00018,
+              "sub_below_60": 0.0055,
+              "stereo_corr": 0.416
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 116.0,
+              "rel_err": 0.304
+            },
+            "key": {
+              "best_key": "D major",
+              "best_r": 0.867,
+              "d_major_r": 0.867,
+              "d_major_rank": 1,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.347,
+              "similarity": 0.347,
+              "level_match": 0.996,
+              "start_s": 5.0,
+              "end_s": 18.37,
+              "bars": 9,
+              "loop_s": 13.37,
+              "grid_bpm": 161.5
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0039,
+                "bass": 0.0,
+                "other": 0.9961,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.128,
+              "drums_active_frac": 0.17
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.003,
+                "kobyz": 0.006,
+                "sybyzgy": 0.797,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.011,
+                "piano": 0.085,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.084,
+                "a rock band with electric guitar and drums": 0.002,
+                "a person singing a melody with words": 0.011
+              },
+              "kazakh_prob": 0.807,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.557,
+          "parts": {
+            "kazakh": 0.807,
+            "groove": 0.149,
+            "seam": 0.412,
+            "clean": 1.0,
+            "full": 0.123,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "sky/sky-312.m4a",
+          "bytes": 390620
+        },
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau under a huge open sky where wild horses run, in an open-world adventure game - freedom and wonder, wind in the grass. Arrangement: two strummed two-string dombra lutes interlocking in a bright galloping 6/8 horse-gait rhythm, a soaring high melody on a breathy wooden sybyzgy flute, a jaw harp (shankobyz) twang, a raspy bowed horsehair-fiddle drone far under it; a steady driving groove of frame drum and hoof-like hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: wide, bright, open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 189.1,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 27.82
+          },
+          "metrics": {
+            "duration_s": 59.66,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.9,
+              "lra": 6.4,
+              "true_peak_dbfs": 0.4
+            },
+            "clipping": {
+              "clipped_samples": 287,
+              "clipped_frac": 5.45385167347733e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2559.8,
+              "rolloff95_hz": 9255.6,
+              "flatness": 0.0023,
+              "hf_above_12k": 0.00076,
+              "sub_below_60": 0.1253,
+              "stereo_corr": 0.729
+            },
+            "tempo": {
+              "estimated_bpm": 107.7,
+              "brief_bpm": 116.0,
+              "rel_err": 0.072
+            },
+            "key": {
+              "best_key": "F minor",
+              "best_r": 0.726,
+              "d_major_r": -0.552,
+              "d_major_rank": 23,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.481,
+              "similarity": 0.486,
+              "level_match": 0.965,
+              "start_s": 6.25,
+              "end_s": 37.46,
+              "bars": 14,
+              "loop_s": 31.21,
+              "grid_bpm": 107.7
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0011,
+              "vocal_active_frac": 0.034,
+              "stem_share": {
+                "drums": 0.5284,
+                "bass": 0.1456,
+                "other": 0.325,
+                "vocals": 0.0011
+              },
+              "groove_active_frac": 1.0,
+              "drums_active_frac": 1.0
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.361,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.608,
+                "piano": 0.004,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.009,
+                "a rock band with electric guitar and drums": 0.012,
+                "a person singing a melody with words": 0.006
+              },
+              "kazakh_prob": 0.361,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.542,
+          "parts": {
+            "kazakh": 0.361,
+            "groove": 1.0,
+            "seam": 0.635,
+            "clean": 1.0,
+            "full": 0.733,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 3,
+          "m4a": "sky/sky-301.m4a",
+          "bytes": 493342
+        },
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau under a huge open sky where wild horses run, in an open-world adventure game - freedom and wonder, wind in the grass. Arrangement: two strummed two-string dombra lutes interlocking in a bright galloping 6/8 horse-gait rhythm, a soaring high melody on a breathy wooden sybyzgy flute, a jaw harp (shankobyz) twang, a raspy bowed horsehair-fiddle drone far under it; a steady driving groove of frame drum and hoof-like hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: wide, bright, open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 132.0,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 27.82
+          },
+          "metrics": {
+            "duration_s": 42.12,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.4,
+              "lra": 8.0,
+              "true_peak_dbfs": 0.3
+            },
+            "clipping": {
+              "clipped_samples": 1,
+              "clipped_frac": 2.6917378721058435e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 3489.8,
+              "rolloff95_hz": 11554.0,
+              "flatness": 0.0052,
+              "hf_above_12k": 0.00132,
+              "sub_below_60": 0.0197,
+              "stereo_corr": 0.476
+            },
+            "tempo": {
+              "estimated_bpm": 95.7,
+              "brief_bpm": 116.0,
+              "rel_err": 0.175
+            },
+            "key": {
+              "best_key": "G# major",
+              "best_r": 0.833,
+              "d_major_r": -0.485,
+              "d_major_rank": 24,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.362,
+              "similarity": 0.407,
+              "level_match": 0.635,
+              "start_s": 7.75,
+              "end_s": 27.81,
+              "bars": 8,
+              "loop_s": 20.06,
+              "grid_bpm": 95.7
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0084,
+              "vocal_active_frac": 0.048,
+              "stem_share": {
+                "drums": 0.1301,
+                "bass": 0.2911,
+                "other": 0.5704,
+                "vocals": 0.0084
+              },
+              "groove_active_frac": 0.714,
+              "drums_active_frac": 0.595
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.224,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.743,
+                "piano": 0.016,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.014,
+                "a rock band with electric guitar and drums": 0.003,
+                "a person singing a melody with words": 0.001
+              },
+              "kazakh_prob": 0.224,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.307,
+          "parts": {
+            "kazakh": 0.224,
+            "groove": 0.654,
+            "seam": 0.437,
+            "clean": 1.0,
+            "full": 0.0,
+            "drone": 0.0
+          },
+          "dq": null
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau under a huge open sky where wild horses run, in an open-world adventure game - freedom and wonder, wind in the grass. Arrangement: two strummed two-string dombra lutes interlocking in a bright galloping 6/8 horse-gait rhythm, a soaring high melody on a breathy wooden sybyzgy flute, a jaw harp (shankobyz) twang, a raspy bowed horsehair-fiddle drone far under it; a steady driving groove of frame drum and hoof-like hand percussion runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: wide, bright, open-air reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 157.4,
+            "model_load_s": 3.2,
+            "mps_driver_gb": 27.82
+          },
+          "metrics": {
+            "duration_s": 49.82,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.0,
+              "lra": 11.0,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2539.7,
+              "rolloff95_hz": 9505.8,
+              "flatness": 0.0014,
+              "hf_above_12k": 0.00016,
+              "sub_below_60": 0.0027,
+              "stereo_corr": 0.594
+            },
+            "tempo": {
+              "estimated_bpm": 123.0,
+              "brief_bpm": 116.0,
+              "rel_err": 0.061
+            },
+            "key": {
+              "best_key": "A minor",
+              "best_r": 0.872,
+              "d_major_r": 0.231,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.339,
+              "similarity": 0.368,
+              "level_match": 0.741,
+              "start_s": 12.5,
+              "end_s": 28.1,
+              "bars": 8,
+              "loop_s": 15.6,
+              "grid_bpm": 123.0
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1704,
+              "vocal_active_frac": 0.204,
+              "stem_share": {
+                "drums": 0.0213,
+                "bass": 0.0856,
+                "other": 0.7227,
+                "vocals": 0.1704
+              },
+              "groove_active_frac": 0.469,
+              "drums_active_frac": 0.245
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.003,
+                "kobyz": 0.002,
+                "sybyzgy": 0.304,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.437,
+                "piano": 0.051,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.185,
+                "a rock band with electric guitar and drums": 0.012,
+                "a person singing a melody with words": 0.006
+              },
+              "kazakh_prob": 0.309,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.258,
+          "parts": {
+            "kazakh": 0.309,
+            "groove": 0.357,
+            "seam": 0.398,
+            "clean": 1.0,
+            "full": 0.241,
+            "drone": 0.0
+          },
+          "dq": null
+        },
+        {
+          "id": "minimax3-313",
+          "folder": "nalati-sky",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "sky",
+            "seed": 313,
+            "prompt": "Genre: Kazakh folk music, a small village folk trio, video game soundtrack. BPM: 116. Instrumental only, no vocals, no choir. Setting: the Sky Grassland, a golden high plateau where wild horses graze, in an open-world adventure game - bright, light, playful. Arrangement: only three players: a fast strummed two-string dombra lute in a galloping 6/8 horse-gait rhythm, a breathy wooden sybyzgy flute playing a bright dancing melody, and a frame drum with hoof-like hand percussion that runs under the whole piece from the second bar to the end. A jaw harp twang now and then. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no piano, no guitar, no synthesizers. Production: dry, close, a small room.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 109.3,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 28.04
+          },
+          "metrics": {
+            "duration_s": 35.75,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.6,
+              "lra": 6.7,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 7,
+              "clipped_frac": 2.220181065280935e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2393.0,
+              "rolloff95_hz": 8378.0,
+              "flatness": 0.0009,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.0547,
+              "stereo_corr": 0.298
+            },
+            "tempo": {
+              "estimated_bpm": 123.0,
+              "brief_bpm": 116.0,
+              "rel_err": 0.061
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.833,
+              "d_major_r": 0.077,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.288,
+              "similarity": 0.33,
+              "level_match": 0.577,
+              "start_s": 3.75,
+              "end_s": 23.25,
+              "bars": 10,
+              "loop_s": 19.5,
+              "grid_bpm": 123.0
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.1219,
+                "other": 0.8781,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.657,
+              "drums_active_frac": 0.029
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.004,
+                "kobyz": 0.004,
+                "sybyzgy": 0.05,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.461,
+                "piano": 0.47,
+                "acoustic guitar": 0.002,
+                "electronic synthesizer music": 0.004,
+                "a rock band with electric guitar and drums": 0.005,
+                "a person singing a melody with words": 0.001
+              },
+              "kazakh_prob": 0.057,
+              "best_match": "piano"
+            }
+          },
+          "score": 0.165,
+          "parts": {
+            "kazakh": 0.057,
+            "groove": 0.343,
+            "seam": 0.313,
+            "clean": 1.0,
+            "full": 0.0,
+            "drone": 0.0
+          },
+          "dq": null
+        }
+      ]
+    },
+    "snow": {
+      "pick": "minimax3-301",
+      "takes": [
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-snow",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "snow",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 84. Instrumental only, no vocals, no choir. Setting: the Snow Lotus Valley, a cold ring of snowfields and a glacier high above the steppe, in an open-world adventure game - cold, lonely, beautiful, a little dangerous. Arrangement: a sparse low plucked ostinato on a two-string dombra lute, a breathy wooden sybyzgy flute melody over a hummed drone, glassy harmonics on a raspy bowed horsehair fiddle; a soft slow groove of muted frame drum and low hand percussion keeps going under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: cold, spacious reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 244.2,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 27.46
+          },
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.7,
+              "lra": 7.5,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 51,
+              "clipped_frac": 7.70135882171022e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2303.3,
+              "rolloff95_hz": 9056.5,
+              "flatness": 0.0026,
+              "hf_above_12k": 0.00119,
+              "sub_below_60": 0.1339,
+              "stereo_corr": 0.46
+            },
+            "tempo": {
+              "estimated_bpm": 107.7,
+              "brief_bpm": 84.0,
+              "rel_err": 0.282
+            },
+            "key": {
+              "best_key": "A minor",
+              "best_r": 0.683,
+              "d_major_r": 0.445,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.516,
+              "similarity": 0.522,
+              "level_match": 0.966,
+              "start_s": 8.0,
+              "end_s": 59.27,
+              "bars": 23,
+              "loop_s": 51.27,
+              "grid_bpm": 107.7
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0163,
+              "vocal_active_frac": 0.08,
+              "stem_share": {
+                "drums": 0.2783,
+                "bass": 0.0086,
+                "other": 0.6968,
+                "vocals": 0.0163
+              },
+              "groove_active_frac": 0.88,
+              "drums_active_frac": 0.92
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.917,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.053,
+                "piano": 0.007,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.013,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.008
+              },
+              "kazakh_prob": 0.918,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.89,
+          "parts": {
+            "kazakh": 0.918,
+            "groove": 0.9,
+            "seam": 0.693,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "snow/snow-301.m4a",
+          "bytes": 495284
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-snow",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "snow",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 84. Instrumental only, no vocals, no choir. Setting: the Snow Lotus Valley, a cold ring of snowfields and a glacier high above the steppe, in an open-world adventure game - cold, lonely, beautiful, a little dangerous. Arrangement: a sparse low plucked ostinato on a two-string dombra lute, a breathy wooden sybyzgy flute melody over a hummed drone, glassy harmonics on a raspy bowed horsehair fiddle; a soft slow groove of muted frame drum and low hand percussion keeps going under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: cold, spacious reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 247.3,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 28.54
+          },
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.6,
+              "lra": 6.0,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 172,
+              "clipped_frac": 2.597321014380702e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2108.9,
+              "rolloff95_hz": 8466.1,
+              "flatness": 0.0008,
+              "hf_above_12k": 0.00012,
+              "sub_below_60": 0.0416,
+              "stereo_corr": 0.625
+            },
+            "tempo": {
+              "estimated_bpm": 112.3,
+              "brief_bpm": 84.0,
+              "rel_err": 0.331
+            },
+            "key": {
+              "best_key": "A major",
+              "best_r": 0.577,
+              "d_major_r": 0.213,
+              "d_major_rank": 6,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.46,
+              "similarity": 0.469,
+              "level_match": 0.937,
+              "start_s": 9.75,
+              "end_s": 56.75,
+              "bars": 22,
+              "loop_s": 47.0,
+              "grid_bpm": 112.3
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0072,
+              "vocal_active_frac": 0.147,
+              "stem_share": {
+                "drums": 0.1846,
+                "bass": 0.0224,
+                "other": 0.7858,
+                "vocals": 0.0072
+              },
+              "groove_active_frac": 0.453,
+              "drums_active_frac": 0.467
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.003,
+                "kobyz": 0.001,
+                "sybyzgy": 0.96,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.014,
+                "piano": 0.001,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.015,
+                "a rock band with electric guitar and drums": 0.001,
+                "a person singing a melody with words": 0.004
+              },
+              "kazakh_prob": 0.964,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.799,
+          "parts": {
+            "kazakh": 0.964,
+            "groove": 0.46,
+            "seam": 0.6,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "snow/snow-303.m4a",
+          "bytes": 494113
+        },
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-snow",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "snow",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk. BPM: 84. Instrumental only, no vocals, no choir. Setting: the Snow Lotus Valley, a cold ring of snowfields and a glacier high above the steppe, in an open-world adventure game - cold, lonely, beautiful, a little dangerous. Arrangement: a sparse low plucked ostinato on a two-string dombra lute, a breathy wooden sybyzgy flute melody over a hummed drone, glassy harmonics on a raspy bowed horsehair fiddle; a soft slow groove of muted frame drum and low hand percussion keeps going under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: cold, spacious reverb.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 111.8,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 27.46
+          },
+          "metrics": {
+            "duration_s": 34.83,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.4,
+              "lra": 12.1,
+              "true_peak_dbfs": -0.8
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9102
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2023.8,
+              "rolloff95_hz": 8977.3,
+              "flatness": 0.0006,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.2371,
+              "stereo_corr": 0.474
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 84.0,
+              "rel_err": 0.025
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.806,
+              "d_major_r": 0.006,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.198,
+              "similarity": 0.218,
+              "level_match": 0.689,
+              "start_s": 5.75,
+              "end_s": 31.46,
+              "bars": 9,
+              "loop_s": 25.71,
+              "grid_bpm": 84.0
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.001,
+                "bass": 0.2657,
+                "other": 0.7334,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.265,
+              "drums_active_frac": 0.059
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.002,
+                "kobyz": 0.0,
+                "sybyzgy": 0.039,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.001,
+                "piano": 0.956,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.001,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.001
+              },
+              "kazakh_prob": 0.041,
+              "best_match": "piano"
+            }
+          },
+          "score": 0.123,
+          "parts": {
+            "kazakh": 0.041,
+            "groove": 0.162,
+            "seam": 0.163,
+            "clean": 1.0,
+            "full": 0.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 3,
+          "m4a": "snow/snow-302.m4a",
+          "bytes": 286702
+        }
+      ]
+    },
+    "night": {
+      "pick": "minimax3-301",
+      "takes": [
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-night",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "night",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 72. Setting: the Kazakh steppe at night under the stars, wolves somewhere out in the dark, in an open-world adventure game - dark, calm, ancient. Arrangement: a low wordless throat-sung drone (kargyraa) held under the whole piece, a slow mournful melody on a raspy bowed horsehair fiddle (kobyz), sparse plucked notes on a two-string dombra lute; a soft steady frame drum pulse like a distant heartbeat runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: close, dark, deep reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 224.9,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 28.54
+          },
+          "metrics": {
+            "duration_s": 68.41,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.0,
+              "lra": 13.6,
+              "true_peak_dbfs": -0.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9609
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.32,
+              "total_silence_s": 1.32
+            },
+            "spectrum": {
+              "centroid_hz": 1999.4,
+              "rolloff95_hz": 9828.1,
+              "flatness": 0.0007,
+              "hf_above_12k": 0.00024,
+              "sub_below_60": 0.1931,
+              "stereo_corr": 0.317
+            },
+            "tempo": {
+              "estimated_bpm": 143.6,
+              "brief_bpm": 72.0,
+              "rel_err": 0.003
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.824,
+              "d_major_r": 0.69,
+              "d_major_rank": 2,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.276,
+              "similarity": 0.36,
+              "level_match": 0.218,
+              "start_s": 4.25,
+              "end_s": 57.58,
+              "bars": 16,
+              "loop_s": 53.33,
+              "grid_bpm": 72.0
+            },
+            "vocals": {
+              "vocal_energy_share": 0.3879,
+              "vocal_active_frac": 0.647,
+              "stem_share": {
+                "drums": 0.0788,
+                "bass": 0.3394,
+                "other": 0.1939,
+                "vocals": 0.3879
+              },
+              "groove_active_frac": 0.676,
+              "drums_active_frac": 0.279
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.001,
+                "sybyzgy": 0.132,
+                "throat": 0.819
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.002,
+                "piano": 0.003,
+                "acoustic guitar": 0.002,
+                "electronic synthesizer music": 0.004,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.038
+              },
+              "kazakh_prob": 0.951,
+              "best_match": "throat singing, a deep growling overtone chant"
+            }
+          },
+          "score": 0.728,
+          "parts": {
+            "kazakh": 0.951,
+            "groove": 0.478,
+            "seam": 0.293,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.819
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "night/night-301.m4a",
+          "bytes": 493520
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-night",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "night",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 72. Setting: the Kazakh steppe at night under the stars, wolves somewhere out in the dark, in an open-world adventure game - dark, calm, ancient. Arrangement: a low wordless throat-sung drone (kargyraa) held under the whole piece, a slow mournful melody on a raspy bowed horsehair fiddle (kobyz), sparse plucked notes on a two-string dombra lute; a soft steady frame drum pulse like a distant heartbeat runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: close, dark, deep reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 179.4,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 28.54
+          },
+          "metrics": {
+            "duration_s": 56.02,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.3,
+              "lra": 13.9,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 67,
+              "clipped_frac": 1.3560556994818653e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2082.5,
+              "rolloff95_hz": 8644.7,
+              "flatness": 0.0007,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.2099,
+              "stereo_corr": 0.462
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 72.0,
+              "rel_err": 0.196
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.789,
+              "d_major_r": -0.091,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.749,
+              "similarity": 0.752,
+              "level_match": 0.987,
+              "start_s": 16.25,
+              "end_s": 27.4,
+              "bars": 8,
+              "loop_s": 11.15,
+              "grid_bpm": 172.3
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0714,
+              "vocal_active_frac": 0.214,
+              "stem_share": {
+                "drums": 0.2776,
+                "bass": 0.0222,
+                "other": 0.6288,
+                "vocals": 0.0714
+              },
+              "groove_active_frac": 0.375,
+              "drums_active_frac": 0.375
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.002,
+                "sybyzgy": 0.855,
+                "throat": 0.045
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.004,
+                "piano": 0.007,
+                "acoustic guitar": 0.001,
+                "electronic synthesizer music": 0.032,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.054
+              },
+              "kazakh_prob": 0.903,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.608,
+          "parts": {
+            "kazakh": 0.903,
+            "groove": 0.375,
+            "seam": 1.0,
+            "clean": 1.0,
+            "full": 0.551,
+            "drone": 0.045
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "night/night-303.m4a",
+          "bytes": 461215
+        },
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-night",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "night",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk night theme. BPM: 72. Setting: the Kazakh steppe at night under the stars, wolves somewhere out in the dark, in an open-world adventure game - dark, calm, ancient. Arrangement: a low wordless throat-sung drone (kargyraa) held under the whole piece, a slow mournful melody on a raspy bowed horsehair fiddle (kobyz), sparse plucked notes on a two-string dombra lute; a soft steady frame drum pulse like a distant heartbeat runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: close, dark, deep reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 90.5,
+            "model_load_s": 3.1,
+            "mps_driver_gb": 28.54
+          },
+          "metrics": {
+            "duration_s": 28.39,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -25.0,
+              "lra": 12.5,
+              "true_peak_dbfs": -7.7
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.4121
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.45,
+              "total_silence_s": 1.45
+            },
+            "spectrum": {
+              "centroid_hz": 2820.4,
+              "rolloff95_hz": 14584.7,
+              "flatness": 0.0015,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.0088,
+              "stereo_corr": 0.441
+            },
+            "tempo": {
+              "estimated_bpm": 129.2,
+              "brief_bpm": 72.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.686,
+              "d_major_r": -0.19,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 2,
+              "score": 0.46,
+              "similarity": 0.485,
+              "level_match": 0.824,
+              "start_s": 4.75,
+              "end_s": 8.47,
+              "bars": 2,
+              "loop_s": 3.72,
+              "grid_bpm": 129.2
+            },
+            "vocals": {
+              "vocal_energy_share": 0.7395,
+              "vocal_active_frac": 0.964,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.0,
+                "other": 0.2604,
+                "vocals": 0.7395
+              },
+              "groove_active_frac": 0.036,
+              "drums_active_frac": 0.0
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.004,
+                "sybyzgy": 0.737,
+                "throat": 0.055
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.005,
+                "piano": 0.013,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.001,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.184
+              },
+              "kazakh_prob": 0.796,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": -1.0,
+          "parts": {},
+          "dq": "voice 74% of the energy"
+        }
+      ]
+    },
+    "storm": {
+      "pick": "minimax3-313",
+      "takes": [
+        {
+          "id": "minimax3-313",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 313,
+            "prompt": "Genre: Kazakh folk music, fast and fierce, video game battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm over the steppe and the fight with Jel Ata, the spirit of the wind, in an open-world adventure game. Arrangement: only folk instruments: two fast furiously strummed two-string dombra lutes in a driving 6/8 gallop, a breathy wooden sybyzgy flute shrieking like the wind, a raspy bowed horsehair fiddle sawing a drone, and pounding frame drums (dauylpaz) and big hand drums that drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no electric guitar, no rock drum kit, no piano, no synthesizers. Production: close, raw, live folk ensemble.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 256.9,
+            "model_load_s": 8.8,
+            "mps_driver_gb": 28.22
+          },
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.3,
+              "lra": 12.8,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 18,
+              "clipped_frac": 2.7181266429565485e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2096.3,
+              "rolloff95_hz": 7913.5,
+              "flatness": 0.0006,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0269,
+              "stereo_corr": 0.323
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 132.0,
+              "rel_err": 0.305
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.785,
+              "d_major_r": 0.507,
+              "d_major_rank": 2,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.724,
+              "similarity": 0.741,
+              "level_match": 0.925,
+              "start_s": 26.75,
+              "end_s": 58.79,
+              "bars": 23,
+              "loop_s": 32.04,
+              "grid_bpm": 172.3
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0001,
+              "vocal_active_frac": 0.067,
+              "stem_share": {
+                "drums": 0.0539,
+                "bass": 0.0282,
+                "other": 0.9177,
+                "vocals": 0.0001
+              },
+              "groove_active_frac": 0.213,
+              "drums_active_frac": 0.093
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.002,
+                "sybyzgy": 0.936,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.045,
+                "piano": 0.003,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.012,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.002
+              },
+              "kazakh_prob": 0.938,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.809,
+          "parts": {
+            "kazakh": 0.938,
+            "groove": 0.153,
+            "seam": 1.0,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "storm/storm-313.m4a",
+          "bytes": 493582
+        },
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm breaks over the steppe and the fight with Jel Ata, the giant spirit of the wind, in an open-world adventure game - fury, speed, danger. Arrangement: furious fast strummed two-string dombra lutes in a driving 6/8 gallop, a screaming raspy bowed horsehair fiddle, breathy wooden-flute flurries like gusts of wind; pounding frame drums and big low war drums drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: loud, wide, stormy.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 229.5,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 27.38
+          },
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.3,
+              "lra": 8.9,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 99,
+              "clipped_frac": 1.4949696536261017e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 3057.4,
+              "rolloff95_hz": 11580.7,
+              "flatness": 0.0036,
+              "hf_above_12k": 0.00054,
+              "sub_below_60": 0.1185,
+              "stereo_corr": 0.428
+            },
+            "tempo": {
+              "estimated_bpm": 89.1,
+              "brief_bpm": 132.0,
+              "rel_err": 0.325
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.746,
+              "d_major_r": -0.111,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.461,
+              "similarity": 0.507,
+              "level_match": 0.697,
+              "start_s": 27.0,
+              "end_s": 72.79,
+              "bars": 17,
+              "loop_s": 45.79,
+              "grid_bpm": 89.1
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1114,
+              "vocal_active_frac": 0.253,
+              "stem_share": {
+                "drums": 0.14,
+                "bass": 0.1128,
+                "other": 0.6358,
+                "vocals": 0.1114
+              },
+              "groove_active_frac": 0.813,
+              "drums_active_frac": 0.6
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.406,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.581,
+                "piano": 0.002,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.007,
+                "a rock band with electric guitar and drums": 0.001,
+                "a person singing a melody with words": 0.003
+              },
+              "kazakh_prob": 0.406,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.507,
+          "parts": {
+            "kazakh": 0.406,
+            "groove": 0.706,
+            "seam": 0.602,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "storm/storm-301.m4a",
+          "bytes": 495011
+        },
+        {
+          "id": "minimax3-311",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 311,
+            "prompt": "Genre: Kazakh folk music, fast and fierce, video game battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm over the steppe and the fight with Jel Ata, the spirit of the wind, in an open-world adventure game. Arrangement: only folk instruments: two fast furiously strummed two-string dombra lutes in a driving 6/8 gallop, a breathy wooden sybyzgy flute shrieking like the wind, a raspy bowed horsehair fiddle sawing a drone, and pounding frame drums (dauylpaz) and big hand drums that drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no electric guitar, no rock drum kit, no piano, no synthesizers. Production: close, raw, live folk ensemble.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 160.2,
+            "model_load_s": 8.8,
+            "mps_driver_gb": 26.97
+          },
+          "metrics": {
+            "duration_s": 55.26,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.5,
+              "lra": 15.5,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 32,
+              "clipped_frac": 6.5651260504201685e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2728.2,
+              "rolloff95_hz": 10650.9,
+              "flatness": 0.0013,
+              "hf_above_12k": 0.00032,
+              "sub_below_60": 0.1444,
+              "stereo_corr": 0.511
+            },
+            "tempo": {
+              "estimated_bpm": 95.7,
+              "brief_bpm": 132.0,
+              "rel_err": 0.275
+            },
+            "key": {
+              "best_key": "F# minor",
+              "best_r": 0.779,
+              "d_major_r": 0.426,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.365,
+              "similarity": 0.369,
+              "level_match": 0.963,
+              "start_s": 9.75,
+              "end_s": 49.87,
+              "bars": 16,
+              "loop_s": 40.12,
+              "grid_bpm": 95.7
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0365,
+              "vocal_active_frac": 0.182,
+              "stem_share": {
+                "drums": 0.1164,
+                "bass": 0.0474,
+                "other": 0.7997,
+                "vocals": 0.0365
+              },
+              "groove_active_frac": 0.491,
+              "drums_active_frac": 0.4
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.001,
+                "sybyzgy": 0.468,
+                "throat": 0.001
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.454,
+                "piano": 0.012,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.051,
+                "a rock band with electric guitar and drums": 0.007,
+                "a person singing a melody with words": 0.006
+              },
+              "kazakh_prob": 0.469,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.48,
+          "parts": {
+            "kazakh": 0.469,
+            "groove": 0.446,
+            "seam": 0.442,
+            "clean": 1.0,
+            "full": 0.513,
+            "drone": 0.001
+          },
+          "dq": null,
+          "rank": 3,
+          "m4a": "storm/storm-311.m4a",
+          "bytes": 454539
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm breaks over the steppe and the fight with Jel Ata, the giant spirit of the wind, in an open-world adventure game - fury, speed, danger. Arrangement: furious fast strummed two-string dombra lutes in a driving 6/8 gallop, a screaming raspy bowed horsehair fiddle, breathy wooden-flute flurries like gusts of wind; pounding frame drums and big low war drums drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: loud, wide, stormy.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 215.0,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 27.44
+          },
+          "metrics": {
+            "duration_s": 68.28,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.3,
+              "lra": 2.8,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 3312.4,
+              "rolloff95_hz": 9118.8,
+              "flatness": 0.0029,
+              "hf_above_12k": 0.00042,
+              "sub_below_60": 0.1767,
+              "stereo_corr": 0.568
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 132.0,
+              "rel_err": 0.301
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.687,
+              "d_major_r": -0.234,
+              "d_major_rank": 19,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.576,
+              "similarity": 0.582,
+              "level_match": 0.966,
+              "start_s": 27.25,
+              "end_s": 49.36,
+              "bars": 17,
+              "loop_s": 22.11,
+              "grid_bpm": 184.6
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0006,
+              "vocal_active_frac": 0.015,
+              "stem_share": {
+                "drums": 0.4663,
+                "bass": 0.2607,
+                "other": 0.2724,
+                "vocals": 0.0006
+              },
+              "groove_active_frac": 0.926,
+              "drums_active_frac": 0.926
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.001,
+                "kobyz": 0.001,
+                "sybyzgy": 0.0,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.023,
+                "piano": 0.0,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.036,
+                "a rock band with electric guitar and drums": 0.938,
+                "a person singing a melody with words": 0.0
+              },
+              "kazakh_prob": 0.002,
+              "best_match": "a rock band with electric guitar and drums"
+            }
+          },
+          "score": 0.298,
+          "parts": {
+            "kazakh": 0.002,
+            "groove": 0.926,
+            "seam": 0.793,
+            "clean": 1.0,
+            "full": 1.0,
+            "drone": 0.0
+          },
+          "dq": null
+        },
+        {
+          "id": "minimax3-312",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 312,
+            "prompt": "Genre: Kazakh folk music, fast and fierce, video game battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm over the steppe and the fight with Jel Ata, the spirit of the wind, in an open-world adventure game. Arrangement: only folk instruments: two fast furiously strummed two-string dombra lutes in a driving 6/8 gallop, a breathy wooden sybyzgy flute shrieking like the wind, a raspy bowed horsehair fiddle sawing a drone, and pounding frame drums (dauylpaz) and big hand drums that drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Strictly no orchestra, no strings section, no brass, no electric guitar, no rock drum kit, no piano, no synthesizers. Production: close, raw, live folk ensemble.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 141.1,
+            "model_load_s": 8.8,
+            "mps_driver_gb": 26.99
+          },
+          "metrics": {
+            "duration_s": 44.8,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.3,
+              "lra": 9.4,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 13,
+              "clipped_frac": 3.2897933402435866e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2651.9,
+              "rolloff95_hz": 9485.1,
+              "flatness": 0.0014,
+              "hf_above_12k": 0.00015,
+              "sub_below_60": 0.0717,
+              "stereo_corr": 0.317
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 132.0,
+              "rel_err": 0.305
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.854,
+              "d_major_r": 0.568,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.352,
+              "similarity": 0.374,
+              "level_match": 0.803,
+              "start_s": 11.75,
+              "end_s": 42.4,
+              "bars": 22,
+              "loop_s": 30.65,
+              "grid_bpm": 172.3
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0006,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0009,
+                "bass": 0.1232,
+                "other": 0.8753,
+                "vocals": 0.0006
+              },
+              "groove_active_frac": 0.5,
+              "drums_active_frac": 0.068
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.001,
+                "kobyz": 0.001,
+                "sybyzgy": 0.048,
+                "throat": 0.0
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.947,
+                "piano": 0.0,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.001,
+                "a rock band with electric guitar and drums": 0.001,
+                "a person singing a melody with words": 0.0
+              },
+              "kazakh_prob": 0.05,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.167,
+          "parts": {
+            "kazakh": 0.05,
+            "groove": 0.284,
+            "seam": 0.42,
+            "clean": 1.0,
+            "full": 0.0,
+            "drone": 0.0
+          },
+          "dq": null
+        },
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-storm",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "storm",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk battle music. BPM: 132. Instrumental only, no vocals, no choir. Setting: a thunderstorm breaks over the steppe and the fight with Jel Ata, the giant spirit of the wind, in an open-world adventure game - fury, speed, danger. Arrangement: furious fast strummed two-string dombra lutes in a driving 6/8 gallop, a screaming raspy bowed horsehair fiddle, breathy wooden-flute flurries like gusts of wind; pounding frame drums and big low war drums drive the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: loud, wide, stormy.",
+            "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 153.5,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 27.38
+          },
+          "metrics": {
+            "duration_s": 49.85,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -12.7,
+              "lra": 8.0,
+              "true_peak_dbfs": 1.0
+            },
+            "clipping": {
+              "clipped_samples": 900,
+              "clipped_frac": 0.00020468240568234747,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 4192.8,
+              "rolloff95_hz": 12470.8,
+              "flatness": 0.0151,
+              "hf_above_12k": 0.00331,
+              "sub_below_60": 0.1264,
+              "stereo_corr": 0.671
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 132.0,
+              "rel_err": 0.223
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.519,
+              "d_major_r": 0.296,
+              "d_major_rank": 4,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.427,
+              "similarity": 0.433,
+              "level_match": 0.956,
+              "start_s": 18.25,
+              "end_s": 36.08,
+              "bars": 12,
+              "loop_s": 17.83,
+              "grid_bpm": 161.5
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1245,
+              "vocal_active_frac": 0.347,
+              "stem_share": {
+                "drums": 0.4591,
+                "bass": 0.038,
+                "other": 0.3784,
+                "vocals": 0.1245
+              },
+              "groove_active_frac": 0.592,
+              "drums_active_frac": 0.571
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.098,
+                "throat": 0.004
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.827,
+                "piano": 0.01,
+                "acoustic guitar": 0.001,
+                "electronic synthesizer music": 0.004,
+                "a rock band with electric guitar and drums": 0.046,
+                "a person singing a melody with words": 0.01
+              },
+              "kazakh_prob": 0.102,
+              "best_match": "orchestral strings and brass"
+            }
+          },
+          "score": 0.163,
+          "parts": {
+            "kazakh": 0.102,
+            "groove": 0.581,
+            "seam": 0.545,
+            "clean": 0.5,
+            "full": 0.243,
+            "drone": 0.004
+          },
+          "dq": null
+        }
+      ]
+    },
+    "king": {
+      "pick": "minimax3-302",
+      "takes": [
+        {
+          "id": "minimax3-302",
+          "folder": "nalati-king",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "king",
+            "seed": 302,
+            "prompt": "Genre: video game soundtrack, Kazakh folk boss theme. BPM: 96. Setting: inside a Saka burial mound (kurgan), where the Golden King, an undead warrior king in gold armour, rises, in an open-world adventure game - a funeral dirge that turns into battle. Arrangement: it opens with a deep wordless throat-sung drone (kargyraa) and a mournful raspy bowed horsehair fiddle, then rises into battle: heavy frame drums and a war-drum groove enter in the second bar and drive the whole piece to the end, hammering strums on a two-string dombra lute in a 6/8 ostinato, the throat drone under everything. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: dark, stone-chamber reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 154.7,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 28.51
+          },
+          "metrics": {
+            "duration_s": 49.82,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.5,
+              "lra": 9.3,
+              "true_peak_dbfs": 0.3
+            },
+            "clipping": {
+              "clipped_samples": 14,
+              "clipped_frac": 3.1861745513866233e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2538.9,
+              "rolloff95_hz": 10553.1,
+              "flatness": 0.0014,
+              "hf_above_12k": 0.00019,
+              "sub_below_60": 0.1161,
+              "stereo_corr": 0.321
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 96.0,
+              "rel_err": 0.159
+            },
+            "key": {
+              "best_key": "F# major",
+              "best_r": 0.568,
+              "d_major_r": 0.037,
+              "d_major_rank": 10,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.367,
+              "similarity": 0.371,
+              "level_match": 0.96,
+              "start_s": 4.0,
+              "end_s": 47.1,
+              "bars": 29,
+              "loop_s": 43.1,
+              "grid_bpm": 161.5
+            },
+            "vocals": {
+              "vocal_energy_share": 0.446,
+              "vocal_active_frac": 0.837,
+              "stem_share": {
+                "drums": 0.0531,
+                "bass": 0.2402,
+                "other": 0.2606,
+                "vocals": 0.446
+              },
+              "groove_active_frac": 0.918,
+              "drums_active_frac": 0.551
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.001,
+                "sybyzgy": 0.02,
+                "throat": 0.638
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.0,
+                "piano": 0.0,
+                "acoustic guitar": 0.009,
+                "electronic synthesizer music": 0.002,
+                "a rock band with electric guitar and drums": 0.001,
+                "a person singing a melody with words": 0.328
+              },
+              "kazakh_prob": 0.659,
+              "best_match": "throat singing, a deep growling overtone chant"
+            }
+          },
+          "score": 0.632,
+          "parts": {
+            "kazakh": 0.659,
+            "groove": 0.735,
+            "seam": 0.445,
+            "clean": 1.0,
+            "full": 0.241,
+            "drone": 0.638
+          },
+          "dq": null,
+          "rank": 1,
+          "m4a": "king/king-302.m4a",
+          "bytes": 410289
+        },
+        {
+          "id": "minimax3-301",
+          "folder": "nalati-king",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "king",
+            "seed": 301,
+            "prompt": "Genre: video game soundtrack, Kazakh folk boss theme. BPM: 96. Setting: inside a Saka burial mound (kurgan), where the Golden King, an undead warrior king in gold armour, rises, in an open-world adventure game - a funeral dirge that turns into battle. Arrangement: it opens with a deep wordless throat-sung drone (kargyraa) and a mournful raspy bowed horsehair fiddle, then rises into battle: heavy frame drums and a war-drum groove enter in the second bar and drive the whole piece to the end, hammering strums on a two-string dombra lute in a 6/8 ostinato, the throat drone under everything. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: dark, stone-chamber reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 193.4,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 28.51
+          },
+          "metrics": {
+            "duration_s": 62.11,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.4,
+              "lra": 14.5,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 6,
+              "clipped_frac": 1.0952102803738318e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1856.4,
+              "rolloff95_hz": 8456.6,
+              "flatness": 0.0005,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.2811,
+              "stereo_corr": 0.262
+            },
+            "tempo": {
+              "estimated_bpm": 136.0,
+              "brief_bpm": 96.0,
+              "rel_err": 0.292
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.808,
+              "d_major_r": 0.268,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.526,
+              "similarity": 0.618,
+              "level_match": 0.505,
+              "start_s": 4.0,
+              "end_s": 42.82,
+              "bars": 22,
+              "loop_s": 38.82,
+              "grid_bpm": 136.0
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1756,
+              "vocal_active_frac": 0.468,
+              "stem_share": {
+                "drums": 0.3233,
+                "bass": 0.0847,
+                "other": 0.4164,
+                "vocals": 0.1756
+              },
+              "groove_active_frac": 0.629,
+              "drums_active_frac": 0.435
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.002,
+                "kobyz": 0.004,
+                "sybyzgy": 0.873,
+                "throat": 0.008
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.004,
+                "piano": 0.012,
+                "acoustic guitar": 0.006,
+                "electronic synthesizer music": 0.018,
+                "a rock band with electric guitar and drums": 0.001,
+                "a person singing a melody with words": 0.072
+              },
+              "kazakh_prob": 0.887,
+              "best_match": "a breathy wooden flute melody"
+            }
+          },
+          "score": 0.592,
+          "parts": {
+            "kazakh": 0.887,
+            "groove": 0.532,
+            "seam": 0.71,
+            "clean": 1.0,
+            "full": 0.855,
+            "drone": 0.008
+          },
+          "dq": null,
+          "rank": 2,
+          "m4a": "king/king-301.m4a",
+          "bytes": 495086
+        },
+        {
+          "id": "minimax3-303",
+          "folder": "nalati-king",
+          "side": {
+            "model": "MiniMax Music 3",
+            "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+            "code_commit": "diffusers 0.40.0, torch 2.14.0",
+            "backend": "PyTorch mps bf16",
+            "style": "nalati",
+            "slot": "king",
+            "seed": 303,
+            "prompt": "Genre: video game soundtrack, Kazakh folk boss theme. BPM: 96. Setting: inside a Saka burial mound (kurgan), where the Golden King, an undead warrior king in gold armour, rises, in an open-world adventure game - a funeral dirge that turns into battle. Arrangement: it opens with a deep wordless throat-sung drone (kargyraa) and a mournful raspy bowed horsehair fiddle, then rises into battle: heavy frame drums and a war-drum groove enter in the second bar and drive the whole piece to the end, hammering strums on a two-string dombra lute in a 6/8 ostinato, the throat drone under everything. No fade-out: the last bar is as full as the rest. No western orchestra, no piano, no guitar, no synthesizers. Production: dark, stone-chamber reverb.",
+            "lyrics": "[Intro]\n[Chant]\nooo\nooo\n[Chant]\nooo\nooo\n[Outro]",
+            "duration_s": 75,
+            "steps": 30,
+            "gen_time_s": 147.0,
+            "model_load_s": 7.4,
+            "mps_driver_gb": 28.51
+          },
+          "metrics": {
+            "duration_s": 47.81,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.0,
+              "lra": 11.5,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 75,
+              "clipped_frac": 1.778586389023798e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1969.0,
+              "rolloff95_hz": 8912.0,
+              "flatness": 0.0005,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.1687,
+              "stereo_corr": 0.598
+            },
+            "tempo": {
+              "estimated_bpm": 60.1,
+              "brief_bpm": 96.0,
+              "rel_err": 0.252
+            },
+            "key": {
+              "best_key": "F major",
+              "best_r": 0.87,
+              "d_major_r": -0.109,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.135,
+              "similarity": 0.154,
+              "level_match": 0.591,
+              "start_s": 13.5,
+              "end_s": 45.45,
+              "bars": 8,
+              "loop_s": 31.95,
+              "grid_bpm": 60.1
+            },
+            "vocals": {
+              "vocal_energy_share": 0.5911,
+              "vocal_active_frac": 0.894,
+              "stem_share": {
+                "drums": 0.3083,
+                "bass": 0.068,
+                "other": 0.0327,
+                "vocals": 0.5911
+              },
+              "groove_active_frac": 0.532,
+              "drums_active_frac": 0.532
+            },
+            "kazakh": {
+              "instrument_prob": {
+                "dombra": 0.0,
+                "kobyz": 0.0,
+                "sybyzgy": 0.198,
+                "throat": 0.64
+              },
+              "foil_prob": {
+                "orchestral strings and brass": 0.002,
+                "piano": 0.001,
+                "acoustic guitar": 0.0,
+                "electronic synthesizer music": 0.001,
+                "a rock band with electric guitar and drums": 0.0,
+                "a person singing a melody with words": 0.158
+              },
+              "kazakh_prob": 0.838,
+              "best_match": "throat singing, a deep growling overtone chant"
+            }
+          },
+          "score": 0.541,
+          "parts": {
+            "kazakh": 0.838,
+            "groove": 0.532,
+            "seam": 0.058,
+            "clean": 1.0,
+            "full": 0.141,
+            "drone": 0.64
+          },
+          "dq": null,
+          "rank": 3,
+          "m4a": "king/king-303.m4a",
+          "bytes": 393433
+        }
+      ]
+    }
+  }
+}

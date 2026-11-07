@@ -1,0 +1,274 @@
+{
+  // Wildshard lint gate. Stable categories are errors; nursery rules wait for review (L4).
+  // The `rules` block below lists the rules that are
+  // deliberately switched off (one-line reason each) or configured. CI runs `pnpm run lint` (`oxlint`; type-aware via `options` below).
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise"],
+  // Wildshard's own rules (lint/wildshard-plugin.js): wildshard/no-url-switch, on for src/ in `overrides` below.
+  "jsPlugins": ["./node_modules/@wildshard/engine/lint/wildshard-plugin.js"],
+  "options": {
+    "typeAware": false, // typescript/no-floating-promises, no-unsafe-*, prefer-nullish-coalescing, ... via oxlint-tsgolint (TS 7)
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "off"
+  },
+  "env": { "browser": true, "es2024": true },
+  "categories": {
+    "correctness": "error",
+    "suspicious": "error",
+    "perf": "error",
+    "pedantic": "error",
+    "restriction": "error",
+    "style": "error",
+    "nursery": "off"
+  },
+  "rules": {
+    // The kit's oxlint is newer than the one this source passed.
+    "unicorn/prefer-string-raw": "off",
+    "wildshard/no-generated-import": "error",
+    "wildshard/no-generated-json-import": "error",
+    "wildshard/no-base64": "error",
+    // ── kept on, but configured ──────────────────────────────────────────────────────────────────
+    "typescript/no-explicit-any": "error",
+    "typescript/no-non-null-assertion": "error",
+    "typescript/consistent-type-imports": ["error", { "prefer": "type-imports", "fixStyle": "inline-type-imports" }],
+    "typescript/strict-boolean-expressions": ["error", { "allowNullableString": true, "allowNullableNumber": true, "allowNullableBoolean": true }], // `if (!str)` / `if (n)` is the codebase's "missing or empty" idiom; objects, functions and `any` in conditionals stay banned
+    "typescript/no-confusing-void-expression": ["error", { "ignoreArrowShorthand": true }], // `x.onEvent = (s) => patch(s)` forwarding arrows are idiomatic; block-bodied `return voidCall()` still flagged
+    "eslint/no-use-before-define": ["error", { "functions": false, "classes": true, "variables": true }], // hoisted function declarations are safe; classes/variables still checked
+    "eslint/new-cap": ["error", { "capIsNew": false }], // species rigs use capitalised builder helpers (`B('body')`, `S(...)`) as their DSL vocabulary; `new lowercase()` is still flagged
+    "eslint/no-console": ["error", { "allow": ["warn", "error", "info"] }], // warn/error/info are the game's deliberate diagnostics channel; console.log stays flagged
+    "import/no-cycle": ["error", { "ignoreTypes": true }], // type-only cycles are erased by verbatimModuleSyntax
+    "import/no-unassigned-import": ["error", { "allow": ["**/*.css", "**/format-hook.mjs"] }], // side-effect CSS imports are how Vite bundles the UI stylesheets; the format hook must load before format does (J82)
+
+    // ── off: number/loop/bit vocabulary of a real-time 3D game ──────────────────────────────────
+    "eslint/no-magic-numbers": "off", // tuning constants, geometry, colours: a game is made of numbers
+    "eslint/id-length": "off", // x, y, z, i, dt, t, nx are the vocabulary of vector math
+    "eslint/no-plusplus": "off", // `i++` in indexed hot loops
+    "eslint/no-continue": "off", // early `continue` in per-entity loops
+    "eslint/no-bitwise": "off", // `| 0` int casts, flag masks, index packing
+    "unicorn/prefer-number-coercion": "off", // parseFloat/parseInt keep their lenient prefix semantics on purpose (`?sunI=1.2x` → 1.2); Number() would change behaviour
+    "unicorn/prefer-modern-math-apis": "off", // Math.hypot is slower than sqrt(x*x+z*z) in V8 and differs at ulp level; the terrain/trail samplers feed seeded placement
+    "unicorn/prefer-math-trunc": "off", // `x | 0` differs from Math.trunc on NaN/overflow and is the hot-path idiom
+    "unicorn/no-zero-fractions": "off", // `1.0` / `0.0` mark float coefficients in shader-mirrored math
+    "unicorn/numeric-separators-style": "off", // literal formatting; 200+ tuning constants would churn
+    "unicorn/number-literal-case": "off", // hex colour literals follow the three.js lowercase convention (0xffffff)
+    "oxc/approx-constant": "off", // `6.28`, `3.14` are deliberate tuning values feeding seeded RNG streams; replacing them shifts baked output
+    "oxc/erasing-op": "off", // `0 * k` documents a coefficient/index slot in tuning math
+    "typescript/prefer-for-of": "off", // indexed loops are kept where the index is the semantic (parallel arrays, typed arrays)
+    "unicorn/no-array-for-each": "off", // forEach on setup-time arrays is fine; hot paths already use indexed loops
+    "unicorn/no-array-reduce": "off", // reduce is fine
+    "unicorn/no-array-callback-reference": "off", // passing typed named callbacks to map/filter is fine
+    "unicorn/no-array-sort": "off", // lib is ES2022: no toSorted
+    "unicorn/no-array-reverse": "off", // lib is ES2022: no toReversed
+    "unicorn/prefer-spread": "off", // Array.from on typed arrays / slice copies in hot paths
+    "unicorn/prefer-at": "off", // `a[a.length - 1]` in hot paths; .at() is a call
+    "unicorn/prefer-single-call": "off", // sequential pushes read as a build script
+    "unicorn/no-immediate-mutation": "off", // `const parts = []; parts.push(...)` builder style in geometry code
+    "unicorn/consistent-function-scoping": "off", // closures over per-frame locals are intentional
+    "eslint/no-await-in-loop": "off", // sequential awaits in loaders/bake scripts are deliberate (ordered, bandwidth-bounded)
+    "eslint/no-loop-func": "off", // closures in loops only read per-iteration `const`s
+    "eslint/no-new": "off", // self-wiring controllers (TouchControls, Combat) are constructed for their side effects
+
+    // ── off: language-feature bans that are wrong for a modern browser target ───────────────────
+    "oxc/no-optional-chaining": "off", // ES2020 target
+    "oxc/no-async-await": "off", // ES2022 target
+    "oxc/no-rest-spread-properties": "off", // ES2018 target
+    "unicorn/no-null": "off", // three.js and DOM APIs return null; `| null` is threaded deliberately
+    "eslint/no-undefined": "off", // `undefined` is threaded on purpose (exactOptionalPropertyTypes)
+    "unicorn/no-useless-undefined": "off", // with exactOptionalPropertyTypes an explicit `undefined` argument is meaningful
+    "eslint/no-ternary": "off", // ternaries
+    "eslint/no-nested-ternary": "off", // nested ternaries express piecewise math
+    "unicorn/no-nested-ternary": "off", // same
+    "eslint/no-void": "off", // `void promise` is how fire-and-forget is marked (no-floating-promises asks for it); `void x` marks a deliberately unused param
+    "typescript/parameter-properties": "off", // `constructor(private readonly x)` is the class idiom here
+    "typescript/non-nullable-type-assertion-style": "off", // would demand `x!`, which no-non-null-assertion bans
+    "typescript/no-unsafe-assignment": "off", // LS5: zero existing sites; unsafe call/argument/member/return still reject every use
+    "typescript/no-unsafe-type-assertion": "off", // three.js hands back base types (Material, Object3D, BufferAttribute); downcasting with `as` at the call site is the idiom, and instanceof guards in hot loops would change behaviour
+    "typescript/promise-function-async": "off", // wrapping promise-returning functions in `async` changes when sync throws surface
+    "promise/avoid-new": "off", // wrapping callback APIs (loaders, rAF, timers) needs `new Promise`
+    "promise/prefer-await-to-then": "off", // `.then` chains in loaders are deliberate
+    "unicorn/prefer-top-level-await": "off", // main() is called with an explicit .catch that routes to the error modal
+    "unicorn/prefer-global-this": "off", // browser-only code; `window` is the accurate global
+    "unicorn/prefer-add-event-listener": "off", // `el.onclick =` assignment is used where the handler must replace, not stack
+    "unicorn/prefer-query-selector": "off", // getElementById is the faster, typed lookup
+    "eslint/require-unicode-regexp": "off", // the `u` flag changes regex semantics; no safety gain here
+    "eslint/prefer-named-capture-group": "off", // regex style
+    "typescript/no-dynamic-delete": "off", // `delete this.worn[weapon]` on a keyed record is the intent
+
+    // ── off: pure style / budget rules with no static-safety benefit ────────────────────────────
+    "eslint/sort-keys": "off", // object key order carries meaning (tuning tables, shader uniforms)
+    "eslint/sort-imports": "off", // import order is not a correctness property
+    "eslint/sort-vars": "off", // same
+    "eslint/one-var": "off", // math locals are grouped in one declaration by design
+    "eslint/curly": "off", // single-line guards `if (x) return;` are the house style
+    "eslint/capitalized-comments": "off", // comment prose
+    "eslint/no-inline-comments": "off", // the codebase annotates inline heavily
+    "eslint/func-style": "off", // declarations and arrows are both used
+    "eslint/init-declarations": "off", // `let x;` assigned in branches
+    "eslint/no-multi-assign": "off", // `a = b = 0` chained resets
+    "eslint/prefer-destructuring": "off", // `const x = v.x` in math code
+    "eslint/no-underscore-dangle": "off", // `_scratch` vectors and `_unused` params
+    "eslint/class-methods-use-this": "off", // interface-conforming methods that ignore `this`
+    "eslint/no-negated-condition": "off", // style
+    "unicorn/no-negated-condition": "off", // style
+    "eslint/max-statements": "off", // budget
+    "eslint/max-params": "off", // budget (geometry builders take many numbers)
+    "eslint/max-lines": "off", // budget
+    "eslint/max-lines-per-function": "off", // budget
+    "eslint/max-depth": "off", // budget
+    "eslint/max-classes-per-file": "off", // budget
+    "eslint/complexity": "off", // budget
+    "unicorn/max-nested-calls": "off", // budget
+    "import/max-dependencies": "off", // budget
+    "typescript/explicit-member-accessibility": "off", // TS members are public by default; writing it out is noise
+    "typescript/explicit-function-return-type": "off", // module boundaries are typed by explicit-module-boundary-types; internal inference is the point of TS
+    "typescript/prefer-readonly": "off", // readonly-everything
+    "typescript/prefer-readonly-parameter-types": "off", // readonly-everything; three.js types are mutable
+    "unicorn/switch-case-braces": "off", // brace every case
+    "unicorn/filename-case": "off", // the repo uses PascalCase modules (Animal.ts) and kebab-case scripts
+    "unicorn/catch-error-name": "off", // `catch (e)`
+    "unicorn/import-style": "off", // style
+    "unicorn/no-await-expression-member": "off", // `(await x).y` is fine
+    "import/no-named-export": "off", // named exports are the module style
+    "import/prefer-default-export": "off", // same
+    "import/no-namespace": "off", // `import * as THREE from 'three'` is the three.js idiom
+    "import/group-exports": "off", // exports sit next to their declarations
+    "import/exports-last": "off", // same
+    "import/no-relative-parent-imports": "off", // no path aliases in this repo
+    "import/no-mutable-exports": "off", // Heightfield/config re-point live bindings on chunk switch by design
+    "import/consistent-type-specifier-style": "off" // conflicts with typescript/no-import-type-side-effects under verbatimModuleSyntax: pure-type imports must be `import type {}`, mixed ones use inline `type` (consistent-type-imports enforces that)
+  },
+  "overrides": [
+    {
+      // E405 AG5: the engine loads under node's default strip-only TypeScript (bakes, manifests, gen scripts import
+      // #engine), which has no parameter properties: declare the field and assign it in the constructor.
+      "files": ["src/engine/**"],
+      "rules": { "typescript/parameter-properties": "error" }
+    },
+    {
+      // Node-side tooling: build scripts, the Vite configs and plugin, the Vercel functions in api/, the drafts site's tools.
+      "files": ["scripts/**", "src/shards/*/generators/**/*.mjs", "src/shards/*/bake/**/*.mjs", "src/shards/*/blender/**/*.mjs", "vite/**", "vite.config.ts", "vitest.config.ts", "api/**", "api-tests/**", "lint/**", "drafts/tools/**", "drafts/test/**", "drafts/vite.config.ts", "admin/tools/**", "admin/test/**", "admin/vite.config.ts"],
+      "env": { "node": true },
+      "rules": {
+        "import/no-nodejs-modules": "off", // these run under node
+        "eslint/no-console": "off" // CLI scripts print their output with console.log
+      }
+    },
+    {
+      // G348 (Jake): the bakes are generic for any shard; a slug branch anywhere in scripts/bake is refused. Each shard
+      // declares its own far look / grid / parts, ground and tree stand-ins in data/placeholder.ts and its mover modules
+      // in data/moverBake.ts; the bakers are the SDK's.
+      "files": ["scripts/bake/**"],
+      "rules": { "wildshard/no-shard-branch": "error" }
+    },
+    {
+      // H2: guard the live hook family; bounded Git control calls need no inventory buffer.
+      "files": ["scripts/precommit*.mjs"],
+      "rules": { "wildshard/exec-max-buffer": "error" }
+    },
+    {
+      "files": ["lint/**"],
+      "rules": { "import/no-default-export": "off" } // oxlint loads a JS plugin from its default export
+    },
+    {
+      // E422: tests drive real modules through their seams; no module mocks or reloads (lint/wildshard-plugin.js)
+      "files": ["src/**/*.test.ts", "test/**", "api-tests/**", "drafts/test/**", "admin/test/**"],
+      "rules": { "wildshard/no-module-mock": "error" }
+    },
+    {
+      // L1: recorded ceilings cover the primary source tree only, as in the
+      // raw census. This is separate from the hard-rule src/** override below.
+      "files": ["src/**/*"],
+      "rules": {
+        "wildshard/no-raw-random-time": ["error", {"ratchet": true}],
+        "wildshard/shard-sandbox": ["error", {"ratchet": true}],
+        "wildshard/shard-game-imports": ["error", {"ratchet": true}],
+        "wildshard/shard-game-plugins": ["error", {"ratchet": true}],
+        "wildshard/generator-imports": ["error", {"ratchet": true}],
+        "wildshard/shard-engine-imports": ["error", {"ratchet": true}],
+        "wildshard/sdk-no-facade": ["error", {"ratchet": true}]
+      }
+    },
+    {
+      // No URL switches, ever (Jake, 2026-09-25): the game reads only the query params on the fixed allowlist in
+      // lint/url-params.json; every variant goes in pause ▸ Settings ▸ Debug. See AGENTS.md "No URL switches".
+      "files": ["src/**"],
+      "rules": {
+        // G8: generated JSON imports are at zero; keep the existing rule hard.
+        "wildshard/no-generated-json-import": "error",
+        "wildshard/no-url-switch": "error", "wildshard/no-inline-ui-string": "error", "wildshard/no-authored-html": "error",
+        // E362 AG16: zero stays zero in editors and the ordinary lint gate too.
+        "wildshard/no-shard-branch": "error",
+        "wildshard/no-raw-save": "error",
+        "wildshard/no-raw-input": "error",
+        "wildshard/no-global-listener-patch": "error",
+        "wildshard/no-raw-shader-patch": "error",
+        "wildshard/sim-no-render": "error",
+        // P1-E2: every engine / game file has a side (lint/engine-sides.json); client ↛ server, server ↛ client,
+        // shared ↛ either, cook ↛ client, no DOM or renderer in shared / server / cook; counts only fall
+        "wildshard/engine-sides": "error",
+        // SHARD-PLATFORM SP5: generators never ship; only the bake and other generators import them
+        "wildshard/no-runtime-generator": "error",
+        "wildshard/runtime-performance": "error",
+        "wildshard/no-active-chunk": "error",
+        "wildshard/no-raw-hud": "error",
+        "wildshard/no-raw-animation-mixer": "error",
+        // E362 AG19: paid down to 0 (2026-10-03) and promoted
+        "wildshard/no-hook-chain": "error",
+        "wildshard/no-renderer-type": "error",
+        "wildshard/no-active-singleton": "error",
+        "wildshard/engine-internal": "error",
+        // E434: no barrels — every import names the defining module; packages export modules, not an index
+        "wildshard/no-reexport": "error",
+        "wildshard/no-level-identity": "error",
+        // G143 / SF54: runtime/ reaches neither the kit nor build-time commons; paid down to 0 when the kit emptied (2026-10-08)
+        "wildshard/no-shard-runtime": "error",
+        "wildshard/runtime-commons": "error",
+        // G450/Z1: closed boundaries are hard errors; other paths remain shrink-only.
+        "wildshard/runtime-standalone": ["error", { "closedShards": ["_template", "blender-template", "ink-cel-valley", "open-plots", "pastel-plain"] }],
+        "wildshard/no-shard-host-callback": "error",
+        "wildshard/shard-services": "error",
+        "wildshard/no-client-plan-reflection": "error",
+        "wildshard/no-build-time-import": ["error", { "closedShards": ["_template", "blender-template", "ink-cel-valley", "pastel-plain"] }],
+        "wildshard/no-runtime-in-build": ["error", { "closedShards": ["_template", "blender-template", "ink-cel-valley", "pastel-plain"] }],
+        // E405 AG28: imports point down; the engine knows no game, kit, shard or app module
+        "wildshard/layer": "error",
+        // LT1: composition roots use defining workspace exports; zero stays zero.
+        "wildshard/public-index": "error",
+        "wildshard/no-production-test-import": "error",
+        // E405 LP2: engine code names no shard, creature, item or game word (wire contracts: lint/ratchet.json allow)
+        "wildshard/engine-words": "error",
+        // E405 LP3 / LP4: the game and the kit name no particular shard
+        "wildshard/shard-names": "error"
+      }
+    },
+    {
+      "files": ["vite.config.ts", "vitest.config.ts", "capacitor.config.ts", "drafts/vite.config.ts", "admin/vite.config.ts"],
+      "rules": { "import/no-default-export": "off" } // Vite / Vitest / the Capacitor CLI read the default export
+    },
+    {
+      // Untyped JavaScript: every value is `any` to the type-aware rules, so the `any`-tracking rules are noise here.
+      "files": ["**/*.mjs", "**/*.js"],
+      "rules": {
+        "typescript/no-unsafe-argument": "off",
+        "typescript/no-unsafe-assignment": "off",
+        "typescript/no-unsafe-call": "off",
+        "typescript/no-unsafe-member-access": "off",
+        "typescript/no-unsafe-return": "off",
+        "typescript/restrict-template-expressions": "off",
+        "typescript/strict-boolean-expressions": "off",
+        "typescript/explicit-module-boundary-types": "off"
+      }
+    },
+    {
+      // The service worker is a classic worker script: top-level function declarations are its API.
+      "files": ["src/engine/client/pwa/sw.js", "drafts/src/sw.js"],
+      "env": { "serviceworker": true },
+      "rules": { "eslint/no-implicit-globals": "off", "import/unambiguous": "off" }
+    },
+    {
+      "files": ["**/*.d.ts"],
+      "rules": { "import/unambiguous": "off" } // ambient module declarations have no import/export by design
+    }
+  ],
+  "ignorePatterns": ["**/*.generated.*", "test/fixtures/", ".tsc-layers/", "dist/", "dist-native/", "ios/", "android/", ".native-build/", "node_modules/", "public/", "progress/", "art/", "sources/", "docs/"]
+}

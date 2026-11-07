@@ -1,0 +1,38 @@
+{
+  "medium": {
+    "title": "Stable Audio 3 Medium",
+    "licence": "Stability AI Community (< $1M, register, credit)",
+    "families_rendered": 26,
+    "rank1": 20,
+    "top5": 25,
+    "mean_rank": 1.62,
+    "median_rank": 1.0,
+    "mean_gen_s": 0.88,
+    "mps_driver_gb_max": 11.46,
+    "shipped": 25,
+    "synth_keeps": [
+      "step.metal.1"
+    ],
+    "bytes": 607293,
+    "peak_gb": 19.4
+  },
+  "moss": {
+    "title": "MOSS-SoundEffect v2.0",
+    "licence": "Apache-2.0",
+    "families_rendered": 26,
+    "rank1": 13,
+    "top5": 23,
+    "mean_rank": 3.0,
+    "median_rank": 1.5,
+    "mean_gen_s": 45.6,
+    "mps_driver_gb_max": 19.8,
+    "shipped": 23,
+    "synth_keeps": [
+      "feizhua.dock",
+      "step.metal.1",
+      "step.stone.3"
+    ],
+    "bytes": 570631,
+    "peak_gb": 16.3
+  }
+}

@@ -1,0 +1,61 @@
+{
+  "_doc": "Per-model facts for the bake-off page (build_page.py). Measured on the M5 Max / 128 GB, 2026-09-22. Speed = wall time for one take incl. decode; memory = peak process RSS (/usr/bin/time -l) unless noted.",
+  "_exclude_prefixes": [
+    "smoke-"
+  ],
+  "models": {
+    "HeartMuLa": {
+      "version": "HeartMuLa-RL-oss-3B-20260123 + HeartCodec-oss-20260123, heartlib-mlx 02dd2e2",
+      "status": "ran - 24 takes (first, spaced tag string; see briefs.json _heartmula_note)",
+      "backend": "MLX (heartlib-mlx port), LM bf16, codec fp32",
+      "speed": "75 s of audio in 165-242 s (avg 192 s): ~5 frames/s at 12.5 Hz, 0.4x real time",
+      "memory": "MLX peak 25.5 GB (incl. codec decode); ~12 GB RSS",
+      "licence": "Apache-2.0 (code and weights)",
+      "licence_short": "Apache-2.0"
+    },
+    "Stable Audio Open": {
+      "version": "stable-audio-open-1.0 (ungated mirror AEmotionStudio/stable-audio-open-models), diffusers StableAudioPipeline",
+      "status": "ran - 24 takes; capped at 47 s per generation",
+      "backend": "PyTorch MPS fp32 (no MLX port)",
+      "speed": "47 s clip in 64-94 s (avg 76 s), 100 steps, CFG 7",
+      "memory": "15.3 GB MPS driver",
+      "licence": "Stability AI Community License: free below USD 1M annual revenue; register with Stability for commercial use; 'Powered by Stability AI' attribution",
+      "licence_short": "Stability Community (<$1M)"
+    },
+    "Stable Audio Open Small": {
+      "version": "stable-audio-open-small (ungated mirror joeriben/stable-audio-open-small), stable-audio-tools 3241adb",
+      "status": "ran - 24 takes; ~11 s window, loops/one-shots only (never shortlisted as a theme)",
+      "backend": "PyTorch MPS",
+      "speed": "11 s clip in 0.4 s warm (7 s on the first call), 8 steps",
+      "memory": "3.5 GB MPS driver, 4.7 GB RSS",
+      "licence": "Stability AI Community License (as SAO 1.0)",
+      "licence_short": "Stability Community (<$1M)"
+    },
+    "MiniMax Music 3": {
+      "version": "MiniMaxAI/MiniMax-Music3, diffusers 0.40.0 ModularPipeline",
+      "status": "ran - 24 takes (the model card says CUDA-only; runs on MPS unchanged via diffusers 0.40)",
+      "backend": "PyTorch MPS bf16",
+      "speed": "75 s of audio in 151-318 s (avg 224 s), 30 steps",
+      "memory": "28.4 GB MPS driver, 10.3 GB RSS",
+      "licence": "MiniMax-Music3 Community License: commercial use OK, must show 'MiniMax-Music3' in the product UI, written authorisation above USD 20M yearly revenue",
+      "licence_short": "MiniMax Community (<$20M, UI credit)"
+    },
+    "ACE-Step 1.5": {
+      "version": "ace-step/ACE-Step-1.5 ca1e85f; turbo 2B + LM 1.7B and XL-SFT 4B were smoke-tested",
+      "status": "dropped by the user (too heavy for this machine) - not in the bake-off",
+      "backend": "MLX (DiT + 5 Hz LM + VAE)",
+      "speed": "60 s take: 31 s (turbo 2B + LM 1.7B), 84 s (XL-SFT, 50 steps, while another model ran)",
+      "memory": "15 GB RSS (turbo), 22 GB RSS (XL-SFT); MLX peak 28 GB",
+      "licence": "MIT (code and weights)",
+      "licence_short": "MIT"
+    }
+  },
+  "notes": [
+    "Speeds/memory measured on the M5 Max (128 GB), one model at a time, 2026-09-22.",
+    "Only MiniMax Music 3 and HeartMuLa write a full 60-90 s theme. Stable Audio Open 1.0 stops at 47 s (stitching or outpainting needed for a theme); SAO Small is loop/sting material.",
+    "Key/BPM control: none of the four holds the brief's D major / BPM reliably. SAO 1.0 hits the BPM most often (it reads 'N BPM' from the prompt); MiniMax mostly lands in G or C major regardless of the prompt; HeartMuLa has no tempo/key input at all.",
+    "Voices: HeartMuLa is a song model and hums/sings under many takes (demucs finds a voice-like stem in most); some MiniMax takes also sing despite '[Instrumental]' lyrics. Takes with >20% vocal-stem energy are kept off the shortlist.",
+    "ACE-Step 1.5 was set up and smoke-tested (MLX, MIT) but dropped by the user as too heavy for this machine, so it has no takes here.",
+    "Licences differ: HeartMuLa is Apache-2.0; Stable Audio Open needs Stability registration for commercial use and a 'Powered by Stability AI' credit (free under USD 1M revenue); MiniMax Music 3 needs 'MiniMax-Music3' shown in the game's UI (free under USD 20M revenue)."
+  ]
+}

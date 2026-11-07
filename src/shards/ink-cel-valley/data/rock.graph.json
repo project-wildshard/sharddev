@@ -1,0 +1,364 @@
+{
+  "version": 1,
+  "kind": "material",
+  "model": "standard",
+  "flatShading": true,
+  "params": {
+    "paper": {
+      "type": "colour",
+      "value": [
+        0.93,
+        0.89,
+        0.78
+      ]
+    },
+    "wash": {
+      "type": "colour",
+      "value": [
+        0.42,
+        0.5,
+        0.62
+      ]
+    },
+    "ink": {
+      "type": "colour",
+      "value": [
+        0.06,
+        0.05,
+        0.08
+      ]
+    },
+    "outlineWidth": {
+      "type": "float",
+      "value": 0.004,
+      "min": 0,
+      "max": 0.05
+    },
+    "silhouette": {
+      "type": "float",
+      "value": 0.28,
+      "min": 0,
+      "max": 1
+    },
+    "bands": {
+      "type": "float",
+      "value": 3,
+      "min": 1,
+      "max": 8
+    },
+    "shade": {
+      "type": "float",
+      "value": 0.35,
+      "min": 0,
+      "max": 1
+    }
+  },
+  "nodes": {
+    "paperP": {
+      "op": "param",
+      "param": "paper"
+    },
+    "inkP": {
+      "op": "param",
+      "param": "ink"
+    },
+    "glow": {
+      "op": "const",
+      "value": 0
+    },
+    "n": {
+      "op": "normalView"
+    },
+    "l": {
+      "op": "sunDirection"
+    },
+    "v": {
+      "op": "viewDirection"
+    },
+    "c": {
+      "op": "sunColour"
+    },
+    "sh": {
+      "op": "sunShadow"
+    },
+    "ndl": {
+      "op": "dot",
+      "in": [
+        "n",
+        "l"
+      ]
+    },
+    "ndlS": {
+      "op": "saturate",
+      "in": [
+        "ndl"
+      ]
+    },
+    "k0": {
+      "op": "mul",
+      "in": [
+        "ndlS",
+        "sh"
+      ]
+    },
+    "bandsP": {
+      "op": "param",
+      "param": "bands"
+    },
+    "k1": {
+      "op": "mul",
+      "in": [
+        "k0",
+        "bandsP"
+      ]
+    },
+    "k2": {
+      "op": "add",
+      "in": [
+        "k1",
+        0.5
+      ]
+    },
+    "k3": {
+      "op": "floor",
+      "in": [
+        "k2"
+      ]
+    },
+    "cel": {
+      "op": "div",
+      "in": [
+        "k3",
+        "bandsP"
+      ]
+    },
+    "washP": {
+      "op": "param",
+      "param": "wash"
+    },
+    "lit": {
+      "op": "gt",
+      "in": [
+        "cel",
+        0.01
+      ]
+    },
+    "tone": {
+      "op": "select",
+      "in": [
+        "lit",
+        [
+          1,
+          1,
+          1
+        ],
+        "washP"
+      ]
+    },
+    "d0": {
+      "op": "mul",
+      "in": [
+        "paperP",
+        "c"
+      ]
+    },
+    "d1": {
+      "op": "mul",
+      "in": [
+        "d0",
+        "cel"
+      ]
+    },
+    "d2": {
+      "op": "mul",
+      "in": [
+        "d1",
+        "tone"
+      ]
+    },
+    "diffuse": {
+      "op": "mul",
+      "in": [
+        "d2",
+        0.3183098861837907
+      ]
+    },
+    "ndv": {
+      "op": "dot",
+      "in": [
+        "n",
+        "v"
+      ]
+    },
+    "silP": {
+      "op": "param",
+      "param": "silhouette"
+    },
+    "rimLine": {
+      "op": "step",
+      "in": [
+        "ndv",
+        "silP"
+      ]
+    },
+    "keep": {
+      "op": "oneMinus",
+      "in": [
+        "rimLine"
+      ]
+    },
+    "sun": {
+      "op": "mul",
+      "in": [
+        "diffuse",
+        "keep"
+      ]
+    },
+    "ambient": {
+      "op": "mul",
+      "in": [
+        "a1",
+        "keep"
+      ]
+    },
+    "lc": {
+      "op": "litColour"
+    },
+    "p0": {
+      "op": "mul",
+      "in": [
+        "lc",
+        8
+      ]
+    },
+    "p1": {
+      "op": "floor",
+      "in": [
+        "p0"
+      ]
+    },
+    "p2": {
+      "op": "div",
+      "in": [
+        "p1",
+        8
+      ]
+    },
+    "post": {
+      "op": "mix",
+      "in": [
+        "lc",
+        "p2",
+        0.5
+      ]
+    },
+    "pl": {
+      "op": "dot",
+      "in": [
+        "post",
+        [
+          0.2126,
+          0.7152,
+          0.0722
+        ]
+      ]
+    },
+    "dark": {
+      "op": "smoothstep",
+      "in": [
+        0.03,
+        0.01,
+        "pl"
+      ]
+    },
+    "graded": {
+      "op": "mix",
+      "in": [
+        "post",
+        "inkP",
+        "dark"
+      ]
+    },
+    "oN": {
+      "op": "normalLocal"
+    },
+    "oNn": {
+      "op": "normalize",
+      "in": [
+        "oN"
+      ]
+    },
+    "oP": {
+      "op": "positionWorld"
+    },
+    "oC": {
+      "op": "cameraPosition"
+    },
+    "oV": {
+      "op": "sub",
+      "in": [
+        "oP",
+        "oC"
+      ]
+    },
+    "oD": {
+      "op": "length",
+      "in": [
+        "oV"
+      ]
+    },
+    "owP": {
+      "op": "param",
+      "param": "outlineWidth"
+    },
+    "oW": {
+      "op": "mul",
+      "in": [
+        "oD",
+        "owP"
+      ]
+    },
+    "oOff": {
+      "op": "mul",
+      "in": [
+        "oNn",
+        "oW"
+      ]
+    },
+    "shadeP": {
+      "op": "param",
+      "param": "shade"
+    },
+    "a0": {
+      "op": "mul",
+      "in": [
+        "washP",
+        "paperP"
+      ]
+    },
+    "a1": {
+      "op": "mul",
+      "in": [
+        "a0",
+        "shadeP"
+      ]
+    }
+  },
+  "stages": {
+    "surface": {
+      "colour": "paperP",
+      "roughness": 1,
+      "metalness": 0,
+      "emissive": "glow"
+    },
+    "lighting": {
+      "sun": "sun",
+      "ambient": "ambient",
+      "grade": "graded"
+    },
+    "outline": {
+      "offset": "oOff",
+      "colour": "inkP"
+    }
+  }
+}

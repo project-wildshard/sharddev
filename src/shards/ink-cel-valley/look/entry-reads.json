@@ -1,0 +1,20 @@
+[
+ {
+  "region": "ink-cel-valley-1",
+  "tier": "phone",
+  "at": [
+   0,
+   0
+  ],
+  "reads": []
+ },
+ {
+  "region": "ink-cel-valley-1",
+  "tier": "desktop",
+  "at": [
+   0,
+   0
+  ],
+  "reads": []
+ }
+]

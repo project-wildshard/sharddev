@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "ES2023",
+      "DOM"
+    ],
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "composite": true,
+    "incremental": true,
+    "noEmit": true,
+    "rootDir": "../..",
+    "tsBuildInfoFile": "../../.tsc-layers/drafts-tools.tsbuildinfo"
+  },
+  "include": [
+    ".",
+    "../test",
+    "../vite.config.ts"
+  ],
+  "references": [
+    {
+      "path": "../tsconfig.json"
+    }
+  ]
+}

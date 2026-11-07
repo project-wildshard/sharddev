@@ -1,0 +1,43 @@
+{
+ "source": "out/layout-c.png",
+ "cube": false,
+ "palette_fidelity": 0.9487,
+ "places_in_region": 11,
+ "places_total": 11,
+ "place_misses": {},
+ "height_min": -6.2,
+ "height_max": 40.0,
+ "land_pct": 88.5,
+ "walkable_pct_of_land": 84.2,
+ "gentle_lt30_pct_of_land": 77.0,
+ "place_pct_under_30deg": {
+  "spawn": 99.0,
+  "hub": 100.0,
+  "lighthouse": 98.0,
+  "wreck": 63.0,
+  "icecave": 32.0,
+  "tower": 100.0,
+  "quarry": 98.0,
+  "glacier": 66.0,
+  "spring": 100.0,
+  "overlook": 100.0,
+  "ropeline": 77.0
+ },
+ "viewpoints": 366,
+ "visibility_seconds": 0.7,
+ "area_m2": 251965,
+ "bands_pct": {
+  "close_le30m": 37.5,
+  "mid_30_80m": 34.3,
+  "far_gt80m": 20.5,
+  "unseen": 7.7
+ },
+ "bands_m2": {
+  "close_le30m": 94441,
+  "mid_30_80m": 86424,
+  "far_gt80m": 51692,
+  "unseen": 19408
+ },
+ "polish_budget_m2_le80m": 180865,
+ "polish_budget_pct_le80m": 71.8
+}

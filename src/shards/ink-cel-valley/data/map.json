@@ -1,0 +1,52 @@
+{
+  "why": "The ink valley's map (G252's stylized ground look, its own colours): the sage valley floor and its two ridges pale green, every rock-graph prop (blocks, roads' kerbs, the hut) paper with an ink edge; raised blocks with an ink edge and a shadow",
+  "style": {
+    "kind": "ground",
+    "smooth": 3,
+    "shade": 0.35,
+    "classes": [
+      {
+        "match": "#657627",
+        "fill": "#c8d09f"
+      },
+      {
+        "match": "#455219",
+        "fill": "#a7b47e"
+      },
+      {
+        "match": "#a19f99",
+        "fill": "#f1e8cf",
+        "edge": "#1a1620"
+      }
+    ],
+    "raised": {
+      "bump": 1.5,
+      "min": 6,
+      "classes": [
+        {
+          "match": "#a19f99",
+          "fill": "#eadfc0",
+          "edge": "#141018"
+        }
+      ]
+    }
+  },
+  "painter": {
+    "version": 1,
+    "terrain": [
+      "data/terrain.json"
+    ],
+    "props": [
+      "data/props.json"
+    ],
+    "program": true
+  },
+  "inputs": [
+    "shard.config.ts",
+    "layout.ts",
+    "generators",
+    "../../sharddev/bake/mapRaster.ts",
+    "../../sharddev/bake/mapScenes.ts",
+    "../../sharddev/bake/groundMap.ts"
+  ]
+}

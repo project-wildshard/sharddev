@@ -1,0 +1,3175 @@
+{
+  "style": "piano",
+  "brief": {
+    "game": "Wildshard",
+    "brief": "Instrumental game exploration theme for Wildshard, a world that arrives one chunk at a time: wonder first, adventure second, a little melancholy underneath. No vocals. 60-90 s, loopable (it will be trimmed to a bar-exact loop). The model composes freely - no required motif.",
+    "duration_s": 75,
+    "timesig": "4/4",
+    "title": "Sparse piano + ambient",
+    "reference": "Breath of the Wild field music",
+    "key": "D major",
+    "mode_colour": "Lydian (raised 4th, G#)",
+    "bpm": 80,
+    "ace_caption": "Sparse solo piano with ambient pads, open-world exploration video game soundtrack in the style of Breath of the Wild. Gentle, spacious grand piano phrases with long rests between notes, soft felt tone and sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell. Wide natural reverb. Mood: wonder first, quiet adventure second, a little melancholy underneath - a world slowly appearing one piece at a time. Instrumental, no vocals, no drums. D major with a Lydian raised fourth.",
+    "heartmula_tags": "piano,ambient,instrumental,calm,peaceful,melancholic,dreamy,minimal,cinematic,slow",
+    "sao_prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+    "sao_negative": "drums, vocals, distortion, low quality, noise",
+    "minimax_prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+    "heartmula_tags_v0_spaced": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft"
+  },
+  "scoring": {
+    "weights": {
+      "style": 0.35,
+      "seam": 0.2,
+      "length": 0.1,
+      "tempo": 0.1,
+      "key": 0.1,
+      "clean": 0.15
+    },
+    "vocal_penalty": 0.0,
+    "target_lufs": -18.0
+  },
+  "shortlist": [
+    "sao1.0-105",
+    "minimax3-106",
+    "hm-spaced-102"
+  ],
+  "takes": [
+    {
+      "id": "sao1.0-105",
+      "score": 0.92,
+      "parts": {
+        "style": 0.997,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": 1,
+      "file": "piano/sao1.0-105.m4a",
+      "encode": {
+        "gain_db": 6.5,
+        "seconds": 47.0,
+        "bytes": 563815
+      },
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 105,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 70.3,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.5,
+          "lra": 6.2,
+          "true_peak_dbfs": -11.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2792
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.37,
+          "total_silence_s": 3.37
+        },
+        "spectrum": {
+          "centroid_hz": 647.7,
+          "rolloff95_hz": 1828.3,
+          "flatness": 0.0184,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0007,
+          "stereo_corr": 0.103
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.786,
+          "d_major_r": 0.786,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.947,
+          "similarity": 0.948,
+          "level_match": 0.998,
+          "start_s": 7.5,
+          "end_s": 31.5,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.997,
+            "orchestral": 0.0,
+            "folk": 0.003
+          },
+          "style_sim": {
+            "piano": 0.3526,
+            "orchestral": 0.0256,
+            "folk": 0.1378
+          },
+          "vocal_prob": 0.137
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-101",
+      "score": 0.916,
+      "parts": {
+        "style": 0.987,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 101,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 75.8,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 14.18,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -21.5,
+          "lra": 3.5,
+          "true_peak_dbfs": -8.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3856
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 7.48,
+          "total_silence_s": 7.48
+        },
+        "spectrum": {
+          "centroid_hz": 1053.1,
+          "rolloff95_hz": 3234.3,
+          "flatness": 0.0227,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.19
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.827,
+          "d_major_r": 0.827,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.921,
+          "similarity": 0.922,
+          "level_match": 0.997,
+          "start_s": 4.5,
+          "end_s": 28.5,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.987,
+            "orchestral": 0.0,
+            "folk": 0.012
+          },
+          "style_sim": {
+            "piano": 0.2652,
+            "orchestral": -0.0402,
+            "folk": 0.1078
+          },
+          "vocal_prob": 0.247
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao1.0-102",
+      "score": 0.916,
+      "parts": {
+        "style": 0.985,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 102,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 84.8,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.4,
+          "lra": 4.2,
+          "true_peak_dbfs": -13.9
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2008
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 7.17,
+          "total_silence_s": 7.17
+        },
+        "spectrum": {
+          "centroid_hz": 1244.4,
+          "rolloff95_hz": 3792.8,
+          "flatness": 0.0083,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": -0.292
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.926,
+          "d_major_r": 0.926,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.912,
+          "similarity": 0.912,
+          "level_match": 0.999,
+          "start_s": 8.0,
+          "end_s": 32.0,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.985,
+            "orchestral": 0.0,
+            "folk": 0.014
+          },
+          "style_sim": {
+            "piano": 0.2596,
+            "orchestral": -0.0161,
+            "folk": 0.1071
+          },
+          "vocal_prob": 0.066
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-103",
+      "score": 0.916,
+      "parts": {
+        "style": 0.986,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 103,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 65.8,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.4,
+          "lra": 6.6,
+          "true_peak_dbfs": -9.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3259
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 5.65,
+          "total_silence_s": 5.65
+        },
+        "spectrum": {
+          "centroid_hz": 1096.5,
+          "rolloff95_hz": 2987.3,
+          "flatness": 0.0021,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.283
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.932,
+          "d_major_r": 0.932,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.924,
+          "similarity": 0.924,
+          "level_match": 1.0,
+          "start_s": 2.25,
+          "end_s": 26.25,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.986,
+            "orchestral": 0.001,
+            "folk": 0.014
+          },
+          "style_sim": {
+            "piano": 0.2758,
+            "orchestral": 0.012,
+            "folk": 0.1226
+          },
+          "vocal_prob": 0.172
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-106",
+      "score": 0.916,
+      "parts": {
+        "style": 0.987,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 106,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 70.2,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -22.7,
+          "lra": 5.3,
+          "true_peak_dbfs": -7.4
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.429
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 4.6,
+          "total_silence_s": 4.6
+        },
+        "spectrum": {
+          "centroid_hz": 927.0,
+          "rolloff95_hz": 2693.3,
+          "flatness": 0.0029,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.397
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.715,
+          "d_major_r": 0.715,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.957,
+          "similarity": 0.961,
+          "level_match": 0.987,
+          "start_s": 11.0,
+          "end_s": 35.0,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.987,
+            "orchestral": 0.0,
+            "folk": 0.012
+          },
+          "style_sim": {
+            "piano": 0.2965,
+            "orchestral": 0.0014,
+            "folk": 0.1396
+          },
+          "vocal_prob": 0.199
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-107",
+      "score": 0.914,
+      "parts": {
+        "style": 0.98,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 107,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 67.3,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.3,
+          "lra": 4.3,
+          "true_peak_dbfs": -7.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4067
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 5.48,
+          "total_silence_s": 5.48
+        },
+        "spectrum": {
+          "centroid_hz": 1135.7,
+          "rolloff95_hz": 3041.5,
+          "flatness": 0.0031,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.018
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.817,
+          "d_major_r": 0.817,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.94,
+          "similarity": 0.943,
+          "level_match": 0.992,
+          "start_s": 4.75,
+          "end_s": 28.75,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.98,
+            "orchestral": 0.0,
+            "folk": 0.02
+          },
+          "style_sim": {
+            "piano": 0.2954,
+            "orchestral": -0.0205,
+            "folk": 0.156
+          },
+          "vocal_prob": 0.14
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-108",
+      "score": 0.895,
+      "parts": {
+        "style": 0.926,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 108,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 67.7,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -21.2,
+          "lra": 8.0,
+          "true_peak_dbfs": -4.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.6068
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 12.01,
+          "total_silence_s": 12.01
+        },
+        "spectrum": {
+          "centroid_hz": 1879.7,
+          "rolloff95_hz": 5855.6,
+          "flatness": 0.0054,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": -0.061
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.787,
+          "d_major_r": 0.787,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.895,
+          "similarity": 0.912,
+          "level_match": 0.936,
+          "start_s": 6.75,
+          "end_s": 30.75,
+          "bars": 8,
+          "loop_s": 24.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.926,
+            "orchestral": 0.012,
+            "folk": 0.062
+          },
+          "style_sim": {
+            "piano": 0.1778,
+            "orchestral": 0.0224,
+            "folk": 0.0804
+          },
+          "vocal_prob": 0.45
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-106",
+      "score": 0.746,
+      "parts": {
+        "style": 0.845,
+        "seam": 1.0,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": 2,
+      "file": "piano/minimax3-106.m4a",
+      "encode": {
+        "gain_db": 1.5,
+        "seconds": 64.83,
+        "bytes": 791799
+      },
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 106,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 246.8,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 27.81,
+      "metrics": {
+        "duration_s": 64.83,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -20.2,
+          "lra": 14.0,
+          "true_peak_dbfs": -2.5
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7461
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2137.7,
+          "rolloff95_hz": 10333.2,
+          "flatness": 0.0006,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0101,
+          "stereo_corr": 0.374
+        },
+        "tempo": {
+          "estimated_bpm": 198.8,
+          "brief_bpm": 80.0,
+          "rel_err": 0.242
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.912,
+          "d_major_r": 0.23,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.705,
+          "similarity": 0.816,
+          "level_match": 0.546,
+          "start_s": 21.0,
+          "end_s": 40.32,
+          "bars": 16,
+          "loop_s": 19.32,
+          "grid_bpm": 198.8
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.845,
+            "orchestral": 0.0,
+            "folk": 0.155
+          },
+          "style_sim": {
+            "piano": 0.2491,
+            "orchestral": -0.0986,
+            "folk": 0.188
+          },
+          "vocal_prob": 0.574
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-104",
+      "score": 0.726,
+      "parts": {
+        "style": 0.986,
+        "seam": 0.275,
+        "length": 0.15,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 104,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -27.3,
+          "lra": 2.1,
+          "true_peak_dbfs": -12.4
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2408
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 744.6,
+          "rolloff95_hz": 2404.1,
+          "flatness": 0.0283,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0083,
+          "stereo_corr": 0.546
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "B minor",
+          "best_r": 0.755,
+          "d_major_r": 0.488,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.265,
+          "similarity": 0.269,
+          "level_match": 0.949,
+          "start_s": 2.0,
+          "end_s": 8.0,
+          "bars": 2,
+          "loop_s": 6.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.986,
+            "orchestral": 0.005,
+            "folk": 0.009
+          },
+          "style_sim": {
+            "piano": 0.1203,
+            "orchestral": -0.0722,
+            "folk": -0.0471
+          },
+          "vocal_prob": 0.333
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-106",
+      "score": 0.705,
+      "parts": {
+        "style": 0.966,
+        "seam": 0.203,
+        "length": 0.15,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 106,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.1,
+          "lra": 8.5,
+          "true_peak_dbfs": -10.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3057
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 957.7,
+          "rolloff95_hz": 2602.2,
+          "flatness": 0.0049,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0008,
+          "stereo_corr": 0.358
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.914,
+          "d_major_r": 0.914,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.222,
+          "similarity": 0.267,
+          "level_match": 0.436,
+          "start_s": 2.0,
+          "end_s": 8.0,
+          "bars": 2,
+          "loop_s": 6.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.966,
+            "orchestral": 0.002,
+            "folk": 0.032
+          },
+          "style_sim": {
+            "piano": 0.208,
+            "orchestral": -0.0181,
+            "folk": 0.0859
+          },
+          "vocal_prob": 0.146
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-108",
+      "score": 0.701,
+      "parts": {
+        "style": 0.89,
+        "seam": 0.523,
+        "length": 0.15,
+        "tempo": 0.5,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 108,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -21.8,
+          "lra": 6.2,
+          "true_peak_dbfs": -10.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3171
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1118.8,
+          "rolloff95_hz": 3221.1,
+          "flatness": 0.0073,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0008,
+          "stereo_corr": 0.541
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.05
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.864,
+          "d_major_r": 0.864,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.414,
+          "similarity": 0.431,
+          "level_match": 0.863,
+          "start_s": 2.0,
+          "end_s": 5.16,
+          "bars": 2,
+          "loop_s": 3.16,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.89,
+            "orchestral": 0.019,
+            "folk": 0.09
+          },
+          "style_sim": {
+            "piano": 0.0486,
+            "orchestral": -0.0889,
+            "folk": -0.0336
+          },
+          "vocal_prob": 0.318
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-103",
+      "score": 0.696,
+      "parts": {
+        "style": 0.919,
+        "seam": 0.24,
+        "length": 0.15,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 103,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.3,
+          "lra": 3.2,
+          "true_peak_dbfs": -10.5
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2986
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 866.1,
+          "rolloff95_hz": 2290.2,
+          "flatness": 0.0167,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.273
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.912,
+          "d_major_r": 0.912,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.244,
+          "similarity": 0.27,
+          "level_match": 0.677,
+          "start_s": 2.0,
+          "end_s": 8.0,
+          "bars": 2,
+          "loop_s": 6.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.919,
+            "orchestral": 0.005,
+            "folk": 0.076
+          },
+          "style_sim": {
+            "piano": 0.1139,
+            "orchestral": -0.0733,
+            "folk": 0.0246
+          },
+          "vocal_prob": 0.393
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-102",
+      "score": 0.681,
+      "parts": {
+        "style": 0.915,
+        "seam": 0.552,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": 3,
+      "file": "piano/hm-spaced-102.m4a",
+      "encode": {
+        "gain_db": 5.8,
+        "seconds": 74.88,
+        "bytes": 922362
+      },
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 102,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 200.9,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.8,
+          "lra": 3.1,
+          "true_peak_dbfs": -13.4
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2039
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7712.2,
+          "rolloff95_hz": 14917.8,
+          "flatness": 0.0004,
+          "hf_above_12k": 0.02107,
+          "sub_below_60": 0.0038,
+          "stereo_corr": 0.752
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.15
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.714,
+          "d_major_r": 0.184,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.431,
+          "similarity": 0.458,
+          "level_match": 0.801,
+          "start_s": 7.25,
+          "end_s": 35.49,
+          "bars": 16,
+          "loop_s": 28.24,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.915,
+            "orchestral": 0.069,
+            "folk": 0.016
+          },
+          "style_sim": {
+            "piano": 0.0335,
+            "orchestral": -0.0594,
+            "folk": -0.1118
+          },
+          "vocal_prob": 0.754
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0946,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-107",
+      "score": 0.679,
+      "parts": {
+        "style": 0.841,
+        "seam": 0.418,
+        "length": 0.6,
+        "tempo": 0.91,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 107,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 176.4,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 27.81,
+      "metrics": {
+        "duration_s": 50.02,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -20.6,
+          "lra": 18.0,
+          "true_peak_dbfs": -4.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.6211
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.22,
+          "total_silence_s": 1.22
+        },
+        "spectrum": {
+          "centroid_hz": 2706.7,
+          "rolloff95_hz": 12155.5,
+          "flatness": 0.0012,
+          "hf_above_12k": 6e-05,
+          "sub_below_60": 0.0035,
+          "stereo_corr": 0.315
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.814,
+          "d_major_r": 0.377,
+          "d_major_rank": 7,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.351,
+          "similarity": 0.404,
+          "level_match": 0.567,
+          "start_s": 10.5,
+          "end_s": 40.5,
+          "bars": 10,
+          "loop_s": 30.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.841,
+            "orchestral": 0.002,
+            "folk": 0.157
+          },
+          "style_sim": {
+            "piano": 0.304,
+            "orchestral": 0.0903,
+            "folk": 0.2436
+          },
+          "vocal_prob": 0.392
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.02
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-106",
+      "score": 0.666,
+      "parts": {
+        "style": 0.926,
+        "seam": 0.462,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 106,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 171.7,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.4,
+          "lra": 3.3,
+          "true_peak_dbfs": -13.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2017
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7301.9,
+          "rolloff95_hz": 14842.3,
+          "flatness": 0.0003,
+          "hf_above_12k": 0.01318,
+          "sub_below_60": 0.0042,
+          "stereo_corr": 0.846
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.231
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.709,
+          "d_major_r": 0.181,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.377,
+          "similarity": 0.394,
+          "level_match": 0.856,
+          "start_s": 5.75,
+          "end_s": 36.96,
+          "bars": 16,
+          "loop_s": 31.21,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.926,
+            "orchestral": 0.058,
+            "folk": 0.017
+          },
+          "style_sim": {
+            "piano": 0.0391,
+            "orchestral": -0.0606,
+            "folk": -0.1054
+          },
+          "vocal_prob": 0.711
+        },
+        "vocals": {
+          "vocal_energy_share": 0.066,
+          "vocal_active_frac": 0.851
+        }
+      }
+    },
+    {
+      "id": "minimax3-108",
+      "score": 0.66,
+      "parts": {
+        "style": 0.887,
+        "seam": 0.5,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 108,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 249.0,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 27.81,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -20.4,
+          "lra": 13.0,
+          "true_peak_dbfs": -1.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.8164
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1942.0,
+          "rolloff95_hz": 10057.7,
+          "flatness": 0.0005,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.002,
+          "stereo_corr": 0.46
+        },
+        "tempo": {
+          "estimated_bpm": 198.8,
+          "brief_bpm": 80.0,
+          "rel_err": 0.242
+        },
+        "key": {
+          "best_key": "A# major",
+          "best_r": 0.906,
+          "d_major_r": 0.015,
+          "d_major_rank": 12,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.4,
+          "similarity": 0.455,
+          "level_match": 0.602,
+          "start_s": 26.75,
+          "end_s": 56.94,
+          "bars": 25,
+          "loop_s": 30.19,
+          "grid_bpm": 198.8
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.887,
+            "orchestral": 0.0,
+            "folk": 0.113
+          },
+          "style_sim": {
+            "piano": 0.2207,
+            "orchestral": -0.0611,
+            "folk": 0.1466
+          },
+          "vocal_prob": 0.24
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-101",
+      "score": 0.648,
+      "parts": {
+        "style": 0.88,
+        "seam": 0.45,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 101,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 198.3,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.1,
+          "lra": 3.1,
+          "true_peak_dbfs": -13.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2054
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7698.6,
+          "rolloff95_hz": 15107.4,
+          "flatness": 0.0005,
+          "hf_above_12k": 0.0236,
+          "sub_below_60": 0.006,
+          "stereo_corr": 0.786
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.231
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.701,
+          "d_major_r": 0.189,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.37,
+          "similarity": 0.39,
+          "level_match": 0.828,
+          "start_s": 6.0,
+          "end_s": 37.21,
+          "bars": 16,
+          "loop_s": 31.21,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.88,
+            "orchestral": 0.097,
+            "folk": 0.023
+          },
+          "style_sim": {
+            "piano": 0.0193,
+            "orchestral": -0.0601,
+            "folk": -0.1117
+          },
+          "vocal_prob": 0.771
+        },
+        "vocals": {
+          "vocal_energy_share": 0.07,
+          "vocal_active_frac": 0.959
+        }
+      }
+    },
+    {
+      "id": "sao1.0-104",
+      "score": 0.632,
+      "parts": {
+        "style": 0.919,
+        "seam": 0.15,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 104,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "negative_prompt": "drums, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 64.5,
+      "model_load_s": 1.1,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.7,
+          "lra": 6.8,
+          "true_peak_dbfs": -4.5
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.5985
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 7.55,
+          "total_silence_s": 7.55
+        },
+        "spectrum": {
+          "centroid_hz": 1025.9,
+          "rolloff95_hz": 3161.8,
+          "flatness": 0.048,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.356
+        },
+        "tempo": {
+          "estimated_bpm": 69.8,
+          "brief_bpm": 80.0,
+          "rel_err": 0.127
+        },
+        "key": {
+          "best_key": "B minor",
+          "best_r": 0.793,
+          "d_major_r": 0.546,
+          "d_major_rank": 3,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.19,
+          "similarity": 0.204,
+          "level_match": 0.781,
+          "start_s": 3.75,
+          "end_s": 38.12,
+          "bars": 10,
+          "loop_s": 34.37,
+          "grid_bpm": 69.8
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.919,
+            "orchestral": 0.014,
+            "folk": 0.067
+          },
+          "style_sim": {
+            "piano": 0.2065,
+            "orchestral": 0.0552,
+            "folk": 0.1124
+          },
+          "vocal_prob": 0.392
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.043
+        }
+      }
+    },
+    {
+      "id": "sao-small-101",
+      "score": 0.622,
+      "parts": {
+        "style": 0.847,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.91,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 101,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.8,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.8,
+          "lra": 21.3,
+          "true_peak_dbfs": -11.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2744
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.6,
+          "total_silence_s": 1.6
+        },
+        "spectrum": {
+          "centroid_hz": 1337.9,
+          "rolloff95_hz": 4283.5,
+          "flatness": 0.01,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0003,
+          "stereo_corr": 0.613
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "B minor",
+          "best_r": 0.853,
+          "d_major_r": 0.713,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.07,
+          "similarity": 0.094,
+          "level_match": 0.142,
+          "start_s": 2.0,
+          "end_s": 8.0,
+          "bars": 2,
+          "loop_s": 6.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.847,
+            "orchestral": 0.005,
+            "folk": 0.148
+          },
+          "style_sim": {
+            "piano": 0.1671,
+            "orchestral": -0.0161,
+            "folk": 0.1043
+          },
+          "vocal_prob": 0.058
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-107",
+      "score": 0.619,
+      "parts": {
+        "style": 0.918,
+        "seam": 0.237,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 107,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 169.2,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.0,
+          "lra": 2.9,
+          "true_peak_dbfs": -14.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.1941
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7797.2,
+          "rolloff95_hz": 15205.4,
+          "flatness": 0.0005,
+          "hf_above_12k": 0.02303,
+          "sub_below_60": 0.0076,
+          "stereo_corr": 0.726
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.327
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.711,
+          "d_major_r": 0.183,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.242,
+          "similarity": 0.247,
+          "level_match": 0.926,
+          "start_s": 2.5,
+          "end_s": 38.17,
+          "bars": 16,
+          "loop_s": 35.67,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.918,
+            "orchestral": 0.063,
+            "folk": 0.019
+          },
+          "style_sim": {
+            "piano": 0.0445,
+            "orchestral": -0.0515,
+            "folk": -0.0946
+          },
+          "vocal_prob": 0.803
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0469,
+          "vocal_active_frac": 0.784
+        }
+      }
+    },
+    {
+      "id": "minimax3-104",
+      "score": 0.618,
+      "parts": {
+        "style": 0.818,
+        "seam": 0.493,
+        "length": 0.6,
+        "tempo": 0.23,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 104,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 197.2,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 27.73,
+      "metrics": {
+        "duration_s": 50.82,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -20.9,
+          "lra": 14.5,
+          "true_peak_dbfs": -0.9
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.8984
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2005.2,
+          "rolloff95_hz": 11330.8,
+          "flatness": 0.0006,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0714,
+          "stereo_corr": 0.297
+        },
+        "tempo": {
+          "estimated_bpm": 172.3,
+          "brief_bpm": 80.0,
+          "rel_err": 0.077
+        },
+        "key": {
+          "best_key": "C minor",
+          "best_r": 0.851,
+          "d_major_r": -0.42,
+          "d_major_rank": 18,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.396,
+          "similarity": 0.4,
+          "level_match": 0.961,
+          "start_s": 18.5,
+          "end_s": 43.58,
+          "bars": 18,
+          "loop_s": 25.08,
+          "grid_bpm": 172.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.818,
+            "orchestral": 0.001,
+            "folk": 0.181
+          },
+          "style_sim": {
+            "piano": 0.2587,
+            "orchestral": 0.017,
+            "folk": 0.2044
+          },
+          "vocal_prob": 0.673
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-107",
+      "score": 0.612,
+      "parts": {
+        "style": 0.983,
+        "seam": 0.21,
+        "length": 0.15,
+        "tempo": 0.91,
+        "key": 0.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 107,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.6,
+          "lra": 2.3,
+          "true_peak_dbfs": -9.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3486
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 764.2,
+          "rolloff95_hz": 1644.9,
+          "flatness": 0.0171,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.347
+        },
+        "tempo": {
+          "estimated_bpm": 80.7,
+          "brief_bpm": 80.0,
+          "rel_err": 0.009
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.614,
+          "d_major_r": 0.179,
+          "d_major_rank": 10,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.226,
+          "similarity": 0.229,
+          "level_match": 0.957,
+          "start_s": 2.0,
+          "end_s": 8.0,
+          "bars": 2,
+          "loop_s": 6.0,
+          "grid_bpm": 80.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.983,
+            "orchestral": 0.0,
+            "folk": 0.017
+          },
+          "style_sim": {
+            "piano": 0.1129,
+            "orchestral": -0.2019,
+            "folk": -0.0335
+          },
+          "vocal_prob": 0.215
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-104",
+      "score": 0.603,
+      "parts": {
+        "style": 0.893,
+        "seam": 0.202,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 104,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 214.6,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.6,
+          "lra": 3.3,
+          "true_peak_dbfs": -13.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2033
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7539.9,
+          "rolloff95_hz": 14974.5,
+          "flatness": 0.0003,
+          "hf_above_12k": 0.01658,
+          "sub_below_60": 0.0028,
+          "stereo_corr": 0.818
+        },
+        "tempo": {
+          "estimated_bpm": 117.5,
+          "brief_bpm": 80.0,
+          "rel_err": 0.266
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.7,
+          "d_major_r": 0.181,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.221,
+          "similarity": 0.222,
+          "level_match": 0.98,
+          "start_s": 4.0,
+          "end_s": 36.69,
+          "bars": 16,
+          "loop_s": 32.69,
+          "grid_bpm": 117.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.893,
+            "orchestral": 0.087,
+            "folk": 0.019
+          },
+          "style_sim": {
+            "piano": 0.0365,
+            "orchestral": -0.047,
+            "folk": -0.1013
+          },
+          "vocal_prob": 0.596
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0624,
+          "vocal_active_frac": 0.851
+        }
+      }
+    },
+    {
+      "id": "sao-small-105",
+      "score": 0.584,
+      "parts": {
+        "style": 0.997,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 105,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -27.2,
+          "lra": 4.5,
+          "true_peak_dbfs": -14.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.1982
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 860.0,
+          "rolloff95_hz": 2052.2,
+          "flatness": 0.0093,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0023,
+          "stereo_corr": 0.249
+        },
+        "tempo": {
+          "estimated_bpm": 55.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.313
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.847,
+          "d_major_r": 0.847,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "score": -1.0,
+          "min_bars": 2,
+          "grid_bpm": 55.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.997,
+            "orchestral": 0.0,
+            "folk": 0.003
+          },
+          "style_sim": {
+            "piano": 0.2198,
+            "orchestral": -0.1053,
+            "folk": 0.0092
+          },
+          "vocal_prob": 0.031
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-108",
+      "score": 0.583,
+      "parts": {
+        "style": 0.923,
+        "seam": 0.5,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 108,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 170.3,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.9,
+          "lra": 3.1,
+          "true_peak_dbfs": -14.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.181
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7772.7,
+          "rolloff95_hz": 15024.6,
+          "flatness": 0.0004,
+          "hf_above_12k": 0.02307,
+          "sub_below_60": 0.0048,
+          "stereo_corr": 0.736
+        },
+        "tempo": {
+          "estimated_bpm": 129.2,
+          "brief_bpm": 80.0,
+          "rel_err": 0.193
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.709,
+          "d_major_r": 0.188,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.4,
+          "similarity": 0.42,
+          "level_match": 0.841,
+          "start_s": 6.0,
+          "end_s": 35.72,
+          "bars": 16,
+          "loop_s": 29.72,
+          "grid_bpm": 129.2
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.923,
+            "orchestral": 0.064,
+            "folk": 0.013
+          },
+          "style_sim": {
+            "piano": 0.0481,
+            "orchestral": -0.0478,
+            "folk": -0.1053
+          },
+          "vocal_prob": 0.71
+        },
+        "vocals": {
+          "vocal_energy_share": 0.132,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-102",
+      "score": 0.58,
+      "parts": {
+        "style": 0.985,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 102,
+      "prompt": "Sparse solo grand piano with soft ambient pad, open-world video game exploration music, gentle, wistful, spacious reverb, no drums, D major, 80 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -21.8,
+          "lra": 1.1,
+          "true_peak_dbfs": -9.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3477
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 538.9,
+          "rolloff95_hz": 1416.2,
+          "flatness": 0.0002,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0006,
+          "stereo_corr": 0.474
+        },
+        "tempo": {
+          "estimated_bpm": 60.1,
+          "brief_bpm": 80.0,
+          "rel_err": 0.249
+        },
+        "key": {
+          "best_key": "B minor",
+          "best_r": 0.891,
+          "d_major_r": 0.83,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "score": -1.0,
+          "min_bars": 2,
+          "grid_bpm": 60.1
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.985,
+            "orchestral": 0.001,
+            "folk": 0.014
+          },
+          "style_sim": {
+            "piano": 0.1528,
+            "orchestral": -0.0894,
+            "folk": -0.0013
+          },
+          "vocal_prob": 0.253
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-105",
+      "score": 0.571,
+      "parts": {
+        "style": 0.94,
+        "seam": 0.412,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 105,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 242.4,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.0,
+          "lra": 3.2,
+          "true_peak_dbfs": -13.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2175
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7463.1,
+          "rolloff95_hz": 14489.6,
+          "flatness": 0.0003,
+          "hf_above_12k": 0.0161,
+          "sub_below_60": 0.0059,
+          "stereo_corr": 0.73
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 80.0,
+          "rel_err": 0.231
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.71,
+          "d_major_r": 0.19,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.347,
+          "similarity": 0.372,
+          "level_match": 0.777,
+          "start_s": 6.5,
+          "end_s": 37.71,
+          "bars": 16,
+          "loop_s": 31.21,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.94,
+            "orchestral": 0.047,
+            "folk": 0.014
+          },
+          "style_sim": {
+            "piano": 0.06,
+            "orchestral": -0.0477,
+            "folk": -0.0921
+          },
+          "vocal_prob": 0.734
+        },
+        "vocals": {
+          "vocal_energy_share": 0.1377,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-103",
+      "score": 0.538,
+      "parts": {
+        "style": 0.631,
+        "seam": 0.533,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 103,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 197.0,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 26.63,
+      "metrics": {
+        "duration_s": 44.77,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -19.1,
+          "lra": 22.9,
+          "true_peak_dbfs": -2.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7344
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.95,
+          "total_silence_s": 1.95
+        },
+        "spectrum": {
+          "centroid_hz": 2958.5,
+          "rolloff95_hz": 12311.7,
+          "flatness": 0.0013,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0024,
+          "stereo_corr": 0.292
+        },
+        "tempo": {
+          "estimated_bpm": 89.1,
+          "brief_bpm": 80.0,
+          "rel_err": 0.114
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.776,
+          "d_major_r": 0.392,
+          "d_major_rank": 7,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.42,
+          "similarity": 0.43,
+          "level_match": 0.922,
+          "start_s": 17.75,
+          "end_s": 41.99,
+          "bars": 9,
+          "loop_s": 24.24,
+          "grid_bpm": 89.1
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.631,
+            "orchestral": 0.001,
+            "folk": 0.368
+          },
+          "style_sim": {
+            "piano": 0.1946,
+            "orchestral": -0.0461,
+            "folk": 0.1752
+          },
+          "vocal_prob": 0.623
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-105",
+      "score": 0.494,
+      "parts": {
+        "style": 0.414,
+        "seam": 0.697,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 105,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 235.9,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 27.76,
+      "metrics": {
+        "duration_s": 50.33,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.1,
+          "lra": 14.2,
+          "true_peak_dbfs": -1.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.8633
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.12,
+          "total_silence_s": 2.12
+        },
+        "spectrum": {
+          "centroid_hz": 2252.5,
+          "rolloff95_hz": 10429.5,
+          "flatness": 0.0007,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0014,
+          "stereo_corr": 0.251
+        },
+        "tempo": {
+          "estimated_bpm": 215.3,
+          "brief_bpm": 80.0,
+          "rel_err": 0.346
+        },
+        "key": {
+          "best_key": "A minor",
+          "best_r": 0.785,
+          "d_major_r": -0.04,
+          "d_major_rank": 12,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.518,
+          "similarity": 0.595,
+          "level_match": 0.567,
+          "start_s": 19.75,
+          "end_s": 38.7,
+          "bars": 17,
+          "loop_s": 18.95,
+          "grid_bpm": 215.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.414,
+            "orchestral": 0.001,
+            "folk": 0.585
+          },
+          "style_sim": {
+            "piano": 0.2135,
+            "orchestral": -0.0081,
+            "folk": 0.2258
+          },
+          "vocal_prob": 0.387
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.06
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-103",
+      "score": 0.492,
+      "parts": {
+        "style": 0.895,
+        "seam": 0.093,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 103,
+      "prompt": "instrumental, piano, ambient, video game soundtrack, calm, peaceful, melancholic, cinematic, sparse, soft",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 196.1,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.2,
+          "lra": 3.2,
+          "true_peak_dbfs": -13.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2008
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 7661.7,
+          "rolloff95_hz": 14865.1,
+          "flatness": 0.0004,
+          "hf_above_12k": 0.01965,
+          "sub_below_60": 0.0048,
+          "stereo_corr": 0.752
+        },
+        "tempo": {
+          "estimated_bpm": 112.3,
+          "brief_bpm": 80.0,
+          "rel_err": 0.298
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.703,
+          "d_major_r": 0.186,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.156,
+          "similarity": 0.158,
+          "level_match": 0.961,
+          "start_s": 2.0,
+          "end_s": 38.32,
+          "bars": 17,
+          "loop_s": 36.32,
+          "grid_bpm": 112.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.895,
+            "orchestral": 0.082,
+            "folk": 0.023
+          },
+          "style_sim": {
+            "piano": 0.018,
+            "orchestral": -0.0679,
+            "folk": -0.1137
+          },
+          "vocal_prob": 0.68
+        },
+        "vocals": {
+          "vocal_energy_share": 0.1271,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-102",
+      "score": 0.374,
+      "parts": {
+        "style": 0.37,
+        "seam": 0.505,
+        "length": 0.6,
+        "tempo": 0.23,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 102,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 306.0,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 26.62,
+      "metrics": {
+        "duration_s": 54.06,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.7,
+          "lra": 16.3,
+          "true_peak_dbfs": -1.5
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.8438
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2502.7,
+          "rolloff95_hz": 10946.3,
+          "flatness": 0.0009,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0252,
+          "stereo_corr": 0.249
+        },
+        "tempo": {
+          "estimated_bpm": 172.3,
+          "brief_bpm": 80.0,
+          "rel_err": 0.077
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.886,
+          "d_major_r": 0.058,
+          "d_major_rank": 12,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.403,
+          "similarity": 0.424,
+          "level_match": 0.832,
+          "start_s": 2.5,
+          "end_s": 13.65,
+          "bars": 8,
+          "loop_s": 11.15,
+          "grid_bpm": 172.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.37,
+            "orchestral": 0.018,
+            "folk": 0.612
+          },
+          "style_sim": {
+            "piano": 0.2507,
+            "orchestral": 0.1414,
+            "folk": 0.2688
+          },
+          "vocal_prob": 0.918
+        },
+        "vocals": {
+          "vocal_energy_share": 0.3573,
+          "vocal_active_frac": 0.315
+        }
+      }
+    },
+    {
+      "id": "minimax3-101",
+      "score": 0.3,
+      "parts": {
+        "style": 0.44,
+        "seam": 0.357,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 101,
+      "prompt": "Genre: video game soundtrack, ambient solo piano. BPM: 80. Key: D major with a Lydian raised fourth. Instrumental only, no vocals. Mood: wonder first, quiet adventure second, a little melancholy underneath - an open world appearing one piece at a time, like Breath of the Wild's field music. Arrangement: sparse grand piano phrases with long rests and soft sustain pedal; a distant airy pad and faint string harmonics underneath; an occasional glassy bell; no drums. Production: intimate close-miked piano, wide natural reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 158.0,
+      "model_load_s": 4.6,
+      "mps_driver_gb": 26.62,
+      "metrics": {
+        "duration_s": 38.75,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.7,
+          "lra": 11.7,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 5,
+          "clipped_frac": 1.4627958358298382e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1852.3,
+          "rolloff95_hz": 8863.3,
+          "flatness": 0.0004,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0015,
+          "stereo_corr": 0.259
+        },
+        "tempo": {
+          "estimated_bpm": 184.6,
+          "brief_bpm": 80.0,
+          "rel_err": 0.154
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.937,
+          "d_major_r": 0.276,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.314,
+          "similarity": 0.324,
+          "level_match": 0.898,
+          "start_s": 14.25,
+          "end_s": 35.06,
+          "bars": 16,
+          "loop_s": 20.81,
+          "grid_bpm": 184.6
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.44,
+            "orchestral": 0.002,
+            "folk": 0.559
+          },
+          "style_sim": {
+            "piano": 0.1958,
+            "orchestral": -0.0051,
+            "folk": 0.2044
+          },
+          "vocal_prob": 0.823
+        },
+        "vocals": {
+          "vocal_energy_share": 0.1436,
+          "vocal_active_frac": 0.079
+        }
+      }
+    }
+  ]
+}

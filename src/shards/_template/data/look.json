@@ -1,0 +1,77 @@
+{
+  "families": [
+    "toon",
+    "pbr"
+  ],
+  "materials": {
+    "pbr": {
+      "family": "pbr",
+      "vertexColours": true,
+      "metalness": 0,
+      "faceted": true,
+      "measure": {}
+    }
+  },
+  "grade": {
+    "exposure": 0,
+    "saturation": 1,
+    "contrast": 1,
+    "lut": null
+  },
+  "clock": "engine",
+  "day": {
+    "minutes": 12,
+    "start": 0.5,
+    "maxElevation": 60,
+    "azimuth": 35
+  },
+  "dayOverride": null,
+  "keys": [
+    {
+      "time": 0,
+      "sky": {
+        "zenith": [
+          0.35,
+          0.42,
+          0.5
+        ],
+        "horizon": [
+          0.75,
+          0.75,
+          0.75
+        ]
+      },
+      "fog": {
+        "colour": [
+          0.3968,
+          0.4287,
+          0.4621
+        ],
+        "density": 0,
+        "near": 60,
+        "far": 180
+      },
+      "sun": {
+        "colour": [
+          1,
+          1,
+          1
+        ],
+        "intensity": 1.5
+      },
+      "ambient": {
+        "sky": [
+          0.3325,
+          0.3864,
+          0.4564
+        ],
+        "ground": [
+          0.117,
+          0.117,
+          0.117
+        ],
+        "intensity": 0.7
+      }
+    }
+  ]
+}

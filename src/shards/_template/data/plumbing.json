@@ -1,0 +1,32 @@
+{
+  "namespace": "template",
+  "input": [
+    {
+      "actions": [
+        {
+          "id": "template.lantern.toggle",
+          "keys": [
+            "KeyL"
+          ],
+          "scene": "template.lantern.toggle"
+        }
+      ],
+      "id": "template.lantern",
+      "priority": 20,
+      "touch": {
+        "slot": "verb.1",
+        "action": "template.lantern.toggle",
+        "label": "LANTERN",
+        "icon": ""
+      }
+    }
+  ],
+  "knobs": [
+    {
+      "id": "template.propCount",
+      "phone": 10,
+      "desktop": 20
+    }
+  ],
+  "debug": []
+}

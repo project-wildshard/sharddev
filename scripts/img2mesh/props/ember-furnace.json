@@ -1,0 +1,30 @@
+{
+ "about": "Ember Forge's furnace hall (open-plots build-out OB4, art/ember-forge/round-3-landmark): Hunyuan3D 2.1 (seed 42) on a BiRefNet cutout of the codex image_gen reference ref-furnace.jpg (from round 62's road-entry crop), picked over TRELLIS.2 and the retired Blender script (furnace.py, in git history). Near 20k triangles on a 512 WebP atlas (1024 cost the phone 1.28 MB), far 2.5k at 256, no normal map; layouts/ember-forge.json stands it 35 m tall, turn 2.",
+ "gen": "~/ml/img2mesh/out/ember-furnace-hy21",
+ "stage": "~/ml/img2mesh/out/ember-furnace-hy21-post-512",
+ "args": [
+  "--keep-texture",
+  "--atlas",
+  "512",
+  "--normal-map",
+  "0",
+  "--fit",
+  "height",
+  "--size",
+  "35",
+  "--simplifier",
+  "blender",
+  "--up",
+  "x180"
+ ],
+ "props": [
+  {
+   "ref": "model",
+   "args": "--name landmark --tris 20000"
+  },
+  {
+   "ref": "model",
+   "args": "--name landmark-far --tris 2500 --atlas 256"
+  }
+ ]
+}

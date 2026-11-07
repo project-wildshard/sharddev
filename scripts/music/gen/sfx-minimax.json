@@ -1,0 +1,289 @@
+{
+  "model": "MiniMax Music 3",
+  "families": {
+    "bear_roar": [
+      {
+        "family": "bear_roar",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "bear_roar",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / field recording, not music. A large brown bear roaring loudly and aggressively, close. No music, no melody, no drums, no singing.",
+          "desc": "a bear roaring",
+          "duration_s": 2.5,
+          "steps": 30,
+          "gen_time_s": 344.1,
+          "mps_driver_gb": 7.72,
+          "trimmed_from_s": 2.25,
+          "rendered_s": 4.99
+        },
+        "p": 0.002,
+        "rank": 35,
+        "best_match": "music with melody and instruments",
+        "peak": 0.91
+      }
+    ],
+    "bed-forest": [
+      {
+        "family": "bed-forest",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "bed-forest",
+          "kind": "bed",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley / field recording, not music. A quiet pine forest at dawn: soft wind through tall pine trees, rustling needles, a few small songbirds chirping far away. No music, no melody, no drums, no singing, no instruments.",
+          "desc": "wind blowing through pine trees with birds singing in a forest",
+          "duration_s": 8.0,
+          "steps": 30,
+          "gen_time_s": 812.1,
+          "mps_driver_gb": 8.92,
+          "trimmed_from_s": 1.0,
+          "rendered_s": 12.0
+        },
+        "p": 0.021,
+        "rank": 5,
+        "best_match": "equipping a weapon with leather and metal rattle",
+        "peak": 0.969,
+        "seam": {
+          "min_bars": 2,
+          "score": 0.034,
+          "similarity": 0.036,
+          "level_match": 0.771,
+          "start_s": 2.0,
+          "end_s": 4.0,
+          "bars": 2,
+          "loop_s": 2.0
+        }
+      }
+    ],
+    "bed-island": [
+      {
+        "family": "bed-island",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "bed-island",
+          "kind": "bed",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley / field recording, not music. A sunny beach: gentle ocean waves washing on sand, a light sea breeze, distant seagulls. No music, no melody, no drums, no singing, no instruments.",
+          "desc": "ocean waves breaking on a beach with seagulls and wind",
+          "duration_s": 8.0,
+          "steps": 30,
+          "gen_time_s": 815.9,
+          "mps_driver_gb": 8.96,
+          "trimmed_from_s": 0.0,
+          "rendered_s": 12.0
+        },
+        "p": 0.002,
+        "rank": 19,
+        "best_match": "music with melody and instruments",
+        "peak": 1.0,
+        "seam": {
+          "min_bars": 2,
+          "score": 0.392,
+          "similarity": 0.395,
+          "level_match": 0.973,
+          "start_s": 2.75,
+          "end_s": 5.75,
+          "bars": 3,
+          "loop_s": 3.0
+        }
+      }
+    ],
+    "crossbowFire": [
+      {
+        "family": "crossbowFire",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "crossbowFire",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley, not music. A single crossbow shot: the trigger clicks, the string snaps with a twang, the bolt whooshes away, then silence. No music, no melody, no drums, no singing.",
+          "desc": "a crossbow firing a bolt",
+          "duration_s": 1.5,
+          "steps": 30,
+          "gen_time_s": 369.5,
+          "mps_driver_gb": 7.75,
+          "trimmed_from_s": 3.0,
+          "rendered_s": 4.99
+        },
+        "p": 0.023,
+        "rank": 8,
+        "best_match": "a deep satisfying thump confirming a kill",
+        "peak": 0.859
+      }
+    ],
+    "footstep-sand": [
+      {
+        "family": "footstep-sand",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "footstep-sand",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley, not music. A few slow footsteps on soft dry beach sand, close. No music, no melody, no drums, no singing.",
+          "desc": "a single footstep on sand",
+          "duration_s": 1.5,
+          "steps": 30,
+          "gen_time_s": 392.9,
+          "mps_driver_gb": 7.73,
+          "trimmed_from_s": 0.5,
+          "rendered_s": 4.99
+        },
+        "p": 0.001,
+        "rank": 29,
+        "best_match": "a deep low ancient drone hum",
+        "peak": 0.527
+      }
+    ],
+    "gull": [
+      {
+        "family": "gull",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "gull",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / field recording, not music. A single seagull calling twice over the sea, outdoors. No music, no melody, no drums, no singing.",
+          "desc": "a seagull calling",
+          "duration_s": 2.5,
+          "steps": 30,
+          "gen_time_s": 379.9,
+          "mps_driver_gb": 7.74,
+          "trimmed_from_s": 0.0,
+          "rendered_s": 4.99
+        },
+        "p": 0.0,
+        "rank": 43,
+        "best_match": "a crossbow firing a bolt",
+        "peak": 1.0
+      }
+    ],
+    "hum-shrine": [
+      {
+        "family": "hum-shrine",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "hum-shrine",
+          "kind": "hum",
+          "seed": 601,
+          "prompt": "Genre: sound effect / sound design, not music. A deep ancient stone shrine humming: one low sustained drone on D with a fifth above, slowly breathing, constant. No melody, no rhythm, no drums, no singing.",
+          "desc": "a deep low ancient drone hum",
+          "duration_s": 6.0,
+          "steps": 30,
+          "gen_time_s": 752.0,
+          "mps_driver_gb": 8.97,
+          "trimmed_from_s": 2.75,
+          "rendered_s": 10.0
+        },
+        "p": 0.0,
+        "rank": 27,
+        "best_match": "a bear roaring",
+        "peak": 0.762,
+        "seam": {
+          "score": -1.0,
+          "min_bars": 2
+        }
+      }
+    ],
+    "monkey_chatter": [
+      {
+        "family": "monkey_chatter",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "monkey_chatter",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / field recording, not music. A small monkey chattering excitedly in the jungle. No music, no melody, no drums, no singing.",
+          "desc": "a monkey chattering",
+          "duration_s": 2.5,
+          "steps": 30,
+          "gen_time_s": 355.1,
+          "mps_driver_gb": 7.75,
+          "trimmed_from_s": 0.25,
+          "rendered_s": 4.99
+        },
+        "p": 0.002,
+        "rank": 22,
+        "best_match": "a rusty cutlass slash through the air",
+        "peak": 0.013
+      }
+    ],
+    "splash": [
+      {
+        "family": "splash",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "splash",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley, not music. Something jumping into water: one big splash, then droplets, then silence. No music, no melody, no drums, no singing.",
+          "desc": "a splash into water",
+          "duration_s": 2.0,
+          "steps": 30,
+          "gen_time_s": 437.5,
+          "mps_driver_gb": 7.74,
+          "trimmed_from_s": 2.25,
+          "rendered_s": 4.99
+        },
+        "p": 0.0,
+        "rank": 43,
+        "best_match": "music with melody and instruments",
+        "peak": 0.73
+      }
+    ],
+    "swordSwing": [
+      {
+        "family": "swordSwing",
+        "seed": 601,
+        "side": {
+          "model": "MiniMax Music 3",
+          "repo": "MiniMaxAI/MiniMax-Music3",
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "family": "swordSwing",
+          "kind": "oneshot",
+          "seed": 601,
+          "prompt": "Genre: sound effect / foley, not music. A single fast sword swing whooshing through the air, close, then silence. No music, no melody, no drums, no singing.",
+          "desc": "a sword swinging through the air",
+          "duration_s": 1.5,
+          "steps": 30,
+          "gen_time_s": 383.3,
+          "mps_driver_gb": 8.97,
+          "trimmed_from_s": 2.75,
+          "rendered_s": 4.99
+        },
+        "p": 0.0,
+        "rank": 18,
+        "best_match": "music with melody and instruments",
+        "peak": 0.926
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+[
+  {
+    "fact": "pastel.quest",
+    "origin": {
+      "kind": "engine",
+      "source": "quest.complete"
+    },
+    "rewards": [
+      {
+        "kind": "achievement",
+        "id": "pastel.firstQuest",
+        "title": "A first adventure",
+        "threshold": 1
+      }
+    ]
+  }
+]

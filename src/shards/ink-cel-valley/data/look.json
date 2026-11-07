@@ -1,0 +1,84 @@
+{
+  "families": [
+    "toon"
+  ],
+  "grade": {
+    "exposure": 0,
+    "saturation": 1,
+    "contrast": 1,
+    "lut": null
+  },
+  "clock": "engine",
+  "day": {
+    "minutes": 12,
+    "start": 0.45,
+    "maxElevation": 55,
+    "azimuth": 35
+  },
+  "dayOverride": null,
+  "keys": [
+    {
+      "time": 0,
+      "sky": {
+        "zenith": [
+          0.9,
+          0.86,
+          0.74
+        ],
+        "horizon": [
+          0.96,
+          0.92,
+          0.82
+        ]
+      },
+      "fog": {
+        "colour": [
+          0.78,
+          0.82,
+          0.76
+        ],
+        "density": 0,
+        "near": 90,
+        "far": 280
+      },
+      "sun": {
+        "colour": [
+          1,
+          0.95,
+          0.86
+        ],
+        "intensity": 1.7
+      },
+      "ambient": {
+        "sky": [
+          0.62,
+          0.7,
+          0.74
+        ],
+        "ground": [
+          0.5,
+          0.52,
+          0.4
+        ],
+        "intensity": 0.75
+      }
+    }
+  ],
+  "materials": {
+    "ground": {
+      "family": "graph",
+      "preset": {
+        "family": "toon",
+        "colour": [
+          0.56,
+          0.61,
+          0.37
+        ]
+      },
+      "version": 1
+    },
+    "rock": {
+      "family": "graph"
+    }
+  }
+}

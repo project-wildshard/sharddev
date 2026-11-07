@@ -1,0 +1,8 @@
+{
+  "far": {
+    "look": {
+      "module": "generators/farLook.ts",
+      "export": "farLook"
+    }
+  }
+}

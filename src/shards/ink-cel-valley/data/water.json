@@ -1,0 +1,13 @@
+[
+  {
+    "id": "ink.pool",
+    "kind": "pool",
+    "level": 0,
+    "shape": {
+      "kind": "circle",
+      "x": 25,
+      "z": 20,
+      "radius": 5
+    }
+  }
+]

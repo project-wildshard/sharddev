@@ -1,0 +1,28 @@
+{
+  "name": "layer-purity",
+  "version": 1,
+  "ask": "E405",
+  "about": "LAYER-PURITY LP6 pilot (project/archive/2026-10-03-layer-purity.md): an advisory check that an engine source file holds no game or content knowledge, for what the word-list lint (wildshard/engine-words) cannot see — a shard's data under generic names, a game's theme, one level's AI. Scored on a labelled set from the E405 moves (scripts/decide/layer-purity-pilot.mjs). Not a gate.",
+  "model": "clef-flash-4bit",
+  "state": "",
+  "max_state_chars": 14000,
+  "questions": {
+    "content": {
+      "type": "noul",
+      "instructions": "This is a source file from the ENGINE layer of a game codebase. The engine must be generic: rendering, physics, input, audio playback, boot, UI frameworks, and data structures any game could use. Does this file instead contain knowledge of a particular game's content — named creatures, items, weapons, places, levels, characters, quests, a specific soundtrack or tuned values and tables for specific content — rather than only generic mechanisms that receive such content as data?"
+    }
+  },
+  "flags": {
+    "content": {
+      "min_probability": 0.5
+    }
+  },
+  "calibrated": {
+    "on": "2026-10-03",
+    "model": "clef-flash-4bit",
+    "items": 24,
+    "content": 12,
+    "generic": 12,
+    "result": "threshold 0.5: 7/12 content caught, 0/12 false alarms; threshold 0.3: 9/12, 0/12; AUC ~0.93. Caught all three the word-list lint missed (Pine's NightBrain 0.59, Pine's tree set 0.82, the theme 0.72). Missed gen.ts, HurtArc and the pickup models (content past the 13k-character cut or explicit words the hard rule catches). ~1.6 s a file, lock free."
+  }
+}

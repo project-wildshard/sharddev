@@ -1,0 +1,8 @@
+test/fixtures/** -whitespace
+scripts/** -whitespace
+src/sharddev/** -whitespace
+src/commons/** -whitespace
+src/shards/** -whitespace
+public/** -whitespace
+drafts/** -whitespace
+lint/** -whitespace

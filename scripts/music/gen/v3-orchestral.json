@@ -1,0 +1,1813 @@
+{
+  "style": "orchestral",
+  "scoring": {
+    "loop": {
+      "style": 0.3,
+      "groove": 0.25,
+      "seam": 0.2,
+      "clean": 0.15,
+      "full": 0.1
+    },
+    "title": {
+      "style": 0.45,
+      "seam": 0.15,
+      "clean": 0.2,
+      "full": 0.2
+    },
+    "vocal_disqualify": 0.2
+  },
+  "slots": {
+    "pine": {
+      "pick": "minimax3-305",
+      "alternates": [
+        "minimax3-303",
+        "minimax3-304"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.533,
+          "parts": {
+            "style": 0.119,
+            "seam": 0.627,
+            "clean": 1.0,
+            "full": 0.45,
+            "groove": 0.709
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "orchestral/pine-305.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 367.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 60.99,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.3,
+              "lra": 11.8,
+              "true_peak_dbfs": -0.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9453
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 2.0,
+              "total_silence_s": 2.0
+            },
+            "spectrum": {
+              "centroid_hz": 2227.8,
+              "rolloff95_hz": 9216.5,
+              "flatness": 0.0019,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.277,
+              "stereo_corr": 0.417
+            },
+            "tempo": {
+              "estimated_bpm": 95.7,
+              "brief_bpm": 96.0,
+              "rel_err": 0.003
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.638,
+              "d_major_r": -0.032,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.476,
+              "similarity": 0.544,
+              "level_match": 0.579,
+              "start_s": 4.5,
+              "end_s": 44.5,
+              "bars": 16,
+              "loop_s": 40.0,
+              "grid_bpm": 96.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.431,
+                "orchestral": 0.119,
+                "folk": 0.449
+              },
+              "style_sim": {
+                "piano": 0.3049,
+                "orchestral": 0.2588,
+                "folk": 0.3064
+              },
+              "vocal_prob": 0.974
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0039,
+              "vocal_active_frac": 0.067,
+              "stem_share": {
+                "drums": 0.286,
+                "bass": 0.1755,
+                "other": 0.5345,
+                "vocals": 0.0039
+              },
+              "groove_active_frac": 0.767,
+              "drums_active_frac": 0.65
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.512,
+          "parts": {
+            "style": 0.757,
+            "seam": 0.305,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.297
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "orchestral/pine-303.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 155.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 37.2,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.3,
+              "lra": 19.8,
+              "true_peak_dbfs": -0.4
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.957
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2902.6,
+              "rolloff95_hz": 11051.7,
+              "flatness": 0.0014,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.0013,
+              "stereo_corr": 0.218
+            },
+            "tempo": {
+              "estimated_bpm": 129.2,
+              "brief_bpm": 96.0,
+              "rel_err": 0.327
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.84,
+              "d_major_r": 0.066,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.283,
+              "similarity": 0.293,
+              "level_match": 0.889,
+              "start_s": 4.0,
+              "end_s": 33.72,
+              "bars": 16,
+              "loop_s": 29.72,
+              "grid_bpm": 129.2
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.059,
+                "orchestral": 0.757,
+                "folk": 0.183
+              },
+              "style_sim": {
+                "piano": 0.2677,
+                "orchestral": 0.3593,
+                "folk": 0.3083
+              },
+              "vocal_prob": 0.648
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.2252,
+                "other": 0.7747,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.405,
+              "drums_active_frac": 0.189
+            }
+          }
+        },
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": 0.504,
+          "parts": {
+            "style": 0.002,
+            "seam": 0.727,
+            "clean": 1.0,
+            "full": 0.849,
+            "groove": 0.492
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "orchestral/pine-304.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 418.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 68.56,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.6,
+              "lra": 10.6,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 35,
+              "clipped_frac": 5.788262066045724e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.58,
+              "total_silence_s": 1.37
+            },
+            "spectrum": {
+              "centroid_hz": 2342.4,
+              "rolloff95_hz": 8910.3,
+              "flatness": 0.0007,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0604,
+              "stereo_corr": 0.513
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.779,
+              "d_major_r": 0.501,
+              "d_major_rank": 5,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.536,
+              "similarity": 0.554,
+              "level_match": 0.892,
+              "start_s": 23.0,
+              "end_s": 56.44,
+              "bars": 24,
+              "loop_s": 33.44,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.085,
+                "orchestral": 0.002,
+                "folk": 0.914
+              },
+              "style_sim": {
+                "piano": 0.3019,
+                "orchestral": 0.1613,
+                "folk": 0.3874
+              },
+              "vocal_prob": 0.971
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1432,
+                "bass": 0.2986,
+                "other": 0.5581,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.632,
+              "drums_active_frac": 0.353
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": 0.494,
+          "parts": {
+            "style": 0.0,
+            "seam": 0.387,
+            "clean": 1.0,
+            "full": 1.0,
+            "groove": 0.666
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 418.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.3,
+              "lra": 7.7,
+              "true_peak_dbfs": 0.5
+            },
+            "clipping": {
+              "clipped_samples": 309,
+              "clipped_frac": 4.666117403742075e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2421.8,
+              "rolloff95_hz": 10164.0,
+              "flatness": 0.0017,
+              "hf_above_12k": 0.00355,
+              "sub_below_60": 0.0782,
+              "stereo_corr": 0.545
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "E minor",
+              "best_r": 0.67,
+              "d_major_r": 0.369,
+              "d_major_rank": 5,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.332,
+              "similarity": 0.341,
+              "level_match": 0.921,
+              "start_s": 29.5,
+              "end_s": 58.76,
+              "bars": 21,
+              "loop_s": 29.26,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.591,
+                "orchestral": 0.0,
+                "folk": 0.408
+              },
+              "style_sim": {
+                "piano": 0.3568,
+                "orchestral": 0.0811,
+                "folk": 0.3434
+              },
+              "vocal_prob": 0.948
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1518,
+                "bass": 0.1682,
+                "other": 0.68,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.733,
+              "drums_active_frac": 0.6
+            }
+          }
+        },
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.451,
+          "parts": {
+            "style": 0.539,
+            "seam": 0.543,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.122
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 167.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 45.81,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.1,
+              "lra": 16.1,
+              "true_peak_dbfs": -0.2
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9727
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2147.2,
+              "rolloff95_hz": 9721.2,
+              "flatness": 0.0007,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.1297,
+              "stereo_corr": 0.083
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 96.0,
+              "rel_err": 0.039
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.922,
+              "d_major_r": 0.003,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.426,
+              "similarity": 0.446,
+              "level_match": 0.854,
+              "start_s": 7.25,
+              "end_s": 37.25,
+              "bars": 12,
+              "loop_s": 30.0,
+              "grid_bpm": 96.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.179,
+                "orchestral": 0.539,
+                "folk": 0.282
+              },
+              "style_sim": {
+                "piano": 0.2499,
+                "orchestral": 0.2894,
+                "folk": 0.2661
+              },
+              "vocal_prob": 0.78
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0036,
+                "bass": 0.1091,
+                "other": 0.8872,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.2,
+              "drums_active_frac": 0.044
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": 0.235,
+          "parts": {
+            "style": 0.013,
+            "seam": 0.495,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.108
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a lyrical flute and oboe melody over legato strings and harp arpeggios; pizzicato basses and cellos walk underneath, and a soft steady pulse of frame drum, low toms and light timpani runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: warm concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 200.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 46.73,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.3,
+              "lra": 13.8,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2290.2,
+              "rolloff95_hz": 9784.5,
+              "flatness": 0.001,
+              "hf_above_12k": 0.00015,
+              "sub_below_60": 0.2366,
+              "stereo_corr": 0.459
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.878,
+              "d_major_r": 0.005,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.397,
+              "similarity": 0.4,
+              "level_match": 0.974,
+              "start_s": 12.5,
+              "end_s": 37.58,
+              "bars": 18,
+              "loop_s": 25.08,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.006,
+                "orchestral": 0.013,
+                "folk": 0.981
+              },
+              "style_sim": {
+                "piano": 0.2241,
+                "orchestral": 0.2498,
+                "folk": 0.4052
+              },
+              "vocal_prob": 0.715
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1204,
+              "vocal_active_frac": 0.087,
+              "stem_share": {
+                "drums": 0.2098,
+                "bass": 0.0,
+                "other": 0.6698,
+                "vocals": 0.1204
+              },
+              "groove_active_frac": 0.087,
+              "drums_active_frac": 0.13
+            }
+          }
+        }
+      ]
+    },
+    "island": {
+      "pick": "minimax3-305",
+      "alternates": [
+        "minimax3-303",
+        "minimax3-306"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.613,
+          "parts": {
+            "style": 0.936,
+            "seam": 0.45,
+            "clean": 1.0,
+            "full": 0.557,
+            "groove": 0.148
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "orchestral/island-305.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 243.5,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 61.15,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.6,
+              "lra": 23.9,
+              "true_peak_dbfs": -0.8
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9141
+            },
+            "silence": {
+              "longest_internal_gap_s": 1.18,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 1.18
+            },
+            "spectrum": {
+              "centroid_hz": 2926.3,
+              "rolloff95_hz": 13848.6,
+              "flatness": 0.0012,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.011,
+              "stereo_corr": 0.27
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.784,
+              "d_major_r": 0.099,
+              "d_major_rank": 9,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.37,
+              "similarity": 0.427,
+              "level_match": 0.556,
+              "start_s": 18.5,
+              "end_s": 51.94,
+              "bars": 24,
+              "loop_s": 33.44,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.012,
+                "orchestral": 0.936,
+                "folk": 0.052
+              },
+              "style_sim": {
+                "piano": 0.1885,
+                "orchestral": 0.3436,
+                "folk": 0.2396
+              },
+              "vocal_prob": 0.939
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0032,
+              "vocal_active_frac": 0.098,
+              "stem_share": {
+                "drums": 0.0132,
+                "bass": 0.033,
+                "other": 0.9505,
+                "vocals": 0.0032
+              },
+              "groove_active_frac": 0.197,
+              "drums_active_frac": 0.098
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.437,
+          "parts": {
+            "style": 0.001,
+            "seam": 0.468,
+            "clean": 0.8,
+            "full": 1.0,
+            "groove": 0.714
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "orchestral/island-303.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 419.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.4,
+              "lra": 10.3,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 16,
+              "clipped_frac": 2.416112571516932e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1710.9,
+              "rolloff95_hz": 6154.9,
+              "flatness": 0.0005,
+              "hf_above_12k": 0.00012,
+              "sub_below_60": 0.1337,
+              "stereo_corr": 0.444
+            },
+            "tempo": {
+              "estimated_bpm": 83.4,
+              "brief_bpm": 96.0,
+              "rel_err": 0.132
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.679,
+              "d_major_r": -0.499,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.381,
+              "similarity": 0.396,
+              "level_match": 0.871,
+              "start_s": 5.0,
+              "end_s": 53.95,
+              "bars": 17,
+              "loop_s": 48.95,
+              "grid_bpm": 83.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.301,
+                "orchestral": 0.001,
+                "folk": 0.698
+              },
+              "style_sim": {
+                "piano": 0.3788,
+                "orchestral": 0.167,
+                "folk": 0.4089
+              },
+              "vocal_prob": 0.992
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1412,
+              "vocal_active_frac": 0.293,
+              "stem_share": {
+                "drums": 0.1959,
+                "bass": 0.1399,
+                "other": 0.523,
+                "vocals": 0.1412
+              },
+              "groove_active_frac": 0.72,
+              "drums_active_frac": 0.707
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": 0.418,
+          "parts": {
+            "style": 0.314,
+            "seam": 0.523,
+            "clean": 0.7,
+            "full": 1.0,
+            "groove": 0.26
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "orchestral/island-306.mp3",
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 387.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -20.5,
+              "lra": 18.6,
+              "true_peak_dbfs": -0.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9883
+            },
+            "silence": {
+              "longest_internal_gap_s": 2.47,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 2.47
+            },
+            "spectrum": {
+              "centroid_hz": 2901.5,
+              "rolloff95_hz": 13185.4,
+              "flatness": 0.0012,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.1111,
+              "stereo_corr": 0.406
+            },
+            "tempo": {
+              "estimated_bpm": 215.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.122
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.775,
+              "d_major_r": -0.195,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.414,
+              "similarity": 0.449,
+              "level_match": 0.738,
+              "start_s": 4.75,
+              "end_s": 51.56,
+              "bars": 42,
+              "loop_s": 46.81,
+              "grid_bpm": 215.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.291,
+                "orchestral": 0.314,
+                "folk": 0.395
+              },
+              "style_sim": {
+                "piano": 0.2633,
+                "orchestral": 0.266,
+                "folk": 0.2742
+              },
+              "vocal_prob": 0.886
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1313,
+              "vocal_active_frac": 0.12,
+              "stem_share": {
+                "drums": 0.1593,
+                "bass": 0.1016,
+                "other": 0.6078,
+                "vocals": 0.1313
+              },
+              "groove_active_frac": 0.333,
+              "drums_active_frac": 0.187
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": 0.342,
+          "parts": {
+            "style": 0.029,
+            "seam": 0.352,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.452
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 242.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 42.09,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.7,
+              "lra": 14.2,
+              "true_peak_dbfs": -3.2
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.6914
+            },
+            "silence": {
+              "longest_internal_gap_s": 1.15,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 1.15
+            },
+            "spectrum": {
+              "centroid_hz": 3207.2,
+              "rolloff95_hz": 12573.8,
+              "flatness": 0.0015,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.02,
+              "stereo_corr": 0.426
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 96.0,
+              "rel_err": 0.208
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.89,
+              "d_major_r": 0.144,
+              "d_major_rank": 9,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.311,
+              "similarity": 0.37,
+              "level_match": 0.464,
+              "start_s": 6.75,
+              "end_s": 19.38,
+              "bars": 8,
+              "loop_s": 12.63,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.137,
+                "orchestral": 0.029,
+                "folk": 0.834
+              },
+              "style_sim": {
+                "piano": 0.2605,
+                "orchestral": 0.2046,
+                "folk": 0.3253
+              },
+              "vocal_prob": 0.954
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.143,
+              "stem_share": {
+                "drums": 0.0268,
+                "bass": 0.2795,
+                "other": 0.6937,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.69,
+              "drums_active_frac": 0.214
+            }
+          }
+        },
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.338,
+          "parts": {
+            "style": 0.037,
+            "seam": 0.428,
+            "clean": 1.0,
+            "full": 0.552,
+            "groove": 0.142
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 376.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 63.07,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -22.1,
+              "lra": 22.6,
+              "true_peak_dbfs": -3.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.6992
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 2.02,
+              "total_silence_s": 2.02
+            },
+            "spectrum": {
+              "centroid_hz": 2979.6,
+              "rolloff95_hz": 15240.9,
+              "flatness": 0.0012,
+              "hf_above_12k": 5e-05,
+              "sub_below_60": 0.0044,
+              "stereo_corr": 0.42
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 96.0,
+              "rel_err": 0.208
+            },
+            "key": {
+              "best_key": "A minor",
+              "best_r": 0.837,
+              "d_major_r": 0.319,
+              "d_major_rank": 8,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.357,
+              "similarity": 0.406,
+              "level_match": 0.598,
+              "start_s": 10.0,
+              "end_s": 40.0,
+              "bars": 19,
+              "loop_s": 30.0,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.454,
+                "orchestral": 0.037,
+                "folk": 0.509
+              },
+              "style_sim": {
+                "piano": 0.2957,
+                "orchestral": 0.2058,
+                "folk": 0.2998
+              },
+              "vocal_prob": 0.77
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0016,
+              "vocal_active_frac": 0.127,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.2628,
+                "other": 0.7356,
+                "vocals": 0.0016
+              },
+              "groove_active_frac": 0.206,
+              "drums_active_frac": 0.079
+            }
+          }
+        },
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 39% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: warm orchestral video game soundtrack in the spirit of Studio Ghibli and Ori and the Blind Forest. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand and turquoise water - wonder first, breezy seafaring adventure second, a little melancholy underneath. Arrangement: a buoyant clarinet and violin melody over rippling harp, celesta and bright strings; plucked double basses and a steady light groove of tambourine, frame drum and soft snare run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright, wide hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 307.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 67.87,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.0,
+              "lra": 17.6,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 28,
+              "clipped_frac": 4.67734348272323e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2734.8,
+              "rolloff95_hz": 10487.6,
+              "flatness": 0.0015,
+              "hf_above_12k": 8e-05,
+              "sub_below_60": 0.0011,
+              "stereo_corr": 0.297
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.593,
+              "d_major_r": 0.248,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.416,
+              "similarity": 0.432,
+              "level_match": 0.878,
+              "start_s": 18.5,
+              "end_s": 53.33,
+              "bars": 25,
+              "loop_s": 34.83,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.095,
+                "orchestral": 0.035,
+                "folk": 0.87
+              },
+              "style_sim": {
+                "piano": 0.2919,
+                "orchestral": 0.256,
+                "folk": 0.3715
+              },
+              "vocal_prob": 0.998
+            },
+            "vocals": {
+              "vocal_energy_share": 0.3894,
+              "vocal_active_frac": 0.433,
+              "stem_share": {
+                "drums": 0.0068,
+                "bass": 0.0,
+                "other": 0.6038,
+                "vocals": 0.3894
+              },
+              "groove_active_frac": 0.164,
+              "drums_active_frac": 0.179
+            }
+          }
+        }
+      ]
+    },
+    "title": {
+      "pick": "minimax3-302",
+      "alternates": [
+        "minimax3-305",
+        "minimax3-304"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.689,
+          "parts": {
+            "style": 0.675,
+            "seam": 0.523,
+            "clean": 1.0,
+            "full": 0.579
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "orchestral/title-302.mp3",
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 267.1,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 62.59,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -20.7,
+              "lra": 13.7,
+              "true_peak_dbfs": -3.9
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.6367
+            },
+            "silence": {
+              "longest_internal_gap_s": 1.38,
+              "internal_gaps": 1,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.01,
+              "total_silence_s": 2.38
+            },
+            "spectrum": {
+              "centroid_hz": 2532.2,
+              "rolloff95_hz": 11892.1,
+              "flatness": 0.001,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0112,
+              "stereo_corr": 0.215
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 96.0,
+              "rel_err": 0.223
+            },
+            "key": {
+              "best_key": "A major",
+              "best_r": 0.688,
+              "d_major_r": 0.364,
+              "d_major_rank": 3,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.414,
+              "similarity": 0.462,
+              "level_match": 0.653,
+              "start_s": 19.25,
+              "end_s": 60.12,
+              "bars": 20,
+              "loop_s": 40.87,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.191,
+                "orchestral": 0.675,
+                "folk": 0.134
+              },
+              "style_sim": {
+                "piano": 0.2668,
+                "orchestral": 0.3122,
+                "folk": 0.2542
+              },
+              "vocal_prob": 0.976
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0488,
+              "vocal_active_frac": 0.177,
+              "stem_share": {
+                "drums": 0.0041,
+                "bass": 0.0523,
+                "other": 0.8948,
+                "vocals": 0.0488
+              },
+              "groove_active_frac": 0.242,
+              "drums_active_frac": 0.113
+            }
+          }
+        },
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.633,
+          "parts": {
+            "style": 0.336,
+            "seam": 0.843,
+            "clean": 1.0,
+            "full": 0.774
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "orchestral/title-305.mp3",
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 259.5,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 67.28,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -24.8,
+              "lra": 12.9,
+              "true_peak_dbfs": -6.7
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.459
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.79,
+              "total_silence_s": 1.79
+            },
+            "spectrum": {
+              "centroid_hz": 2404.4,
+              "rolloff95_hz": 12494.9,
+              "flatness": 0.0009,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.1913,
+              "stereo_corr": 0.323
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "A minor",
+              "best_r": 0.774,
+              "d_major_r": 0.276,
+              "d_major_rank": 6,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.606,
+              "similarity": 0.613,
+              "level_match": 0.961,
+              "start_s": 2.0,
+              "end_s": 25.68,
+              "bars": 17,
+              "loop_s": 23.68,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.432,
+                "orchestral": 0.336,
+                "folk": 0.232
+              },
+              "style_sim": {
+                "piano": 0.2891,
+                "orchestral": 0.2801,
+                "folk": 0.2669
+              },
+              "vocal_prob": 0.896
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0001,
+              "vocal_active_frac": 0.015,
+              "stem_share": {
+                "drums": 0.0131,
+                "bass": 0.2799,
+                "other": 0.7069,
+                "vocals": 0.0001
+              },
+              "groove_active_frac": 0.716,
+              "drums_active_frac": 0.104
+            }
+          }
+        },
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": 0.506,
+          "parts": {
+            "style": 0.611,
+            "seam": 0.205,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "orchestral/title-304.mp3",
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 170.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 43.44,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -23.5,
+              "lra": 21.1,
+              "true_peak_dbfs": -6.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.4961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.09,
+              "total_silence_s": 1.09
+            },
+            "spectrum": {
+              "centroid_hz": 3184.1,
+              "rolloff95_hz": 15597.3,
+              "flatness": 0.0014,
+              "hf_above_12k": 9e-05,
+              "sub_below_60": 0.0096,
+              "stereo_corr": 0.328
+            },
+            "tempo": {
+              "estimated_bpm": 112.3,
+              "brief_bpm": 96.0,
+              "rel_err": 0.17
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.896,
+              "d_major_r": 0.158,
+              "d_major_rank": 10,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.223,
+              "similarity": 0.289,
+              "level_match": 0.239,
+              "start_s": 13.0,
+              "end_s": 30.09,
+              "bars": 8,
+              "loop_s": 17.09,
+              "grid_bpm": 112.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.094,
+                "orchestral": 0.611,
+                "folk": 0.295
+              },
+              "style_sim": {
+                "piano": 0.2297,
+                "orchestral": 0.2968,
+                "folk": 0.2706
+              },
+              "vocal_prob": 0.618
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0004,
+                "bass": 0.0,
+                "other": 0.9996,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.14,
+              "drums_active_frac": 0.093
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.497,
+          "parts": {
+            "style": 0.375,
+            "seam": 0.535,
+            "clean": 1.0,
+            "full": 0.241
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 231.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 54.82,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.2,
+              "lra": 19.2,
+              "true_peak_dbfs": -0.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9883
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 3003.4,
+              "rolloff95_hz": 12106.0,
+              "flatness": 0.0013,
+              "hf_above_12k": 6e-05,
+              "sub_below_60": 0.0486,
+              "stereo_corr": 0.263
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 96.0,
+              "rel_err": 0.159
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.705,
+              "d_major_r": -0.015,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.421,
+              "similarity": 0.487,
+              "level_match": 0.552,
+              "start_s": 4.75,
+              "end_s": 16.64,
+              "bars": 8,
+              "loop_s": 11.89,
+              "grid_bpm": 161.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.149,
+                "orchestral": 0.375,
+                "folk": 0.476
+              },
+              "style_sim": {
+                "piano": 0.2273,
+                "orchestral": 0.2605,
+                "folk": 0.269
+              },
+              "vocal_prob": 0.874
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0002,
+                "bass": 0.002,
+                "other": 0.9978,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.204,
+              "drums_active_frac": 0.148
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": 0.341,
+          "parts": {
+            "style": 0.151,
+            "seam": 0.432,
+            "clean": 1.0,
+            "full": 0.043
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 214.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 50.85,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -19.2,
+              "lra": 10.7,
+              "true_peak_dbfs": -2.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7461
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1881.3,
+              "rolloff95_hz": 7975.3,
+              "flatness": 0.0005,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0236,
+              "stereo_corr": 0.424
+            },
+            "tempo": {
+              "estimated_bpm": 136.0,
+              "brief_bpm": 96.0,
+              "rel_err": 0.292
+            },
+            "key": {
+              "best_key": "F major",
+              "best_r": 0.762,
+              "d_major_r": -0.476,
+              "d_major_rank": 19,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.359,
+              "similarity": 0.382,
+              "level_match": 0.799,
+              "start_s": 11.25,
+              "end_s": 32.43,
+              "bars": 12,
+              "loop_s": 21.18,
+              "grid_bpm": 136.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.193,
+                "orchestral": 0.151,
+                "folk": 0.656
+              },
+              "style_sim": {
+                "piano": 0.274,
+                "orchestral": 0.2653,
+                "folk": 0.318
+              },
+              "vocal_prob": 0.949
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0094,
+                "bass": 0.262,
+                "other": 0.7286,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.64,
+              "drums_active_frac": 0.04
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 42% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, warm cinematic orchestra in the spirit of Joe Hisaishi and Ori and the Blind Forest. BPM: 92. Key: D major. Instrumental only, no vocals, no lead choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable melody introduced by solo flute over harp, then taken up by full strings and French horns with timpani and a steady percussion pulse; it swells to a soaring climax and ends on a resolved final chord. Production: rich concert-hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 288.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 65.48,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.2,
+              "lra": 15.2,
+              "true_peak_dbfs": -1.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8633
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2929.3,
+              "rolloff95_hz": 11625.6,
+              "flatness": 0.0012,
+              "hf_above_12k": 0.00067,
+              "sub_below_60": 0.0245,
+              "stereo_corr": 0.493
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 96.0,
+              "rel_err": 0.223
+            },
+            "key": {
+              "best_key": "F minor",
+              "best_r": 0.852,
+              "d_major_r": -0.458,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.476,
+              "similarity": 0.486,
+              "level_match": 0.931,
+              "start_s": 4.5,
+              "end_s": 43.32,
+              "bars": 19,
+              "loop_s": 38.82,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.243,
+                "orchestral": 0.229,
+                "folk": 0.528
+              },
+              "style_sim": {
+                "piano": 0.2201,
+                "orchestral": 0.218,
+                "folk": 0.248
+              },
+              "vocal_prob": 0.978
+            },
+            "vocals": {
+              "vocal_energy_share": 0.4246,
+              "vocal_active_frac": 0.246,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.0378,
+                "other": 0.5376,
+                "vocals": 0.4246
+              },
+              "groove_active_frac": 0.215,
+              "drums_active_frac": 0.046
+            }
+          }
+        }
+      ]
+    }
+  }
+}

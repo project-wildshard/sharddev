@@ -1,0 +1,231 @@
+{
+  "families": [
+    "toon",
+    "painterly"
+  ],
+  "materials": {
+    "ground": {
+      "family": "graph",
+      "preset": {
+        "family": "painterly",
+        "colour": [
+          0.82,
+          0.74,
+          0.9
+        ]
+      },
+      "version": 1
+    },
+    "rock": {
+      "family": "graph"
+    }
+  },
+  "post": [
+    {
+      "graph": {
+        "version": 1,
+        "kind": "post",
+        "params": {
+          "lilac": {
+            "type": "colour",
+            "value": [
+              0.86,
+              0.8,
+              0.94
+            ]
+          },
+          "lift": {
+            "type": "float",
+            "value": 0.18,
+            "min": 0,
+            "max": 0.5
+          }
+        },
+        "nodes": {
+          "c": {
+            "op": "sceneColour"
+          },
+          "rgb": {
+            "op": "swizzle",
+            "in": [
+              "c"
+            ],
+            "mask": "xyz"
+          },
+          "t1": {
+            "op": "add",
+            "in": [
+              "rgb",
+              1
+            ]
+          },
+          "tone": {
+            "op": "div",
+            "in": [
+              "rgb",
+              "t1"
+            ]
+          },
+          "l": {
+            "op": "dot",
+            "in": [
+              "tone",
+              [
+                0.2126,
+                0.7152,
+                0.0722
+              ]
+            ]
+          },
+          "lilac": {
+            "op": "param",
+            "param": "lilac"
+          },
+          "wash": {
+            "op": "mul",
+            "in": [
+              "lilac",
+              "l"
+            ]
+          },
+          "soft": {
+            "op": "mix",
+            "in": [
+              "tone",
+              "wash",
+              0.35
+            ]
+          },
+          "lift": {
+            "op": "param",
+            "param": "lift"
+          },
+          "lifted": {
+            "op": "mix",
+            "in": [
+              "soft",
+              [
+                1,
+                1,
+                1
+              ],
+              "lift"
+            ]
+          },
+          "uv": {
+            "op": "screenUV"
+          },
+          "d": {
+            "op": "sub",
+            "in": [
+              "uv",
+              0.5
+            ]
+          },
+          "r": {
+            "op": "dot",
+            "in": [
+              "d",
+              "d"
+            ]
+          },
+          "v0": {
+            "op": "smoothstep",
+            "in": [
+              0.15,
+              0.6,
+              "r"
+            ]
+          },
+          "v1": {
+            "op": "mul",
+            "in": [
+              "v0",
+              0.2
+            ]
+          },
+          "v": {
+            "op": "oneMinus",
+            "in": [
+              "v1"
+            ]
+          },
+          "out": {
+            "op": "mul",
+            "in": [
+              "lifted",
+              "v"
+            ]
+          }
+        },
+        "stages": {
+          "post": {
+            "colour": "out"
+          }
+        }
+      }
+    }
+  ],
+  "grade": {
+    "exposure": 0,
+    "saturation": 1,
+    "contrast": 1,
+    "lut": null
+  },
+  "clock": "engine",
+  "day": {
+    "minutes": 12,
+    "start": 0.42,
+    "maxElevation": 50,
+    "azimuth": 35
+  },
+  "dayOverride": null,
+  "keys": [
+    {
+      "time": 0,
+      "sky": {
+        "zenith": [
+          0.6,
+          0.58,
+          0.86
+        ],
+        "horizon": [
+          0.98,
+          0.84,
+          0.88
+        ]
+      },
+      "fog": {
+        "colour": [
+          0.93,
+          0.84,
+          0.9
+        ],
+        "density": 0,
+        "near": 80,
+        "far": 260
+      },
+      "sun": {
+        "colour": [
+          1,
+          0.92,
+          0.86
+        ],
+        "intensity": 1.6
+      },
+      "ambient": {
+        "sky": [
+          0.7,
+          0.68,
+          0.9
+        ],
+        "ground": [
+          0.6,
+          0.75,
+          0.68
+        ],
+        "intensity": 0.8
+      }
+    }
+  ]
+}

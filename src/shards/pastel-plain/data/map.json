@@ -1,0 +1,50 @@
+{
+  "why": "The pastel plain's map (G252's stylized ground look, its own colours): the lilac ground pale, every rock-graph prop (blocks, roads' kerbs, the hut) peach with a mauve ink edge; raised blocks with an edge and a shadow",
+  "style": {
+    "kind": "ground",
+    "smooth": 3,
+    "shade": 0.3,
+    "classes": [
+      {
+        "match": "#706885",
+        "fill": "#e6def2"
+      },
+      {
+        "match": "#989292",
+        "fill": "#f6c9a8",
+        "edge": "#8a5a6a"
+      }
+    ],
+    "raised": {
+      "bump": 1.5,
+      "min": 6,
+      "classes": [
+        {
+          "match": "#989292",
+          "fill": "#f3b9a0",
+          "edge": "#7a4a5e"
+        }
+      ]
+    }
+  },
+  "painter": {
+    "version": 1,
+    "terrain": [
+      "data/terrain.json"
+    ],
+    "props": [
+      "data/props.json"
+    ],
+    "authored": true,
+    "program": true
+  },
+  "inputs": [
+    "generators",
+    "data/layout.json",
+    "../../sdk/headlessSections.ts",
+    "../../sdk/immutable.ts",
+    "../../sdk/shardfile.ts",
+    "../../format",
+    "../../../pnpm-lock.yaml"
+  ]
+}

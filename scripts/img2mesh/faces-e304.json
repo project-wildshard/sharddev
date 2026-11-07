@@ -1,0 +1,9 @@
+{
+  "about": "E304: the face remaster's knobs per model outside Nalati's camp (faces.json is theirs), driven by scripts/img2mesh/e304_faces.sh. body = the shipped file (decoded; a rigged one is stripped first), out = where the variant's files go (<dir>/faces-<variant>/<name>[.phone].glb), neck = its neck / height, the rest as face_remaster.py's flags (bust: the Hunyuan3D-2 bust from ~/ml/img2mesh/out/e304-faces/hy/<bust>.glb, its cutout projected). E339 graft fix (v2, the default): the bust is cut at its own measured neck, scaled by neck-to-top (fit box: the geometric mean with the old head's width), its neck ring blended onto the body's, fragments dropped; the old beard / collar knobs are gone.",
+  "models": {
+    "ranger": { "body": "public/assets/pine-hollow/npcs/ranger.glb", "phone": "public/assets/pine-hollow/npcs/ranger.phone.glb", "dir": "public/assets/pine-hollow/npcs", "pbr": true, "bust": "ranger-c", "neck": 0.85, "graft": { "neck": 0.6, "ptop": 0.53, "fit": "box", "beard": [0.06, 0.12]}},
+    "trader": { "body": "public/assets/pine-hollow/npcs/trader.glb", "phone": "public/assets/pine-hollow/npcs/trader.phone.glb", "dir": "public/assets/pine-hollow/npcs", "pbr": true, "bust": "trader-c", "neck": 0.85, "graft": { "neck": 0.62, "fit": "box", "beard": [0.05, 0.07]}},
+    "captain": { "body": "public/assets/models/driftwood-hero/captain/captain.glb", "phone": "public/assets/models/driftwood-hero/captain/captain.glb", "dir": "public/assets/models/driftwood-hero/captain", "bust": "captain", "neck": 0.82, "graft": { "neck": 0.66, "clip": 0.0, "collar": [0.03, 0.06], "beard": [0.07, 0.085]}},
+    "miller": { "body": "public/assets/pine-hollow/npcs/miller.glb", "phone": "public/assets/pine-hollow/npcs/miller.phone.glb", "dir": "public/assets/pine-hollow/npcs", "pbr": true, "bust": "miller-c", "neck": 0.86, "graft": { "neck": 0.6, "ptop": 0.58, "fit": "box" }}
+  }
+}

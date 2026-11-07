@@ -1,0 +1,66 @@
+{
+  "flags": [
+    "template.hut",
+    "template.blob",
+    "template.complete",
+    "template.complete-card",
+    "template.door-open",
+    "template.wave-started",
+    "template.wave-complete"
+  ],
+  "quests": [
+    {
+      "id": "template.quest",
+      "title": "A first adventure",
+      "track": false,
+      "completeFlag": "template.complete",
+      "steps": [
+        {
+          "id": "hut",
+          "objective": "Reach the hut",
+          "done": {
+            "all": [
+              "template.hut"
+            ]
+          }
+        },
+        {
+          "id": "blob",
+          "objective": "Beat the blob",
+          "done": {
+            "all": [
+              "template.blob"
+            ]
+          }
+        }
+      ],
+      "onComplete": {
+        "fact": "template.quest",
+        "coins": 5
+      }
+    }
+  ],
+  "triggers": [
+    {
+      "id": "door-open",
+      "kind": "script",
+      "flag": "template.door-open",
+      "condition": "template.door.open"
+    },
+    {
+      "id": "hut",
+      "kind": "region",
+      "flag": "template.hut",
+      "x": 0,
+      "z": -9,
+      "radius": 3
+    },
+    {
+      "id": "blob",
+      "kind": "death",
+      "flag": "template.blob",
+      "tag": "creature.greyBlob"
+    }
+  ],
+  "dialogue": []
+}

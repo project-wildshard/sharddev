@@ -1,0 +1,148 @@
+{
+  "style": "piano",
+  "slots": {
+    "pine": {
+      "take": "minimax3-305",
+      "grid": {
+        "median_bpm": 92.29,
+        "beats_found": 97,
+        "ibi_cv": 0.043,
+        "downbeat_index_mod4": 1
+      },
+      "loop": {
+        "score": 0.3379,
+        "similarity": 0.379,
+        "level_match": 0.642,
+        "loopStart": 6.757006802721088,
+        "loopEnd": 58.93224489795919,
+        "bars": 20,
+        "bpm": 91.998,
+        "beat_jitter_s": 0.091,
+        "best_seam_score": 0.3824
+      },
+      "stem_share": {
+        "drums": 0.2189,
+        "bass": 0.1921,
+        "other": 0.4791,
+        "vocals": 0.0588
+      },
+      "voice_in_calm": false,
+      "gain_db": -0.1,
+      "limited_min_gain": 0.802,
+      "decode_lag_s": {
+        "calm": 0.0,
+        "tension": 0.0
+      },
+      "decoded_s": {
+        "calm": 61.54666666666667,
+        "tension": 61.54666666666667
+      },
+      "files": {
+        "calm": "pine-calm-923e0056.m4a",
+        "tension": "pine-tension-cc014e5b.m4a"
+      },
+      "bytes": {
+        "calm": 753131,
+        "tension": 508407
+      }
+    },
+    "island": {
+      "take": "minimax3-304",
+      "grid": {
+        "median_bpm": 76.0,
+        "beats_found": 72,
+        "ibi_cv": 0.027,
+        "downbeat_index_mod4": 3
+      },
+      "loop": {
+        "score": 0.269,
+        "similarity": 0.273,
+        "level_match": 0.945,
+        "loopStart": 14.303492063492063,
+        "loopEnd": 54.9384126984127,
+        "bars": 13,
+        "bpm": 76.781,
+        "beat_jitter_s": 0.078,
+        "best_seam_score": 0.3102
+      },
+      "stem_share": {
+        "drums": 0.086,
+        "bass": 0.3168,
+        "other": 0.5466,
+        "vocals": 0.0
+      },
+      "voice_in_calm": true,
+      "gain_db": -1.2,
+      "limited_min_gain": 0.912,
+      "decode_lag_s": {
+        "calm": 0.0,
+        "tension": 0.0
+      },
+      "decoded_s": {
+        "calm": 58.06933333333333,
+        "tension": 58.06933333333333
+      },
+      "files": {
+        "calm": "island-calm-05125ed8.m4a",
+        "tension": "island-tension-7faf0468.m4a"
+      },
+      "bytes": {
+        "calm": 710677,
+        "tension": 480309
+      }
+    },
+    "title": {
+      "take": "minimax3-304",
+      "grid": {
+        "median_bpm": 76.0,
+        "beats_found": 91,
+        "ibi_cv": 0.049,
+        "downbeat_index_mod4": 1
+      },
+      "loop": {
+        "score": 0.4083,
+        "similarity": 0.426,
+        "level_match": 0.859,
+        "loopStart": 27.39954648526077,
+        "loopEnd": 59.11800453514739,
+        "bars": 10,
+        "bpm": 75.666,
+        "beat_jitter_s": 0.096,
+        "best_seam_score": 0.4464
+      },
+      "decode_lag_s": 0.0,
+      "decoded_s": 62.29333333333334,
+      "file": "title-3d1f713a.m4a",
+      "gain_db": 0.9,
+      "bytes": 762019
+    },
+    "sting-death": {
+      "from": "title",
+      "take": "minimax3-304",
+      "at_s": 69.06,
+      "why": "the final chord",
+      "file": "sting-death-99b071e0.m4a",
+      "seconds": 4.5,
+      "bytes": 55748
+    },
+    "sting-chunk": {
+      "from": "title",
+      "take": "minimax3-304",
+      "at_s": 58.87,
+      "why": "a 8.5x swell on a downbeat",
+      "file": "sting-chunk-a4f2ffab.m4a",
+      "seconds": 3.5,
+      "bytes": 43558
+    },
+    "sting-pickup": {
+      "from": "pine",
+      "take": "minimax3-305",
+      "at_s": 59.53,
+      "why": "its brightest onset",
+      "file": "sting-pickup-6ed91318.m4a",
+      "seconds": 2.0,
+      "bytes": 25148
+    }
+  },
+  "total_bytes": 3338997
+}

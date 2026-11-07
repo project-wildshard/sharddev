@@ -1,0 +1,3187 @@
+{
+  "style": "orchestral",
+  "brief": {
+    "game": "Wildshard",
+    "brief": "Instrumental game exploration theme for Wildshard, a world that arrives one chunk at a time: wonder first, adventure second, a little melancholy underneath. No vocals. 60-90 s, loopable (it will be trimmed to a bar-exact loop). The model composes freely - no required motif.",
+    "duration_s": 75,
+    "timesig": "4/4",
+    "title": "Warm orchestral",
+    "reference": "Studio Ghibli (Joe Hisaishi) / Ori and the Blind Forest",
+    "key": "D major",
+    "mode_colour": "Lydian lift",
+    "bpm": 96,
+    "ace_caption": "Warm cinematic orchestral exploration theme for a fantasy adventure video game, in the style of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. A lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Mood: wonder first, adventure second, a little melancholy underneath. Rich concert-hall reverb. Instrumental, no lead vocals. D major.",
+    "heartmula_tags": "orchestral,cinematic,classical,instrumental,violin,cello,flute,harp,fantasy,adventure,gentle,dreamy",
+    "sao_prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+    "sao_negative": "drum kit, vocals, distortion, low quality, noise",
+    "minimax_prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+    "heartmula_tags_v0_spaced": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure"
+  },
+  "scoring": {
+    "weights": {
+      "style": 0.35,
+      "seam": 0.2,
+      "length": 0.1,
+      "tempo": 0.1,
+      "key": 0.1,
+      "clean": 0.15
+    },
+    "vocal_penalty": 0.0,
+    "target_lufs": -18.0
+  },
+  "shortlist": [
+    "sao1.0-105",
+    "minimax3-105",
+    "hm-spaced-101"
+  ],
+  "takes": [
+    {
+      "id": "sao1.0-105",
+      "score": 0.838,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.925,
+        "length": 0.6,
+        "tempo": 0.23,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": 1,
+      "file": "orchestral/sao1.0-105.m4a",
+      "encode": {
+        "gain_db": -6.0,
+        "seconds": 47.0,
+        "bytes": 563827
+      },
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 105,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 68.8,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -12.0,
+          "lra": 3.2,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 2,
+          "clipped_frac": 4.824624885415159e-07,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.4,
+          "total_silence_s": 2.4
+        },
+        "spectrum": {
+          "centroid_hz": 2054.5,
+          "rolloff95_hz": 6895.2,
+          "flatness": 0.0188,
+          "hf_above_12k": 0.00013,
+          "sub_below_60": 0.0004,
+          "stereo_corr": 0.43
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 96.0,
+          "rel_err": 0.077
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.869,
+          "d_major_r": 0.869,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.655,
+          "similarity": 0.665,
+          "level_match": 0.951,
+          "start_s": 5.75,
+          "end_s": 28.97,
+          "bars": 10,
+          "loop_s": 23.22,
+          "grid_bpm": 103.4
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0394,
+            "orchestral": 0.3292,
+            "folk": -0.0193
+          },
+          "vocal_prob": 0.984
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao1.0-102",
+      "score": 0.813,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.917,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 102,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 84.9,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.3,
+          "lra": 3.7,
+          "true_peak_dbfs": -0.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.9628
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.88,
+          "total_silence_s": 2.88
+        },
+        "spectrum": {
+          "centroid_hz": 1676.2,
+          "rolloff95_hz": 5440.7,
+          "flatness": 0.011,
+          "hf_above_12k": 1e-05,
+          "sub_below_60": 0.0007,
+          "stereo_corr": 0.426
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.122
+        },
+        "key": {
+          "best_key": "A major",
+          "best_r": 0.935,
+          "d_major_r": 0.753,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.65,
+          "similarity": 0.653,
+          "level_match": 0.985,
+          "start_s": 18.25,
+          "end_s": 38.31,
+          "bars": 9,
+          "loop_s": 20.06,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 0.999,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0913,
+            "orchestral": 0.3722,
+            "folk": 0.0618
+          },
+          "vocal_prob": 0.98
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao1.0-103",
+      "score": 0.782,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.758,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 103,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 88.1,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -10.2,
+          "lra": 3.0,
+          "true_peak_dbfs": 0.2
+        },
+        "clipping": {
+          "clipped_samples": 94,
+          "clipped_frac": 2.2675736961451248e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.37,
+          "total_silence_s": 3.37
+        },
+        "spectrum": {
+          "centroid_hz": 2036.2,
+          "rolloff95_hz": 6421.2,
+          "flatness": 0.0015,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0048,
+          "stereo_corr": 0.395
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "A major",
+          "best_r": 0.86,
+          "d_major_r": 0.86,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.555,
+          "similarity": 0.584,
+          "level_match": 0.833,
+          "start_s": 6.0,
+          "end_s": 20.21,
+          "bars": 9,
+          "loop_s": 14.21,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0973,
+            "orchestral": 0.4581,
+            "folk": 0.0961
+          },
+          "vocal_prob": 0.973
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.043
+        }
+      }
+    },
+    {
+      "id": "sao1.0-101",
+      "score": 0.772,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.96,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 101,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 63.9,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 14.18,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -9.6,
+          "lra": 3.5,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 68,
+          "clipped_frac": 1.640372461041154e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.93,
+          "total_silence_s": 3.93
+        },
+        "spectrum": {
+          "centroid_hz": 1874.9,
+          "rolloff95_hz": 6188.1,
+          "flatness": 0.0225,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0078,
+          "stereo_corr": 0.509
+        },
+        "tempo": {
+          "estimated_bpm": 129.2,
+          "brief_bpm": 96.0,
+          "rel_err": 0.327
+        },
+        "key": {
+          "best_key": "A major",
+          "best_r": 0.943,
+          "d_major_r": 0.734,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.676,
+          "similarity": 0.685,
+          "level_match": 0.955,
+          "start_s": 14.5,
+          "end_s": 29.36,
+          "bars": 8,
+          "loop_s": 14.86,
+          "grid_bpm": 129.2
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0594,
+            "orchestral": 0.3636,
+            "folk": 0.0392
+          },
+          "vocal_prob": 0.991
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao1.0-104",
+      "score": 0.742,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.558,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 104,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 77.0,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -9.9,
+          "lra": 2.9,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 95,
+          "clipped_frac": 2.2916968205722006e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.63,
+          "total_silence_s": 3.63
+        },
+        "spectrum": {
+          "centroid_hz": 1980.8,
+          "rolloff95_hz": 6568.4,
+          "flatness": 0.0218,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.545
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.292
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.853,
+          "d_major_r": 0.853,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.435,
+          "similarity": 0.437,
+          "level_match": 0.987,
+          "start_s": 4.25,
+          "end_s": 18.37,
+          "bars": 8,
+          "loop_s": 14.12,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": -0.0282,
+            "orchestral": 0.3262,
+            "folk": -0.0401
+          },
+          "vocal_prob": 0.984
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.043
+        }
+      }
+    },
+    {
+      "id": "sao1.0-107",
+      "score": 0.721,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.705,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 107,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 83.7,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.7,
+          "lra": 2.7,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 17,
+          "clipped_frac": 4.100931152602885e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.18,
+          "total_silence_s": 2.18
+        },
+        "spectrum": {
+          "centroid_hz": 1777.8,
+          "rolloff95_hz": 6090.7,
+          "flatness": 0.0012,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0003,
+          "stereo_corr": 0.535
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.844,
+          "d_major_r": 0.81,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.523,
+          "similarity": 0.526,
+          "level_match": 0.984,
+          "start_s": 6.25,
+          "end_s": 18.88,
+          "bars": 8,
+          "loop_s": 12.63,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.999,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.101,
+            "orchestral": 0.3616,
+            "folk": 0.0816
+          },
+          "vocal_prob": 0.964
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-106",
+      "score": 0.701,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.608,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 106,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 70.7,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -10.4,
+          "lra": 7.0,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 29,
+          "clipped_frac": 6.99570608385198e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.81,
+          "total_silence_s": 2.81
+        },
+        "spectrum": {
+          "centroid_hz": 1820.5,
+          "rolloff95_hz": 6219.8,
+          "flatness": 0.0049,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0103,
+          "stereo_corr": 0.541
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "A major",
+          "best_r": 0.833,
+          "d_major_r": 0.742,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.465,
+          "similarity": 0.486,
+          "level_match": 0.859,
+          "start_s": 6.75,
+          "end_s": 36.75,
+          "bars": 19,
+          "loop_s": 30.0,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.999,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0622,
+            "orchestral": 0.308,
+            "folk": 0.0019
+          },
+          "vocal_prob": 0.9
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao1.0-108",
+      "score": 0.683,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.367,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 108,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "negative_prompt": "drum kit, vocals, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 93.7,
+      "model_load_s": 1.4,
+      "mps_driver_gb": 15.26,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.4,
+          "lra": 6.1,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 61,
+          "clipped_frac": 1.4715105900516235e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.28,
+          "total_silence_s": 3.28
+        },
+        "spectrum": {
+          "centroid_hz": 2117.5,
+          "rolloff95_hz": 7532.3,
+          "flatness": 0.0198,
+          "hf_above_12k": 4e-05,
+          "sub_below_60": 0.0156,
+          "stereo_corr": 0.441
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.292
+        },
+        "key": {
+          "best_key": "A minor",
+          "best_r": 0.765,
+          "d_major_r": 0.716,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.32,
+          "similarity": 0.38,
+          "level_match": 0.469,
+          "start_s": 9.75,
+          "end_s": 25.63,
+          "bars": 9,
+          "loop_s": 15.88,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0837,
+            "orchestral": 0.3647,
+            "folk": -0.0141
+          },
+          "vocal_prob": 0.949
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.043
+        }
+      }
+    },
+    {
+      "id": "sao-small-108",
+      "score": 0.614,
+      "parts": {
+        "style": 0.838,
+        "seam": 0.103,
+        "length": 0.15,
+        "tempo": 0.65,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 108,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.7,
+          "lra": 5.3,
+          "true_peak_dbfs": -2.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7251
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1494.5,
+          "rolloff95_hz": 4158.6,
+          "flatness": 0.013,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0005,
+          "stereo_corr": 0.261
+        },
+        "tempo": {
+          "estimated_bpm": 198.8,
+          "brief_bpm": 96.0,
+          "rel_err": 0.035
+        },
+        "key": {
+          "best_key": "D minor",
+          "best_r": 0.844,
+          "d_major_r": 0.678,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.162,
+          "similarity": 0.173,
+          "level_match": 0.805,
+          "start_s": 2.0,
+          "end_s": 7.0,
+          "bars": 2,
+          "loop_s": 5.0,
+          "grid_bpm": 96.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.006,
+            "orchestral": 0.838,
+            "folk": 0.156
+          },
+          "style_sim": {
+            "piano": 0.0659,
+            "orchestral": 0.2415,
+            "folk": 0.181
+          },
+          "vocal_prob": 0.839
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-105",
+      "score": 0.613,
+      "parts": {
+        "style": 0.861,
+        "seam": 0.308,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": 2,
+      "file": "orchestral/minimax3-105.m4a",
+      "encode": {
+        "gain_db": -1.2,
+        "seconds": 61.99,
+        "bytes": 757125
+      },
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 105,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 236.5,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.28,
+      "metrics": {
+        "duration_s": 61.99,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.8,
+          "lra": 16.4,
+          "true_peak_dbfs": -0.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.9844
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2623.6,
+          "rolloff95_hz": 10686.7,
+          "flatness": 0.0012,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0284,
+          "stereo_corr": 0.137
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.282
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.796,
+          "d_major_r": 0.035,
+          "d_major_rank": 13,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.285,
+          "similarity": 0.302,
+          "level_match": 0.817,
+          "start_s": 2.0,
+          "end_s": 58.56,
+          "bars": 29,
+          "loop_s": 56.56,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.035,
+            "orchestral": 0.861,
+            "folk": 0.104
+          },
+          "style_sim": {
+            "piano": 0.2299,
+            "orchestral": 0.3454,
+            "folk": 0.2695
+          },
+          "vocal_prob": 0.929
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0164,
+          "vocal_active_frac": 0.115
+        }
+      }
+    },
+    {
+      "id": "sao-small-102",
+      "score": 0.605,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.1,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 102,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.1,
+          "lra": 3.8,
+          "true_peak_dbfs": -2.6
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7441
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.03,
+          "total_silence_s": 1.03
+        },
+        "spectrum": {
+          "centroid_hz": 1514.6,
+          "rolloff95_hz": 4907.9,
+          "flatness": 0.0289,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0053,
+          "stereo_corr": 0.311
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.851,
+          "d_major_r": 0.782,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.16,
+          "similarity": 0.167,
+          "level_match": 0.866,
+          "start_s": 3.75,
+          "end_s": 6.91,
+          "bars": 2,
+          "loop_s": 3.16,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0544,
+            "orchestral": 0.4044,
+            "folk": 0.0381
+          },
+          "vocal_prob": 0.733
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.091
+        }
+      }
+    },
+    {
+      "id": "sao-small-104",
+      "score": 0.592,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.035,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 104,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.1,
+          "lra": 7.8,
+          "true_peak_dbfs": -5.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.5581
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.36,
+          "total_silence_s": 1.36
+        },
+        "spectrum": {
+          "centroid_hz": 1640.5,
+          "rolloff95_hz": 5828.0,
+          "flatness": 0.0265,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0919,
+          "stereo_corr": 0.246
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.282
+        },
+        "key": {
+          "best_key": "B minor",
+          "best_r": 0.8,
+          "d_major_r": 0.764,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.121,
+          "similarity": 0.138,
+          "level_match": 0.596,
+          "start_s": 2.0,
+          "end_s": 5.9,
+          "bars": 2,
+          "loop_s": 3.9,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0497,
+            "orchestral": 0.4165,
+            "folk": 0.0763
+          },
+          "vocal_prob": 0.866
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.091
+        }
+      }
+    },
+    {
+      "id": "sao-small-106",
+      "score": 0.585,
+      "parts": {
+        "style": 1.0,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 106,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.7,
+          "lra": 4.8,
+          "true_peak_dbfs": -3.6
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.6587
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.54,
+          "total_silence_s": 1.54
+        },
+        "spectrum": {
+          "centroid_hz": 1932.2,
+          "rolloff95_hz": 6857.8,
+          "flatness": 0.0203,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0022,
+          "stereo_corr": 0.398
+        },
+        "tempo": {
+          "estimated_bpm": 129.2,
+          "brief_bpm": 96.0,
+          "rel_err": 0.327
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.864,
+          "d_major_r": 0.864,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.068,
+          "similarity": 0.07,
+          "level_match": 0.936,
+          "start_s": 2.25,
+          "end_s": 5.97,
+          "bars": 2,
+          "loop_s": 3.72,
+          "grid_bpm": 129.2
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 1.0,
+            "folk": 0.0
+          },
+          "style_sim": {
+            "piano": 0.0156,
+            "orchestral": 0.481,
+            "folk": 0.0438
+          },
+          "vocal_prob": 0.965
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.091
+        }
+      }
+    },
+    {
+      "id": "sao-small-101",
+      "score": 0.584,
+      "parts": {
+        "style": 0.998,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 101,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.5,
+          "lra": 6.4,
+          "true_peak_dbfs": -7.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4443
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.29,
+          "total_silence_s": 1.29
+        },
+        "spectrum": {
+          "centroid_hz": 1476.8,
+          "rolloff95_hz": 4895.5,
+          "flatness": 0.0225,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.459
+        },
+        "tempo": {
+          "estimated_bpm": 143.6,
+          "brief_bpm": 96.0,
+          "rel_err": 0.252
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.832,
+          "d_major_r": 0.832,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.048,
+          "similarity": 0.05,
+          "level_match": 0.867,
+          "start_s": 2.0,
+          "end_s": 7.02,
+          "bars": 3,
+          "loop_s": 5.02,
+          "grid_bpm": 143.6
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.998,
+            "folk": 0.001
+          },
+          "style_sim": {
+            "piano": 0.1663,
+            "orchestral": 0.4159,
+            "folk": 0.1595
+          },
+          "vocal_prob": 0.758
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.091
+        }
+      }
+    },
+    {
+      "id": "minimax3-107",
+      "score": 0.569,
+      "parts": {
+        "style": 0.361,
+        "seam": 0.358,
+        "length": 0.6,
+        "tempo": 0.61,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 107,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 189.9,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.37,
+      "metrics": {
+        "duration_s": 53.25,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.7,
+          "lra": 21.6,
+          "true_peak_dbfs": 0.6
+        },
+        "clipping": {
+          "clipped_samples": 2,
+          "clipped_frac": 4.2579572705471984e-07,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 4835.2,
+          "rolloff95_hz": 15645.8,
+          "flatness": 0.0079,
+          "hf_above_12k": 0.00624,
+          "sub_below_60": 0.0215,
+          "stereo_corr": 0.546
+        },
+        "tempo": {
+          "estimated_bpm": 184.6,
+          "brief_bpm": 96.0,
+          "rel_err": 0.039
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.953,
+          "d_major_r": 0.692,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.315,
+          "similarity": 0.342,
+          "level_match": 0.736,
+          "start_s": 21.25,
+          "end_s": 41.25,
+          "bars": 8,
+          "loop_s": 20.0,
+          "grid_bpm": 96.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.187,
+            "orchestral": 0.361,
+            "folk": 0.452
+          },
+          "style_sim": {
+            "piano": 0.2995,
+            "orchestral": 0.323,
+            "folk": 0.3312
+          },
+          "vocal_prob": 0.774
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.019
+        }
+      }
+    },
+    {
+      "id": "sao-small-103",
+      "score": 0.538,
+      "parts": {
+        "style": 0.976,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.61,
+        "key": 0.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 103,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -19.3,
+          "lra": 9.5,
+          "true_peak_dbfs": -8.5
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3752
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 896.5,
+          "rolloff95_hz": 2771.6,
+          "flatness": 0.001,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.279
+        },
+        "tempo": {
+          "estimated_bpm": 184.6,
+          "brief_bpm": 96.0,
+          "rel_err": 0.039
+        },
+        "key": {
+          "best_key": "A minor",
+          "best_r": 0.757,
+          "d_major_r": 0.596,
+          "d_major_rank": 5,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": -0.136,
+          "similarity": -0.159,
+          "level_match": 0.534,
+          "start_s": 2.75,
+          "end_s": 7.75,
+          "bars": 2,
+          "loop_s": 5.0,
+          "grid_bpm": 96.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.002,
+            "orchestral": 0.976,
+            "folk": 0.022
+          },
+          "style_sim": {
+            "piano": 0.074,
+            "orchestral": 0.2945,
+            "folk": 0.1577
+          },
+          "vocal_prob": 0.89
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-105",
+      "score": 0.528,
+      "parts": {
+        "style": 0.993,
+        "seam": 0.227,
+        "length": 0.15,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 105,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.4,
+          "lra": 3.4,
+          "true_peak_dbfs": -2.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7251
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.05,
+          "total_silence_s": 1.05
+        },
+        "spectrum": {
+          "centroid_hz": 1113.3,
+          "rolloff95_hz": 3862.5,
+          "flatness": 0.0096,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0007,
+          "stereo_corr": 0.368
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 96.0,
+          "rel_err": 0.159
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.75,
+          "d_major_r": -0.023,
+          "d_major_rank": 12,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.236,
+          "similarity": 0.239,
+          "level_match": 0.949,
+          "start_s": 2.0,
+          "end_s": 6.46,
+          "bars": 3,
+          "loop_s": 4.46,
+          "grid_bpm": 161.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.993,
+            "folk": 0.006
+          },
+          "style_sim": {
+            "piano": 0.1347,
+            "orchestral": 0.3738,
+            "folk": 0.1874
+          },
+          "vocal_prob": 0.85
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-102",
+      "score": 0.475,
+      "parts": {
+        "style": 0.22,
+        "seam": 0.74,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 102,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 209.7,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 27.19,
+      "metrics": {
+        "duration_s": 65.4,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.5,
+          "lra": 8.4,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 10,
+          "clipped_frac": 1.7336454819811824e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1755.9,
+          "rolloff95_hz": 7637.6,
+          "flatness": 0.0004,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.1931,
+          "stereo_corr": 0.521
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 96.0,
+          "rel_err": 0.159
+        },
+        "key": {
+          "best_key": "A# major",
+          "best_r": 0.921,
+          "d_major_r": -0.21,
+          "d_major_rank": 15,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.544,
+          "similarity": 0.544,
+          "level_match": 0.999,
+          "start_s": 5.25,
+          "end_s": 32.0,
+          "bars": 18,
+          "loop_s": 26.75,
+          "grid_bpm": 161.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.43,
+            "orchestral": 0.22,
+            "folk": 0.349
+          },
+          "style_sim": {
+            "piano": 0.3115,
+            "orchestral": 0.2874,
+            "folk": 0.304
+          },
+          "vocal_prob": 0.954
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0082,
+          "vocal_active_frac": 0.046
+        }
+      }
+    },
+    {
+      "id": "sao-small-107",
+      "score": 0.462,
+      "parts": {
+        "style": 0.542,
+        "seam": 0.0,
+        "length": 0.15,
+        "tempo": 0.97,
+        "key": 1.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 107,
+      "prompt": "Warm cinematic orchestra, lyrical flute melody over legato strings, harp arpeggios, soft french horns, celesta, wordless choir pad, fantasy adventure film score, hopeful and wistful, D major, 96 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.2,
+          "lra": 4.6,
+          "true_peak_dbfs": -6.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4917
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.26,
+          "total_silence_s": 1.26
+        },
+        "spectrum": {
+          "centroid_hz": 2426.7,
+          "rolloff95_hz": 9400.3,
+          "flatness": 0.0412,
+          "hf_above_12k": 0.00014,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.445
+        },
+        "tempo": {
+          "estimated_bpm": 95.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.003
+        },
+        "key": {
+          "best_key": "G minor",
+          "best_r": 0.544,
+          "d_major_r": 0.479,
+          "d_major_rank": 2,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.083,
+          "similarity": 0.083,
+          "level_match": 0.987,
+          "start_s": 2.0,
+          "end_s": 7.0,
+          "bars": 2,
+          "loop_s": 5.0,
+          "grid_bpm": 96.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.005,
+            "orchestral": 0.542,
+            "folk": 0.453
+          },
+          "style_sim": {
+            "piano": -0.018,
+            "orchestral": 0.149,
+            "folk": 0.1426
+          },
+          "vocal_prob": 0.68
+        },
+        "vocals": {
+          "vocal_energy_share": 0.4583,
+          "vocal_active_frac": 0.727
+        }
+      }
+    },
+    {
+      "id": "minimax3-108",
+      "score": 0.442,
+      "parts": {
+        "style": 0.384,
+        "seam": 0.488,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 108,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 190.4,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.38,
+      "metrics": {
+        "duration_s": 57.14,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.9,
+          "lra": 22.7,
+          "true_peak_dbfs": -2.9
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7148
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 3027.8,
+          "rolloff95_hz": 13992.2,
+          "flatness": 0.0012,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0198,
+          "stereo_corr": 0.281
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "D minor",
+          "best_r": 0.753,
+          "d_major_r": 0.387,
+          "d_major_rank": 7,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.393,
+          "similarity": 0.409,
+          "level_match": 0.871,
+          "start_s": 8.75,
+          "end_s": 52.96,
+          "bars": 28,
+          "loop_s": 44.21,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.139,
+            "orchestral": 0.384,
+            "folk": 0.477
+          },
+          "style_sim": {
+            "piano": 0.2331,
+            "orchestral": 0.2697,
+            "folk": 0.2775
+          },
+          "vocal_prob": 0.938
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-103",
+      "score": 0.394,
+      "parts": {
+        "style": 0.184,
+        "seam": 0.6,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 103,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 192.6,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.26,
+      "metrics": {
+        "duration_s": 58.7,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.9,
+          "lra": 12.3,
+          "true_peak_dbfs": -0.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.9688
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2240.3,
+          "rolloff95_hz": 8905.5,
+          "flatness": 0.0006,
+          "hf_above_12k": 4e-05,
+          "sub_below_60": 0.0012,
+          "stereo_corr": 0.058
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "F major",
+          "best_r": 0.892,
+          "d_major_r": -0.136,
+          "d_major_rank": 13,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.46,
+          "similarity": 0.492,
+          "level_match": 0.786,
+          "start_s": 12.25,
+          "end_s": 24.88,
+          "bars": 8,
+          "loop_s": 12.63,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.128,
+            "orchestral": 0.184,
+            "folk": 0.688
+          },
+          "style_sim": {
+            "piano": 0.2091,
+            "orchestral": 0.222,
+            "folk": 0.2695
+          },
+          "vocal_prob": 0.943
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0001,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-104",
+      "score": 0.366,
+      "parts": {
+        "style": 0.248,
+        "seam": 0.345,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 104,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 151.0,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.28,
+      "metrics": {
+        "duration_s": 40.88,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.3,
+          "lra": 15.8,
+          "true_peak_dbfs": -1.6
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.8281
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.15,
+          "total_silence_s": 1.15
+        },
+        "spectrum": {
+          "centroid_hz": 2592.0,
+          "rolloff95_hz": 12040.3,
+          "flatness": 0.0009,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0022,
+          "stereo_corr": 0.231
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.208
+        },
+        "key": {
+          "best_key": "E minor",
+          "best_r": 0.588,
+          "d_major_r": 0.343,
+          "d_major_rank": 8,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.307,
+          "similarity": 0.313,
+          "level_match": 0.941,
+          "start_s": 8.0,
+          "end_s": 34.84,
+          "bars": 17,
+          "loop_s": 26.84,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.253,
+            "orchestral": 0.248,
+            "folk": 0.498
+          },
+          "style_sim": {
+            "piano": 0.2324,
+            "orchestral": 0.2316,
+            "folk": 0.2566
+          },
+          "vocal_prob": 0.945
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0075,
+          "vocal_active_frac": 0.15
+        }
+      }
+    },
+    {
+      "id": "minimax3-101",
+      "score": 0.357,
+      "parts": {
+        "style": 0.039,
+        "seam": 0.467,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 101,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 236.8,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 27.19,
+      "metrics": {
+        "duration_s": 74.44,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.6,
+          "lra": 18.1,
+          "true_peak_dbfs": -5.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.5586
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 3.8,
+          "total_silence_s": 3.8
+        },
+        "spectrum": {
+          "centroid_hz": 3533.6,
+          "rolloff95_hz": 15185.7,
+          "flatness": 0.0018,
+          "hf_above_12k": 8e-05,
+          "sub_below_60": 0.1578,
+          "stereo_corr": 0.428
+        },
+        "tempo": {
+          "estimated_bpm": 172.3,
+          "brief_bpm": 96.0,
+          "rel_err": 0.103
+        },
+        "key": {
+          "best_key": "C major",
+          "best_r": 0.898,
+          "d_major_r": 0.222,
+          "d_major_rank": 8,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.38,
+          "similarity": 0.423,
+          "level_match": 0.659,
+          "start_s": 20.25,
+          "end_s": 55.08,
+          "bars": 25,
+          "loop_s": 34.83,
+          "grid_bpm": 172.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.212,
+            "orchestral": 0.039,
+            "folk": 0.749
+          },
+          "style_sim": {
+            "piano": 0.2853,
+            "orchestral": 0.2244,
+            "folk": 0.3306
+          },
+          "vocal_prob": 0.868
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0001,
+          "vocal_active_frac": 0.068
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-101",
+      "score": 0.333,
+      "parts": {
+        "style": 0.099,
+        "seam": 0.242,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": 3,
+      "file": "orchestral/hm-spaced-101.m4a",
+      "encode": {
+        "gain_db": 6.3,
+        "seconds": 74.88,
+        "bytes": 922299
+      },
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 101,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 166.3,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.3,
+          "lra": 7.4,
+          "true_peak_dbfs": -11.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2604
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2463.9,
+          "rolloff95_hz": 10847.0,
+          "flatness": 0.0001,
+          "hf_above_12k": 0.00027,
+          "sub_below_60": 0.0754,
+          "stereo_corr": 0.609
+        },
+        "tempo": {
+          "estimated_bpm": 112.3,
+          "brief_bpm": 96.0,
+          "rel_err": 0.17
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.735,
+          "d_major_r": 0.274,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.245,
+          "similarity": 0.267,
+          "level_match": 0.726,
+          "start_s": 19.25,
+          "end_s": 61.97,
+          "bars": 20,
+          "loop_s": 42.72,
+          "grid_bpm": 112.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.89,
+            "orchestral": 0.099,
+            "folk": 0.01
+          },
+          "style_sim": {
+            "piano": 0.1414,
+            "orchestral": 0.0627,
+            "folk": -0.0192
+          },
+          "vocal_prob": 0.46
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0245,
+          "vocal_active_frac": 0.297
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-102",
+      "score": 0.332,
+      "parts": {
+        "style": 0.087,
+        "seam": 0.26,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 102,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 175.8,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -25.0,
+          "lra": 7.8,
+          "true_peak_dbfs": -12.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2276
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2591.9,
+          "rolloff95_hz": 11095.7,
+          "flatness": 0.0002,
+          "hf_above_12k": 0.00032,
+          "sub_below_60": 0.0823,
+          "stereo_corr": 0.526
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.292
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.792,
+          "d_major_r": 0.176,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.256,
+          "similarity": 0.293,
+          "level_match": 0.584,
+          "start_s": 13.25,
+          "end_s": 45.01,
+          "bars": 18,
+          "loop_s": 31.76,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.905,
+            "orchestral": 0.087,
+            "folk": 0.009
+          },
+          "style_sim": {
+            "piano": 0.1357,
+            "orchestral": 0.0514,
+            "folk": -0.0316
+          },
+          "vocal_prob": 0.302
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0286,
+          "vocal_active_frac": 0.135
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-103",
+      "score": 0.32,
+      "parts": {
+        "style": 0.081,
+        "seam": 0.21,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 103,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 200.9,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.4,
+          "lra": 6.4,
+          "true_peak_dbfs": -11.6
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2629
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2433.6,
+          "rolloff95_hz": 10765.3,
+          "flatness": 0.0001,
+          "hf_above_12k": 0.00024,
+          "sub_below_60": 0.0546,
+          "stereo_corr": 0.536
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.122
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.787,
+          "d_major_r": 0.177,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.226,
+          "similarity": 0.246,
+          "level_match": 0.728,
+          "start_s": 19.5,
+          "end_s": 61.85,
+          "bars": 19,
+          "loop_s": 42.35,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.911,
+            "orchestral": 0.081,
+            "folk": 0.007
+          },
+          "style_sim": {
+            "piano": 0.1529,
+            "orchestral": 0.0661,
+            "folk": -0.021
+          },
+          "vocal_prob": 0.413
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0142,
+          "vocal_active_frac": 0.108
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-104",
+      "score": 0.319,
+      "parts": {
+        "style": 0.06,
+        "seam": 0.242,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 104,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 176.5,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -26.3,
+          "lra": 6.9,
+          "true_peak_dbfs": -14.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.1983
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2594.3,
+          "rolloff95_hz": 11082.8,
+          "flatness": 0.0002,
+          "hf_above_12k": 0.00031,
+          "sub_below_60": 0.0677,
+          "stereo_corr": 0.649
+        },
+        "tempo": {
+          "estimated_bpm": 123.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.282
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.788,
+          "d_major_r": 0.156,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.245,
+          "similarity": 0.28,
+          "level_match": 0.585,
+          "start_s": 12.75,
+          "end_s": 43.96,
+          "bars": 16,
+          "loop_s": 31.21,
+          "grid_bpm": 123.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.932,
+            "orchestral": 0.06,
+            "folk": 0.008
+          },
+          "style_sim": {
+            "piano": 0.1375,
+            "orchestral": 0.039,
+            "folk": -0.0355
+          },
+          "vocal_prob": 0.385
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0257,
+          "vocal_active_frac": 0.324
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-107",
+      "score": 0.315,
+      "parts": {
+        "style": 0.037,
+        "seam": 0.483,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.7
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 107,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 164.9,
+      "model_load_s": 0.5,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.2,
+          "lra": 6.8,
+          "true_peak_dbfs": -6.9
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4526
+        },
+        "silence": {
+          "longest_internal_gap_s": 6.15,
+          "internal_gaps": 2,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 7.18
+        },
+        "spectrum": {
+          "centroid_hz": 2797.6,
+          "rolloff95_hz": 7971.0,
+          "flatness": 0.0019,
+          "hf_above_12k": 9e-05,
+          "sub_below_60": 0.0008,
+          "stereo_corr": 0.968
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 96.0,
+          "rel_err": 0.292
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.63,
+          "d_major_r": 0.079,
+          "d_major_rank": 8,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.39,
+          "similarity": 0.423,
+          "level_match": 0.735,
+          "start_s": 29.75,
+          "end_s": 59.75,
+          "bars": 17,
+          "loop_s": 30.0,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.9,
+            "orchestral": 0.037,
+            "folk": 0.063
+          },
+          "style_sim": {
+            "piano": 0.0339,
+            "orchestral": -0.0803,
+            "folk": -0.0617
+          },
+          "vocal_prob": 0.678
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0049,
+          "vocal_active_frac": 0.162
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-108",
+      "score": 0.309,
+      "parts": {
+        "style": 0.031,
+        "seam": 0.465,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.7
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 108,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 151.5,
+      "model_load_s": 0.5,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.8,
+          "lra": 21.7,
+          "true_peak_dbfs": -7.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4488
+        },
+        "silence": {
+          "longest_internal_gap_s": 6.2,
+          "internal_gaps": 2,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 7.25
+        },
+        "spectrum": {
+          "centroid_hz": 2783.9,
+          "rolloff95_hz": 7922.2,
+          "flatness": 0.0018,
+          "hf_above_12k": 7e-05,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.918
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.122
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.508,
+          "d_major_r": -0.034,
+          "d_major_rank": 11,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.379,
+          "similarity": 0.404,
+          "level_match": 0.787,
+          "start_s": 29.75,
+          "end_s": 72.1,
+          "bars": 19,
+          "loop_s": 42.35,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.878,
+            "orchestral": 0.031,
+            "folk": 0.092
+          },
+          "style_sim": {
+            "piano": 0.0308,
+            "orchestral": -0.0899,
+            "folk": -0.0503
+          },
+          "vocal_prob": 0.76
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0046,
+          "vocal_active_frac": 0.081
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-105",
+      "score": 0.305,
+      "parts": {
+        "style": 0.036,
+        "seam": 0.213,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 105,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 235.9,
+      "model_load_s": 0.7,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.7,
+          "lra": 6.8,
+          "true_peak_dbfs": -11.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.2729
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2333.0,
+          "rolloff95_hz": 10574.2,
+          "flatness": 0.0001,
+          "hf_above_12k": 0.00021,
+          "sub_below_60": 0.0595,
+          "stereo_corr": 0.651
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.122
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.792,
+          "d_major_r": 0.199,
+          "d_major_rank": 9,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.228,
+          "similarity": 0.253,
+          "level_match": 0.668,
+          "start_s": 19.25,
+          "end_s": 61.6,
+          "bars": 19,
+          "loop_s": 42.35,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.956,
+            "orchestral": 0.036,
+            "folk": 0.008
+          },
+          "style_sim": {
+            "piano": 0.1675,
+            "orchestral": 0.0497,
+            "folk": -0.0038
+          },
+          "vocal_prob": 0.242
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0248,
+          "vocal_active_frac": 0.216
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-106",
+      "score": 0.302,
+      "parts": {
+        "style": 0.025,
+        "seam": 0.44,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.7
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 106,
+      "prompt": "instrumental, orchestral, cinematic, film score, strings, flute, harp, choir, warm, emotional, fantasy, adventure",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 164.7,
+      "model_load_s": 0.5,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.9,
+          "lra": 21.7,
+          "true_peak_dbfs": -6.4
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4796
+        },
+        "silence": {
+          "longest_internal_gap_s": 6.13,
+          "internal_gaps": 1,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 6.13
+        },
+        "spectrum": {
+          "centroid_hz": 2740.5,
+          "rolloff95_hz": 7635.3,
+          "flatness": 0.0016,
+          "hf_above_12k": 7e-05,
+          "sub_below_60": 0.0006,
+          "stereo_corr": 0.936
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 96.0,
+          "rel_err": 0.122
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.51,
+          "d_major_r": -0.036,
+          "d_major_rank": 11,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.364,
+          "similarity": 0.38,
+          "level_match": 0.863,
+          "start_s": 29.75,
+          "end_s": 67.64,
+          "bars": 17,
+          "loop_s": 37.89,
+          "grid_bpm": 107.7
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.925,
+            "orchestral": 0.025,
+            "folk": 0.049
+          },
+          "style_sim": {
+            "piano": 0.0361,
+            "orchestral": -0.093,
+            "folk": -0.0692
+          },
+          "vocal_prob": 0.744
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0029,
+          "vocal_active_frac": 0.054
+        }
+      }
+    },
+    {
+      "id": "minimax3-106",
+      "score": 0.28,
+      "parts": {
+        "style": 0.048,
+        "seam": 0.517,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 106,
+      "prompt": "Genre: cinematic orchestral film score for a fantasy adventure video game. BPM: 96. Key: D major. Instrumental only, no lead vocals. Mood: wonder first, adventure second, a little melancholy underneath - in the spirit of Joe Hisaishi's Studio Ghibli scores and Ori and the Blind Forest. Arrangement: a lyrical flute and oboe melody over legato strings, rippling harp arpeggios, soft French horns, celesta sparkle and a wordless choir pad swelling underneath; gentle timpani, no drum kit. Production: warm, wide concert-hall reverb.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 317.7,
+      "model_load_s": 10.0,
+      "mps_driver_gb": 28.37,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -24.0,
+          "lra": 17.7,
+          "true_peak_dbfs": -6.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4902
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 3992.0,
+          "rolloff95_hz": 16992.2,
+          "flatness": 0.0027,
+          "hf_above_12k": 0.00016,
+          "sub_below_60": 0.007,
+          "stereo_corr": 0.54
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 96.0,
+          "rel_err": 0.159
+        },
+        "key": {
+          "best_key": "D minor",
+          "best_r": 0.8,
+          "d_major_r": 0.308,
+          "d_major_rank": 5,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.41,
+          "similarity": 0.508,
+          "level_match": 0.356,
+          "start_s": 28.25,
+          "end_s": 72.83,
+          "bars": 30,
+          "loop_s": 44.58,
+          "grid_bpm": 161.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.643,
+            "orchestral": 0.048,
+            "folk": 0.308
+          },
+          "style_sim": {
+            "piano": 0.2406,
+            "orchestral": 0.1477,
+            "folk": 0.2141
+          },
+          "vocal_prob": 0.978
+        },
+        "vocals": {
+          "vocal_energy_share": 0.4318,
+          "vocal_active_frac": 0.427
+        }
+      }
+    }
+  ]
+}

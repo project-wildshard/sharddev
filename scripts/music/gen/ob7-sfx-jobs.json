@@ -1,0 +1,897 @@
+{
+  "_doc": "OB7: one ambience bed and declared positional loops per plot; generate each with MOSS v2 and Stable Audio 3 Medium, then rank both with CLAP. No recording is qualified merely by these briefs.",
+  "families": {
+    "bed.lantern-bayou.ambience": {
+      "kind": "bed",
+      "into": "lantern-bayou",
+      "duration": 30,
+      "desc": "Frogs and crickets over quiet lapping swamp water at dusk",
+      "prompt": "Frogs and crickets over quiet lapping swamp water at dusk. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.lantern-bayou.boardwalk-creak": {
+      "kind": "hum",
+      "into": "lantern-bayou",
+      "duration": 8,
+      "desc": "An old damp wooden boardwalk gently creaking under weight",
+      "prompt": "An old damp wooden boardwalk gently creaking under weight. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.lantern-bayou.house-wind-chimes": {
+      "kind": "hum",
+      "into": "lantern-bayou",
+      "duration": 10,
+      "desc": "Small metal wind chimes ringing softly on a wooden stilt house",
+      "prompt": "Small metal wind chimes ringing softly on a wooden stilt house. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.lantern-bayou.distant-owl": {
+      "kind": "hum",
+      "into": "lantern-bayou",
+      "duration": 10,
+      "desc": "A distant owl hooting across a quiet swamp",
+      "prompt": "A distant owl hooting across a quiet swamp. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.lantern-bayou.lantern-boat-bump": {
+      "kind": "hum",
+      "into": "lantern-bayou",
+      "duration": 8,
+      "desc": "A small hollow wooden boat knocking against a wooden dock",
+      "prompt": "Close dry foley recording of a small wooden rowboat gently knocking against a solid timber dock. Several distinct hollow woody thunks, irregularly spaced, with short low resonant decays. Wood hitting wood: a soft clonk, a pause, then two light hollow knocks. The knocking is the only sound. No water recording, no creaking, no squeaking, no birds, no engines, no voices, no music, no wind. Eight seconds of clear quiet wooden impact detail."
+    },
+    "hum.lantern-bayou.cypress-rustle": {
+      "kind": "hum",
+      "into": "lantern-bayou",
+      "duration": 10,
+      "desc": "Soft hanging cypress moss and leaves rustling in a light breeze",
+      "prompt": "Soft hanging cypress moss and leaves rustling in a light breeze. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.frostline-peaks.ambience": {
+      "kind": "bed",
+      "into": "frostline-peaks",
+      "duration": 30,
+      "desc": "Steady alpine breeze and a distant smooth chair lift motor hum",
+      "prompt": "Steady alpine breeze and a distant smooth chair lift motor hum. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.frostline-peaks.lift-wheel-creak": {
+      "kind": "hum",
+      "into": "frostline-peaks",
+      "duration": 10,
+      "desc": "An alpine chairlift pulley wheel slowly creaking and gently rattling",
+      "prompt": "An alpine chairlift pulley wheel slowly creaking and gently rattling. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.frostline-peaks.hearth-crackle": {
+      "kind": "hum",
+      "into": "frostline-peaks",
+      "duration": 10,
+      "desc": "A small lodge hearth crackling softly with glowing embers",
+      "prompt": "A small lodge hearth crackling softly with glowing embers. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.frostline-peaks.ice-creak": {
+      "kind": "hum",
+      "into": "frostline-peaks",
+      "duration": 10,
+      "desc": "Gentle deep ice creaks beside a frozen alpine canal",
+      "prompt": "Gentle deep ice creaks beside a frozen alpine canal. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.frostline-peaks.gate-wind-chimes": {
+      "kind": "hum",
+      "into": "frostline-peaks",
+      "duration": 10,
+      "desc": "Delicate iron wind chimes ringing in a cool mountain breeze",
+      "prompt": "Delicate iron wind chimes ringing in a cool mountain breeze. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.frostline-peaks.pine-rustle": {
+      "kind": "hum",
+      "into": "frostline-peaks",
+      "duration": 10,
+      "desc": "Snow-dusted pine branches softly rustling and shedding tiny snow falls",
+      "prompt": "Snow-dusted pine branches softly rustling and shedding tiny snow falls. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.ember-forge.ambience": {
+      "kind": "bed",
+      "into": "ember-forge",
+      "duration": 30,
+      "desc": "Distant furnace roar and low thick bubbling molten lava",
+      "prompt": "Distant furnace roar and low thick bubbling molten lava. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.ember-forge.anvil-strikes": {
+      "kind": "hum",
+      "into": "ember-forge",
+      "duration": 10,
+      "desc": "A blacksmith striking a steel anvil at an unhurried pace with ringing metallic decays",
+      "prompt": "A blacksmith striking a steel anvil at an unhurried pace with ringing metallic decays. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.ember-forge.bellows": {
+      "kind": "hum",
+      "into": "ember-forge",
+      "duration": 10,
+      "desc": "A large leather bellows pumping air in slow repeated whooshes",
+      "prompt": "Close dry sound of a large hand-operated leather fireplace bellows pumping air. Slow repeated puff of air, leathery squeak as the handles pull apart, airy whoosh as they squeeze closed. Several clear pumping cycles with a short quiet gap between each. No fire, no machinery motor, no voice, no music."
+    },
+    "hum.ember-forge.crane-chain": {
+      "kind": "hum",
+      "into": "ember-forge",
+      "duration": 10,
+      "desc": "A heavy suspended crane chain slowly clanking and settling",
+      "prompt": "A heavy suspended crane chain slowly clanking and settling. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.ember-forge.steam-hiss": {
+      "kind": "hum",
+      "into": "ember-forge",
+      "duration": 10,
+      "desc": "A quiet intermittent steam vent hissing beside hot stone",
+      "prompt": "A quiet intermittent steam vent hissing beside hot stone. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.ember-forge.ember-crackle": {
+      "kind": "hum",
+      "into": "ember-forge",
+      "duration": 10,
+      "desc": "Small hot embers popping and crackling in a forge brazier",
+      "prompt": "Small hot embers popping and crackling in a forge brazier. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.mosslight-ruins.ambience": {
+      "kind": "bed",
+      "into": "mosslight-ruins",
+      "duration": 30,
+      "desc": "Quiet woodland ambience with light wind in leafy trees and distant small birds",
+      "prompt": "Continuous quiet outdoor woodland ambience. Soft breeze rustles a leafy tree canopy, with a few very distant small bird chirps. Constant airy foliage rustle is dominant. Wide gentle background environmental sound suitable for a loop. No melody, no voices, no resonant hum, no heavy wind, no rain."
+    },
+    "hum.mosslight-ruins.pool-hum": {
+      "kind": "hum",
+      "into": "mosslight-ruins",
+      "duration": 10,
+      "desc": "A quiet low shimmering resonant hum from a mysterious still pool",
+      "prompt": "A quiet low shimmering resonant hum from a mysterious still pool. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.mosslight-ruins.ivy-birds": {
+      "kind": "hum",
+      "into": "mosslight-ruins",
+      "duration": 10,
+      "desc": "Small birds chirping gently among ivy in a quiet stone courtyard",
+      "prompt": "Small birds chirping gently among ivy in a quiet stone courtyard. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.mosslight-ruins.arch-wind": {
+      "kind": "hum",
+      "into": "mosslight-ruins",
+      "duration": 10,
+      "desc": "Wind whistling and blowing through a hollow stone passage",
+      "prompt": "Nonmusical wind heard from inside a small stone doorway. A soft low hollow wind howl and airy whistle, with irregular gentle gusts and brief whooshes through the sheltered stone passage. Environmental wind recording, suitable for a loop. No birds, no chimes, no music, no voices, no rain."
+    },
+    "hum.mosslight-ruins.falling-grit": {
+      "kind": "hum",
+      "into": "mosslight-ruins",
+      "duration": 8,
+      "desc": "Tiny loose stone grains softly trickling down old masonry",
+      "prompt": "Tiny loose stone grains softly trickling down old masonry. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.mosslight-ruins.pool-drip": {
+      "kind": "hum",
+      "into": "mosslight-ruins",
+      "duration": 10,
+      "desc": "Slow clear water drops falling into a small resonant stone pool",
+      "prompt": "Slow clear water drops falling into a small resonant stone pool. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.coral-drift.ambience": {
+      "kind": "bed",
+      "into": "coral-drift",
+      "duration": 30,
+      "desc": "Gentle tropical surf lapping a lagoon shore and a warm sea breeze",
+      "prompt": "Gentle tropical surf lapping a lagoon shore and a warm sea breeze. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.coral-drift.gulls": {
+      "kind": "hum",
+      "into": "coral-drift",
+      "duration": 10,
+      "desc": "A few distant seagulls calling over a calm sunny lagoon",
+      "prompt": "A few distant seagulls calling over a calm sunny lagoon. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.coral-drift.palm-rustle": {
+      "kind": "hum",
+      "into": "coral-drift",
+      "duration": 10,
+      "desc": "Long palm fronds softly rustling in a warm sea breeze",
+      "prompt": "Long palm fronds softly rustling in a warm sea breeze. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.coral-drift.pier-creak": {
+      "kind": "hum",
+      "into": "coral-drift",
+      "duration": 10,
+      "desc": "Dry wooden pier timbers slowly creaking and groaning under gentle pressure",
+      "prompt": "Close detailed field recording of dry wooden pier planks flexing under gentle pressure: intermittent low timber groans, short wooden squeaks and small dry creaks, with quiet air between events. Foreground wood friction, no water or surf, no footsteps, no birds, no voices, no music. Several irregular soft creaks suitable for a looping positional sound."
+    },
+    "hum.coral-drift.hut-wind-chimes": {
+      "kind": "hum",
+      "into": "coral-drift",
+      "duration": 10,
+      "desc": "Small shell wind chimes gently clattering on a beach hut",
+      "prompt": "Small shell wind chimes gently clattering on a beach hut. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.coral-drift.lagoon-lap": {
+      "kind": "hum",
+      "into": "coral-drift",
+      "duration": 10,
+      "desc": "Small clear lagoon waves softly lapping against a timber pier",
+      "prompt": "Small clear lagoon waves softly lapping against a timber pier. Natural spacious field recording, restrained volume, continuous texture with irregular gentle events, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.night-market.ambience": {
+      "kind": "bed",
+      "into": "night-market",
+      "duration": 30,
+      "desc": "A steady chorus of evening crickets beside soft gently flowing canal water",
+      "prompt": "Outdoor evening field recording: a steady wide chorus of tiny crickets, high dry rhythmic insect chirps in overlapping patterns, with soft gently flowing water far below. Quiet continuous night insect ambience for a canal village. No birds or bird whistles, no voices, no melody, no music, no steam, no machine hum. Thirty seconds of gentle natural insect texture."
+    },
+    "hum.night-market.gate-wind-chimes": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "Small bronze wind chimes ringing gently beneath a wooden pagoda gate",
+      "prompt": "Small bronze wind chimes ringing gently beneath a wooden pagoda gate. Natural detailed field recording, restrained volume, irregular gentle events with short quiet gaps, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.night-market.canal-lap": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "Quiet canal water gently lapping against stone walls",
+      "prompt": "Quiet canal water gently lapping against stone walls. Natural detailed field recording, restrained volume, irregular gentle events with short quiet gaps, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.night-market.food-sizzle": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "Food frying and softly sizzling on a small market stall griddle",
+      "prompt": "Food frying and softly sizzling on a small market stall griddle. Natural detailed field recording, restrained volume, irregular gentle events with short quiet gaps, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.night-market.teacup-clink": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "Small ceramic teacups gently clinking on a wooden market counter",
+      "prompt": "Small ceramic teacups gently clinking on a wooden market counter. Natural detailed field recording, restrained volume, irregular gentle events with short quiet gaps, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "hum.night-market.awning-flutter": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "A loose canvas awning flapping and snapping softly in the wind",
+      "prompt": "Close isolated foley recording of loose canvas fabric on a market stall awning moving in a breeze. Distinct low flaps of thick cloth and short dry fabric snaps as the edge catches wind, irregularly repeated, a brief quiet gap between each flutter. The canvas cloth is the only foreground sound. No leafy trees, no birds, no insects, no voices, no footsteps, no music."
+    },
+    "hum.night-market.garden-crickets": {
+      "kind": "hum",
+      "into": "night-market",
+      "duration": 10,
+      "desc": "A few nearby crickets chirping in a sheltered courtyard garden",
+      "prompt": "A few nearby crickets chirping in a sheltered courtyard garden. Natural detailed field recording, restrained volume, irregular gentle events with short quiet gaps, suitable for looping. No music, no melody, no human speech, no distortion."
+    },
+    "bed.jungle-ziggurat.ambience": {
+      "kind": "bed",
+      "into": "jungle-ziggurat",
+      "duration": 30,
+      "desc": "Rainforest birds with distant falling water and light rain drips after a tropical shower",
+      "prompt": "Rainforest birds with distant falling water and light rain drips after a tropical shower. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.waterfall-cascade": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "A small stepped stone waterfall cascading into a jungle pool",
+      "prompt": "A small stepped stone waterfall cascading into a jungle pool. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.pool-lap": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "Gentle water lapping against a smooth stone reflecting pool",
+      "prompt": "Gentle water lapping against a smooth stone reflecting pool. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.wooden-wind-chimes": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "Hollow wooden bamboo wind chimes gently knocking beside a thatched stilt house",
+      "prompt": "Hollow wooden bamboo wind chimes gently knocking beside a thatched stilt house. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.canopy-birds": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "Tropical rainforest birds calling back and forth in a leafy tree canopy",
+      "prompt": "Tropical rainforest birds calling back and forth in a leafy tree canopy. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.thatch-drip": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "Individual rain drops falling from a wet thatched roof onto stone",
+      "prompt": "Individual rain drops falling from a wet thatched roof onto stone. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.jungle-ziggurat.temple-drum": {
+      "kind": "hum",
+      "into": "jungle-ziggurat",
+      "duration": 10,
+      "desc": "A distant low hollow wooden temple drum sounding occasional slow single notes",
+      "prompt": "A distant low hollow wooden temple drum sounding occasional slow single notes. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "bed.patchwork-fairground.ambience": {
+      "kind": "bed",
+      "into": "patchwork-fairground",
+      "duration": 30,
+      "desc": "Distant cheerful mechanical band organ playing a bright gentle waltz across an outdoor fairground",
+      "prompt": "Distant cheerful mechanical band organ playing a bright gentle waltz across an outdoor fairground. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No vocals, no intelligible speech, no distortion."
+    },
+    "hum.patchwork-fairground.carousel-bells": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "Small mechanical carousel bells chiming gently as a fairground ride turns",
+      "prompt": "Small mechanical carousel bells chiming gently as a fairground ride turns. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.patchwork-fairground.band-organ": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "A distant mechanical fairground band organ wheezing and playing short cheerful waltz phrases",
+      "prompt": "A distant mechanical fairground band organ wheezing and playing short cheerful waltz phrases. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No vocals, no intelligible speech, no distortion."
+    },
+    "hum.patchwork-fairground.wheel-creak": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "A slow Ferris wheel axle gently creaking with a steady low mechanical hum",
+      "prompt": "A slow Ferris wheel axle gently creaking with a steady low mechanical hum. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.patchwork-fairground.flags-snap": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "Small cloth bunting flags fluttering and snapping softly in an outdoor breeze",
+      "prompt": "Close-up isolated dry foley: a line of small thick cloth bunting flags WHIPPING and SNAPPING taut in sudden gusts. Sharp pap-pap cloth cracks, short rattling fabric flaps, then a quiet pause, repeated irregularly. Emphasize the abrupt cloth snaps, not background wind. The microphone is close to the cloth. No steady wind hiss, no leafy rustling, no steam, no water, no birds, no engine, no music, no speech. Ten seconds.",
+      "shipping": false,
+      "rejection": "All paired701/702/703/704 flag takes fail the unchanged CLAP top-five bar. Coordinator approved bed+five qualified positional sounds (six total); flags stay unshipped, every failed take recorded, no rank waiver."
+    },
+    "hum.patchwork-fairground.crowd-murmur": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "A small distant fairground crowd murmuring softly with no intelligible words",
+      "prompt": "A small distant fairground crowd murmuring softly with no intelligible words. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "hum.patchwork-fairground.big-top-drum": {
+      "kind": "hum",
+      "into": "patchwork-fairground",
+      "duration": 10,
+      "desc": "A distant snare drum rolling briefly inside a canvas circus tent",
+      "prompt": "A distant snare drum rolling briefly inside a canvas circus tent. Detailed restrained recording, continuous atmosphere with irregular gentle events, suitable for looping. No music, no melody, no intelligible speech, no distortion."
+    },
+    "bed.saltwind-lighthouse.ambience": {
+      "kind": "bed",
+      "into": "saltwind-lighthouse",
+      "duration": 30,
+      "desc": "Steady squall rain on slate and wet harbour stone, water slapping quay walls and a faint distant foghorn",
+      "prompt": "Continuous heavy rain hiss and clearly audible raindrops splattering on slate roof and wet harbour stone. Gusts of cold sea wind swell underneath the steady rain, with soft water slapping a quay wall. One very faint distant two-tone foghorn call sounds beneath the rain, far quieter than the storm. Rain remains continuous and dominant for the entire thirty seconds. Natural coastal storm field recording, no music, no speech.",
+      "reuse": {
+        "set": "coral-drift",
+        "bed": "coral-drift.ambience",
+        "gap": "No squall rain or foghorn in the bed; the foghorn remains a local spot. Owner accepts calmer coastal surf and wind."
+      }
+    },
+    "hum.saltwind-lighthouse.lighthouse-foghorn": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 30,
+      "desc": "A distant low two-tone lighthouse foghorn with long quiet gaps",
+      "prompt": "One distant low two-tone foghorn from a lighthouse over a stormy harbour: a long deep resonant note, a lower answering note, then a long quiet gap. Sparse slow signal, about one two-tone call per thirty seconds. Soft spacious outdoor decay, no music, no voices, no siren, no ship engine."
+    },
+    "hum.saltwind-lighthouse.nw-boat-rigging": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 10,
+      "desc": "A wooden fishing boat rigging creaks and its hull knocks softly against a quay",
+      "prompt": "Close wooden sailing-boat rigging creaks with clear repeated low rope-and-timber groans as the boat gently rocks. Between the creaks the hollow wooden hull makes a few quiet knocks against quay fenders. Rigging creak is the main sound; hull knocks are softer. Sparse dry mechanical boat foley, no engine, no music, no birds, no voices.",
+      "shipping": false,
+      "omission": "Coordinator selected five local spots. The distinct SE boat rigging spot ships; NW paired takes remain comparison-only, including the qualified rank-five retake."
+    },
+    "hum.saltwind-lighthouse.se-boat-rigging": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 10,
+      "desc": "A moored wooden boat hull bumps gently while its taut rigging creaks in gusts",
+      "prompt": "A separate moored fishing boat sways slowly in gusts. Gentle hollow wooden hull knocks and softly creaking taut rope rigging alternate, spaced and irregular, with short natural decays. Quiet harbour foley, no engine, no birds, no music, no voices."
+    },
+    "hum.saltwind-lighthouse.basin-gulls": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 12,
+      "desc": "Sea gulls calling and wheeling above an exposed harbour basin",
+      "prompt": "A few distant sea gulls wheel over a northern fishing harbour, giving distinct rough gull cries with short quiet gaps and soft wind behind them. Sparse natural field recording, no songbirds, no music, no speech."
+    },
+    "hum.saltwind-lighthouse.slate-roof-rain": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 12,
+      "desc": "Rain drumming on a slate cottage roof during a squall",
+      "prompt": "Close detailed sound of steady rain drumming and ticking on a slate cottage roof, with small gutter drips and brief wind-driven swells. Continuous soft textured rain, no thunder, no birds, no music, no voices."
+    },
+    "hum.saltwind-lighthouse.quay-net-rope": {
+      "kind": "hum",
+      "into": "saltwind-lighthouse",
+      "duration": 10,
+      "desc": "Wet fishing nets and ropes flap in wind with occasional bollard chain clinks",
+      "prompt": "Close wet fishing nets and coarse ropes flapping softly in gusts on a harbour quay, with an occasional quiet metal bollard-chain clink. Irregular fibrous flap and rope strain, sparse restrained chain contact. No music, no voices, no engines."
+    },
+    "bed.fossil-badlands.ambience": {
+      "kind": "bed",
+      "into": "fossil-badlands",
+      "duration": 30,
+      "desc": "Dry wind and dusk insects over a quiet dig camp with faint canvas flap and distant timber crane creak",
+      "prompt": "Dry wind and dusk insects over a quiet dig camp with faint canvas flap and distant timber crane creak. A continuous soft dry breeze with clear irregular cricket chirps and small canvas flutters. Quiet natural field recording of an empty desert excavation at blue hour, no music, no voices, no rain, no waves, no machine motor.",
+      "reuse": {
+        "set": "night-market",
+        "bed": "night-market.ambience",
+        "gap": "No dry wind layer; the qualified canonical recording supplies dusk crickets."
+      }
+    },
+    "hum.fossil-badlands.skeleton-rib-wind": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 12,
+      "desc": "Wind through huge dry hollow bones makes a deep airy whistle",
+      "prompt": "Wind through huge dry hollow bones makes a deep airy whistle. Close field recording of air resonating inside a large dry hollow tube, a low hollow breathy whistle with slow uneven gusts. Unpitched natural wind resonance, no melody, no instrument, no animal voice, no music or speech."
+    },
+    "hum.fossil-badlands.crane-rope-pulley": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 10,
+      "desc": "A timber hand crane creaks while a rope pulley turns slowly",
+      "prompt": "A timber hand crane creaks while a rope pulley turns slowly. Close dry foley of long wooden beam creaks and rope rubbing through a slowly squeaking wooden pulley. Separate sparse straining creaks with silence between, no metal gears, no ticking, no ratchet, no water, no motor, no music or voices.",
+      "shipping": false,
+      "rejection": "Named gap: timber crane and rope pulley remain silent. All six paired takes fail the unchanged CLAP top-five bar; the final authorized retake is exhausted."
+    },
+    "hum.fossil-badlands.sump-water-drips": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 10,
+      "desc": "Water drips into a shallow muddy trench sump",
+      "prompt": "Distinct small water drips falling into a shallow still trench sump, with soft ripples and tiny irregular splashes in a quiet outdoor excavation. Restrained close field recording, no stream rush, no birds, no music, no speech."
+    },
+    "hum.fossil-badlands.tent-canvas-lantern": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 12,
+      "desc": "Tent canvas flaps gently in dry wind beside a softly hissing lantern",
+      "prompt": "A dig-camp tent canvas gently flaps and flexes in a dry dusk breeze beside a quiet pressure lantern hiss. Soft fabric movement, small rope strains and steady subdued hiss. No music, no human speech, no fire roar."
+    },
+    "hum.fossil-badlands.mesa-wind": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 12,
+      "desc": "Dry wind gusts over a hollow layered rock mesa",
+      "prompt": "Low dry wind gusts over a rocky mesa edge, with a soft hollow airy resonance and light grit rustle. Sparse broad outdoor wind, natural and warm, no howling monster, no music, no voices."
+    },
+    "hum.fossil-badlands.sorting-brush-chisel": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 10,
+      "desc": "Careful brushes sweep grit from fossils with a few gentle chisel taps",
+      "prompt": "Careful brushes sweep grit from fossils with a few gentle chisel taps. Very close dry bristle brushing and granular sandy scraping across rough stone, followed by two or three tiny delicate stone chisel clicks. Slow patient hand excavation, mostly soft bristles and grit, no hammer blows, no workshop machines, no water, no music or voices."
+    },
+    "hum.fossil-badlands.cart-rails-gravel": {
+      "kind": "hum",
+      "into": "fossil-badlands",
+      "duration": 10,
+      "desc": "A small mine cart rolls slowly on rails with loose gravel crunch",
+      "prompt": "A small hand-pushed mine cart slowly rolls a short distance over old rails, with light wheel clicks, a soft metal rattle and dry gravel crunch beneath. Quiet restrained outdoor foley, no motor, no voices, no music."
+    },
+    "bed.sky-harbor.ambience": {
+      "kind": "bed",
+      "into": "sky-harbor",
+      "duration": 30,
+      "desc": "Gentle harbour water, distant gulls, timber and rope creaks in a soft sea breeze with a faint airship hum",
+      "prompt": "Close field recording at a sunny wooden harbour pier: gentle seawater laps against timber quay walls, with clear distant seagull calls, intermittent squeaking mooring ropes and loose canvas rustling in a sea breeze. A very faint far-off moored airship motor hum. Quiet spacious waterfront ambience, no music, no melody, no voices or speech.",
+      "reuse": {
+        "set": "coral-drift",
+        "bed": "coral-drift.ambience",
+        "gap": "G872 measured/descriptive fit, not an ear verdict: canonical Coral coastal bed, 28 s, -24.9 LUFS integrated, LRA 4.9 LU, peak -6.7 dBFS; 59% energy at 500 Hz to 2 kHz and 21% at 2 to 6 kHz, under 1% below 150 Hz, spectral flatness 0.21 with no tonal peaks, envelope CV 0.66. Soft irregular lagoon water and coastal breeze fit the open harbour basins. Harbour clutter is carried by five local spots. No airship hum, rigging or tower flag; the failed airship-tower cue remains unshipped. Jake judges by ear on the listening page."
+      }
+    },
+    "hum.sky-harbor.airship-tower": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "A moored airship hums softly while its rigging creaks and a tower flag flutters",
+      "prompt": "A moored propeller airship at a harbour tower. Deep soft steady vibrating airship engine hum with a low fluttering propeller pulse, dry squeaks from suspended rigging ropes and distinct canvas flag flaps overhead. Close airy mechanical harbour sound, restrained continuous loop, no music, no melody, no voices or speech.",
+      "shipping": false,
+      "omission": "G872 coordinator and Sky owner approve five qualified local spots. All three paired airship-tower attempts remain comparison-only and unshipped. Named gap: no airship hum, rigging or tower flag; no fabricated sixth cue."
+    },
+    "hum.sky-harbor.basin-water": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "Water gently laps against a harbour quay with an occasional wooden rowboat knock",
+      "prompt": "Close gentle water sloshing and lapping against stone quay walls, with an occasional hollow wooden rowboat bump against the dock. Quiet sheltered harbour basin, no rushing river, no music, no speech."
+    },
+    "hum.sky-harbor.dock-crane": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "A small dock crane winch turns with rope strain and timber creaks",
+      "prompt": "A small hand-operated harbour cargo crane slowly winds a winch: short restrained ratchet clicks, soft rope tension squeaks, wooden dock creaks and a light pulley rattle. Repeated irregularly with quiet gaps, no industrial engine roar, no music, no voices."
+    },
+    "hum.sky-harbor.wharf-gulls": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "Gulls call above a wooden wharf with a few distant cargo thuds",
+      "prompt": "A few natural seagulls call over an open harbour wharf, with very occasional muffled wooden cargo crates setting down in the distance. Outdoor field recording, light airy atmosphere, no music, no dialogue."
+    },
+    "hum.sky-harbor.corner-cottages": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "A sheltered harbour cottage yard has soft wind chimes and distant gull calls",
+      "prompt": "Quiet sheltered cottage courtyard beside a harbour: a small metal wind chime rings sparsely in a light breeze with very faint distant gull calls. Gentle irregular resonant chimes, no musical performance, no speech."
+    },
+    "hum.sky-harbor.road-entry": {
+      "kind": "hum",
+      "into": "sky-harbor",
+      "duration": 12,
+      "desc": "A harbour entrance breeze moves a flag with a distant dock bell",
+      "prompt": "An airy harbour road entrance: a soft breeze, occasional dry canvas flag flaps and one distant mellow harbour bell at long irregular intervals. Spacious restrained outdoor recording, no music, no voices, no loud wind roar."
+    },
+    "bed.starfall-observatory.ambience": {
+      "kind": "bed",
+      "into": "starfall-observatory",
+      "duration": 30,
+      "desc": "Quiet night garden crickets with a small fountain and occasional soft wind chimes",
+      "prompt": "A calm night garden: sparse crickets chirp around a gently trickling ornamental fountain, with a few faint delicate wind chimes in a soft breeze. Natural spacious ambience, no music, no melody, no voices or intelligible speech.",
+      "reuse": {
+        "set": "lantern-bayou",
+        "bed": "lantern-bayou.ambience",
+        "gap": "G872 measured/descriptive fit, not an ear verdict: Lantern Bayou canonical night bed is 27.30 s, -24.22 LUFS integrated, LRA 1.70 LU and peak -7.04 dBFS. Original MOSS and Stable Audio comparisons both rank first. Frogs and crickets over quiet lapping water fit Starfall's night canal ring and garden ponds; O3 accepts the described fit. No continuous fountain or chimes in the bed; all six local spots remain, including the canal and pavilion chimes. Keep the normal -24 LUFS bed target, native 0.45 bed mix level and -20 LUFS score target; no extra gain or native tuning is introduced. Jake judges the actual canonical bed on the listening page."
+      }
+    },
+    "hum.starfall-observatory.dome-motor": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "A large observatory dome slowly rotates with a soft electric motor and a subdued gear whirr",
+      "prompt": "A telescope observatory dome mechanism slowly rotating: quiet smooth low electric motor hum and a soft finely geared mechanical whirr, gentle starts and stops. Restrained close machinery recording, no alarms, no spaceship effects, no music, no voices."
+    },
+    "hum.starfall-observatory.canal-lap": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "Still canal water gently laps against smooth stone walls",
+      "prompt": "Close gentle canal water lapping against smooth stone edging, tiny ripples and occasional soft hollow water plops in an otherwise quiet garden. No waterfall, no crashing waves, no birds, no music, no speech."
+    },
+    "hum.starfall-observatory.pavilion-chimes": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "Small glass wind chimes ring sparsely beside a garden pavilion",
+      "prompt": "Delicate small glass wind chimes ringing a few clear isolated notes in a light garden breeze, natural irregular pauses and soft decay. Quiet night pavilion foley, no tune or musical performance, no voices."
+    },
+    "hum.starfall-observatory.garden-frogs": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "A few small frogs croak intermittently in a quiet wet garden",
+      "prompt": "Several small garden frogs make restrained low croaks and occasional soft chirps beside still water at night. Natural close field recording with irregular quiet gaps, no music, no human speech, no monster sounds."
+    },
+    "hum.starfall-observatory.window-lute": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "A distant softly plucked lute plays a few quiet notes through an open window",
+      "prompt": "A distant acoustic lute heard through an open garden-facing window, just a few gently finger-plucked resonant string notes and short soft phrases with long pauses. Intimate quiet instrumental diegetic sound, no other instruments, no vocals or dialogue."
+    },
+    "hum.starfall-observatory.kiosk-murmur": {
+      "kind": "hum",
+      "into": "starfall-observatory",
+      "duration": 12,
+      "desc": "A small distant group murmurs quietly near a garden kiosk with no intelligible words",
+      "prompt": "A small group of distant people murmuring softly at a night garden kiosk: low indistinct conversational babble with gentle pauses, no discernible words, no close speaker, no shouting, no music."
+    },
+    "bed.thin-ice.ambience": {
+      "kind": "bed",
+      "into": "thin-ice",
+      "duration": 30,
+      "desc": "Still cold air over a frozen lake with soft wind, deep ice creaks and distant birds",
+      "prompt": "Soft cold breeze on a frozen lake. Several distant deep resonant ice creaks and a few small sharp ice pings sound across the lake, with sparse faint winter bird chirps over still cold air. Quiet spacious natural winter ambience with long calm pauses. No music, no melody, no voices or speech.",
+      "reuse": {
+        "set": "mosslight-ruins",
+        "bed": "mosslight-ruins.ambience",
+        "gap": "G872 measured/descriptive fit accepted by Thin Ice owner O2, not an ear verdict: canonical Mosslight wind in leafy trees and distant small birds, -25.5 LUFS, LRA 4.9 LU, spectral flatness 0.30, irregular broadband 20 Hz to 11 kHz. Original paired ranks MOSS 4 and Stable Audio 1. Named mismatch: leaf rustle in an icy plot. No ice creaks or pings in the bed; the six local spots carry the ice details. Frostline bed was refused: 75% energy below 150 Hz, 21% at 150–500 Hz, under 2% above 500 Hz, flatness 0.001, -24.1 LUFS, LRA 0.5 LU and peak -9.1 dBFS form a near-tonal machinery drone; Thin Ice has no chairlift. All four own-bed paired takes failed the unchanged top-five bar and remain retained. The canonical source is referenced without copying, with its original loop and gain. Jake judges by ear on the listening page."
+      }
+    },
+    "hum.thin-ice.ice-crystal": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 12,
+      "desc": "A large ice crystal softly shimmers with delicate glassy chimes and a low resonant hum",
+      "prompt": "A large crystalline ice formation resonates softly: a faint steady low airy hum underneath isolated delicate glassy chimes and shimmering ice pings with long quiet decays. Gentle naturalistic icy resonance, no tune, no dramatic magic blast, no music or voices."
+    },
+    "hum.thin-ice.open-ice": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 12,
+      "desc": "Wind moves over a frozen lake with deep ice creaks and occasional sharp pings",
+      "prompt": "Long low ice groans as a frozen lake flexes, deep creaks and sharp bright pings echo across the ice. A faint smooth winter wind sits underneath the distinct ice sounds. Sparse isolated resonant cracking ice sounds with quiet gaps. Natural field recording, no music, no voices or speech."
+    },
+    "hum.thin-ice.fishing-hole": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 10,
+      "desc": "Water softly sloshes in a small ice fishing hole with an occasional fishing line plink",
+      "prompt": "Very close small ice fishing hole foley: tiny sheltered water sloshes and plops beneath an ice rim, with an occasional light taut fishing line plink. Sparse quiet detailed sounds, no pouring stream, no music, no voices."
+    },
+    "hum.thin-ice.pine-bank": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 12,
+      "desc": "A gentle winter breeze rustles pine needles and small clumps of snow slide off branches",
+      "prompt": "Soft winter wind rustles pine needles beside a frozen lake, with occasional subdued powdery snow sliding off a branch and landing below. Natural restrained outdoor foley, no footsteps, no roaring storm, no music, no voices."
+    },
+    "hum.thin-ice.igloos": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 12,
+      "desc": "Muffled soft wind outside snow shelters with occasional dry snow crunch",
+      "prompt": "Quiet muffled winter shelter courtyard: a soft breeze brushes rounded snow walls with a few slow isolated dry snow crunches nearby. Restrained detailed foley with long still pauses, no human speech, no music, no engine."
+    },
+    "hum.thin-ice.road-entry": {
+      "kind": "hum",
+      "into": "thin-ice",
+      "duration": 12,
+      "desc": "A cold open-road breeze with occasional crisp footsteps crunching in snow",
+      "prompt": "A gentle cold breeze along a snowy road, with occasional slow crisp footstep-like snow crunches and long quiet gaps. Airy restrained winter outdoor recording, no howling wind, no music, no speech."
+    },
+    "bed.alien-plain.ambience": {
+      "kind": "bed",
+      "into": "alien-plain",
+      "duration": 30,
+      "desc": "Low breathy alien night wind over an open plain with a faint distant sub hum and sparse glassy insect chirps",
+      "prompt": "Quiet outdoor night wind flowing over an empty open plain, with a faint steady low air resonance far away. Occasional tiny dry high glassy insect clicks and short chirps appear at wide irregular intervals. Soft continuous breathy air remains dominant, low and calm. Natural environmental background, no rhythmic pulses, no melody, no music, no voices, no birds, no rain, no water.",
+      "reuse": {
+        "set": "frostline-peaks",
+        "bed": "frostline-peaks.ambience",
+        "gap": "G872 measured/descriptive fit accepted by Alien Plain owner O3, not an ear verdict: canonical Frostline near-tonal steady sub-hum is the defining layer of the Alien brief, at -24.1 LUFS, LRA 0.5 LU, peak -9.1 dBFS, spectral flatness 0.001 and 75% of energy below 150 Hz (21% at 150–500 Hz, under 2% above 500 Hz). The canonical recording duration is 18.5 s and its original loop is 2.5–17.5 s, with paired source ranks one and one. The original source prompt names an alpine chairlift, but O3 accepts the measured low drone as alien sub-hum; no actual chairlift is claimed in the plot. Named gaps: no continuous glassy insect chirps and no breeze in the bed; the six qualified local spots carry the details. All four own-bed failing paired takes remain comparison-only with hashes and unchanged rank bar. The exact source is referenced without copying. Jake judges by ear on the listening page."
+      }
+    },
+    "hum.alien-plain.monolith": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "A tall alien monolith emits a low resonant hum and faint electrical crackles",
+      "prompt": "Close sound of a tall alien stone monolith: a soft low resonant vibrating hum with small dry electrical crackles travelling along glowing cracks. Gentle continuous mechanical resonance, not a dramatic blast. No music, melody, voices or speech."
+    },
+    "hum.alien-plain.dome-habitat": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "An enclosed habitat air handler hums gently with a few soft electronic beeps",
+      "prompt": "Quiet enclosed habitat machinery: a smooth low air-handler fan hum with occasional small soft electronic confirmation beeps and long quiet pauses. Restrained near-field sound, no alarm, no musical tune, no voices or speech."
+    },
+    "hum.alien-plain.crystal-bed": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "Glassy crystals softly chime in a light alien breeze",
+      "prompt": "A cluster of small glassy crystals lightly tapping and ringing in a faint breeze. Sparse clear delicate chimes, irregular pauses and long soft resonant decay. Quiet detailed foley, not a tune, no music, no voices or speech."
+    },
+    "hum.alien-plain.rock-outcrop": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "Breathy low wind whistles over a rough rock outcrop",
+      "prompt": "Low soft breathy wind whistling around a rough rocky outcrop on an open plain. Gentle airy resonances with subtle natural variation, continuous restrained outdoor sound. No storm roar, no birds, no music, no voices or speech."
+    },
+    "hum.alien-plain.avenue-lamp": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "A small electric street lamp emits a faint steady electrical buzz",
+      "prompt": "Close quiet electric street lamp transformer buzz: a faint steady low electrical hum and slight fine buzzing vibration, very restrained continuous loop. No crackling fire, no insects, no music, no voices or speech."
+    },
+    "hum.alien-plain.entry-forecourt": {
+      "kind": "hum",
+      "into": "alien-plain",
+      "duration": 12,
+      "desc": "Sparse delicate high insect chirps in an alien night field",
+      "prompt": "Sparse small high glassy insect chirps across a quiet dry alien night forecourt. Delicate irregular short chirps and long still pauses, naturalistic close field recording. No birds, no frogs, no water, no music, no voices or speech."
+    },
+    "bed.clockwork-canyon.ambience": {
+      "kind": "bed",
+      "into": "clockwork-canyon",
+      "duration": 30,
+      "desc": "Workshop canal ambience with soft steam hiss, boiler thrum and distant clock ticks",
+      "prompt": "A continuous restrained daylight workshop-town ambience: low boiler thrum and soft airy steam hiss behind water flowing in a canal, with faint distant clock ticks. No loud machine rhythm, no music, no intelligible speech."
+    },
+    "hum.clockwork-canyon.clock-tick": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "A large clock steadily ticks and plays a short bell chime phrase",
+      "prompt": "Clear steady mechanical clock ticks, with a sparse warm resonant bell chime phrase and long quiet gaps. Outdoor clock tower, no music, no speech."
+    },
+    "hum.clockwork-canyon.waterwheel": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "A wooden waterwheel splashes in a canal and creaks as it turns",
+      "prompt": "A slow wooden waterwheel turns through shallow canal water, with distinct repeated gentle splashes and dry wooden axle creaks. Close natural foley, no music, no speech."
+    },
+    "hum.clockwork-canyon.boiler": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "A small steam boiler softly rumbles and releases short hissing puffs",
+      "prompt": "Low steady boiler vibration with small irregular steam-valve hisses and puffs. Restrained close mechanical foley, no engines accelerating, no music or voices."
+    },
+    "hum.clockwork-canyon.gear-ratchet": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "A hand-powered gear works turns with small ratchet clanks",
+      "prompt": "Slow brass gears and a hand ratchet turning in a quiet workshop, with small metallic clicks, short clanks and pauses. No motor, no voices, no music."
+    },
+    "hum.clockwork-canyon.garden-birds": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "Small garden birds call over a quiet leafy courtyard",
+      "prompt": "Sparse clear small songbirds calling in a quiet garden courtyard, with a little soft leaf movement. Natural field recording, no music or speech."
+    },
+    "hum.clockwork-canyon.kiosk-murmur": {
+      "kind": "hum",
+      "into": "clockwork-canyon",
+      "duration": 12,
+      "desc": "A distant daytime market crowd murmurs around small kiosks",
+      "prompt": "Soft distant outdoor market crowd murmur, with indistinct conversation and occasional small object movement. No intelligible words, no close voice, no music."
+    },
+    "bed.desert-ruin.ambience": {
+      "kind": "bed",
+      "into": "desert-ruin",
+      "duration": 30,
+      "desc": "Dry warm desert wind with fine sand hiss and faint palm frond rustle",
+      "prompt": "Continuous gentle warm desert wind and a fine dry sand hiss, with very faint palm frond movement. Open quiet noon, no insects, no rain, no machinery, no music, no voices."
+    },
+    "hum.desert-ruin.gateway-wind": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "Wind moans through a huge sandstone gateway with small grit trickles",
+      "prompt": "Warm desert wind resonates softly through a tall sandstone gateway opening, with occasional fine grit trickling off stone. Low natural airy moan, not spooky, no music or voices."
+    },
+    "hum.desert-ruin.oasis-ne": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "Still oasis water laps sandstone coping under palms with sparse birds",
+      "prompt": "Gentle still oasis water softly laps a sandstone pool edge, with light palm frond rustle and a rare distant bird call. Quiet warm noon, no surf roar, no music or speech."
+    },
+    "hum.desert-ruin.tents-south": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "Tent awnings flap beside small pottery knocks and distant camp murmur",
+      "prompt": "A dry breeze softly flaps canvas tent awnings, with occasional light pottery clinks and a very distant indistinct camp murmur. No close voice, no intelligible words, no music."
+    },
+    "hum.desert-ruin.ruins-west": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "Wind whistles through broken sandstone arches and sand slides over rubble",
+      "prompt": "Dry warm wind whistles softly through broken stone arches and column stumps, with occasional light sand sliding down rubble. Natural outdoor stone resonance, no voices or music."
+    },
+    "hum.desert-ruin.palms-south": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "Palm fronds rustle in a warm breeze beside a softly calling dove",
+      "prompt": "Close dry palm fronds rubbing and rustling gently in a warm breeze, with a sparse soft distant dove call. Quiet natural field recording, no music or speech."
+    },
+    "hum.desert-ruin.entry": {
+      "kind": "hum",
+      "into": "desert-ruin",
+      "duration": 12,
+      "desc": "A light warm breeze carries fine sand past an open desert road entry",
+      "prompt": "A thin airy warm breeze over a bare desert road edge, with very light fine sand hiss and long quiet spaces. Sparse open noon, no footsteps, no insects, no music or speech."
+    },
+    "bed.sky-race.ambience": {
+      "kind": "bed",
+      "into": "sky-race",
+      "duration": 30,
+      "desc": "Distant race engines pass with crowd cheers, a sparse PA chime and wind",
+      "prompt": "An open-air race circuit ambience: distant small racing engines passing with Doppler pitch, low distant grandstand cheering, a rare short PA chime and a steady soft breeze. No intelligible announcements or music."
+    },
+    "hum.sky-race.race-tower": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "A race tower PA chime sounds over distant crowd murmur and flag flaps",
+      "prompt": "A short clean public-address notification chime at a race tower, with long quiet gaps, distant crowd murmur and occasional cloth flag flap. No spoken announcements, no music."
+    },
+    "hum.sky-race.circuit": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "Small racing karts pass rapidly around an outdoor circuit",
+      "prompt": "Several restrained small racing kart engine passes with clear approach and receding Doppler pitch. Outdoor track, no collision or tire screams, no music or speech."
+    },
+    "hum.sky-race.grandstand": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "A distant grandstand crowd cheers intermittently during a race",
+      "prompt": "Distant small grandstand crowd cheers and claps in short bursts, with soft crowd murmur between. No intelligible words, no close shouting, no music."
+    },
+    "hum.sky-race.paddock": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "Small engines idle in a paddock beside occasional tool clinks",
+      "prompt": "Quiet restrained racing-paddock foley: one small engine idles softly while metal tools clink occasionally. No revving close-up, no voices or music."
+    },
+    "hum.sky-race.pit-garages": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "A pit garage air wrench rattles briefly with a small enclosed echo",
+      "prompt": "Short sparse pneumatic air-wrench bursts in a small garage, with light tool movement and a modest indoor echo. Long pauses, no voices, no music."
+    },
+    "hum.sky-race.road-entry": {
+      "kind": "hum",
+      "into": "sky-race",
+      "duration": 12,
+      "desc": "A clear open breeze carries faint distant racing engines",
+      "prompt": "Soft steady wind over an open approach road with very faint distant racing engine passes. Spacious quiet gaps, no close motor, no music or speech."
+    },
+    "bed.showcase-template.ambience": {
+      "kind": "bed",
+      "into": "showcase-template",
+      "duration": 30,
+      "desc": "Canal water and birds under distant light workshop tools and market murmur",
+      "prompt": "A quiet sunny workshop-town ambience: gentle canal water, sparse birds, very distant light hammer taps and ratchets, a soft market murmur and a faint clock chime. No close machinery, no intelligible speech, no music."
+    },
+    "hum.showcase-template.obelisk": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "A small clock ticks beside a soft courtyard fountain",
+      "prompt": "Steady small clock ticks and gentle fountain water in an open courtyard, with long calm intervals. Natural restrained mechanical and water foley, no music or speech."
+    },
+    "hum.showcase-template.canal-ring": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "Water flows quietly through a canal beneath small bridges",
+      "prompt": "Gentle continuous canal water flowing underneath a small bridge, with soft ripples and occasional tiny splashes against stone. No ocean surf, no voices or music."
+    },
+    "hum.showcase-template.stalls": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "A distant sunny market murmurs among small workshop stalls",
+      "prompt": "Soft distant outdoor market murmur with little object movements and light footsteps, no intelligible words or close voices, no music."
+    },
+    "hum.showcase-template.gardens": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "Small birds call among leaves rustling in a courtyard garden",
+      "prompt": "Clear sparse garden bird calls with gentle leafy rustle in a mild breeze. Sunny peaceful field recording, no music or speech."
+    },
+    "hum.showcase-template.houses": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "Distant light hammer taps and occasional doors move in a workshop row",
+      "prompt": "Sparse distant gentle hand-hammer taps from a workshop row, a soft door latch and occasional door movement. Quiet open air, no power tools, no voices, no music."
+    },
+    "hum.showcase-template.road-entry": {
+      "kind": "hum",
+      "into": "showcase-template",
+      "duration": 12,
+      "desc": "A soft sunny breeze crosses an open workshop-town approach",
+      "prompt": "Gentle airy breeze over an open paved approach, with quiet spaces and very faint distant town activity. No close footsteps, no motor, no music or intelligible speech."
+    }
+  }
+}

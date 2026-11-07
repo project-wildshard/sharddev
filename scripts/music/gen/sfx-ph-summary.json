@@ -1,0 +1,63 @@
+{
+  "medium": {
+    "title": "Stable Audio 3 Medium",
+    "licence": "Stability AI Community (< $1M, register, credit)",
+    "families_rendered": 72,
+    "rank1": 31,
+    "top5": 60,
+    "mean_rank": 3.4,
+    "median_rank": 2.0,
+    "mean_gen_s": 1.43,
+    "mps_driver_gb_max": 12.61,
+    "shipped": 60,
+    "synth_keeps": [
+      "bark-miller-5",
+      "bark-ranger-2",
+      "bark-ranger-3",
+      "bark-ranger-6",
+      "bed-hollow",
+      "bed-oldgrowth",
+      "boar_grunt",
+      "boltImpact-rock",
+      "deer_call",
+      "lanternLight",
+      "longbowLoose",
+      "thrall_move"
+    ],
+    "bytes": 3089293,
+    "peak_gb": 19.4
+  },
+  "moss": {
+    "title": "MOSS-SoundEffect v2.0",
+    "licence": "Apache-2.0",
+    "families_rendered": 72,
+    "rank1": 36,
+    "top5": 55,
+    "mean_rank": 4.56,
+    "median_rank": 1.5,
+    "mean_gen_s": 51.1,
+    "mps_driver_gb_max": 19.8,
+    "shipped": 55,
+    "synth_keeps": [
+      "bark-miller-5",
+      "bark-miller-7",
+      "bark-ranger-1",
+      "bark-ranger-2",
+      "bark-ranger-4",
+      "bark-ranger-6",
+      "bark-ranger-8",
+      "bark-trader-2",
+      "bark-trader-5",
+      "bark-trader-6",
+      "bark-trader-7",
+      "boar_grunt",
+      "boar_squeal",
+      "boltImpact-rock",
+      "deer_call",
+      "deer_snort",
+      "longbowLoose"
+    ],
+    "bytes": 3240564,
+    "peak_gb": 16.3
+  }
+}

@@ -1,0 +1,10 @@
+{
+ "about": "Night Market's gate (night-market-remaster RM9, art/grid/round-68-night-market-gate): Hunyuan3D 2.1 from ref-gate.jpg (r7's three-bay gate), picked over TRELLIS.2 at the shipped budget (TRELLIS's gold trim and plinths went dark in the 15k re-bake). The take comes out upside down (--up x180). Near 18k triangles (OB10: the build-out bar is 15-25k near; was 12k under the plaza tiles' then pinned resident rows) and far 2.5k, both on one 1024 WebP atlas and no normal map; layouts/night-market.json scales it to its height.",
+ "gen": "~/ml/img2mesh/out/nm-gate-hy21",
+ "stage": "~/ml/img2mesh/out/nm-gate-hy21-post",
+ "args": ["--keep-texture", "--atlas", "1024", "--normal-map", "0", "--fit", "height", "--size", "14", "--simplifier", "blender", "--up", "x180"],
+ "props": [
+  {"ref": "model", "args": "--name landmark --tris 18000"},
+  {"ref": "model", "args": "--name landmark-far --tris 2500"}
+ ]
+}

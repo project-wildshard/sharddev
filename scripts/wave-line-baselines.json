@@ -1,0 +1,32 @@
+[
+  {
+    "wave": "W1",
+    "revision": "adb48b6a08619986f16a3c2e304c4db5610df932",
+    "record": "b9fb99185:docs/plans/shard-platform/STATE.md",
+    "customLines": {
+      "far-reach": 3158,
+      "sunscar-dunes": 1841
+    },
+    "platformLines": {
+      "engine": 67206,
+      "game": 33346,
+      "sdk": 7240,
+      "format": 7102
+    }
+  },
+  {
+    "wave": "W2",
+    "revision": "68e72579516106c8307cb72e1ec1b91d3b7f649e",
+    "record": "project/archive/2026-11-04-shard-platform/w2-m0-inventory.md",
+    "customLines": {
+      "pine-hollow": 22996,
+      "driftwood-isle": 18015
+    },
+    "platformLines": {
+      "engine": 67897,
+      "game": 35276,
+      "sdk": 7536,
+      "format": 7749
+    }
+  }
+]

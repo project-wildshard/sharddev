@@ -1,0 +1,81 @@
+#!/usr/bin/env node
+// Execute the workspace's author CLI without requiring a previously packed SDK or a Vite dev server.
+import { build } from 'vite';
+import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
+import { captureProductInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
+import { basename, resolve } from 'node:path';
+import { existsSync } from 'node:fs';
+import { pathToFileURL } from 'node:url';
+import { createRequire } from 'node:module';
+import { importBundle } from './import-bundle.mjs';
+import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
+import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
+import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
+import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-lines.mjs';
+import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
+
+let runner;
+// The bundle's import.meta.dirname stays src/sdk: headless.ts finds bake/headlessWorker.ts beside it, and src/sdk keeps the
+// author tools' dependency links until the host leaves at P3 (P1-F4).
+const authorRequire = createRequire(resolve(import.meta.dirname, '../src/sharddev/package.json'));
+// P4: the project is the repo the author stands in; the tools are this package.
+const projectRoot = () => process.cwd();
+/** Compile the trusted CLI once before product children; later invocations
+ * verify the same content-addressed compiler and replay its complete inputs. */
+export function prepareWildshard() {
+  const root=projectRoot();
+  return authorBundleCached(root,[shardfileValidationRevision(root)],async()=>{
+    const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()), 'import.meta.dirname': JSON.stringify(resolve(import.meta.dirname, '../src/sharddev')) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', resolveId(id) {
+      if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
+      if (id === 'sharp' || id === 'binaryen' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(authorRequire.resolve(id)).href, external: true };
+      return null;
+    } }], build: { write: false, minify: false, lib: { entry: resolve(import.meta.dirname, '../src/sharddev/cli.ts'), formats: ['es'], fileName: 'cli' }, rolldownOptions: { platform: 'node', external: [/^node:/u], output: { codeSplitting: false } } } });
+    recordBundle(result,{execution:true});
+    const output = Array.isArray(result) ? result.at(0) : result;
+    if (output === undefined || !('output' in output)) throw new Error('Author CLI build produced no output');
+    const chunks = output.output.filter((chunk) => chunk.type === 'chunk');
+    if (chunks.length !== 1) throw new Error('Author CLI must bundle to one module');
+    return { code: chunks[0].code, modules: chunks[0].moduleIds ?? Object.keys(chunks[0].modules) };
+  });
+}
+/** Bundle trusted workspace tooling once; external Vite resolves against this installed tool, not a data URL. */
+export async function runWildshard(args) {
+  const receipt = args.find(arg=>arg.startsWith('--input-receipt='))?.slice('--input-receipt='.length);
+  if (receipt !== undefined) { await captureProductInputs(projectRoot(),receipt,()=>runWildshard(args.filter(arg=>!arg.startsWith('--input-receipt=')))); return; }
+  runner ??= (async () => {
+    const started = performance.now(), bundle = await prepareWildshard();
+    recordBundle({output:[{type:'chunk',moduleIds:bundle.modules}]},{execution:true});
+    const cli = await importBundle(bundle.code);
+    if (cli === null || typeof cli !== 'object' || !('runCli' in cli) || typeof cli.runCli !== 'function') throw new Error('Author CLI has no runner');
+    if (process.env.GITHUB_ACTIONS === 'true') console.info(`author timing: ${JSON.stringify({ pid: process.pid, phase: 'compiler-bundle', reused:bundle.reused, product: args[1] ?? null, seconds: Number(((performance.now() - started) / 1000).toFixed(3)) })}`);
+    return cli.runCli;
+  })();
+  const root = projectRoot();
+  const project = args[1] === undefined ? undefined : resolve(args[1]);
+  // SF88g: `--output=<slug>` builds one declared output of the folder, under its own slug and composed manifest
+  const selected = args.find(arg => arg.startsWith('--output='))?.slice(9);
+  const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, basename(project))?.find(row => row.slug === selected);
+  if (selected !== undefined && output === undefined) throw new Error(`wildshard: ${basename(project ?? '')} declares no output ${selected}`);
+  const manifest = project === undefined || !['build', 'validate', 'prove'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
+    folder: output?.slug ?? basename(project), ...(output !== undefined ? { composed: outputManifest(root, basename(project), output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
+    imageRoots: [{ prefix: `/src/shards/${basename(project)}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
+  };
+  const legacy = project === undefined ? undefined : decisionLegacyLines(root, basename(project));
+  await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }) });
+}
+
+if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const counters=createBuildCacheCounters(),stop=observeBuildCache(counters);
+  let complete=false;
+  try {
+    const args=process.argv.slice(2);
+    if(args[0]==='--prepare-compiler') {
+      if(args.length!==1)throw new Error('Compiler preparation accepts no product arguments');
+      const started=performance.now(),compiler=await prepareWildshard();
+      console.info(`Author compiler ${compiler.reused?'reused':'built'} in ${((performance.now()-started)/1000).toFixed(3)}s (before product workers)`);
+    } else await runWildshard(args);
+    complete=true;
+  }
+  catch (error) { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; }
+  finally {stop();console.error(`\n${formatBuildCacheReport(counters.snapshot(complete))}`);}
+}

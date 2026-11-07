@@ -1,0 +1,351 @@
+{
+  "version": 1,
+  "kind": "post",
+  "params": {
+    "texel": {
+      "type": "vec2",
+      "value": [
+        0.0012437810945273632,
+        0.0007002801120448179
+      ]
+    },
+    "width": {
+      "type": "float",
+      "value": 1.5,
+      "min": 0.5,
+      "max": 4
+    },
+    "ink": {
+      "type": "colour",
+      "value": [
+        0.06,
+        0.05,
+        0.08
+      ]
+    }
+  },
+  "nodes": {
+    "uv": {
+      "op": "screenUV"
+    },
+    "px": {
+      "op": "param",
+      "param": "texel"
+    },
+    "inkP": {
+      "op": "param",
+      "param": "ink"
+    },
+    "widthP": {
+      "op": "param",
+      "param": "width"
+    },
+    "c": {
+      "op": "sceneColour"
+    },
+    "rgb": {
+      "op": "swizzle",
+      "in": [
+        "c"
+      ],
+      "mask": "xyz"
+    },
+    "d": {
+      "op": "sceneDepth"
+    },
+    "n": {
+      "op": "sceneNormal"
+    },
+    "step": {
+      "op": "mul",
+      "in": [
+        "px",
+        "widthP"
+      ]
+    },
+    "o0": {
+      "op": "mul",
+      "in": [
+        "step",
+        [
+          1,
+          0
+        ]
+      ]
+    },
+    "u0": {
+      "op": "add",
+      "in": [
+        "uv",
+        "o0"
+      ]
+    },
+    "d0": {
+      "op": "sceneDepth",
+      "in": [
+        "u0"
+      ]
+    },
+    "dd0": {
+      "op": "sub",
+      "in": [
+        "d0",
+        "d"
+      ]
+    },
+    "da0": {
+      "op": "abs",
+      "in": [
+        "dd0"
+      ]
+    },
+    "ds0": {
+      "op": "add",
+      "in": [
+        "da0",
+        0
+      ]
+    },
+    "n0": {
+      "op": "sceneNormal",
+      "in": [
+        "u0"
+      ]
+    },
+    "nd0": {
+      "op": "dot",
+      "in": [
+        "n",
+        "n0"
+      ]
+    },
+    "o1": {
+      "op": "mul",
+      "in": [
+        "step",
+        [
+          -1,
+          0
+        ]
+      ]
+    },
+    "u1": {
+      "op": "add",
+      "in": [
+        "uv",
+        "o1"
+      ]
+    },
+    "d1": {
+      "op": "sceneDepth",
+      "in": [
+        "u1"
+      ]
+    },
+    "dd1": {
+      "op": "sub",
+      "in": [
+        "d1",
+        "d"
+      ]
+    },
+    "da1": {
+      "op": "abs",
+      "in": [
+        "dd1"
+      ]
+    },
+    "ds1": {
+      "op": "add",
+      "in": [
+        "ds0",
+        "da1"
+      ]
+    },
+    "n1": {
+      "op": "sceneNormal",
+      "in": [
+        "u1"
+      ]
+    },
+    "nd1": {
+      "op": "dot",
+      "in": [
+        "n",
+        "n1"
+      ]
+    },
+    "o2": {
+      "op": "mul",
+      "in": [
+        "step",
+        [
+          0,
+          1
+        ]
+      ]
+    },
+    "u2": {
+      "op": "add",
+      "in": [
+        "uv",
+        "o2"
+      ]
+    },
+    "d2": {
+      "op": "sceneDepth",
+      "in": [
+        "u2"
+      ]
+    },
+    "dd2": {
+      "op": "sub",
+      "in": [
+        "d2",
+        "d"
+      ]
+    },
+    "da2": {
+      "op": "abs",
+      "in": [
+        "dd2"
+      ]
+    },
+    "ds2": {
+      "op": "add",
+      "in": [
+        "ds1",
+        "da2"
+      ]
+    },
+    "o3": {
+      "op": "mul",
+      "in": [
+        "step",
+        [
+          0,
+          -1
+        ]
+      ]
+    },
+    "u3": {
+      "op": "add",
+      "in": [
+        "uv",
+        "o3"
+      ]
+    },
+    "d3": {
+      "op": "sceneDepth",
+      "in": [
+        "u3"
+      ]
+    },
+    "dd3": {
+      "op": "sub",
+      "in": [
+        "d3",
+        "d"
+      ]
+    },
+    "da3": {
+      "op": "abs",
+      "in": [
+        "dd3"
+      ]
+    },
+    "ds3": {
+      "op": "add",
+      "in": [
+        "ds2",
+        "da3"
+      ]
+    },
+    "dRel": {
+      "op": "div",
+      "in": [
+        "ds3",
+        "d"
+      ]
+    },
+    "dEdge": {
+      "op": "smoothstep",
+      "in": [
+        0.08,
+        0.2,
+        "dRel"
+      ]
+    },
+    "nMin": {
+      "op": "min",
+      "in": [
+        "nd0",
+        "nd1"
+      ]
+    },
+    "nEdge": {
+      "op": "smoothstep",
+      "in": [
+        0.85,
+        0.6,
+        "nMin"
+      ]
+    },
+    "edge": {
+      "op": "max",
+      "in": [
+        "dEdge",
+        "nEdge"
+      ]
+    },
+    "fade": {
+      "op": "smoothstep",
+      "in": [
+        160,
+        40,
+        "d"
+      ]
+    },
+    "inkAmt": {
+      "op": "mul",
+      "in": [
+        "edge",
+        "fade"
+      ]
+    },
+    "tm1": {
+      "op": "add",
+      "in": [
+        "rgb",
+        1
+      ]
+    },
+    "tone": {
+      "op": "div",
+      "in": [
+        "rgb",
+        "tm1"
+      ]
+    },
+    "out0": {
+      "op": "mix",
+      "in": [
+        "tone",
+        "inkP",
+        "inkAmt"
+      ]
+    },
+    "out": {
+      "op": "add",
+      "in": [
+        "out0",
+        0
+      ]
+    }
+  },
+  "stages": {
+    "post": {
+      "colour": "out"
+    }
+  }
+}

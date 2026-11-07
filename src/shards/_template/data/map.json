@@ -1,0 +1,64 @@
+{
+  "why": "The template's map (G252, Jake's pick B; a new shard copies this and sets its own colours): the pale ground, the grey roads and blocks with an ink edge, the orange markers; raised blocks with an edge and a shadow",
+  "style": {
+    "kind": "ground",
+    "smooth": 3,
+    "shade": 0.3,
+    "classes": [
+      {
+        "match": "#f2f0e8",
+        "fill": "#f4f1e6"
+      },
+      {
+        "match": "#e0d9c8",
+        "fill": "#e6dcc6"
+      },
+      {
+        "match": "#9b9b9d",
+        "fill": "#8e939c",
+        "edge": "#4a4f58"
+      },
+      {
+        "match": "#eaba5e",
+        "fill": "#f0b44c",
+        "edge": "#8a5a1c"
+      }
+    ],
+    "raised": {
+      "bump": 1.5,
+      "min": 6,
+      "classes": [
+        {
+          "match": "#9b9b9d",
+          "fill": "#7f8590",
+          "edge": "#3e434c"
+        },
+        {
+          "match": "#eaba5e",
+          "fill": "#f0b44c",
+          "edge": "#8a5a1c"
+        }
+      ]
+    }
+  },
+  "inputs": [
+    "generators",
+    "data/layout.json",
+    "../../sdk/headlessSections.ts",
+    "../../sdk/immutable.ts",
+    "../../sdk/shardfile.ts",
+    "../../format",
+    "../../../pnpm-lock.yaml"
+  ],
+  "painter": {
+    "version": 1,
+    "terrain": [
+      "world-terrain"
+    ],
+    "props": [
+      "world-props"
+    ],
+    "authored": true,
+    "program": true
+  }
+}

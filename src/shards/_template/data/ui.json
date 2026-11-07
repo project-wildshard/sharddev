@@ -1,0 +1,33 @@
+{
+  "marker": {
+    "kind": "marker",
+    "id": "template.door-pin"
+  },
+  "oil": {
+    "kind": "counter",
+    "id": "template.oil",
+    "label": "LANTERN OIL",
+    "band": "band.3",
+    "order": 20,
+    "min": 0,
+    "max": 1,
+    "field": "template.lantern.oil"
+  },
+  "jump": {
+    "kind": "relabel",
+    "id": "template.jump-label",
+    "spot": "jump",
+    "label": "JUMP",
+    "icon": null
+  },
+  "notes": {
+    "kind": "bagPanel",
+    "id": "template.notes",
+    "tab": {
+      "id": "notes",
+      "icon": "book",
+      "order": 50
+    },
+    "order": 0
+  }
+}

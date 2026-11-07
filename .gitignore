@@ -10,3 +10,17 @@ blob-report/
 .env.*
 # No worktrees here (D27); ignored so a stray one never gets committed.
 .claude/worktrees/
+
+# Lifted from singleplayer (P4).
+tmp/
+.cache/
+out/
+/public/assets/_template/map/top.webp
+/public/assets/pastel-plain/map/top.webp
+/public/assets/ink-cel-valley/map/top.webp
+/public/assets/_template/entry-reads.json
+/public/assets/pastel-plain/entry-reads.json
+/public/assets/ink-cel-valley/entry-reads.json
+/src/shards/_template/discovery.generated.ts
+/src/shards/ink-cel-valley/discovery.generated.ts
+/src/shards/pastel-plain/discovery.generated.ts

@@ -1,0 +1,46 @@
+{
+  "name": "capture-status",
+  "version": 2,
+  "ask": "E394",
+  "about": "A live game capture (agent-browser / Playwright screenshot, progress or timelapse frame): is it a usable frame of the 3D world, or did the capture catch a loading screen, a title card, a menu, a blank frame or an error? D3 (2026-10-03, project/archive/2026-10-03-decision-models.md): 376 hand-labelled real frames, 'not the world' AUC 0.998, 99 % of bad frames flagged at 3 % of good ones flagged. The 'corrupt' answer is logged but does not flag: it caught 1 of 4 real render glitches (AUC 0.88).",
+  "model": "clef-flash-4bit",
+  "state": "A screenshot taken by an automated test of Wildshard, a first-person 3D web game, at phone or desktop size. A good frame shows the 3D game world (terrain, sky, water, buildings, plants, creatures), usually with HUD buttons, a minimap and small labels drawn on top.",
+  "questions": {
+    "screen": {
+      "type": "choice",
+      "instructions": "What does this screenshot mostly show?",
+      "criteria": {
+        "world": "The 3D game world (terrain, sky, buildings, plants, characters), with or without HUD buttons and labels on top",
+        "loading": "A loading screen, splash or title card, a progress bar, or the game still starting up",
+        "blank": "An empty frame: all black, all white or one flat colour, with no scene",
+        "menu": "A menu, settings panel, pause screen, full-screen map or dialog covering most of the screen",
+        "error": "An error message, crash report or browser error page"
+      }
+    },
+    "corrupt": {
+      "type": "noul",
+      "instructions": "Do solid black squares or rectangles, or blocks of garbage pixels, break up the 3D scene? A rendering glitch, not a shadow, a dark object or a UI panel."
+    }
+  },
+  "flags": {
+    "screen": {
+      "choice_in": [
+        "loading",
+        "blank",
+        "menu",
+        "error"
+      ],
+      "min_probability": 0.5
+    }
+  },
+  "calibrated": {
+    "on": "2026-10-03",
+    "model": "clef-flash-4bit",
+    "items": 376,
+    "bad": 89,
+    "not_world_auc": 0.998,
+    "recall_at_0.5": 0.99,
+    "good_flagged_at_0.5": 0.03,
+    "note": "v1 flagged loading/blank/error only (recall 78 % at 0.5): the phone title cards read as 'menu'. v2's flag counts menu too; it was chosen after seeing v1's results, so its numbers are not yet confirmed on fresh frames."
+  }
+}

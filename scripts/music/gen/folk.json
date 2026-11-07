@@ -1,0 +1,3187 @@
+{
+  "style": "folk",
+  "brief": {
+    "game": "Wildshard",
+    "brief": "Instrumental game exploration theme for Wildshard, a world that arrives one chunk at a time: wonder first, adventure second, a little melancholy underneath. No vocals. 60-90 s, loopable (it will be trimmed to a bar-exact loop). The model composes freely - no required motif.",
+    "duration_s": 75,
+    "timesig": "4/4",
+    "title": "Folk-adventure",
+    "reference": "Sea of Thieves",
+    "key": "D major",
+    "mode_colour": "Mixolydian (flat 7th, C natural)",
+    "bpm": 104,
+    "ace_caption": "Folk-adventure exploration theme for a seafaring video game in the style of Sea of Thieves. A lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass and a touch of tin whistle and accordion. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach. Natural room sound. Instrumental, no vocals. D major with a Mixolydian flat seventh.",
+    "heartmula_tags": "folk,acoustic,guitar,violin,accordion,instrumental,adventure,traditional,upbeat,cheerful,playful,nostalgic",
+    "sao_prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+    "sao_negative": "vocals, electric guitar, synth, distortion, low quality, noise",
+    "minimax_prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+    "heartmula_tags_v0_spaced": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm"
+  },
+  "scoring": {
+    "weights": {
+      "style": 0.35,
+      "seam": 0.2,
+      "length": 0.1,
+      "tempo": 0.1,
+      "key": 0.1,
+      "clean": 0.15
+    },
+    "vocal_penalty": 0.0,
+    "target_lufs": -18.0
+  },
+  "shortlist": [
+    "sao1.0-102",
+    "minimax3-101",
+    "hm-spaced-106"
+  ],
+  "takes": [
+    {
+      "id": "sao1.0-102",
+      "score": 0.954,
+      "parts": {
+        "style": 0.999,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": 1,
+      "file": "folk/sao1.0-102.m4a",
+      "encode": {
+        "gain_db": -3.5,
+        "seconds": 47.0,
+        "bytes": 577844
+      },
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 102,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 78.5,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -14.5,
+          "lra": 2.0,
+          "true_peak_dbfs": 0.3
+        },
+        "clipping": {
+          "clipped_samples": 47,
+          "clipped_frac": 1.1337868480725624e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2901.9,
+          "rolloff95_hz": 11364.0,
+          "flatness": 0.0014,
+          "hf_above_12k": 0.00176,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.9
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.681,
+          "d_major_r": 0.681,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.733,
+          "similarity": 0.739,
+          "level_match": 0.973,
+          "start_s": 7.5,
+          "end_s": 25.96,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.0,
+            "folk": 0.999
+          },
+          "style_sim": {
+            "piano": 0.0577,
+            "orchestral": 0.01,
+            "folk": 0.304
+          },
+          "vocal_prob": 0.999
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-107",
+      "score": 0.903,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.747,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 107,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 78.0,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -14.0,
+          "lra": 1.8,
+          "true_peak_dbfs": 0.7
+        },
+        "clipping": {
+          "clipped_samples": 117,
+          "clipped_frac": 2.822405557967868e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 2.06,
+          "total_silence_s": 2.06
+        },
+        "spectrum": {
+          "centroid_hz": 2403.6,
+          "rolloff95_hz": 10700.1,
+          "flatness": 0.0415,
+          "hf_above_12k": 0.00218,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.927
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.518,
+          "d_major_r": 0.518,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.548,
+          "similarity": 0.565,
+          "level_match": 0.904,
+          "start_s": 18.75,
+          "end_s": 37.21,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.0,
+            "folk": 0.999
+          },
+          "style_sim": {
+            "piano": 0.1002,
+            "orchestral": 0.0128,
+            "folk": 0.3731
+          },
+          "vocal_prob": 0.999
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.043
+        }
+      }
+    },
+    {
+      "id": "sao1.0-103",
+      "score": 0.876,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.86,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 103,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 76.9,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.0,
+          "lra": 3.4,
+          "true_peak_dbfs": 0.2
+        },
+        "clipping": {
+          "clipped_samples": 263,
+          "clipped_frac": 6.344381724320934e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2848.1,
+          "rolloff95_hz": 10616.5,
+          "flatness": 0.001,
+          "hf_above_12k": 0.00092,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.93
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.538,
+          "d_major_r": 0.479,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.616,
+          "similarity": 0.653,
+          "level_match": 0.813,
+          "start_s": 7.75,
+          "end_s": 26.21,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.0,
+            "orchestral": 0.0,
+            "folk": 0.999
+          },
+          "style_sim": {
+            "piano": 0.0736,
+            "orchestral": 0.0308,
+            "folk": 0.3471
+          },
+          "vocal_prob": 0.983
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-102",
+      "score": 0.871,
+      "parts": {
+        "style": 0.997,
+        "seam": 0.963,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 102,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.2,
+          "lra": 1.1,
+          "true_peak_dbfs": -3.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.6484
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1432.9,
+          "rolloff95_hz": 5625.4,
+          "flatness": 0.0105,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.842
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.88,
+          "d_major_r": 0.88,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.678,
+          "similarity": 0.687,
+          "level_match": 0.957,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.003,
+            "orchestral": 0.0,
+            "folk": 0.997
+          },
+          "style_sim": {
+            "piano": 0.3027,
+            "orchestral": 0.0916,
+            "folk": 0.5142
+          },
+          "vocal_prob": 0.537
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-105",
+      "score": 0.862,
+      "parts": {
+        "style": 0.998,
+        "seam": 0.917,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.5
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 105,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 76.1,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -12.3,
+          "lra": 2.9,
+          "true_peak_dbfs": 0.7
+        },
+        "clipping": {
+          "clipped_samples": 6572,
+          "clipped_frac": 0.0015853717373474213,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2578.3,
+          "rolloff95_hz": 10728.7,
+          "flatness": 0.0014,
+          "hf_above_12k": 0.00106,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.938
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.723,
+          "d_major_r": 0.723,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.65,
+          "similarity": 0.654,
+          "level_match": 0.98,
+          "start_s": 11.25,
+          "end_s": 29.71,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.001,
+            "folk": 0.998
+          },
+          "style_sim": {
+            "piano": 0.0312,
+            "orchestral": 0.032,
+            "folk": 0.2854
+          },
+          "vocal_prob": 0.993
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-101",
+      "score": 0.856,
+      "parts": {
+        "style": 0.933,
+        "seam": 1.0,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 101,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -19.4,
+          "lra": 1.3,
+          "true_peak_dbfs": -2.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7236
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1306.8,
+          "rolloff95_hz": 5083.8,
+          "flatness": 0.0198,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.964
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.702,
+          "d_major_r": 0.702,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.74,
+          "similarity": 0.749,
+          "level_match": 0.96,
+          "start_s": 2.25,
+          "end_s": 6.87,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.067,
+            "orchestral": 0.0,
+            "folk": 0.933
+          },
+          "style_sim": {
+            "piano": 0.3409,
+            "orchestral": 0.0843,
+            "folk": 0.4355
+          },
+          "vocal_prob": 0.066
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-101",
+      "score": 0.844,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.827,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.5
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 101,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 82.1,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 14.18,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.8,
+          "lra": 2.2,
+          "true_peak_dbfs": 0.2
+        },
+        "clipping": {
+          "clipped_samples": 577,
+          "clipped_frac": 0.00013919042794422734,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2387.5,
+          "rolloff95_hz": 10122.9,
+          "flatness": 0.0153,
+          "hf_above_12k": 0.00075,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.971
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.615,
+          "d_major_r": 0.615,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.596,
+          "similarity": 0.605,
+          "level_match": 0.952,
+          "start_s": 7.5,
+          "end_s": 25.96,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.001,
+            "folk": 0.999
+          },
+          "style_sim": {
+            "piano": 0.0139,
+            "orchestral": 0.0223,
+            "folk": 0.2838
+          },
+          "vocal_prob": 0.997
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-106",
+      "score": 0.824,
+      "parts": {
+        "style": 0.997,
+        "seam": 0.728,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.5
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 106,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 77.6,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.7,
+          "lra": 2.2,
+          "true_peak_dbfs": 1.1
+        },
+        "clipping": {
+          "clipped_samples": 2991,
+          "clipped_frac": 0.000721522651613837,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2414.7,
+          "rolloff95_hz": 9878.4,
+          "flatness": 0.0073,
+          "hf_above_12k": 0.0021,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.914
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.677,
+          "d_major_r": 0.677,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.537,
+          "similarity": 0.548,
+          "level_match": 0.933,
+          "start_s": 3.25,
+          "end_s": 21.71,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.002,
+            "folk": 0.997
+          },
+          "style_sim": {
+            "piano": 0.059,
+            "orchestral": 0.0623,
+            "folk": 0.2944
+          },
+          "vocal_prob": 0.999
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-106",
+      "score": 0.816,
+      "parts": {
+        "style": 0.906,
+        "seam": 0.852,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 106,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.2,
+          "lra": 0.9,
+          "true_peak_dbfs": -4.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.5698
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1501.9,
+          "rolloff95_hz": 5600.6,
+          "flatness": 0.0047,
+          "hf_above_12k": 5e-05,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.913
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.916,
+          "d_major_r": 0.916,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.611,
+          "similarity": 0.613,
+          "level_match": 0.984,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.094,
+            "orchestral": 0.0,
+            "folk": 0.906
+          },
+          "style_sim": {
+            "piano": 0.3489,
+            "orchestral": 0.0373,
+            "folk": 0.4304
+          },
+          "vocal_prob": 0.306
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-104",
+      "score": 0.791,
+      "parts": {
+        "style": 0.997,
+        "seam": 0.815,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 0.5,
+        "clean": 0.5
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 104,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 75.5,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -10.7,
+          "lra": 2.0,
+          "true_peak_dbfs": 0.6
+        },
+        "clipping": {
+          "clipped_samples": 16384,
+          "clipped_frac": 0.003952332706132098,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2835.2,
+          "rolloff95_hz": 11627.4,
+          "flatness": 0.0016,
+          "hf_above_12k": 0.00083,
+          "sub_below_60": 0.0003,
+          "stereo_corr": 0.934
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D minor",
+          "best_r": 0.513,
+          "d_major_r": 0.496,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.589,
+          "similarity": 0.6,
+          "level_match": 0.934,
+          "start_s": 7.5,
+          "end_s": 44.42,
+          "bars": 16,
+          "loop_s": 36.92,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.002,
+            "orchestral": 0.001,
+            "folk": 0.997
+          },
+          "style_sim": {
+            "piano": 0.0322,
+            "orchestral": 0.0162,
+            "folk": 0.2617
+          },
+          "vocal_prob": 0.995
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-101",
+      "score": 0.78,
+      "parts": {
+        "style": 0.764,
+        "seam": 0.783,
+        "length": 1.0,
+        "tempo": 0.56,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": 2,
+      "file": "folk/minimax3-101.m4a",
+      "encode": {
+        "gain_db": -4.6,
+        "seconds": 75.0,
+        "bytes": 918021
+      },
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 101,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 255.4,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 27.19,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.4,
+          "lra": 6.1,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 37,
+          "clipped_frac": 5.587260321632906e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1883.7,
+          "rolloff95_hz": 8171.8,
+          "flatness": 0.0007,
+          "hf_above_12k": 0.00025,
+          "sub_below_60": 0.1469,
+          "stereo_corr": 0.727
+        },
+        "tempo": {
+          "estimated_bpm": 99.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.044
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.725,
+          "d_major_r": 0.47,
+          "d_major_rank": 4,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.57,
+          "similarity": 0.572,
+          "level_match": 0.986,
+          "start_s": 12.75,
+          "end_s": 65.88,
+          "bars": 22,
+          "loop_s": 53.13,
+          "grid_bpm": 99.4
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.235,
+            "orchestral": 0.0,
+            "folk": 0.764
+          },
+          "style_sim": {
+            "piano": 0.3499,
+            "orchestral": 0.1234,
+            "folk": 0.3922
+          },
+          "vocal_prob": 0.989
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-104",
+      "score": 0.779,
+      "parts": {
+        "style": 0.969,
+        "seam": 0.67,
+        "length": 1.0,
+        "tempo": 0.56,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 104,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 270.1,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.32,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.6,
+          "lra": 8.1,
+          "true_peak_dbfs": -0.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.9961
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2838.8,
+          "rolloff95_hz": 10782.3,
+          "flatness": 0.0019,
+          "hf_above_12k": 0.00034,
+          "sub_below_60": 0.0035,
+          "stereo_corr": 0.686
+        },
+        "tempo": {
+          "estimated_bpm": 99.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.044
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.76,
+          "d_major_r": 0.33,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.502,
+          "similarity": 0.506,
+          "level_match": 0.972,
+          "start_s": 19.0,
+          "end_s": 57.64,
+          "bars": 16,
+          "loop_s": 38.64,
+          "grid_bpm": 99.4
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.029,
+            "orchestral": 0.002,
+            "folk": 0.969
+          },
+          "style_sim": {
+            "piano": 0.2249,
+            "orchestral": 0.1265,
+            "folk": 0.3513
+          },
+          "vocal_prob": 0.975
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao1.0-108",
+      "score": 0.778,
+      "parts": {
+        "style": 0.999,
+        "seam": 0.748,
+        "length": 0.6,
+        "tempo": 0.94,
+        "key": 0.5,
+        "clean": 0.5
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open",
+      "variant": "stable-audio-open-1.0 (mirror AEmotionStudio/stable-audio-open-models)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps (float32)",
+      "seed": 108,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "negative_prompt": "vocals, electric guitar, synth, distortion, low quality, noise",
+      "duration_s": 47.0,
+      "steps": 100,
+      "cfg": 7.0,
+      "gen_time_s": 77.0,
+      "model_load_s": 1.7,
+      "mps_driver_gb": 15.25,
+      "metrics": {
+        "duration_s": 47.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -11.0,
+          "lra": 1.9,
+          "true_peak_dbfs": 0.5
+        },
+        "clipping": {
+          "clipped_samples": 1994,
+          "clipped_frac": 0.00048101510107589136,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.17,
+          "total_silence_s": 1.17
+        },
+        "spectrum": {
+          "centroid_hz": 3148.5,
+          "rolloff95_hz": 11792.8,
+          "flatness": 0.0231,
+          "hf_above_12k": 0.001,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.977
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "A minor",
+          "best_r": 0.44,
+          "d_major_r": 0.264,
+          "d_major_rank": 4,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.549,
+          "similarity": 0.558,
+          "level_match": 0.949,
+          "start_s": 2.5,
+          "end_s": 20.96,
+          "bars": 8,
+          "loop_s": 18.46,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.001,
+            "orchestral": 0.001,
+            "folk": 0.999
+          },
+          "style_sim": {
+            "piano": -0.0063,
+            "orchestral": 0.0125,
+            "folk": 0.2632
+          },
+          "vocal_prob": 0.998
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.021
+        }
+      }
+    },
+    {
+      "id": "sao-small-108",
+      "score": 0.776,
+      "parts": {
+        "style": 0.992,
+        "seam": 0.5,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 108,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.5,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.4,
+          "lra": 1.3,
+          "true_peak_dbfs": -8.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3853
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1640.4,
+          "rolloff95_hz": 5824.3,
+          "flatness": 0.0175,
+          "hf_above_12k": 3e-05,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.97
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.853,
+          "d_major_r": 0.853,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.4,
+          "similarity": 0.402,
+          "level_match": 0.987,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.008,
+            "orchestral": 0.0,
+            "folk": 0.992
+          },
+          "style_sim": {
+            "piano": 0.2734,
+            "orchestral": 0.0501,
+            "folk": 0.4481
+          },
+          "vocal_prob": 0.167
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-108",
+      "score": 0.768,
+      "parts": {
+        "style": 0.824,
+        "seam": 1.0,
+        "length": 0.6,
+        "tempo": 0.2,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 108,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 235.7,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.37,
+      "metrics": {
+        "duration_s": 57.67,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -13.2,
+          "lra": 6.7,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 174,
+          "clipped_frac": 3.4210162069659755e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2625.5,
+          "rolloff95_hz": 8224.5,
+          "flatness": 0.0017,
+          "hf_above_12k": 8e-05,
+          "sub_below_60": 0.0656,
+          "stereo_corr": 0.442
+        },
+        "tempo": {
+          "estimated_bpm": 112.3,
+          "brief_bpm": 104.0,
+          "rel_err": 0.08
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.669,
+          "d_major_r": 0.463,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.797,
+          "similarity": 0.825,
+          "level_match": 0.886,
+          "start_s": 14.75,
+          "end_s": 31.84,
+          "bars": 8,
+          "loop_s": 17.09,
+          "grid_bpm": 112.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.175,
+            "orchestral": 0.001,
+            "folk": 0.824
+          },
+          "style_sim": {
+            "piano": 0.2451,
+            "orchestral": 0.035,
+            "folk": 0.3007
+          },
+          "vocal_prob": 0.993
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0005,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "sao-small-107",
+      "score": 0.748,
+      "parts": {
+        "style": 0.86,
+        "seam": 0.94,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 107,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.5,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -19.9,
+          "lra": 0.8,
+          "true_peak_dbfs": -6.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4927
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1926.0,
+          "rolloff95_hz": 8303.4,
+          "flatness": 0.019,
+          "hf_above_12k": 0.00013,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.948
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "F# minor",
+          "best_r": 0.746,
+          "d_major_r": 0.347,
+          "d_major_rank": 7,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.664,
+          "similarity": 0.666,
+          "level_match": 0.988,
+          "start_s": 3.0,
+          "end_s": 7.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.14,
+            "orchestral": 0.0,
+            "folk": 0.86
+          },
+          "style_sim": {
+            "piano": 0.3524,
+            "orchestral": -0.0072,
+            "folk": 0.4175
+          },
+          "vocal_prob": 0.149
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-105",
+      "score": 0.729,
+      "parts": {
+        "style": 0.909,
+        "seam": 0.755,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 105,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 161.1,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.32,
+      "metrics": {
+        "duration_s": 51.54,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -14.6,
+          "lra": 8.8,
+          "true_peak_dbfs": 0.6
+        },
+        "clipping": {
+          "clipped_samples": 58,
+          "clipped_frac": 1.27597713448975e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2532.6,
+          "rolloff95_hz": 10890.1,
+          "flatness": 0.0036,
+          "hf_above_12k": 0.00164,
+          "sub_below_60": 0.185,
+          "stereo_corr": 0.476
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 104.0,
+          "rel_err": 0.269
+        },
+        "key": {
+          "best_key": "G major",
+          "best_r": 0.866,
+          "d_major_r": 0.616,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.553,
+          "similarity": 0.555,
+          "level_match": 0.987,
+          "start_s": 17.5,
+          "end_s": 30.13,
+          "bars": 8,
+          "loop_s": 12.63,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.091,
+            "orchestral": 0.0,
+            "folk": 0.909
+          },
+          "style_sim": {
+            "piano": 0.2861,
+            "orchestral": 0.0521,
+            "folk": 0.3688
+          },
+          "vocal_prob": 0.999
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0066,
+          "vocal_active_frac": 0.059
+        }
+      }
+    },
+    {
+      "id": "minimax3-103",
+      "score": 0.711,
+      "parts": {
+        "style": 0.917,
+        "seam": 0.602,
+        "length": 1.0,
+        "tempo": 0.2,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 103,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 248.3,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.29,
+      "metrics": {
+        "duration_s": 69.68,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.3,
+          "lra": 16.0,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 282,
+          "clipped_frac": 4.588314311896035e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 1.04,
+          "total_silence_s": 1.04
+        },
+        "spectrum": {
+          "centroid_hz": 2451.3,
+          "rolloff95_hz": 12019.7,
+          "flatness": 0.0007,
+          "hf_above_12k": 2e-05,
+          "sub_below_60": 0.0496,
+          "stereo_corr": 0.62
+        },
+        "tempo": {
+          "estimated_bpm": 112.3,
+          "brief_bpm": 104.0,
+          "rel_err": 0.08
+        },
+        "key": {
+          "best_key": "F major",
+          "best_r": 0.309,
+          "d_major_r": -0.14,
+          "d_major_rank": 17,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.461,
+          "similarity": 0.566,
+          "level_match": 0.382,
+          "start_s": 8.25,
+          "end_s": 46.7,
+          "bars": 18,
+          "loop_s": 38.45,
+          "grid_bpm": 112.3
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.083,
+            "orchestral": 0.0,
+            "folk": 0.917
+          },
+          "style_sim": {
+            "piano": 0.3006,
+            "orchestral": 0.0489,
+            "folk": 0.3871
+          },
+          "vocal_prob": 0.98
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-102",
+      "score": 0.693,
+      "parts": {
+        "style": 0.996,
+        "seam": 0.473,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 102,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 249.3,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.26,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.4,
+          "lra": 6.2,
+          "true_peak_dbfs": 0.2
+        },
+        "clipping": {
+          "clipped_samples": 222,
+          "clipped_frac": 3.3523561929797436e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2311.5,
+          "rolloff95_hz": 8101.9,
+          "flatness": 0.002,
+          "hf_above_12k": 0.00068,
+          "sub_below_60": 0.0666,
+          "stereo_corr": 0.565
+        },
+        "tempo": {
+          "estimated_bpm": 161.5,
+          "brief_bpm": 104.0,
+          "rel_err": 0.224
+        },
+        "key": {
+          "best_key": "A# major",
+          "best_r": 0.724,
+          "d_major_r": -0.221,
+          "d_major_rank": 17,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.384,
+          "similarity": 0.393,
+          "level_match": 0.927,
+          "start_s": 28.0,
+          "end_s": 56.24,
+          "bars": 19,
+          "loop_s": 28.24,
+          "grid_bpm": 161.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.004,
+            "orchestral": 0.0,
+            "folk": 0.996
+          },
+          "style_sim": {
+            "piano": 0.1575,
+            "orchestral": -0.0335,
+            "folk": 0.3568
+          },
+          "vocal_prob": 0.999
+        },
+        "vocals": {
+          "vocal_energy_share": 0.009,
+          "vocal_active_frac": 0.08
+        }
+      }
+    },
+    {
+      "id": "minimax3-107",
+      "score": 0.693,
+      "parts": {
+        "style": 0.916,
+        "seam": 0.563,
+        "length": 0.6,
+        "tempo": 0.0,
+        "key": 0.5,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 107,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 212.8,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.37,
+      "metrics": {
+        "duration_s": 57.42,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.2,
+          "lra": 3.6,
+          "true_peak_dbfs": 0.1
+        },
+        "clipping": {
+          "clipped_samples": 264,
+          "clipped_frac": 5.212545491306106e-05,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2131.6,
+          "rolloff95_hz": 8543.5,
+          "flatness": 0.0011,
+          "hf_above_12k": 0.00036,
+          "sub_below_60": 0.066,
+          "stereo_corr": 0.62
+        },
+        "tempo": {
+          "estimated_bpm": 86.1,
+          "brief_bpm": 104.0,
+          "rel_err": 0.172
+        },
+        "key": {
+          "best_key": "E minor",
+          "best_r": 0.804,
+          "d_major_r": 0.517,
+          "d_major_rank": 3,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 8,
+          "score": 0.438,
+          "similarity": 0.456,
+          "level_match": 0.865,
+          "start_s": 17.0,
+          "end_s": 39.29,
+          "bars": 8,
+          "loop_s": 22.29,
+          "grid_bpm": 86.1
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.084,
+            "orchestral": 0.0,
+            "folk": 0.916
+          },
+          "style_sim": {
+            "piano": 0.2791,
+            "orchestral": -0.0141,
+            "folk": 0.365
+          },
+          "vocal_prob": 0.997
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0267,
+          "vocal_active_frac": 0.088
+        }
+      }
+    },
+    {
+      "id": "sao-small-104",
+      "score": 0.66,
+      "parts": {
+        "style": 0.651,
+        "seam": 0.515,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 104,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -23.0,
+          "lra": 1.0,
+          "true_peak_dbfs": -13.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.205
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1503.4,
+          "rolloff95_hz": 5330.1,
+          "flatness": 0.0258,
+          "hf_above_12k": 5e-05,
+          "sub_below_60": 0.0002,
+          "stereo_corr": 0.98
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.863,
+          "d_major_r": 0.863,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.409,
+          "similarity": 0.412,
+          "level_match": 0.98,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.349,
+            "orchestral": 0.0,
+            "folk": 0.651
+          },
+          "style_sim": {
+            "piano": 0.3424,
+            "orchestral": -0.0056,
+            "folk": 0.3648
+          },
+          "vocal_prob": 0.041
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "minimax3-106",
+      "score": 0.633,
+      "parts": {
+        "style": 0.927,
+        "seam": 0.742,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "MiniMax Music 3",
+      "variant": "MiniMaxAI/MiniMax-Music3 (8B global LM + 0.6B local LM + 2.4B flow-matching DiT)",
+      "code_commit": "diffusers 0.40.0, torch 2.14.0",
+      "backend": "PyTorch mps bf16",
+      "seed": 106,
+      "prompt": "Genre: folk adventure, sea-shanty flavoured video game soundtrack. BPM: 104. Key: D major with a Mixolydian flat seventh. Instrumental only, no vocals. Mood: wonder first, adventure second, a little melancholy underneath - sailing towards an island that forms as you approach, in the spirit of Sea of Thieves. Arrangement: a lively fiddle carries the melody over strummed and fingerpicked acoustic guitar, a warm marimba ostinato, hand percussion (frame drum, bodhran, shaker), upright bass, a touch of tin whistle and accordion. Production: natural, warm room sound.",
+      "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+      "duration_s": 75,
+      "steps": 30,
+      "gen_time_s": 256.3,
+      "model_load_s": 9.3,
+      "mps_driver_gb": 28.35,
+      "metrics": {
+        "duration_s": 75.08,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -17.0,
+          "lra": 6.5,
+          "true_peak_dbfs": 0.0
+        },
+        "clipping": {
+          "clipped_samples": 13,
+          "clipped_frac": 1.9630914643575075e-06,
+          "peak": 1.0
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 2408.3,
+          "rolloff95_hz": 9708.3,
+          "flatness": 0.003,
+          "hf_above_12k": 0.00046,
+          "sub_below_60": 0.1183,
+          "stereo_corr": 0.608
+        },
+        "tempo": {
+          "estimated_bpm": 83.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.199
+        },
+        "key": {
+          "best_key": "G minor",
+          "best_r": 0.757,
+          "d_major_r": -0.023,
+          "d_major_rank": 13,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.545,
+          "similarity": 0.589,
+          "level_match": 0.746,
+          "start_s": 9.0,
+          "end_s": 69.46,
+          "bars": 21,
+          "loop_s": 60.46,
+          "grid_bpm": 83.4
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.072,
+            "orchestral": 0.001,
+            "folk": 0.927
+          },
+          "style_sim": {
+            "piano": 0.2195,
+            "orchestral": 0.0555,
+            "folk": 0.3111
+          },
+          "vocal_prob": 0.998
+        },
+        "vocals": {
+          "vocal_energy_share": 0.1247,
+          "vocal_active_frac": 0.2
+        }
+      }
+    },
+    {
+      "id": "sao-small-103",
+      "score": 0.609,
+      "parts": {
+        "style": 0.433,
+        "seam": 0.642,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 103,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.4,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.9,
+          "lra": 2.0,
+          "true_peak_dbfs": -8.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3928
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1029.2,
+          "rolloff95_hz": 3454.9,
+          "flatness": 0.0029,
+          "hf_above_12k": 0.0,
+          "sub_below_60": 0.0,
+          "stereo_corr": 0.958
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.838,
+          "d_major_r": 0.838,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.485,
+          "similarity": 0.503,
+          "level_match": 0.88,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.567,
+            "orchestral": 0.0,
+            "folk": 0.433
+          },
+          "style_sim": {
+            "piano": 0.3564,
+            "orchestral": -0.0091,
+            "folk": 0.3468
+          },
+          "vocal_prob": 0.049
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-106",
+      "score": 0.592,
+      "parts": {
+        "style": 0.121,
+        "seam": 1.0,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": 3,
+      "file": "folk/hm-spaced-106.m4a",
+      "encode": {
+        "gain_db": 7.9,
+        "seconds": 74.88,
+        "bytes": 926587
+      },
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 106,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 154.5,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -27.2,
+          "lra": 11.7,
+          "true_peak_dbfs": -8.9
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3572
+        },
+        "silence": {
+          "longest_internal_gap_s": 1.76,
+          "internal_gaps": 1,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 1.76
+        },
+        "spectrum": {
+          "centroid_hz": 3815.1,
+          "rolloff95_hz": 9328.7,
+          "flatness": 0.0031,
+          "hf_above_12k": 0.00032,
+          "sub_below_60": 0.0579,
+          "stereo_corr": 0.567
+        },
+        "tempo": {
+          "estimated_bpm": 129.2,
+          "brief_bpm": 104.0,
+          "rel_err": 0.242
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.821,
+          "d_major_r": 0.821,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.78,
+          "similarity": 0.788,
+          "level_match": 0.963,
+          "start_s": 21.0,
+          "end_s": 54.44,
+          "bars": 18,
+          "loop_s": 33.44,
+          "grid_bpm": 129.2
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.829,
+            "orchestral": 0.049,
+            "folk": 0.121
+          },
+          "style_sim": {
+            "piano": 0.0961,
+            "orchestral": -0.0054,
+            "folk": 0.0271
+          },
+          "vocal_prob": 0.175
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0423,
+          "vocal_active_frac": 0.703
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-107",
+      "score": 0.59,
+      "parts": {
+        "style": 0.113,
+        "seam": 1.0,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 107,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 150.2,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -26.6,
+          "lra": 11.4,
+          "true_peak_dbfs": -7.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4419
+        },
+        "silence": {
+          "longest_internal_gap_s": 1.77,
+          "internal_gaps": 1,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 1.77
+        },
+        "spectrum": {
+          "centroid_hz": 3863.0,
+          "rolloff95_hz": 9452.8,
+          "flatness": 0.0028,
+          "hf_above_12k": 0.00037,
+          "sub_below_60": 0.027,
+          "stereo_corr": 0.43
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 104.0,
+          "rel_err": 0.269
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.816,
+          "d_major_r": 0.816,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.757,
+          "similarity": 0.767,
+          "level_match": 0.957,
+          "start_s": 26.5,
+          "end_s": 53.34,
+          "bars": 17,
+          "loop_s": 26.84,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.758,
+            "orchestral": 0.128,
+            "folk": 0.113
+          },
+          "style_sim": {
+            "piano": 0.0783,
+            "orchestral": 0.0144,
+            "folk": 0.01
+          },
+          "vocal_prob": 0.282
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0321,
+          "vocal_active_frac": 0.635
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-108",
+      "score": 0.58,
+      "parts": {
+        "style": 0.085,
+        "seam": 1.0,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 108,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 148.4,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -27.4,
+          "lra": 11.8,
+          "true_peak_dbfs": -7.2
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.4308
+        },
+        "silence": {
+          "longest_internal_gap_s": 1.79,
+          "internal_gaps": 1,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 1.79
+        },
+        "spectrum": {
+          "centroid_hz": 3957.9,
+          "rolloff95_hz": 9482.6,
+          "flatness": 0.0032,
+          "hf_above_12k": 0.00037,
+          "sub_below_60": 0.0373,
+          "stereo_corr": 0.414
+        },
+        "tempo": {
+          "estimated_bpm": 136.0,
+          "brief_bpm": 104.0,
+          "rel_err": 0.308
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.824,
+          "d_major_r": 0.824,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.757,
+          "similarity": 0.766,
+          "level_match": 0.96,
+          "start_s": 24.25,
+          "end_s": 54.25,
+          "bars": 17,
+          "loop_s": 30.0,
+          "grid_bpm": 136.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.579,
+            "orchestral": 0.336,
+            "folk": 0.085
+          },
+          "style_sim": {
+            "piano": 0.0613,
+            "orchestral": 0.0417,
+            "folk": -0.0077
+          },
+          "vocal_prob": 0.241
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0352,
+          "vocal_active_frac": 0.635
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-105",
+      "score": 0.575,
+      "parts": {
+        "style": 0.071,
+        "seam": 1.0,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 1.0,
+        "clean": 1.0
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 105,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 161.5,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -27.0,
+          "lra": 11.7,
+          "true_peak_dbfs": -9.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3546
+        },
+        "silence": {
+          "longest_internal_gap_s": 1.7,
+          "internal_gaps": 1,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 1.7
+        },
+        "spectrum": {
+          "centroid_hz": 3900.5,
+          "rolloff95_hz": 9323.8,
+          "flatness": 0.0028,
+          "hf_above_12k": 0.00034,
+          "sub_below_60": 0.052,
+          "stereo_corr": 0.415
+        },
+        "tempo": {
+          "estimated_bpm": 117.5,
+          "brief_bpm": 104.0,
+          "rel_err": 0.129
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.822,
+          "d_major_r": 0.822,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.744,
+          "similarity": 0.762,
+          "level_match": 0.924,
+          "start_s": 21.5,
+          "end_s": 54.19,
+          "bars": 16,
+          "loop_s": 32.69,
+          "grid_bpm": 117.5
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.734,
+            "orchestral": 0.195,
+            "folk": 0.071
+          },
+          "style_sim": {
+            "piano": 0.063,
+            "orchestral": 0.0153,
+            "folk": -0.0212
+          },
+          "vocal_prob": 0.157
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0562,
+          "vocal_active_frac": 0.716
+        }
+      }
+    },
+    {
+      "id": "sao-small-105",
+      "score": 0.553,
+      "parts": {
+        "style": 0.265,
+        "seam": 0.657,
+        "length": 0.15,
+        "tempo": 0.94,
+        "key": 1.0,
+        "clean": 0.8
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "Stable Audio Open Small",
+      "variant": "stable-audio-open-small (mirror joeriben/stable-audio-open-small)",
+      "code_commit": "stable-audio-tools 3241adba4fc2a85cf5b29d9eb68d42f40a28e820, torch 2.7.1",
+      "backend": "PyTorch mps",
+      "seed": 105,
+      "prompt": "Folk adventure music, lively fiddle melody, strummed acoustic guitar, marimba ostinato, frame drum and shaker, upright bass, tin whistle, sea shanty feel, joyful and wistful, D major, 104 BPM",
+      "duration_s": 11.0,
+      "steps": 8,
+      "cfg": 1.0,
+      "gen_time_s": 0.5,
+      "model_load_s": 2.2,
+      "mps_driver_gb": 3.45,
+      "metrics": {
+        "duration_s": 11.0,
+        "sample_rate": 44100,
+        "channels": 2,
+        "loudness": {
+          "lufs": -18.2,
+          "lra": 1.2,
+          "true_peak_dbfs": -9.0
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.3562
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 1156.0,
+          "rolloff95_hz": 4488.8,
+          "flatness": 0.0157,
+          "hf_above_12k": 1e-05,
+          "sub_below_60": 0.0001,
+          "stereo_corr": 0.948
+        },
+        "tempo": {
+          "estimated_bpm": 103.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.006
+        },
+        "key": {
+          "best_key": "D major",
+          "best_r": 0.761,
+          "d_major_r": 0.761,
+          "d_major_rank": 1,
+          "key_ok": true
+        },
+        "loop": {
+          "min_bars": 2,
+          "score": 0.494,
+          "similarity": 0.5,
+          "level_match": 0.961,
+          "start_s": 2.0,
+          "end_s": 6.62,
+          "bars": 2,
+          "loop_s": 4.62,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.735,
+            "orchestral": 0.0,
+            "folk": 0.265
+          },
+          "style_sim": {
+            "piano": 0.3958,
+            "orchestral": 0.0196,
+            "folk": 0.3592
+          },
+          "vocal_prob": 0.1
+        },
+        "vocals": {
+          "vocal_energy_share": 0.0,
+          "vocal_active_frac": 0.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-103",
+      "score": 0.343,
+      "parts": {
+        "style": 0.002,
+        "seam": 0.587,
+        "length": 1.0,
+        "tempo": 0.65,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 103,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 156.8,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.3,
+          "lra": 6.7,
+          "true_peak_dbfs": -2.7
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7325
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 5738.8,
+          "rolloff95_hz": 13540.0,
+          "flatness": 0.0002,
+          "hf_above_12k": 0.00591,
+          "sub_below_60": 0.0041,
+          "stereo_corr": 0.638
+        },
+        "tempo": {
+          "estimated_bpm": 107.7,
+          "brief_bpm": 104.0,
+          "rel_err": 0.035
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.769,
+          "d_major_r": 0.262,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.452,
+          "similarity": 0.455,
+          "level_match": 0.974,
+          "start_s": 17.5,
+          "end_s": 56.73,
+          "bars": 17,
+          "loop_s": 39.23,
+          "grid_bpm": 104.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.942,
+            "orchestral": 0.057,
+            "folk": 0.002
+          },
+          "style_sim": {
+            "piano": 0.0783,
+            "orchestral": -0.0227,
+            "folk": -0.1502
+          },
+          "vocal_prob": 0.95
+        },
+        "vocals": {
+          "vocal_energy_share": 0.5398,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-102",
+      "score": 0.326,
+      "parts": {
+        "style": 0.002,
+        "seam": 0.547,
+        "length": 1.0,
+        "tempo": 0.56,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 102,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 160.8,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.8,
+          "lra": 6.2,
+          "true_peak_dbfs": -2.8
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7168
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 6029.3,
+          "rolloff95_hz": 13672.4,
+          "flatness": 0.0003,
+          "hf_above_12k": 0.00832,
+          "sub_below_60": 0.0024,
+          "stereo_corr": 0.572
+        },
+        "tempo": {
+          "estimated_bpm": 99.4,
+          "brief_bpm": 104.0,
+          "rel_err": 0.044
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.798,
+          "d_major_r": 0.239,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.428,
+          "similarity": 0.43,
+          "level_match": 0.99,
+          "start_s": 16.75,
+          "end_s": 57.8,
+          "bars": 17,
+          "loop_s": 41.05,
+          "grid_bpm": 99.4
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.969,
+            "orchestral": 0.029,
+            "folk": 0.002
+          },
+          "style_sim": {
+            "piano": 0.0996,
+            "orchestral": -0.0265,
+            "folk": -0.127
+          },
+          "vocal_prob": 0.96
+        },
+        "vocals": {
+          "vocal_energy_share": 0.5381,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-101",
+      "score": 0.308,
+      "parts": {
+        "style": 0.001,
+        "seam": 0.74,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 101,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 158.7,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -15.7,
+          "lra": 6.5,
+          "true_peak_dbfs": -2.3
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.7717
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 5795.2,
+          "rolloff95_hz": 13672.6,
+          "flatness": 0.0002,
+          "hf_above_12k": 0.00776,
+          "sub_below_60": 0.0032,
+          "stereo_corr": 0.708
+        },
+        "tempo": {
+          "estimated_bpm": 152.0,
+          "brief_bpm": 104.0,
+          "rel_err": 0.269
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.776,
+          "d_major_r": 0.239,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.544,
+          "similarity": 0.551,
+          "level_match": 0.957,
+          "start_s": 23.75,
+          "end_s": 52.17,
+          "bars": 18,
+          "loop_s": 28.42,
+          "grid_bpm": 152.0
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.969,
+            "orchestral": 0.03,
+            "folk": 0.001
+          },
+          "style_sim": {
+            "piano": 0.0948,
+            "orchestral": -0.0302,
+            "folk": -0.1387
+          },
+          "vocal_prob": 0.96
+        },
+        "vocals": {
+          "vocal_energy_share": 0.507,
+          "vocal_active_frac": 1.0
+        }
+      }
+    },
+    {
+      "id": "hm-spaced-104",
+      "score": 0.296,
+      "parts": {
+        "style": 0.002,
+        "seam": 0.678,
+        "length": 1.0,
+        "tempo": 0.0,
+        "key": 0.0,
+        "clean": 0.4
+      },
+      "shortlist": null,
+      "file": null,
+      "encode": null,
+      "model": "HeartMuLa",
+      "variant": "HeartMuLa-RL-oss-3B-20260123",
+      "codec": "HeartCodec-oss-20260123",
+      "code_commit": "heartlib-mlx 02dd2e22f6a1bf1a2f769a13f8af952a7a4e9cee",
+      "backend": "MLX (heartlib-mlx port, bf16 LM, fp32 codec)",
+      "seed": 104,
+      "prompt": "instrumental, folk, celtic, acoustic guitar, fiddle, marimba, percussion, adventure, sea shanty, upbeat, warm",
+      "lyrics": "",
+      "duration_s": 74.96,
+      "cfg_scale": 1.5,
+      "temperature": 1.0,
+      "topk": 50,
+      "gen_time_s": 161.6,
+      "model_load_s": 0.6,
+      "mlx_peak_gb": 25.5,
+      "metrics": {
+        "duration_s": 74.88,
+        "sample_rate": 48000,
+        "channels": 2,
+        "loudness": {
+          "lufs": -16.3,
+          "lra": 7.0,
+          "true_peak_dbfs": -3.1
+        },
+        "clipping": {
+          "clipped_samples": 0,
+          "clipped_frac": 0.0,
+          "peak": 0.6891
+        },
+        "silence": {
+          "longest_internal_gap_s": 0.0,
+          "internal_gaps": 0,
+          "head_silence_s": 0.0,
+          "tail_silence_s": 0.0,
+          "total_silence_s": 0
+        },
+        "spectrum": {
+          "centroid_hz": 6032.0,
+          "rolloff95_hz": 13637.7,
+          "flatness": 0.0003,
+          "hf_above_12k": 0.00694,
+          "sub_below_60": 0.0054,
+          "stereo_corr": 0.552
+        },
+        "tempo": {
+          "estimated_bpm": 129.2,
+          "brief_bpm": 104.0,
+          "rel_err": 0.242
+        },
+        "key": {
+          "best_key": "F# major",
+          "best_r": 0.768,
+          "d_major_r": 0.254,
+          "d_major_rank": 6,
+          "key_ok": false
+        },
+        "loop": {
+          "min_bars": 16,
+          "score": 0.507,
+          "similarity": 0.514,
+          "level_match": 0.959,
+          "start_s": 17.75,
+          "end_s": 49.33,
+          "bars": 17,
+          "loop_s": 31.58,
+          "grid_bpm": 129.2
+        },
+        "clap": {
+          "style_prob": {
+            "piano": 0.958,
+            "orchestral": 0.04,
+            "folk": 0.002
+          },
+          "style_sim": {
+            "piano": 0.0837,
+            "orchestral": -0.0303,
+            "folk": -0.1459
+          },
+          "vocal_prob": 0.951
+        },
+        "vocals": {
+          "vocal_energy_share": 0.5724,
+          "vocal_active_frac": 1.0
+        }
+      }
+    }
+  ]
+}

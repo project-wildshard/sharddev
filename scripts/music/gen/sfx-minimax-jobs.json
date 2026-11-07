@@ -1,0 +1,16 @@
+{
+  "_doc": "SFX round 2: the user asked whether MiniMax Music 3 can do sound effects. A cheap, fair test on 10 families, prompted as pure sound design (gen_minimax.py --jobs sfx-minimax-jobs.json). Takes land in <out>/sfx-<family>/minimax3-<seed>.wav; sfx_minimax.py trims each to its best-matching segment and files it as <sfx-raw>/minimax/<family>/<seed>.wav for sfx_build.py.",
+  "lyrics": {"short": "[Instrumental]"},
+  "jobs": {
+    "sfx/bed-forest": {"style": "sfx", "slot": "bed-forest", "duration": 12, "lyrics": "short", "prompt": "Genre: sound effect / foley / field recording, not music. A quiet pine forest at dawn: soft wind through tall pine trees, rustling needles, a few small songbirds chirping far away. No music, no melody, no drums, no singing, no instruments."},
+    "sfx/bed-island": {"style": "sfx", "slot": "bed-island", "duration": 12, "lyrics": "short", "prompt": "Genre: sound effect / foley / field recording, not music. A sunny beach: gentle ocean waves washing on sand, a light sea breeze, distant seagulls. No music, no melody, no drums, no singing, no instruments."},
+    "sfx/hum-shrine": {"style": "sfx", "slot": "hum-shrine", "duration": 10, "lyrics": "short", "prompt": "Genre: sound effect / sound design, not music. A deep ancient stone shrine humming: one low sustained drone on D with a fifth above, slowly breathing, constant. No melody, no rhythm, no drums, no singing."},
+    "sfx/crossbowFire": {"style": "sfx", "slot": "crossbowFire", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / foley, not music. A single crossbow shot: the trigger clicks, the string snaps with a twang, the bolt whooshes away, then silence. No music, no melody, no drums, no singing."},
+    "sfx/swordSwing": {"style": "sfx", "slot": "swordSwing", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / foley, not music. A single fast sword swing whooshing through the air, close, then silence. No music, no melody, no drums, no singing."},
+    "sfx/footstep-sand": {"style": "sfx", "slot": "footstep-sand", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / foley, not music. A few slow footsteps on soft dry beach sand, close. No music, no melody, no drums, no singing."},
+    "sfx/splash": {"style": "sfx", "slot": "splash", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / foley, not music. Something jumping into water: one big splash, then droplets, then silence. No music, no melody, no drums, no singing."},
+    "sfx/gull": {"style": "sfx", "slot": "gull", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / field recording, not music. A single seagull calling twice over the sea, outdoors. No music, no melody, no drums, no singing."},
+    "sfx/bear_roar": {"style": "sfx", "slot": "bear_roar", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / field recording, not music. A large brown bear roaring loudly and aggressively, close. No music, no melody, no drums, no singing."},
+    "sfx/monkey_chatter": {"style": "sfx", "slot": "monkey_chatter", "duration": 5, "lyrics": "short", "prompt": "Genre: sound effect / field recording, not music. A small monkey chattering excitedly in the jungle. No music, no melody, no drums, no singing."}
+  }
+}

@@ -1,0 +1,591 @@
+{
+ "about": "Every model a Blender script builds (M10, E315; docs/design/blender-practice.md). The script is the source, the GLB it exports is committed, a .blend never is. Run a target with `bash scripts/blender/build.sh <target>`, check one against its committed GLB with `--check`. Fields: script (the Blender entry, run with --python-exit-code 1), args, pre (shell, before Blender), sources (every other file the target needs: scripts/check-model-sources.mjs refuses a file under scripts/blender/ that no target names), inputs (committed files it reads), lock (Cycles work: take the model lock), build (files Blender must leave in $BUILD), meshopt / copy ([build file, repo file] pairs), post (shell, after the copies), outputs (the committed files it makes), feeds (the code that loads them), manual (not buildable here: why), check (the command --check runs for a manual target).",
+ "blender": { "version": "5.2.1", "path": "/opt/homebrew/bin/blender" },
+ "lock": "~/projects/localai/.model.lock",
+ "cache": "~/.cache/wildshard-blender",
+ "targets": {
+  "sdk-world-fixture": {
+   "about": "SF55a ordinary Blender GLB: transformed bridge, overhang, two embedded PNG materials, interactive door",
+   "script": "scripts/blender/lib/world_fixture.py",
+   "args": [
+    "$BUILD"
+   ],
+   "lock": true,
+   "build": [
+    "world.glb"
+   ],
+   "copy": [
+    [
+     "world.glb",
+     "test/fixtures/sdk-authored-world/world.glb"
+    ]
+   ],
+   "outputs": [
+    "test/fixtures/sdk-authored-world/world.glb"
+   ],
+   "feeds": [
+    "test/world-scene.test.ts"
+   ]
+  },
+  "driftwood-isle/island": {
+   "about": "Driftwood's spawn cove: terrain tiles, ~60-72 prototypes, 16.7 k placements, Cycles AO + bounce lightmaps (DRIFTWOOD-REMASTER X2, E52)",
+   "pre": ["node --experimental-transform-types --no-warnings --import ./scripts/bake-loader.mjs scripts/blender/lib/export-scene.mjs --chunk driftwood-isle $CACHE"],
+   "script": "src/shards/driftwood-isle/blender/build_island.py",
+   "args": ["$CACHE", "$BUILD"],
+   "sources": ["src/shards/driftwood-isle/blender/assets.py", "src/shards/driftwood-isle/blender/export.mjs", "src/shards/driftwood-isle/blender/post.sh", "scripts/blender/lib/export-scene.mjs"],
+   "inputs": ["public/assets/baked/driftwood-isle/terrain.bin", "public/assets/models/driftwood-hero/", "public/assets/models/driftwood-cc0/"],
+   "lock": true,
+   "build": ["island.glb", "placements.bin", "island.json", "lm-ao.png", "lm-bounce.png"],
+   "meshopt": [["island.glb", "public/assets/models/driftwood-blender/island.glb"]],
+   "copy": [["placements.bin", "public/assets/models/driftwood-blender/placements.bin"], ["island.json", "public/assets/models/driftwood-blender/island.json"]],
+   "post": "src/shards/driftwood-isle/blender/post.sh",
+   "outputs": [
+    "public/assets/models/driftwood-blender/island.glb", "public/assets/models/driftwood-blender/placements.bin", "public/assets/models/driftwood-blender/island.json",
+    "public/assets/models/driftwood-blender/lm-ao.webp", "public/assets/models/driftwood-blender/lm-ao.phone.webp",
+    "public/assets/models/driftwood-blender/lm-bounce.webp", "public/assets/models/driftwood-blender/lm-bounce.phone.webp"
+   ],
+   "feeds": ["src/shards/driftwood-isle/generators/bakedCove.ts", "src/client/game/shardfile/bakedTiles.ts"]
+  },
+  "pine-hollow/area-export": {
+   "about": "Pine Hollow's half of the island export (PH-0.3): area.bin, splat.bin, scene.json in the cache. Its Blender build is PINE-HOLLOW-REMASTER wave 2 (PH-U17), so it writes nothing to the repo",
+   "pre": ["node --experimental-transform-types --no-warnings --import ./scripts/bake-loader.mjs scripts/blender/lib/export-scene.mjs --chunk pine-hollow $CACHE"],
+   "script": null,
+   "sources": ["src/shards/pine-hollow/blender/export.mjs", "scripts/blender/lib/export-scene.mjs"],
+   "inputs": ["public/assets/baked/pine-hollow/terrain.bin"],
+   "lock": false,
+   "outputs": [],
+   "feeds": []
+  },
+  "pine-hollow/trees": {
+   "about": "Pine Hollow's photoreal species set: 14 variants x 5 LOD parts, branch-card + impostor atlases, 4 bark sets (PH-B4)",
+   "script": "src/shards/pine-hollow/blender/trees/build_trees.py",
+   "args": ["$BUILD"],
+   "sources": ["src/shards/pine-hollow/blender/trees/treegen.py", "src/shards/pine-hollow/blender/trees/barkgen.py", "scripts/blender/lib/glb.py", "src/shards/pine-hollow/blender/trees/post.sh"],
+   "inputs": ["public/assets/tex/pine_tree_01/", "public/assets/tex/pine_bark/"],
+   "lock": true,
+   "build": ["trees.glb", "trees.json"],
+   "meshopt": [["trees.glb", "public/assets/models/pine-hollow-trees/trees.glb"]],
+   "copy": [["trees.json", "public/assets/models/pine-hollow-trees/trees.json"]],
+   "post": "src/shards/pine-hollow/blender/trees/post.sh",
+   "outputs": [
+    "public/assets/models/pine-hollow-trees/trees.glb", "public/assets/models/pine-hollow-trees/trees.json",
+    "public/assets/models/pine-hollow-trees/cards-albedo.png", "public/assets/models/pine-hollow-trees/impostor-albedo.png",
+    "public/assets/models/pine-hollow-trees/cards-normal.jpg", "public/assets/models/pine-hollow-trees/cards-arm.jpg", "public/assets/models/pine-hollow-trees/impostor-normal.jpg",
+    "public/assets/tex/fir_bark/", "public/assets/tex/metasequoia_bark/", "public/assets/tex/birch_bark/", "public/assets/tex/bark_willow_02/"
+   ],
+   "feeds": ["src/client/engine/world/forest/treeSet.ts", "src/client/engine/world/TreeFactory.ts"]
+  },
+  "pine-hollow/crags": {
+   "about": "The Ridge's granite crag kit: the tors, boulders and scree, 7 modules (PH-B2; E350 F-X1 dropped the five big modules crags-b.glb replaces)",
+   "script": "src/shards/pine-hollow/blender/crags/build_crags.py",
+   "args": ["$BUILD"],
+   "sources": ["src/shards/pine-hollow/blender/crags/rocklib.py"],
+   "lock": true,
+   "build": ["crags.glb", "crags.json"],
+   "meshopt": [["crags.glb", "public/assets/models/pine-hollow-crags/crags.glb"]],
+   "copy": [["crags.json", "public/assets/models/pine-hollow-crags/crags.json"]],
+   "outputs": ["public/assets/models/pine-hollow-crags/crags.glb", "public/assets/models/pine-hollow-crags/crags.json"],
+   "feeds": ["src/shards/pine-hollow/generators/bake-crag-scenes.mjs"]
+  },
+  "pine-hollow/crags-b": {
+   "about": "E322 F-L2 (Jake picked B): the Ridge's big modules fused and weathered (cliff bands, buttress, slab) and the lookout's hero crag, overlaid on crags.glb",
+   "script": "src/shards/pine-hollow/blender/crags/build_crags_b.py",
+   "args": ["$BUILD"],
+   "sources": ["src/shards/pine-hollow/blender/crags/rocklib.py"],
+   "lock": true,
+   "build": ["crags-b.glb", "crags-b.json"],
+   "meshopt": [["crags-b.glb", "public/assets/models/pine-hollow-crags/crags-b.glb"]],
+   "copy": [["crags-b.json", "public/assets/models/pine-hollow-crags/crags-b.json"]],
+   "outputs": ["public/assets/models/pine-hollow-crags/crags-b.glb", "public/assets/models/pine-hollow-crags/crags-b.json"],
+   "feeds": ["src/shards/pine-hollow/generators/bake-crag-scenes.mjs"]
+  },
+  "pine-hollow/cave": {
+   "about": "The Den's bear cave: the interior + the hood over its first metres, fitted to the baked heights round the mouth (PH-B2)",
+   "pre": ["node --experimental-transform-types --no-warnings --import ./scripts/bake-loader.mjs src/shards/pine-hollow/blender/crags/export-cave.mjs $BUILD/cave-in.json"],
+   "script": "src/shards/pine-hollow/blender/crags/build_cave.py",
+   "args": ["$BUILD/cave-in.json", "$BUILD"],
+   "sources": ["src/shards/pine-hollow/blender/crags/rocklib.py", "src/shards/pine-hollow/blender/crags/export-cave.mjs"],
+   "inputs": ["public/assets/baked/pine-hollow/terrain.bin", "public/assets/models/pine-hollow-hero/cave-arch/cave-arch.glb"],
+   "lock": true,
+   "build": ["cave.glb", "cave.json"],
+   "meshopt": [["cave.glb", "public/assets/models/pine-hollow-crags/cave.glb"]],
+   "copy": [["cave.json", "public/assets/models/pine-hollow-crags/cave.json"]],
+   "outputs": ["public/assets/models/pine-hollow-crags/cave.glb", "public/assets/models/pine-hollow-crags/cave.json"],
+   "feeds": ["src/shards/pine-hollow/generators/bake-crag-scenes.mjs"]
+  },
+  "pine-hollow/lever-rifle": {
+   "about": "The lever-action carbine, hi (desktop) + lo (phone), each baked on its own UVs (PH-C11)",
+   "pre": ["mkdir -p $SHARED/weapons-src && { [ -s $SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg ] || curl -sfL -o $SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/walnut_veneer_02/walnut_veneer_02_diff_2k.jpg; }"],
+   "script": "src/shards/pine-hollow/blender/weapons/lever_rifle.py",
+   "args": ["$BUILD", "--wood=$SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg"],
+   "sources": [],
+   "inputs": ["public/assets/hdri/kloofendal_48d_partly_cloudy_puresky_2k.hdr"],
+   "lock": true,
+   "build": ["hi/lever-rifle.glb", "lo/lever-rifle.glb"],
+   "meshopt": [["hi/lever-rifle.glb", "public/assets/pine-hollow/weapons/lever-rifle.glb"], ["lo/lever-rifle.glb", "public/assets/pine-hollow/weapons/lever-rifle.phone.glb"]],
+   "outputs": ["public/assets/pine-hollow/weapons/lever-rifle.glb", "public/assets/pine-hollow/weapons/lever-rifle.phone.glb"],
+   "feeds": ["src/shards/pine-hollow/data/heldGear.json"]
+  },
+  "pine-hollow/skinning-knife": {
+   "about": "The first-person skinning knife in a gloved hand, hi + lo, one mesh, one material, plus its sidecar points",
+   "pre": ["mkdir -p $SHARED/weapons-src && { [ -s $SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg ] || curl -sfL -o $SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg https://dl.polyhaven.org/file/ph-assets/Textures/jpg/2k/walnut_veneer_02/walnut_veneer_02_diff_2k.jpg; }"],
+   "script": "src/shards/pine-hollow/blender/weapons/skinning_knife.py",
+   "args": ["$BUILD", "--wood=$SHARED/weapons-src/walnut_veneer_02_diff_2k.jpg"],
+   "sources": ["src/shards/pine-hollow/blender/weapons/knife-post.sh"],
+   "inputs": ["public/assets/hdri/kloofendal_48d_partly_cloudy_puresky_2k.hdr"],
+   "lock": true,
+   "build": ["hi/skinning-knife.glb", "lo/skinning-knife.glb", "hi/skinning-knife.json", "lo/skinning-knife.json"],
+   "meshopt": [["hi/skinning-knife.glb", "public/assets/pine-hollow/weapons/skinning-knife.glb"], ["lo/skinning-knife.glb", "public/assets/pine-hollow/weapons/skinning-knife.phone.glb"]],
+   "post": "src/shards/pine-hollow/blender/weapons/knife-post.sh",
+   "outputs": ["public/assets/pine-hollow/weapons/skinning-knife.glb", "public/assets/pine-hollow/weapons/skinning-knife.phone.glb", "public/assets/pine-hollow/weapons/skinning-knife.json"],
+   "feeds": ["src/shards/pine-hollow/data/heldGear.json"]
+  },
+  "nine-dragon-stack/fp-rig": {
+   "about": "The Nine Dragon first-person arms: hand, gauntlet and guard parts (Blender), rigged with 16 clips into fp-rig.glb by the viewmodel lab's bake (lab P8 round 13, E169); its rig-bake step ran in the deleted dev lab (E357 F7); a rebuild needs a new bake path",
+   "manual": "the rig bake ran in the deleted viewmodel lab page, and fp-rig.glb is the only complete copy: src/shards/nine-dragon-stack/blender/viewmodel/README.md says how to re-derive it",
+   "check": "node --import ./scripts/bake-loader.mjs src/shards/nine-dragon-stack/blender/viewmodel/rig/check-clips.mjs",
+   "script": "src/shards/nine-dragon-stack/blender/viewmodel/hand.py",
+   "sources": [
+    "src/shards/nine-dragon-stack/blender/viewmodel/hand_lib.py", "src/shards/nine-dragon-stack/blender/viewmodel/hand_model.py", "src/shards/nine-dragon-stack/blender/viewmodel/hand_parts.py",
+    "src/shards/nine-dragon-stack/blender/viewmodel/gauntlet.py", "src/shards/nine-dragon-stack/blender/viewmodel/gauntlet_geo.py", "src/shards/nine-dragon-stack/blender/viewmodel/gauntlet_maps.py",
+    "src/shards/nine-dragon-stack/blender/viewmodel/gauntlet_parts.py", "src/shards/nine-dragon-stack/blender/viewmodel/gauntlet_preview.py", "src/shards/nine-dragon-stack/blender/viewmodel/guard.py",
+    "src/shards/nine-dragon-stack/blender/viewmodel/rig/bake.ts.txt", "src/shards/nine-dragon-stack/blender/viewmodel/rig/moves.ts.txt", "src/shards/nine-dragon-stack/blender/viewmodel/rig/lab-main.ts.txt",
+    "src/shards/nine-dragon-stack/blender/viewmodel/rig/gate_chart.py",
+    "src/shards/nine-dragon-stack/blender/viewmodel/rig/check-clips.mjs"
+   ],
+   "inputs": ["src/client/game/systems/viewmodel/armRig.ts"],
+   "lock": true,
+   "outputs": [
+    "public/assets/nine-dragon/viewmodel/fp-rig.glb",
+    "public/assets/nine-dragon/viewmodel/hand-r-maps.webp", "public/assets/nine-dragon/viewmodel/hand-r-nrm.webp",
+    "public/assets/nine-dragon/viewmodel/arm-r-maps.webp", "public/assets/nine-dragon/viewmodel/arm-r-nrm.webp",
+    "public/assets/nine-dragon/viewmodel/fist-l-maps.webp", "public/assets/nine-dragon/viewmodel/fist-l-nrm.webp",
+    "public/assets/nine-dragon/viewmodel/gauntlet-maps.webp", "public/assets/nine-dragon/viewmodel/gauntlet-nrm.webp"
+   ],
+   "feeds": ["src/shards/nine-dragon-stack/generators/heldView.ts"]
+  },
+  "driftwood-isle/fp-arms": {
+   "about": "Driftwood's first-person castaway arms (E334, board 2 A / 3 A): the arms and both swords modelled round Nine Dragon's round-13 skeleton, which keeps its 16 clips; + 15 finger bones a hand, the swim clips and the skin (bake.mjs), then the rig gate (gate.mjs → gate.json). --preview also writes posed PLYs for preview.py",
+   "pre": ["mkdir -p $BUILD && node src/shards/driftwood-isle/blender/fp-arms/skeleton.mjs $BUILD/bind.json"],
+   "script": "src/shards/driftwood-isle/blender/fp-arms/arms.py",
+   "args": ["$BUILD/bind.json", "$BUILD"],
+   "sources": ["src/shards/driftwood-isle/blender/fp-arms/skeleton.mjs", "src/shards/driftwood-isle/blender/fp-arms/bake.mjs", "src/shards/driftwood-isle/blender/fp-arms/gate.mjs", "src/shards/driftwood-isle/blender/fp-arms/preview.py"],
+   "inputs": ["public/assets/nine-dragon/viewmodel/fp-rig.glb", "src/client/game/systems/viewmodel/armRig.ts"],
+   "lock": false,
+   "build": ["fp-arms.raw.glb", "gate.json"],
+   "meshopt": [["fp-arms.raw.glb", "public/assets/models/driftwood-fp/fp-arms.glb"]],
+   "outputs": ["public/assets/models/driftwood-fp/fp-arms.glb"],
+   "feeds": ["src/shards/driftwood-isle/data/heldArms.json", "src/client/game/systems/viewmodel/rigArms.ts"]
+  },
+  "far-reach/roc": {
+   "about": "Sky Reach's Storm Roc repair (E392/E399 council round 13): Hunyuan3D-2's eagle (art/far-reach/round-27-roc) with its loose second-head lump deleted, its open edges filled, the claw shapes painted on its tail fan painted out and its beak and toes pushed to gold; then meshopt + a 1024 WebP map (art/far-reach/round-31-roc-fix)",
+   "manual": "the source is Hunyuan3D-2's output after finish.sh (~/ml/img2mesh/work/roc-eagle/roc-eagle.raw.glb), which is not committed: run repair.py on it, then gltf-transform optimize <out> public/assets/far-reach/models/roc-hd/roc-hd.glb --compress meshopt --texture-compress webp --texture-size 1024 --simplify false --instance false",
+   "check": "blender -b --factory-startup -noaudio --python-exit-code 1 -P src/shards/far-reach/blender/roc/repair.py -- --check public/assets/far-reach/models/roc-hd/roc-hd.glb",
+   "script": "src/shards/far-reach/blender/roc/repair.py",
+   "inputs": [],
+   "lock": false,
+   "outputs": ["public/assets/far-reach/models/roc-hd/roc-hd.glb"],
+   "feeds": ["src/shards/far-reach/generators/creatures.ts"]
+  },
+  "blender-template": {
+   "about": "SF55 fully authored clay cell: four entry landmarks, hall and one textured door",
+   "script": "src/shards/blender-template/blender/world.py",
+   "args": [
+    "$BUILD"
+   ],
+   "lock": true,
+   "build": [
+    "world.glb",
+    "ground.glb",
+    "lm-ao.png",
+    "lm-bounce.png"
+   ],
+   "copy": [
+    [
+     "world.glb",
+     "src/shards/blender-template/assets/world.glb"
+    ],
+    [
+     "ground.glb",
+     "src/shards/blender-template/assets/ground.glb"
+    ],
+    [
+     "lm-ao.png",
+     "src/shards/blender-template/assets/lm-ao.png"
+    ],
+    [
+     "lm-bounce.png",
+     "src/shards/blender-template/assets/lm-bounce.png"
+    ]
+   ],
+   "outputs": [
+    "src/shards/blender-template/assets/world.glb",
+    "src/shards/blender-template/assets/ground.glb",
+    "src/shards/blender-template/assets/lm-ao.png",
+    "src/shards/blender-template/assets/lm-bounce.png"
+   ],
+   "feeds": [
+    "src/shards/blender-template/shard.config.ts"
+   ]
+  },
+  "open-plots/kit": {
+   "about": "The open plots' kit models (Night Market remaster RM4): each family three variants, flat-shaded, ray-traced AO in COLOR_0 (no Cycles: no model lock, byte-stable), data/trim.json's ruled-trim UVs; the plot generator retints them by palette slot",
+   "script": "scripts/blender/open-plots/kit.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py", "scripts/blender/open-plots/sources/tree-round.glb", "scripts/blender/open-plots/sources/tree-tall.glb"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["lanterns.glb", "stalls.glb", "houses.glb", "bridges.glb", "strings.glb", "props.glb", "canal.glb", "trees.glb", "figures.glb"],
+   "copy": [["lanterns.glb", "public/assets/open-plots/kit/lanterns.glb"], ["stalls.glb", "public/assets/open-plots/kit/stalls.glb"], ["houses.glb", "public/assets/open-plots/kit/houses.glb"], ["bridges.glb", "public/assets/open-plots/kit/bridges.glb"], ["strings.glb", "public/assets/open-plots/kit/strings.glb"], ["props.glb", "public/assets/open-plots/kit/props.glb"], ["canal.glb", "public/assets/open-plots/kit/canal.glb"], ["trees.glb", "public/assets/open-plots/kit/trees.glb"], ["figures.glb", "public/assets/open-plots/kit/figures.glb"]],
+   "outputs": ["public/assets/open-plots/kit/lanterns.glb", "public/assets/open-plots/kit/stalls.glb", "public/assets/open-plots/kit/houses.glb", "public/assets/open-plots/kit/bridges.glb", "public/assets/open-plots/kit/strings.glb", "public/assets/open-plots/kit/props.glb", "public/assets/open-plots/kit/canal.glb", "public/assets/open-plots/kit/trees.glb", "public/assets/open-plots/kit/figures.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/bayou": {
+   "about": "Lantern Bayou's theme kit families (open-plots build-out OB2, G978): stilt houses and marsh dressing in the kit's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/bayou.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["stilts.glb", "marsh.glb"],
+   "copy": [["stilts.glb", "public/assets/open-plots/kit/stilts.glb"], ["marsh.glb", "public/assets/open-plots/kit/marsh.glb"]],
+   "outputs": ["public/assets/open-plots/kit/stilts.glb", "public/assets/open-plots/kit/marsh.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/cypress": {
+   "about": "Lantern Bayou's landmark (open-plots build-out OB2, G978): the giant moss-draped cypress as a script, picked over Hunyuan3D 2.1 and TRELLIS.2 (art/lantern-bayou/round-1-landmark/board.jpg); 40 m, near ~15k and far 2.4k triangles on one swatch atlas, its 72 lantern ropes' hook points (40 until the OB2 crown round) in build/hooks.json for the layout",
+   "script": "scripts/blender/open-plots/cypress.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb", "hooks.json"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/lantern-bayou/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/lantern-bayou/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/lantern-bayou/landmark.glb", "public/assets/open-plots/lantern-bayou/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/peak": {
+   "about": "Frostline Peaks' landmark as a script: take C on the pick board (art/frostline-peaks/round-1-landmark/board.jpg), kept as the fallback to the Hunyuan3D 2.1 take that ships (G872), so it writes to the cache and nothing to the repo",
+   "script": "scripts/blender/open-plots/peak.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "outputs": [],
+   "feeds": []
+  },
+  "open-plots/ziggurat": {
+   "about": "Jungle Ziggurat's landmark (OPEN-PLOTS OP13): the painted stepped temple pyramid as a script, picked over Hunyuan3D 2.1 and TRELLIS.2 (art/jungle-ziggurat/round-1-landmark/board.jpg); 55 m, five cinnabar tiers with saffron and turquoise frets, the stair up +Z, top platform at 35 m; near ~9k and far ~2.4k triangles on one swatch atlas",
+   "script": "scripts/blender/open-plots/ziggurat.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/jungle-ziggurat/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/jungle-ziggurat/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/jungle-ziggurat/landmark.glb", "public/assets/open-plots/jungle-ziggurat/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/gateway": {
+   "about": "Desert Ruin's landmark (OPEN-PLOTS OP12): the ruined sandstone temple gateway as a script, take C on art/desert-ruin/round-1-landmark/board.jpg; 40 m tall, 44 m wide, two fluted drum columns on stepped plinths under a broken three-course ashlar lintel, the opening 20 m wide and 28 m clear facing glTF +/-Z; near and far on one swatch atlas",
+   "script": "scripts/blender/open-plots/gateway.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/desert-ruin/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/desert-ruin/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/desert-ruin/landmark.glb", "public/assets/open-plots/desert-ruin/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/stars": {
+   "about": "Starfall Observatory's theme kit family (OPEN-PLOTS OP15): 0 a royal-blue refractor on a silver tripod, 1 an armillary sphere of silver and brass rings round a lit globe on a white plinth, 2 a stargazer's pavilion (white drum, lit windows, royal-blue dome); retinted by palette slot",
+   "script": "scripts/blender/open-plots/stars.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["stars.glb"],
+   "copy": [["stars.glb", "public/assets/open-plots/kit/stars.glb"]],
+   "outputs": ["public/assets/open-plots/kit/stars.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/clockwork": {
+   "about": "Clockwork Canyon's theme kit family (OPEN-PLOTS OP19): 0 a brass-rimmed waterwheel of timber paddles on its sandstone piers, 1 a verdigris boiler banded in brass with a tall brass smokestack and a lit gauge, 2 two meshing brass gears on a verdigris frame under an arching pipe; retinted by palette slot",
+   "script": "scripts/blender/open-plots/clockwork.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["clockwork.glb"],
+   "copy": [["clockwork.glb", "public/assets/open-plots/kit/clockwork.glb"]],
+   "outputs": ["public/assets/open-plots/kit/clockwork.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/harbour": {
+   "about": "Saltwind Lighthouse's theme kit family (OPEN-PLOTS OP9): 0 a moored fishing boat (red hull, white wheelhouse, mast and lamp), 1 a whitewashed fisher's cottage with a black gable roof and two chimneys (the corner boathouse turned), 2 a net-drying rack with lobster pots and a buoy post; retinted by palette slot",
+   "script": "scripts/blender/open-plots/harbour.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["harbour.glb"],
+   "copy": [["harbour.glb", "public/assets/open-plots/kit/harbour.glb"]],
+   "outputs": ["public/assets/open-plots/kit/harbour.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/skeleton": {
+   "about": "Fossil Badlands' landmark (OPEN-PLOTS OP21): the dragon skeleton in its stepped excavation pit as a script (thin ribs melt in image-to-3D); a raised clay rim in oxblood, mustard and cream strata whose terraces step down to the dig floor, the bone-white spine, ribs, limbs and horned skull facing the stair up +Z, timber scaffolding; one swatch atlas",
+   "script": "scripts/blender/open-plots/skeleton.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/fossil-badlands/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/fossil-badlands/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/fossil-badlands/landmark.glb", "public/assets/open-plots/fossil-badlands/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/airship": {
+   "about": "Sky Harbor's landmark (OPEN-PLOTS OP11): a cream airship moored nose-in to a timber lattice mooring tower as a script; a 36 m envelope with brown straps, timber tail fins and a gondola on rigging, the tower's girts, braces, railed platform, navy-roofed lookout and pennant, a deck of crates and barrels; one swatch atlas",
+   "script": "scripts/blender/open-plots/airship.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/sky-harbor/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/sky-harbor/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/sky-harbor/landmark.glb", "public/assets/open-plots/sky-harbor/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/skyport": {
+   "about": "Sky Harbor's theme kit family (OPEN-PLOTS OP11): a timber dock crane with a hanging crate, a cornflower rowboat with oars and a cargo stack of crates, barrels and sacks in kit.py's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/skyport.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["skyport.glb"],
+   "copy": [["skyport.glb", "public/assets/open-plots/kit/skyport.glb"]],
+   "outputs": ["public/assets/open-plots/kit/skyport.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/crystal": {
+   "about": "Thin Ice's landmark (OPEN-PLOTS OP18): a cluster of giant ice crystals on a snowy two-tier octagonal plinth as a script; a 36 m central crystal ringed by eight lesser crystals leaning out, rime bands at their feet, a stair up the front; one swatch atlas",
+   "script": "scripts/blender/open-plots/crystal.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/thin-ice/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/thin-ice/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/thin-ice/landmark.glb", "public/assets/open-plots/thin-ice/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/polar": {
+   "about": "Thin Ice's theme kit family (OPEN-PLOTS OP18): a snow-block igloo with its entrance tunnel, ice-fishing gear (crossed skis, a stool, a bucket and a rod over the hole) and a snowy slat bench in kit.py's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/polar.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["polar.glb"],
+   "copy": [["polar.glb", "public/assets/open-plots/kit/polar.glb"]],
+   "outputs": ["public/assets/open-plots/kit/polar.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/racetower": {
+   "about": "Floating Island Race's landmark (OPEN-PLOTS OP22): the race control tower behind its striped start arch as a script; two 30 m red-and-white banded pylons with checkered flags, a red-and-white segmented arch over a blue soffit, a white shaft under three blue control floors, a crown and an antenna mast on a white deck; one swatch atlas",
+   "script": "scripts/blender/open-plots/racetower.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/sky-race/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/sky-race/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/sky-race/landmark.glb", "public/assets/open-plots/sky-race/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/race": {
+   "about": "Floating Island Race's theme kit family (OPEN-PLOTS OP22): a red open-wheel race car, a white pit garage under a blue hipped roof and a five-tier grandstand under a blue canopy in kit.py's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/race.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["race.glb"],
+   "copy": [["race.glb", "public/assets/open-plots/kit/race.glb"]],
+   "outputs": ["public/assets/open-plots/kit/race.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/obelisk": {
+   "about": "The Showcase Template's landmark (OPEN-PLOTS OP5): THE OBELISK of KITCHEN-SINK's round-11 prompt block as a script, raised to a 30 m hub; a chamfered orange stone spire in four courses between grey steel bands, a clock face on each side, a steel cap and a cyan crystal, on a grey plinth in a fountain ring; one swatch atlas",
+   "script": "scripts/blender/open-plots/obelisk.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/showcase-template/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/showcase-template/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/showcase-template/landmark.glb", "public/assets/open-plots/showcase-template/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/dig": {
+   "about": "Fossil Badlands' theme kit family (OPEN-PLOTS OP21): a canvas dig tent, a timber hand crane with a sling of bones and a sorting table with crates in kit.py's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/dig.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["dig.glb"],
+   "copy": [["dig.glb", "public/assets/open-plots/kit/dig.glb"]],
+   "outputs": ["public/assets/open-plots/kit/dig.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/fair": {
+   "about": "Patchwork Fairground's theme kit family (OPEN-PLOTS OP7): a carousel, a striped big top and the helter-skelter (the entry gate's variant) in kit.py's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/fair.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["fair.glb"],
+   "copy": [["fair.glb", "public/assets/open-plots/kit/fair.glb"]],
+   "outputs": ["public/assets/open-plots/kit/fair.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/observatory": {
+   "about": "Starfall Observatory's landmark (OPEN-PLOTS OP15): the domed observatory and its telescope on a stepped white plinth as a script (turned architecture and the dome's slit smear in image-to-3D); 30 m, a white drum with pilasters and lit windows, a balcony, a white dome split by a dark slit, a royal-blue telescope, the stair up +Z; one swatch atlas",
+   "script": "scripts/blender/open-plots/observatory.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/starfall-observatory/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/starfall-observatory/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/starfall-observatory/landmark.glb", "public/assets/open-plots/starfall-observatory/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/clocktower": {
+   "about": "Clockwork Canyon's landmark (OPEN-PLOTS OP19): the brass-and-verdigris clock tower with its gear trains as a script (gear teeth and dials smear in image-to-3D); 36 m, three verdigris stages banded in brass, a cream dial on each face, brass gears up both flanks, an open belfry and a verdigris dome, the stair up +Z; one swatch atlas",
+   "script": "scripts/blender/open-plots/clocktower.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/clockwork-canyon/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/clockwork-canyon/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/clockwork-canyon/landmark.glb", "public/assets/open-plots/clockwork-canyon/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/monolith": {
+   "about": "Pastel Alien Plain's landmark (OPEN-PLOTS OP20): the glowing alien monolith as a script (jagged shards smear in image-to-3D); 32 m, a cluster of five leaning dark faceted shards split by acid-lime cracks on a ring of low jagged stones, lime and violet crystals at its foot, its main crack to the front (+Z); one swatch atlas",
+   "script": "scripts/blender/open-plots/monolith.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/alien-plain/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/alien-plain/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/alien-plain/landmark.glb", "public/assets/open-plots/alien-plain/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/alien": {
+   "about": "Pastel Alien Plain's theme kit family (OPEN-PLOTS OP20): 0 a crystal cluster of violet and glowing lime crystals on a dark rock, 1 a 20 m faceted dome habitat with a band of lit windows and a lit door, 2 a 7 m dark rock spire split by a glowing lime crack with violet crystals at its foot; retinted by palette slot",
+   "script": "scripts/blender/open-plots/alien.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["alien.glb"],
+   "copy": [["alien.glb", "public/assets/open-plots/kit/alien.glb"]],
+   "outputs": ["public/assets/open-plots/kit/alien.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/lighthouse": {
+   "about": "Saltwind Lighthouse's landmark (OPEN-PLOTS OP9): the red-banded lighthouse on its stepped basalt plinth as a script (turned bands and the railing smear in image-to-3D); 40 m, whitewash with three signal-red bands, a black gallery and railing, a cold glass lantern room, a black domed cap, the stair up +Z; one swatch atlas",
+   "script": "scripts/blender/open-plots/lighthouse.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/saltwind-lighthouse/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/saltwind-lighthouse/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/saltwind-lighthouse/landmark.glb", "public/assets/open-plots/saltwind-lighthouse/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/ferris": {
+   "about": "Patchwork Fairground's landmark (OPEN-PLOTS OP7): the giant Ferris wheel on its square plinth as a script (thin lattice and spokes smear in image-to-3D); 40 m, red A-frame legs, a white double rim with lattice and 16 spokes a side, 12 red / sunflower / blue gondolas, the stair up +Z; one swatch atlas",
+   "script": "scripts/blender/open-plots/ferris.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/landmarklib.py"],
+   "inputs": [],
+   "lock": false,
+   "build": ["landmark.glb", "landmark-far.glb"],
+   "meshopt": [["landmark.glb", "public/assets/open-plots/patchwork-fairground/landmark.glb"], ["landmark-far.glb", "public/assets/open-plots/patchwork-fairground/landmark-far.glb"]],
+   "outputs": ["public/assets/open-plots/patchwork-fairground/landmark.glb", "public/assets/open-plots/patchwork-fairground/landmark-far.glb"],
+   "feeds": ["src/shards/open-plots/generators/tiledPlot.mjs"]
+  },
+  "open-plots/lagoon": {
+   "about": "Coral Drift's theme kit families (open-plots build-out OB5, G978): beach huts, the shared palms (Desert Ruin reuses them) and reef dressing in the kit's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/lagoon.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/bayou.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["huts.glb", "palms.glb", "reef.glb"],
+   "copy": [["huts.glb", "public/assets/open-plots/kit/huts.glb"], ["palms.glb", "public/assets/open-plots/kit/palms.glb"], ["reef.glb", "public/assets/open-plots/kit/reef.glb"]],
+   "outputs": ["public/assets/open-plots/kit/huts.glb", "public/assets/open-plots/kit/palms.glb", "public/assets/open-plots/kit/reef.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/hero": {
+   "about": "The open plots' hero hanging lantern (OPEN-PLOTS OP1, G827; OB2): three takes as one kit family, each hung from its hook at the origin (A round paper, B drum, C iron-framed glass box), LOD0 `hero` and LOD1 `hero-lod1`, retinted by palette slot",
+   "script": "scripts/blender/open-plots/hero.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["hero.glb", "hero-lod1.glb"],
+   "copy": [["hero.glb", "public/assets/open-plots/kit/hero.glb"], ["hero-lod1.glb", "public/assets/open-plots/kit/hero-lod1.glb"]],
+   "outputs": ["public/assets/open-plots/kit/hero.glb", "public/assets/open-plots/kit/hero-lod1.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/frost": {
+   "about": "Frostline Peaks' theme kit families (open-plots build-out OB3, G978): snow-roofed timber lodges and the shared snow-dusted pine clumps in the kit's format, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/frost.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/bayou.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["lodges.glb", "pines.glb", "lift.glb"],
+   "copy": [["lodges.glb", "public/assets/open-plots/kit/lodges.glb"], ["pines.glb", "public/assets/open-plots/kit/pines.glb"], ["lift.glb", "public/assets/open-plots/kit/lift.glb"]],
+   "outputs": ["public/assets/open-plots/kit/lodges.glb", "public/assets/open-plots/kit/pines.glb", "public/assets/open-plots/kit/lift.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/ruins": {
+   "about": "The shared ruin-stone kit families (open-plots build-out OB6, Mosslight Ruins; Desert Ruin reuses them, G978): ruins (a broken arch, an L of wall, a stepped terrace) and rubble (a rubble heap, column stumps) in mossy grey stone with opaque ivy strands and glowing moss, retinted by palette slot like open-plots/kit",
+   "script": "scripts/blender/open-plots/ruins.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["ruins.glb", "rubble.glb"],
+   "copy": [["ruins.glb", "public/assets/open-plots/kit/ruins.glb"], ["rubble.glb", "public/assets/open-plots/kit/rubble.glb"]],
+   "outputs": ["public/assets/open-plots/kit/ruins.glb", "public/assets/open-plots/kit/rubble.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  },
+  "open-plots/forge": {
+   "about": "Ember Forge's theme kit families (open-plots build-out OB4, G978): forges (a basalt smithy, a two-stack foundry hall, an open anvil yard) for the forge-hall tile and ore (a coal heap with embers, a lattice crane hanging a bucket, ore carts on track) for the ore-heap-and-crane tile, in the kit's format, retinted by palette slot like open-plots/kit; lava and embers draw as Glow.window, the cold lamps as Glow.lantern",
+   "script": "scripts/blender/open-plots/forge.py",
+   "args": ["$BUILD"],
+   "sources": ["scripts/blender/open-plots/kit.py", "scripts/blender/open-plots/kitlib.py", "scripts/blender/open-plots/bayou.py", "scripts/blender/open-plots/model_source.py", "scripts/blender/lib/glb.py"],
+   "inputs": ["src/shards/open-plots/data/trim.json"],
+   "lock": false,
+   "build": ["forges.glb", "ore.glb"],
+   "copy": [["forges.glb", "public/assets/open-plots/kit/forges.glb"], ["ore.glb", "public/assets/open-plots/kit/ore.glb"]],
+   "outputs": ["public/assets/open-plots/kit/forges.glb", "public/assets/open-plots/kit/ore.glb"],
+   "feeds": ["src/shards/open-plots/generators/kitGlb.mjs"]
+  }
+ }
+}

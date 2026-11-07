@@ -1,0 +1,25 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "node"
+    ],
+    "allowJs": true,
+    "checkJs": false,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "crawl.ts"
+  ],
+  "references": [
+    {
+      "path": "../../tsconfig.sdk.json"
+    },
+    {
+      "path": "../../tsconfig.sharddev.json"
+    },
+    {
+      "path": "../../tsconfig.engine.json"
+    }
+  ]
+}

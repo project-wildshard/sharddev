@@ -1,0 +1,255 @@
+{
+ "_note": "rot: Blender Euler XYZ degrees after import (Hunyuan faces glTF +Z = Blender -Y; the ref's right = +X). fit: tips (beak tip to tail tip) | span | length | height. level: turn the wing plane horizontal (PCA). flatten: wings to the root's height. span (fly): stretch the wings outboard of the body to this span after fitting the length.",
+ "raven_perch": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-raven-perch.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "perch",
+  "rot": [
+   0,
+   0,
+   -90
+  ],
+  "fit": "tips",
+  "size": 0.62,
+  "tris": 1200,
+  "neck": [
+   0,
+   0.1,
+   0.05
+  ],
+  "headAxis": [
+   0,
+   0.8,
+   0.6
+  ],
+  "tailRoot": [
+   0,
+   -0.07,
+   -0.12
+  ],
+  "tailAxis": [
+   0,
+   -0.55,
+   -0.83
+  ]
+ },
+ "raven_fly": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-raven-fly.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "fly",
+  "rot": [
+   90,
+   180,
+   0
+  ],
+  "level": true,
+  "flatten": true,
+  "fit": "length",
+  "size": 0.62,
+  "tris": 900,
+  "span": 1.2,
+  "neck": [
+   0,
+   0.03,
+   0.15
+  ],
+  "tailRoot": [
+   0,
+   -0.01,
+   -0.11
+  ]
+ },
+ "owl_perch": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-owl-perch.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "perch",
+  "rot": [
+   0,
+   0,
+   -90
+  ],
+  "fit": "tips",
+  "size": 0.7,
+  "tris": 1200,
+  "remesh": 0.004,
+  "neck": [
+   0,
+   0.11,
+   0.08
+  ],
+  "headAxis": [
+   0,
+   0.97,
+   0.25
+  ],
+  "tailRoot": [
+   0,
+   -0.12,
+   -0.15
+  ],
+  "tailAxis": [
+   0,
+   -0.7,
+   -0.7
+  ]
+ },
+ "owl_fly": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-owl-fly.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "fly",
+  "rot": [
+   90,
+   180,
+   0
+  ],
+  "level": true,
+  "flatten": true,
+  "fit": "length",
+  "size": 0.7,
+  "tris": 900,
+  "span": 1.4,
+  "inflate": 1.7,
+  "neck": [
+   0,
+   0.03,
+   0.17
+  ],
+  "tailRoot": [
+   0,
+   -0.03,
+   -0.15
+  ]
+ },
+ "wood_perch": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-woodpecker-perch.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "perch",
+  "rot": [
+   0,
+   0,
+   -90
+  ],
+  "fit": "tips",
+  "size": 0.45,
+  "tris": 1200,
+  "neck": [
+   0,
+   0.035,
+   0.02
+  ],
+  "headAxis": [
+   0,
+   0.8,
+   0.6
+  ],
+  "tailRoot": [
+   0,
+   -0.1,
+   -0.1
+  ],
+  "tailAxis": [
+   0,
+   -0.63,
+   -0.77
+  ]
+ },
+ "wood_fly": {
+  "src": "~/ml/img2mesh/out/pine-hollow-birds-hy/ref-woodpecker-fly.glb",
+  "gen": "Hunyuan3D-2 full + paint",
+  "pose": "fly",
+  "rot": [
+   90,
+   180,
+   0
+  ],
+  "level": true,
+  "flatten": true,
+  "fit": "length",
+  "size": 0.45,
+  "tris": 900,
+  "span": 0.66,
+  "neck": [
+   0,
+   0.05,
+   0.13
+  ],
+  "tailRoot": [
+   0,
+   -0.01,
+   -0.06
+  ]
+ },
+ "_grade": {
+  "owl_perch": {
+   "eyes": [
+    {
+     "at": [
+      -0.047,
+      0.222,
+      0.2
+     ],
+     "dir": [
+      0,
+      0,
+      1
+     ],
+     "r": 0.012
+    },
+    {
+     "at": [
+      0.047,
+      0.222,
+      0.2
+     ],
+     "dir": [
+      0,
+      0,
+      1
+     ],
+     "r": 0.012
+    }
+   ]
+  },
+  "owl_fly": {
+   "eyes": [
+    {
+     "at": [
+      -0.036,
+      0.05,
+      0.267
+     ],
+     "dir": [
+      0,
+      1,
+      0.25
+     ],
+     "r": 0.011
+    },
+    {
+     "at": [
+      0.036,
+      0.05,
+      0.267
+     ],
+     "dir": [
+      0,
+      1,
+      0.25
+     ],
+     "r": 0.011
+    }
+   ]
+  },
+  "raven_perch": {
+   "lMean": 17,
+   "lMax": 32
+  },
+  "raven_fly": {
+   "lMean": 17,
+   "lMax": 32
+  },
+  "wood_fly": {
+   "lMean": 25
+  }
+ }
+}

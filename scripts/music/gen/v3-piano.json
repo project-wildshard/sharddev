@@ -1,0 +1,1813 @@
+{
+  "style": "piano",
+  "scoring": {
+    "loop": {
+      "style": 0.3,
+      "groove": 0.25,
+      "seam": 0.2,
+      "clean": 0.15,
+      "full": 0.1
+    },
+    "title": {
+      "style": 0.45,
+      "seam": 0.15,
+      "clean": 0.2,
+      "full": 0.2
+    },
+    "vocal_disqualify": 0.2
+  },
+  "slots": {
+    "pine": {
+      "pick": "minimax3-305",
+      "alternates": [
+        "minimax3-303",
+        "minimax3-302"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.683,
+          "parts": {
+            "style": 0.789,
+            "seam": 0.493,
+            "clean": 1.0,
+            "full": 1.0,
+            "groove": 0.473
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "piano/pine-305.mp3",
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 278.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.2,
+              "lra": 11.3,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 1,
+              "clipped_frac": 1.5100703571980825e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2029.4,
+              "rolloff95_hz": 8702.4,
+              "flatness": 0.0013,
+              "hf_above_12k": 0.00138,
+              "sub_below_60": 0.1159,
+              "stereo_corr": 0.597
+            },
+            "tempo": {
+              "estimated_bpm": 92.3,
+              "brief_bpm": 80.0,
+              "rel_err": 0.154
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.875,
+              "d_major_r": -0.291,
+              "d_major_rank": 16,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.396,
+              "similarity": 0.421,
+              "level_match": 0.804,
+              "start_s": 4.75,
+              "end_s": 48.96,
+              "bars": 17,
+              "loop_s": 44.21,
+              "grid_bpm": 92.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.789,
+                "orchestral": 0.008,
+                "folk": 0.203
+              },
+              "style_sim": {
+                "piano": 0.303,
+                "orchestral": 0.1383,
+                "folk": 0.2543
+              },
+              "vocal_prob": 0.948
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0709,
+              "vocal_active_frac": 0.253,
+              "stem_share": {
+                "drums": 0.2332,
+                "bass": 0.1971,
+                "other": 0.4989,
+                "vocals": 0.0709
+              },
+              "groove_active_frac": 0.573,
+              "drums_active_frac": 0.373
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.639,
+          "parts": {
+            "style": 0.349,
+            "seam": 0.72,
+            "clean": 1.0,
+            "full": 1.0,
+            "groove": 0.56
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "piano/pine-303.mp3",
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 284.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.7,
+              "lra": 10.9,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 109,
+              "clipped_frac": 1.64597668934591e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2160.8,
+              "rolloff95_hz": 8399.9,
+              "flatness": 0.0016,
+              "hf_above_12k": 0.00014,
+              "sub_below_60": 0.0663,
+              "stereo_corr": 0.458
+            },
+            "tempo": {
+              "estimated_bpm": 172.3,
+              "brief_bpm": 80.0,
+              "rel_err": 0.077
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.832,
+              "d_major_r": 0.095,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.532,
+              "similarity": 0.537,
+              "level_match": 0.971,
+              "start_s": 29.75,
+              "end_s": 54.83,
+              "bars": 18,
+              "loop_s": 25.08,
+              "grid_bpm": 172.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.349,
+                "orchestral": 0.0,
+                "folk": 0.651
+              },
+              "style_sim": {
+                "piano": 0.2726,
+                "orchestral": 0.0118,
+                "folk": 0.2951
+              },
+              "vocal_prob": 0.978
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0258,
+              "vocal_active_frac": 0.053,
+              "stem_share": {
+                "drums": 0.0797,
+                "bass": 0.1692,
+                "other": 0.7254,
+                "vocals": 0.0258
+              },
+              "groove_active_frac": 0.613,
+              "drums_active_frac": 0.507
+            }
+          }
+        },
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.627,
+          "parts": {
+            "style": 0.928,
+            "seam": 0.388,
+            "clean": 0.8,
+            "full": 0.377,
+            "groove": 0.474
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "piano/pine-302.mp3",
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 206.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 57.55,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.1,
+              "lra": 9.7,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 75,
+              "clipped_frac": 1.477550685898729e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1790.3,
+              "rolloff95_hz": 6977.5,
+              "flatness": 0.0006,
+              "hf_above_12k": 8e-05,
+              "sub_below_60": 0.0561,
+              "stereo_corr": 0.299
+            },
+            "tempo": {
+              "estimated_bpm": 83.4,
+              "brief_bpm": 80.0,
+              "rel_err": 0.042
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.878,
+              "d_major_r": -0.018,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.333,
+              "similarity": 0.341,
+              "level_match": 0.921,
+              "start_s": 14.0,
+              "end_s": 51.43,
+              "bars": 13,
+              "loop_s": 37.43,
+              "grid_bpm": 83.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.928,
+                "orchestral": 0.001,
+                "folk": 0.071
+              },
+              "style_sim": {
+                "piano": 0.2979,
+                "orchestral": 0.0426,
+                "folk": 0.2055
+              },
+              "vocal_prob": 0.893
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0401,
+              "vocal_active_frac": 0.053,
+              "stem_share": {
+                "drums": 0.2267,
+                "bass": 0.0156,
+                "other": 0.7176,
+                "vocals": 0.0401
+              },
+              "groove_active_frac": 0.474,
+              "drums_active_frac": 0.474
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": 0.37,
+          "parts": {
+            "style": 0.49,
+            "seam": 0.333,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.025
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 175.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 39.52,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.9,
+              "lra": 14.9,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 47,
+              "clipped_frac": 1.3483677291421856e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2158.4,
+              "rolloff95_hz": 9643.0,
+              "flatness": 0.0009,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0135,
+              "stereo_corr": 0.36
+            },
+            "tempo": {
+              "estimated_bpm": 99.4,
+              "brief_bpm": 80.0,
+              "rel_err": 0.242
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.947,
+              "d_major_r": 0.123,
+              "d_major_rank": 10,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.3,
+              "similarity": 0.327,
+              "level_match": 0.725,
+              "start_s": 13.0,
+              "end_s": 37.15,
+              "bars": 10,
+              "loop_s": 24.15,
+              "grid_bpm": 99.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.49,
+                "orchestral": 0.0,
+                "folk": 0.509
+              },
+              "style_sim": {
+                "piano": 0.2014,
+                "orchestral": -0.0473,
+                "folk": 0.2028
+              },
+              "vocal_prob": 0.96
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0018,
+                "other": 0.9982,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.051,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": 0.365,
+          "parts": {
+            "style": 0.623,
+            "seam": 0.477,
+            "clean": 0.8,
+            "full": 0.0,
+            "groove": 0.012
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 169.0,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 42.0,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.0,
+              "lra": 8.0,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 5,
+              "clipped_frac": 1.349588861249309e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1755.2,
+              "rolloff95_hz": 6700.6,
+              "flatness": 0.0004,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0005,
+              "stereo_corr": 0.373
+            },
+            "tempo": {
+              "estimated_bpm": 143.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.849,
+              "d_major_r": 0.228,
+              "d_major_rank": 9,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.386,
+              "similarity": 0.422,
+              "level_match": 0.714,
+              "start_s": 16.0,
+              "end_s": 32.72,
+              "bars": 10,
+              "loop_s": 16.72,
+              "grid_bpm": 143.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.623,
+                "orchestral": 0.0,
+                "folk": 0.377
+              },
+              "style_sim": {
+                "piano": 0.2548,
+                "orchestral": -0.0331,
+                "folk": 0.2367
+              },
+              "vocal_prob": 0.882
+            },
+            "vocals": {
+              "vocal_energy_share": 0.1107,
+              "vocal_active_frac": 0.286,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.8893,
+                "vocals": 0.1107
+              },
+              "groove_active_frac": 0.024,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 23% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, ambient piano with a gentle groove. BPM: 88. Key: D major. Instrumental only, no vocals, no choir. Setting: Pine Hollow, a misty pine forest at dawn in an open-world adventure game - wonder first, quiet adventure second, a little melancholy underneath. Arrangement: a sparse, singable grand-piano melody with long rests, over soft string pads and a warm upright bass; a light, steady groove of brushed drums, soft kick and shaker runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close-miked felt piano, natural wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 152.4,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 37.52,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.8,
+              "lra": 17.4,
+              "true_peak_dbfs": -0.8
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9141
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.63,
+              "total_silence_s": 1.63
+            },
+            "spectrum": {
+              "centroid_hz": 2266.1,
+              "rolloff95_hz": 10724.9,
+              "flatness": 0.0008,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0597,
+              "stereo_corr": 0.293
+            },
+            "tempo": {
+              "estimated_bpm": 143.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.822,
+              "d_major_r": 0.171,
+              "d_major_rank": 9,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.544,
+              "similarity": 0.579,
+              "level_match": 0.798,
+              "start_s": 10.5,
+              "end_s": 23.87,
+              "bars": 8,
+              "loop_s": 13.37,
+              "grid_bpm": 143.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.477,
+                "orchestral": 0.003,
+                "folk": 0.52
+              },
+              "style_sim": {
+                "piano": 0.2456,
+                "orchestral": 0.0597,
+                "folk": 0.2487
+              },
+              "vocal_prob": 0.958
+            },
+            "vocals": {
+              "vocal_energy_share": 0.2259,
+              "vocal_active_frac": 0.108,
+              "stem_share": {
+                "drums": 0.0002,
+                "bass": 0.0544,
+                "other": 0.7196,
+                "vocals": 0.2259
+              },
+              "groove_active_frac": 0.27,
+              "drums_active_frac": 0.027
+            }
+          }
+        }
+      ]
+    },
+    "island": {
+      "pick": "minimax3-304",
+      "alternates": [
+        "minimax3-306",
+        "minimax3-303"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": 0.667,
+          "parts": {
+            "style": 0.849,
+            "seam": 0.407,
+            "clean": 1.0,
+            "full": 0.493,
+            "groove": 0.525
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "piano/island-304.mp3",
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 233.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 59.86,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.2,
+              "lra": 6.8,
+              "true_peak_dbfs": 0.3
+            },
+            "clipping": {
+              "clipped_samples": 63,
+              "clipped_frac": 1.1932396722265321e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2096.7,
+              "rolloff95_hz": 8640.8,
+              "flatness": 0.0012,
+              "hf_above_12k": 0.00031,
+              "sub_below_60": 0.0681,
+              "stereo_corr": 0.459
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.05
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.741,
+              "d_major_r": 0.101,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.344,
+              "similarity": 0.348,
+              "level_match": 0.961,
+              "start_s": 15.25,
+              "end_s": 29.46,
+              "bars": 9,
+              "loop_s": 14.21,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.849,
+                "orchestral": 0.0,
+                "folk": 0.151
+              },
+              "style_sim": {
+                "piano": 0.3294,
+                "orchestral": 0.0136,
+                "folk": 0.2674
+              },
+              "vocal_prob": 0.964
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.1035,
+                "bass": 0.2981,
+                "other": 0.5985,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.644,
+              "drums_active_frac": 0.407
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": 0.66,
+          "parts": {
+            "style": 0.953,
+            "seam": 0.358,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.609
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "piano/island-306.mp3",
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 135.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 32.75,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.5,
+              "lra": 16.0,
+              "true_peak_dbfs": -0.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9961
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1975.5,
+              "rolloff95_hz": 8317.4,
+              "flatness": 0.0009,
+              "hf_above_12k": 0.0004,
+              "sub_below_60": 0.0147,
+              "stereo_corr": 0.398
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.266
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.909,
+              "d_major_r": -0.077,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.315,
+              "similarity": 0.317,
+              "level_match": 0.975,
+              "start_s": 2.25,
+              "end_s": 28.81,
+              "bars": 13,
+              "loop_s": 26.56,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.953,
+                "orchestral": 0.0,
+                "folk": 0.047
+              },
+              "style_sim": {
+                "piano": 0.3146,
+                "orchestral": -0.0238,
+                "folk": 0.2066
+              },
+              "vocal_prob": 0.869
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0722,
+                "bass": 0.0265,
+                "other": 0.9013,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.594,
+              "drums_active_frac": 0.625
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.571,
+          "parts": {
+            "style": 0.614,
+            "seam": 0.395,
+            "clean": 0.8,
+            "full": 0.391,
+            "groove": 0.596
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "piano/island-303.mp3",
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 220.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 57.83,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -14.5,
+              "lra": 10.6,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 20,
+              "clipped_frac": 3.9211503714113636e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1440.1,
+              "rolloff95_hz": 5666.0,
+              "flatness": 0.0004,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0713,
+              "stereo_corr": 0.471
+            },
+            "tempo": {
+              "estimated_bpm": 86.1,
+              "brief_bpm": 80.0,
+              "rel_err": 0.077
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.892,
+              "d_major_r": -0.064,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.337,
+              "similarity": 0.346,
+              "level_match": 0.916,
+              "start_s": 23.0,
+              "end_s": 48.08,
+              "bars": 9,
+              "loop_s": 25.08,
+              "grid_bpm": 86.1
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.614,
+                "orchestral": 0.0,
+                "folk": 0.386
+              },
+              "style_sim": {
+                "piano": 0.296,
+                "orchestral": -0.0655,
+                "folk": 0.2793
+              },
+              "vocal_prob": 0.92
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.2001,
+                "bass": 0.1354,
+                "other": 0.6645,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.596,
+              "drums_active_frac": 0.596
+            }
+          }
+        },
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.524,
+          "parts": {
+            "style": 0.329,
+            "seam": 0.685,
+            "clean": 0.8,
+            "full": 0.0,
+            "groove": 0.673
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 111.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 29.66,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -13.9,
+              "lra": 6.0,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 4,
+              "clipped_frac": 1.5288649706457926e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1366.8,
+              "rolloff95_hz": 4482.6,
+              "flatness": 0.0002,
+              "hf_above_12k": 5e-05,
+              "sub_below_60": 0.0076,
+              "stereo_corr": 0.41
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.71,
+              "d_major_r": -0.154,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 2,
+              "score": 0.511,
+              "similarity": 0.531,
+              "level_match": 0.872,
+              "start_s": 4.75,
+              "end_s": 16.75,
+              "bars": 4,
+              "loop_s": 12.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.329,
+                "orchestral": 0.0,
+                "folk": 0.671
+              },
+              "style_sim": {
+                "piano": 0.347,
+                "orchestral": 0.0148,
+                "folk": 0.3726
+              },
+              "vocal_prob": 0.967
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0505,
+                "bass": 0.0332,
+                "other": 0.9163,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.793,
+              "drums_active_frac": 0.552
+            }
+          }
+        },
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.44,
+          "parts": {
+            "style": 0.734,
+            "seam": 0.275,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.06
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 139.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 33.39,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.4,
+              "lra": 12.8,
+              "true_peak_dbfs": -2.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.793
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2013.6,
+              "rolloff95_hz": 9463.5,
+              "flatness": 0.0007,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0024,
+              "stereo_corr": 0.484
+            },
+            "tempo": {
+              "estimated_bpm": 95.7,
+              "brief_bpm": 80.0,
+              "rel_err": 0.196
+            },
+            "key": {
+              "best_key": "G major",
+              "best_r": 0.791,
+              "d_major_r": 0.449,
+              "d_major_rank": 5,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.265,
+              "similarity": 0.275,
+              "level_match": 0.879,
+              "start_s": 2.0,
+              "end_s": 22.06,
+              "bars": 8,
+              "loop_s": 20.06,
+              "grid_bpm": 95.7
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.734,
+                "orchestral": 0.001,
+                "folk": 0.266
+              },
+              "style_sim": {
+                "piano": 0.1698,
+                "orchestral": -0.0739,
+                "folk": 0.1333
+              },
+              "vocal_prob": 0.897
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0005,
+                "other": 0.9995,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.091,
+              "drums_active_frac": 0.03
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": 0.325,
+          "parts": {
+            "style": 0.143,
+            "seam": 0.222,
+            "clean": 1.0,
+            "full": 0.706,
+            "groove": 0.07
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, bright ambient piano with a light groove. BPM: 100. Key: D major. Instrumental only, no vocals, no choir. Setting: Driftwood Isle, a sunlit island of pale sand, driftwood and turquoise water in an open-world adventure game - wonder first, breezy adventure second, a little melancholy underneath. Arrangement: a sparkling, singable grand-piano melody in the upper register with open fifths, over airy pads, a round electric bass and a soft marimba ostinato; a steady light groove of rim clicks, shaker and soft kick runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: bright piano, wide airy reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 252.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 64.11,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.0,
+              "lra": 15.0,
+              "true_peak_dbfs": -1.6
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8281
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2125.7,
+              "rolloff95_hz": 9422.0,
+              "flatness": 0.0005,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0015,
+              "stereo_corr": 0.376
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.932,
+              "d_major_r": 0.66,
+              "d_major_rank": 2,
+              "key_ok": true
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.233,
+              "similarity": 0.282,
+              "level_match": 0.426,
+              "start_s": 3.25,
+              "end_s": 60.25,
+              "bars": 19,
+              "loop_s": 57.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.143,
+                "orchestral": 0.001,
+                "folk": 0.856
+              },
+              "style_sim": {
+                "piano": 0.2061,
+                "orchestral": 0.0255,
+                "folk": 0.2702
+              },
+              "vocal_prob": 0.853
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.0007,
+                "other": 0.9992,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.109,
+              "drums_active_frac": 0.031
+            }
+          }
+        }
+      ]
+    },
+    "title": {
+      "pick": "minimax3-304",
+      "alternates": [
+        "minimax3-301",
+        "minimax3-305"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-304",
+          "seed": 304,
+          "score": 0.895,
+          "parts": {
+            "style": 0.853,
+            "seam": 0.738,
+            "clean": 1.0,
+            "full": 1.0
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": "piano/title-304.mp3",
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 288.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.9,
+              "lra": 16.2,
+              "true_peak_dbfs": -1.2
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8672
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2050.4,
+              "rolloff95_hz": 9800.5,
+              "flatness": 0.0008,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0035,
+              "stereo_corr": 0.274
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.05
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.881,
+              "d_major_r": -0.687,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.543,
+              "similarity": 0.609,
+              "level_match": 0.637,
+              "start_s": 18.75,
+              "end_s": 61.38,
+              "bars": 27,
+              "loop_s": 42.63,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.853,
+                "orchestral": 0.001,
+                "folk": 0.145
+              },
+              "style_sim": {
+                "piano": 0.2386,
+                "orchestral": 0.0094,
+                "folk": 0.175
+              },
+              "vocal_prob": 0.678
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.013,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0004,
+                "other": 0.9995,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.08,
+              "drums_active_frac": 0.053
+            }
+          }
+        },
+        {
+          "id": "minimax3-301",
+          "seed": 301,
+          "score": 0.62,
+          "parts": {
+            "style": 0.436,
+            "seam": 0.183,
+            "clean": 1.0,
+            "full": 0.982
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": "piano/title-301.mp3",
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 344.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 69.64,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.8,
+              "lra": 13.6,
+              "true_peak_dbfs": -0.6
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9336
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2119.5,
+              "rolloff95_hz": 10808.2,
+              "flatness": 0.0006,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0017,
+              "stereo_corr": 0.344
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.879,
+              "d_major_r": -0.05,
+              "d_major_rank": 13,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.21,
+              "similarity": 0.261,
+              "level_match": 0.345,
+              "start_s": 6.5,
+              "end_s": 54.5,
+              "bars": 16,
+              "loop_s": 48.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.436,
+                "orchestral": 0.008,
+                "folk": 0.556
+              },
+              "style_sim": {
+                "piano": 0.2702,
+                "orchestral": 0.1281,
+                "folk": 0.279
+              },
+              "vocal_prob": 0.839
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.006,
+                "other": 0.9939,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.116,
+              "drums_active_frac": 0.058
+            }
+          }
+        },
+        {
+          "id": "minimax3-305",
+          "seed": 305,
+          "score": 0.526,
+          "parts": {
+            "style": 0.598,
+            "seam": 0.377,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": "piano/title-305.mp3",
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 156.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 46.61,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.2,
+              "lra": 14.6,
+              "true_peak_dbfs": -1.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8867
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2143.9,
+              "rolloff95_hz": 10192.9,
+              "flatness": 0.0007,
+              "hf_above_12k": 0.00033,
+              "sub_below_60": 0.0034,
+              "stereo_corr": 0.421
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.05
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.954,
+              "d_major_r": 0.016,
+              "d_major_rank": 12,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.326,
+              "similarity": 0.346,
+              "level_match": 0.808,
+              "start_s": 7.75,
+              "end_s": 26.7,
+              "bars": 12,
+              "loop_s": 18.95,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.598,
+                "orchestral": 0.004,
+                "folk": 0.399
+              },
+              "style_sim": {
+                "piano": 0.2612,
+                "orchestral": 0.077,
+                "folk": 0.2467
+              },
+              "vocal_prob": 0.896
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0001,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0064,
+                "bass": 0.0,
+                "other": 0.9935,
+                "vocals": 0.0001
+              },
+              "groove_active_frac": 0.022,
+              "drums_active_frac": 0.022
+            }
+          }
+        },
+        {
+          "id": "minimax3-303",
+          "seed": 303,
+          "score": 0.448,
+          "parts": {
+            "style": 0.162,
+            "seam": 0.305,
+            "clean": 1.0,
+            "full": 0.649
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 291.1,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 64.16,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.9,
+              "lra": 21.0,
+              "true_peak_dbfs": -1.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8555
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.18,
+              "total_silence_s": 1.18
+            },
+            "spectrum": {
+              "centroid_hz": 2858.6,
+              "rolloff95_hz": 12669.9,
+              "flatness": 0.0013,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.003,
+              "stereo_corr": 0.473
+            },
+            "tempo": {
+              "estimated_bpm": 123.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.231
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.851,
+              "d_major_r": -0.644,
+              "d_major_rank": 22,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.283,
+              "similarity": 0.354,
+              "level_match": 0.329,
+              "start_s": 10.5,
+              "end_s": 47.56,
+              "bars": 19,
+              "loop_s": 37.06,
+              "grid_bpm": 123.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.162,
+                "orchestral": 0.008,
+                "folk": 0.83
+              },
+              "style_sim": {
+                "piano": 0.1482,
+                "orchestral": 0.0407,
+                "folk": 0.2068
+              },
+              "vocal_prob": 0.634
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.016,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0245,
+                "other": 0.9754,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.141,
+              "drums_active_frac": 0.047
+            }
+          }
+        },
+        {
+          "id": "minimax3-302",
+          "seed": 302,
+          "score": 0.382,
+          "parts": {
+            "style": 0.276,
+            "seam": 0.388,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 149.2,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 33.67,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.5,
+              "lra": 14.1,
+              "true_peak_dbfs": -4.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.6055
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 2.05,
+              "total_silence_s": 1.9
+            },
+            "spectrum": {
+              "centroid_hz": 2481.7,
+              "rolloff95_hz": 10763.2,
+              "flatness": 0.0008,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0016,
+              "stereo_corr": 0.394
+            },
+            "tempo": {
+              "estimated_bpm": 143.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.103
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.83,
+              "d_major_r": 0.299,
+              "d_major_rank": 8,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.333,
+              "similarity": 0.335,
+              "level_match": 0.979,
+              "start_s": 2.0,
+              "end_s": 27.08,
+              "bars": 15,
+              "loop_s": 25.08,
+              "grid_bpm": 143.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.276,
+                "orchestral": 0.001,
+                "folk": 0.723
+              },
+              "style_sim": {
+                "piano": 0.2693,
+                "orchestral": 0.0467,
+                "folk": 0.3039
+              },
+              "vocal_prob": 0.914
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 1.0,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.03,
+              "drums_active_frac": 0.03
+            }
+          }
+        },
+        {
+          "id": "minimax3-306",
+          "seed": 306,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 22% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game main title theme, cinematic piano. BPM: 92. Key: D major. Instrumental only, no vocals, no choir. The main theme of Wildshard, a world that arrives one chunk at a time - wonder first, adventure second, a little melancholy underneath. Arrangement: a memorable, hummable grand-piano melody stated simply, then again fuller with warm strings, a cello counter-line, upright bass and a steady soft drum groove; it builds to a heartfelt climax and ends on a resolved final chord. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 264.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -21.1,
+              "lra": 13.1,
+              "true_peak_dbfs": -1.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.8867
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2256.5,
+              "rolloff95_hz": 10374.9,
+              "flatness": 0.0008,
+              "hf_above_12k": 7e-05,
+              "sub_below_60": 0.0023,
+              "stereo_corr": 0.427
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.92,
+              "d_major_r": -0.196,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.279,
+              "similarity": 0.285,
+              "level_match": 0.936,
+              "start_s": 5.5,
+              "end_s": 59.5,
+              "bars": 18,
+              "loop_s": 54.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.873,
+                "orchestral": 0.001,
+                "folk": 0.126
+              },
+              "style_sim": {
+                "piano": 0.2881,
+                "orchestral": 0.0531,
+                "folk": 0.2186
+              },
+              "vocal_prob": 0.693
+            },
+            "vocals": {
+              "vocal_energy_share": 0.2172,
+              "vocal_active_frac": 0.133,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.7828,
+                "vocals": 0.2172
+              },
+              "groove_active_frac": 0.067,
+              "drums_active_frac": 0.067
+            }
+          }
+        }
+      ]
+    }
+  }
+}

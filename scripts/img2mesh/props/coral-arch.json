@@ -1,0 +1,32 @@
+{
+ "about": "Coral Drift's coral arch (open-plots build-out OB5, art/coral-drift/round-2-landmark): Hunyuan3D 2.1 (seed 42) on a BiRefNet cutout of the codex image_gen reference ref-arch.jpg (from the look loop's plaza and under-the-arch targets), picked over TRELLIS.2 and the retired Blender script (coral.py, in git history). Flat shaded (--smooth-angle 0) to keep the plot's faceted look. Near 15k triangles on a 512 WebP atlas, far 2.5k smooth at 256, no normal map; layouts/coral-drift.json stands it 25 m tall, turn 0.",
+ "gen": "~/ml/img2mesh/out/coral-arch-hy21",
+ "stage": "~/ml/img2mesh/out/coral-arch-hy21-post-15k",
+ "args": [
+  "--keep-texture",
+  "--atlas",
+  "512",
+  "--normal-map",
+  "0",
+  "--fit",
+  "height",
+  "--size",
+  "25",
+  "--simplifier",
+  "blender",
+  "--up",
+  "x180",
+  "--smooth-angle",
+  "0"
+ ],
+ "props": [
+  {
+   "ref": "model",
+   "args": "--name landmark --tris 15000"
+  },
+  {
+   "ref": "model",
+   "args": "--name landmark-far --tris 2500 --atlas 256 --smooth-angle 40"
+  }
+ ]
+}

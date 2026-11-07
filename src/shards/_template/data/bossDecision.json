@@ -1,0 +1,76 @@
+{
+  "id": "template.boss.decision",
+  "abi": "1.0",
+  "side": "sim",
+  "module": "blobs/wasm/0000000000000000000000000000000000000000000000000000000000000000.wasm",
+  "source": "behaviour/boss.as",
+  "binding": {
+    "encounter": "template.boss"
+  },
+  "pages": 1,
+  "onFail": "reset",
+  "on": [
+    "start",
+    "timer",
+    "threshold",
+    "death",
+    "stop"
+  ],
+  "tick": null,
+  "reads": [
+    "nearestPlayer"
+  ],
+  "commands": [
+    "move",
+    "strike",
+    "stop",
+    "timer",
+    "encounter"
+  ],
+  "actors": {
+    "boss": "big-blob"
+  },
+  "moves": {
+    "approach": "template.boss.approach"
+  },
+  "strikes": {
+    "bump": "template.blob.bump"
+  },
+  "cues": {},
+  "fields": {},
+  "flags": {},
+  "zones": {},
+  "spots": {},
+  "targets": {},
+  "spawns": {},
+  "signals": {},
+  "facts": {},
+  "rewards": {},
+  "channels": {},
+  "impulses": {},
+  "weather": {},
+  "timers": [
+    "beat"
+  ],
+  "stateVersion": 1,
+  "state": [
+    {
+      "name": "phase",
+      "type": "i32",
+      "default": 0,
+      "scope": "binding",
+      "min": 0,
+      "max": 3
+    },
+    {
+      "name": "swingNext",
+      "type": "bool",
+      "default": true,
+      "scope": "binding"
+    }
+  ],
+  "params": {
+    "firstBeat": 1,
+    "secondBeat": 0.5
+  }
+}

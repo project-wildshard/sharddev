@@ -1,0 +1,48 @@
+# id	garbled	note (read at full res against the prompt's strings, 2026-10-03)
+combat-dodge-T2__codex	0	codex
+combat-dodge-T2__klein4b	1	
+combat-dodge-T2__klein9b	1	
+combat-dodge-T2__qwen2511	1	
+combat-dodge-T2__r1	1	
+combat-dodge-T2__sensenova	1	
+combat-dodge-T2__turbo	1	subtle: small text
+combat-lockon-N__codex	0	codex
+combat-lockon-N__klein4b	1	
+combat-lockon-N__klein9b	1	
+combat-lockon-N__qwen2511	1	
+combat-lockon-N__r1	1	
+combat-lockon-N__sensenova	1	
+combat-lockon-N__turbo	1	subtle: small text
+feedback-desktop-sheet-A__codex	0	codex
+feedback-desktop-sheet-A__klein4b	1	
+feedback-desktop-sheet-A__klein9b	1	
+feedback-desktop-sheet-A__qwen2511	1	
+feedback-desktop-sheet-A__r1	1	subtle: small text
+feedback-desktop-sheet-A__sensenova	1	
+feedback-desktop-sheet-A__turbo	1	subtle: small text
+hud-hover-top-row-A__codex	0	codex
+hud-hover-top-row-A__klein4b	1	
+hud-hover-top-row-A__klein9b	0	all strings right (edit not done)
+hud-hover-top-row-A__qwen2511	1	
+hud-hover-top-row-A__r1	1	
+hud-hover-top-row-A__sensenova	1	
+hud-hover-top-row-A__turbo	1	subtle: small text
+hud-look-zone-E__codex	0	codex
+hud-look-zone-E__klein4b	1	
+hud-look-zone-E__klein9b	1	
+hud-look-zone-E__qwen2511	1	
+hud-look-zone-E__r1	1	
+hud-look-zone-E__sensenova	1	
+hud-look-zone-E__turbo	1	subtle: small text
+pine-pond-stag__klein4b	1	
+pine-pond-stag__qwen2511	1	
+pine-pond-stag__r1	1	subtle: small text
+pine-pond-stag__sensenova	1	
+pine-pond-stag__turbo	1	subtle: small text
+quest-compact-chip-G__codex	0	codex
+quest-compact-chip-G__klein4b	1	
+quest-compact-chip-G__klein9b	0	borderline: fps line slightly smeared
+quest-compact-chip-G__qwen2511	1	
+quest-compact-chip-G__r1	1	
+quest-compact-chip-G__sensenova	1	
+quest-compact-chip-G__turbo	1	subtle: small text

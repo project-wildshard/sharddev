@@ -1,0 +1,686 @@
+{
+ "$doc": "Thin Ice's dry-run content as data for the drafts site (WORLDCLAW-TOOLS W17). Converted from docs/plans/thin-ice/dry-run/content_c.py, THIN-ICE §1 / §3 and design.md's wave-2 review; not new content.",
+ "places": [
+  {
+   "num": 1,
+   "id": "landing",
+   "name": "South Landing",
+   "role": "spawn",
+   "x": -70,
+   "z": 215,
+   "beat": "arrive at the spawn beacon; a lantern burns in the village"
+  },
+  {
+   "num": 2,
+   "id": "village",
+   "name": "Ferryman's Village",
+   "role": "hub",
+   "x": -40,
+   "z": 110,
+   "beat": "Sigrun's lantern house, the trader, the ferry winch"
+  },
+  {
+   "num": 3,
+   "id": "lighthouse",
+   "name": "The Lighthouse",
+   "role": "landmark",
+   "x": -11,
+   "z": -214,
+   "beat": "beacon 3; a spiral stair to the gallery"
+  },
+  {
+   "num": 4,
+   "id": "quarry",
+   "name": "The Old Quarry",
+   "role": "arena",
+   "x": -150,
+   "z": 120,
+   "beat": "a terraced pit with a ramp and a crane"
+  },
+  {
+   "num": 5,
+   "id": "spire",
+   "name": "The Drowned Spire",
+   "role": "boss",
+   "x": 37,
+   "z": -43,
+   "beat": "cathedral scale; the drowned village around it under the ice"
+  },
+  {
+   "num": 6,
+   "id": "cave",
+   "name": "The Ice Cave",
+   "role": "secret",
+   "x": -170,
+   "z": -60,
+   "beat": "a big cave mouth in the west cliffs; the frozen chapel"
+  },
+  {
+   "num": 7,
+   "id": "overlook",
+   "name": "Cliff Overlook",
+   "role": "vista",
+   "x": 200,
+   "z": -20,
+   "beat": "the cairn and bench; the survey"
+  },
+  {
+   "num": 8,
+   "id": "bayrun",
+   "name": "The Bay Run",
+   "role": "traversal",
+   "x": -60,
+   "z": -120,
+   "beat": "the lit sled lanes across the bay"
+  },
+  {
+   "num": 9,
+   "id": "tower",
+   "name": "Signal Tower",
+   "role": "objective",
+   "x": 175,
+   "z": 60,
+   "beat": "beacon 1, timber, on the east headland"
+  },
+  {
+   "num": 10,
+   "id": "glacier",
+   "name": "Glacier Mouth",
+   "role": "objective",
+   "x": 140,
+   "z": -110,
+   "beat": "beacon 2: the ice cliff, the switchback trail, rope ladders"
+  },
+  {
+   "num": 11,
+   "id": "spring",
+   "name": "Hot Spring",
+   "role": "camp",
+   "x": -200,
+   "z": -190,
+   "beat": "the steaming pool and the hunter's camp"
+  }
+ ],
+ "steps": [
+  {
+   "n": 1,
+   "title": "South Landing",
+   "place": "landing",
+   "x": -70,
+   "z": 215,
+   "why": "Arrive at the spawn beacon. Across the bay the ice groans; a lantern burns in the village.",
+   "gets": "",
+   "lane": 1,
+   "mechanics": []
+  },
+  {
+   "n": 2,
+   "title": "Ferryman's Village",
+   "place": "village",
+   "x": -40,
+   "z": 110,
+   "why": "Sigrun, the last lamp-keeper: the ice took the ferry, the drowned bell tolls each night and the ice cracks a little more. The old beacons kept the lanes safe. Light them.",
+   "gets": "the harpoon",
+   "lane": 1,
+   "mechanics": [
+    "npc-moment",
+    "harpoon"
+   ]
+  },
+  {
+   "n": 3,
+   "title": "The Old Quarry",
+   "place": "quarry",
+   "x": -150,
+   "z": 120,
+   "why": "The beacon oil is stored in the quarry, and ice crawlers nest in the pit. First fight.",
+   "gets": "lamp oil",
+   "lane": 1,
+   "mechanics": [
+    "crawlers",
+    "harpoon"
+   ]
+  },
+  {
+   "n": 4,
+   "title": "The Old Ferry Line",
+   "place": "ferryline",
+   "x": 60,
+   "z": 75,
+   "why": "Grab the old ferry rope: holding it is the only safe way over unlit ice, and cracks spread around you as you haul across. The hoverboard won't run on ice.",
+   "gets": "",
+   "lane": 1,
+   "mechanics": [
+    "rope-grab",
+    "thin-ice",
+    "surface-rule",
+    "relabel"
+   ]
+  },
+  {
+   "n": 5,
+   "title": "Signal Tower · Beacon 1",
+   "place": "tower",
+   "x": 175,
+   "z": 60,
+   "why": "Relight the brazier: the SOUTH LANE glows across the bay. Sigrun's sled-board waits at the tower: fast, but it rides lit lanes only.",
+   "gets": "the sled-board",
+   "lane": 1,
+   "mechanics": [
+    "beacons",
+    "sled"
+   ]
+  },
+  {
+   "n": 6,
+   "title": "Cliff Overlook",
+   "place": "overlook",
+   "x": 200,
+   "z": -20,
+   "why": "Survey the bay: the two dark beacons, the spire and the frozen ferry wreck are marked on your map and minimap. The goal, revealed.",
+   "gets": "",
+   "lane": 2,
+   "mechanics": [
+    "survey"
+   ]
+  },
+  {
+   "n": 7,
+   "title": "Glacier Mouth",
+   "place": "glacier",
+   "x": 140,
+   "z": -110,
+   "why": "Climb onto the glacier: a switchback trail and rope ladders up the ice cliff, crevasses to jump.",
+   "gets": "",
+   "lane": 2,
+   "mechanics": [
+    "ladders"
+   ]
+  },
+  {
+   "n": 8,
+   "title": "The Glacier Beacon · Beacon 2",
+   "place": "glacier",
+   "x": 175,
+   "z": -150,
+   "why": "Light the cairn fire on the ice field: the NORTH-EAST LANE glows to the lighthouse. The bell's clapper lies frozen in a crevasse; a crawler queen guards it.",
+   "gets": "the clapper",
+   "lane": 2,
+   "mechanics": [
+    "crawlers",
+    "beacons"
+   ]
+  },
+  {
+   "n": 9,
+   "title": "The Lighthouse · Beacon 3",
+   "place": "lighthouse",
+   "x": -11,
+   "z": -214,
+   "why": "Sled the north-east lane, climb the spiral stair, relight the lamp: the WEST LANE glows, and the beam sweeps the bay and shows the drowned streets around the spire.",
+   "gets": "",
+   "lane": 3,
+   "mechanics": [
+    "beacons",
+    "beam",
+    "sled"
+   ]
+  },
+  {
+   "n": 10,
+   "title": "The Ice Cave",
+   "place": "cave",
+   "x": -170,
+   "z": -60,
+   "why": "Down the west lane, a hidden crack into the glacier wall: the frozen chapel and its bell rope.",
+   "gets": "the bell rope",
+   "lane": 3,
+   "mechanics": []
+  },
+  {
+   "n": 11,
+   "title": "The Drowned Spire",
+   "place": "spire",
+   "x": 37,
+   "z": -43,
+   "why": "All three lanes lit, the CENTRE LANE opens. Hang the clapper and the rope, ring the drowned bell: the Bellkeeper breaks the ice. Boss fight on the ring of cracked ice.",
+   "gets": "",
+   "lane": 4,
+   "mechanics": [
+    "bellkeeper",
+    "thin-ice"
+   ]
+  },
+  {
+   "n": 12,
+   "title": "Home",
+   "place": "village",
+   "x": -40,
+   "z": 110,
+   "why": "The bell is silent; the ice holds. Sigrun relights the ferry lantern.",
+   "gets": "",
+   "lane": 4,
+   "mechanics": [
+    "npc-moment"
+   ]
+  }
+ ],
+ "laneStages": [
+  {
+   "stage": 1,
+   "title": "STAGE 1 · THE SOUTH LANE",
+   "text": "The ice is thin and dark. Sigrun gives the harpoon; oil from the crawler-filled quarry; a tense walk along the old ferry rope; the signal tower burns and the south lane glows. The sled-board makes the bay fast."
+  },
+  {
+   "stage": 2,
+   "title": "STAGE 2 · THE NORTH-EAST LANE",
+   "text": "From the east shore the overlook shows the goal. Climb onto the glacier, cross crevasses, light the cairn fire; take the clapper from the crawler queen. The lane to the lighthouse glows."
+  },
+  {
+   "stage": 3,
+   "title": "STAGE 3 · THE WEST LANE",
+   "text": "Relight the lighthouse: its beam sweeps the bay, shows the drowned streets and the keepsakes, and lights the west lane to the ice cave, where the bell rope hangs in a frozen chapel."
+  },
+  {
+   "stage": 4,
+   "title": "FINALE · THE CENTRE LANE",
+   "text": "Three beacons burn; the centre lane opens to the spire. Ring the bell with its clapper and rope: the Bellkeeper breaks the ice. The fight circles the cathedral spire on a ring of cracked ice; the lit lanes are safe ground."
+  },
+  {
+   "stage": 0,
+   "title": "WHY THE PLAYER GOES",
+   "text": "Every stage ends with a new lit lane you can see from far away: the next goal is always in sight, and the bay opens like a map being drawn."
+  },
+  {
+   "stage": 0,
+   "title": "THE ANTAGONIST",
+   "text": "The Bellkeeper, coiled round the drowned church, tolls the bell each night to crack the ice and take the village. Ringing the bell yourself, with its own clapper and rope, calls it up to fight."
+  }
+ ],
+ "lanes": [
+  {
+   "stage": 1,
+   "pts": [
+    [
+     -15,
+     92
+    ],
+    [
+     40,
+     70
+    ],
+    [
+     100,
+     62
+    ],
+    [
+     160,
+     58
+    ]
+   ]
+  },
+  {
+   "stage": 2,
+   "pts": [
+    [
+     95,
+     -92
+    ],
+    [
+     40,
+     -120
+    ],
+    [
+     -5,
+     -160
+    ],
+    [
+     -15,
+     -192
+    ]
+   ]
+  },
+  {
+   "stage": 3,
+   "pts": [
+    [
+     -25,
+     -175
+    ],
+    [
+     -80,
+     -120
+    ],
+    [
+     -140,
+     -75
+    ]
+   ]
+  },
+  {
+   "stage": 4,
+   "pts": [
+    [
+     40,
+     70
+    ],
+    [
+     38,
+     0
+    ],
+    [
+     37,
+     -30
+    ]
+   ]
+  }
+ ],
+ "side": [
+  {
+   "id": "S1",
+   "title": "Hot Spring · The Hunter",
+   "text": "Old Brann camps at the spring: bring 3 crawler shells, get a fur cloak (warmth: slower cold drain on the ice).",
+   "x": -200,
+   "z": -190
+  },
+  {
+   "id": "S2",
+   "title": "The Lost Ferry",
+   "text": "The ferry is frozen under the north mouth. Seen only in the lighthouse beam; dig out the ferryman's lantern (wider light).",
+   "x": -30,
+   "z": -225
+  },
+  {
+   "id": "S3",
+   "title": "The Quarry Ledger",
+   "text": "Pages of the quarry ledger in the pit tell how the church was drowned for its stone.",
+   "x": -150,
+   "z": 120
+  },
+  {
+   "id": "F1",
+   "title": "Feat · Bay Run",
+   "text": "The south lane on the sled-board under 60 s.",
+   "x": 60,
+   "z": 66
+  },
+  {
+   "id": "F2",
+   "title": "Feat · No Fall",
+   "text": "Light all three beacons without breaking through the ice.",
+   "x": 60,
+   "z": -110
+  },
+  {
+   "id": "F3",
+   "title": "Feat · Crawler Hunter",
+   "text": "Harpoon 20 ice crawlers.",
+   "x": 140,
+   "z": -120
+  },
+  {
+   "id": "K",
+   "title": "Keepsakes ×8",
+   "text": "Drowned keepsakes in the ice round the spire, lit only by the lighthouse beam.",
+   "x": 37,
+   "z": -43
+  },
+  {
+   "id": "X",
+   "title": "Cache",
+   "text": "A frozen cache under the overlook ledge (a rope down).",
+   "x": 200,
+   "z": -20
+  },
+  {
+   "id": "H1",
+   "title": "Happening · The Bell",
+   "text": "At night the bell tolls under the ice: rings of cracks spread from the spire.",
+   "x": 37,
+   "z": -43
+  },
+  {
+   "id": "H2",
+   "title": "Happening · The Crack",
+   "text": "A crack races across the bay: unlit lanes break.",
+   "x": 60,
+   "z": 20
+  },
+  {
+   "id": "E",
+   "title": "Ice Crawlers",
+   "text": "Quarry pit, glacier crevasses (and the queen).",
+   "x": -150,
+   "z": 120
+  },
+  {
+   "id": "E",
+   "title": "Ice Bears",
+   "text": "East road forest, west trail.",
+   "x": 150,
+   "z": 30
+  }
+ ],
+ "slice": [
+  {
+   "at": "0:00",
+   "place": "South Landing",
+   "what": "arrive"
+  },
+  {
+   "at": "1:00",
+   "place": "Ferryman's Village",
+   "what": "Sigrun, the harpoon"
+  },
+  {
+   "at": "3:00",
+   "place": "The Old Quarry",
+   "what": "crawler fight, lamp oil"
+  },
+  {
+   "at": "7:00",
+   "place": "The Old Ferry Line",
+   "what": "thin-ice crossing on foot"
+  },
+  {
+   "at": "10:00",
+   "place": "Signal Tower",
+   "what": "beacon 1, the south lane lights, the sled-board"
+  },
+  {
+   "at": "12:00",
+   "place": "The Bay Run",
+   "what": "sled back along the lit lane to the village"
+  },
+  {
+   "at": "14:00",
+   "place": "END",
+   "what": "the slice ends at the pier"
+  }
+ ],
+ "mechanics": [
+  {
+   "id": "harpoon",
+   "name": "The harpoon (weapon)",
+   "where": "2–11",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-W1",
+   "state": "todo"
+  },
+  {
+   "id": "crawlers",
+   "name": "Ice crawlers + the crawler queen",
+   "where": "3, 8",
+   "engine": "new species + an elite",
+   "isNew": true,
+   "row": "TI-C1, TI-C2",
+   "state": "todo"
+  },
+  {
+   "id": "bears",
+   "name": "Ice bears",
+   "where": "forests",
+   "engine": "the kit bear, restyled (E6)",
+   "isNew": false,
+   "row": "TI-C3",
+   "state": "todo"
+  },
+  {
+   "id": "bellkeeper",
+   "name": "The Bellkeeper: asleep, summoned, breaches the ice, the ring arena",
+   "where": "11",
+   "engine": "a new boss + a summon",
+   "isNew": true,
+   "row": "TI-C4",
+   "state": "todo"
+  },
+  {
+   "id": "npc-moment",
+   "name": "The NPC moment: a scripted gesture, the camera holds, an item lands in your hands",
+   "where": "2, 12",
+   "engine": "new, engine-wide (every shard reuses it)",
+   "isNew": true,
+   "row": "TI-E1",
+   "state": "todo"
+  },
+  {
+   "id": "thin-ice",
+   "name": "Thin ice: the mask, the crack timer, fall-through and respawn",
+   "where": "the bay",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-E2",
+   "state": "todo"
+  },
+  {
+   "id": "rope-grab",
+   "name": "The rope grab: attach to a rope line, move along it, safe over thin ice",
+   "where": "4",
+   "engine": "the attack-disc relabel exists (E357 G5 6eeca4e3); the traverse is new (close to the kit zipline, E9)",
+   "isNew": true,
+   "row": "TI-E3",
+   "state": "todo"
+  },
+  {
+   "id": "surface-rule",
+   "name": "A tool refused on a surface (the hoverboard on ice, with a message)",
+   "where": "everywhere on ice",
+   "engine": "new rule",
+   "isNew": true,
+   "row": "TI-E4",
+   "state": "todo"
+  },
+  {
+   "id": "beacons",
+   "name": "Beacons light lanes: a world-state flag lights a lane's lanterns and flips its thin-ice cells to safe",
+   "where": "5, 8, 9",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-E5",
+   "state": "todo"
+  },
+  {
+   "id": "sled",
+   "name": "The sled-board: fast, lit lanes only",
+   "where": "5 →",
+   "engine": "new tool (the hoverboard's controls)",
+   "isNew": true,
+   "row": "TI-E6",
+   "state": "todo"
+  },
+  {
+   "id": "survey",
+   "name": "The survey: marks map and minimap pins",
+   "where": "6",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-E7",
+   "state": "todo"
+  },
+  {
+   "id": "ladders",
+   "name": "Rope ladders / the climb",
+   "where": "7",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-E8",
+   "state": "todo"
+  },
+  {
+   "id": "beam",
+   "name": "The lighthouse beam reveal (the drowned streets, the keepsakes, the lost ferry)",
+   "where": "9",
+   "engine": "new",
+   "isNew": true,
+   "row": "TI-E9",
+   "state": "todo"
+  },
+  {
+   "id": "look",
+   "name": "The aurora sky shader; the see-through ice over the drowned village",
+   "where": "everywhere",
+   "engine": "new look pieces (P10)",
+   "isNew": true,
+   "row": "TI-L1",
+   "state": "todo"
+  },
+  {
+   "id": "relabel",
+   "name": "GRAB / LET GO on the attack disc (the relabel)",
+   "where": "4",
+   "engine": "E357 G5 6eeca4e3, touch.relabel.r0",
+   "isNew": false,
+   "row": "engine",
+   "state": "done"
+  }
+ ],
+ "camChecks": {
+  "01-landing": {
+   "ok": true,
+   "note": "Keep."
+  },
+  "02-village": {
+   "ok": false,
+   "note": "\"the lighthouse flipped … rendering a lighthouse to the right of the spire when the lighthouse is to the left of the spire in the first image. So that's not internally consistent.\""
+  },
+  "03-lighthouse": {
+   "ok": false,
+   "note": "\"the stairs going up the lighthouse are completely junk\"; \"some kind of village on the far edge … I don't know where that village exists\"."
+  },
+  "04-quarry": {
+   "ok": true,
+   "note": "\"looks great\"."
+  },
+  "05-spire": {
+   "ok": false,
+   "note": "\"the spire needs to be bigger … a boss arena, nice and bigger\"; under the ice it shows \"a reflection\" instead of the rest of the spire."
+  },
+  "06-cave": {
+   "ok": true,
+   "note": "\"fantastic\"; but no buildings under the ice there: \"the village under the ice should only be near the boss\"."
+  },
+  "07-overlook": {
+   "ok": false,
+   "note": "\"a gigantic village underneath the ice … a lot of copy pasta … way too big\"; the spire bigger."
+  },
+  "08-bayrun": {
+   "ok": true,
+   "note": "Keep."
+  },
+  "09-tower": {
+   "ok": true,
+   "note": "Keep."
+  },
+  "10-glacier": {
+   "ok": false,
+   "note": "\"doesn't look particularly impressive … a lot more thought needs to go into the glacier mouth\"."
+  },
+  "11-spring": {
+   "ok": false,
+   "note": "\"can be bigger … it looks like super tiny\"."
+  }
+ },
+ "camChecksAll": "\"The minimap is wrong in all of the renders.\" · \"there's no pathways on the ice … we need to add those back.\"",
+ "sets": []
+}

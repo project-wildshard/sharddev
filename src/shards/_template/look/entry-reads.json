@@ -1,0 +1,20 @@
+[
+ {
+  "region": "template-2",
+  "tier": "phone",
+  "at": [
+   0,
+   0
+  ],
+  "reads": []
+ },
+ {
+  "region": "template-2",
+  "tier": "desktop",
+  "at": [
+   0,
+   0
+  ],
+  "reads": []
+ }
+]

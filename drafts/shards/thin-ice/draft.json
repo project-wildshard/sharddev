@@ -1,0 +1,862 @@
+{
+  "$doc": "Thin Ice as a draft (WORLDCLAW-TOOLS W1). Hand-kept by the run: where its sources are, what each round's pictures are, Jake's answers per stage (verbatim, from design.md's verdict log). drafts/tools/atlas.ts turns it into drafts/public/data/thin-ice/atlas.json. Rules in `files` apply in order; a later match overrides an earlier one.",
+  "slug": "thin-ice",
+  "name": "Thin Ice",
+  "line": "The ferry is gone and the fjord has frozen.",
+  "keyArt": "art/thin-ice/round-3-concepts/p4-keyart.jpg",
+  "art": "art/thin-ice",
+  "design": "docs/plans/thin-ice/dry-run",
+  "content": "drafts/shards/thin-ice/content.json",
+  "cams": "art/thin-ice/round-6-map-revision-2/blockout/cams.json",
+  "map": {
+    "source": "art/thin-ice/round-6-map-revision-2/p5r2-map.jpg",
+    "size": 500
+  },
+  "run": {
+    "stage": "P6",
+    "waiting": "the wave-2 fixes: TI0 re-runs the front on the built tools",
+    "next": "P7 · the verb gate: the rope grab and the sled"
+  },
+  "rounds": {
+    "round-0-references": {
+      "stage": "P0",
+      "kind": "reference",
+      "status": "input"
+    },
+    "round-1-pitches": {
+      "stage": "P2",
+      "kind": "pitch",
+      "status": "rejected"
+    },
+    "round-2-art-direction": {
+      "stage": "P3",
+      "kind": "look",
+      "status": "rejected"
+    },
+    "round-3-concepts": {
+      "stage": "P4",
+      "kind": "concept",
+      "status": "picked"
+    },
+    "round-4-map-wave-1": {
+      "stage": "P5",
+      "kind": "world",
+      "status": "rejected"
+    },
+    "round-5-map-revision-1": {
+      "stage": "P5",
+      "kind": "world",
+      "status": "superseded"
+    },
+    "round-6-map-revision-2": {
+      "stage": "P5",
+      "kind": "blockout",
+      "status": "input"
+    },
+    "round-7-first-person-try-1": {
+      "stage": "P6",
+      "kind": "fp",
+      "status": "superseded"
+    },
+    "round-8-first-person-wave-2": {
+      "stage": "P6",
+      "kind": "fp",
+      "status": "current"
+    },
+    "round-9-content-round-1": {
+      "stage": "P5b",
+      "kind": "step",
+      "status": "superseded"
+    },
+    "round-10-content-round-2": {
+      "stage": "P5b",
+      "kind": "step",
+      "status": "current"
+    }
+  },
+  "files": [
+    {
+      "match": "^aurora-boss",
+      "title": "Style anchor · the aurora boss"
+    },
+    {
+      "match": "^aurora-hub",
+      "title": "Style anchor · the aurora hub"
+    },
+    {
+      "match": "^compose-a",
+      "title": "Paint-then-lift composition (prototype PC1)"
+    },
+    {
+      "match": "^deck",
+      "title": "The live title deck"
+    },
+    {
+      "match": "^explorer",
+      "title": "The live World Explorer"
+    },
+    {
+      "match": "^layout-b",
+      "title": "Layout B (prototype PA)"
+    },
+    {
+      "match": "^layout-c",
+      "title": "Layout C (prototype PA)"
+    },
+    {
+      "match": "^play",
+      "title": "A live play frame (the HUD)"
+    },
+    {
+      "match": "^style-spire",
+      "title": "Style anchor · the spire"
+    },
+    {
+      "match": "^terrain-sheet",
+      "title": "Terrain from a painted map (prototype PB1)"
+    },
+    {
+      "match": "^p2-a-",
+      "title": "A · The Last Crossing"
+    },
+    {
+      "match": "^p2-b-",
+      "title": "B · Lantern Line"
+    },
+    {
+      "match": "^p2-c-",
+      "title": "C · Thin Ice",
+      "status": "picked"
+    },
+    {
+      "match": "^p3-ink-(\\w+)",
+      "title": "Ink and frost · {1A}"
+    },
+    {
+      "match": "^p3-glass-(\\w+)",
+      "title": "Glass and aurora · {1A}",
+      "status": "superseded"
+    },
+    {
+      "match": "^p3-sodium-(\\w+)",
+      "title": "Cold realism · {1A}"
+    },
+    {
+      "match": "^p3s-aurora-(\\w+)",
+      "title": "Aurora, kept simple · {1A}",
+      "status": "picked",
+      "view": "look-{1}"
+    },
+    {
+      "match": "^p3m-(\\w+)",
+      "title": "In-game mockup · {1A}",
+      "status": "current"
+    },
+    {
+      "match": "^p4-keyart",
+      "kind": "keyart",
+      "title": "Key art"
+    },
+    {
+      "match": "^p4-char-bellkeeper",
+      "title": "The Bellkeeper",
+      "sub": "boss",
+      "model": "bellkeeper"
+    },
+    {
+      "match": "^p4-char-crawlers",
+      "title": "Ice crawlers",
+      "sub": "creature",
+      "model": "crawlers"
+    },
+    {
+      "match": "^p4-char-icebear",
+      "title": "Ice bear",
+      "sub": "creature",
+      "model": "icebear"
+    },
+    {
+      "match": "^p4-char-sigrun",
+      "title": "Sigrun, the last lamp-keeper",
+      "sub": "character",
+      "model": "sigrun"
+    },
+    {
+      "match": "^p4-gear-harpoon",
+      "title": "The harpoon",
+      "sub": "gear",
+      "model": "harpoon"
+    },
+    {
+      "match": "^p4-gear-sled",
+      "title": "The sled-board",
+      "sub": "gear",
+      "model": "sled"
+    },
+    {
+      "match": "^p4-place-(\\d\\d)-",
+      "title": "{place}",
+      "sub": "place",
+      "placeNum": "{1}",
+      "view": "fp-{1}"
+    },
+    {
+      "match": "^p5-map-a",
+      "kind": "map",
+      "title": "Map A",
+      "status": "superseded",
+      "view": "map",
+      "angle": "A"
+    },
+    {
+      "match": "^p5-map-([bc])",
+      "kind": "map",
+      "title": "Map {1U}",
+      "angle": "{1}"
+    },
+    {
+      "match": "^p5-map2-([bc])",
+      "kind": "map",
+      "title": "Map {1U}, redrawn as another layout",
+      "angle": "{1}2"
+    },
+    {
+      "match": "^p5w-(\\w+)",
+      "title": "Map A · World view {1A}",
+      "status": "superseded",
+      "angle": "{1}",
+      "view": "world-{1}"
+    },
+    {
+      "match": "^p5w2-([bc])-(\\w+)",
+      "title": "Map {1U} · World view {2A}",
+      "angle": "{2}"
+    },
+    {
+      "match": "^p5b-(\\w+)",
+      "title": "Revision 1 · painted over the blockout · {1A}",
+      "angle": "{1}",
+      "view": "world-{1}"
+    },
+    {
+      "match": "^p5b-top",
+      "kind": "map",
+      "title": "Map A revision 1 (painted over the blockout)",
+      "view": "map",
+      "angle": "rev 1"
+    },
+    {
+      "match": "^p5c-(\\w+)",
+      "title": "Revision 1 · repainted · {1A}",
+      "angle": "{1}",
+      "view": "world-{1}"
+    },
+    {
+      "match": "^p5r2-map",
+      "kind": "map",
+      "title": "Map A revision 2",
+      "status": "picked",
+      "view": "map",
+      "angle": "rev 2"
+    },
+    {
+      "match": "^p5r2-3in1",
+      "kind": "world",
+      "title": "Map A revision 2 · three World Explorer views",
+      "status": "current"
+    },
+    {
+      "match": "^blockout/fp-(\\d\\d)-",
+      "title": "Blockout · {place}",
+      "placeNum": "{1}",
+      "view": "fp-{1}",
+      "cam": "{1}"
+    },
+    {
+      "match": "^blockout/top\\.",
+      "title": "Blockout · from the top",
+      "angle": "top"
+    },
+    {
+      "match": "^blockout/top3",
+      "title": "Blockout · from the top, labelled",
+      "angle": "top"
+    },
+    {
+      "match": "^blockout/guide3",
+      "title": "Blockout · the composition guide"
+    },
+    {
+      "match": "^blockout/view-(\\w+)",
+      "title": "Blockout · view {1A}",
+      "angle": "{1}"
+    },
+    {
+      "match": "^blockout/view2-(\\w+)",
+      "title": "Blockout · view {1A} (pass 2)",
+      "angle": "{1}"
+    },
+    {
+      "match": "^blockout/view3-(\\w+)",
+      "title": "Blockout · view {1A} (pass 3)",
+      "angle": "{1}",
+      "view": "world-{1}"
+    },
+    {
+      "match": "^p6-(\\d\\d)-",
+      "title": "{place} · try 1",
+      "placeNum": "{1}",
+      "view": "fp-{1}"
+    },
+    {
+      "match": "^w2-(\\d\\d)-",
+      "title": "{place} · wave 2",
+      "placeNum": "{1}",
+      "view": "fp-{1}",
+      "cam": "{1}"
+    },
+    {
+      "match": "^content-c-1",
+      "kind": "journey",
+      "title": "The journey · C, lights open the ice",
+      "status": "current"
+    },
+    {
+      "match": "^content-c-2",
+      "kind": "journey",
+      "title": "The quest chain",
+      "status": "current"
+    },
+    {
+      "match": "^content-c-3",
+      "kind": "journey",
+      "title": "Side content",
+      "status": "current"
+    },
+    {
+      "match": "^content-c-4",
+      "kind": "journey",
+      "title": "The session slice",
+      "status": "current"
+    },
+    {
+      "match": "^content-journey-draft",
+      "kind": "journey",
+      "title": "The first drafted journey (it zigzagged across the bay nine times)",
+      "status": "rejected"
+    },
+    {
+      "match": "^step(\\d\\d)-(\\d)",
+      "title": "Step {1} · {stepTitle} · wildcard {2}",
+      "step": "{1}",
+      "view": "step-{1}-{2}"
+    }
+  ],
+  "stages": {
+    "P1": {
+      "answers": [
+        "Go with the sentence"
+      ],
+      "notes": [
+        "The vision: \"a frozen fjord where you are the last ferryman\""
+      ]
+    },
+    "P2": {
+      "answers": [
+        "C · Thin Ice"
+      ],
+      "pick": "round-1-pitches/p2-c-thin-ice.jpg"
+    },
+    "P3": {
+      "answers": [
+        "Which one is the easiest to implement. I like aurora but I want one that's the most simple and technically feasible",
+        "Aurora, kept simple"
+      ],
+      "pick": "round-2-art-direction/p3s-aurora-spawn.jpg"
+    },
+    "P4": {
+      "answers": [
+        "Approve all four ×3",
+        "Approve all",
+        "Eel on the spire is fine"
+      ],
+      "pick": "round-3-concepts/p4-keyart.jpg"
+    },
+    "P5": {
+      "answers": [
+        "They all look the same lol. I guess A",
+        "Map A revision 2, it's approved."
+      ],
+      "notes": [
+        "Every shard has access on all four edges (W, E, S, N) to the other shards.",
+        "South Landing \"is a complete mess because it's trying to be a bridge\".",
+        "The boss must not be fought by accident on the way from the village.",
+        "\"The three views are not internally consistent … codex is imagining little features\" → \"3D blockout, painted\".",
+        "\"Walls through the ice, that's wrong … the ice should be flat\"; \"The fjord's completely gone, so we need to add the fjord back\".",
+        "\"The quarry should be a pit … goes down into the earth\"; the glacier mouth reads as \"a construction site\"."
+      ],
+      "pick": "round-6-map-revision-2/p5r2-map.jpg"
+    },
+    "P5b": {
+      "answers": [
+        "C · Lights open the ice",
+        "Thin ice, that was me. I approved it.",
+        "looks reasonable to me. It's like a start."
+      ],
+      "notes": [
+        "The rope: \"the ice can only be crossed when you interact with the rope … that's the only safe way to cross the ice. I think that's a cool idea.\"",
+        "The sled: \"only when unlocking the sled, you can go over the ice\"; the hoverboard doesn't work on ice.",
+        "Enemies: \"cool to try a shard where we don't pump it full of enemies\".",
+        "Sigrun's hand-over: \"this feels like a cutscene, and we have no cutscenes in the engine\" → the NPC moment."
+      ],
+      "pick": "round-9-content-round-1/content-c-1-journey.jpg"
+    },
+    "P6": {
+      "answers": [
+        "Let me review the images lol bro"
+      ],
+      "notes": [
+        "Keep: 1 South Landing, 4 the quarry (\"looks great\"), 6 the ice cave (\"fantastic\"), 8 the bay run, 9 the signal tower.",
+        "\"The minimap is wrong in all of the renders.\"",
+        "\"there's no pathways on the ice … we need to add those back.\"",
+        "Open: the village view flipped the lighthouse; the lighthouse's spiral stair; a bigger cathedral spire; the glacier climb; a bigger hot spring."
+      ],
+      "pick": "round-8-first-person-wave-2/w2-04-quarry.jpg"
+    }
+  },
+  "protos": [
+    {
+      "id": "PA",
+      "question": "Can codex paint a usable semantic layout map from our schematic?",
+      "result": "On the fjord spec, 3 of 3 codex variants put 11 / 11 places in their region and kept every path; palette fidelity 94.9–97.9 %; ~110 s each, in parallel.",
+      "changed": "T3's gate is places-in-region 100 % + every route on walkable ground; palette fidelity is a warning below 94 %.",
+      "items": [
+        "round-0-references/layout-b.jpg",
+        "round-0-references/layout-c.jpg"
+      ]
+    },
+    {
+      "id": "PB1",
+      "question": "Does Eq. 6 over a painted map give walkable terrain on the 256² / 500 m grid?",
+      "result": "Slab: 84–91 % of land walkable, 77–84 % gentle; the cube drops to 68 % walkable and turns small rock islands into 70 m spikes.",
+      "changed": "T3 merges specks under ~600 m²; T4 ramps a high region in from its edge; P8 pads every place (≤ 15°).",
+      "items": [
+        "round-0-references/terrain-sheet.jpg"
+      ]
+    },
+    {
+      "id": "PB2",
+      "question": "How much of the 250,000 m² does a player see, and how close?",
+      "result": "Close ≤ 30 m: 34–38 %; mid 30–80 m: 32–36 %; far > 80 m: 20–24 %; never seen: 3–9 %, on all four maps.",
+      "changed": "Banded polish (later D60: every seen band gets full polish, close first); a route-length budget in the spec.",
+      "items": []
+    }
+  ],
+  "terrain": {
+    "$doc": "Map Lab's data (W6, J61): the approved map's blockout (revision 2) from the dry run, exported from tag worldclaw-archive (front/blockout/H.npy, lab.npy) to drafts/public/data/thin-ice/; place radii and region colours from the dry run's fjord-spec.json; the variants' checks are prototype PA / PB1's measured stats (tag worldclaw-archive, out/*-slab-stats.json).",
+    "heights": "terrain.f32",
+    "labels": "labels.u8",
+    "res": 256,
+    "scene": "art/thin-ice/round-6-map-revision-2/blockout/scene.json",
+    "spec": "docs/plans/thin-ice/dry-run/fjord-spec.json",
+    "placeIds": {
+      "spawn": "landing",
+      "hub": "village",
+      "lighthouse": "lighthouse",
+      "wreck": "spire",
+      "icecave": "cave",
+      "tower": "tower",
+      "quarry": "quarry",
+      "glacier": "glacier",
+      "spring": "spring",
+      "overlook": "overlook",
+      "ropeline": "bayrun"
+    },
+    "variants": [
+      {
+        "id": "A",
+        "title": "Layout A",
+        "stats": "drafts/shards/thin-ice/variants/a-slab-stats.json"
+      },
+      {
+        "id": "B",
+        "title": "Layout B",
+        "stats": "drafts/shards/thin-ice/variants/b-slab-stats.json"
+      },
+      {
+        "id": "C",
+        "title": "Layout C",
+        "stats": "drafts/shards/thin-ice/variants/c-slab-stats.json"
+      }
+    ]
+  },
+  "boards": [
+    {
+      "id": "p2-pitch",
+      "stage": "P2",
+      "question": "Three pitches: which one is Thin Ice's shard?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-1-pitches/p2-a-last-crossing.jpg",
+          "note": "The Last Crossing: a new verb, the rope ferry (+8–14 days)"
+        },
+        {
+          "label": "B",
+          "item": "round-1-pitches/p2-b-lantern-line.jpg",
+          "note": "Lantern Line: the kit zipline and rope bridge (+3–5 days)"
+        },
+        {
+          "label": "C",
+          "item": "round-1-pitches/p2-c-thin-ice.jpg",
+          "note": "Thin Ice: the kit hoverboard as a sled-board, a harpoon, the Bellkeeper (+6–10 days)"
+        }
+      ],
+      "picked": "C",
+      "answer": [
+        "C · Thin Ice"
+      ]
+    },
+    {
+      "id": "p3-direction",
+      "stage": "P3",
+      "question": "Three art directions: which look?",
+      "options": [
+        {
+          "label": "1",
+          "item": "round-2-art-direction/p3-ink-spawn.jpg",
+          "note": "Ink and frost"
+        },
+        {
+          "label": "2",
+          "item": "round-2-art-direction/p3-glass-spawn.jpg",
+          "note": "Glass and aurora"
+        },
+        {
+          "label": "3",
+          "item": "round-2-art-direction/p3-sodium-spawn.jpg",
+          "note": "Cold realism"
+        }
+      ],
+      "picked": "2",
+      "answer": [
+        "Which one is the easiest to implement. I like aurora but I want one that's the most simple and technically feasible"
+      ]
+    },
+    {
+      "id": "p3-kept-simple",
+      "stage": "P3",
+      "question": "Glass and aurora, redrawn as the simplest real-time look: approve?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-2-art-direction/p3s-aurora-spawn.jpg",
+          "note": "spawn"
+        },
+        {
+          "label": "B",
+          "item": "round-2-art-direction/p3s-aurora-hub.jpg",
+          "note": "hub"
+        },
+        {
+          "label": "C",
+          "item": "round-2-art-direction/p3s-aurora-landmark.jpg",
+          "note": "landmark"
+        },
+        {
+          "label": "D",
+          "item": "round-2-art-direction/p3s-aurora-boss.jpg",
+          "note": "boss approach"
+        }
+      ],
+      "answer": [
+        "Aurora, kept simple"
+      ]
+    },
+    {
+      "id": "p4-places-1",
+      "stage": "P4",
+      "question": "Concepts: places 1–4. Approve or strike?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-3-concepts/p4-place-01-landing.jpg",
+          "note": "South Landing"
+        },
+        {
+          "label": "B",
+          "item": "round-3-concepts/p4-place-02-village.jpg",
+          "note": "Ferryman's Village"
+        },
+        {
+          "label": "C",
+          "item": "round-3-concepts/p4-place-03-lighthouse.jpg",
+          "note": "The Lighthouse"
+        },
+        {
+          "label": "D",
+          "item": "round-3-concepts/p4-place-04-quarry.jpg",
+          "note": "The Old Quarry"
+        }
+      ],
+      "answer": [
+        "Approve all four"
+      ]
+    },
+    {
+      "id": "p4-places-2",
+      "stage": "P4",
+      "question": "Concepts: places 5–8. Approve or strike?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-3-concepts/p4-place-05-spire.jpg",
+          "note": "The Drowned Spire"
+        },
+        {
+          "label": "B",
+          "item": "round-3-concepts/p4-place-06-cave.jpg",
+          "note": "The Ice Cave"
+        },
+        {
+          "label": "C",
+          "item": "round-3-concepts/p4-place-07-overlook.jpg",
+          "note": "Cliff Overlook"
+        },
+        {
+          "label": "D",
+          "item": "round-3-concepts/p4-place-08-bayrun.jpg",
+          "note": "The Bay Run"
+        }
+      ],
+      "answer": [
+        "Approve all four",
+        "Eel on the spire is fine"
+      ]
+    },
+    {
+      "id": "p4-places-3",
+      "stage": "P4",
+      "question": "Concepts: places 9–11 and the key art. Approve or strike?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-3-concepts/p4-place-09-tower.jpg",
+          "note": "Signal Tower"
+        },
+        {
+          "label": "B",
+          "item": "round-3-concepts/p4-place-10-glacier.jpg",
+          "note": "Glacier Mouth"
+        },
+        {
+          "label": "C",
+          "item": "round-3-concepts/p4-place-11-spring.jpg",
+          "note": "Hot Spring"
+        },
+        {
+          "label": "D",
+          "item": "round-3-concepts/p4-keyart.jpg",
+          "note": "Key art"
+        }
+      ],
+      "answer": [
+        "Approve all four"
+      ]
+    },
+    {
+      "id": "p4-characters",
+      "stage": "P4",
+      "question": "Concepts: the characters. Approve or strike?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-3-concepts/p4-char-bellkeeper.jpg",
+          "note": "The Bellkeeper (boss)"
+        },
+        {
+          "label": "B",
+          "item": "round-3-concepts/p4-char-icebear.jpg",
+          "note": "Ice bear"
+        },
+        {
+          "label": "C",
+          "item": "round-3-concepts/p4-char-crawlers.jpg",
+          "note": "Ice crawlers"
+        },
+        {
+          "label": "D",
+          "item": "round-3-concepts/p4-char-sigrun.jpg",
+          "note": "Sigrun"
+        }
+      ],
+      "answer": [
+        "Approve all"
+      ]
+    },
+    {
+      "id": "p4-gear",
+      "stage": "P4",
+      "question": "Concepts: the gear. Approve or strike?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-3-concepts/p4-gear-harpoon.jpg",
+          "note": "The harpoon"
+        },
+        {
+          "label": "B",
+          "item": "round-3-concepts/p4-gear-sled.jpg",
+          "note": "The sled-board"
+        }
+      ],
+      "answer": [
+        "Approved (the verdict log keeps one \"Approve all\" for the characters and gear)"
+      ]
+    },
+    {
+      "id": "p5-map",
+      "stage": "P5",
+      "question": "Three layouts: which map?",
+      "options": [
+        {
+          "label": "A",
+          "item": "round-4-map-wave-1/p5-map-a.jpg",
+          "note": "the straight fjord"
+        },
+        {
+          "label": "B",
+          "item": "round-4-map-wave-1/p5-map2-b.jpg",
+          "note": "the S-bend (redrawn as another layout)"
+        },
+        {
+          "label": "C",
+          "item": "round-4-map-wave-1/p5-map2-c.jpg",
+          "note": "the fork (redrawn as another layout)"
+        }
+      ],
+      "picked": "A",
+      "answer": [
+        "They all look the same lol. I guess A"
+      ]
+    },
+    {
+      "id": "p5-rev2",
+      "stage": "P5",
+      "question": "Map A, revision 2 (after your notes): approve?",
+      "options": [
+        {
+          "label": "Map",
+          "item": "round-6-map-revision-2/p5r2-map.jpg",
+          "note": "the map"
+        },
+        {
+          "label": "3-in-1",
+          "item": "round-6-map-revision-2/p5r2-3in1.jpg",
+          "note": "three World Explorer views"
+        }
+      ],
+      "picked": "Map",
+      "answer": [
+        "Map A revision 2, it's approved."
+      ]
+    },
+    {
+      "id": "p5b-content",
+      "stage": "P5b",
+      "question": "Content round 2: the journey, the quests, side content and the slice. Go?",
+      "options": [
+        {
+          "label": "Journey",
+          "item": "round-9-content-round-1/content-c-1-journey.jpg",
+          "note": "C · lights open the ice"
+        },
+        {
+          "label": "Quests",
+          "item": "round-9-content-round-1/content-c-2-quests.jpg",
+          "note": "the main quest"
+        },
+        {
+          "label": "Side",
+          "item": "round-9-content-round-1/content-c-3-side.jpg",
+          "note": "side content"
+        },
+        {
+          "label": "Slice",
+          "item": "round-9-content-round-1/content-c-4-slice.jpg",
+          "note": "the session slice"
+        }
+      ],
+      "answer": [
+        "C · Lights open the ice",
+        "looks reasonable to me. It's like a start."
+      ]
+    },
+    {
+      "id": "p6-views",
+      "stage": "P6",
+      "question": "The 11 first-person views on the approved map: GO?",
+      "options": [
+        {
+          "label": "1",
+          "item": "round-8-first-person-wave-2/w2-01-landing.jpg",
+          "note": "South Landing"
+        },
+        {
+          "label": "2",
+          "item": "round-8-first-person-wave-2/w2-02-village.jpg",
+          "note": "Ferryman's Village"
+        },
+        {
+          "label": "3",
+          "item": "round-8-first-person-wave-2/w2-03-lighthouse.jpg",
+          "note": "The Lighthouse"
+        },
+        {
+          "label": "4",
+          "item": "round-8-first-person-wave-2/w2-04-quarry.jpg",
+          "note": "The Old Quarry"
+        },
+        {
+          "label": "5",
+          "item": "round-8-first-person-wave-2/w2-05-spire.jpg",
+          "note": "The Drowned Spire"
+        },
+        {
+          "label": "6",
+          "item": "round-8-first-person-wave-2/w2-06-cave.jpg",
+          "note": "The Ice Cave"
+        },
+        {
+          "label": "7",
+          "item": "round-8-first-person-wave-2/w2-07-overlook.jpg",
+          "note": "Cliff Overlook"
+        },
+        {
+          "label": "8",
+          "item": "round-8-first-person-wave-2/w2-08-bayrun.jpg",
+          "note": "The Bay Run"
+        },
+        {
+          "label": "9",
+          "item": "round-8-first-person-wave-2/w2-09-tower.jpg",
+          "note": "Signal Tower"
+        },
+        {
+          "label": "10",
+          "item": "round-8-first-person-wave-2/w2-10-glacier.jpg",
+          "note": "Glacier Mouth"
+        },
+        {
+          "label": "11",
+          "item": "round-8-first-person-wave-2/w2-11-spring.jpg",
+          "note": "Hot Spring"
+        }
+      ],
+      "answer": [
+        "Let me review the images lol bro",
+        "The minimap is wrong in all of the renders."
+      ]
+    }
+  ]
+}

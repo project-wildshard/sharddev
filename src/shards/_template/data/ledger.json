@@ -1,0 +1,17 @@
+[
+  {
+    "fact": "template.quest",
+    "origin": {
+      "kind": "engine",
+      "source": "quest.complete"
+    },
+    "rewards": [
+      {
+        "kind": "achievement",
+        "id": "template.firstQuest",
+        "title": "A first adventure",
+        "threshold": 1
+      }
+    ]
+  }
+]

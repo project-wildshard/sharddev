@@ -1,0 +1,38 @@
+{
+  "ruling": "G872 2026-11-04: grid filler; no extra rounds (G990/G994)",
+  "label": "best measured, below top-5",
+  "families": {
+    "bed.clockwork-canyon.ambience": {
+      "engine": "moss",
+      "rank": 6,
+      "p": 0.004502,
+      "seed": "701",
+      "sourceWaveSha256": "6c41f48501d3f3e5239ec2954ecabbaccde9af2523649aa4f26e37acdfe0d9c0",
+      "sourceMetadataSha256": "a17cf2093120f2347d27805f7f9380f15e31caf0ad82a5b57ee1400f62a507b2"
+    },
+    "bed.desert-ruin.ambience": {
+      "engine": "medium",
+      "rank": 13,
+      "p": 0.003685,
+      "seed": "701",
+      "sourceWaveSha256": "55d814f7d68c4e16baa76ce46e4bc938fb9a9e2d951c9fa1959ff8bd6392697c",
+      "sourceMetadataSha256": "9ca919f979eeeaad1a7570d8db2082ba58c5e80277dbd2ebe1d5846eed5d7195"
+    },
+    "hum.desert-ruin.gateway-wind": {
+      "engine": "medium",
+      "rank": 8,
+      "p": 0.008728,
+      "seed": "702",
+      "sourceWaveSha256": "350d348e853863e16f30b4f35d79bf659828285801f5192b1f10ce7331cae41b",
+      "sourceMetadataSha256": "522f215e5b2aa809903df18e0b51978e8981be34fd6d45d7067ac831f8815ba9"
+    },
+    "hum.desert-ruin.ruins-west": {
+      "engine": "moss",
+      "rank": 17,
+      "p": 0.001101,
+      "seed": "701",
+      "sourceWaveSha256": "0be502b6e697da10aeffe1bb995cac505dc3c0e851a122457027863e0b8d5cbb",
+      "sourceMetadataSha256": "7de2f0d4195b918c77b40c52451e41e59c06b7f72a957746bd9ca7f7acdbe4fc"
+    }
+  }
+}

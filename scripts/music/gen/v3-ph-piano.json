@@ -1,0 +1,1818 @@
+{
+  "style": "piano",
+  "scoring": {
+    "loop": {
+      "style": 0.3,
+      "groove": 0.25,
+      "seam": 0.2,
+      "clean": 0.15,
+      "full": 0.1
+    },
+    "title": {
+      "style": 0.45,
+      "seam": 0.15,
+      "clean": 0.2,
+      "full": 0.2
+    },
+    "vocal_disqualify": 0.2
+  },
+  "slots": {
+    "night": {
+      "pick": "minimax3-402",
+      "alternates": [
+        "minimax3-406",
+        "minimax3-405"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": 0.707,
+          "parts": {
+            "style": 0.804,
+            "seam": 0.837,
+            "clean": 1.0,
+            "full": 0.427,
+            "groove": 0.422
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 223.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 58.55,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.5,
+              "lra": 18.2,
+              "true_peak_dbfs": -0.6
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9297
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2712.9,
+              "rolloff95_hz": 11528.3,
+              "flatness": 0.0012,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.44,
+              "stereo_corr": 0.511
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.154
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.745,
+              "d_major_r": -0.261,
+              "d_major_rank": 18,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.602,
+              "similarity": 0.604,
+              "level_match": 0.988,
+              "start_s": 15.25,
+              "end_s": 30.85,
+              "bars": 12,
+              "loop_s": 15.6,
+              "grid_bpm": 184.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.804,
+                "orchestral": 0.0,
+                "folk": 0.196
+              },
+              "style_sim": {
+                "piano": 0.3239,
+                "orchestral": 0.0435,
+                "folk": 0.2733
+              },
+              "vocal_prob": 0.772
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.3099,
+                "bass": 0.1171,
+                "other": 0.573,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.431,
+              "drums_active_frac": 0.414
+            }
+          }
+        },
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.618,
+          "parts": {
+            "style": 0.75,
+            "seam": 0.573,
+            "clean": 1.0,
+            "full": 0.74,
+            "groove": 0.218
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 232.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 64.8,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.4,
+              "lra": 14.1,
+              "true_peak_dbfs": -0.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9844
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2007.6,
+              "rolloff95_hz": 9466.7,
+              "flatness": 0.0006,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0435,
+              "stereo_corr": 0.097
+            },
+            "tempo": {
+              "estimated_bpm": 112.3,
+              "brief_bpm": 80.0,
+              "rel_err": 0.298
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.825,
+              "d_major_r": -0.444,
+              "d_major_rank": 20,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.444,
+              "similarity": 0.48,
+              "level_match": 0.747,
+              "start_s": 21.75,
+              "end_s": 60.2,
+              "bars": 18,
+              "loop_s": 38.45,
+              "grid_bpm": 112.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.75,
+                "orchestral": 0.052,
+                "folk": 0.198
+              },
+              "style_sim": {
+                "piano": 0.2922,
+                "orchestral": 0.1965,
+                "folk": 0.2443
+              },
+              "vocal_prob": 0.703
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0037,
+                "bass": 0.18,
+                "other": 0.8162,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.312,
+              "drums_active_frac": 0.125
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": 0.564,
+          "parts": {
+            "style": 0.604,
+            "seam": 0.447,
+            "clean": 1.0,
+            "full": 0.684,
+            "groove": 0.334
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 223.7,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 63.67,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.0,
+              "lra": 19.0,
+              "true_peak_dbfs": -0.8
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9062
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2637.5,
+              "rolloff95_hz": 11777.1,
+              "flatness": 0.0019,
+              "hf_above_12k": 0.0001,
+              "sub_below_60": 0.2359,
+              "stereo_corr": 0.164
+            },
+            "tempo": {
+              "estimated_bpm": 198.8,
+              "brief_bpm": 80.0,
+              "rel_err": 0.242
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.724,
+              "d_major_r": -0.458,
+              "d_major_rank": 19,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.368,
+              "similarity": 0.427,
+              "level_match": 0.538,
+              "start_s": 7.0,
+              "end_s": 61.33,
+              "bars": 45,
+              "loop_s": 54.33,
+              "grid_bpm": 198.8
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.604,
+                "orchestral": 0.004,
+                "folk": 0.392
+              },
+              "style_sim": {
+                "piano": 0.3185,
+                "orchestral": 0.1387,
+                "folk": 0.303
+              },
+              "vocal_prob": 0.894
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0467,
+              "vocal_active_frac": 0.159,
+              "stem_share": {
+                "drums": 0.0714,
+                "bass": 0.1019,
+                "other": 0.78,
+                "vocals": 0.0467
+              },
+              "groove_active_frac": 0.508,
+              "drums_active_frac": 0.159
+            }
+          }
+        },
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.542,
+          "parts": {
+            "style": 0.679,
+            "seam": 0.333,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.485
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 142.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 34.67,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.1,
+              "lra": 13.2,
+              "true_peak_dbfs": -0.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.9688
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2289.3,
+              "rolloff95_hz": 9217.3,
+              "flatness": 0.0009,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.1526,
+              "stereo_corr": 0.234
+            },
+            "tempo": {
+              "estimated_bpm": 107.7,
+              "brief_bpm": 80.0,
+              "rel_err": 0.327
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.818,
+              "d_major_r": -0.563,
+              "d_major_rank": 24,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.3,
+              "similarity": 0.348,
+              "level_match": 0.542,
+              "start_s": 3.25,
+              "end_s": 27.77,
+              "bars": 11,
+              "loop_s": 24.52,
+              "grid_bpm": 107.7
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.679,
+                "orchestral": 0.002,
+                "folk": 0.319
+              },
+              "style_sim": {
+                "piano": 0.2399,
+                "orchestral": 0.037,
+                "folk": 0.2127
+              },
+              "vocal_prob": 0.826
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.2291,
+                "bass": 0.0315,
+                "other": 0.7394,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.5,
+              "drums_active_frac": 0.471
+            }
+          }
+        },
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.541,
+          "parts": {
+            "style": 0.731,
+            "seam": 0.442,
+            "clean": 1.0,
+            "full": 0.835,
+            "groove": 0.0
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 272.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 66.71,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.1,
+              "lra": 13.9,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 11,
+              "clipped_frac": 1.8695070483814827e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1806.5,
+              "rolloff95_hz": 7556.9,
+              "flatness": 0.0005,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0011,
+              "stereo_corr": 0.209
+            },
+            "tempo": {
+              "estimated_bpm": 136.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.15
+            },
+            "key": {
+              "best_key": "A# minor",
+              "best_r": 0.594,
+              "d_major_r": -0.223,
+              "d_major_rank": 17,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.365,
+              "similarity": 0.414,
+              "level_match": 0.607,
+              "start_s": 25.5,
+              "end_s": 64.32,
+              "bars": 22,
+              "loop_s": 38.82,
+              "grid_bpm": 136.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.731,
+                "orchestral": 0.001,
+                "folk": 0.268
+              },
+              "style_sim": {
+                "piano": 0.2534,
+                "orchestral": 0.0229,
+                "folk": 0.2174
+              },
+              "vocal_prob": 0.765
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 1.0,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.0,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": 0.241,
+          "parts": {
+            "style": 0.117,
+            "seam": 0.133,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.117
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game soundtrack, dark ambient piano with a slow, soft pulse. BPM: 76. Key: D minor. Instrumental only, no vocals, no choir. Setting: Pine Hollow at night, an eerie folklore forest - lanterns glowing between black pines, fog on the ground, something old watching from the trees; hushed and unsettling, never scary. Arrangement: a sparse, haunting grand-piano melody in the low-middle register with long rests, over a cold string drone and a faint music-box shimmer; a warm upright bass and a soft, steady heartbeat pulse of felt kick, brushed snare and low tom run under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: close felt piano, dark wooden-room reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 112.5,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 30.74,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -15.3,
+              "lra": 14.4,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 16,
+              "clipped_frac": 5.900679758308157e-06,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2088.4,
+              "rolloff95_hz": 9859.7,
+              "flatness": 0.0007,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0023,
+              "stereo_corr": 0.525
+            },
+            "tempo": {
+              "estimated_bpm": 123.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.231
+            },
+            "key": {
+              "best_key": "D minor",
+              "best_r": 0.78,
+              "d_major_r": 0.398,
+              "d_major_rank": 7,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.18,
+              "similarity": 0.217,
+              "level_match": 0.422,
+              "start_s": 2.5,
+              "end_s": 18.1,
+              "bars": 8,
+              "loop_s": 15.6,
+              "grid_bpm": 123.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.117,
+                "orchestral": 0.0,
+                "folk": 0.882
+              },
+              "style_sim": {
+                "piano": 0.2747,
+                "orchestral": 0.0568,
+                "folk": 0.3471
+              },
+              "vocal_prob": 0.897
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.1196,
+                "other": 0.8804,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.233,
+              "drums_active_frac": 0.0
+            }
+          }
+        }
+      ]
+    },
+    "boss": {
+      "pick": "minimax3-401",
+      "alternates": [
+        "minimax3-405",
+        "minimax3-403"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": 0.778,
+          "parts": {
+            "style": 0.857,
+            "seam": 0.332,
+            "clean": 1.0,
+            "full": 1.0,
+            "groove": 0.873
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 262.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 75.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -16.0,
+              "lra": 6.6,
+              "true_peak_dbfs": 0.1
+            },
+            "clipping": {
+              "clipped_samples": 94,
+              "clipped_frac": 1.4194661357661976e-05,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1827.4,
+              "rolloff95_hz": 8034.8,
+              "flatness": 0.0013,
+              "hf_above_12k": 0.00019,
+              "sub_below_60": 0.195,
+              "stereo_corr": 0.468
+            },
+            "tempo": {
+              "estimated_bpm": 83.4,
+              "brief_bpm": 80.0,
+              "rel_err": 0.042
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.752,
+              "d_major_r": -0.486,
+              "d_major_rank": 21,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.299,
+              "similarity": 0.302,
+              "level_match": 0.97,
+              "start_s": 5.0,
+              "end_s": 51.07,
+              "bars": 16,
+              "loop_s": 46.07,
+              "grid_bpm": 83.4
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.857,
+                "orchestral": 0.001,
+                "folk": 0.142
+              },
+              "style_sim": {
+                "piano": 0.3458,
+                "orchestral": 0.0925,
+                "folk": 0.2812
+              },
+              "vocal_prob": 0.993
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0574,
+              "vocal_active_frac": 0.147,
+              "stem_share": {
+                "drums": 0.2269,
+                "bass": 0.2475,
+                "other": 0.4682,
+                "vocals": 0.0574
+              },
+              "groove_active_frac": 0.907,
+              "drums_active_frac": 0.84
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": 0.446,
+          "parts": {
+            "style": 0.438,
+            "seam": 0.483,
+            "clean": 1.0,
+            "full": 0.577,
+            "groove": 0.04
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 228.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 62.55,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -22.5,
+              "lra": 13.0,
+              "true_peak_dbfs": -5.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.543
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.01,
+              "total_silence_s": 1.01
+            },
+            "spectrum": {
+              "centroid_hz": 2487.6,
+              "rolloff95_hz": 11025.9,
+              "flatness": 0.0012,
+              "hf_above_12k": 5e-05,
+              "sub_below_60": 0.0038,
+              "stereo_corr": 0.37
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.154
+            },
+            "key": {
+              "best_key": "F major",
+              "best_r": 0.814,
+              "d_major_r": -0.184,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.39,
+              "similarity": 0.399,
+              "level_match": 0.926,
+              "start_s": 18.25,
+              "end_s": 45.56,
+              "bars": 21,
+              "loop_s": 27.31,
+              "grid_bpm": 184.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.438,
+                "orchestral": 0.009,
+                "folk": 0.553
+              },
+              "style_sim": {
+                "piano": 0.303,
+                "orchestral": 0.1647,
+                "folk": 0.3114
+              },
+              "vocal_prob": 0.747
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0014,
+              "vocal_active_frac": 0.065,
+              "stem_share": {
+                "drums": 0.001,
+                "bass": 0.0,
+                "other": 0.9975,
+                "vocals": 0.0014
+              },
+              "groove_active_frac": 0.032,
+              "drums_active_frac": 0.048
+            }
+          }
+        },
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.392,
+          "parts": {
+            "style": 0.434,
+            "seam": 0.457,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.084
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 123.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 36.56,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.4,
+              "lra": 14.8,
+              "true_peak_dbfs": -3.5
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.668
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2516.2,
+              "rolloff95_hz": 10048.0,
+              "flatness": 0.001,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0771,
+              "stereo_corr": 0.238
+            },
+            "tempo": {
+              "estimated_bpm": 198.8,
+              "brief_bpm": 80.0,
+              "rel_err": 0.242
+            },
+            "key": {
+              "best_key": "C major",
+              "best_r": 0.854,
+              "d_major_r": 0.399,
+              "d_major_rank": 5,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.374,
+              "similarity": 0.43,
+              "level_match": 0.562,
+              "start_s": 9.0,
+              "end_s": 30.73,
+              "bars": 18,
+              "loop_s": 21.73,
+              "grid_bpm": 198.8
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.434,
+                "orchestral": 0.073,
+                "folk": 0.493
+              },
+              "style_sim": {
+                "piano": 0.1874,
+                "orchestral": 0.1233,
+                "folk": 0.1919
+              },
+              "vocal_prob": 0.597
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0334,
+                "other": 0.9666,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.139,
+              "drums_active_frac": 0.028
+            }
+          }
+        },
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.296,
+          "parts": {
+            "style": 0.035,
+            "seam": 0.547,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.103
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 124.5,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 34.52,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -19.8,
+              "lra": 19.2,
+              "true_peak_dbfs": -4.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.625
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.1,
+              "total_silence_s": 1.1
+            },
+            "spectrum": {
+              "centroid_hz": 2489.0,
+              "rolloff95_hz": 11483.9,
+              "flatness": 0.0008,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0027,
+              "stereo_corr": 0.318
+            },
+            "tempo": {
+              "estimated_bpm": 184.6,
+              "brief_bpm": 80.0,
+              "rel_err": 0.154
+            },
+            "key": {
+              "best_key": "C minor",
+              "best_r": 0.807,
+              "d_major_r": -0.242,
+              "d_major_rank": 17,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.428,
+              "similarity": 0.431,
+              "level_match": 0.979,
+              "start_s": 7.75,
+              "end_s": 18.15,
+              "bars": 8,
+              "loop_s": 10.4,
+              "grid_bpm": 184.6
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.035,
+                "orchestral": 0.0,
+                "folk": 0.964
+              },
+              "style_sim": {
+                "piano": 0.1239,
+                "orchestral": -0.1079,
+                "folk": 0.2425
+              },
+              "vocal_prob": 0.813
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0003,
+                "other": 0.9996,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.118,
+              "drums_active_frac": 0.088
+            }
+          }
+        },
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.267,
+          "parts": {
+            "style": 0.022,
+            "seam": 0.465,
+            "clean": 1.0,
+            "full": 0.0,
+            "groove": 0.07
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 176.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 43.33,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -22.7,
+              "lra": 12.6,
+              "true_peak_dbfs": -6.6
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.4688
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 1.65,
+              "total_silence_s": 1.65
+            },
+            "spectrum": {
+              "centroid_hz": 3068.4,
+              "rolloff95_hz": 12392.9,
+              "flatness": 0.0021,
+              "hf_above_12k": 0.00018,
+              "sub_below_60": 0.0074,
+              "stereo_corr": 0.366
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.813,
+              "d_major_r": -0.244,
+              "d_major_rank": 16,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.379,
+              "similarity": 0.414,
+              "level_match": 0.72,
+              "start_s": 2.5,
+              "end_s": 38.5,
+              "bars": 12,
+              "loop_s": 36.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.022,
+                "orchestral": 0.062,
+                "folk": 0.916
+              },
+              "style_sim": {
+                "piano": 0.228,
+                "orchestral": 0.2661,
+                "folk": 0.3627
+              },
+              "vocal_prob": 0.159
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0002,
+                "bass": 0.0008,
+                "other": 0.9989,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.07,
+              "drums_active_frac": 0.07
+            }
+          }
+        },
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": -1.0,
+          "parts": {},
+          "disqualified": "voice 23% of the energy",
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game boss battle music, dark cinematic piano and strings. BPM: 120. Key: D minor. Instrumental only, no vocals, no choir. The fight with the Antler King, an ancient forest guardian gone wrong, in a fog-filled clearing of standing stones and hanging lanterns - relentless, ominous, heroic underneath. Arrangement: a driving, hammered low-piano ostinato and a dark piano melody in octaves, over urgent string stabs; a heavy bass and a powerful, steady groove of taiko, kick, snare and toms runs under the whole piece from the second bar to the end. No fade-out: the last bar is as full as the rest. Production: big, close and punchy, dark hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]",
+          "duration_s": 75,
+          "steps": 30,
+          "gen_time_s": 281.1,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 74.08,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -20.2,
+              "lra": 18.7,
+              "true_peak_dbfs": -2.7
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7344
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2535.4,
+              "rolloff95_hz": 12526.3,
+              "flatness": 0.0011,
+              "hf_above_12k": 5e-05,
+              "sub_below_60": 0.0044,
+              "stereo_corr": 0.371
+            },
+            "tempo": {
+              "estimated_bpm": 95.7,
+              "brief_bpm": 80.0,
+              "rel_err": 0.196
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.774,
+              "d_major_r": -0.191,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 16,
+              "score": 0.519,
+              "similarity": 0.6,
+              "level_match": 0.547,
+              "start_s": 14.0,
+              "end_s": 71.68,
+              "bars": 23,
+              "loop_s": 57.68,
+              "grid_bpm": 95.7
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.703,
+                "orchestral": 0.028,
+                "folk": 0.27
+              },
+              "style_sim": {
+                "piano": 0.2988,
+                "orchestral": 0.1825,
+                "folk": 0.2644
+              },
+              "vocal_prob": 0.642
+            },
+            "vocals": {
+              "vocal_energy_share": 0.2311,
+              "vocal_active_frac": 0.108,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0064,
+                "other": 0.7625,
+                "vocals": 0.2311
+              },
+              "groove_active_frac": 0.176,
+              "drums_active_frac": 0.054
+            }
+          }
+        }
+      ]
+    },
+    "dawn": {
+      "pick": "minimax3-404",
+      "alternates": [
+        "minimax3-402",
+        "minimax3-405"
+      ],
+      "takes": [
+        {
+          "id": "minimax3-404",
+          "seed": 404,
+          "score": 0.667,
+          "parts": {
+            "style": 0.766,
+            "seam": 0.477,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": 1,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 199.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.9,
+              "lra": 12.5,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 4,
+              "clipped_frac": 8.237557992408266e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1549.9,
+              "rolloff95_hz": 7576.7,
+              "flatness": 0.0003,
+              "hf_above_12k": 1e-05,
+              "sub_below_60": 0.0011,
+              "stereo_corr": 0.383
+            },
+            "tempo": {
+              "estimated_bpm": 117.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.266
+            },
+            "key": {
+              "best_key": "D# major",
+              "best_r": 0.786,
+              "d_major_r": -0.372,
+              "d_major_rank": 18,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.386,
+              "similarity": 0.441,
+              "level_match": 0.583,
+              "start_s": 22.0,
+              "end_s": 46.52,
+              "bars": 12,
+              "loop_s": 24.52,
+              "grid_bpm": 117.5
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.766,
+                "orchestral": 0.001,
+                "folk": 0.234
+              },
+              "style_sim": {
+                "piano": 0.1965,
+                "orchestral": -0.0632,
+                "folk": 0.1539
+              },
+              "vocal_prob": 0.585
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.9999,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.0,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-402",
+          "seed": 402,
+          "score": 0.642,
+          "parts": {
+            "style": 0.764,
+            "seam": 0.583,
+            "clean": 0.8,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": 2,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 198.9,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.9,
+              "lra": 5.4,
+              "true_peak_dbfs": -2.8
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7266
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1356.0,
+              "rolloff95_hz": 5204.2,
+              "flatness": 0.0002,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0957,
+              "stereo_corr": 0.419
+            },
+            "tempo": {
+              "estimated_bpm": 92.3,
+              "brief_bpm": 80.0,
+              "rel_err": 0.154
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.833,
+              "d_major_r": 0.079,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.45,
+              "similarity": 0.457,
+              "level_match": 0.944,
+              "start_s": 17.0,
+              "end_s": 37.81,
+              "bars": 8,
+              "loop_s": 20.81,
+              "grid_bpm": 92.3
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.764,
+                "orchestral": 0.009,
+                "folk": 0.226
+              },
+              "style_sim": {
+                "piano": 0.2442,
+                "orchestral": 0.0855,
+                "folk": 0.2005
+              },
+              "vocal_prob": 0.663
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0324,
+                "bass": 0.0588,
+                "other": 0.9088,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.473,
+              "drums_active_frac": 0.091
+            }
+          }
+        },
+        {
+          "id": "minimax3-405",
+          "seed": 405,
+          "score": 0.575,
+          "parts": {
+            "style": 0.577,
+            "seam": 0.43,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": 3,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 219.3,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -21.7,
+              "lra": 14.0,
+              "true_peak_dbfs": -3.0
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7109
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2305.6,
+              "rolloff95_hz": 12162.5,
+              "flatness": 0.0008,
+              "hf_above_12k": 4e-05,
+              "sub_below_60": 0.0033,
+              "stereo_corr": 0.165
+            },
+            "tempo": {
+              "estimated_bpm": 152.0,
+              "brief_bpm": 80.0,
+              "rel_err": 0.05
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.835,
+              "d_major_r": 0.318,
+              "d_major_rank": 9,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.358,
+              "similarity": 0.359,
+              "level_match": 0.992,
+              "start_s": 2.0,
+              "end_s": 49.37,
+              "bars": 30,
+              "loop_s": 47.37,
+              "grid_bpm": 152.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.577,
+                "orchestral": 0.001,
+                "folk": 0.422
+              },
+              "style_sim": {
+                "piano": 0.2174,
+                "orchestral": -0.0276,
+                "folk": 0.2061
+              },
+              "vocal_prob": 0.384
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 1.0,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.0,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-401",
+          "seed": 401,
+          "score": 0.563,
+          "parts": {
+            "style": 0.604,
+            "seam": 0.272,
+            "clean": 1.0,
+            "full": 0.252
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 187.0,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 55.05,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -18.4,
+              "lra": 16.1,
+              "true_peak_dbfs": -2.3
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7617
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 1760.5,
+              "rolloff95_hz": 8481.3,
+              "flatness": 0.0005,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0012,
+              "stereo_corr": 0.325
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.875,
+              "d_major_r": 0.059,
+              "d_major_rank": 11,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.263,
+              "similarity": 0.319,
+              "level_match": 0.418,
+              "start_s": 18.5,
+              "end_s": 48.5,
+              "bars": 10,
+              "loop_s": 30.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.604,
+                "orchestral": 0.006,
+                "folk": 0.39
+              },
+              "style_sim": {
+                "piano": 0.2289,
+                "orchestral": 0.0618,
+                "folk": 0.2132
+              },
+              "vocal_prob": 0.616
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0001,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0,
+                "other": 0.9999,
+                "vocals": 0.0001
+              },
+              "groove_active_frac": 0.0,
+              "drums_active_frac": 0.0
+            }
+          }
+        },
+        {
+          "id": "minimax3-406",
+          "seed": 406,
+          "score": 0.505,
+          "parts": {
+            "style": 0.581,
+            "seam": 0.292,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 164.6,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 45.65,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -21.0,
+              "lra": 9.4,
+              "true_peak_dbfs": -3.1
+            },
+            "clipping": {
+              "clipped_samples": 0,
+              "clipped_frac": 0.0,
+              "peak": 0.7031
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2148.2,
+              "rolloff95_hz": 9685.7,
+              "flatness": 0.0008,
+              "hf_above_12k": 3e-05,
+              "sub_below_60": 0.0029,
+              "stereo_corr": 0.253
+            },
+            "tempo": {
+              "estimated_bpm": 161.5,
+              "brief_bpm": 80.0,
+              "rel_err": 0.009
+            },
+            "key": {
+              "best_key": "A# major",
+              "best_r": 0.838,
+              "d_major_r": -0.093,
+              "d_major_rank": 14,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.275,
+              "similarity": 0.328,
+              "level_match": 0.457,
+              "start_s": 16.75,
+              "end_s": 40.75,
+              "bars": 8,
+              "loop_s": 24.0,
+              "grid_bpm": 80.0
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.581,
+                "orchestral": 0.001,
+                "folk": 0.418
+              },
+              "style_sim": {
+                "piano": 0.2101,
+                "orchestral": -0.0133,
+                "folk": 0.1982
+              },
+              "vocal_prob": 0.345
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0,
+              "vocal_active_frac": 0.0,
+              "stem_share": {
+                "drums": 0.0001,
+                "bass": 0.0,
+                "other": 0.9999,
+                "vocals": 0.0
+              },
+              "groove_active_frac": 0.067,
+              "drums_active_frac": 0.067
+            }
+          }
+        },
+        {
+          "id": "minimax3-403",
+          "seed": 403,
+          "score": 0.368,
+          "parts": {
+            "style": 0.272,
+            "seam": 0.377,
+            "clean": 1.0,
+            "full": 0.0
+          },
+          "disqualified": null,
+          "rank": null,
+          "mp3": null,
+          "prompt": "Genre: video game victory and dawn theme, cinematic piano. BPM: 84. Key: D major. Instrumental only, no vocals, no choir. The quest's end: the Antler King is laid to rest and the first light of dawn rises over Pine Hollow, the fog lifting from the pines - relief, warmth, quiet triumph. Arrangement: a gentle grand-piano melody that opens up into warm strings and a cello line, swelling to one radiant, hopeful climax, then ends on a long resolved major chord that rings out. Production: rich close piano, warm hall reverb.",
+          "lyrics": "[Intro]\n[Instrumental]\n[Solo]\n[Instrumental]\n[Outro]",
+          "duration_s": 55,
+          "steps": 30,
+          "gen_time_s": 210.8,
+          "code_commit": "diffusers 0.40.0, torch 2.14.0",
+          "metrics": {
+            "duration_s": 45.81,
+            "sample_rate": 44100,
+            "channels": 2,
+            "loudness": {
+              "lufs": -17.8,
+              "lra": 19.0,
+              "true_peak_dbfs": 0.0
+            },
+            "clipping": {
+              "clipped_samples": 1,
+              "clipped_frac": 2.474816269640142e-07,
+              "peak": 1.0
+            },
+            "silence": {
+              "longest_internal_gap_s": 0.0,
+              "internal_gaps": 0,
+              "head_silence_s": 0.0,
+              "tail_silence_s": 0.0,
+              "total_silence_s": 0
+            },
+            "spectrum": {
+              "centroid_hz": 2432.5,
+              "rolloff95_hz": 11389.3,
+              "flatness": 0.0009,
+              "hf_above_12k": 2e-05,
+              "sub_below_60": 0.0016,
+              "stereo_corr": 0.361
+            },
+            "tempo": {
+              "estimated_bpm": 129.2,
+              "brief_bpm": 80.0,
+              "rel_err": 0.193
+            },
+            "key": {
+              "best_key": "G minor",
+              "best_r": 0.805,
+              "d_major_r": -0.162,
+              "d_major_rank": 15,
+              "key_ok": false
+            },
+            "loop": {
+              "min_bars": 8,
+              "score": 0.326,
+              "similarity": 0.353,
+              "level_match": 0.743,
+              "start_s": 9.75,
+              "end_s": 24.61,
+              "bars": 8,
+              "loop_s": 14.86,
+              "grid_bpm": 129.2
+            },
+            "clap": {
+              "style_prob": {
+                "piano": 0.272,
+                "orchestral": 0.001,
+                "folk": 0.726
+              },
+              "style_sim": {
+                "piano": 0.2114,
+                "orchestral": 0.0205,
+                "folk": 0.2466
+              },
+              "vocal_prob": 0.784
+            },
+            "vocals": {
+              "vocal_energy_share": 0.0515,
+              "vocal_active_frac": 0.156,
+              "stem_share": {
+                "drums": 0.0,
+                "bass": 0.0095,
+                "other": 0.939,
+                "vocals": 0.0515
+              },
+              "groove_active_frac": 0.133,
+              "drums_active_frac": 0.0
+            }
+          }
+        }
+      ]
+    }
+  }
+}

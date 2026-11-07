@@ -1,0 +1,119 @@
+{
+  "slots": {
+    "grass": {
+      "take": "minimax3-302",
+      "loop": {
+        "score": 0.4099,
+        "similarity": 0.418,
+        "level_match": 0.936,
+        "loopStart": 3.4597732426303853,
+        "loopEnd": 45.41823129251701,
+        "bars": 21,
+        "bpm": 120.119,
+        "beat_jitter_s": 0.058,
+        "best_seam_score": 0.4099
+      },
+      "voice_share": 0.0055,
+      "bytes": {
+        "calm": 580399,
+        "tension": 392069
+      }
+    },
+    "sky": {
+      "take": "minimax3-311",
+      "loop": {
+        "score": 0.4601,
+        "similarity": 0.474,
+        "level_match": 0.899,
+        "loopStart": 17.08988662131519,
+        "loopEnd": 43.51419501133787,
+        "bars": 10,
+        "bpm": 90.825,
+        "beat_jitter_s": 0.036,
+        "best_seam_score": 0.4601
+      },
+      "voice_share": 0.0,
+      "bytes": {
+        "calm": 565252,
+        "tension": 385344
+      }
+    },
+    "snow": {
+      "take": "minimax3-301",
+      "loop": {
+        "score": 0.8556,
+        "similarity": 0.871,
+        "level_match": 0.94,
+        "loopStart": 28.676643990929705,
+        "loopEnd": 46.81142857142857,
+        "bars": 8,
+        "bpm": 105.874,
+        "beat_jitter_s": 0.033,
+        "best_seam_score": 0.8556
+      },
+      "voice_share": 0.0114,
+      "bytes": {
+        "calm": 600791,
+        "tension": 410926
+      }
+    },
+    "night": {
+      "take": "minimax3-301",
+      "loop": {
+        "score": 0.3893,
+        "similarity": 0.466,
+        "level_match": 0.449,
+        "loopStart": 8.6378231292517,
+        "loopEnd": 51.98947845804989,
+        "bars": 13,
+        "bpm": 71.97,
+        "beat_jitter_s": 0.091,
+        "best_seam_score": 0.3893
+      },
+      "voice_share": 0.3214,
+      "bytes": {
+        "calm": 677113,
+        "tension": 456597
+      }
+    },
+    "storm": {
+      "take": "minimax3-313",
+      "loop": {
+        "score": 0.3674,
+        "similarity": 0.397,
+        "level_match": 0.755,
+        "loopStart": 8.730702947845804,
+        "loopEnd": 52.77895691609977,
+        "bars": 16,
+        "bpm": 87.177,
+        "beat_jitter_s": 0.061,
+        "best_seam_score": 0.3674
+      },
+      "voice_share": 0.0001,
+      "bytes": {
+        "calm": 679440,
+        "tension": 457752
+      }
+    },
+    "king": {
+      "take": "minimax3-302",
+      "loop": {
+        "score": 0.2132,
+        "similarity": 0.238,
+        "level_match": 0.658,
+        "loopStart": 15.023310657596372,
+        "loopEnd": 42.120997732426304,
+        "bars": 9,
+        "bpm": 79.712,
+        "beat_jitter_s": 0.083,
+        "best_seam_score": 0.2723
+      },
+      "voice_share": 0.3788,
+      "bytes": {
+        "calm": 553237,
+        "tension": 374208
+      }
+    }
+  },
+  "total_bytes": 6257712
+}

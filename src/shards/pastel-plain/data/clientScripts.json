@@ -1,0 +1,92 @@
+{
+  "module": {
+    "hash": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+    "bytes": 3913
+  },
+  "divisor": 2,
+  "bindings": [
+    {
+      "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+      "entity": 1,
+      "name": "grey-blob.idle",
+      "target": {
+        "kind": "creature",
+        "id": "grey-blob:1"
+      },
+      "reads": [],
+      "parameters": [
+        0,
+        0.06,
+        1.6,
+        1
+      ],
+      "pose": true,
+      "maxOffset": 0.5,
+      "minScale": 0.8,
+      "maxScale": 1.25,
+      "emitters": [
+        {
+          "id": 1,
+          "recipe": "platform.particles",
+          "perTick": 1,
+          "live": 6,
+          "lifetimeTicks": 90,
+          "colour": [
+            0.78,
+            0.8,
+            0.84
+          ],
+          "size": 0.12,
+          "velocity": [
+            0,
+            0.6,
+            0
+          ],
+          "gravity": -0.2
+        }
+      ]
+    },
+    {
+      "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+      "entity": 2,
+      "name": "greyback.idle",
+      "target": {
+        "kind": "creature",
+        "id": "greyback"
+      },
+      "reads": [],
+      "parameters": [
+        1,
+        0.35,
+        1,
+        0
+      ],
+      "pose": true,
+      "maxOffset": 0.6,
+      "minScale": 0.9,
+      "maxScale": 1.1,
+      "emitters": []
+    },
+    {
+      "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+      "entity": 3,
+      "name": "big-blob.idle",
+      "target": {
+        "kind": "creature",
+        "id": "big-blob"
+      },
+      "reads": [],
+      "parameters": [
+        0,
+        0.05,
+        1.1,
+        0
+      ],
+      "pose": true,
+      "maxOffset": 0.5,
+      "minScale": 0.8,
+      "maxScale": 1.25,
+      "emitters": []
+    }
+  ]
+}

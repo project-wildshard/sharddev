@@ -1,0 +1,246 @@
+{
+  "api": 1,
+  "hoverSpeedClass": "road",
+  "slug": "_template",
+  "order": 1000,
+  "status": "hidden",
+  "name": "Template shard",
+  "label": "(+0, +0)",
+  "seed": 357,
+  "biome": "Grey-box teaching level",
+  "blurb": "A hut, a blob, and declared platform systems.",
+  "card": {
+    "thumb": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
+    "portrait": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
+    "landscape": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E"
+  },
+  "style": "greybox",
+  "kitLook": "toon",
+  "hands": "toon",
+  "weapon": "custom",
+  "treeCount": 0,
+  "trees": {
+    "factory": "none",
+    "noun": "trees"
+  },
+  "minimap": {
+    "image": "/assets/_template/map/top.webp"
+  },
+  "pois": [
+    {
+      "id": "hut",
+      "name": "Grey hut",
+      "x": 0,
+      "z": -9,
+      "r": 6
+    },
+    {
+      "id": "greyback",
+      "name": "Greyback",
+      "x": 15,
+      "z": -12,
+      "r": 15
+    },
+    {
+      "id": "big-blob",
+      "name": "Big blob",
+      "x": -15,
+      "z": -20,
+      "r": 8
+    }
+  ],
+  "assetGlobs": [
+    "public/assets/_template/map/**"
+  ],
+  "spawn": {
+    "x": 0,
+    "y": 1,
+    "z": 0,
+    "yaw": 0
+  },
+  "bounds": {
+    "x0": -100,
+    "x1": 100,
+    "z0": -100,
+    "z1": 100,
+    "floor": -10
+  },
+  "sky": {
+    "sunColor": [
+      1,
+      1,
+      1
+    ],
+    "sunIntensity": 1.5,
+    "envIntensity": 0.5,
+    "bgIntensity": 1,
+    "fogSunColor": [
+      1,
+      1,
+      1
+    ],
+    "cloudSunColor": [
+      1,
+      1,
+      1
+    ],
+    "hemiSky": 10266548,
+    "hemiGround": 6316128,
+    "hemiIntensity": 0.7,
+    "sun": {
+      "azimuth": 35,
+      "elevation": 45
+    }
+  },
+  "atmosphere": {
+    "fogHeight": -20,
+    "fogHeightFalloff": 0,
+    "fogHeightDensity": 0,
+    "fogDistDensity": 0,
+    "volumetricSunColor": [
+      1,
+      1,
+      1
+    ]
+  },
+  "grade": {
+    "saturation": 0,
+    "brightness": 0,
+    "contrast": 0,
+    "bloomIntensity": 0,
+    "bloomThreshold": 1,
+    "shadowTint": [
+      1,
+      1,
+      1
+    ],
+    "highTint": [
+      1,
+      1,
+      1
+    ],
+    "lift": [
+      0,
+      0,
+      0
+    ],
+    "gain": [
+      1,
+      1,
+      1
+    ],
+    "gamma": 1
+  },
+  "explore": {
+    "art": {
+      "world": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
+      "models": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
+      "sets": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
+      "practice": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E"
+    }
+  },
+  "shardfile": "/shardfiles/_template/shard.json",
+  "ground": {
+    "paths": "plugin",
+    "structures": true
+  },
+  "uses": [
+    "weather",
+    "dayCycle",
+    "bosses",
+    "elites",
+    "spawns",
+    "quests",
+    "swim",
+    "hover",
+    "explore",
+    "practice",
+    "coins",
+    "loot",
+    "compendium",
+    "feats",
+    "bag.pack"
+  ],
+  "loadout": {
+    "weapons": [
+      "weapon.sword-iron",
+      "weapon.template-whip"
+    ],
+    "tools": [
+      "tool.template-lantern",
+      "tool.hoverboard"
+    ],
+    "start": [
+      "weapon.sword-iron",
+      "weapon.template-whip",
+      "tool.template-lantern",
+      "tool.hoverboard"
+    ],
+    "held": "weapon.template-whip"
+  },
+  "species": [],
+  "fight": {
+    "attackers": 2,
+    "telegraphed": true,
+    "input": {
+      "bufferMs": 120,
+      "coyoteMs": 100
+    }
+  },
+  "creatures": {
+    "lowPoly": true,
+    "waitForModels": false,
+    "furRim": false,
+    "tintRange": 0,
+    "oneMaterial": true
+  },
+  "tiers": {
+    "phone": {
+      "godRays": false,
+      "ao": false
+    },
+    "desktop": {
+      "godRays": false,
+      "ao": false
+    }
+  },
+  "loot": {
+    "coins": true
+  },
+  "hud": {
+    "bands": [
+      "band.1",
+      "band.2",
+      "band.3"
+    ]
+  },
+  "bag": {
+    "tabs": [
+      "map",
+      "gear",
+      "pack",
+      "notes"
+    ],
+    "pack": {
+      "slots": 8
+    }
+  },
+  "regionalSimCost": {
+    "residentMB": 3.21,
+    "rev": "01e880c73",
+    "device": "Chromium 153 + WebKit 26.6 content footprint, Node 24 V8 + Rapier",
+    "evidence": "progress/memory/sf57/regional-sim-cost/summary.json"
+  },
+  "spawns": [],
+  "audio": {
+    "ambience": "none",
+    "score": "none"
+  },
+  "bindings": {
+    "accent": "sand",
+    "budgets": {
+      "module": "./data/budgets.json",
+      "export": "default"
+    }
+  }
+}

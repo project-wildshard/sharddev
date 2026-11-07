@@ -1,0 +1,66 @@
+[
+  {
+    "species": "grey-blob",
+    "look": "pastel.look.greyBlob",
+    "skin": "97ec4d8f75f5fa6239ee919444d6dc19fd35896bb305930c1f050ac6e0e0e6a6",
+    "glb": "2bf489fdb15f1734ddb4c4f32d500ec6da85c765ec7a4eb28dc6781160e7ec8c",
+    "files": [
+      {
+        "hash": "97ec4d8f75f5fa6239ee919444d6dc19fd35896bb305930c1f050ac6e0e0e6a6",
+        "kind": "json",
+        "compressed": 6452,
+        "decoded": 12904,
+        "gpu": 0,
+        "triangles": 0,
+        "draws": 0,
+        "dependencies": [
+          "2bf489fdb15f1734ddb4c4f32d500ec6da85c765ec7a4eb28dc6781160e7ec8c"
+        ],
+        "critical": false
+      },
+      {
+        "hash": "2bf489fdb15f1734ddb4c4f32d500ec6da85c765ec7a4eb28dc6781160e7ec8c",
+        "kind": "glb",
+        "compressed": 44852,
+        "decoded": 69318,
+        "gpu": 30224,
+        "triangles": 100,
+        "draws": 2,
+        "dependencies": [],
+        "critical": false
+      }
+    ]
+  },
+  {
+    "species": "boar",
+    "look": "pastel.look.boar",
+    "skin": "bfa4dfc9c18979f904557ee8deab0058b8a399be10266f5fb1578b403f482fd4",
+    "glb": "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6",
+    "files": [
+      {
+        "hash": "bfa4dfc9c18979f904557ee8deab0058b8a399be10266f5fb1578b403f482fd4",
+        "kind": "json",
+        "compressed": 349221,
+        "decoded": 698442,
+        "gpu": 0,
+        "triangles": 0,
+        "draws": 0,
+        "dependencies": [
+          "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6"
+        ],
+        "critical": false
+      },
+      {
+        "hash": "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6",
+        "kind": "glb",
+        "compressed": 486444,
+        "decoded": 1668238,
+        "gpu": 381444,
+        "triangles": 1164,
+        "draws": 2,
+        "dependencies": [],
+        "critical": false
+      }
+    ]
+  }
+]

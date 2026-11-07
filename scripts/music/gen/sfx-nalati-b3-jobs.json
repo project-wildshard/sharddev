@@ -1,0 +1,17 @@
+{
+  "_doc": "NALATI-FINISH B3 (E302): the two Nalati sounds that still played the synth (spearThrust, javelinImpact-flesh: in the first round neither engine placed a take in CLAP's top 5) re-rolled with three new prompts each. Same family names, kind and duration as sfx-nalati-jobs.json; only the prompt differs per variant. The first round's CLAP `desc` lost to rival descriptions (a bowstring, a sabre) on every take of both engines, whatever the take: sfx-nalati-jobs.json now gives both a `clap_desc` their own takes are judged by (its first-round takes, scored by the old one, leave the pool), and each variant has its own seed range so the takes sit side by side in one raw dir: variant a = seeds 11-, b = 21-, c = 31-. Render: write each variant out as its own {\"families\": ...} file, then gen_sfx_moss.py / gen_sfx.py --model medium --jobs <that file> --seeds <its range>; rank + merge: sfx_nalati.py <raw> --only spearThrust,javelinImpact-flesh.",
+  "variants": {
+    "a": {
+      "spearThrust": { "kind": "oneshot", "duration": 1, "desc": "a spear thrust fast forward", "prompt": "A long wooden spear stabbed forward fast: one quick short whoosh of air as the spear lunges, and a creak of the wooden shaft in the hands. Close foley, dry. No music." },
+      "javelinImpact-flesh": { "kind": "oneshot", "duration": 1, "group": "javelinImpact", "desc": "a javelin hitting a body", "prompt": "A heavy spear striking a large animal's body: a deep, heavy, meaty thump as the spearhead punches into flesh, close. No music." }
+    },
+    "b": {
+      "spearThrust": { "kind": "oneshot", "duration": 1, "desc": "a spear thrust fast forward", "prompt": "Spear thrust foley: a single sharp swoosh of a long spear jabbed hard forward, the pole whipping through the air, very short. No music." },
+      "javelinImpact-flesh": { "kind": "oneshot", "duration": 1, "group": "javelinImpact", "desc": "a javelin hitting a body", "prompt": "A thrown javelin impaling a big animal: a thick wet thud of the spear punching into its body, close foley. No music." }
+    },
+    "c": {
+      "spearThrust": { "kind": "oneshot", "duration": 1, "desc": "a spear thrust fast forward", "prompt": "A warrior thrusting a spear forward and pulling it back: a fast forward swish of air and a short wooden rattle of the shaft, close. No music." },
+      "javelinImpact-flesh": { "kind": "oneshot", "duration": 1, "group": "javelinImpact", "desc": "a javelin hitting a body", "prompt": "Body hit: a heavy spear plunging deep into a carcass, a dull deep stab and a short squelch, close. No music." }
+    }
+  }
+}

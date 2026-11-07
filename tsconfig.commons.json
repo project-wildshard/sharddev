@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": [
+      "vite/client",
+      "node"
+    ],
+    "isolatedDeclarations": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "noEmit": false,
+    "outDir": ".tsc-layers/commons"
+  },
+  "include": [
+    "src/commons/**/*.ts"
+  ],
+  "exclude": [
+    "src/commons/**/*.test.ts",
+    "src/sharddev/test"
+  ]
+}

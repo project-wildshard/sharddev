@@ -1,0 +1,94 @@
+{
+  "style": "orchestral",
+  "set": "pine-hollow",
+  "slots": {
+    "night": {
+      "take": "minimax3-402",
+      "grid": {
+        "median_bpm": 86.13,
+        "beats_found": 62,
+        "ibi_cv": 0.049,
+        "downbeat_index_mod4": 1
+      },
+      "loop": {
+        "score": 0.3333,
+        "similarity": 0.41,
+        "level_match": 0.377,
+        "loopStart": 7.4071655328798185,
+        "loopEnd": 41.12253968253968,
+        "bars": 12,
+        "bpm": 85.421,
+        "beat_jitter_s": 0.087,
+        "best_seam_score": 0.3333
+      },
+      "stem_share": {
+        "drums": 0.0366,
+        "bass": 0.057,
+        "other": 0.8752,
+        "vocals": 0.0
+      },
+      "voice_in_calm": true,
+      "gain_db": -4.4,
+      "limited_min_gain": 1.0,
+      "decode_lag_s": 0.0,
+      "decoded_s": 43.946666666666665,
+      "files": {
+        "calm": "night-calm-da54e0eb.m4a",
+        "tension": "night-tension-ba25e774.m4a"
+      },
+      "bytes": {
+        "calm": 537709,
+        "tension": 362382
+      }
+    },
+    "boss": {
+      "take": "minimax3-404",
+      "grid": {
+        "median_bpm": 89.1,
+        "beats_found": 99,
+        "ibi_cv": 0.027,
+        "downbeat_index_mod4": 0
+      },
+      "loop": {
+        "score": 0.7933,
+        "similarity": 0.818,
+        "level_match": 0.9,
+        "loopStart": 24.38095238095238,
+        "loopEnd": 59.350204081632654,
+        "bars": 13,
+        "bpm": 89.221,
+        "beat_jitter_s": 0.024,
+        "best_seam_score": 0.7933
+      },
+      "stem_share": {
+        "drums": 0.2042,
+        "bass": 0.1135,
+        "other": 0.5648,
+        "vocals": 0.0015
+      },
+      "voice_in_calm": true,
+      "gain_db": 0.6,
+      "limited_min_gain": 0.853,
+      "decode_lag_s": 0.0,
+      "decoded_s": 62.05866666666667,
+      "files": {
+        "calm": "boss-base-d7203ec0.m4a",
+        "bass": "boss-bass-c368d6c3.m4a",
+        "drums": "boss-drums-4c4efeb7.m4a"
+      },
+      "bytes": {
+        "calm": 759114,
+        "bass": 512459,
+        "drums": 512597
+      }
+    },
+    "sting-dawn": {
+      "take": "minimax3-402",
+      "at_s": 47.05,
+      "file": "sting-dawn-eafd4a6d.m4a",
+      "bytes": 98612,
+      "seconds": 8.0
+    }
+  },
+  "total_bytes": 2782873
+}

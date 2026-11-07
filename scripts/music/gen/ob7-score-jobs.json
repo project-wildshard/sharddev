@@ -1,0 +1,152 @@
+{
+  "lyrics": {
+    "loop": "[Instrumental]\n[Instrumental]\n[Solo]\n[Instrumental]"
+  },
+  "jobs": {
+    "ob7/lantern-bayou": {
+      "style": "ob7",
+      "slot": "lantern-bayou",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 72,
+      "prompt": "Instrumental video game score, 72 BPM, 4/4. Slow blue-green dusk swamp village, intimate slide dobro melody answered by soft accordion, warm upright bass and brushes. Spacious, gentle mystery, relaxed unhurried instrumental exploration. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no dialogue."
+    },
+    "ob7/frostline-peaks": {
+      "style": "ob7",
+      "slot": "frostline-peaks",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 96,
+      "prompt": "Instrumental video game score, 96 BPM, 4/4. Bright alpine morning, delicate zither melody, glockenspiel answering motifs and soft chamber strings. Fresh clear mountain air, cosy timber village, light optimistic instrumental exploration. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no dialogue."
+    },
+    "ob7/ember-forge": {
+      "style": "ob7",
+      "slot": "ember-forge",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 84,
+      "prompt": "Instrumental video game score, 84 BPM, 4/4. Deep-blue night dwarven foundry, low warm brass motif over a steady restrained musical anvil rhythm, resonant bass and dark strings. Industrious, grounded and majestic, gentle exploration rather than combat. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no dialogue."
+    },
+    "ob7/mosslight-ruins": {
+      "style": "ob7",
+      "slot": "mosslight-ruins",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 68,
+      "prompt": "Instrumental video game score, 68 BPM, 4/4. Misty ancient ruined stone city, wordless low choir pad underneath delicate harp and widely spaced distant bronze bells. Green pools, ivy and quiet discovery, contemplative and mysterious without horror. No words or solo singer. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no dialogue."
+    },
+    "ob7/coral-drift": {
+      "style": "ob7",
+      "slot": "coral-drift",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 104,
+      "prompt": "Instrumental video game score, 104 BPM, 4/4. Bright turquoise tropical noon, light steel drum melody and gently strummed ukulele with rounded acoustic bass and restrained hand percussion. Friendly sunlit lagoon village, airy joyful instrumental exploration. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no dialogue."
+    },
+    "ob7/night-market": {
+      "style": "ob7",
+      "slot": "night-market",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 88,
+      "prompt": "Instrumental video game score, 88 BPM, 4/4. A red-and-gold lantern night market beside quiet canals at warm dusk. Delicate plucked pipa and guzheng trade a short pentatonic melody with a gentle bamboo flute, rounded acoustic bass and restrained wooden percussion. Welcoming, curious, gently bustling instrumental exploration. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Acoustic detailed production, no environmental sound effects, no vocals, no dialogue."
+    },
+    "ob7/jungle-ziggurat": {
+      "style": "ob7",
+      "slot": "jungle-ziggurat",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 96,
+      "prompt": "Instrumental video game score, 96 BPM, 4/4. A freshly painted Mesoamerican temple town just after tropical rain, bright warm afternoon. Gentle wooden flute melody answers warm hand drums and soft seed shakers, rounded acoustic bass and spacious plucked strings. Lively welcoming discovery, clean intact cinnabar temples beside jade pools, cheerful and unhurried rather than combat or mystery. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no vocals, no dialogue."
+    },
+    "ob7/patchwork-fairground": {
+      "style": "ob7",
+      "slot": "patchwork-fairground",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 120,
+      "beatsPerBar": 3,
+      "prompt": "Instrumental video game score, 120 BPM, 3/4 waltz time. Jaunty travelling fair in warm buttermilk morning light. Bright mechanical band organ carries a playful short waltz melody, light accordion answers over plucked upright bass on beat one and restrained brushes on beats two and three. Toy-box primaries, striped tents, a carousel and a giant Ferris wheel, friendly delighted exploration, never sinister or frantic. Clear short memorable theme, consistent dynamics from second bar to end, no fade-out, no sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no vocals, no dialogue."
+    },
+    "ob7/saltwind-lighthouse": {
+      "style": "ob7",
+      "slot": "saltwind-lighthouse",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 64,
+      "prompt": "Instrumental video game score, 64 BPM, 4/4. A cold northern fishing harbour on black basalt during a passing late-afternoon squall. Slow low fiddle over a held acoustic drone, sparse minor and modal phrases, long restrained bows and wide empty space. Weathered and exposed, storm rather than cosy, steady quiet exploration. No drums, no percussion, no music box. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/fossil-badlands": {
+      "style": "ob7",
+      "slot": "fossil-badlands",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 72,
+      "prompt": "Instrumental video game score, 72 BPM, 4/4. Lavender blue hour at a quiet palaeontology dig in banded clay badlands, lanterns lit in the dry wind. Low marimba and kalimba answer a distant wooden flute over soft bowed strings. Slow, dusty, wondering and warmly curious, never spooky or threatening. Sparse acoustic motifs and gentle open harmonies for unhurried discovery. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/sky-harbor": {
+      "style": "ob7",
+      "slot": "sky-harbor",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 96,
+      "prompt": "Instrumental video game score, 96 BPM, 4/4. A sunny high-sky harbour with cornflower blue skies, timber docks, small cranes and a moored airship. A warm concertina and accordion carry a short adventurous melody, answered by a clear wooden flute hook, buoyant pizzicato strings, rounded acoustic bass and restrained shaker and frame drum. Airy, welcoming and gently adventurous exploration, no brass fanfare. Clear memorable instrumental theme, consistent dynamics from the second bar to the end, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/starfall-observatory": {
+      "style": "ob7",
+      "slot": "starfall-observatory",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 60,
+      "prompt": "Instrumental video game score, 60 BPM, 4/4. A hushed iris-blue night garden surrounding a white domed observatory, a telescope and quiet canals. Celesta and glass harmonica carry sparse luminous notes above a very soft sustained string pad, occasional delicate harp plucks and a barely audible low wordless ooh choir texture far behind the instruments. Gentle astronomical wonder and peaceful discovery, never ominous. No drums or percussion, no solo singer, no words. The instruments dominate and the distant choral texture is subtle. Clear short memorable theme, consistent quiet dynamics from the second bar to the end, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no intelligible vocals or dialogue."
+    },
+    "ob7/thin-ice": {
+      "style": "ob7",
+      "slot": "thin-ice",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 70,
+      "prompt": "Instrumental video game score, 70 BPM, 4/4. Pale cyan noon above a still aqua frozen lake, small igloos, snow-covered pines and a crystalline ice spire. A calm crystalline celesta and delicate glockenspiel trade a short slow melody over soft airy pads, bowed glass harmonics and widely spaced felt-piano notes. Bright restrained winter wonder and peaceful exploration, never threatening or melancholy. No drums or heavy percussion. Clear short memorable instrumental theme, consistent dynamics from the second bar to the end, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed acoustic production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/alien-plain": {
+      "style": "ob7",
+      "slot": "alien-plain",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 70,
+      "prompt": "Instrumental video game score, 70 BPM, 4/4. A gentle bioluminescent alien night on a pastel open plain, softly glowing lime cracks in a tall monolith and small dome habitats. Warm analog synth pads, glassy bell arpeggios, a soft theremin-like instrumental lead and a restrained pulsing sub bass. Dreamy, eerie but welcoming discovery, never horror. Sparse memorable instrumental theme, consistent dynamics from the second bar to the end, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed electronic production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/clockwork-canyon": {
+      "style": "ob7",
+      "slot": "clockwork-canyon",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 96,
+      "prompt": "Instrumental video game score, 96 BPM, 4/4. Bright busy daylight steampunk workshop town. Pizzicato strings, music box and marimba with ticking woodblock percussion and light brass swells. Whimsical, nimble and warm, never grim. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed instrumental production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/desert-ruin": {
+      "style": "ob7",
+      "slot": "desert-ruin",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 68,
+      "prompt": "Instrumental video game score, 68 BPM, 4/4. Harsh white-gold noon over a desert oasis. Slow open sparse plucked oud or saz phrases over a soft frame drum pulse and held drone. Sun-baked and calm at the water, never mysterious or threatening. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed instrumental production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/sky-race": {
+      "style": "ob7",
+      "slot": "sky-race",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 128,
+      "prompt": "Instrumental video game score, 128 BPM, 4/4. Bright cobalt high noon at a floating-island race circuit. Upbeat sporty pop-rock with driving bass, bright synth lead and hand claps. Festive, playful and energetic, never aggressive. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed instrumental production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    },
+    "ob7/showcase-template": {
+      "style": "ob7",
+      "slot": "showcase-template",
+      "duration": 75,
+      "lyrics": "loop",
+      "bpm": 108,
+      "prompt": "Instrumental video game score, 108 BPM, 4/4. Bright clear day in a polished orange-and-grey workshop town of canals, gardens and stalls. Cheerful toy-box workshop music with marimba, pizzicato strings, light brass stabs and woodblock clock ticks. Playful and inviting, not silly. Clear short memorable instrumental theme, consistent dynamics from the second bar, no fade-out or sudden ending, final full bar suitable for a seamless loop. Detailed instrumental production, no environmental sound effects, no voices, no vocals, no choir, no dialogue."
+    }
+  }
+}
