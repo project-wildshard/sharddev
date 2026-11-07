@@ -71,10 +71,10 @@ test('escaping/duplicate inputs and corrupt cached bytes refuse before generatin
   await expect(ctx.cached({ id: 'mesh', inputs: ['input', 'input'] }, generate)).rejects.toThrow('Duplicate');
   expect(calls).toBe(0);
   await ctx.cached({ id: 'mesh' }, generate);
-  const directory = resolve(cache, root.split('/').at(-1) ?? '', 'mesh');
+  const directory = resolve(cache, 'v3', 'keys', root.split('/').at(-1) ?? '', 'mesh');
   const key = readdirSync(directory).find(file => /^[a-f0-9]{64}$/u.test(file));
   if (key === undefined) throw new Error('Missing fixture cache');
-  writeFileSync(resolve(directory, key, hashImmutableBytes(new Uint8Array([1]))), new Uint8Array([2]));
+  writeFileSync(resolve(cache, 'blobs', hashImmutableBytes(new Uint8Array([1]))), new Uint8Array([2]));
   await expect(createProjectGeneration(root, program, assets, cache).cached({ id: 'mesh' }, generate)).rejects.toThrow('byte mismatch');
   expect(calls).toBe(1);
 });

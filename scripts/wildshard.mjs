@@ -4,7 +4,8 @@ import { build } from 'vite';
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
 import { captureProductInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { basename, resolve } from 'node:path';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
 import { importBundle } from './import-bundle.mjs';
@@ -24,10 +25,13 @@ const projectRoot = () => process.cwd();
  * verify the same content-addressed compiler and replay its complete inputs. */
 export function prepareWildshard() {
   const root=projectRoot();
-  return authorBundleCached(root,[shardfileValidationRevision(root)],async()=>{
+  // Resolver policy is executable compiler input too: a source-only cache hit
+  // must not replay a bundle built before an externalization change.
+  const policy = createHash('sha256').update(readFileSync(import.meta.filename)).digest('hex');
+  return authorBundleCached(root,[shardfileValidationRevision(root),policy],async()=>{
     const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()), 'import.meta.dirname': JSON.stringify(resolve(import.meta.dirname, '../src/sharddev')) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', resolveId(id) {
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
-      if (id === 'sharp' || id === 'binaryen' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(authorRequire.resolve(id)).href, external: true };
+      if (id === 'sharp' || id === 'binaryen' || id === '@typescript/typescript6' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(authorRequire.resolve(id)).href, external: true };
       return null;
     } }], build: { write: false, minify: false, lib: { entry: resolve(import.meta.dirname, '../src/sharddev/cli.ts'), formats: ['es'], fileName: 'cli' }, rolldownOptions: { platform: 'node', external: [/^node:/u], output: { codeSplitting: false } } } });
     recordBundle(result,{execution:true});

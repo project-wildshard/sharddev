@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Build programs cache immutable outputs outside the source tree.
-import { existsSync, mkdirSync, mkdtempSync, realpathSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The cache belongs to this user's author tools.
 import { homedir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Explicit inputs stay inside the author project.
@@ -29,6 +29,7 @@ import { encodeZstdBytesMemo } from './bake/zstdBytesMemo';
 import { memoAssemblyScript } from './bake/assemblyscriptMemo';
 import { meshoptNoLargerMemo } from './bake/meshoptChoiceMemo';
 import { projectInputFiles } from './projectInputFiles';
+import { generationCache, maybePruneGenerationCache } from './generationCache.ts';
 import type { Shardfile } from '@wildshard/engine/host/shardfile';
 import type { ProjectOutput } from './projectOutput';
 import type { DiscoveryInput } from '@wildshard/format/discoveryValues';
@@ -91,7 +92,7 @@ export interface ProjectGenerationContext {
   phoneAstcKtx2?: typeof phoneAstcKtx2;
   /** Fresh bounded names below project-relative directories or declared URL roots; older adapters may omit it. */
   inputFiles?: (prefixes: readonly string[]) => readonly string[];
-  cached: (step: ProjectGenerationStep, generate: (inputs: ReadonlyMap<string, Uint8Array>) => ReadonlyMap<string, Uint8Array> | Promise<ReadonlyMap<string, Uint8Array>>) => Promise<ReadonlyMap<string, Uint8Array>>;
+  cached: (step: ProjectGenerationStep, generate: (inputs: ReadonlyMap<string, Uint8Array>) => ReadonlyMap<string, Uint8Array> | Promise<ReadonlyMap<string, Uint8Array>>, recipe?: string) => Promise<ReadonlyMap<string, Uint8Array>>;
   asset: (bytes: Uint8Array) => string;
   compileScript: typeof compileScript;
   compileScriptV2: typeof compileScriptV2;
@@ -103,6 +104,14 @@ export interface ProjectGenerationContext {
 }
 /** Build entries are trusted functions; their returned declaration still crosses normal shardfile admission. */
 export function isProjectGenerator(input: unknown): input is (ctx: ProjectGenerationContext) => unknown { return typeof input === 'function'; }
+const stores = new WeakMap<ProjectGenerationContext, ReturnType<typeof generationCache>>();
+/** Seal the successful build's current keys, release its lease and schedule G430. */
+export async function finishProjectGeneration(context: ProjectGenerationContext, success: boolean): Promise<void> {
+  const store = stores.get(context);
+  if (store === undefined) return;
+  await store.finish(success); stores.delete(context);
+  maybePruneGenerationCache(store.root);
+}
 function name(value: string): void {
   if (value.length === 0 || isAbsolute(value) || value.includes('\\') || value.split('/').some(part => part === '' || part === '.' || part === '..')) throw new Error('Invalid generation file name');
 }
@@ -114,9 +123,10 @@ function detached(files: ReadonlyMap<string, Uint8Array>): Map<string, Uint8Arra
     return [file, copyAssetBytes(bytes)];
   }));
 }
-/** The complete bundled program is a conservative import-closure key. Source edits invalidate every step in that program.
- * Explicit input bytes are read on hits too, so the normal product receipt captures their current identity. */
-export function createProjectGeneration(project: string, programHash: string, assets: Map<string, Uint8Array>, cacheRoot: string = resolve(homedir(), '.cache/wildshard/gen'), inputRoots: readonly ProjectGenerationInputRoot[] = []): ProjectGenerationContext {
+/** Bundled steps carry their own lexical recipe identity. Direct callers retain
+ * the conservative program identity unless they supply an exact recipe.
+ * Explicit input bytes are read on hits too, preserving the product receipt. */
+export function createProjectGeneration(project: string, programHash: string, assets: Map<string, Uint8Array>, cacheRoot: string = process.env['WILDSHARD_GEN_CACHE'] ?? resolve(homedir(), '.cache/wildshard/gen'), inputRoots: readonly ProjectGenerationInputRoot[] = [], scope = ''): ProjectGenerationContext {
   v.parse(hash, programHash);
   const root = realpathSync(project), pending = new Map<string, Promise<ReadonlyMap<string, Uint8Array>>>();
   if (inputRoots.length > 32) throw new Error('Too many generation input roots');
@@ -125,7 +135,8 @@ export function createProjectGeneration(project: string, programHash: string, as
     if (!/^\/(?:[a-zA-Z0-9_-]+\/)+$/u.test(source.prefix)) throw new Error('Generation input root needs a bounded absolute URL prefix');
     return existsSync(source.directory) ? [{ prefix: source.prefix, directory: realpathSync(source.directory) }] : [];
   });
-  return {
+  const store = generationCache(cacheRoot, root, scope);
+  const context: ProjectGenerationContext = {
     compileScript: (source, options) => compileScript(source, { ...options, compileMemo: memoAssemblyScript }),
     compileScriptV2: (source, options) => compileScriptV2(source, { ...options, compileMemo: memoAssemblyScript }),
     compileDecisionScripts: (input, source, moves, authored, options) => compileDeclaredDecisionScripts(input, source, moves, authored, { ...options, compileMemo: memoAssemblyScript }),
@@ -138,7 +149,8 @@ export function createProjectGeneration(project: string, programHash: string, as
       if (!(bytes instanceof Uint8Array) || bytes.byteLength > 256_000_000) throw new Error('Invalid generation asset bytes');
       const copy = copyAssetBytes(bytes), key = hashAssetBytes(copy); assets.set(key, copy); return key;
     },
-    async cached(step, generate) {
+    async cached(step, generate, recipe) {
+      if (recipe !== undefined) v.parse(hash, recipe);
       if (!/^[a-z0-9][a-z0-9-]{0,79}$/u.test(step.id)) throw new Error('Invalid generation step id');
       if ((step.inputs?.length ?? 0) > 4096) throw new Error('Too many generation inputs');
       const inputs = new Map<string, Uint8Array>();
@@ -157,7 +169,7 @@ export function createProjectGeneration(project: string, programHash: string, as
         inputs.set(file, readBoundedFile(path, 256_000_000));
       }
       let diagnosticId='';
-      const key = hashImmutableBytes(text.encode(encodeCanonicalJson({ version: 2, programHash, compiler: await projectCompilerIdentity(), id: diagnosticId=step.id, node: process.version,
+      const key = hashImmutableBytes(text.encode(encodeCanonicalJson({ version: 3, recipe: recipe ?? programHash, compiler: await projectCompilerIdentity(), id: diagnosticId=step.id, node: process.version,
         native: step.native === true ? [process.platform, process.arch] : null,
         inputs: [...inputs].map(([file, bytes]) => [file, hashImmutableBytes(bytes)]).sort(([a], [b]) => String(a).localeCompare(String(b))) })));
       keys.publish({ key });
@@ -169,15 +181,15 @@ export function createProjectGeneration(project: string, programHash: string, as
       const memoryHit=work!==undefined;
       if (work === undefined) {
         work = (async () => {
-          const directory = resolve(cacheRoot, basename(root), step.id, key), index = resolve(directory, 'index.json');
-          if (existsSync(index)) {
-            const manifest = v.parse(Manifest, JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(readBoundedFile(index, 1_000_000))));
+          const saved = await store.read(step.id, key);
+          if (saved !== undefined) {
+            const manifest = v.parse(Manifest, saved);
             if (manifest.key !== key) throw new Error('Generation cache key mismatch');
             const files = new Map<string, Uint8Array>();
             for (const row of manifest.files) {
               name(row.name);
               if (files.has(row.name)) throw new Error('Duplicate generation cache file');
-              const bytes = readBoundedFile(resolve(directory, row.hash), row.bytes);
+              const bytes = readBoundedFile(resolve(store.blobs, row.hash), row.bytes);
               if (bytes.byteLength !== row.bytes || hashAssetBytes(bytes) !== row.hash) throw new Error('Generation cache byte mismatch');
               files.set(row.name, bytes);
             }
@@ -188,18 +200,11 @@ export function createProjectGeneration(project: string, programHash: string, as
           // output names still cross the stricter cache-file path contract.
           metric('miss',0);
           const copy = new Map([...inputs].map(([file, bytes]) => [file, new Uint8Array(bytes)]));
-          const files = detached(await generate(copy)), parent = resolve(directory, '..');
+          const files = detached(await generate(copy));
           const payloadBytes=[...files.values()].reduce((sum,body)=>sum+body.byteLength,0);
           metric('computed',payloadBytes);
-          mkdirSync(parent, { recursive: true });
-          const temporary = mkdtempSync(resolve(parent, '.writing-'));
-          try {
-            const rows = [...files].map(([file, bytes]) => ({ name: file, hash: hashAssetBytes(bytes), bytes: bytes.byteLength }));
-            for (const bytes of files.values()) writeFileSync(resolve(temporary, hashAssetBytes(bytes)), bytes);
-            writeFileSync(resolve(temporary, 'index.json'), encodeCanonicalJson({ key, files: rows }));
-            try { renameSync(temporary, directory); metric('population',payloadBytes); }
-            catch (error) { if (!(error instanceof Error && 'code' in error && (error.code === 'EEXIST' || error.code === 'ENOTEMPTY'))) throw error; metric('population-race',0); }
-          } finally { rmSync(temporary, { recursive: true, force: true }); }
+          const rows = [...files].map(([file, bytes]) => ({ name: file, hash: hashAssetBytes(bytes), bytes: bytes.byteLength }));
+          metric(await store.populate(step.id, { key, files: rows }, files) ? 'population' : 'population-race', payloadBytes);
           return files;
         })();
         pending.set(key, work);
@@ -209,4 +214,6 @@ export function createProjectGeneration(project: string, programHash: string, as
       return detached(files);
     },
   };
+  stores.set(context, store);
+  return context;
 }

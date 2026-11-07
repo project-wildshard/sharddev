@@ -43,6 +43,24 @@ goes in `tmp/<task>/` and is deleted when done.
 - `project/`: history. `journal/`, `origins/` (the meta-repo plans this
   repo came from), `archive/`.
 
+## Generation cache
+
+The author loader keys each bundled cached callback on its lexical recipe,
+declared input bytes, compiler and host. An opaque higher-order callback
+keeps the conservative program key. Cache indexes are in
+`~/.cache/wildshard/gen/v3/keys`; content lives once in `gen/blobs`.
+`WILDSHARD_GEN_CACHE` selects an isolated cache for a proof.
+
+Generation schedules a low-priority collector on Mac and Linux. G430 keeps
+up to three recent keys per job, expires one-day history, then evicts LRU
+keys to a 20 GB blob cap. Live leases, current successful receipts and
+legacy hardlinks survive even when their bytes exceed the cap. Removed
+checkouts release their receipts. Legacy key directories and codec memos
+are outside the new collector until their readers adopt its lock protocol.
+
+The quick outer-edge proof is explicit, outside the hook test set:
+`pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs`.
+
 ## Code rules
 
 - TypeScript only, imports with explicit `.ts`/`.tsx` extensions.

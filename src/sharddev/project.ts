@@ -1,9 +1,10 @@
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { executeBundle } from './executeBundle';
+import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
 import { writeNewProject } from './newProject';
 import { assertConfigBoundary } from './configBoundary';
-import { createProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
+import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI verifies and writes local build products.
 import { cpSync, existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve source assets inside the author project.
@@ -67,7 +68,7 @@ async function authorModule(project: string, file: string): Promise<{ exports: R
   if (chunks.length !== 1) throw new Error('config must bundle as one module');
   const chunk = chunks[0]; if (chunk === undefined) throw new Error('config chunk missing');
   assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports]);
-  const loaded: unknown = await executeBundle(chunk.code, project);
+  const loaded: unknown = await executeBundle(generationRecipes(chunk.code), project);
   if (typeof loaded !== 'object' || loaded === null) throw new Error('Author module has no exports');
   return { exports: Object.fromEntries(Object.entries(loaded)), hash: contentHash(new TextEncoder().encode(chunk.code)) };
 }
@@ -97,11 +98,13 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
   let shard: Shardfile;
   const baked = new Map<string, Uint8Array>(), root = realpathSync(project);
   const sidecarModule = existsSync(resolve(project, 'generators/output.ts')) ? await authorModule(project, 'generators/output.ts') : undefined;
-  // One product owns one cache namespace: config and sidecar share pending work
-  // and both source identities invalidate their complete immutable recipe.
+  // Config and sidecar share pending work. Each bundled callback carries its
+  // own recipe; the complete identity remains a safe fallback for dynamic calls.
   const generation = createProjectGeneration(project, contentHash(new TextEncoder().encode(canonicalJson({
     program: program.hash, output: selected ?? null, ...(sidecarModule === undefined ? {} : { sidecar: sidecarModule.hash }),
-  }))), baked, undefined, inputRoots);
+  }))), baked, undefined, inputRoots, selected ?? 'default');
+  let generationSucceeded = false;
+  try {
   let generatedOutput: unknown, map: Awaited<ReturnType<typeof generatedProjectMap>> | undefined;
   let discovery: DiscoveryValues | undefined;
   // GR9: a selected output's build program supplies its world GLB bytes and its map lattice
@@ -177,7 +180,9 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
   if (sidecar !== undefined && 'mirrors' in loaded && 'mirrors' in sidecar) throw new Error('Runtime mirrors declared by both the config and its output sidecar');
   const mirrors = projectMirrors('mirrors' in loaded ? loaded['mirrors'] : sidecar !== undefined && 'mirrors' in sidecar ? sidecar['mirrors'] : undefined);
   if (mapSourceHash !== undefined && map === undefined) throw new Error('Generated map source identity requires a generated map');
+  generationSucceeded = true;
   return { map, discovery, shard, commons: 'commons' in loaded ? loaded['commons'] : undefined, baked, output, mirrors };
+  } finally { await finishProjectGeneration(generation, generationSucceeded); }
 }
 
 /** Compile authored geometry and read its remaining immutable inputs without writing hashes into the author folder. */
