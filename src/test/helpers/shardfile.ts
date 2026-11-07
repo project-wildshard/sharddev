@@ -7,13 +7,17 @@ import { installFormatHook } from '@wildshard/format/formatHook'
 
 import { makeTar } from './tar.ts'
 
-// Test shardfiles: the real built product in `src/test/fixtures/product`
-// (copied from shardfile v0.1.0's cli-fixture), re-stamped with a slug,
-// name and seed, its source hash recomputed with format's own functions
-// so the real validator admits it. `seed` varies the bytes (and so the
-// hash) of a revision.
+// Test shardfiles: Template 2 as the format pin ships it, re-stamped with a
+// slug, name and seed, its source hash recomputed with format's own functions
+// so the real validator admits it. `seed` varies the bytes (and so the hash)
+// of a revision.
 
-const FIXTURE = fileURLToPath(new URL('../fixtures/product', import.meta.url))
+const TEMPLATE_2 = fileURLToPath(
+  new URL(
+    '../../../node_modules/@wildshard/format/corpus/handwritten',
+    import.meta.url,
+  ),
+)
 const INDEX = 'shard.json'
 const DEFAULT_SEED = 0
 
@@ -23,7 +27,7 @@ interface ShardfileOptions {
   readonly seed?: number
 }
 
-interface FixtureEntry {
+interface ProductEntry {
   readonly name: string
   readonly parentPath: string
   readonly isFile: () => boolean
@@ -35,18 +39,18 @@ function sha256(bytes: Readonly<Uint8Array>): string {
   return createHash('sha256').update(bytes).digest('hex')
 }
 
-async function fixtureFiles(): Promise<ProductFiles> {
-  const entries = await readdir(FIXTURE, {
+async function templateFiles(): Promise<ProductFiles> {
+  const entries = await readdir(TEMPLATE_2, {
     recursive: true,
     withFileTypes: true,
   })
   const pairs = await Promise.all(
     entries
-      .filter((entry: FixtureEntry): boolean => entry.isFile())
+      .filter((entry: ProductEntry): boolean => entry.isFile())
       .map(
-        async (entry: FixtureEntry): Promise<readonly [string, Uint8Array]> => {
+        async (entry: ProductEntry): Promise<readonly [string, Uint8Array]> => {
           const file = path.join(entry.parentPath, entry.name)
-          const relative = path.relative(FIXTURE, file).split(path.sep)
+          const relative = path.relative(TEMPLATE_2, file).split(path.sep)
           return [relative.join('/'), new Uint8Array(await readFile(file))]
         },
       ),
@@ -85,7 +89,7 @@ async function shardfileFiles(
     await import('@wildshard/format/outputIndex')
   const { validationSourceBytes } =
     await import('@wildshard/format/validationReceipt')
-  const files = await fixtureFiles()
+  const files = await templateFiles()
   const parsed = parseOutputIndex(jsonOf(files, INDEX))
   const identity = {
     ...parsed.identity,
