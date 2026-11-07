@@ -54,6 +54,7 @@ jobs:
           git config --global --add url."$base".insteadOf "ssh://git@github.com/"
       - run: pnpm install --frozen-lockfile
       - run: pnpm check
+      - run: pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs
       - run: pnpm test:hooks
       - run: pnpm test:ci
 

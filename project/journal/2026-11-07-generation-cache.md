@@ -24,3 +24,7 @@ the trusted bundler now externalizes the installed compiler entry and keys
 its own resolver policy, so a prior cached bundle cannot hide that change.
 Typecheck and author lint pass. The disk pass and final counts are recorded
 in the requested GEN-REPORT.md outside this repository.
+
+The explicit proof config also runs in the CI check job after pnpm check;
+the hook commands remain unchanged. Its local cold-compiler CLI proof and
+four storage/loader proofs passed in 5.27 seconds.
