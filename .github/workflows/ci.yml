@@ -4,18 +4,26 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_dispatch:
+    inputs:
+      engine:
+        description: Exact candidate engine commit (empty keeps the pin)
+        type: string
+        default: ''
+  repository_dispatch:
+    types: [engine-candidate]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event_name }}-${{ inputs.engine || github.event.client_payload.engine }}
   cancel-in-progress: true
 
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 5 || 15 }}
     env:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
     steps:
@@ -52,17 +60,33 @@ jobs:
           git config --global url."$base".insteadOf "https://github.com/"
           git config --global --add url."$base".insteadOf "git@github.com:"
           git config --global --add url."$base".insteadOf "ssh://git@github.com/"
-      - run: pnpm install --frozen-lockfile
+      - name: Select exact engine candidate
+        env:
+          CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
+        run: node scripts/select-candidate.mjs
+      - name: Install pinned or candidate graph
+        env:
+          CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
+        run: |
+          if [ -n "$CANDIDATE_ENGINE" ]; then
+            pnpm install --no-frozen-lockfile
+          else
+            pnpm install --frozen-lockfile
+          fi
       - run: pnpm check
       - run: pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs
       - run: node --test test/ci/generation-cli.test.mjs
       - run: pnpm test:hooks
       - run: pnpm test:ci
+      - name: Build all three owned templates
+        run: pnpm build:shards
+      - name: Installed author and template play proofs
+        run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs
 
   e2e:
     # Pinned: Playwright 1.60 can't install Chromium on ubuntu-latest (26.04).
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 5 || 15 }}
     env:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
     steps:
@@ -99,7 +123,19 @@ jobs:
           git config --global url."$base".insteadOf "https://github.com/"
           git config --global --add url."$base".insteadOf "git@github.com:"
           git config --global --add url."$base".insteadOf "ssh://git@github.com/"
-      - run: pnpm install --frozen-lockfile
+      - name: Select exact engine candidate
+        env:
+          CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
+        run: node scripts/select-candidate.mjs
+      - name: Install pinned or candidate graph
+        env:
+          CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
+        run: |
+          if [ -n "$CANDIDATE_ENGINE" ]; then
+            pnpm install --no-frozen-lockfile
+          else
+            pnpm install --frozen-lockfile
+          fi
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - if: failure()
