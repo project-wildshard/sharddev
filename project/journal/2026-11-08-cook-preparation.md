@@ -2,7 +2,7 @@
 
 J198 replaces the optional-list recommendation.
 Meta DOWNLOAD-THEN-C D5 was committed before implementation.
-The new format contract is local 77768df plus 8d44785.
+The format contract is published through 4f8280c.
 Its all-input digest binds the preparation to one emitted product.
 This source adds the producer command, not a silent legacy conversion.
 
@@ -44,9 +44,12 @@ An independent installed pack/stale control took 0.80 seconds.
 Those fixtures are labelled as wire fixtures, not GPU measurements.
 The new test lives under src/ci, outside both hooks.
 
-The current source remains in flight until the new format pin is live.
-Renderer identity needs a separate agreement with engine cook.
-Shell document IDs can name a singleplayer mode commit instead.
+The installed pin now uses published format 4f8280c.
+Cook v3 binds product, mounts and the engine renderer fingerprint.
+The actual document renderer stamp must match before and after capture.
+Final cook rejects a foreign renderer before writing any parts.
+The three installed-product cases pass in 3.26 seconds.
+Shell document IDs remain separate capture provenance.
 Mandatory publish recipes and the 28 legacy heads still need migration.
 Nothing here activates the held local workspace or deploys a game.
 

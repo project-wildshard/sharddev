@@ -60,7 +60,8 @@ export async function finishPreparation(dir,recording,originalHeader){
   productPaths(dir); // Refuse linked output paths before any file is written.
   const header=readFileSync(join(dir,'shard.json'));
   if(hash(header)!==hash(originalHeader)||recording.headerHash!==hash(header))throw new Error('Candidate changed during preparation; rerun wildshard prepare');
-  const held=parseOutputIndex(JSON.parse(header)),programs=readEntryPrograms(recording.programs);
+  const held=parseOutputIndex(JSON.parse(header)),programs=readEntryPrograms(recording.programs),renderer=recording.renderer;
+  if(typeof renderer!=='string'||!/^[a-f0-9]{64}$/u.test(renderer))throw new Error('Recording has no engine renderer revision; use a D5 preparation preview');
   const sections=new Map(held.sections.map(row=>[row.name,json(dir,row.path)]));
   const old=held.cook===undefined?{mounts:[]}:readCookData(json(dir,'cook.json'));
   const url=`/programs/${held.identity.slug}.json`,path=cookMountPath(url),programBytes=bytesOf(programs);
@@ -70,13 +71,13 @@ export async function finishPreparation(dir,recording,originalHeader){
   // measured subset needs the existing fence policy; desktop stays whole.
   const all=index.files.filter(row=>row.tier!=='desktop'),selected=new Set(fence);
   const packs=all.some(row=>!selected.has(row.hash))?'fence':'whole';
-  const cook={version:2,mounts,packs,fence,programs,inputHash:hash(cookPreparationBytes(index,mounts))};
+  const cook={version:3,mounts,packs,fence,programs,renderer,inputHash:hash(cookPreparationBytes(index,mounts,renderer))};
   const bytes=bytesOf(cook),next={...index,cook:{path:'cook.json',hash:hash(bytes),bytes:bytes.length}};
   requireCookPreparation(parseOutputIndex(next),readCookData(cook),hash);
   mkdirSync(dirname(join(dir,path)),{recursive:true});writeFileSync(join(dir,path),programBytes);
   writeFileSync(join(dir,'cook.json'),bytes);writeFileSync(join(dir,'shard.json'),bytesOf(next));
   await validateFinished(dir,next);
-  return {slug:index.identity.slug,fence:fence.length,programs:programs.programs.length,renderer:programs.build};
+  return {slug:index.identity.slug,fence:fence.length,programs:programs.programs.length,renderer,document:programs.build};
 }
 
 export async function prepareProduct(dir,base){

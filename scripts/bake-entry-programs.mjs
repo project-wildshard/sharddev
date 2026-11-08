@@ -20,6 +20,10 @@ if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs
 async function record(browser,slug){
   const before=await(await fetch(new URL('/version.json',base))).json(),epoch=before.saveEpoch??0;
   if(!Number.isSafeInteger(epoch)||epoch<0)throw new Error('Preview has an invalid save epoch');
+  if(wantedHeader!==null){
+    const flags=await(await fetch(new URL('/build-flags.json',base))).json();
+    if(flags.devserver!==false)throw new Error('Preparation needs a production-renderer preview, with DEVSERVER off');
+  }
   const context=await browser.newContext({...devices['iPhone 16 Pro']});
   try{
     // The served epoch owns this fresh diagnostic context. The installed SDK
@@ -67,19 +71,21 @@ async function record(browser,slug){
     await page.waitForFunction(()=>window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load'),undefined,{timeout:240000});
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
     const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
+    const renderer=await page.evaluate(()=>globalThis.__WS_RENDERER_REVISION__);
     if(wantedHeader!==null&&(documentBuild!==String(version.build??'')||documentBuild!==String(before.build??'')||version.saveEpoch!==before.saveEpoch))throw new Error('Preview changed renderer documents during preparation');
+    if(wantedHeader!==null&&(typeof renderer!=='string'||!/^[a-f0-9]{64}$/u.test(renderer)||renderer!==before.rendererRevision||renderer!==version.rendererRevision))throw new Error('Preview does not expose one matching engine renderer revision; build a D5 preparation preview');
     const admitted=await page.evaluate(()=>globalThis.__WS_SHARDFILE_VERDICTS__??[]);
     const direct=(await Promise.all(headers)).includes(wantedHeader),receipt=admitted.some(row=>row.indexHash===wantedHeader);
     if(wantedHeader!==null&&!direct&&!receipt)throw new Error('Preparation boot has no exact candidate header or built admission receipt');
     await Promise.all(metadata);
-    return {build:String(documentBuild??version.build??''),pairs:await page.evaluate(()=>window.__entryPrograms),reads:[...reads],hashes:[...hashes]};
+    return {build:String(documentBuild??version.build??''),renderer,pairs:await page.evaluate(()=>window.__entryPrograms),reads:[...reads],hashes:[...hashes]};
   }finally{await context.close();}
 }
 
 const browser=await webkit.launch({headless:true});
 try{
   for(const slug of slugs){
-    const {build,pairs,reads,hashes}=await record(browser,slug),file=output??`public/programs/${slug}.json`;
+    const {build,renderer,pairs,reads,hashes}=await record(browser,slug),file=output??`public/programs/${slug}.json`;
     if(check){
       const held=existsSync(file)?JSON.parse(readFileSync(file,'utf8')):null;
       const text=at=>held.shaders[at].map(line=>held.lines[line]).join('\n');
@@ -94,7 +100,7 @@ try{
     const seen=new Set(),programs=[];
     for(const [vs,fs] of pairs){const pair=[index(vs),index(fs)],key=pair.join(',');if(!seen.has(key)){seen.add(key);programs.push(pair);}}
     const list={version:2,build,lines,shaders,programs};
-    writeFileSync(file,`${JSON.stringify(wantedHeader===null?list:{headerHash:wantedHeader,reads,hashes,programs:list})}\n`);
+    writeFileSync(file,`${JSON.stringify(wantedHeader===null?list:{headerHash:wantedHeader,renderer,reads,hashes,programs:list})}\n`);
     console.log(`${slug}: ${programs.length} programs, ${shaders.length} shaders, ${lines.length} lines, ${(readFileSync(file).length/1048576).toFixed(2)} MB -> ${file} (${build})`);
   }
 }finally{await browser.close();}

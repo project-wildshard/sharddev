@@ -32,16 +32,22 @@ receipt, and refuses a document/build change during capture.
 
 The producer computes a dependency fence plus the recorded manifest reads,
 chooses the existing whole/fence pack policy, and records actual linked GLSL
-pairs. It emits required cook version 2 and a `sdk: "0.3"` header, validates
+pairs. It emits required cook version 3 and a `sdk: "0.3"` header, validates
 all resulting bytes, then updates an existing receipt index digest without
 inventing a new validator or cost. `wildshard pack` remains the final tar
 validation boundary. A failed capture leaves the candidate draft untouched.
 
-This source needs format `8d4478566c6dfe2b384adbf6c26fe08159f027b8`
-or its eventual release. Meta DOWNLOAD-THEN-C D5 still owns the consumer
-pin, mandatory preparation in the publication recipes, renderer identity
-agreement and replacement of the 28 legacy heads. A captured document build
-ID is recorded provenance; it is not an engine renderer fingerprint.
+This source pins format `4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3`.
+Preparation binds the product, complete mounts and engine renderer digest.
+The served document stamp must agree with its version metadata throughout
+capture. A page build ID remains provenance, separate from this renderer
+fingerprint. Only a preparation-only engine preview can admit a stale
+candidate for recapture; the production gate refuses such an artifact.
+Final engine cook rejects a different renderer before writing any parts.
+
+Meta DOWNLOAD-THEN-C D5 owns the remaining publication recipes and the
+replacement of the 28 legacy heads. Existing sdk 0.2 archives retain their
+explicit compatibility reader; preparing one emits the strict sdk 0.3 form.
 
 The explicit CI-only installed-product proof is
 `node --test src/ci/cook-preparation.test.ts`. For an unpublished format,

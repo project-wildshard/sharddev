@@ -50,7 +50,7 @@
     "@valibot/to-json-schema": "1.8.0",
     "@vercel/blob": "2.8.0",
     "@wildshard/engine": "github:project-wildshard/engine#v0.1.0",
-    "@wildshard/format": "github:project-wildshard/shardfile#v0.4.2",
+    "@wildshard/format": "github:project-wildshard/shardfile#4f8280c",
     "ajv": "6.15.0",
     "assemblyscript": "0.28.20",
     "binaryen": "132.0.0",

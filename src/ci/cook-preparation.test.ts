@@ -47,6 +47,7 @@ function recording(folder: string): string {
     file,
     JSON.stringify({
       headerHash: hash,
+      renderer: '1'.repeat(64),
       reads: [],
       programs: {
         version: 2,

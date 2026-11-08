@@ -45,8 +45,8 @@ importers:
         specifier: github:project-wildshard/engine#v0.1.0
         version: https://codeload.github.com/project-wildshard/engine/tar.gz/23b21c86896bde7449c4206ee8cf022be433e984(typescript@7.0.2)
       '@wildshard/format':
-        specifier: github:project-wildshard/shardfile#v0.4.2
-        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50(typescript@7.0.2)
+        specifier: github:project-wildshard/shardfile#4f8280c
+        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -642,8 +642,14 @@ packages:
     engines: {node: '>=24.18.0'}
     hasBin: true
 
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3':
+    resolution: {gitHosted: true, integrity: sha512-jiHVEJ6DgEyBBy2naiSkzRxQUJ07KMf7IzT7/emPx+7HK02lzynhPxmD5Sn6+XcFFsDjPJXUm65IGbBYsmkfdg==, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3}
+    version: 0.4.2
+    engines: {node: '>=24.18.0'}
+    hasBin: true
+
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50':
-    resolution: {gitHosted: true, integrity: sha512-8Y4e4XeEqJgWxL+yj7a2R+EDZaR96nGEdlKoezKj7I6TWorA3ZBmWdr3PleCN8pVwa0SSwDsOsl5nTdv2G60ng==, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50}
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50}
     version: 0.4.2
     engines: {node: '>=24.18.0'}
     hasBin: true
@@ -1763,6 +1769,13 @@ snapshots:
       valibot: 1.5.0(typescript@7.0.2)
     transitivePeerDependencies:
       - preact-render-to-string
+      - typescript
+
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)':
+    dependencies:
+      meshoptimizer: 1.2.0
+      valibot: 1.5.0(typescript@7.0.2)
+    transitivePeerDependencies:
       - typescript
 
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/c0227f48f5dfaf43c8e71aca9968725ca942ec50(typescript@7.0.2)':
