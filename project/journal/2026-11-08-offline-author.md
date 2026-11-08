@@ -21,3 +21,8 @@ is changed and no test pins this diagnostic as desired behavior. SD-8's
 real prove/grid/Ledger journey remains open. The quest is built here, not
 claimed to have completed. The temporary install/products/caches remove
 their own mkdtemp root in finally; no build output is left in this clone.
+
+Linux creates only the network namespace with sudo, then setpriv drops to
+the original author uid/gid before running Node. The original author owns
+every product and can remove its temporary root in finally. The loopback
+probe runs behind that exact same boundary. No root-owned outputs remain.

@@ -23,7 +23,7 @@ function processRun(args,isolated=false){
  if(isolated){
   if(process.platform==='darwin'){command='/usr/bin/sandbox-exec';arguments_=['-p','(version 1)(allow default)(deny network*)',process.execPath,...args];}
   else {assert.equal(process.platform,'linux','An actual OS network boundary is required');command='sudo';
-   arguments_=['-n','env',...Object.entries(cache).map(([key,value])=>`${key}=${value}`),'unshare','--net','--',process.execPath,...args];}
+   arguments_=['-n','unshare','--net','--','setpriv',`--reuid=${process.getuid()}`,`--regid=${process.getgid()}`,'--init-groups','--reset-env','env',...Object.entries(cache).map(([key,value])=>`${key}=${value}`),process.execPath,...args];}
  }
  const done=spawnSync(command,arguments_,{cwd:app,encoding:'utf8',timeout:90_000,env:{...process.env,...cache}});
  assert.ifError(done.error);return done;
