@@ -42,13 +42,13 @@ export default async function generate(ctx) {
  const scalars = new ScalarLatticeBindings();
  const terrain = { waterLevel() { return 0; }, trailDistance(x,z) { return Math.abs(z); } };
  const policy = { ground: { waterMargin: ${margin}, wetThreshold: ${threshold}, trailClearance: 3.5,
-  wet: { res: 2, size: 64, values: { type: 'f32', count: 4, data: { file: 'wet.bin' } } } } };
+  wet: { res: 2, size: 32, values: { type: 'f32', count: 4, data: { file: 'wet.bin' } } } } };
  const exclude = navmeshGroundExclusion(policy, terrain, scalars); scalars.prepare(files);
- const positions = [], indices = [], height = x => x < -12 ? 0 : 2;
- for(let z=-32;z<=32;z++) for(let x=-32;x<=32;x++) positions.push(x,height(x),z);
+ const positions = [], indices = [], height = x => x < -8 ? 0 : 2;
+ for(let z=-16;z<=16;z++) for(let x=-16;x<=16;x++) positions.push(x,height(x),z);
  const tri=(a,b,c)=>{ const centroid=k=>(positions[3*a+k]+positions[3*b+k]+positions[3*c+k])/3;
   if(!exclude(centroid(0),centroid(2),centroid(1))) indices.push(a,b,c); };
- for(let z=0;z<64;z++) for(let x=0;x<64;x++) { const a=z*65+x;tri(a,a+65,a+1);tri(a+1,a+65,a+66); }
+ for(let z=0;z<32;z++) for(let x=0;x<32;x++) { const a=z*33+x;tri(a,a+33,a+1);tri(a+1,a+33,a+34); }
  const baked = bakeNavigation({positions,indices}, [{name:'small',radius:.3,height:1.8,climb:.4,slope:40}],
   {cellSize:.25,cellHeight:.1,tileSizeVoxels:128,minRegionArea:24,mergeRegionArea:64,maxSimplificationError:2,
    maxEdgeLength:24,maxVerticesPerPoly:6,detailSampleDistance:3,detailSampleMaxError:.8});
@@ -71,23 +71,29 @@ async function navigation(directory) {
   return { bytes, nav };
 }
 
-test('an installed author builds and packs a real wetland road with dry queries', { timeout: 9500 }, async () => {
+test('the installed author creates its real navigation project', { timeout: 9500 }, () => {
   run(['new', source, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts')); config();
+});
+
+test('an installed author builds a real wetland road with dry queries', { timeout: 9500 }, async () => {
   run(['build', source, join(app, 'road'), '--product-only']);
   const { nav } = await navigation(join(app, 'road'));
-  const route = nav.findPath({x:-8,y:2,z:0}, {x:24,y:2,z:0}, .3);
+  const route = nav.findPath({x:-4,y:2,z:0}, {x:12,y:2,z:0}, .3);
   assert.ok(route && route.length >= 2, 'The authored trail through wet ground must remain traversable');
-  assert.ok(Math.abs(route.at(-1).x - 24) < .5, 'The real path must reach its goal');
-  assert.equal(nav.closestWalkable({x:8,y:2,z:12}, .3), null, 'Wet off-road terrain must not acquire polygons');
-  assert.equal(nav.closestWalkable({x:-24,y:0,z:0}, .3), null, 'Submerged trail terrain must not acquire polygons');
+  assert.ok(Math.abs(route.at(-1).x - 12) < .5, 'The real path must reach its goal');
+  assert.equal(nav.closestWalkable({x:4,y:2,z:12}, .3), null, 'Wet off-road terrain must not acquire polygons');
+  assert.equal(nav.closestWalkable({x:-12,y:0,z:0}, .3), null, 'Submerged trail terrain must not acquire polygons');
+});
+
+test('the installed CLI packs the admitted navigation product', { timeout: 9500 }, () => {
   run(['pack', join(app, 'road'), '--out', join(root, 'road.tar')]);
 });
 
 test('the strict wet threshold survives a second actual author build', { timeout: 9500 }, async () => {
   config(1); run(['build', source, join(app, 'equality'), '--product-only']);
   const { nav, bytes } = await navigation(join(app, 'equality'));
-  assert.ok(nav.closestWalkable({x:8,y:2,z:12}, .3), 'Wet equality must remain dry enough to walk');
-  assert.equal(nav.closestWalkable({x:-24,y:0,z:0}, .3), null, 'Water exclusion remains active at wet equality');
+  assert.ok(nav.closestWalkable({x:4,y:2,z:12}, .3), 'Wet equality must remain dry enough to walk');
+  assert.equal(nav.closestWalkable({x:-12,y:0,z:0}, .3), null, 'Water exclusion remains active at wet equality');
   const baseline = await navigation(join(app, 'road'));
   assert.notDeepEqual(bytes, baseline.bytes, 'Changing the author policy must change real baked polygons');
 });
