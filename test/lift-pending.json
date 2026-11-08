@@ -13,8 +13,6 @@
   "test/keyed-sky-platform.test.ts",
   "test/light-emitters.test.ts",
   "test/look-regressions.test.ts",
-  "test/map-owned-scenes.test.ts",
-  "test/map-void-source.test.ts",
   "test/merged-channel-lanes.test.ts",
   "test/native-collider-block.test.ts",
   "test/native-floor-shards.test.ts",

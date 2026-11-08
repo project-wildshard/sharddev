@@ -132,3 +132,12 @@ loader: `node --test test/ci/generation-cli.test.mjs`.
 
 Bypasses are for the case they name, never for a red gate: fix the code,
 not the gate.
+
+## Installed map author proof
+
+Run `node --test test/ci/map-author.test.mjs` explicitly, outside hooks.
+Five quick cases exercise a packed SDK from a real outside author: real
+nonempty map geometry, every legacy RGBA byte, lossless product intake,
+repeatable packed output, undeclared-input refusal and selected/placed
+baked geometry. Each case is capped at 9.5 s and its temporary products
+are removed at the end. The reviewed SDK waiting ceiling is now 47.

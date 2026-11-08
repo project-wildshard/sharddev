@@ -575,13 +575,15 @@
     },
     {
       "file": "test/map-owned-scenes.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Real owned bytes versus physical file painter equivalence and output repeatability; preserve for public installed map author workflow rewrite."
+      "action": "run",
+      "reason": "Installed public SDK authors real nonempty floor and selected/placed baked geometry, builds and losslessly readmits its map, compares every legacy RGBA byte, repacks repeatably, refuses undeclared inputs and retains prior immutable output. Coupled private painter/cache and shape-only refusal fixtures are retired.",
+      "successor": "test/ci/map-author.test.mjs"
     },
     {
       "file": "test/map-void-source.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Raster equivalence between source and original painter; preserve until installed template map successor can prove void colors."
+      "action": "run",
+      "reason": "Installed public SDK authors real nonempty floor and selected/placed baked geometry, builds and losslessly readmits its map, compares every legacy RGBA byte, repacks repeatably, refuses undeclared inputs and retains prior immutable output. Coupled private painter/cache and shape-only refusal fixtures are retired.",
+      "successor": "test/ci/map-author.test.mjs"
     },
     {
       "file": "test/merged-channel-lanes.test.ts",
