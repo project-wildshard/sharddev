@@ -86,6 +86,10 @@ jobs:
       - run: pnpm test:ci
 
   author-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: ['1/2', '2/2']
     runs-on: ubuntu-latest
     timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 5 || 15 }}
     env:
@@ -137,7 +141,7 @@ jobs:
           else
             pnpm install --frozen-lockfile
           fi
-      - run: pnpm test:author
+      - run: pnpm test:author --shard=${{ matrix.shard }}
 
   products:
     runs-on: ubuntu-latest

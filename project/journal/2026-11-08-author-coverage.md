@@ -51,3 +51,9 @@ inside the pre-existing author suite, before reaching the product checks.
 Quality/kit, the unchanged author suite and actual product proofs now run
 as independent mandatory jobs. Every pnpm check member remains present,
 and the full normal pre-push remains unchanged. No assertion is skipped.
+
+The isolated legacy author job still exceeded five minutes on the engine
+candidate; quality, actual products and E2E were green. Vitest's supported
+CLI shard option now distributes the unchanged 164-file suite over two
+mandatory jobs. Both halves and every other check must pass. The five-minute
+caps stay; git hooks still run the whole unsharded suite normally.
