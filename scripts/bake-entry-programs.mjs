@@ -8,21 +8,27 @@
 // Run through scripts/browser-lane.sh.
 import {webkit,devices} from 'playwright';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
-import {developerSettings,saveFixture,hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
+import {createHash} from 'node:crypto';
+import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
-const base=flag('--base'), check=args.includes('--check'), slugs=args.filter(arg=>!arg.startsWith('--'));
+const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), slugs=args.filter(arg=>!arg.startsWith('--'));
 if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs --base <url> [--check] <slug>...');
 
 /** Every program linked between the tap and control, in link order (the page's own WebGL2 calls, read in place). */
 async function record(browser,slug){
+  const before=await(await fetch(new URL('/version.json',base))).json(),epoch=before.saveEpoch??0;
+  if(!Number.isSafeInteger(epoch)||epoch<0)throw new Error('Preview has an invalid save epoch');
   const context=await browser.newContext({...devices['iPhone 16 Pro']});
   try{
-    await developerSettings(context,{tier:'phone',volume:0,time:'midday',weather:'clear'});
-    await saveFixture(context,{scope:'global',key:'gfx',data:{dpr:'2',aa:'auto'}});
-    await saveFixture(context,{scope:'device',key:'debug.global.holdLoading',data:'off'});
-    await saveFixture(context,{scope:'device',key:'debug.earlyPrograms',data:'off'}); // the level's own links only
+    // The served epoch owns this fresh diagnostic context. The installed SDK
+    // may predate that epoch; never write fixtures through its old namespace.
+    await context.addInitScript(({epoch})=>{
+      const prefix=`wildshard.save.v2${epoch===0?'':`@${epoch}`}.`,row=data=>({v:1,data});
+      localStorage.setItem(`${prefix}global`,JSON.stringify({keys:{settings:row({tier:'phone',volume:0,time:'midday',weather:'clear'}),gfx:row({dpr:'2',aa:'auto'})}}));
+      localStorage.setItem(`${prefix}device`,JSON.stringify({keys:{devMode:row(true),'debug.global.holdLoading':row('off'),'debug.earlyPrograms':row('off')}}));
+    },{epoch});
     await context.addInitScript(hideDeveloperOverlays);
     // in the page: each document's own shaderSource / attachShader / linkProgram calls, the sources of every linked pair
     await context.addInitScript(`(() => {
@@ -42,22 +48,38 @@ async function record(browser,slug){
       };
     })();`);
     const page=await context.newPage();page.setDefaultTimeout(30000);
+    const reads=new Set(),headers=[],metadata=[],hashes=new Set();
+    page.on('response',response=>{
+      const url=new URL(response.url());reads.add(url.pathname);
+      if(wantedHeader!==null&&url.pathname.endsWith('/shard.json'))headers.push(response.body().then(bytes=>createHash('sha256').update(bytes).digest('hex')));
+      if(wantedHeader!==null&&/\/assets\/spawn\/[^/]+\.json$/u.test(url.pathname))metadata.push(response.json().then(manifest=>{
+        for(const file of manifest.files??[])if(typeof file.hash==='string')hashes.add(file.hash);
+      }));
+    });
     await page.goto(base,{waitUntil:'load'});
     await page.locator('.ws-main-select').click();
     const names=await page.locator('.ws-menu-card b').allTextContents();
-    await page.locator(`.ws-menu-dots i[data-i="${loadingCardIndex(names,slug)}"]`).click();
+    const matches=title===null?[]:names.flatMap((name,index)=>name.toLowerCase().includes(title.toLowerCase())?[index]:[]);
+    if(title!==null&&matches.length!==1)throw new Error(`Candidate card absent or ambiguous: ${title}`);
+    await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
     // ENTER WORLD opens the level in a fresh document: its list starts empty there
     await page.locator('.ws-menu-play').click();
     await page.waitForFunction(()=>window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load'),undefined,{timeout:240000});
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
-    return {build:String(version.build??''),pairs:await page.evaluate(()=>window.__entryPrograms)};
+    const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
+    if(wantedHeader!==null&&(documentBuild!==String(version.build??'')||documentBuild!==String(before.build??'')||version.saveEpoch!==before.saveEpoch))throw new Error('Preview changed renderer documents during preparation');
+    const admitted=await page.evaluate(()=>globalThis.__WS_SHARDFILE_VERDICTS__??[]);
+    const direct=(await Promise.all(headers)).includes(wantedHeader),receipt=admitted.some(row=>row.indexHash===wantedHeader);
+    if(wantedHeader!==null&&!direct&&!receipt)throw new Error('Preparation boot has no exact candidate header or built admission receipt');
+    await Promise.all(metadata);
+    return {build:String(documentBuild??version.build??''),pairs:await page.evaluate(()=>window.__entryPrograms),reads:[...reads],hashes:[...hashes]};
   }finally{await context.close();}
 }
 
 const browser=await webkit.launch({headless:true});
 try{
   for(const slug of slugs){
-    const {build,pairs}=await record(browser,slug),file=`public/programs/${slug}.json`;
+    const {build,pairs,reads,hashes}=await record(browser,slug),file=output??`public/programs/${slug}.json`;
     if(check){
       const held=existsSync(file)?JSON.parse(readFileSync(file,'utf8')):null;
       const text=at=>held.shaders[at].map(line=>held.lines[line]).join('\n');
@@ -71,7 +93,8 @@ try{
     const shaders=[],at=new Map(),index=text=>{if(!at.has(text)){at.set(text,shaders.length);shaders.push(text.split('\n').map(line));}return at.get(text);};
     const seen=new Set(),programs=[];
     for(const [vs,fs] of pairs){const pair=[index(vs),index(fs)],key=pair.join(',');if(!seen.has(key)){seen.add(key);programs.push(pair);}}
-    writeFileSync(file,`${JSON.stringify({version:2,build,lines,shaders,programs})}\n`);
+    const list={version:2,build,lines,shaders,programs};
+    writeFileSync(file,`${JSON.stringify(wantedHeader===null?list:{headerHash:wantedHeader,reads,hashes,programs:list})}\n`);
     console.log(`${slug}: ${programs.length} programs, ${shaders.length} shaders, ${lines.length} lines, ${(readFileSync(file).length/1048576).toFixed(2)} MB -> ${file} (${build})`);
   }
 }finally{await browser.close();}

@@ -21,6 +21,33 @@ Run from the repo root.
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
 - `src/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
+## J198 preparation
+
+After building a candidate, serve that exact product in an engine preview.
+Run `wildshard prepare <product-dir> --base <exact-preview-url>` through
+engine `scripts/browser-lane.sh`. The command owns a fresh, muted iPhone
+WebKit context and closes it on success or failure. It uses the served save
+epoch for fixtures, verifies the candidate header or compiled admission
+receipt, and refuses a document/build change during capture.
+
+The producer computes a dependency fence plus the recorded manifest reads,
+chooses the existing whole/fence pack policy, and records actual linked GLSL
+pairs. It emits required cook version 2 and a `sdk: "0.3"` header, validates
+all resulting bytes, then updates an existing receipt index digest without
+inventing a new validator or cost. `wildshard pack` remains the final tar
+validation boundary. A failed capture leaves the candidate draft untouched.
+
+This source needs format `8d4478566c6dfe2b384adbf6c26fe08159f027b8`
+or its eventual release. Meta DOWNLOAD-THEN-C D5 still owns the consumer
+pin, mandatory preparation in the publication recipes, renderer identity
+agreement and replacement of the 28 legacy heads. A captured document build
+ID is recorded provenance; it is not an engine renderer fingerprint.
+
+The explicit CI-only installed-product proof is
+`node --test src/ci/cook-preparation.test.ts`. For an unpublished format,
+`WILDSHARD_FORMAT_PROOF` can point at its packed package; it changes only
+the disposable installed fixture, never the live checkout or workspace.
+
 ## Layout
 
 The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md

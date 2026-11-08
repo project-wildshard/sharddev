@@ -29,6 +29,9 @@ const USAGE = `Usage: sharddev <command> [options]
 
 Commands:
   serve [--port <n>]   Start the sharddev server on localhost
+  prepare <product> --base <exact-preview-url>
+                       Record the exact candidate in phone WebKit, compute
+                       required cook lists and validate the prepared output
   pack <product> [--out <file>]
                        Tar a built product folder into a shardfile and check
                        it as api-server will. Writes <slug>.tar by default
