@@ -21,7 +21,9 @@ let cache = 0;
 function run(args, success = true, environment = {}) {
   const done = spawnSync(process.execPath, [bin, ...args], {
     cwd: app, encoding: 'utf8', timeout: 8_000,
-    env: { ...process.env, ...environment, WILDSHARD_GEN_CACHE: join(root, `generation-${cache++}`), WILDSHARD_SHARDFILE_CACHE: join(root, `compiler-${cache}`) },
+    // The quick author's day reuses its verified compiler. Ring 2 owns the
+    // separate fully cold compiler + generation proofs on all real templates.
+    env: { ...process.env, ...environment, WILDSHARD_GEN_CACHE: join(root, `generation-${cache++}`), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') },
   });
   assert.ifError(done.error);
   if (success) assert.equal(done.status, 0, `${done.stdout}\n${done.stderr}`);
@@ -42,7 +44,7 @@ test('a packed CLI scaffolds outside its checkout and refuses overwriting it', {
 test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
   run(['build', source, join(app, 'first'), '--product-only']);
 });
-test('a second cold build has exactly the same shipped bytes', { timeout: 9_500 }, () => {
+test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 9_500 }, () => {
   run(['build', source, join(app, 'second'), '--product-only']);
   assert.deepEqual(bytes(join(app, 'second')), bytes(join(app, 'first')));
 });
@@ -51,10 +53,16 @@ test('moving the authored source does not change the shipped bytes', { timeout: 
   run(['build', join(app, 'moved'), join(app, 'third'), '--product-only']);
   assert.deepEqual(bytes(join(app, 'third')), bytes(join(app, 'first')));
 });
-test('installed validation and packing accept its real output and refuse a broken product', { timeout: 9_500 }, () => {
+test('installed validation accepts the outside author output', { timeout: 9_500 }, () => {
   run(['validate', join(app, 'first')]);
+});
+test('installed packing admits the outside author output', { timeout: 9_500 }, () => {
   run(['pack', join(app, 'first'), '--out', join(root, 'isle.tar')]);
+});
+test('the installed build refuses an invalid invocation', { timeout: 9_500 }, () => {
   run(['build', source, join(app, 'bad'), '--unknown-flag'], false);
+});
+test('installed validation refuses a missing product', { timeout: 9_500 }, () => {
   run(['validate', join(app, 'missing')], false);
 });
 test('author and engine share the format schema and Three instance without a test dedupe', { timeout: 9_500 }, async () => {

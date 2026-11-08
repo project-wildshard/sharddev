@@ -62,3 +62,10 @@ Portability normalization is scoped to generated map stamps. Generation
 caches retain their original conservative raw-bundle identity, including
 comments an opaque generator could observe; the portable map identity is
 separate. This keeps the relocation fix at its demonstrated wire boundary.
+
+Pinned hosted CI reproduced eight-second process deadlines when the quick
+author test rebuilt the entire compiler for every command. The combined
+validation case also took 14.4 seconds. The quick author's day now reuses
+its verified compiler and separates each real command into its own case.
+Generation caches still start fresh; all three real templates retain fully
+cold compiler and generation proofs in Ring 2. No case cap is raised.
