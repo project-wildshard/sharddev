@@ -4,7 +4,8 @@ The installed CLI now builds actual edited input bytes, shared level images,
 Explorer-only late art, registered named JSON and a real lossless generated
 map. The product reader and packed tar are the boundary. Private cache
 paths, CommonJS read counts and cross-shard source scans are retired. Eleven
-quick cases are capped at 9.5 seconds and run explicitly in CI, never hooks.
+cases run explicitly in Ring 2, never hooks. The installed simple CLI and
+three template play/package cases retain the quick candidate boundary.
 
 The complete default reference also cooks its real CLI tar with cold part
 encoder workers. Every client part and server pack is hash-verified; the
@@ -29,4 +30,8 @@ The 160 individual J186 deletions and four absent paths remain separate.
 Pinned Linux CI reproduced 9.77 seconds for a single case combining new,
 build and pack. Its timeout prevented sidecar removal and cascaded into
 later cases. Split those actual author commands into three quick cases;
-the cap stays 9.5 seconds. The eleven cases pass locally in 0.38–3.98 s.
+the setup cases pass locally in 0.38–3.98 s. The next Linux run still
+exhausted the eight-second subprocess budget on four generated-program
+builds. That real cold-bundle/admission journey now belongs to Ring 2,
+with a 30-second child and 45-second case budget. It still exercises every
+input edit, image and map outcome; no test is omitted to fit Ring 3.

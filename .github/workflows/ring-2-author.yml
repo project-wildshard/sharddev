@@ -74,3 +74,5 @@ jobs:
         run: node --test --test-concurrency=1 test/ci/template-determinism.test.mjs
       - name: Installed reference, door, save and real cook
         run: node --test --test-concurrency=1 test/ci/new-reference.test.mjs
+      - name: Installed generated author inputs and maps
+        run: node --test --test-concurrency=1 test/ci/author-inputs.test.mjs
