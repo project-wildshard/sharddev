@@ -43,3 +43,11 @@ product through the real installed bin to the existing localhost service
 double, then boots its admitted bytes in a real engine worker and accepts
 player input. Eight cases pass, the longest 5.04 seconds. This proves the
 server boot, not the missing compiled browser client.
+
+Hosted Ring 2 passes all three cases, at 82.4, 68.5 and 70.7 seconds.
+Every complete product hash matches the Darwin report exactly.
+The first engine candidate exhausted its five-minute whole-job deadline
+inside the pre-existing author suite, before reaching the product checks.
+Quality/kit, the unchanged author suite and actual product proofs now run
+as independent mandatory jobs. Every pnpm check member remains present,
+and the full normal pre-push remains unchanged. No assertion is skipped.
