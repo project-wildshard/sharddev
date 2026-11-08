@@ -37,3 +37,9 @@ significant. All three complete products now agree byte for byte across
 all three builds. Real cases take 28.8, 23.6 and 23.9 seconds, so they are
 explicit Ring 2 with a fifteen-minute job, never the quick candidate lane
 or a hook. Product hashes are reported for cross-host comparison.
+
+The outside-author chain now uploads that newly scaffolded and built
+product through the real installed bin to the existing localhost service
+double, then boots its admitted bytes in a real engine worker and accepts
+player input. Eight cases pass, the longest 5.04 seconds. This proves the
+server boot, not the missing compiled browser client.
