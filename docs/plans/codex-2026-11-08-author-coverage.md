@@ -15,7 +15,8 @@ Status: in progress 2026-11-08: outer-edge author and candidate proofs.
 | SD-2 | Default new copies the complete owned Template 1; real door use, physical crossing and save continuation run in Ring 2. Fight completion remains open: the pinned declared worker has a zero-damage probe and no damaging item input owner |
 | SD-24 | Installed dev has no SDK devserver client; build-sdk still assumes removed local SDK/engine build tree. Browser proof remains at the owning package wire |
 | SD-5 | Frozen GitHub install is runner-proved; release-specific external install remains with next tag |
-| SD-16, SD-19 | Ring 2 prints product hashes for cross-host comparison; engine-pin comparison remains open; no engine writes in this lane |
+| SD-16 | Ring 2 prints product hashes for cross-host comparison; no engine writes in this lane |
+| SD-19 | Actual immutable engine Template 1 tar is hash-verified, admitted and plays the same door journey as the newly authored reference: every observed position, grounded state and earned flag agrees. Full byte identity is not claimed across author identities |
 | SD-23 | Installed real author builds online, then rebuilds with OS networking denied; every product file is byte identical. A real loopback listener confirms the OS boundary. CLI prove was attempted and remains blocked by engine catalogue admission |
 | SD-17, SD-22 | Old Driftwood byte attribution and undeclared AS remain open |
 | Waiting tests | Body review in test/lift-review.json: 160 J186 trims, four stale absent paths cleared, Six workflows now run through installed CLI/cook successors; 49 remain (35 engine, five SDK, nine graphical). Under-50 count is met; owner work remains. The large scene corpus is provisionally retained for fuller separation. Real engine laws/lifetime/worker boundaries and the ground-map golden stay pending for their owners; no tests were moved to engine |
