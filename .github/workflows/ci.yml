@@ -15,10 +15,11 @@ on:
 
 permissions:
   contents: read
+  actions: read
 
 concurrency:
   group: ci-${{ github.ref }}-${{ github.event_name }}-${{ inputs.engine || github.event.client_payload.engine }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
@@ -85,6 +86,22 @@ jobs:
       - if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: pnpm test:hooks
       - run: pnpm test:ci
+      - name: Name the commits this verdict covers
+        if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          printf '### CI verdict target\n\n%s\n' "$GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+          previous=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?branch=main&event=push&per_page=50" \
+            --jq "[.workflow_runs[] | select(.status == \"completed\" and .conclusion != \"cancelled\" and .id < $GITHUB_RUN_ID)][0].head_sha // empty")
+          test -n "$previous" || { echo 'No finished push run to compare against' >> "$GITHUB_STEP_SUMMARY"; exit 0; }
+          commits=$(gh api --paginate "repos/$GITHUB_REPOSITORY/compare/$previous...$GITHUB_SHA?per_page=100" \
+            --jq '.commits[] | "\(.sha[0:10]) \(.commit.message | split("\n")[0])"')
+          {
+            printf '\n### Included commits since %s\n\n~~~text\n%s\n~~~\n' "$previous" "$commits"
+            echo 'The checks target the final tree; intermediate SHAs were not executed separately.'
+          } >> "$GITHUB_STEP_SUMMARY"
 
   author-tests:
     strategy:

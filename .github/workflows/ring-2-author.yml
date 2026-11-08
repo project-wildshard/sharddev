@@ -1,21 +1,40 @@
 name: ring-2-author
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/ring-2-author.yml'
+      - '.github/actions/**'
+      - 'src/**'
+      - 'test/**'
+      - 'scripts/**'
+      - 'public/**'
+      - 'drafts/**'
+      - 'lint/**'
+      - 'package.json'
+      - 'pnpm-lock.yaml'
+      - 'pnpm-workspace.yaml'
+      - 'tsconfig*.json'
+      - 'vitest.config.*'
+      - '.npmrc'
+      - '.gitattributes'
+      - '.oxlintrc.author.json'
+  schedule:
+    - cron: '0 3 * * *'
   workflow_dispatch:
     inputs:
       engine:
         description: Exact engine candidate commit (empty keeps the pin)
         type: string
         default: ''
-  push:
-    tags: ['v*']
 
 permissions:
   contents: read
 
 concurrency:
   group: ring-2-author-${{ github.ref }}-${{ inputs.engine }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check:
