@@ -58,7 +58,7 @@ export function validateProject(input: unknown, assets: ReadonlyMap<string, Uint
   return admitProduct(source, assets, projectPerformancePolicy(project, source), scripts);
 }
 
-async function authorModule(project: string, file: string): Promise<{ exports: Record<string, unknown>; hash: string }> {
+async function authorModule(project: string, file: string): Promise<{ exports: Record<string, unknown>; hash: string; mapHash: string }> {
   await prepareAssetDecoders();
   // The compiled declaration executes here; only its returned data is emitted.
   // Source-text inspection still enters the recorder's exact-content guard.
@@ -75,7 +75,7 @@ async function authorModule(project: string, file: string): Promise<{ exports: R
   // Parse before dropping comments so literal text remains part of identity.
   const syntax = ts.createSourceFile('config.js', chunk.code, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const executable = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(syntax);
-  return { exports: Object.fromEntries(Object.entries(loaded)), hash: contentHash(new TextEncoder().encode(executable)) };
+  return { exports: Object.fromEntries(Object.entries(loaded)), hash: contentHash(new TextEncoder().encode(chunk.code)), mapHash: contentHash(new TextEncoder().encode(executable)) };
 }
 
 /** GR9: a declared output's build program (`programs` in shard.config.ts, keyed by slug), if the folder has one for it. */
@@ -122,13 +122,13 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
       if (!(result.world instanceof Uint8Array)) throw new Error('Output program world must be GLB bytes');
       programWorld = result.world;
     }
-    if ('map' in result) map = await generatedProjectMap(result.map, mapSourceHash ?? program.hash);
+    if ('map' in result) map = await generatedProjectMap(result.map, mapSourceHash ?? program.mapHash);
   }
   if (isProjectGenerator(declaration)) {
     declaration = await declaration(generation);
     if (typeof declaration === 'object' && declaration !== null && 'shard' in declaration) {
       if (!('output' in declaration) || Object.keys(declaration).some(key => !['shard', 'output', 'map', 'discovery'].includes(key))) throw new Error('Generated project requires shard, output and optional map/discovery');
-      if ('map' in declaration) map = await generatedProjectMap(declaration.map, mapSourceHash ?? program.hash);
+      if ('map' in declaration) map = await generatedProjectMap(declaration.map, mapSourceHash ?? program.mapHash);
       if ('discovery' in declaration) discovery = parseDiscoveryValues(declaration.discovery);
       generatedOutput = declaration.output;
       if (generatedOutput === undefined) throw new Error('Generated project output is absent');
@@ -170,7 +170,7 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
   if (prepareMap !== undefined) {
     if (!isProjectGenerator(prepareMap)) throw new Error('Map preparation must be a build function');
     if (map !== undefined) throw new Error('Generated project declares its map twice');
-    map = await generatedProjectMap(await prepareMap(generation), mapSourceHash ?? program.hash);
+    map = await generatedProjectMap(await prepareMap(generation), mapSourceHash ?? program.mapHash);
   }
   // A sidecar may compute finite discovery data through the same explicit input context.
   const prepareDiscovery = sidecar?.['prepareDiscovery'];

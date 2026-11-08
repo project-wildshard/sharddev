@@ -57,3 +57,8 @@ candidate; quality, actual products and E2E were green. Vitest's supported
 CLI shard option now distributes the unchanged 164-file suite over two
 mandatory jobs. Both halves and every other check must pass. The five-minute
 caps stay; git hooks still run the whole unsharded suite normally.
+
+Portability normalization is scoped to generated map stamps. Generation
+caches retain their original conservative raw-bundle identity, including
+comments an opaque generator could observe; the portable map identity is
+separate. This keeps the relocation fix at its demonstrated wire boundary.
