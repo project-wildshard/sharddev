@@ -6,7 +6,7 @@ const pending = JSON.parse(readFileSync('test/lift-pending.json', 'utf8'));
 const review = JSON.parse(readFileSync('test/lift-review.json', 'utf8')).files;
 assert.equal(new Set(pending).size, pending.length, 'Duplicate pending path');
 assert.equal(new Set(review.map(row => row.file)).size, review.length, 'Duplicate review');
-assert.ok(pending.length <= 46, 'The reviewed queue must shrink');
+assert.ok(pending.length <= 45, 'The reviewed queue must shrink');
 for (const file of pending) {
   assert.ok(existsSync(file), `Absent pending test: ${file}`);
   const row = review.find(row => row.file === file);

@@ -67,6 +67,17 @@ The explicit CI-only installed-product proof is
 `WILDSHARD_FORMAT_PROOF` can point at its packed package; it changes only
 the disposable installed fixture, never the live checkout or workspace.
 
+The explicit CI-only route proof runs after a real build:
+
+```sh
+node --experimental-transform-types --test test/ci/owned-journey.test.mjs
+```
+
+It drives 1,800 actual input ticks, checks waypoint progress and grounded
+settling, disposes the real runtime and refuses a later tick. Routes live
+in this repo; no quest flags, poses or host state are forced. Each case
+keeps a 9.5 s limit and stays outside commit/push hooks.
+
 ## Layout
 
 The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md

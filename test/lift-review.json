@@ -957,8 +957,9 @@
     },
     {
       "file": "test/shard-headless.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Actual worker route journeys over eight products mixed with hand-satisfied quest flags/source inventory; preserve real routes for per-shard rewrite."
+      "action": "run",
+      "reason": "Each owner admits actual built products, compares independent authored quest inventory, walks 1800 real input ticks, checks grounded progress and disposal. SDK covers all three templates; six native repos own their actual routes. Retire synthetic quest-flag forcing under J186; preserve reported stalls.",
+      "successor": "test/ci/owned-journey.test.mjs"
     },
     {
       "file": "test/shard-select-entries.test.ts",

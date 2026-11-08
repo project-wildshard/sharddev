@@ -219,6 +219,8 @@ jobs:
           fi
       - name: Build all three owned templates
         run: pnpm build:shards
+      - name: Walk the owned 1800-tick authored route
+        run: node --experimental-transform-types --test test/ci/owned-journey.test.mjs
       - name: Installed author and template play proofs
         run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs test/ci/package-products.test.mjs
 
