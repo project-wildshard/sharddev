@@ -653,8 +653,9 @@
     },
     {
       "file": "test/navmesh-ground.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Strict water/wet/trail exclusion boundary and actual terrain predicate equivalence mixed with receiver/callback internals; preserve author navigation law for installed build rewrite."
+      "action": "run",
+      "reason": "Installed SDK author builds, packs and queries actual wet/trail/water navigation; Nalati owns exact authored wet-field and shipped navigation proof. Retire private parser/getter/receiver corpus under J186.",
+      "successor": "test/ci/navigation-author.test.mjs"
     },
     {
       "file": "test/net-climate.test.ts",

@@ -19,7 +19,6 @@
   "test/native-item-frame.test.ts",
   "test/native-loadout-rows.test.ts",
   "test/native-runtime-plan.test.ts",
-  "test/navmesh-ground.test.ts",
   "test/net-climate.test.ts",
   "test/net-exchange.test.ts",
   "test/nine-architecture-graphs.test.ts",

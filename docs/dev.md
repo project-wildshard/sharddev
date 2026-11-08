@@ -16,6 +16,10 @@ Run from the repo root.
 - `pnpm build`: builds the web app into `src/dist/web`.
 - `pnpm test:ci`: `src/ci`, outer-edge tests: `wildshard` as an install lays it out, on a real product. CI only, never a hook (J186).
 - `pnpm test:e2e`: Playwright against a built app. CI only.
+- `node --test test/ci/navigation-author.test.mjs`: a packed SDK in an
+  outside author builds and packs navigation, queries the emitted mesh,
+  proves wet/trail/water rules and refuses an invalid policy. CI only;
+  Nalati owns the authored wet-field/product counterpart.
 - `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
 - `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `pack <product>` tars a built product into a shardfile and `upload <shardfile>` sends one to api-server (`docs/design.md`).
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
