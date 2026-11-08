@@ -36,8 +36,13 @@ const token=`const files=await ctx.cached({id:'token',inputs:['assets/token.bin'
  const blob=nameBlob('authored/token.bin','bin',files.get('token.bin'));
  return {shard,output:{namedFiles:[blob.file],assets:new Map([[blob.file.hash,blob.bytes]])}};`;
 
-test('an outside author derives its level metadata from its real packed discovery',{timeout:9_500},async()=>{
- cli(['new',source,'input-isle','--empty']);await build('base');
+test('an outside author creates its input project',{timeout:9_500},()=>{
+ cli(['new',source,'input-isle','--empty']);
+});
+test('the author builds its initial product',{timeout:9_500},async()=>{
+ await build('base');
+});
+test('the author derives level metadata from its real packed discovery',{timeout:9_500},()=>{
  cli(['pack',join(app,'base'),'--out',join(root,'base.tar')]);
  const files=readTar(readFileSync(join(root,'base.tar'))),entry=[...files].find(([name])=>name.endsWith('/discovery.json'));
  assert.ok(entry);manifest=JSON.parse(new TextDecoder().decode(entry[1])).data;assert.equal(manifest.slug,'input-isle');
