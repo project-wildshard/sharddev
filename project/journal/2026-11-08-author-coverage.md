@@ -19,3 +19,7 @@ full authored fights are not claimed by the empty-project byte proof.
 
 The candidate receiver overrides transitive engine edges as well as its
 direct pin. New checks are only workflow steps, never hook discoveries.
+
+All three template tarballs also pass the installed pack command and carry
+their own discovery document. Three cases take 0.4 to 0.5 seconds each.
+The unchanged author Vitest suite passes 164 files and 770 cases.
