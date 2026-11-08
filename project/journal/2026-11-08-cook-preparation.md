@@ -59,3 +59,14 @@ Those real staged files were refused as outside engine author layers.
 Lint dispatch now routes staged paths to the matching existing lane.
 The no-argument full command still runs both complete lint passes.
 Neither rule configuration nor the selected source inventory is weakened.
+
+The real dc2f670 preparation preview admits all 28 pinned heads.
+A first cohort reproduced absent picker cards for grid-only products.
+The recorder now consumes the existing one-shot travel handoff for them,
+using the served epoch and a fresh receiving document. It does not add a
+URL toggle or a new game entry path. An incomplete arrival fixture first
+failed; the actual travel.handoff schema and v1 save entry pass.
+All 28 real phone WebKit entries now prepare and validate against renderer
+9f41e30da4faca033244db26e823464f1c65bdad8986916d7f919f24dcd7c971.
+Template captures 29 programs; Pine captures 107. No source art changed.
+These are local prepared candidates, not newly published API heads.

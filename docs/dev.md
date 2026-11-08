@@ -28,7 +28,9 @@ Run `wildshard prepare <product-dir> --base <exact-preview-url>` through
 engine `scripts/browser-lane.sh`. The command owns a fresh, muted iPhone
 WebKit context and closes it on success or failure. It uses the served save
 epoch for fixtures, verifies the candidate header or compiled admission
-receipt, and refuses a document/build change during capture.
+receipt, and refuses a document/build change during capture. Grid-only
+products use the existing one-shot travel arrival in a fresh document;
+there is no invented picker card or new game URL switch.
 
 The producer computes a dependency fence plus the recorded manifest reads,
 chooses the existing whole/fence pack policy, and records actual linked GLSL

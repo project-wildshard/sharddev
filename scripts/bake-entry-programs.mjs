@@ -64,10 +64,23 @@ async function record(browser,slug){
     await page.locator('.ws-main-select').click();
     const names=await page.locator('.ws-menu-card b').allTextContents();
     const matches=title===null?[]:names.flatMap((name,index)=>name.toLowerCase().includes(title.toLowerCase())?[index]:[]);
-    if(title!==null&&matches.length!==1)throw new Error(`Candidate card absent or ambiguous: ${title}`);
-    await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
-    // ENTER WORLD opens the level in a fresh document: its list starts empty there
-    await page.locator('.ws-menu-play').click();
+    if(matches.length>1)throw new Error(`Candidate card ambiguous: ${title}`);
+    if(title!==null&&matches.length===0){
+      // Grid-only products have no standalone picker card. Exercise the
+      // existing one-shot arrival contract, as the full-catalogue boot proof.
+      await context.addInitScript(({epoch,slug,title})=>{
+        if(new URL(location.href).searchParams.get('chunk')!==slug)return;
+        const prefix=epoch===0?'wildshard.save.v2.':`wildshard.save.v2@${epoch}.`;
+        const data=JSON.stringify({slug,name:title,mode:'enter',at:Date.now()});
+        sessionStorage.setItem(`${prefix}session`,JSON.stringify({keys:{titleArrival:{v:1,data},'travel.handoff':{v:1,data:{v:1,from:null,to:slug,mode:'enter',arrive:null,carry:[],at:Date.now()}}}}));
+      },{epoch,slug,title});
+      const arrival=new URL(base);arrival.searchParams.set('chunk',slug);
+      await page.goto(arrival.href,{waitUntil:'load'});
+    }else{
+      await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
+      // ENTER WORLD opens a fresh document and a fresh measured link list.
+      await page.locator('.ws-menu-play').click();
+    }
     await page.waitForFunction(()=>window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load'),undefined,{timeout:240000});
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
     const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
