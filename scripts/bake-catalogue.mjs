@@ -39,6 +39,6 @@ try {
   if (packed !== undefined) cpSync(join(cooked, 'assets/spawn/server'), join(out, 'assets/spawn/server'), { recursive: true, force: true });
   const server = packed === undefined ? {} : { server: JSON.parse(readFileSync(join(cooked, packed.index.slice(1)), 'utf8')) };
   addCookedShards(out, [{ slug, hash, header: '', manifests: report.manifests, ...proved, ...server }], cooked, packs === undefined || origin === undefined ? undefined : { base: origin, shards: [slug] });
-  if (existsSync(join(out, 'sw.js'))) writeServiceWorker(out, process.cwd());
+  if (existsSync(join(out, 'sw.js'))) await writeServiceWorker(out, process.cwd());
   console.log(JSON.stringify({ slug, hash, seconds: report.seconds, parts: report.parts }));
 } finally { rmSync(cooked, { recursive: true, force: true }); }
