@@ -46,7 +46,10 @@ function locked<T>(root: string, work: () => T): T | undefined {
   if (lstatSync(root).isSymbolicLink()) throw new Error('Linked generation cache root');
   const database = new DatabaseSync(resolve(root, '.mutex.sqlite'), { timeout: 0 });
   try {
-    try { database.exec('BEGIN IMMEDIATE'); }
+    // This database is a filesystem mutex, with no SQL data. Take the read
+    // barrier before publishing files: IMMEDIATE can fail at COMMIT while a
+    // second connection still holds a schema read lock.
+    try { database.exec('BEGIN EXCLUSIVE'); }
     catch (error) {
       if (error instanceof Error && 'errcode' in error && (error.errcode === 5 || error.errcode === 6)) return undefined;
       throw error;

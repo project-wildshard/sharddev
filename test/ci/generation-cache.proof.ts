@@ -16,6 +16,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { resolve } from 'node:path'
+import { DatabaseSync } from 'node:sqlite'
 
 import { afterEach, expect, test } from 'vitest'
 
@@ -120,6 +121,33 @@ async function populate(
   ).toBe(true)
 }
 
+test('a real SQLite reader cannot make author cache publication fail at commit', async () => {
+  const base = fixture(),
+    store = generationCache(base, base, 'busy-author'),
+    bytes = new Uint8Array([7, 9, 11])
+  mkdirSync(store.root, { recursive: true })
+  const holder = new DatabaseSync(resolve(store.root, '.mutex.sqlite'))
+  holder.exec('BEGIN; SELECT name FROM sqlite_master')
+  let held = true
+  const release = (): void => {
+    if (held) { holder.exec('COMMIT'); held = false }
+  }
+  const timer = setTimeout(release, 100)
+  try {
+    await populate(store, 'e'.repeat(64), bytes)
+    expect(await store.read('mesh', 'e'.repeat(64))).toEqual({
+      key: 'e'.repeat(64),
+      files: [{ name: 'body.bin', hash: sha(bytes), bytes: bytes.length }],
+    })
+    expect(readFileSync(resolve(store.blobs, sha(bytes)))).toEqual(Buffer.from(bytes))
+    await store.finish(true)
+  } finally {
+    clearTimeout(timer)
+    release()
+    holder.close()
+  }
+})
+
 test('identical output uses one blob and index-only keys; owned bytes stay detached', async () => {
   const base = fixture(),
     store = generationCache(base, base, 'default'),
@@ -221,7 +249,7 @@ test('a killed collector releases the native cache mutex', async () => {
   await store.finish(false)
 })
 
-test('a concurrent hardlink publisher may win the blob race without failing a build', async () => {
+test('concurrent hardlink publishers keep the winning immutable blob', async () => {
   const base = fixture(),
     store = generationCache(base, base, 'default')
   const bytes = new Uint8Array(64 * 1024 * 1024).fill(7),
@@ -231,18 +259,29 @@ test('a concurrent hardlink publisher may win the blob race without failing a bu
   mkdirSync(store.blobs, { recursive: true })
   const script = `import {watch,linkSync} from 'node:fs';
     const watcher=watch(${JSON.stringify(store.blobs)},(_,name)=>{
-      if(name?.endsWith('.tmp')) {linkSync(${JSON.stringify(reference)},${JSON.stringify(target)});watcher.close();}
+      if(name?.endsWith('.tmp')) {
+        try {linkSync(${JSON.stringify(reference)},${JSON.stringify(target)});process.stdout.write('won');}
+        catch(error) {if(error.code!=='EEXIST')throw error;process.stdout.write('exists');}
+        watcher.close();
+      }
     });process.stdout.write('ready');`
   const child = spawn(process.execPath, ['--input-type=module', '-e', script], {
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   if (child.stdout === null) throw new Error('Missing publisher proof output')
+  let output = ''
+  child.stdout.on('data', chunk => { output += String(chunk) })
   const exited = once(child, 'exit')
   try {
     await once(child.stdout, 'data')
     await populate(store, 'a'.repeat(64), bytes)
-    await exited
-    expect(statSync(target).ino).toBe(statSync(reference).ino)
+    const committedInode = statSync(target).ino
+    const [code] = await exited
+    expect(code).toBe(0)
+    expect(output).toMatch(/(?:won|exists)$/u)
+    expect(statSync(target).ino).toBe(committedInode)
+    if (output.endsWith('won')) expect(committedInode).toBe(statSync(reference).ino)
+    expect(sha(readFileSync(target))).toBe(sha(bytes))
   } finally {
     if (child.exitCode === null && child.signalCode === null) {
       child.kill('SIGKILL')
