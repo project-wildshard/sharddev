@@ -26,3 +26,7 @@ Linux creates only the network namespace with sudo, then setpriv drops to
 the original author uid/gid before running Node. The original author owns
 every product and can remove its temporary root in finally. The loopback
 probe runs behind that exact same boundary. No root-owned outputs remain.
+
+The authored fixture names the quest's own fact provenance
+quest:walk.quest. Build equality remains the assertion; completion and
+reward settlement are not claimed while prove stops at the engine grid.

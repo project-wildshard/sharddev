@@ -42,7 +42,7 @@ test('the installed author builds a real walking quest and warms its compiler',{
  export default {...world,quests:{flags:['walk.arrived','walk.complete'],quests:[{id:'walk.quest',title:'Reach the marker',track:false,
   completeFlag:'walk.complete',steps:[{id:'marker',objective:'Walk to the marker',done:{all:['walk.arrived']}}],onComplete:{fact:'walk.quest',coins:1}}],
   triggers:[{id:'marker',kind:'region',flag:'walk.arrived',x:0,z:-4,radius:1}],dialogue:[]},
-  ledger:[{fact:'walk.quest',origin:{kind:'engine',source:'quest.complete'},rewards:[{kind:'achievement',id:'walk.first',title:'First walk',threshold:1}]}]};`);
+  ledger:[{fact:'walk.quest',origin:{kind:'engine',source:'quest:walk.quest'},rewards:[{kind:'achievement',id:'walk.first',title:'First walk',threshold:1}]}]};`);
  cli(['build',source,join(app,'online'),'--product-only']);
 });
 test('the OS boundary cannot connect to a real parent loopback listener',{timeout:9_500},async()=>{
