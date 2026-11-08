@@ -199,7 +199,7 @@ jobs:
       - name: Build all three owned templates
         run: pnpm build:shards
       - name: Installed author and template play proofs
-        run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs test/ci/package-products.test.mjs
+        run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/author-inputs.test.mjs test/ci/template-play.test.mjs test/ci/package-products.test.mjs
 
   e2e:
     # Pinned: Playwright 1.60 can't install Chromium on ubuntu-latest (26.04).

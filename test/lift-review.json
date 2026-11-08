@@ -620,8 +620,9 @@
     },
     {
       "file": "test/named-blob-output.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Real producer output bytes/schema/script readmission mixed with CommonJS load tracing; preserve useful author output boundary for installed workflow rewrite."
+      "action": "run",
+      "reason": "Actual named binary and registered JSON author outputs build, pack and readmit. Full template builds retain real compiled scripts; private producer files/CommonJS tracing and custom unregistered JSON corpus are retired.",
+      "successor": "test/ci/author-inputs.test.mjs"
     },
     {
       "file": "test/native-collider-block.test.ts",
@@ -745,18 +746,21 @@
     },
     {
       "file": "test/project-generation.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Actual generation cache isolation/invalidation and real source build/map inputs mixed with private cache paths/call counts; preserve installed author workflow for rewrite."
+      "action": "run",
+      "reason": "Installed CLI builds generated named bytes, edits the actual source input, and verifies new bytes plus immutable prior product; private cache paths and call counts are retired under J186.",
+      "successor": "test/ci/author-inputs.test.mjs"
     },
     {
       "file": "test/project-level-build.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Actual public project build/image roots, immutable product validation and no-source-output semantics; retain for installed author edge rewrite."
+      "action": "run",
+      "reason": "Installed CLI builds actual confined level images, packs their metadata, preserves shared image identity, and refuses the actual missing image; parser and refusal-count corpus are retired.",
+      "successor": "test/ci/author-inputs.test.mjs"
     },
     {
       "file": "test/project-manifest.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Real public image packing/deduplication, detached bytes and early/late sharing laws; retain author boundary rather than classifying by mocks."
+      "action": "run",
+      "reason": "Actual built product shares one image across card/map/Explorer aliases and keeps only independently authored Explorer art late; direct packer ownership fixtures are retired.",
+      "successor": "test/ci/author-inputs.test.mjs"
     },
     {
       "file": "test/quest-catalogue-sites.test.ts",
@@ -960,8 +964,9 @@
     },
     {
       "file": "test/shard-stands-alone.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Real tar validation and empty-folder cook with actual tool workers, mixed with source mount scanning; preserve cook-to-boot boundary already tracked in coverage plan."
+      "action": "run",
+      "reason": "Actual default author tar cooks with real cold encoder workers; client parts and server packs have verified hashes, and only cooked server files admit sections. Separate installed package/play tests retain discovery and worker continuation. Cooked-only worker play remains an engine API gap; private cross-shard mount scans are retired.",
+      "successor": "test/ci/new-reference.test.mjs"
     },
     {
       "file": "test/skin-layer-pose-values.test.ts",
@@ -1000,8 +1005,9 @@
     },
     {
       "file": "test/template-map-generation.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Actual map producer bytes compared with built product and source invalidation; retain public installed map author successor gap."
+      "action": "run",
+      "reason": "Installed generator builds a real lossless map, decoded pixels agree with author intent, edited map bytes change while old product stays immutable. Complete Template maps also build in template determinism; private painter/source-hash comparison is retired.",
+      "successor": "test/ci/author-inputs.test.mjs"
     },
     {
       "file": "test/template-native-source.test.ts",

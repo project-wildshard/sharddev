@@ -14,8 +14,7 @@ No missing content journey is claimed as covered by deleting a fixture.
 The real headless observation/continuation and skin GC/resource lifetime
 boundaries are retained pending engine-owner review, including their
 coupled portions; their mock counts are not grounds for deleting useful
-coverage. No test was moved to engine by this lane. The queue is 55 after five batches; its remaining bodies are still
-being reviewed. Further retained cases include pure build-order and
+coverage. No test was moved to engine by this lane. Six SDK workflows now have installed CLI/cook successors. The queue is 49; retained owner work remains. Further retained cases include pure build-order and
 boost laws, shared model lifetime, cosmetic migration and the actual
 ground-map golden. Those need their engine or graphical owner.
 
@@ -32,9 +31,9 @@ resource, author generation and visual laws remain waiting. In particular
 removing a fake Titan fight does not prove a real Titan fight; that
 content gap stays open.
 
-Every original queue name now has an explicit disposition. The 55
-retained files are 35 engine candidates, 11 SDK workflows and nine for
+Every original queue name now has an explicit disposition. The 49
+retained files are 35 engine candidates, five SDK workflows and nine for
 the graphical owner. The large world-scenes corpus is provisionally
 retained; its full separation is not claimed. No engine files moved.
-The under-50 row stays open. CI checks presence, uniqueness, disposition
-and a 55-file ratchet without adding a hook test.
+The under-50 count is met. CI checks presence, uniqueness, disposition,
+successor existence and a 49-file ratchet without adding a hook test.
