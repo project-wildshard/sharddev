@@ -115,3 +115,21 @@ test('linked output refuses before changing a file outside the candidate', async
   assert.notEqual(finish(folder, file), 0)
   assert.equal(readFileSync(sentinel, 'utf8'), 'keep')
 })
+
+test('new publication recipe refuses an unprepared product before packing', async (): Promise<void> => {
+  const work = path.join(dir, 'publication')
+  await writeProduct(path.join(work, 'out'), 'draft')
+  const env = { ...process.env }
+  delete env['WILDSHARD_PREPARATION_URL']
+  const run = spawnSync(
+    process.execPath,
+    [path.join(root, 'scripts/pack-all.mjs')],
+    { cwd: work, env, encoding: 'utf8' },
+  )
+  assert.notEqual(run.status, 0)
+  assert.match(run.stderr, /wildshard prepare/u)
+  assert.equal(
+    lstatSync(path.join(work, 'out/draft/shard.json')).isFile(),
+    true,
+  )
+})

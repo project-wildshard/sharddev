@@ -70,3 +70,10 @@ All 28 real phone WebKit entries now prepare and validate against renderer
 9f41e30da4faca033244db26e823464f1c65bdad8986916d7f919f24dcd7c971.
 Template captures 29 programs; Pine captures 107. No source art changed.
 These are local prepared candidates, not newly published API heads.
+
+The new-publication recipe now refuses sdk0.2 drafts before making a tar.
+Set WILDSHARD_PREPARATION_URL to the exact engine preview and run the
+recipe through engine browser-lane; it captures before each draft packs.
+Already prepared products can be deterministically packed again. Generic
+archive reading/repair remains separate from the new-publication recipe.
+The installed recipe test reproduces the prior unprepared pack boundary.

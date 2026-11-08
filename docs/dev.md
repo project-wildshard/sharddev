@@ -47,6 +47,13 @@ fingerprint. Only a preparation-only engine preview can admit a stale
 candidate for recapture; the production gate refuses such an artifact.
 Final engine cook rejects a different renderer before writing any parts.
 
+For a new publication, `pack:shards` refuses an unprepared draft. Set
+`WILDSHARD_PREPARATION_URL` to the exact preparation preview and run
+`engine/scripts/browser-lane.sh pnpm pack:shards` from the author repo.
+The recipe prepares each draft before packing. An already prepared product
+can be packed again without a browser. Generic legacy archive readers and
+exact-byte repair remain compatible; they do not bless a new draft.
+
 Meta DOWNLOAD-THEN-C D5 owns the remaining publication recipes and the
 replacement of the 28 legacy heads. Existing sdk 0.2 archives retain their
 explicit compatibility reader; preparing one emits the strict sdk 0.3 form.
