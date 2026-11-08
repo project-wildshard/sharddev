@@ -352,6 +352,186 @@
       "file": "test/hull-look-registered.test.ts",
       "action": "delete",
       "reason": "Private hull-book look references and object spread/field equality with installed fixture; no rendered golden or gameplay."
+    },
+    {
+      "file": "test/isolated-author-selectors.test.ts",
+      "action": "delete",
+      "reason": "Selector declaration diagnostic and emitted-text length snapshots. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-author-values.test.ts",
+      "action": "delete",
+      "reason": "Template private literal boss input, readonly roots and exact compiler error counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-default-products.test.ts",
+      "action": "delete",
+      "reason": "Default product declaration spelling and exact private field diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-driftwood-author-values.test.ts",
+      "action": "delete",
+      "reason": "Driftwood private model defaults, native version and pose type diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-driftwood-default-values.test.ts",
+      "action": "delete",
+      "reason": "Driftwood exact asset URLs, ABI literal, mutable grid storage and compiler error counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-driftwood-native-facts.test.ts",
+      "action": "delete",
+      "reason": "Driftwood private look fields, ship constructor readonly identity and native array type diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-driftwood-story-values.test.ts",
+      "action": "delete",
+      "reason": "Exact hunt limit, inventory policy, entry lane count and NPC literal type diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-driftwood-world-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed sword slots, quest flag, ABI and mutable gull/bridge declaration diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-minor-author-values.test.ts",
+      "action": "delete",
+      "reason": "Private kit root readonly identities and build ceiling type diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nalati-author-values.test.ts",
+      "action": "delete",
+      "reason": "Catalogue placement/default types, boss kind and private weather/riding declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nalati-geometry-values.test.ts",
+      "action": "delete",
+      "reason": "Exact spruce height, mutable terrain/population containers and compiler diagnostic snapshots. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nalati-rig-values.test.ts",
+      "action": "delete",
+      "reason": "Hull table object identity and exact private rig declaration errors. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nalati-titan-values.test.ts",
+      "action": "delete",
+      "reason": "Titan private clock/map mutability and exact compiler errors; no Titan play. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nine-author-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed banyan seed, sign text, mover ABI, schema internals and private declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nine-schema-values.test.ts",
+      "action": "delete",
+      "reason": "Schema nested requirement literals, optional gain fields and exact compiler error counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-nine-world-values.test.ts",
+      "action": "delete",
+      "reason": "Private KitSet maps, mover stage literals and world layout mutability diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-open-plot-values.test.ts",
+      "action": "delete",
+      "reason": "Private output-map/index typing and exact compiler errors; no generated plot boot. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-assembly-values.test.ts",
+      "action": "delete",
+      "reason": "Private recorder maps, builder root ownership and compiler diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-author-values.test.ts",
+      "action": "delete",
+      "reason": "Exact finish/pack slot/weapon literal types and private author mutability diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-boot-values.test.ts",
+      "action": "delete",
+      "reason": "Exact boot asset paths, tuple positions and readonly declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-forest-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed finish/schema option literals and internal species/material declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-output-values.test.ts",
+      "action": "delete",
+      "reason": "Private named pool paths, output-array readonly identity and compiler diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-page-values.test.ts",
+      "action": "delete",
+      "reason": "Exact death actor/flag, roster version and private page graph type diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-resource-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed bone name, stride and state version plus private resource declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-schema-values.test.ts",
+      "action": "delete",
+      "reason": "Nested Valibot metadata, action literal and exact compiler diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-weather-quest-values.test.ts",
+      "action": "delete",
+      "reason": "Private channel/quest object mutability and omitted onComplete declaration diagnostic counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-pine-world-values.test.ts",
+      "action": "delete",
+      "reason": "Exact journal ids/atlas path, ecology kind and private world declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-signal-author-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed reward/body/terrain/asset literals and budget declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-signal-held-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed whip timing, resource byte count and decorator path literal type diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-signal-population-values.test.ts",
+      "action": "delete",
+      "reason": "Private prepare admission/page-program fields and exact compiler error counts. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/isolated-shard-signal-terrain-values.test.ts",
+      "action": "delete",
+      "reason": "Fixed flag/version literals and private numeric seed declaration diagnostics. J186: tests a private source representation; installed builds/typecheck cover author admission."
+    },
+    {
+      "file": "test/hybrid-entry-preparation.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed hand-built contexts and callback ordering with real scope cancellation/entry lifetime laws; engine must rework these at the actual grid boundary."
+    },
+    {
+      "file": "test/hybrid-inventory.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed fake clients with pure overlapping/shared blob ownership laws and no mutation; preserve for engine inventory boundary."
+    },
+    {
+      "file": "test/hybrid-render-preparation.test.ts",
+      "action": "engine-candidate",
+      "reason": "Controlled render/module promises exercise cancellation/drain/error precedence; engine owner must preserve semantics in a real entry proof."
+    },
+    {
+      "file": "test/interact-placement-rows.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed schema fixtures and hand flags with meaningful live-floor/anchor transform precedence laws; retain for engine world-placement owner."
+    },
+    {
+      "file": "test/island-book-product.test.ts",
+      "action": "delete",
+      "reason": "Predecessor byte references, ordered look lists, exact feature rows and runtime metadata snapshots; no product play or rendered golden."
     }
   ]
 }
