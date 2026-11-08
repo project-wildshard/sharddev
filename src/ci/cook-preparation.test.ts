@@ -116,20 +116,51 @@ test('linked output refuses before changing a file outside the candidate', async
   assert.equal(readFileSync(sentinel, 'utf8'), 'keep')
 })
 
-test('new publication recipe refuses an unprepared product before packing', async (): Promise<void> => {
+async function recipeProject(): Promise<{
+  readonly work: string
+  readonly folder: string
+}> {
   const work = path.join(dir, 'publication')
-  await writeProduct(path.join(work, 'out'), 'draft')
+  const folder = await writeProduct(path.join(work, 'out'), 'draft')
+  writeFileSync(
+    path.join(work, 'package.json'),
+    JSON.stringify({
+      name: 'publication-proof',
+      version: '0.0.0',
+      private: true,
+    }),
+  )
+  const bins = path.join(work, 'node_modules/.bin')
+  mkdirSync(bins, { recursive: true })
+  symlinkSync(bin, path.join(bins, 'wildshard'))
+  return { work, folder }
+}
+
+function runRecipe(work: string): {
+  readonly status: number | null
+  readonly stdout: string
+  readonly stderr: string
+} {
   const env = { ...process.env }
   delete env['WILDSHARD_PREPARATION_URL']
-  const run = spawnSync(
+  return spawnSync(
     process.execPath,
     [path.join(root, 'scripts/pack-all.mjs')],
     { cwd: work, env, encoding: 'utf8' },
   )
+}
+
+test('new publication recipe refuses an unprepared product before packing', async (): Promise<void> => {
+  const { work, folder } = await recipeProject()
+  const run = runRecipe(work)
   assert.notEqual(run.status, 0)
   assert.match(run.stderr, /wildshard prepare/u)
   assert.equal(
     lstatSync(path.join(work, 'out/draft/shard.json')).isFile(),
     true,
   )
+  assert.equal(finish(folder, recording(folder)), 0)
+  const prepared = runRecipe(work)
+  assert.equal(prepared.status, 0, `${prepared.stdout}\n${prepared.stderr}`)
+  assert.ok(readFileSync(path.join(work, 'out/tars/draft.tar')).length > 0)
 })

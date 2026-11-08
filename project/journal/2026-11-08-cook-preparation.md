@@ -77,3 +77,9 @@ recipe through engine browser-lane; it captures before each draft packs.
 Already prepared products can be deterministically packed again. Generic
 archive reading/repair remains separate from the new-publication recipe.
 The installed recipe test reproduces the prior unprepared pack boundary.
+
+The recipe proof now installs the real CLI bin in a real temporary pnpm
+project. With the guard removed, the old recipe successfully wrote an
+unprepared tar and the proof failed (status0). With the guard restored it
+names prepare before packing; then an actually prepared candidate packs.
+All four installed edge cases pass in 4.28 seconds, outside hooks.
