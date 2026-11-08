@@ -74,6 +74,7 @@ jobs:
             pnpm install --frozen-lockfile
           fi
       # The same members as pnpm check; author tests run in their own job.
+      - run: node scripts/check-lift-review.mjs
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm format:check

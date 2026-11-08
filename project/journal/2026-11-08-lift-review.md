@@ -1,7 +1,7 @@
 # Judge waiting tests by what they prove
 
 The queue claimed 219 waiting files; four paths were already absent.
-The body review trims 142 inactive files under J186. The exact file
+The body review trims 160 inactive files under J186. The exact file
 and reason are in test/lift-review.json, with the source commit retained
 there for review. No mock-count heuristic decides a disposition.
 
@@ -14,7 +14,7 @@ No missing content journey is claimed as covered by deleting a fixture.
 The real headless observation/continuation and skin GC/resource lifetime
 boundaries are retained pending engine-owner review, including their
 coupled portions; their mock counts are not grounds for deleting useful
-coverage. No test was moved to engine by this lane. The queue is 73 after four batches; its remaining bodies are still
+coverage. No test was moved to engine by this lane. The queue is 55 after five batches; its remaining bodies are still
 being reviewed. Further retained cases include pure build-order and
 boost laws, shared model lifetime, cosmetic migration and the actual
 ground-map golden. Those need their engine or graphical owner.
@@ -31,3 +31,10 @@ fixtures. The per-file ledger records why. Actual codec, continuation,
 resource, author generation and visual laws remain waiting. In particular
 removing a fake Titan fight does not prove a real Titan fight; that
 content gap stays open.
+
+Every original queue name now has an explicit disposition. The 55
+retained files are 35 engine candidates, 11 SDK workflows and nine for
+the graphical owner. The large world-scenes corpus is provisionally
+retained; its full separation is not claimed. No engine files moved.
+The under-50 row stays open. CI checks presence, uniqueness, disposition
+and a 55-file ratchet without adding a hook test.

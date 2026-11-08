@@ -912,6 +912,191 @@
       "file": "test/scene-author-ports.test.ts",
       "action": "delete",
       "reason": "Type-only private emitter/collider/rig/row equality and generic ownership snapshots; installed author typecheck/build is the edge."
+    },
+    {
+      "file": "test/scene-buffers.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual typed storage byte round-trip and shared geometry ownership mixed with frozen meadow/ember buffers and private layout counts; preserve resource/codec law."
+    },
+    {
+      "file": "test/scene-motion-refs.test.ts",
+      "action": "delete",
+      "reason": "Hand-fed riding/turned values compare predecessor dressing arithmetic and missing material corpus; no actual mover ride."
+    },
+    {
+      "file": "test/schema-reference.test.ts",
+      "action": "delete",
+      "reason": "Exact private schema traversal paths/wrapper/constraint strings and parser fixtures; not the emitted installed reference workflow."
+    },
+    {
+      "file": "test/script-v2-ports.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Real authored AS dual compilation/execution and compiler state isolation mixed with source inventory; preserve for installed compiler owner, not mock-count deletion."
+    },
+    {
+      "file": "test/scripts/nine-sign-atlas.test.ts",
+      "action": "graphical-owner",
+      "reason": "Actual sign texture/geometry bytes through decoder/pool and complete mip residency laws; preserve visual/resource boundary for graphical owner."
+    },
+    {
+      "file": "test/sdk-rigged-hull-files.test.ts",
+      "action": "delete",
+      "reason": "Mock GLTF loads and handcrafted bones freeze texture settings, private resource paths/cache keys and exact AO arrays; no actual hull render or resource journey."
+    },
+    {
+      "file": "test/shard-build-pool.test.ts",
+      "action": "delete",
+      "reason": "Fake timers and replaced child author source pin exact six-worker scheduling, diagnostic tails/cache counter transport; no real product build."
+    },
+    {
+      "file": "test/shard-headless.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Actual worker route journeys over eight products mixed with hand-satisfied quest flags/source inventory; preserve real routes for per-shard rewrite."
+    },
+    {
+      "file": "test/shard-select-entries.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real DOM pointer/keyboard tap deduplication and locked card behavior mixed with fixed card/source inventories; preserve UI behavior for engine owner."
+    },
+    {
+      "file": "test/shard-stands-alone.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Real tar validation and empty-folder cook with actual tool workers, mixed with source mount scanning; preserve cook-to-boot boundary already tracked in coverage plan."
+    },
+    {
+      "file": "test/skin-layer-pose-values.test.ts",
+      "action": "graphical-owner",
+      "reason": "Actual shipped pose layer apply/restore reversibility and native/portable bytes compared with predecessor; retain animation owner evidence."
+    },
+    {
+      "file": "test/spawn-table-data.test.ts",
+      "action": "delete",
+      "reason": "Fake create/retire ports compare exact predecessor spawn order and RNG draws plus parser bounds; no real spawning population or player."
+    },
+    {
+      "file": "test/species-native-binding.test.ts",
+      "action": "delete",
+      "reason": "Hand-set attack and private AI memory, fabricated ThinkCtx and mock spawn/replace freeze witness/callback allocation and exact contacts; no real creature attack."
+    },
+    {
+      "file": "test/species-programs.test.ts",
+      "action": "delete",
+      "reason": "Exact native/page kind arrays and predecessor resolved visual/gameplay rows with parser/callback corpus; no world population."
+    },
+    {
+      "file": "test/specimen-catalogue.test.ts",
+      "action": "graphical-owner",
+      "reason": "Actual packed part byte decoding, detached geometry and floor/ramp equivalence mixed with private catalogue defaults/material caches; preserve resource/visual boundary."
+    },
+    {
+      "file": "test/streamed-cover-platform.test.ts",
+      "action": "engine-candidate",
+      "reason": "Shared resource retirement/retry and complete-instance upload laws mixed with handcrafted buffers/refill counts; retain for actual engine streaming edge."
+    },
+    {
+      "file": "test/template-behaviour-generation.test.ts",
+      "action": "delete",
+      "reason": "Exact compiler call counts, private cache behavior and fixed door/idle/items inventory; complete installed template cold/moved builds now run in Ring 2."
+    },
+    {
+      "file": "test/template-map-generation.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Actual map producer bytes compared with built product and source invalidation; retain public installed map author successor gap."
+    },
+    {
+      "file": "test/template-native-source.test.ts",
+      "action": "delete",
+      "reason": "Private read-count/file inventory and frozen proof string markers from fixture generator; complete installed template builds/play are the current edge."
+    },
+    {
+      "file": "test/titan-continuation.test.ts",
+      "action": "engine-candidate",
+      "reason": "Exact fresh fight/view suffix law across native/page paths mixed with fake world/manual phase entry; engine needs real fight-entry successor."
+    },
+    {
+      "file": "test/titan-whirl-binding.test.ts",
+      "action": "engine-candidate",
+      "reason": "Scope retirement during frame must prevent late view writes; mixed with handcrafted quarry rows/private loan collision/allocation counts, retain for engine/UI rewrite."
+    },
+    {
+      "file": "test/trail-painted-author-ports.test.ts",
+      "action": "delete",
+      "reason": "Exact private ModelPart keys/material references and handmade BoxGeometry painter marker/type fixture; no installed model build."
+    },
+    {
+      "file": "test/tree-set.test.ts",
+      "action": "delete",
+      "reason": "Synthetic orchard schema and exact shipped variant/part counts plus parser refusal corpus; no built tree or product."
+    },
+    {
+      "file": "test/typecheck-projects.test.ts",
+      "action": "delete",
+      "reason": "Obsolete monolith layer paths/config topology, emitted declaration path lists and synthetic tsc/lint fixtures; actual installed author typecheck and build run in CI."
+    },
+    {
+      "file": "test/typed-look-authors.test.ts",
+      "action": "delete",
+      "reason": "Private type/schema identity and exact authored presentation/graph/species declaration byte hashes; no rendered golden or player workflow."
+    },
+    {
+      "file": "test/view-frame-slot.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real Wasm memory isolation/retirement and value publication semantics mixed with hardcoded ABI offsets/private census counts; preserve for engine guest boundary rewrite."
+    },
+    {
+      "file": "test/water-surface-host.test.ts",
+      "action": "graphical-owner",
+      "reason": "Reversible basin lowering/instant save and vertex level/depth law mixed with private texture params; preserve actual water semantics for graphical owner."
+    },
+    {
+      "file": "test/weather-continuation.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual old v1 save suffix and atomic restore plus climate clock/RNG laws, mixed with private weather registers/oracle; preserve engine continuation."
+    },
+    {
+      "file": "test/weather-file-contracts.test.ts",
+      "action": "delete",
+      "reason": "Schema passthrough of exact native weather geometry/sky and malformed field corpus; no real weather/continuation journey."
+    },
+    {
+      "file": "test/wire-cable-entry.test.ts",
+      "action": "delete",
+      "reason": "Overwrites wirePage on/led, hand-positions driver/body and fake runtime to inspect trolley callbacks; no server-to-page ride."
+    },
+    {
+      "file": "test/wire-quest-present.test.ts",
+      "action": "delete",
+      "reason": "Manually writes client quest maps/frames and all completion flags, compares predecessor HUD/marker snapshots; no actual server progress."
+    },
+    {
+      "file": "test/wire-quest-shop.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual DOM purchase click asserts page emits buy without local settlement, mixed with fake wire/purse and manual pack; preserve page/server authority boundary for engine owner."
+    },
+    {
+      "file": "test/witness-compare.test.ts",
+      "action": "delete",
+      "reason": "Private committed manifest/hash comparison with hand-altered fields and OS-specific exemptions; no actual product replay."
+    },
+    {
+      "file": "test/world-scenes-platform.test.ts",
+      "action": "engine-candidate",
+      "reason": "Provisional engine owner: large coupled scene installer corpus includes real GLB sharing/retirement and cancellation. Preserve pending full separation at real product/browser boundary; no deletion decision."
+    },
+    {
+      "file": "test/world-target-attachments.test.ts",
+      "action": "engine-candidate",
+      "reason": "Native delayed contact snapshot continuation and actual host effect schema mixed with manual family swings/fake page ports; preserve engine input/continuation boundary."
+    },
+    {
+      "file": "test/world-targets.test.ts",
+      "action": "engine-candidate",
+      "reason": "Pure 3D cone/ray reach, nearest occlusion and atomic effect refusal laws mixed with hand flags/fake contacts; preserve semantic law rather than deleting for test doubles."
+    },
+    {
+      "file": "test/z11-file-families.test.ts",
+      "action": "delete",
+      "reason": "Registry/schema field identities, exact readonly transform inventory and malformed document corpus; no actual author or weather workflow."
     }
   ]
 }
