@@ -60,7 +60,9 @@ export async function prepareBasisTool(cacheRoot: string = resolve(homedir(), '.
     execFileSync('cmake', ['-S', source, '-B', build, '-DCMAKE_BUILD_TYPE=Release', '-DBASISU_EXAMPLES=OFF', '-DBASISU_SSE=OFF',
       '-DCMAKE_C_COMPILER=clang', '-DCMAKE_CXX_COMPILER=clang++', `-DCMAKE_C_FLAGS=${nativeFlags}`, `-DCMAKE_CXX_FLAGS=${nativeFlags}`,
       ...(process.platform === 'darwin' ? [`-DCMAKE_OSX_ARCHITECTURES=${process.arch === 'x64' ? 'x86_64' : 'arm64'}`] : [])], { timeout: 120000, maxBuffer: 2_000_000 });
-    execFileSync('cmake', ['--build', build, '--target', 'basisu', '-j4'], { timeout: 120000, maxBuffer: 2_000_000 });
+    // Cold clang builds exceed two minutes on the two-core Linux runner.
+    // Ring 2 prepares this verified prerequisite; Ring 3 reuses its receipt.
+    execFileSync('cmake', ['--build', build, '--target', 'basisu', '-j4'], { timeout: 300000, maxBuffer: 2_000_000 });
     const binary = hashImmutableBytes(readBoundedFile(resolve(source, 'bin/basisu'), 64_000_000));
     writeFileSync(resolve(temporary, 'receipt.json'), encodeCanonicalJson({ key, binary }));
     // Only the source, license and resulting executable are needed after compilation.
