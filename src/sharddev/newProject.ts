@@ -1,8 +1,24 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffolding owns only a fresh author directory.
-import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
 import { resolve } from 'node:path';
 import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+
+/** Copy the shipped teaching world; generation and gameplay remain authored there. */
+export function writeReferenceProject(project: string, slug: string): void {
+  if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(slug) || existsSync(project)) throw new Error('new requires a fresh directory and kebab-case slug');
+  // The trusted CLI bundle defines dirname as its installed source directory.
+  const template = resolve(import.meta.dirname, '../shards/_template');
+  cpSync(template, project, { recursive: true, errorOnExist: true, force: false,
+    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) });
+  const card: unknown = JSON.parse(readFileSync(resolve(project, 'manifest.json'), 'utf8'));
+  if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project manifest is missing');
+  const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental' }).replaceAll('/assets/_template/', `/assets/${slug}/`);
+  writeFileSync(resolve(project, 'manifest.json'), manifest);
+  writeFileSync(resolve(project, 'data/card.json'), manifest);
+  writeFileSync(resolve(project, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
+  writeFileSync(resolve(project, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sharddev/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
+}
 
 /** Write the runtime-free reference layout. An existing directory is never changed. */
 export function writeNewProject(project: string, slug: string): void {

@@ -12,11 +12,14 @@ Status: in progress 2026-11-08: outer-edge author and candidate proofs.
 | SD-14 | Empty scaffold plus all three real templates build twice cold and from moved source; every output byte equal. Template cases are Ring 2, 24–29 seconds locally |
 | SD-18 | All three authored templates build and execute a real walk and restored suffix |
 | SD-3 | Real installed new/build/validate/pack/upload-to-double/server-boot chain passes; browser boot remains blocked by the client package |
-| SD-2, SD-24 | Open: new is the empty scaffold, and installed dev has no SDK devserver client; build-sdk still assumes removed local SDK/engine build tree |
+| SD-2 | Default new copies the complete owned Template 1; real door use, physical crossing and save continuation run in Ring 2. Fight completion remains open: the pinned declared worker has a zero-damage probe and no damaging item input owner |
+| SD-24 | Installed dev has no SDK devserver client; build-sdk still assumes removed local SDK/engine build tree. Browser proof remains at the owning package wire |
 | SD-5 | Frozen GitHub install is runner-proved; release-specific external install remains with next tag |
 | SD-16, SD-19 | Ring 2 prints product hashes for cross-host comparison; engine-pin comparison remains open; no engine writes in this lane |
 | SD-17, SD-22, SD-23 | Old Driftwood byte attribution, undeclared AS and offline sandbox remain open |
 | Waiting tests | Existing list retained for individual outer-edge adjudication; not treated as coverage |
 
-All new checks are CI-only and capped below 10 seconds per test. Hooks are
-unchanged. No upload to a live server, deployment or settings change.
+All new quick checks are CI-only and capped below 10 seconds per test.
+Complete template bakes and default-reference play have measured Ring 2
+reasons in their files. Hooks are unchanged. No live upload, deployment
+or settings change.

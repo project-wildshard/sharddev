@@ -38,8 +38,8 @@ function bytes(directory, prefix = '') {
 }
 
 test('a packed CLI scaffolds outside its checkout and refuses overwriting it', { timeout: 9_500 }, () => {
-  run(['new', source, 'outside-isle']);
-  run(['new', source, 'outside-isle'], false);
+  run(['new', source, 'outside-isle', '--empty']);
+  run(['new', source, 'outside-isle', '--empty'], false);
 });
 test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
   run(['build', source, join(app, 'first'), '--product-only']);

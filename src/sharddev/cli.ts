@@ -22,6 +22,7 @@ import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
+import { writeReferenceProject } from './newProject';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {
@@ -58,8 +59,12 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     console.info(`synthesized ${result.path} (${result.hash})`); return;
   }
   if (command === 'new') {
-    if (buildFlag !== undefined) throw new Error('usage: wildshard new <project> [slug]');
-    newProject(resolve(input), output ?? input.split('/').reverse().find((part) => part !== '') ?? ''); return;
+    const newArguments = args.slice(2), names = newArguments.filter(value => !value.startsWith('--'));
+    if (names.length > 1 || newArguments.some(value => value.startsWith('--') && value !== '--empty') || newArguments.filter(value => value === '--empty').length > 1) throw new Error('usage: wildshard new <project> [slug] [--empty]');
+    const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
+    if (newArguments.includes('--empty')) newProject(resolve(input), slug);
+    else writeReferenceProject(resolve(input), slug);
+    return;
   }
   if (command === 'dev') {
     const port = output === undefined ? 0 : Number(output);

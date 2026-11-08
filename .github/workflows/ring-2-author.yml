@@ -72,3 +72,5 @@ jobs:
           fi
       - name: Ring 2 cold and relocated complete template bakes
         run: node --test --test-concurrency=1 test/ci/template-determinism.test.mjs
+      - name: Installed default scaffold, real door and continuation
+        run: node --test --test-concurrency=1 test/ci/new-reference.test.mjs
