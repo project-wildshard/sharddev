@@ -12,7 +12,7 @@ import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 
 const directories: string[] = [];
 // Keep a real tracked KTX2 header/mip; trailing padding exercises transport boundaries.
-function textureBody(size: number, padding: number): Uint8Array { const bytes=new Uint8Array(size).fill(padding);bytes.set(readFileSync('node_modules/@wildshard/engine/test/fixtures/shard-assets/pixel.ktx2'));return bytes; }
+function textureBody(size: number, padding: number): Uint8Array { const bytes=new Uint8Array(size).fill(padding);bytes.set(readFileSync('test/fixtures/shard-assets/pixel.ktx2'));return bytes; }
 function output(): string { mkdirSync('tmp',{recursive:true});const path=mkdtempSync(resolve('tmp','output-product-'));directories.push(path);return path; }
 const source = () => emptyShardfile({slug:'output-test',name:'Output',author:'Test',revision:1,seed:3});
 afterEach(()=>{for(const directory of directories.splice(0))rmSync(directory,{recursive:true,force:true});});
