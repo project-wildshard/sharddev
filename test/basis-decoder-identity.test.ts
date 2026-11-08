@@ -2,6 +2,8 @@
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Directory and bounded read controls keep native identity strict.
 import { readdirSync, realpathSync } from 'node:fs';
+// oxlint-disable-next-line import/no-nodejs-modules -- Derive the pinned decoder's module suffix from its real package entry.
+import { dirname, extname, resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import { decoderIdentity } from '../src/sharddev/bake/basisEncoder';
 import { readBoundedFile } from '../src/sharddev/sourceReader';
@@ -28,7 +30,7 @@ function worker(view: 'empty' | 'foreign' | 'missing' | 'binding'): typeof creat
       const value: unknown = Reflect.get(target, key, receiver); return value;
     },
     apply(target, owner, args: unknown[]): unknown {
-      if (view === 'binding' && typeof args[0] === 'string' && args[0].endsWith('/sharp/lib/sharp.js')) return {};
+      if (view === 'binding' && typeof args[0] === 'string' && args[0] === resolve(dirname(target.resolve('sharp')), `sharp${extname(target.resolve('sharp'))}`)) return {};
       const value: unknown = Reflect.apply(target, owner, args); return value;
     },
   });

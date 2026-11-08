@@ -5,7 +5,7 @@ import { readdirSync, realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the installed decoder from the trusted SDK, never an author path.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Package-relative names, not installation paths, enter the fingerprint.
-import { basename, dirname, relative, resolve, sep } from 'node:path';
+import { dirname, extname, relative, resolve, sep } from 'node:path';
 import sharp from 'sharp';
 import * as v from 'valibot';
 import { compilerPackageInputs } from '../projectCompilerIdentity';
@@ -36,18 +36,22 @@ const decoderHost: DecoderIdentityHost = {
 export function decoderIdentity(host: DecoderIdentityHost = decoderHost): string {
   const require = host.require(resolve(import.meta.dirname, 'basis-decoder.cjs')), entry = require.resolve('sharp');
   const installed = host.require(entry);
-  const platform = v.parse(v.object({ runtimePlatformArch: v.custom<() => unknown>(value => typeof value === 'function') }), installed(resolve(dirname(entry), 'libvips.js')));
+  const platform = v.parse(v.object({ runtimePlatformArch: v.custom<() => unknown>(value => typeof value === 'function') }), installed(resolve(dirname(entry), `libvips${extname(entry)}`)));
   const runtime = v.parse(v.pipe(v.string(), v.regex(/^[a-z0-9]+-[a-z0-9]+$/u)), platform.runtimePlatformArch());
-  let binary: string;
-  try { binary = host.realpath(installed.resolve(`@img/sharp-${runtime}/sharp.node`)); }
-  catch (error: unknown) { throw new Error('Missing exact packaged Sharp decoder', { cause: error }); }
-  const binaries = host.names(dirname(binary)).filter(name => /^sharp-[^/]+\.node$/u.test(name));
-  if (binaries.length !== 1 || binaries[0] !== basename(binary)
-    || !binary.endsWith(`/@img/sharp-${runtime}/lib/sharp-${runtime}.node`)) throw new Error('Missing exact packaged Sharp decoder');
-  const binding: unknown = installed(resolve(dirname(entry), 'sharp.js'));
-  if (installed(binary) !== binding) throw new Error('Sharp decoder binding differs');
-  const roots = [dirname(binary), dirname(installed.resolve(`@img/sharp-libvips-${runtime}/lib`))];
-  const files: [string, string][] = [...compilerPackageInputs([{ name: 'sharp', from: entry }])];
+  let publicEntry: string, nativeRoot: string;
+  try {
+    publicEntry = host.realpath(installed.resolve(`@img/sharp-${runtime}/sharp.node`));
+    nativeRoot = host.realpath(resolve(dirname(installed.resolve(`@img/sharp-${runtime}/package`)), 'lib'));
+  } catch (error: unknown) { throw new Error('Missing exact packaged Sharp decoder', { cause: error }); }
+  const binaries = host.names(nativeRoot).filter(name => /^sharp-[^/]+\.node$/u.test(name));
+  if (binaries.length !== 1) throw new Error('Missing exact packaged Sharp decoder');
+  const binary = host.realpath(resolve(nativeRoot, binaries[0] ?? ''));
+  if (!binary.startsWith(nativeRoot + sep) || !nativeRoot.endsWith(`/@img/sharp-${runtime}/lib`)) throw new Error('Missing exact packaged Sharp decoder');
+  const binding: unknown = installed(resolve(dirname(entry), `sharp${extname(entry)}`));
+  if (installed(publicEntry) !== binding || installed(binary) !== binding) throw new Error('Sharp decoder binding differs');
+  const roots = [nativeRoot, dirname(installed.resolve(`@img/sharp-libvips-${runtime}/lib`))];
+  const files: [string, string][] = [...compilerPackageInputs([{ name: 'sharp', from: entry },
+    { name: `@img/sharp-${runtime}`, from: entry, specifier: `@img/sharp-${runtime}/sharp.node` }])];
   let total = 0, count = 0;
   for (const [index, root] of roots.entries()) {
     const base = host.realpath(root);
