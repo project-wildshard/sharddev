@@ -532,6 +532,386 @@
       "file": "test/island-book-product.test.ts",
       "action": "delete",
       "reason": "Predecessor byte references, ordered look lists, exact feature rows and runtime metadata snapshots; no product play or rendered golden."
+    },
+    {
+      "file": "test/item-equipment.test.ts",
+      "action": "delete",
+      "reason": "Predecessor equipment object equality and malformed row corpus; no real equipped player."
+    },
+    {
+      "file": "test/journal-rows.test.ts",
+      "action": "delete",
+      "reason": "Hand-built journal stats and frozen stamp, icon, wall coordinates/refusal corpus; no journal earned in play."
+    },
+    {
+      "file": "test/keyed-sky-platform.test.ts",
+      "action": "engine-candidate",
+      "reason": "Exact day checkpoint suffix and binary view/gzip laws mixed with sealed sky oracle; engine/graphical owner must separate useful continuation/codec evidence."
+    },
+    {
+      "file": "test/kit-event-presentation.test.ts",
+      "action": "delete",
+      "reason": "Hand-emitted pickup events, fake item/call ports and exact effect order/toast strings; no real collection."
+    },
+    {
+      "file": "test/light-emitters.test.ts",
+      "action": "graphical-owner",
+      "reason": "Contains genuine sealed LUT/weave texel and sampler goldens plus a mip coverage law, mixed with shader/uniform internals; preserve for graphical owner."
+    },
+    {
+      "file": "test/look-regressions.test.ts",
+      "action": "graphical-owner",
+      "reason": "Storm timing bounds/synchrony law over shipped graphs, mixed with private fog fields; preserve for graphical owner."
+    },
+    {
+      "file": "test/manifest-declarations.test.ts",
+      "action": "delete",
+      "reason": "Exact camera pose fields, dev pose names, attacker allocation and private discovery ownership snapshots."
+    },
+    {
+      "file": "test/manifest-samples.test.ts",
+      "action": "delete",
+      "reason": "Decoder call ordering, callback identity and hand-made raster/document admission corpus; no whole product."
+    },
+    {
+      "file": "test/map-owned-scenes.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Real owned bytes versus physical file painter equivalence and output repeatability; preserve for public installed map author workflow rewrite."
+    },
+    {
+      "file": "test/map-void-source.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Raster equivalence between source and original painter; preserve until installed template map successor can prove void colors."
+    },
+    {
+      "file": "test/merged-channel-lanes.test.ts",
+      "action": "engine-candidate",
+      "reason": "Metamorphic merged/lane equivalence, signed-zero and refusal recovery laws mixed with private getters/node counts; retain useful numeric semantics."
+    },
+    {
+      "file": "test/mover-bake-output.test.ts",
+      "action": "delete",
+      "reason": "Predecessor mover transport exact numeric equality and output format parser corpus; no moving player."
+    },
+    {
+      "file": "test/nalati-boss-fights.test.ts",
+      "action": "delete",
+      "reason": "Faked game/weather/mount and direct damage, manually set boss clocks/tied/HP plus private allocation/refusal oracle; not a real worker fight."
+    },
+    {
+      "file": "test/nalati-creature-views.test.ts",
+      "action": "delete",
+      "reason": "Hand-fed creature memory/death/attack phase and copied predecessor pose arithmetic with system spy; no real creature or visual render."
+    },
+    {
+      "file": "test/nalati-elite-views.test.ts",
+      "action": "delete",
+      "reason": "Hand-fed strike/charge values and fake tell recorder compare copied predecessor coordinates; no real fight."
+    },
+    {
+      "file": "test/nalati-map-input.test.ts",
+      "action": "delete",
+      "reason": "Private numeric JSON decoder and exact source input path list; no generated map workflow."
+    },
+    {
+      "file": "test/nalati-titan-view.test.ts",
+      "action": "delete",
+      "reason": "Manually set private life/clocks and fake ring/cell ports compare predecessor pose arithmetic; no Titan play."
+    },
+    {
+      "file": "test/named-blob-output.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Real producer output bytes/schema/script readmission mixed with CommonJS load tracing; preserve useful author output boundary for installed workflow rewrite."
+    },
+    {
+      "file": "test/native-collider-block.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real collider byte range copying, ownership and recovery mixed with hashes/parser internals; retain engine codec/resource boundary."
+    },
+    {
+      "file": "test/native-floor-shards.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual floor payload byte and Object.is round-trip law across inline/raw intakes; preserve for engine physics boundary."
+    },
+    {
+      "file": "test/native-item-frame.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real Rapier contacts and ranged/swept save continuations against old oracle, mixed with private combat frame fields; engine must rework using real item input."
+    },
+    {
+      "file": "test/native-loadout-rows.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real host swap/save continuation mixed with hand ownership flags and private frame publication order; retain loadout semantics for engine actual input successor."
+    },
+    {
+      "file": "test/native-runtime-plan.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed internal schema/field order with actual admitted native terrain and worker section integrity; preserve real admission boundary for engine owner."
+    },
+    {
+      "file": "test/navmesh-ground.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Strict water/wet/trail exclusion boundary and actual terrain predicate equivalence mixed with receiver/callback internals; preserve author navigation law for installed build rewrite."
+    },
+    {
+      "file": "test/net-climate.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual declared server clock and network act codec mixed with fake sky/page frames; preserve real climate wire boundary."
+    },
+    {
+      "file": "test/net-exchange.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual NetRoom buy act and replicated ownership with price-before-grant/short-purse laws, mixed with hand-credit fixtures; engine owner must earn inputs through play."
+    },
+    {
+      "file": "test/npc-installation-rows.test.ts",
+      "action": "delete",
+      "reason": "Fake figure/registry and direct onInteract with manually altered flags; pins callback order and prompt representation, no actual NPC approach."
+    },
+    {
+      "file": "test/open-plots-scene-audio.test.ts",
+      "action": "delete",
+      "reason": "Synthetic AudioBuffer and mocked Music refresh/setScore inspect pending and callback disposal counts; no real cue playback."
+    },
+    {
+      "file": "test/page-life.test.ts",
+      "action": "engine-candidate",
+      "reason": "Pure carcass/secret eligibility boundary laws mixed with fake wildlife/harvest callbacks and buffer representation; preserve semantic laws for actual server play successor."
+    },
+    {
+      "file": "test/page-quest-stages.test.ts",
+      "action": "delete",
+      "reason": "Hand-planted lit flag and injected stage callbacks/missing mover corpus; no real quest or save."
+    },
+    {
+      "file": "test/painted-look-rows.test.ts",
+      "action": "delete",
+      "reason": "Exact shader source and attribute identity, fixed dressing order and mocked terrain readiness; no rendered golden."
+    },
+    {
+      "file": "test/pastel-generation.test.ts",
+      "action": "delete",
+      "reason": "Predecessor source/asset equality and private loader fixture; installed complete Pastel cold/moved build, byte equality and play now run in Ring 2."
+    },
+    {
+      "file": "test/people-places-file-family.test.ts",
+      "action": "delete",
+      "reason": "Frozen complete document hash, registry schema identity and parser refusal corpus; no author/player workflow."
+    },
+    {
+      "file": "test/pine-signal-authored-rows.test.ts",
+      "action": "delete",
+      "reason": "Exact authored sky/graph object equality and parser field refusal corpus; no clock or fire in play."
+    },
+    {
+      "file": "test/platform-data-sections.test.ts",
+      "action": "delete",
+      "reason": "Frozen section/physics row representation, schema ids and parser rejection corpus; no actual collision/player."
+    },
+    {
+      "file": "test/platform-milestones.test.ts",
+      "action": "delete",
+      "reason": "Administrative progress fractions, fixture receipts and injected empty products; private report structure, no playable product."
+    },
+    {
+      "file": "test/plot-golden-inputs.test.ts",
+      "action": "graphical-owner",
+      "reason": "Maintained actual eight-view camera fixtures and grid rebase/provenance semantics support visual capture; retain for graphical owner."
+    },
+    {
+      "file": "test/practice-controller-rows.test.ts",
+      "action": "delete",
+      "reason": "Controller grammar, fixed native rows and malformed parser fixtures; no actual course attempt."
+    },
+    {
+      "file": "test/practice-course-admission.test.ts",
+      "action": "delete",
+      "reason": "Hand-named scene JSON and schema refusal corpus; no installed author build or riding/grapple input."
+    },
+    {
+      "file": "test/practice-course-scene.test.ts",
+      "action": "delete",
+      "reason": "Exact obstacle counts, translated mesh/collider fields and parser fixtures with null canvas; no course play or visual render."
+    },
+    {
+      "file": "test/product-in-look.test.ts",
+      "action": "delete",
+      "reason": "Predecessor named payload bytes, fake look/roster callback forwarding and read counts; no actual rendered product."
+    },
+    {
+      "file": "test/product-report-failure.test.ts",
+      "action": "delete",
+      "reason": "Injected fake builder/copied empty product receipts freeze report fields and exact failure collection; not installed CLI build failure."
+    },
+    {
+      "file": "test/project-generation.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Actual generation cache isolation/invalidation and real source build/map inputs mixed with private cache paths/call counts; preserve installed author workflow for rewrite."
+    },
+    {
+      "file": "test/project-level-build.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Actual public project build/image roots, immutable product validation and no-source-output semantics; retain for installed author edge rewrite."
+    },
+    {
+      "file": "test/project-manifest.test.ts",
+      "action": "sdk-candidate",
+      "reason": "Real public image packing/deduplication, detached bytes and early/late sharing laws; retain author boundary rather than classifying by mocks."
+    },
+    {
+      "file": "test/quest-catalogue-sites.test.ts",
+      "action": "delete",
+      "reason": "Fake catalogue registration arrays and frozen hollow/rifle coordinates/shelf layout; no real visit or reward."
+    },
+    {
+      "file": "test/quest-chapter-document.test.ts",
+      "action": "delete",
+      "reason": "Schema registry identity/JSON shape equality and malformed chapter document corpus; no authored chapter play."
+    },
+    {
+      "file": "test/quest-death-effects.test.ts",
+      "action": "delete",
+      "reason": "Hand-fed dead bodies, callback order and fabricated board counters/key moves; no actual server kill."
+    },
+    {
+      "file": "test/quest-entry-graphs.test.ts",
+      "action": "delete",
+      "reason": "Fake command/modal owners, direct graph calls and manually planted flags/poses/inventory; pins private adapters and callback cadence, no real input journey."
+    },
+    {
+      "file": "test/quest-message-rows.test.ts",
+      "action": "delete",
+      "reason": "Manually planted completion flags, fake HUD/map/runtime and exact toast/sting order; no earned chapter."
+    },
+    {
+      "file": "test/quest-page-interactions.test.ts",
+      "action": "delete",
+      "reason": "Direct prompt calls and hand flags with fake borrowed owners and timers; private labels/callback ordering, no actual interaction input."
+    },
+    {
+      "file": "test/quest-page-refs.test.ts",
+      "action": "delete",
+      "reason": "Fake scene groups/tells/stages and direct rule runs plus hand flags; no complete product or quest traversal."
+    },
+    {
+      "file": "test/quest-product-admission.test.ts",
+      "action": "delete",
+      "reason": "Existing named JSON schema/refusal corpus and frozen service documents; no worker/page journey."
+    },
+    {
+      "file": "test/quest-seats.test.ts",
+      "action": "engine-candidate",
+      "reason": "Actual products and second-player cable/save isolation plus board/trader acts, mixed with teleport/private snapshot parts; preserve engine multiplayer boundary for real approach rewrite."
+    },
+    {
+      "file": "test/quest-shops.test.ts",
+      "action": "delete",
+      "reason": "Fake runtime/purse/pack and manual retained activation pin lazy widget identity and exact feedback arrays; no earned purchase."
+    },
+    {
+      "file": "test/quest-step-runner.test.ts",
+      "action": "delete",
+      "reason": "Direct synthetic signals and hand-made facts/effect arrays, fake hints/actors; paid-before-reward and live guard need real play successors already tracked in engine, not old internal runner fixture."
+    },
+    {
+      "file": "test/quest-step-traces.test.ts",
+      "action": "delete",
+      "reason": "Manually writes every quest flag and matches predecessor objective/save trace JSON; no earned progress."
+    },
+    {
+      "file": "test/quest-story.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real old-counter migration/ledger reload and departure cancellation semantics mixed with fake page/death events; retain engine save and entry boundary for rewrite."
+    },
+    {
+      "file": "test/quest-trader.test.ts",
+      "action": "delete",
+      "reason": "Fake shop/figure/runtime and direct prompt calls freeze facing/pitch/callback counts; no player approach or purchase."
+    },
+    {
+      "file": "test/quest-view-lifetime.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real dialogue close/recreate and cancelled timer lifetime semantics mixed with manually activated retained hooks; preserve for actual grid entry UI owner."
+    },
+    {
+      "file": "test/quest.test.ts",
+      "action": "delete",
+      "reason": "Manually planted chapter flags and exact objective/marker/dialogue snapshots; no player earns the spine."
+    },
+    {
+      "file": "test/nine-architecture-graphs.test.ts",
+      "action": "graphical-owner",
+      "reason": "Mixed shader text/uniform/layout assertions with a real branch-dominance correctness law; graphical owner must rejudge at actual GPU boundary."
+    },
+    {
+      "file": "test/rain-fall.test.ts",
+      "action": "delete",
+      "reason": "Hand-fed weather/strike/cover roots and exact shader params, noise endpoints and geometry counts; no actual weather journey or visual golden."
+    },
+    {
+      "file": "test/ranged-entry-capability.test.ts",
+      "action": "delete",
+      "reason": "Mock-rejected finish/ranged installers inspect phase call counts and shadow flags; no actual equipped product."
+    },
+    {
+      "file": "test/ranged-feel-adoptions.test.ts",
+      "action": "delete",
+      "reason": "Mocked feedback reader and exact feature/row counts; no real hit presentation."
+    },
+    {
+      "file": "test/registered-audio-cards-json.test.ts",
+      "action": "delete",
+      "reason": "Registry/schema identity, payload passthrough and read-count refusal fixtures; no audio or NPC product play."
+    },
+    {
+      "file": "test/registered-director-product.test.ts",
+      "action": "delete",
+      "reason": "Exact composed wire grammar and envelope field/refusal fixtures, no real director progression."
+    },
+    {
+      "file": "test/registered-keeper-returns.test.ts",
+      "action": "delete",
+      "reason": "Frozen fixture keeper byte size/hash and registry/schema/error/read-count corpus; no actual returning creature."
+    },
+    {
+      "file": "test/registered-native-population.test.ts",
+      "action": "delete",
+      "reason": "Native document schema identity and bounded parser/read-count refusal corpus; no real population."
+    },
+    {
+      "file": "test/registered-page-life.test.ts",
+      "action": "delete",
+      "reason": "Registry/parser equality and cross-row refusal/read-count fixtures; no actual wildlife or harvest."
+    },
+    {
+      "file": "test/registered-persistence-json.test.ts",
+      "action": "delete",
+      "reason": "Persistence policy schema identity and passthrough/refusal fixtures; never saves or resumes a real player."
+    },
+    {
+      "file": "test/registered-quest-catalogues.test.ts",
+      "action": "delete",
+      "reason": "Frozen native-story hash, schema metadata and duplicate/missing field/read-count corpus; no quest or contract play."
+    },
+    {
+      "file": "test/registered-quest-panels.test.ts",
+      "action": "delete",
+      "reason": "Panel parser/registry identity and structural recursion/refusal fixtures; no actual page interaction."
+    },
+    {
+      "file": "test/registered-roster-elites.test.ts",
+      "action": "delete",
+      "reason": "Registry/schema identity, canonical payload bytes and bounds/refusal/read-count corpus; no actual elite fight."
+    },
+    {
+      "file": "test/sampled-ambience.test.ts",
+      "action": "engine-candidate",
+      "reason": "Pure market/well distance blend and gated RNG continuation laws mixed with fake audio/diagnostic oracle; preserve useful audio semantics for engine owner."
+    },
+    {
+      "file": "test/scene-author-ports.test.ts",
+      "action": "delete",
+      "reason": "Type-only private emitter/collider/rig/row equality and generic ownership snapshots; installed author typecheck/build is the edge."
     }
   ]
 }
