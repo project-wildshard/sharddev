@@ -23,3 +23,17 @@ direct pin. New checks are only workflow steps, never hook discoveries.
 All three template tarballs also pass the installed pack command and carry
 their own discovery document. Three cases take 0.4 to 0.5 seconds each.
 The unchanged author Vitest suite passes 164 files and 770 cases.
+
+The real three-template relocation proof reproduced two separate bugs. A
+generated map needed an existing public/assets root despite supplying its
+bytes; it now validates one confined declared URL without demanding a
+directory for those bytes. Real file reads retain realpath confinement.
+
+Two cold builds agreed, but moving source changed only look/map.json, one
+pack, shard.json and validation.json. Bundler source-location comments
+entered the executable identity used for tilesHash. TypeScript's parser
+and comment-free printer now compute that identity; literal strings stay
+significant. All three complete products now agree byte for byte across
+all three builds. Real cases take 28.8, 23.6 and 23.9 seconds, so they are
+explicit Ring 2 with a fifteen-minute job, never the quick candidate lane
+or a hook. Product hashes are reported for cross-host comparison.

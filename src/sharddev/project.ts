@@ -12,6 +12,7 @@ import { resolve, sep } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Build phase diagnostics belong only to the CI compiler process.
 import process from 'node:process';
 import { build } from 'vite';
+import ts from '@typescript/typescript6';
 import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
 import { preflightAssetGraph, offlineMemoryAdmission, prepareAssetDecoders } from "@wildshard/format/product";
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
@@ -70,7 +71,11 @@ async function authorModule(project: string, file: string): Promise<{ exports: R
   assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports]);
   const loaded: unknown = await executeBundle(generationRecipes(chunk.code), project);
   if (typeof loaded !== 'object' || loaded === null) throw new Error('Author module has no exports');
-  return { exports: Object.fromEntries(Object.entries(loaded)), hash: contentHash(new TextEncoder().encode(chunk.code)) };
+  // Bundler source-location comments change when an author moves a project.
+  // Parse before dropping comments so literal text remains part of identity.
+  const syntax = ts.createSourceFile('config.js', chunk.code, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const executable = ts.createPrinter({ removeComments: true, newLine: ts.NewLineKind.LineFeed }).printFile(syntax);
+  return { exports: Object.fromEntries(Object.entries(loaded)), hash: contentHash(new TextEncoder().encode(executable)) };
 }
 
 /** GR9: a declared output's build program (`programs` in shard.config.ts, keyed by slug), if the folder has one for it. */

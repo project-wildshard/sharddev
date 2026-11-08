@@ -1,6 +1,7 @@
 // J186: shipped CLI from outside the checkout, CI only, no hook discovery.
 import '@wildshard/engine/scripts/format-hook.mjs';
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -29,7 +30,7 @@ function run(args, success = true) {
 function bytes(directory, prefix = '') {
   return readdirSync(join(directory, prefix), { withFileTypes: true }).flatMap(row => {
     const file = join(prefix, row.name);
-    return row.isDirectory() ? bytes(directory, file) : [[file, readFileSync(join(directory, file)).toString('base64')]];
+    return row.isDirectory() ? bytes(directory, file) : [[file, createHash('sha256').update(readFileSync(join(directory, file))).digest('hex')]];
   }).sort(([a], [b]) => a.localeCompare(b));
 }
 
