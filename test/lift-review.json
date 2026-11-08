@@ -192,6 +192,166 @@
       "file": "test/scripts/sunscar-matriarch.test.ts",
       "action": "already-absent",
       "reason": "Queue entry names no file in the published checkout; remove the stale entry, not relabel it as a run."
+    },
+    {
+      "file": "test/creature-numeric-clips.test.ts",
+      "action": "delete",
+      "reason": "Frozen predecessor joint transforms, private pose memory and getter sampling order; no actual product play."
+    },
+    {
+      "file": "test/data-panels.test.ts",
+      "action": "delete",
+      "reason": "Bare widget CSS/text snapshots, fake timers and parser refusal corpus; no actual shard page."
+    },
+    {
+      "file": "test/declared-audio-ambience.test.ts",
+      "action": "delete",
+      "reason": "Captured mixer ports, reference identities and exact callback/teardown traces; no real entered page sound."
+    },
+    {
+      "file": "test/declared-audio-bank.test.ts",
+      "action": "delete",
+      "reason": "Mock playback/decoder and exact procedural tables, RNG calls and private catalogue ownership."
+    },
+    {
+      "file": "test/declared-audio-gameplay.test.ts",
+      "action": "delete",
+      "reason": "Hand-emitted door/sword events, fake world owners and exact private system/callback traces."
+    },
+    {
+      "file": "test/declared-audio-score.test.ts",
+      "action": "delete",
+      "reason": "Mock mixer, manually chosen scenes and binding order/private persistent owner checks."
+    },
+    {
+      "file": "test/declared-completion.test.ts",
+      "action": "delete",
+      "reason": "Planted completion/enemy-death state and private DOM/stat snapshots instead of an earned complete journey."
+    },
+    {
+      "file": "test/declared-npc-talks.test.ts",
+      "action": "delete",
+      "reason": "Planted errand completion with a hand-written pay callback, fake figures and private prompt/registration order."
+    },
+    {
+      "file": "test/declared-panel-lifecycle.test.ts",
+      "action": "delete",
+      "reason": "Fabricated complete contract slot and widget/timer/focus state rather than an earned in-game contract or naming flow."
+    },
+    {
+      "file": "test/director-raw-product.test.ts",
+      "action": "delete",
+      "reason": "Fabricated product reader and predecessor script snapshot/transport parity, plus inline-byte refusal corpus."
+    },
+    {
+      "file": "test/driftwood-bridge-sway.test.ts",
+      "action": "delete",
+      "reason": "Fixed camera float snapshots and hand-positioned player on a fabricated floor."
+    },
+    {
+      "file": "test/driftwood-entry-lifetime.test.ts",
+      "action": "delete",
+      "reason": "Fake cached world/scope references and constructor counts, not real entry/unload/re-entry."
+    },
+    {
+      "file": "test/driftwood-quest-content-product.test.ts",
+      "action": "delete",
+      "reason": "Exact producer command/anchor tables and manually planted quest flags at each beat."
+    },
+    {
+      "file": "test/effect-grant-rows.test.ts",
+      "action": "delete",
+      "reason": "Manually granted ownership and exact grant-array order/selector mirroring; no real purchase and hit."
+    },
+    {
+      "file": "test/declared-input-platform.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed coupled plumbing checks include a genuine old-cosmetic migration/idempotency contract. Retain pending for engine owner to separate a real save-path successor; do not discard merely because the file has mocks."
+    },
+    {
+      "file": "test/elites-platform.test.ts",
+      "action": "delete",
+      "reason": "Private strike runner snapshots, fabricated habitat/guardian policies and mocked DecisionHost opcodes; no product fight."
+    },
+    {
+      "file": "test/entered-loot-services.test.ts",
+      "action": "delete",
+      "reason": "Fake Bag/menu/map and manually activated runtime check chip/callback counts, not real world entry."
+    },
+    {
+      "file": "test/entered-loot.test.ts",
+      "action": "delete",
+      "reason": "Hand-granted and worn items plus exact labels/field arrays and fake purse; no earned loot."
+    },
+    {
+      "file": "test/entered-page-bindings.test.ts",
+      "action": "delete",
+      "reason": "Fabricated Bag/HUD/map/looks and scope context slots; no actual grid entry."
+    },
+    {
+      "file": "test/entry-model-admission.test.ts",
+      "action": "engine-candidate",
+      "reason": "Real compressed GLB sharing/lifetime across owners mixed with private attribute/refusal assertions; engine/graphical owner must preserve the resource boundary."
+    },
+    {
+      "file": "test/finds-catalogue.test.ts",
+      "action": "delete",
+      "reason": "Hand-filled collectible flags and Owned sets, frozen labels/colors/stats and parser corpus; no collection."
+    },
+    {
+      "file": "test/first-person-arms.test.ts",
+      "action": "engine-candidate",
+      "reason": "Pure build-order independence law compares a style before/after another build without fixing coordinates; preserve for engine/graphical owner."
+    },
+    {
+      "file": "test/gen-source.test.ts",
+      "action": "delete",
+      "reason": "Exact generated source path/text inventories and fake registry metadata; public product builds cover author workflow."
+    },
+    {
+      "file": "test/generation-ground-map.test.ts",
+      "action": "graphical-owner",
+      "reason": "Actual ground-map pixel/triangle golden requires graphical owner review; preserved rather than silently deleting visual evidence."
+    },
+    {
+      "file": "test/geometry-model.test.ts",
+      "action": "delete",
+      "reason": "Fabricated BoxGeometry recipes, fixed family/LOD arrays and forced representation shapes; no whole product or visual assertion."
+    },
+    {
+      "file": "test/graph-vertex-texture.test.ts",
+      "action": "delete",
+      "reason": "Shader source substrings/length and internal uniforms, not GPU or visual output."
+    },
+    {
+      "file": "test/grid-ruler-coverage.test.ts",
+      "action": "delete",
+      "reason": "Administrative progress baselines and fixed path/fraction counts, not a product behavior."
+    },
+    {
+      "file": "test/hover-boost.test.ts",
+      "action": "engine-candidate",
+      "reason": "Mixed manual hover/widgets with genuine road/interior boost and smooth-cap laws; retain semantics for actual movement successor."
+    },
+    {
+      "file": "test/held-bow-binding.test.ts",
+      "action": "delete",
+      "reason": "Borrowed fake BufferGeometry identity and exact gait/profile/schema corpus; never draws or fires a real bow."
+    },
+    {
+      "file": "test/held-firearm-rows.test.ts",
+      "action": "delete",
+      "reason": "Predecessor profile/row equality and playback schedule/refusal snapshots; no real shot."
+    },
+    {
+      "file": "test/held-slots.test.ts",
+      "action": "delete",
+      "reason": "Hand-assembled slot grammar and defaults/refusal corpus freeze registration and construction representation; no equipped player flow."
+    },
+    {
+      "file": "test/hull-look-registered.test.ts",
+      "action": "delete",
+      "reason": "Private hull-book look references and object spread/field equality with installed fixture; no rendered golden or gameplay."
     }
   ]
 }
