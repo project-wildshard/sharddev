@@ -83,3 +83,10 @@ project. With the guard removed, the old recipe successfully wrote an
 unprepared tar and the proof failed (status0). With the guard restored it
 names prepare before packing; then an actually prepared candidate packs.
 All four installed edge cases pass in 4.28 seconds, outside hooks.
+
+The first seven-repo rollout reproduced a hosted defining-schema failure.
+The SDK and author roots used format4f while their old engine pin used
+format0.4.2: named provenance correctly refused a foreign schema object.
+Pin engine80d5cc0, the same published consumer and format graph, instead
+of weakening object identity. The existing named provenance case passes
+in1.06s on this aligned installed graph. All sanity checks are retained.
