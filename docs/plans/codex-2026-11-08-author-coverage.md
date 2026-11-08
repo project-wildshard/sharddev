@@ -17,7 +17,7 @@ Status: in progress 2026-11-08: outer-edge author and candidate proofs.
 | SD-5 | Frozen GitHub install is runner-proved; release-specific external install remains with next tag |
 | SD-16, SD-19 | Ring 2 prints product hashes for cross-host comparison; engine-pin comparison remains open; no engine writes in this lane |
 | SD-17, SD-22, SD-23 | Old Driftwood byte attribution, undeclared AS and offline sandbox remain open |
-| Waiting tests | Existing list retained for individual outer-edge adjudication; not treated as coverage |
+| Waiting tests | Body review in test/lift-review.json: 32 J186 trims, four stale absent paths cleared, 183 remain after the first batch. Real engine lifetime/worker boundaries stay pending for their owner; no tests were moved to engine |
 
 All new quick checks are CI-only and capped below 10 seconds per test.
 Complete template bakes and default-reference play have measured Ring 2

@@ -1,0 +1,197 @@
+{
+  "source": "19ae7c018552cf8f7e3d74d154f03d3d6fe50283",
+  "date": "2026-11-08",
+  "rule": "J186; individual body review, not mock counts",
+  "files": [
+    {
+      "file": "src/sharddev/bake-owned.test.ts",
+      "action": "delete",
+      "reason": "Private scene-cache paths, bundle chunk structure, sideEffects lists and duplicate-piece refusal corpus; real complete template build/pack/play is the outer edge."
+    },
+    {
+      "file": "src/sharddev/bake/headless-product.test.ts",
+      "action": "delete",
+      "reason": "Hand-constructed index/schema layouts and named-blob refusal corpus; installed complete-product admission replaces the shape fixture."
+    },
+    {
+      "file": "src/sharddev/bake/native-scalar.test.ts",
+      "action": "delete",
+      "reason": "Predecessor sampler equality, owned storage fields and source-bundle chunk shape; no real terrain/product walk."
+    },
+    {
+      "file": "src/sharddev/bake/project-image.test.ts",
+      "action": "delete",
+      "reason": "Injected function identity and exact private pixel layout plus decoder refusal corpus."
+    },
+    {
+      "file": "src/sharddev/buildBehaviour.test.ts",
+      "action": "delete",
+      "reason": "Frozen director module hashes, byte sizes and embedded transport fields for foreign shard source."
+    },
+    {
+      "file": "src/sharddev/headlessCodec.test.ts",
+      "action": "delete",
+      "reason": "Synthetic monolith and private worker source paths; real compressed template products boot in fresh worker isolates."
+    },
+    {
+      "file": "src/sharddev/image-asset.test.ts",
+      "action": "delete",
+      "reason": "Fixed horizon dimensions and parser/error-string corpus; not an earned product play proof."
+    },
+    {
+      "file": "src/sharddev/isolated-sdk-binding-declarations.test.ts",
+      "action": "delete",
+      "reason": "Declaration output and exact compiler diagnostic counts pin schema internals."
+    },
+    {
+      "file": "src/sharddev/isolated-sdk-owner-value-declarations.test.ts",
+      "action": "delete",
+      "reason": "Literal type defaults, declaration sizes and exact diagnostic counts pin internals."
+    },
+    {
+      "file": "src/sharddev/isolated-sdk-wire-declarations.test.ts",
+      "action": "delete",
+      "reason": "Literal wire/schema types and diagnostic counts pin internal representation."
+    },
+    {
+      "file": "src/sharddev/project-output.test.ts",
+      "action": "delete",
+      "reason": "Buffer.compare/getter trap counts, private cache keys, pack layout and shape/refusal corpus; installed author/template products cover the public workflow."
+    },
+    {
+      "file": "src/sharddev/weapons/bow-file.test.ts",
+      "action": "delete",
+      "reason": "Copied native profile/schema equality and reference storage identity; no shot through a real product."
+    },
+    {
+      "file": "test/achievement-counters.test.ts",
+      "action": "delete",
+      "reason": "Hand-called counter methods, planted flags and private callback/write order instead of earned kills."
+    },
+    {
+      "file": "test/ambient-flock-host.test.ts",
+      "action": "delete",
+      "reason": "Frozen 18000-frame private bird pose hashes, numeric modes and fake viewer positions."
+    },
+    {
+      "file": "test/ambient-forager-host.test.ts",
+      "action": "delete",
+      "reason": "Direct population rows, viewer teleport and private snapshot arrays instead of real player approach."
+    },
+    {
+      "file": "test/approved-model-catalogues.test.ts",
+      "action": "delete",
+      "reason": "Frozen complete schema document hashes and provenance/refusal corpus."
+    },
+    {
+      "file": "test/approved-model-geometry.test.ts",
+      "action": "delete",
+      "reason": "Frozen geometry/practice wire bodies, parser equality and refusal corpus."
+    },
+    {
+      "file": "test/approved-population-families.test.ts",
+      "action": "delete",
+      "reason": "Frozen population document hashes, schema identities and refusal corpus."
+    },
+    {
+      "file": "test/approved-population-metadata.test.ts",
+      "action": "delete",
+      "reason": "Exact canopy counts, wire hashes and taming-pose schema refusals."
+    },
+    {
+      "file": "test/approved-quest-families.test.ts",
+      "action": "delete",
+      "reason": "Frozen quest document hashes and schema provenance/refusal corpus."
+    },
+    {
+      "file": "test/astc6-phone-cap.test.ts",
+      "action": "delete",
+      "reason": "Hand-built KTX2 offsets/mip bytes and private tier-selection fields; actual Pine cook closure remains open."
+    },
+    {
+      "file": "test/audio-authoring.test.ts",
+      "action": "delete",
+      "reason": "Whole authored-audio equality and private cove path/count checks, without actual gameplay sound."
+    },
+    {
+      "file": "test/audio-catalogue-manifest.test.ts",
+      "action": "delete",
+      "reason": "Fabricated product/loader and exact scope/read call counts instead of a real boot."
+    },
+    {
+      "file": "test/author-quest-data.test.ts",
+      "action": "delete",
+      "reason": "Mirrored parser/type equality and fabricated entry row refusal corpus."
+    },
+    {
+      "file": "test/body-launch.test.ts",
+      "action": "delete",
+      "reason": "Frozen predecessor velocity coefficients and hand-called death placement policy; no earned launch/drop."
+    },
+    {
+      "file": "test/cable-traversal.test.ts",
+      "action": "delete",
+      "reason": "Private predecessor save-envelope/pose equality and hand-started drivers; real cable ride remains open."
+    },
+    {
+      "file": "test/catalog-build.test.ts",
+      "action": "delete",
+      "reason": "Injected fake builder, private cache paths, flags/call counts and map diagnostic snapshots."
+    },
+    {
+      "file": "test/channel-programs.test.ts",
+      "action": "delete",
+      "reason": "Private owner-field reflection and frozen numeric weather projection values."
+    },
+    {
+      "file": "test/chapter-director-product.test.ts",
+      "action": "delete",
+      "reason": "Planted quest/death flags, copied reward position, direct director cues and memory allocation counts."
+    },
+    {
+      "file": "test/chapter-story.test.ts",
+      "action": "delete",
+      "reason": "Planted completion/taming/kill flags, fake rewards/timers and private chapter snapshots."
+    },
+    {
+      "file": "test/client-mover-owners.test.ts",
+      "action": "delete",
+      "reason": "Fabricated installer/physics and exact ABI field order, buffers and callback counts, not a real mover ride."
+    },
+    {
+      "file": "test/course-differential.test.ts",
+      "action": "delete",
+      "reason": "Frozen predecessor scalar state and mocked presenter cadence; no actual mounted course input."
+    },
+    {
+      "file": "src/sharddev/headless-observation.test.ts",
+      "action": "engine-candidate",
+      "reason": "Contains a real worker observation/continuation boundary. Engine owns implementation; retain pending for owner review rather than delete by mock count."
+    },
+    {
+      "file": "test/client-skin-lifetime.test.ts",
+      "action": "engine-candidate",
+      "reason": "Contains real GC/resource lifetime checks as well as coupled mixer internals. Engine/graphical owner must separate the genuine lifetime boundary; no graphical implementation changed here."
+    },
+    {
+      "file": "test/pine-product-reads.test.ts",
+      "action": "already-absent",
+      "reason": "Queue entry names no file in the published checkout; remove the stale entry, not relabel it as a run."
+    },
+    {
+      "file": "test/project-sections.test.ts",
+      "action": "already-absent",
+      "reason": "Queue entry names no file in the published checkout; remove the stale entry, not relabel it as a run."
+    },
+    {
+      "file": "test/scripts/far-reach-roc.test.ts",
+      "action": "already-absent",
+      "reason": "Queue entry names no file in the published checkout; remove the stale entry, not relabel it as a run."
+    },
+    {
+      "file": "test/scripts/sunscar-matriarch.test.ts",
+      "action": "already-absent",
+      "reason": "Queue entry names no file in the published checkout; remove the stale entry, not relabel it as a run."
+    }
+  ]
+}
