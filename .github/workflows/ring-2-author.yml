@@ -76,3 +76,5 @@ jobs:
         run: node --test --test-concurrency=1 test/ci/new-reference.test.mjs
       - name: Installed generated author inputs and maps
         run: node --test --test-concurrency=1 test/ci/author-inputs.test.mjs
+      - name: Installed warm author build with OS networking denied
+        run: node --test --test-concurrency=1 test/ci/offline-author.test.mjs
