@@ -937,8 +937,8 @@
     },
     {
       "file": "test/script-v2-ports.test.ts",
-      "action": "sdk-candidate",
-      "reason": "Real authored AS dual compilation/execution and compiler state isolation mixed with source inventory; preserve for installed compiler owner, not mock-count deletion."
+      "action": "delete",
+      "reason": "J186 retired after assertion-by-assertion review: inventory, compiler isolation, author reachability and all 16 non-director port laws run in shard-driftwood 5c6b519 / shard-pine-hollow 97f07fb test/ci/script-ports.test.mjs + test/ci/ports/*.dual.ts; both director ports (v0 pin, ABI1/ABI2 state+event parity, JSON continuation, every outcome) in test/ci/director-shadow.test.mjs at Driftwood 300cda1 and Pine f1ff243; SDK export 7644809. Exact CI and Ring 2 green."
     },
     {
       "file": "test/scripts/nine-sign-atlas.test.ts",
@@ -1080,8 +1080,8 @@
     },
     {
       "file": "test/wire-quest-shop.test.ts",
-      "action": "engine-candidate",
-      "reason": "Actual DOM purchase click asserts page emits buy without local settlement, mixed with fake wire/purse and manual pack; preserve page/server authority boundary for engine owner."
+      "action": "delete",
+      "reason": "J186 retired as a duplicate: engine test/wire-quest-shop.test.ts (37bd657) keeps every click, modal and page/server authority assertion of both cases and adds server-grant gating; exact engine CI green on 5baa0fa and fba1f8f."
     },
     {
       "file": "test/witness-compare.test.ts",

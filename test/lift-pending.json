@@ -29,7 +29,6 @@
   "test/quest-view-lifetime.test.ts",
   "test/sampled-ambience.test.ts",
   "test/scene-buffers.test.ts",
-  "test/script-v2-ports.test.ts",
   "test/scripts/nine-sign-atlas.test.ts",
   "test/shard-select-entries.test.ts",
   "test/skin-layer-pose-values.test.ts",
@@ -40,7 +39,6 @@
   "test/view-frame-slot.test.ts",
   "test/water-surface-host.test.ts",
   "test/weather-continuation.test.ts",
-  "test/wire-quest-shop.test.ts",
   "test/world-scenes-platform.test.ts",
   "test/world-target-attachments.test.ts",
   "test/world-targets.test.ts"
