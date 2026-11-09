@@ -25,6 +25,17 @@ Run from the repo root.
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
 - `src/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
+## Authored script-port proofs
+
+`@wildshard/sharddev/test/compileDualScriptV2` exposes the existing
+test-only dual compiler to installed author repositories. It captures
+the same actual AS closure for both wrappers, requires every authored
+source to be reachable, and admits both compiled artifacts through the
+public format contracts. Owners execute their own input and continuation
+laws against those artifacts. It does not select an ABI2 product, change
+the wire or replace the shipping compiler. The content repo owns the
+fixture and its explicit CI-only, sub-ten-second runner.
+
 ## J198 preparation
 
 After building a candidate, serve that exact product in an engine preview.

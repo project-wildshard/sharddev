@@ -254,6 +254,7 @@
     "./species/clips": "./src/sharddev/species/clips.ts",
     "./compileScript": "./src/sharddev/bake/compileScript.ts",
     "./compileScriptV2": "./src/sharddev/bake/compileScriptV2.ts",
+    "./test/compileDualScriptV2": "./src/sharddev/test/compileDualScriptV2.ts",
     "./buildBehaviour": "./src/sharddev/buildBehaviour.ts",
     "./scene": "./src/sharddev/scene.ts",
     "./physics": "./src/sharddev/physics.ts",
