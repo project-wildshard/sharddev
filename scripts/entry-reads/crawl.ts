@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from '../chromium-keychain.mjs';
 // Plain post-build bake: browser-lane.sh node --experimental-transform-types
 // --import ./scripts/shard-platform-format.mjs scripts/entry-reads/crawl.ts
 // --base=http://127.0.0.1:4400 --pin=<landed full SHA> [--shards=a,b]
@@ -37,7 +38,7 @@ const versionResponse = await fetch(new URL('/version.json', origin));
 if (!versionResponse.ok) throw new Error('Preview identity unavailable');
 const version = v.parse(versionSchema, await versionResponse.json());
 if (!version.build.startsWith(pin.slice(0, 7))) throw new Error('Preview differs from the requested pin');
-const browser = await chromium.launch({ channel: 'chromium', headless: true, args: ['--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ channel: 'chromium', headless: true, args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
 const { defaultBrowserType: _type, ...phone } = devices['iPhone 16 Pro'];
 
 async function contextFor(host: Browser, tier: RegionEntryReads['tier']): Promise<BrowserContext> {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // shard-progress.mjs — one progress capture of a shard (E387, Jake 2026-10-02: "progress photos and progress videos and
 // time lapse videos of shard five and shard six being built … we definitely should").
 //
@@ -88,7 +89,7 @@ const checkFrames = (ids, force) => {
 let browser;
 const errors = [], shots = [];
 try {
-  browser = await chromium.launch({ args: ['--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
+  browser = await chromium.launch({ args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, isMobile: true, hasTouch: true,
     userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' });
   await saveFixture(ctx, { scope: 'device', key: 'devMode', data: true }); // experimental shards enter only in developer mode

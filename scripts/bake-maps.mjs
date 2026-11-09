@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // Bake each shard's map from its world (SF66, G246 / G247; the look is G252's B, stylized): boot the shard in a served
 // build, render it straight down (orthographic, the full 500 m cell centred on the origin) in 2 × 2 tiles, twice: a colour
 // pass and a height pass (every mesh drawn with its world height). scripts/map-stylize.py turns the two into flat colours
@@ -152,7 +153,7 @@ function bake(arg) {
   return { side, colour, height, collapsed: collapsed.length, from: [...new Set(collapsed.map(([m]) => (m.name !== '' ? m.name : m.parent?.name ?? '?')))].join(' ') };
 }
 
-const browser = await chromium.launch({ args: ['--use-angle=metal', '--ignore-gpu-blocklist', '--mute-audio'] });
+const browser = await chromium.launch({ args: [...KEYCHAIN_ARGS, '--use-angle=metal', '--ignore-gpu-blocklist', '--mute-audio'] });
 mkdirSync(join(root, 'tmp'), { recursive: true });
 const work = keep ?? mkdtempSync(join(root, 'tmp', 'bake-maps-'));
 mkdirSync(work, { recursive: true });

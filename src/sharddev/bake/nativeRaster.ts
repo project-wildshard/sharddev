@@ -1,3 +1,4 @@
+import { KEYCHAIN_ARGS } from '../../../scripts/chromium-keychain.mjs';
 import { build } from 'vite';
 // oxlint-disable-next-line import/no-nodejs-modules -- The explicit author bundler converts file URLs on its native host.
 import { fileURLToPath } from 'node:url';
@@ -28,7 +29,7 @@ export interface NativeRasterInput {
 }
 
 const nativeHost: NativeRasterHost<Page> = { launch: options => webkit.launch(options) };
-const chromiumHost: NativeRasterHost<Page> = { launch: options => chromium.launch(options) };
+const chromiumHost: NativeRasterHost<Page> = { launch: options => chromium.launch({ ...options, args: [...KEYCHAIN_ARGS, ...(options.args ?? [])] }) };
 
 /** An author page whose routes and document preparation remain caller-owned. */
 export interface NativeRasterBrowserInput {

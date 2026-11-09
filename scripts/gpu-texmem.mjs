@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-settings.mjs';
 // gpu-texmem.mjs — how much GPU memory each shard's textures take (E157, KTX2 / Basis GPU compression).
 //
@@ -38,7 +39,7 @@ const TOP = Number(flag('top', '25'));
 const RECORD = argv.includes('--record');
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
-const browser = await chromium.launch({ args: ['--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist', '--enable-precise-memory-info', '--js-flags=--expose-gc'] });
+const browser = await chromium.launch({ args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist', '--enable-precise-memory-info', '--js-flags=--expose-gc'] });
 try {
   const phone = TIER === 'phone';
   const iphone = devices['iPhone 16 Pro'];

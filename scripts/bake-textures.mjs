@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // bake-textures.mjs — bake the sky's procedural textures once (project/archive/2026-09-22-load-perf.md §P2; SF87, G320).
 //
 // The sky's cloud field, banded planet and gas giant are painted on a canvas at runtime when the build has no file for
@@ -40,7 +41,7 @@ const code = chunks.find((c) => c.type === 'chunk')?.code;
 if (code === undefined) throw new Error('bake-textures: the bake page did not bundle');
 
 const { chromium, devices } = await import('playwright');
-const browser = await chromium.launch({ headless: true, args: ['--mute-audio', '--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ headless: true, args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 try {
   const page = await (await browser.newContext(devices['iPhone 16 Pro'])).newPage();
   /** @type {string[]} */ const errors = [];
@@ -76,4 +77,4 @@ try {
 } finally {
   await browser.close();
 }
-if (output.finish() > 0) console.log(`bake-textures: Chromium ${toolVersion(chromium.executablePath(), ['--version']) ?? 'unavailable'}`);
+if (output.finish() > 0) console.log(`bake-textures: Chromium ${toolVersion(chromium.executablePath(), [...KEYCHAIN_ARGS, '--version']) ?? 'unavailable'}`);

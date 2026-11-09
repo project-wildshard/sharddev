@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // bake-viewmodel-sets.mjs — a level's weapon viewmodel texture sets as KTX2 (G187 cut 3, E435). The crossbow's and the
 // rifle's walnut, steel, leather, bolt and gunmetal sets are drawn at every boot (src/client/engine/player/viewmodelTextures.ts
 // makePixels, in a worker) and uploaded as RGBA8 DataTextures: ~18 MB of Pine Hollow's phone GL. Their pixels never change
@@ -87,7 +88,7 @@ let encoded = 0, reused = 0;
 
 let browser;
 try {
-  browser = await chromium.launch({ channel: 'chromium', args: ['--mute-audio'] });
+  browser = await chromium.launch({ channel: 'chromium', args: [...KEYCHAIN_ARGS, '--mute-audio'] });
   if (!checkPlanes) mkdirSync(OUT, { recursive: true });
   const page = await (await browser.newContext()).newPage();
   await page.setContent('<!doctype html><html><body></body></html>');

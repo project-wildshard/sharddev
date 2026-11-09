@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-settings.mjs';
 // ktx2-ab.mjs — the E157 A/B: the same poses in each shard with the images and the KTX2 textures (the `textures` harness pin, G386),
 // on the iPhone portrait the user judges on (iPhone 16 Pro UA, 390×844 @3, touch, the phone tier) — or, `--tier=desktop`
@@ -59,7 +60,7 @@ const SHARD = {
 };
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
-const browser = await chromium.launch({ args: ['--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
+const browser = await chromium.launch({ args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
 try {
   const iphone = devices['iPhone 16 Pro'];
   for (const shard of SHARDS) {

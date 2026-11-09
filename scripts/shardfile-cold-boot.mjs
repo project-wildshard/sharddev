@@ -4,6 +4,7 @@
 // a 404 and counted as a leak. Each shard then cold boots on the phone profile, to control, in a fresh context.
 //   scripts/browser-lane.sh node --import ./scripts/bake-loader.mjs scripts/shardfile-cold-boot.mjs \
 //     --dist=<built output> --tars=<folder of <slug>.tar> [--engine=webkit|chromium] <slug> …
+import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { brotliDecompressSync } from 'node:zlib';
@@ -54,7 +55,7 @@ const server = createServer((request, response) => {
 });
 await new Promise(resolve => { server.listen(0, '127.0.0.1', resolve); });
 const address = server.address(), origin = `http://127.0.0.1:${typeof address === 'object' && address !== null ? address.port : 0}`;
-const browser = await (engine === 'webkit' ? webkit : chromium).launch({ headless: true, args: engine === 'webkit' ? [] : ['--mute-audio'] });
+const browser = await (engine === 'webkit' ? webkit : chromium).launch({ headless: true, args: engine === 'webkit' ? [] : [...KEYCHAIN_ARGS, '--mute-audio'] });
 const rows = [];
 try {
   for (const slug of slugs) {
