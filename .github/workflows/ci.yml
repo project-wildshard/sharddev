@@ -87,6 +87,8 @@ jobs:
         run: node --test test/ci/map-author.test.mjs
       - name: Installed navigation author and real queries
         run: node --test test/ci/navigation-author.test.mjs
+      - name: Public headless observation and worker ownership
+        run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/headless-observation.test.mjs
       - if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: pnpm test:hooks
       - run: pnpm test:ci

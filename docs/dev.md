@@ -27,6 +27,14 @@ Run from the repo root.
 
 ## Authored script-port proofs
 
+The explicit CI-only observation proof is
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/headless-observation.test.mjs`.
+It uses public installed engine APIs, real workers, all offline ticks,
+an independent control and restored continuation, plus protocol fault
+and stream-ownership refusals. Every case keeps a 9.5-second limit.
+It does not run in commit or push hooks. The inherited observation
+file remains pending until its owner reviews the complete mapping.
+
 `@wildshard/sharddev/test/compileDualScriptV2` exposes the existing
 test-only dual compiler to installed author repositories. It captures
 the same actual AS closure for both wrappers, requires every authored
