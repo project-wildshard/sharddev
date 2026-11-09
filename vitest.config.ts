@@ -15,6 +15,9 @@ export default defineConfig({
   resolve: { alias: rapierAlias, dedupe: ['three', 'valibot', 'postprocessing', '@wildshard/format'] },
   assetsInclude: ['**/*.bin', '**/*.wasm'],
   test: {
+    // Each cold AS compiler owns substantial startup work. Bound the file
+    // workers so competing compiles cannot exhaust a setup's 10-second cap.
+    maxWorkers: 2,
     execArgv: ['--import', path.resolve('src/sharddev/bake/format-hook.mjs')],
     testTimeout: 30_000,
     environment: 'node',
