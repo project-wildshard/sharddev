@@ -7,6 +7,7 @@ import { execSync } from 'node:child_process';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { viteTmpRoot } from '../scripts/vite-tmp.mjs';
 
 const root = import.meta.dirname;
 const publicDir = join(root, 'public');
@@ -56,5 +57,5 @@ export default defineConfig({
     target: 'es2022',
     sourcemap: false,
   },
-  plugins: [draftsPwa()],
+  plugins: [viteTmpRoot(), draftsPwa()],
 });

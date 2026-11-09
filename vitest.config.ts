@@ -2,6 +2,7 @@ import path from 'node:path';
 import { createRequire } from 'node:module';
 import { readFileSync } from 'node:fs';
 import { defineConfig } from 'vitest/config';
+import { viteTmpRoot } from './scripts/vite-tmp.mjs';
 
 // Node won't strip types under node_modules, so a config can't import engine's vite/rapier.ts from a tag. Its aliases, as a shard repo spells them.
 const engine = path.dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
@@ -11,6 +12,7 @@ const rapierAlias = [
 ];
 
 export default defineConfig({
+  plugins: [viteTmpRoot()],
   define: { __SHARDFILE_VALIDATOR__: '"lift"' },
   resolve: { alias: rapierAlias, dedupe: ['three', 'valibot', 'postprocessing', '@wildshard/format'] },
   assetsInclude: ['**/*.bin', '**/*.wasm'],
