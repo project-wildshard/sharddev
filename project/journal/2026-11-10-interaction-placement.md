@@ -19,3 +19,12 @@ live borrowed model and frame rules. No test forces a quest flag or
 claims a drawn scene. Real row-order reversal and wrong-kind bypass
 mutations fail this installed case; their source bytes are restored.
 No runtime, dependency pin, authored shard or old SDK file is changed.
+
+Joint J206 review at engine 51e33ff / SDK 6fee75b identifies one MUST
+in the engine companion, no SHOULD:
+`~/.cache/wildshard/session-keep/reviews/sdk-placement-engine-20261110-SDK-interaction-placement-20261110T085537Z-69881.md`.
+The current engine binder needed independent complete bound-table and
+JSON values, not only the SDK comparison against its frozen engine.
+Engine fixes it and proves the unchanged retained-coordinate mutation
+old PASS / new FAIL. All other original assertions are mapped in that
+one-shot review. No second review or production source change.
