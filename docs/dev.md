@@ -183,3 +183,16 @@ nonempty map geometry, every legacy RGBA byte, lossless product intake,
 repeatable packed output, undeclared-input refusal and selected/placed
 baked geometry. Each case is capped at 9.5 s and its temporary products
 are removed at the end. The reviewed SDK waiting ceiling is now 47.
+
+## Installed keyed sky codec
+
+After the frozen install, run
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/keyed-sky-codec.test.mjs`.
+CI runs this explicitly outside hooks. Its 9.5-second timeout and elapsed
+assertion include actual package installation, all calculations and
+cleanup. The installed public author export packs every colour/gain byte
+against an independent numerical half-float reference, retains the
+historical worker checksum and unrounded horizon, and preserves gzip
+bytes and selected typed-array views. Engine owns the companion clock,
+weather-number and admission cases. This does not claim rendered pixels;
+the original waiting SDK file remains for its owner to retire.
