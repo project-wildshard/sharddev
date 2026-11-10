@@ -27,6 +27,14 @@ Run from the repo root.
 
 ## Authored script-port proofs
 
+The explicit CI-only numeric output proof is
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/channel-values.test.mjs`.
+Six public consumer cases preserve signed zero, clocks, private
+recurrence, mutable source values and atomic refusal/recovery. The
+actual crab/thrall generators have their 300-frame equivalence proofs
+in Driftwood and Pine. These tests keep 9.5-second full-body elapsed
+and timeout guards, outside hooks. They edit no runtime or pose source.
+
 The explicit CI-only observation proof is
 `node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/headless-observation.test.mjs`.
 It uses public installed engine APIs, real workers, all offline ticks,
