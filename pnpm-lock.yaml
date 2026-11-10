@@ -9,7 +9,7 @@ overrides:
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
   '@wildshard/format': github:project-wildshard/shardfile#4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3
 
-packageExtensionsChecksum: sha256-TT9K1eFA+0KfmUjvQNS1wWA03aoL2KrP54gO65wBGWc=
+packageExtensionsChecksum: sha256-UMHVVyHOzVelgV8/9fZPvtXKgauAhjToM3aacthJxQw=
 
 importers:
 
@@ -1785,6 +1785,7 @@ snapshots:
       navcat: 0.4.1(@types/three@0.186.0)(three@0.186.0)
       postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       preact: 11.1.1
+      sharp: 0.35.5(@types/node@24.3.1)
       three: 0.186.0
       valibot: 1.5.0(typescript@7.0.2)
       vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
