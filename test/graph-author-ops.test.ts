@@ -9,9 +9,9 @@ import { attribute, varying, vec2, vec3, vec4 } from 'three/tsl';
 import { expect, test } from 'vitest';
 import { validateGraph, type GraphIr, type GraphNode } from '@wildshard/format/materialGraph';
 import { parseKtx2 } from '@wildshard/format/ktx2Cost';
-import { GraphMaterial, gerstnerNormal, graph, graphInputs, instanceTransform, windGustAt } from '../src/sharddev/materials';
-import { bakeRawColourTexture } from '../src/sharddev/bake/texture';
-import { writeImagePixels } from '../src/sharddev/bake/image';
+import { GraphMaterial, gerstnerNormal, graph, graphInputs, instanceTransform, windGustAt } from '../src/sharddev/materials.ts';
+import { bakeRawColourTexture } from '../src/sharddev/bake/texture.ts';
+import { writeImagePixels } from '../src/sharddev/bake/image.ts';
 
 // Engine test/graph-day-toon.test.ts and graph-optional-attribute.test.ts
 // compile these literal IRs; the SDK must still author them byte for byte.
