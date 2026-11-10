@@ -166,7 +166,15 @@
     {
       "file": "src/sharddev/headless-observation.test.ts",
       "action": "engine-candidate",
-      "reason": "Contains a real worker observation/continuation boundary. Engine owns implementation; retain pending for owner review rather than delete by mock count."
+      "reason": "All original assertions now run through installed public engine APIs in the SDK CI successor, including real workers, restored continuation and fault/stream attribution. Exact CI is green; retain this excluded duplicate for its owner to retire under the literal-path deletion rule.",
+      "successorProofs": [
+        {
+          "repo": "sharddev",
+          "file": "test/ci/headless-observation.test.mjs",
+          "commit": "cef628cb2d62ef82ac84b22d9d3d003a999feea7",
+          "ci": "https://github.com/project-wildshard/sharddev/actions/runs/42722354657"
+        }
+      ]
     },
     {
       "file": "test/client-skin-lifetime.test.ts",
@@ -629,12 +637,34 @@
     {
       "file": "test/native-collider-block.test.ts",
       "action": "engine-candidate",
-      "reason": "Real collider byte range copying, ownership and recovery mixed with hashes/parser internals; retain engine codec/resource boundary."
+      "reason": "Nalati now owns every original public raw-intake assertion with stronger complete multi-solid recovery, ordered per-hull bytes/metadata, named-file metadata and two killed false-positive mutants. Exact CI is green; retain this excluded duplicate for owner retirement.",
+      "successorProofs": [
+        {
+          "repo": "shard-nalati",
+          "file": "test/ci/native-collider.test.mjs",
+          "commit": "e3c72fe3acc6f9e569dbf6b61e699e6903752130",
+          "ci": "https://github.com/project-wildshard/shard-nalati/actions/runs/42729102229"
+        }
+      ]
     },
     {
       "file": "test/native-floor-shards.test.ts",
       "action": "engine-candidate",
-      "reason": "Actual floor payload byte and Object.is round-trip law across inline/raw intakes; preserve for engine physics boundary."
+      "reason": "Both actual shard owners preserve every original floor byte/value and metadata assertion, plus buffer ownership and an honest synchronous elapsed cap. Exact CI is green in both; retain this excluded duplicate for owner retirement, without lowering the source ratchet yet.",
+      "successorProofs": [
+        {
+          "repo": "shard-driftwood",
+          "file": "test/ci/native-floor.test.mjs",
+          "commit": "babb4fa5494fb33f774407256dc7ec890890242f",
+          "ci": "https://github.com/project-wildshard/shard-driftwood/actions/runs/42727979375"
+        },
+        {
+          "repo": "shard-pine-hollow",
+          "file": "test/ci/native-floor.test.mjs",
+          "commit": "9d7e908d9fbcce7bedb4aeb566d743c929da24e0",
+          "ci": "https://github.com/project-wildshard/shard-pine-hollow/actions/runs/42728570759"
+        }
+      ]
     },
     {
       "file": "test/native-item-frame.test.ts",
