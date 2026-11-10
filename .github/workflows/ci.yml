@@ -38,7 +38,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
       # Private org git dependencies (github:project-wildshard/...): mint a
       # read-only token from the org app (meta repo P0.2, J34) and point
       # every github.com URL form at it. pnpm-lock.yaml records them as
@@ -65,15 +67,19 @@ jobs:
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: node scripts/select-candidate.mjs
+      # pnpm disables GVS when its own ci option is true. Keep the runner CI
+      # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           else
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           fi
+      - name: Prove the installed global store layout
+        run: node scripts/assert-store-layout.mjs
       # The same members as pnpm check; author tests run in their own job.
       - run: node scripts/check-lift-review.mjs
       - run: pnpm typecheck
@@ -135,7 +141,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
       # Private org git dependencies (github:project-wildshard/...): mint a
       # read-only token from the org app (meta repo P0.2, J34) and point
       # every github.com URL form at it. pnpm-lock.yaml records them as
@@ -162,15 +170,19 @@ jobs:
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: node scripts/select-candidate.mjs
+      # pnpm disables GVS when its own ci option is true. Keep the runner CI
+      # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           else
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           fi
+      - name: Prove the installed global store layout
+        run: node scripts/assert-store-layout.mjs
       - run: pnpm test:author --shard=${{ matrix.shard }}
 
   products:
@@ -189,7 +201,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
       # Private org git dependencies (github:project-wildshard/...): mint a
       # read-only token from the org app (meta repo P0.2, J34) and point
       # every github.com URL form at it. pnpm-lock.yaml records them as
@@ -216,15 +230,19 @@ jobs:
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: node scripts/select-candidate.mjs
+      # pnpm disables GVS when its own ci option is true. Keep the runner CI
+      # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           else
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           fi
+      - name: Prove the installed global store layout
+        run: node scripts/assert-store-layout.mjs
       - name: Build all three owned templates
         run: pnpm build:shards
       - name: Walk the owned 1800-tick authored route
@@ -249,7 +267,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
       # Private org git dependencies (github:project-wildshard/...): mint a
       # read-only token from the org app (meta repo P0.2, J34) and point
       # every github.com URL form at it. pnpm-lock.yaml records them as
@@ -276,15 +296,19 @@ jobs:
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: node scripts/select-candidate.mjs
+      # pnpm disables GVS when its own ci option is true. Keep the runner CI
+      # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           else
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           fi
+      - name: Prove the installed global store layout
+        run: node scripts/assert-store-layout.mjs
       - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm test:e2e
       - if: failure()

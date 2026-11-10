@@ -53,7 +53,9 @@ jobs:
         with:
           node-version-file: package.json
           cache: pnpm
-          cache-dependency-path: pnpm-lock.yaml
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
       # Private org git dependencies (github:project-wildshard/...): mint a
       # read-only token from the org app (meta repo P0.2, J34) and point
       # every github.com URL form at it. pnpm-lock.yaml records them as
@@ -80,15 +82,18 @@ jobs:
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: node scripts/select-candidate.mjs
+      # Select pnpm installer layout without changing the runner CI environment.
       - name: Install pinned or candidate graph
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile
+            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           else
-            pnpm install --frozen-lockfile
+            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
           fi
+      - name: Prove the installed global store layout
+        run: node scripts/assert-store-layout.mjs
       - name: Ring 2 cold and relocated complete template bakes
         run: node --test --test-concurrency=1 test/ci/template-determinism.test.mjs
       - name: Installed reference, door, save and real cook
