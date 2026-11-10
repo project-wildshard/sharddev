@@ -38,8 +38,12 @@ const floor = floorFixture();
 const style = { kind: 'void', void: 'transparent', stone: ['#7d7466', '#a0937a', '#c2b08c'], stoneBands: [40, 60], grass: '#79a84f', rim: '#1a1526' };
 const settings = { style, painter: { version: 1, glbs: ['floor.glb'] } };
 function run(args, success = true) {
+  const started = performance.now();
   const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 8000,
     env: { ...process.env, WILDSHARD_GEN_CACHE: join(root, 'gen'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') } });
+  const timing = result.stdout.split('\n').filter(line => line.startsWith('author timing: '));
+  console.info(`map author CLI: ${JSON.stringify({ command: args[0], seconds: (performance.now() - started) / 1000, exit: result.status, error: result.error?.message, timing })}`);
+  if (result.error !== undefined) console.error(result.stdout, result.stderr);
   assert.ifError(result.error);
   if (success) assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
   else assert.notEqual(result.status, 0);
