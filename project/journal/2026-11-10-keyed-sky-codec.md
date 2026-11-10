@@ -26,3 +26,10 @@ versus 56.375661849975586/56.375661849975586/58.553462982177734), and
 encoding the entire backing store instead of the selected view. Both
 source files are byte-restored. No production source, pins, dependency
 versions, sky image or rendered look is changed.
+
+J206 joint review approves SDK 03a6538 and engine 822a441, no MUST:
+`~/.cache/wildshard/session-keep/reviews/sdk-sky-engine-20261110-SDK-keyed-sky-20261110T080412Z-62674.md`.
+Its one SHOULD concerns the added engine pause claim; engine fixes it
+with actual stationary-phase assertions and an ignored-pause mutation.
+The safe helper selected ephemeral read-only Codex because Opus quota
+was exhausted or unverified. Both reviewed trees stayed clean.
