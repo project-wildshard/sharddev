@@ -9,6 +9,8 @@ overrides:
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
   '@wildshard/format': github:project-wildshard/shardfile#4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3
 
+packageExtensionsChecksum: sha256-TT9K1eFA+0KfmUjvQNS1wWA03aoL2KrP54gO65wBGWc=
+
 importers:
 
   .:
@@ -48,7 +50,7 @@ importers:
         version: 2.8.0
       '@wildshard/engine':
         specifier: github:project-wildshard/engine#80d5cc0d8d5faa1336708eeee10359f30a715204
-        version: https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(typescript@7.0.2)
+        version: https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(typescript@7.0.2)
       '@wildshard/format':
         specifier: github:project-wildshard/shardfile#4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3
         version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)
@@ -75,13 +77,13 @@ importers:
         version: 1.2.0
       navcat:
         specifier: 0.4.1
-        version: 0.4.1(three@0.186.0)
+        version: 0.4.1(@types/three@0.186.0)(three@0.186.0)
       playwright:
         specifier: 1.65.0
         version: 1.65.0
       postprocessing:
         specifier: 6.39.5
-        version: 6.39.5(three@0.186.0)
+        version: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       preact:
         specifier: 11.1.1
         version: 11.1.1
@@ -652,6 +654,11 @@ packages:
     version: 0.1.2
     engines: {node: '>=24.18.0'}
     hasBin: true
+    peerDependencies:
+      '@types/three': '*'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
 
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3':
     resolution: {gitHosted: true, integrity: sha512-jiHVEJ6DgEyBBy2naiSkzRxQUJ07KMf7IzT7/emPx+7HK02lzynhPxmD5Sn6+XcFFsDjPJXUm65IGbBYsmkfdg==, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3}
@@ -896,8 +903,12 @@ packages:
   n8ao@2.0.1:
     resolution: {integrity: sha512-MoP1QKUdj4/3cKEnhFl917t0eQwWGER1l43ckz5mNOPyYWGRDGQbVoTOQz/VBvy01in6QVNG+AL6Xxx5AjZBYA==}
     peerDependencies:
+      '@types/three': '*'
       postprocessing: '>=6.30.0'
       three: '>=0.137'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
 
   nanoid@3.3.20:
     resolution: {integrity: sha512-uKdg2G3GNCKQn9byYOpxbGqrT2fGO5KRt5J/8b3pok8rT6qxGWF6hxMyJiEYtAf+FVyYuD9hRaDqX5uPFYJ4ZQ==}
@@ -907,8 +918,11 @@ packages:
   navcat@0.4.1:
     resolution: {integrity: sha512-dMsXyMh06V5MZaDx93C+xO9GnGIU6TczsnNI8zD41EL1ybOxHgk0uqVTiVZel8cmysR2E+hJA4bK1EOTSM+S6Q==}
     peerDependencies:
+      '@types/three': '*'
       three: '>=0.180.0'
     peerDependenciesMeta:
+      '@types/three':
+        optional: true
       three:
         optional: true
 
@@ -1002,7 +1016,11 @@ packages:
   postprocessing@6.39.5:
     resolution: {integrity: sha512-YmH+t74J2X1lwYjKzK/tgs9C9kqWWPB9JwZiDF5mEf4BdCEAmEFbO8lXBA7NM0/j4g+x6FgD/Tt5/kT7ogbEDA==}
     peerDependencies:
+      '@types/three': '*'
       three: '>= 0.168.0 < 0.187.0'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
 
   preact@11.1.1:
     resolution: {integrity: sha512-vpFVfai437pbuLri7XVeslCPfrEZX6Z1S2gV+MOFrA/kji+NKUXvH7y01EnVjA1guLigfkVp77Sqipd4SIllCg==}
@@ -1752,25 +1770,41 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(typescript@7.0.2)':
+  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(typescript@7.0.2)':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.5(hono@4.13.13)
       '@sentry/browser': 11.0.0
+      '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
       '@wildshard/format': https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)
       ajv: 6.15.0
       fflate: 0.8.3
       hono: 4.13.13
-      n8ao: 2.0.1(postprocessing@6.39.5(three@0.186.0))(three@0.186.0)
-      navcat: 0.4.1(three@0.186.0)
-      postprocessing: 6.39.5(three@0.186.0)
+      n8ao: 2.0.1(@types/three@0.186.0)(postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0))(three@0.186.0)
+      navcat: 0.4.1(@types/three@0.186.0)(three@0.186.0)
+      postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       preact: 11.1.1
       three: 0.186.0
       valibot: 1.5.0(typescript@7.0.2)
+      vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
+    optionalDependencies:
+      '@types/three': 0.186.0
     transitivePeerDependencies:
+      - '@types/node'
+      - '@vitejs/devtools'
+      - esbuild
+      - jiti
+      - less
       - preact-render-to-string
+      - sass
+      - sass-embedded
+      - stylus
+      - sugarss
+      - terser
+      - tsx
       - typescript
+      - yaml
 
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)':
     dependencies:
@@ -1970,17 +2004,20 @@ snapshots:
 
   mimic-fn@2.1.0: {}
 
-  n8ao@2.0.1(postprocessing@6.39.5(three@0.186.0))(three@0.186.0):
+  n8ao@2.0.1(@types/three@0.186.0)(postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0))(three@0.186.0):
     dependencies:
-      postprocessing: 6.39.5(three@0.186.0)
+      postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       three: 0.186.0
+    optionalDependencies:
+      '@types/three': 0.186.0
 
   nanoid@3.3.20: {}
 
-  navcat@0.4.1(three@0.186.0):
+  navcat@0.4.1(@types/three@0.186.0)(three@0.186.0):
     dependencies:
       mathcat: 0.0.12
     optionalDependencies:
+      '@types/three': 0.186.0
       three: 0.186.0
 
   ndarray-lanczos@0.3.0:
@@ -2054,9 +2091,11 @@ snapshots:
       picocolors: 1.1.1
       source-map-js: 1.2.2
 
-  postprocessing@6.39.5(three@0.186.0):
+  postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0):
     dependencies:
       three: 0.186.0
+    optionalDependencies:
+      '@types/three': 0.186.0
 
   preact@11.1.1: {}
 

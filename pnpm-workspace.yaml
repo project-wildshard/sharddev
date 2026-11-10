@@ -1,3 +1,31 @@
 packages:
   - .
 enableGlobalVirtualStore: false
+packageExtensions:
+  '@wildshard/engine':
+    dependencies:
+      '@typescript/typescript6': '6.0.2'
+      vite: '8.3.0'
+    peerDependencies:
+      '@types/three': '*'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
+  'postprocessing':
+    peerDependencies:
+      '@types/three': '*'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
+  'n8ao':
+    peerDependencies:
+      '@types/three': '*'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
+  'navcat':
+    peerDependencies:
+      '@types/three': '*'
+    peerDependenciesMeta:
+      '@types/three':
+        optional: true
