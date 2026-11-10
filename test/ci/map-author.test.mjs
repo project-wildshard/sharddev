@@ -41,7 +41,7 @@ function run(args, success = true) {
   const started = performance.now();
   const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 8000,
     env: { ...process.env, WILDSHARD_GEN_CACHE: join(root, 'gen'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') } });
-  const timing = result.stdout.split('\n').filter(line => line.startsWith('author timing: '));
+  const timing = (result.stdout ?? '').split('\n').filter(line => line.startsWith('author timing: '));
   console.info(`map author CLI: ${JSON.stringify({ command: args[0], seconds: (performance.now() - started) / 1000, exit: result.status, error: result.error?.message, timing })}`);
   if (result.error !== undefined) console.error(result.stdout, result.stderr);
   assert.ifError(result.error);

@@ -20,3 +20,7 @@ retry, added timeout or root-fix claim. The independent new codec runs
 before the existing map step so a map failure does not erase its own
 verdict. Every map case, command, image, pixel, refusal and byte check
 continues unmodified. Follow any future map red from these actual facts.
+
+Keep absent child output null-safe too: a native spawn failure can have
+no stdout. Diagnostics cannot replace its original error with a string
+method exception. The original assert.ifError still owns that refusal.
