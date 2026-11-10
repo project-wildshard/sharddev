@@ -64,7 +64,11 @@ export function compilerPackageInputs(packages: readonly { readonly name: string
     let root = dirname(realpathSync(createRequire(from).resolve(specifier)));
     for (;;) {
       const path = resolve(root, 'package.json');
-      if (existsSync(path) && v.parse(v.object({ name: v.optional(v.string()) }), JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(readBoundedFile(path, 1_000_000)))).name === name) break;
+      if (existsSync(path)) {
+        const installedName = v.parse(v.object({ name: v.optional(v.string()) }), JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(readBoundedFile(path, 1_000_000)))).name;
+        // Root-pinned Binaryen aliases retain their actual manifest/version/source identity below.
+        if (installedName === name || (name === 'binaryen' && installedName === '@pre-bundled/binaryen')) break;
+      }
       const parent = dirname(root); if (parent === root) throw new Error('Missing compiler package identity'); root = parent;
     }
     if (visited.has(root)) return; visited.add(root);

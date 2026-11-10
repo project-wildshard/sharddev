@@ -160,7 +160,12 @@
       "@typescript/typescript-sunos-x64",
       "@typescript/typescript-win32-arm64",
       "@typescript/typescript-win32-x64"
-    ]
+    ],
+    "overrides": {
+      "binaryen": "npm:@pre-bundled/binaryen@132.0.0-patch-1",
+      "assemblyscript>binaryen": "npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1",
+      "@wildshard/format": "github:project-wildshard/shardfile#4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3"
+    }
   },
   "exports": {
     "./package.json": "./package.json",
