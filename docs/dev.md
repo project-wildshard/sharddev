@@ -196,3 +196,14 @@ historical worker checksum and unrounded horizon, and preserves gzip
 bytes and selected typed-array views. Engine owns the companion clock,
 weather-number and admission cases. This does not claim rendered pixels;
 the original waiting SDK file remains for its owner to retire.
+
+## Installed interaction placements
+
+Run the explicit CI-only case with
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/interaction-placement.test.mjs`.
+It resolves the public binding/reader from the actual packed SDK install,
+keeps original table law and order, checks immutable source rows, and
+retains every missing, duplicate, foreign, mismatched and nonfinite
+placement refusal. Its 9.5 s bound includes packing and own cleanup.
+Engine owns the real greeting-progress and native floor/frame companion;
+the original waiting SDK file remains for its owner to retire.

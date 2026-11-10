@@ -85,6 +85,8 @@ jobs:
       - run: node --test test/ci/generation-cli.test.mjs
       - name: Installed keyed sky codec and worker byte contracts
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/keyed-sky-codec.test.mjs
+      - name: Installed interaction placement author contracts
+        run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/interaction-placement.test.mjs
       - name: Installed map author ownership and legacy pixels
         run: node --test test/ci/map-author.test.mjs
       - name: Installed navigation author and real queries
