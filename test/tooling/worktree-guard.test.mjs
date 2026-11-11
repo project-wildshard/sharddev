@@ -1,7 +1,7 @@
 // DEV-SPEED DS11 guard, repo-kit copy (J221, J240): a plan worktree under <repo>/.worktrees/<plan> is invisible to
 // the parent checkout's tools. It plants a worktree-shaped tree under this checkout's own .worktrees/ holding a lint
-// error, failing tests, an index.html, a secret-shaped string and an oversized file, then runs the parent's tools and
-// fails if any of them sees a planted file:
+// error, failing tests, an index.html and a secret-shaped string (and, for the size check, a file one byte over the
+// repo's blob cap), then runs the parent's tools and fails if any of them sees a planted file:
 //   - Git ignores it, so nothing of it can be staged; the kit's own secrets and size checks (.githooks/lib.mjs
 //     checkBlob, what pre-commit runs per staged blob) do flag the planted files when forced into a scratch index;
 //   - oxlint, with every root lint config the repo has, and oxfmt over the whole root;
@@ -34,7 +34,6 @@ const FILES = {
   'zz-entry.ts': "import 'zz-missing-package';\n",
   // Built at run time, so this file itself carries no secret-shaped string.
   'scripts/zz-secret.mjs': `export const key = '${['AKIA', 'IOSFODNN7', 'EXAMPLE'].join('')}';\n`,
-  'zz-big.txt': 'x'.repeat(1024 * 1024 + 1),
 };
 /** The planted tree, relative to ROOT; set once it is made. */
 let plant = '';
@@ -88,7 +87,9 @@ describe('a planted plan worktree is invisible to the parent checkout', () => {
   });
 
   test("the kit's secrets and size checks would flag the planted files, had Git let them be staged", async () => {
-    const {blobSizes, checkBlob} = await import(join(ROOT, '.githooks/lib.mjs'));
+    const {MAX_BYTES, blobSizes, checkBlob} = await import(join(ROOT, '.githooks/lib.mjs'));
+    // One byte over this repo's own cap (the kit renders 1 MB, or 25 MB in engine and shard repos).
+    writeFileSync(join(ROOT, plant, 'zz-big.txt'), Buffer.alloc(MAX_BYTES + 1, 120));
     // A scratch index: the shared one is never touched. Forced, because Git itself refuses these paths.
     mkdirSync(join(ROOT, 'tmp'), {recursive: true});
     const index = join(mkdtempSync(join(ROOT, 'tmp', 'worktree-guard-')), 'index');
@@ -105,7 +106,7 @@ describe('a planted plan worktree is invisible to the parent checkout', () => {
       const sizes = blobSizes(entries.map(entry => entry.object));
       const problems = entries.flatMap(entry => checkBlob(entry, sizes.get(entry.object) ?? 0, {}));
       assert.ok(problems.some(line => line.includes('zz-secret.mjs') && /looks like/u.test(line)), problems.join('\n'));
-      assert.ok(problems.some(line => line.includes('zz-big.txt') && /over the 1 MB cap/u.test(line)), problems.join('\n'));
+      assert.ok(problems.some(line => line.includes('zz-big.txt') && /MB cap/u.test(line)), problems.join('\n'));
     } finally { rmSync(dirname(index), {recursive: true, force: true}); }
   });
 
