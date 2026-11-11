@@ -89,16 +89,22 @@ export async function devProject(project: string, options: { decisionLegacyLines
     debounce?.dispose(); debounce = scope.child('rebuild.debounce');
     debounce.timeout(100, () => { debounce?.dispose(); work = work.then(rebuild); });
   };
-  const watcher = watch(source, { recursive: true }, (_event, filename) => {
-    if (filename?.split(/[\\/]/u).some((part) => ignored.has(part))) return;
+  // One recursive watch per top-level folder that isn't ignored, and a flat one on the root: a recursive watch on the
+  // root would still walk and watch every ignored folder on Linux (a shard repo's .worktrees/ holds whole checkouts).
+  // A folder made later is seen by the 250 ms poll below.
+  const onChange = (prefix: string) => (_event: string, filename: string | null): void => {
+    if (`${prefix}${filename ?? ''}`.split(/[\\/]/u).some((part) => ignored.has(part))) return;
     reconcile();
-  });
+  };
+  const watchers = [watch(source, onChange('')), ...readdirSync(source, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory() && !ignored.has(entry.name))
+    .map((entry) => watch(join(source, entry.name), { recursive: true }, onChange(`${entry.name}/`)))];
   // Capture before returning the ready server; polling covers native-event gaps without rebuilding unchanged input.
   scope.interval(250, reconcile);
   const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No author server address');
   return { url: `http://127.0.0.1:${address.port}/`, close: async () => {
     if (stopped) return;
-    stopped = true; watcher.close(); scope.dispose();
+    stopped = true; for (const watcher of watchers) watcher.close(); scope.dispose();
     await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
     // A build already running owns its directory until its promise finishes.
     await work;

@@ -23,6 +23,7 @@ import { prepareProductBuildTools } from './product-build-tools.mjs';
 import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
 import { runtimeCopyIssues, productMapInput, publishProductMap, productFlags, productRecipe, retainProductInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-product.mjs';
+import { isWorktreePath } from './worktree-ignore.mjs';
 
 /** Read CI's output or a matching immutable product without invoking the builder.
  * @param {string} root @param {string} name
@@ -85,7 +86,8 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   /** @type {Map<string,number>} */
   const validationTimes=new Map();
   const ordered=recorded?orderProductBuilds(products,readProductBuildTimes(shardfileCacheRoot())):products;
-  const files = recorded ? undefined : treeHashes(root);
+  // The engine pin's treeHashes skips .worktrees/ only from engine 03d4d79; drop plan worktrees here either way (DS11).
+  const files = recorded ? undefined : new Map([...treeHashes(root)].filter(([path]) => !isWorktreePath(path)));
   const inputHashes = new InputHashMemo(root,resolve(root,'.cache/shardfile-input-hashes.json'));
   // The validation receipt every product carries is checked against this revision (vite.config.ts, the ruler). The
   // cached author CLI computes it once per compiler child, so a traced read set may miss its sources: key it directly,

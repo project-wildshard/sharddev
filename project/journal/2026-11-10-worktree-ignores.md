@@ -18,6 +18,20 @@ there; `.worktrees` joins its ignored names. The markdown hook and its test
 are engine's DS11 copies (a worktree's file is checked against that
 worktree). `scripts/worktree-ignore.mjs` is engine's file, byte-identical.
 
-Left: build-shardfiles' `treeHashes` comes from the engine pin, which skips
-`.worktrees` only from engine `03d4d79`; only injected (test) builders use
-it, and the next engine pin bump carries the fix.
+J206 Codex review, nine MUSTs, all fixed. The guard plants with
+`mkdtempSync` under a `.worktrees/` that must be a plain folder of this
+checkout, and removes only what it made. It now runs the kit's own secrets
+and size checks (`checkBlob`) on the planted secret and a 1 MB+ file forced
+into a scratch index, as a positive control. oxfmt must run with empty
+stderr and list something; every `node --test` must name globs (Node's
+default discovery walks every folder) and each must find files; a tool the
+repo uses must be installed, never skipped. `sharddev dev` watches each
+top-level folder except the ignored ones (a root recursive watch walks
+`.worktrees/` on Linux); Vitest watch mode ignores `.worktrees/`;
+build-shardfiles drops worktree paths from the pinned engine's
+`treeHashes`. The markdown hook resolves the path physically first, so
+`.worktrees/p/../../x.md` neither picks a worktree nor leaves the repo.
+
+Not yet a worktree repo: `.githooks/check-index.mjs` still refuses a commit
+in a linked worktree (D27). DS6's relaxation, `worktree.mjs` and
+`land.mjs` come before sharddev lanes move to worktrees.
