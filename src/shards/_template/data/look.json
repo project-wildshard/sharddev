@@ -14,8 +14,8 @@
   },
   "grade": {
     "exposure": 0,
-    "saturation": 1,
-    "contrast": 1,
+    "saturation": 1.12,
+    "contrast": 1.06,
     "lut": null
   },
   "clock": "engine",
@@ -25,52 +25,52 @@
     "maxElevation": 60,
     "azimuth": 35
   },
-  "dayOverride": null,
+  "dayOverride": 0.735,
   "keys": [
     {
       "time": 0,
       "sky": {
         "zenith": [
-          0.35,
-          0.42,
+          0.3,
+          0.24,
           0.5
         ],
         "horizon": [
-          0.75,
-          0.75,
-          0.75
+          1.0,
+          0.56,
+          0.4
         ]
       },
       "fog": {
         "colour": [
-          0.3968,
-          0.4287,
-          0.4621
+          0.74,
+          0.5,
+          0.5
         ],
         "density": 0,
-        "near": 60,
-        "far": 180
+        "near": 50,
+        "far": 170
       },
       "sun": {
         "colour": [
-          1,
-          1,
-          1
+          1.0,
+          0.64,
+          0.4
         ],
-        "intensity": 1.5
+        "intensity": 1.7
       },
       "ambient": {
         "sky": [
-          0.3325,
-          0.3864,
-          0.4564
+          0.56,
+          0.44,
+          0.62
         ],
         "ground": [
-          0.117,
-          0.117,
-          0.117
+          0.24,
+          0.2,
+          0.12
         ],
-        "intensity": 0.7
+        "intensity": 0.8
       }
     }
   ]

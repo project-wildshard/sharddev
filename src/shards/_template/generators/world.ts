@@ -50,17 +50,27 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const { heightAt } = ctx, file = 'src/shards/_template/generators/world.ts';
   const y = heightAt(layout.HUT.x, layout.HUT.z);
   const hut = new Group(); hut.position.set(layout.HUT.x, y, layout.HUT.z);
-  const roof = cube(6, 0.3, 6, 0x888888, 2); roof.position.y = 3; hut.add(roof);
+  const roof = cube(6.6, 0.4, 6.6, 0x5c7a34, 2); roof.position.y = 3; hut.add(roof);
   const colliders = [];
   for (const [x, z, hw, hd] of [[-3, 0, 0.15, 3], [3, 0, 0.15, 3], [0, -3, 3, 0.15], [-2, 3, 1, 0.15], [2, 3, 1, 0.15]]) {
     if (x === undefined || z === undefined || hw === undefined || hd === undefined) continue;
-    const wall = cube(hw * 2, 3, hd * 2); wall.position.set(x, 1.5, z); hut.add(wall);
+    const wall = cube(hw * 2, 3, hd * 2, 0x7d7a68); wall.position.set(x, 1.5, z); hut.add(wall);
     colliders.push(BoxCollider.fromData({ kind: 'box', x: layout.HUT.x + x, y: (y + 3 + y) / 2, z: layout.HUT.z + z, hx: hw, hy: Math.max(0.005, (y + 3 - y) / 2), hz: hd, yaw: -0, surface: 'wood' }).toColliderData());
   }
   ctx.root.add(hut); ctx.piece({ id: 'template.hut', name: 'Grey hut', category: 'buildings', file, object: hut, colliders, surface: 'wood' });
-  const panel = cube(1.8, 2.5, 0.2, 0x555555, 2); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
+  const panel = cube(1.8, 2.5, 0.2, 0x6e4a2a, 2); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
   ctx.root.add(panel); ctx.piece({ id: 'template.door', name: 'Open hut door', category: 'buildings', file, object: panel,
     colliders: [BoxCollider.fromData({ kind: 'box', x: layout.HUT.x, y: (y + 2.5 + y) / 2, z: layout.HUT.doorZ, hx: 0.9, hy: Math.max(0.005, (y + 2.5 - y) / 2), hz: 0.1, yaw: -0, surface: 'wood' }).toColliderData()], active: () => true });
+  // Mossgate Hollow v3 (MH-1): braziers A, B and C on labelled pads east of the slab path, unlit until MH-2.
+  const braziers = new Group(), stands: NonNullable<TemplatePart['colliders']> = [];
+  for (const [x, z] of layout.BRAZIERS) {
+    if (x === undefined || z === undefined) continue;
+    const by = heightAt(x, z), pad = cube(3, 0.1, 3, 0x6d6a5c, 2), base = cube(1.1, 0.4, 1.1, 0x7d7a68), stem = cube(0.6, 0.7, 0.6, 0x7d7a68), bowl = cube(1.3, 0.3, 1.3, 0x5a5650, 2);
+    pad.position.set(x, by + 0.05, z); base.position.set(x, by + 0.3, z); stem.position.set(x, by + 0.85, z); bowl.position.set(x, by + 1.35, z);
+    braziers.add(pad, base, stem, bowl);
+    stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
+  }
+  ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
   const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
   for (let i = 0; i < 10; i++) { const tread = cube(3, 0.2, 0.6, 0x888888, 2); tread.position.set(8, from[1] + (i + 1) * 0.2 - 0.1, -8 - (i + 0.5) * 0.6); ramp.add(tread); }
   const slope = cube(3, 0.24, Math.sqrt(40), 0x888888, 2); slope.position.set(12, from[1] + 0.9, -11); slope.rotation.x = Math.atan2(2, 6); ramp.add(slope);
