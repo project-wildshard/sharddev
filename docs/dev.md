@@ -40,8 +40,8 @@ The explicit CI-only observation proof is
 It uses public installed engine APIs, real workers, all offline ticks,
 an independent control and restored continuation, plus protocol fault
 and stream-ownership refusals. Every case keeps a 9.5-second limit.
-It does not run in commit or push hooks. The inherited observation
-file remains pending until its owner reviews the complete mapping.
+It does not run in commit or push hooks. It replaced the inherited
+observation file, which is deleted (ENGINE-MOVE-CLEANUP PG3).
 
 `@wildshard/sharddev/test/compileDualScriptV2` exposes the existing
 test-only dual compiler to installed author repositories. It captures
