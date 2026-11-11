@@ -74,9 +74,9 @@ jobs:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --no-frozen-lockfile --config.ci=false
           else
-            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --frozen-lockfile --config.ci=false
           fi
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
@@ -188,9 +188,9 @@ jobs:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --no-frozen-lockfile --config.ci=false
           else
-            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --frozen-lockfile --config.ci=false
           fi
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
@@ -248,9 +248,9 @@ jobs:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --no-frozen-lockfile --config.ci=false
           else
-            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --frozen-lockfile --config.ci=false
           fi
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
@@ -314,9 +314,9 @@ jobs:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
         run: |
           if [ -n "$CANDIDATE_ENGINE" ]; then
-            pnpm install --no-frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --no-frozen-lockfile --config.ci=false
           else
-            pnpm install --frozen-lockfile --config.ci=false --config.enableGlobalVirtualStore=true
+            pnpm install --frozen-lockfile --config.ci=false
           fi
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs

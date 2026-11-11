@@ -1,6 +1,9 @@
 packages:
   - .
-enableGlobalVirtualStore: false
+# GVS G9 (J230): installs link into pnpm's global virtual store. confirmModulesPurge: false
+# lets an existing classic checkout move over on a non-TTY install.
+enableGlobalVirtualStore: true
+confirmModulesPurge: false
 packageExtensions:
   '@wildshard/engine':
     dependencies:
