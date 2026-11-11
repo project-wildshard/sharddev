@@ -8,8 +8,8 @@ import { joinWholePieceSteps } from './wholePieceJoin';
 import { wholeGeometryPieces } from '@wildshard/engine/game/shardfile/wholeGeometryPieces';
 import { bakeProps } from './props';
 import { readSourceModel } from './skinned';
-import { partitionSlabGeometry, slabGeometryBytes } from './slabChunks';
-import { bakeWholeSlabs, readSlabLibrary } from './slabs';
+import { partitionSlabGeometry, RESIDENT_SLAB_GROUND, RESIDENT_SLAB_MIN_BYTES, slabGeometryBytes } from './slabChunks';
+import { bakeWholeSlabs, readSlabLibrary, residentBanks } from './slabs';
 import * as v from 'valibot';
 
 function triangle(x: number, y: number, z: number, height = 1): BufferGeometry {
@@ -222,7 +222,9 @@ test('only a resident cell groups compatible keys across tiles; rings retain ind
   expect(cell.library.tiles.flatMap(tile => tile.files.flatMap(file => file.chunks))).toHaveLength(1);
 });
 
-test('resident-cell byte splits preserve source triangle order across spatial bands', () => {
+const ascending = (values: readonly number[]): boolean => values.every((value, at) => at === 0 || (values[at - 1] ?? Infinity) < value);
+
+test('resident-cell byte splits keep every triangle once, each chunk in source order', () => {
   const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([
     5, 140, 5, 6, 140, 5, 5, 141, 6, 40, 0, 40, 41, 0, 40, 40, 1, 41,
     -220, 70, -220, -219, 70, -220, -220, 71, -219, 5, 0, 5, 6, 0, 5, 5, 1, 6,
@@ -230,10 +232,49 @@ test('resident-cell byte splits preserve source triangle order across spatial ba
   const chunks = partitionSlabGeometry(geometry, 0, new Matrix4(), 100, true);
   try {
     expect(chunks).toHaveLength(2);
-    expect(chunks.flatMap(chunk => chunk.triangles)).toEqual([0, 1, 2, 3]);
-    expect(chunks.every(chunk => chunk.bytes <= 100)).toBe(true);
+    expect(chunks.flatMap(chunk => chunk.triangles).sort((a, b) => a - b)).toEqual([0, 1, 2, 3]);
+    expect(chunks.every(chunk => ascending(chunk.triangles) && chunk.bytes <= 100)).toBe(true);
     expect(chunks.flatMap(chunk => triangles(chunk.geometry)).sort()).toEqual(triangles(geometry));
   } finally { geometry.dispose(); for (const chunk of chunks) chunk.geometry.dispose(); }
+});
+
+test('a resident cell splits a spread key into ground-compact chunks, each in source order (NB9)', () => {
+  // four clumps 300 m apart, interleaved in source order; each clump alone is under the split floor
+  const corners = [[-150, -150], [150, -150], [-150, 150], [150, 150]] as const, perClump = Math.ceil(RESIDENT_SLAB_MIN_BYTES / 42) + 8, positions: number[] = [];
+  for (let at = 0; at < perClump * 4; at++) {
+    const [x, z] = corners[at % 4] ?? [0, 0], dx = at % 7 * 0.1, y = at % 11;
+    positions.push(x + dx, y, z, x + dx + 1, y, z, x + dx, y + 1, z + 1);
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(positions, 3));
+  const chunks = partitionSlabGeometry(geometry, 0, new Matrix4(), 4_000_000, true);
+  try {
+    expect(chunks).toHaveLength(4);
+    for (const chunk of chunks) {
+      const box = chunk.geometry.boundingBox; if (box === null) throw new Error('Missing chunk bounds');
+      expect(Math.max(box.max.x - box.min.x, box.max.z - box.min.z)).toBeLessThanOrEqual(RESIDENT_SLAB_GROUND);
+      expect(ascending(chunk.triangles)).toBe(true);
+      expect(new Set(chunk.triangles.map(ordinal => ordinal % 4)).size).toBe(1);
+    }
+    expect(chunks.flatMap(chunk => chunk.triangles).sort((a, b) => a - b)).toEqual(Array.from({ length: perClump * 4 }, (_, at) => at));
+    // a ring tile's quadrant split is unchanged: the same key stays one chunk under its byte cap
+    const ring = partitionSlabGeometry(geometry, 0, new Matrix4(), 4_000_000);
+    try { expect(ring).toHaveLength(1); } finally { for (const chunk of ring) chunk.geometry.dispose(); }
+  } finally { geometry.dispose(); for (const chunk of chunks) chunk.geometry.dispose(); }
+});
+
+test('resident chunks past one bank bank under the fine tile they stand on, else the nearest (NB9)', () => {
+  const at = (x: number, z: number, frame = new Matrix4()) => {
+    const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([x - 1, 0, z - 1, x + 1, 0, z - 1, x, 2, z + 1], 3));
+    geometry.computeBoundingBox(); return { part: { geometry }, frame };
+  };
+  // tile (x, z) spans [-250 + 62.5 x, -250 + 62.5 (x + 1)); the cell holds tiles 27 (3, 3) and 36 (4, 4)
+  const rows = [at(-40, -40), at(10, 10), at(-60, -50), at(-200, 200), at(-40, -40, new Matrix4().makeTranslation(60, 0, 60))];
+  try {
+    const banks = residentBanks(rows, [{ x: 3, z: 3 }, { x: 4, z: 4 }]);
+    expect([...banks.keys()]).toEqual([27, 36]);
+    expect(banks.get(27)).toEqual([rows[0], rows[2], rows[3]]);
+    expect(banks.get(36)).toEqual([rows[1], rows[4]]);
+  } finally { for (const row of rows) row.part.geometry.dispose(); }
 });
 
 test('a near-cap slab leaves upload room for its native instance matrix and colour', async () => {

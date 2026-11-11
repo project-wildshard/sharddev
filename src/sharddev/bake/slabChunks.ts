@@ -5,7 +5,7 @@ export interface SlabGeometryChunk {
   geometry: BufferGeometry; triangles: number[]; bytes: number;
   worldHeight: number; maxTriangleHeight: number;
 }
-interface Triangle { ordinal: number; corners: [number, number, number]; minY: number; maxY: number }
+interface Triangle { ordinal: number; corners: [number, number, number]; minY: number; maxY: number; centroid: [number, number, number] }
 interface Bucket { quadrant: number; band: number; triangles: Triangle[]; minY: number; maxY: number }
 
 /** Upload bytes of exactly the final native geometry, including the index width. */
@@ -60,8 +60,36 @@ function subset(source: BufferGeometry, selected: readonly number[], indices: re
   } catch (error) { output.dispose(); throw error; }
 }
 
+/** A resident cell's group spans at most this much ground (centroid extent along X or Z) before it splits... */
+export const RESIDENT_SLAB_GROUND = 62.5;
+/** ...unless it is this small: one more draw would buy too little culling. */
+export const RESIDENT_SLAB_MIN_BYTES = 262_144;
+type Axis = 0 | 1 | 2;
+
+/** NB9 (meta NINE-DRAGON-BENCHMAX): a resident cell's key splits into ground-compact groups, so frustum and distance
+ * culling can drop what is off-screen or far; one source-ordered group spanned the whole fragment (radius up to 190 m).
+ * A k-d split at the centroid median along the longer ground axis; past the byte cap, along the longest axis, height
+ * included. Each group keeps source order, so coplanar triangles that share a group draw as they did. Deterministic. */
+function residentGroups(all: readonly Triangle[], byteCost: (triangles: readonly Triangle[]) => number, maximumBytes: number): Triangle[][] {
+  const out: Triangle[][] = [];
+  const visit = (set: readonly Triangle[]): void => {
+    const min: [number, number, number] = [Infinity, Infinity, Infinity], max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+    for (const { centroid } of set) for (const axis of [0, 1, 2] as const) { min[axis] = Math.min(min[axis], centroid[axis]); max[axis] = Math.max(max[axis], centroid[axis]); }
+    const extent: [number, number, number] = [max[0] - min[0], max[1] - min[1], max[2] - min[2]], bytes = byteCost(set), over = bytes > maximumBytes;
+    const axis: Axis = over ? (extent[1] > Math.max(extent[0], extent[2]) ? 1 : extent[0] >= extent[2] ? 0 : 2) : extent[0] >= extent[2] ? 0 : 2;
+    // past the cap with every centroid in one plane, the byte flush in `partitionSlabGeometry` still splits it
+    if (set.length < 2 || extent[axis] === 0 || !over && (bytes <= RESIDENT_SLAB_MIN_BYTES || Math.max(extent[0], extent[2]) <= RESIDENT_SLAB_GROUND)) {
+      out.push([...set].sort((a, b) => a.ordinal - b.ordinal)); return;
+    }
+    const sorted = [...set].sort((a, b) => a.centroid[axis] - b.centroid[axis] || a.ordinal - b.ordinal), half = Math.floor(sorted.length / 2);
+    visit(sorted.slice(0, half)); visit(sorted.slice(half));
+  };
+  visit(all);
+  return out;
+}
+
 /** Keep one chunk per tile/key while it fits; split oversized content by quadrant, then height and bytes.
- * A resident cell packs in source order across tiles, splitting only at the byte cap.
+ * A resident cell splits into ground-compact groups (`residentGroups`), each in source order, then at the byte cap.
  * A tall original triangle is never split.
  * Displacements and normals have already passed through the original whole-piece join's exact transform order. */
 export function partitionSlabGeometry(source: BufferGeometry, tile: number, world: Matrix4, maximumBytes = 4_000_000, residentCell = false): SlabGeometryChunk[] {
@@ -90,7 +118,7 @@ export function partitionSlabGeometry(source: BufferGeometry, tile: number, worl
     }
     const quadrant = (z >= z0 + 31.25 ? 2 : 0) + (x >= x0 + 31.25 ? 1 : 0), band = Math.floor(y / 62.5), key = `${quadrant}:${band}`;
     const bucket = buckets.get(key) ?? { quadrant, band, triangles: [], minY: Infinity, maxY: -Infinity };
-    bucket.triangles.push({ ordinal: offset / 3, corners: [a, b, c], minY, maxY });
+    bucket.triangles.push({ ordinal: offset / 3, corners: [a, b, c], minY, maxY, centroid: [x, y, z] });
     bucket.minY = Math.min(bucket.minY, minY); bucket.maxY = Math.max(bucket.maxY, maxY); buckets.set(key, bucket);
   }
   const byteCost = (triangles: readonly Triangle[]): number => {
@@ -101,7 +129,8 @@ export function partitionSlabGeometry(source: BufferGeometry, tile: number, worl
   const combined = (triangles: Triangle[], quadrant: number): Bucket => ({ quadrant, band: 0, triangles,
     minY: triangles.reduce((value, triangle) => Math.min(value, triangle.minY), Infinity), maxY: triangles.reduce((value, triangle) => Math.max(value, triangle.maxY), -Infinity) });
   const groups: Bucket[] = [];
-  if (residentCell || byteCost(all) <= maximumBytes) groups.push(combined(all, 0));
+  if (residentCell) for (const triangles of residentGroups(all, byteCost, maximumBytes)) groups.push(combined(triangles, 0));
+  else if (byteCost(all) <= maximumBytes) groups.push(combined(all, 0));
   else for (const quadrant of [0, 1, 2, 3]) {
     const rows = bands.filter(bucket => bucket.quadrant === quadrant), triangles = rows.flatMap(bucket => bucket.triangles).sort((a, b) => a.ordinal - b.ordinal);
     if (triangles.length === 0) continue;
