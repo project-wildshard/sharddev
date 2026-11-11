@@ -64,12 +64,13 @@ test('the new author opens and crosses the real door, then resumes', {timeout:60
  } finally {for(const world of worlds)await world.dispose();}
 });
 
-// SD-19, Ring 2: fetch and hash-check the complete public Template 1 tar
-// named by engine v0.1.1's pin, then run the same physical input journey.
+// SD-19, Ring 2: fetch and hash-check the complete public Template shardfile
+// named by engine's shard pin (catalogue number 3, with author preparation;
+// D5-4), then run the same physical input journey.
 // This is an immutable external product, not an engine test/source import.
 // Measured 12.96 s locally including the cold download and real worker.
 test('the engine Template 1 pin agrees with the newly authored real door journey',{timeout:120_000},async()=>{
- const hash='b8380a16f5da7824736480c03295ec26e4ad758435dac98cb5ff6d94d770dd44';
+ const hash='1993665d145a438ea7e818b17bb949bf9a08d438deb89e653723c6a492ea11d8';
  let bytes;
  for(const url of [`https://github.com/project-wildshard/engine/releases/download/pins/${hash}.tar`,`https://api.wildshard.io/api/shardfiles/${hash}`]){
   const response=await fetch(url,{signal:AbortSignal.timeout(20_000)}).catch(()=>undefined);
