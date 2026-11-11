@@ -165,8 +165,8 @@
     },
     {
       "file": "src/sharddev/headless-observation.test.ts",
-      "action": "engine-candidate",
-      "reason": "All original assertions now run through installed public engine APIs in the SDK CI successor, including real workers, restored continuation and fault/stream attribution. Exact CI is green; retain this excluded duplicate for its owner to retire under the literal-path deletion rule.",
+      "action": "ported",
+      "reason": "Ported: every original assertion runs through installed public engine APIs in sharddev test/ci/headless-observation.test.mjs, in CI. The excluded duplicate is deleted (ENGINE-MOVE-CLEANUP PG3).",
       "successorProofs": [
         {
           "repo": "sharddev",
@@ -636,8 +636,8 @@
     },
     {
       "file": "test/native-collider-block.test.ts",
-      "action": "engine-candidate",
-      "reason": "Nalati now owns every original public raw-intake assertion with stronger complete multi-solid recovery, ordered per-hull bytes/metadata, named-file metadata and two killed false-positive mutants. Exact CI is green; retain this excluded duplicate for owner retirement.",
+      "action": "ported",
+      "reason": "Ported: shard-nalati owns every original public raw-intake assertion, stronger, in its CI. The excluded duplicate is deleted (ENGINE-MOVE-CLEANUP PG3).",
       "successorProofs": [
         {
           "repo": "shard-nalati",
@@ -649,8 +649,8 @@
     },
     {
       "file": "test/native-floor-shards.test.ts",
-      "action": "engine-candidate",
-      "reason": "Both actual shard owners preserve every original floor byte/value and metadata assertion, plus buffer ownership and an honest synchronous elapsed cap. Exact CI is green in both; retain this excluded duplicate for owner retirement, without lowering the source ratchet yet.",
+      "action": "ported",
+      "reason": "Ported: driftwood and pine-hollow keep every original floor byte, value and metadata assertion in their CI. The excluded duplicate is deleted (ENGINE-MOVE-CLEANUP PG3).",
       "successorProofs": [
         {
           "repo": "shard-driftwood",

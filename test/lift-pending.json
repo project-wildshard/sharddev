@@ -1,5 +1,4 @@
 [
-  "src/sharddev/headless-observation.test.ts",
   "test/client-skin-lifetime.test.ts",
   "test/declared-input-platform.test.ts",
   "test/entry-model-admission.test.ts",
@@ -14,8 +13,6 @@
   "test/light-emitters.test.ts",
   "test/look-regressions.test.ts",
   "test/merged-channel-lanes.test.ts",
-  "test/native-collider-block.test.ts",
-  "test/native-floor-shards.test.ts",
   "test/native-item-frame.test.ts",
   "test/native-loadout-rows.test.ts",
   "test/native-runtime-plan.test.ts",

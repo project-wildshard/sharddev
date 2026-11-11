@@ -6,7 +6,7 @@ const pending = JSON.parse(readFileSync('test/lift-pending.json', 'utf8'));
 const review = JSON.parse(readFileSync('test/lift-review.json', 'utf8')).files;
 assert.equal(new Set(pending).size, pending.length, 'Duplicate pending path');
 assert.equal(new Set(review.map(row => row.file)).size, review.length, 'Duplicate review');
-assert.ok(pending.length <= 43, 'The reviewed queue must shrink');
+assert.ok(pending.length <= 40, 'The reviewed queue must shrink');
 for (const file of pending) {
   assert.ok(existsSync(file), `Absent pending test: ${file}`);
   const row = review.find(row => row.file === file);
@@ -14,4 +14,10 @@ for (const file of pending) {
   assert.ok(row.reason.length > 20, `Missing disposition: ${file}`);
 }
 for (const row of review.filter(row => row.action === 'run')) assert.ok(existsSync(row.successor), `Absent successor: ${row.file}`);
+// A ported test is retired here: its successor runs in its owner's CI, recorded by repo, file and commit.
+for (const row of review.filter(row => row.action === 'ported')) {
+  assert.ok(!pending.includes(row.file) && !existsSync(row.file), `Ported test still here: ${row.file}`);
+  assert.ok(row.successorProofs?.length > 0 && row.successorProofs.every(proof => proof.repo && proof.file && /^[0-9a-f]{40}$/u.test(proof.commit)),
+    `Ported without a recorded successor: ${row.file}`);
+}
 console.log(`lift review: ${pending.length} waiting; under-50 target met; retained owner work remains`);
