@@ -11,7 +11,8 @@ import { Scope } from '@wildshard/engine/app/scope';
 
 const POLL = '<script>let wsRevision=WS_REVISION;setInterval(async()=>{try{const r=await fetch("/__wildshard_dev_revision",{cache:"no-store"});const s=await r.json();if(s.error){console.error(s.error);return}if(s.revision!==wsRevision)location.reload()}catch{}},500)</script>';
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
-const ignored = new Set(['node_modules', '.git', 'dist', 'public']);
+// .worktrees: a shard repo's plan worktrees (DEV-SPEED DS11) are other checkouts, never this project's source.
+const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees']);
 
 /** Synchronous author-source baseline: native recursive watch notifications can miss quick overwrites during startup.
  * Nanosecond change time also detects same-length edits whose modification time was restored. Symlink directories
