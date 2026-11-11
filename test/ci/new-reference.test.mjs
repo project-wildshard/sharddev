@@ -65,8 +65,8 @@ test('the new author opens and crosses the real door, then resumes', {timeout:60
 });
 
 // SD-19, Ring 2: fetch and hash-check the complete public Template shardfile
-// named by engine's shard pin (catalogue number 3, with author preparation;
-// D5-4), then run the same physical input journey.
+// named by engine main's shard pin since `1d9de2fb` (catalogue number 3, with
+// author preparation; D5-4), then run the same physical input journey.
 // This is an immutable external product, not an engine test/source import.
 // Measured 12.96 s locally including the cold download and real worker.
 test('the engine Template 1 pin agrees with the newly authored real door journey',{timeout:120_000},async()=>{
