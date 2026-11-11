@@ -31,7 +31,8 @@ async function record(browser,slug){
     await context.addInitScript(({epoch})=>{
       const prefix=`wildshard.save.v2${epoch===0?'':`@${epoch}`}.`,row=data=>({v:1,data});
       localStorage.setItem(`${prefix}global`,JSON.stringify({keys:{settings:row({tier:'phone',volume:0,time:'midday',weather:'clear'}),gfx:row({dpr:'2',aa:'auto'})}}));
-      localStorage.setItem(`${prefix}device`,JSON.stringify({keys:{devMode:row(true),'debug.global.holdLoading':row('off'),'debug.earlyPrograms':row('off')}}));
+      // a phone's first PLAY skips SHARD SELECT for Driftwood's first-play card (engine firstPlay.ts): this device has played
+      localStorage.setItem(`${prefix}device`,JSON.stringify({keys:{devMode:row(true),firstPlayDone:row(true),'debug.global.holdLoading':row('off'),'debug.earlyPrograms':row('off')}}));
     },{epoch});
     await context.addInitScript(hideDeveloperOverlays);
     // in the page: each document's own shaderSource / attachShader / linkProgram calls, the sources of every linked pair
