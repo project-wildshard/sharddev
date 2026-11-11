@@ -26,7 +26,7 @@ const GEOMETRY_UPLOAD_BYTES = 4_000_000 - INSTANCE_UPLOAD_BYTES;
 type WholeLibrary = Exclude<Extract<WorldScenesSection['libraries'][number], { kind: 'whole' }>, { storage: 'slabs' }>;
 type Draw = Extract<WorldSceneWeldNode, { kind: 'mesh' }>;
 interface Source { node: Draw; model: WholeLibrary['models'][number]; forceIdentity: boolean; frame: Matrix4; owners: readonly string[] }
-interface Chunk { key: WorldSceneSlabKey; part: SlabGeometryChunk; custom: Readonly<Record<string, string>>; error: number; frame: Matrix4 }
+interface Chunk { key: WorldSceneSlabKey; part: SlabGeometryChunk; custom: Readonly<Record<string, string>>; error: number }
 interface GroupedKey { key: WorldSceneSlabKey; signature: string }
 /** Actual partition and upload census. Oversized height is explained by an unchanged source triangle, never a clipped one. */
 export interface SlabBakeTileReport {
@@ -186,25 +186,6 @@ function encodeFiles(tile: number, chunks: readonly Chunk[], assets: Map<string,
   return result;
 }
 
-/** Each chunk under the fine tile its world-space box centre stands on, or the nearest one the cell holds; ascending
- * tile order, chunk order kept within a bank. */
-export function residentBanks<T extends { readonly part: { readonly geometry: BufferGeometry }; readonly frame: Matrix4 }>(
-  chunks: readonly T[], fine: readonly { readonly x: number; readonly z: number }[]): Map<number, T[]> {
-  const banks = new Map<number, T[]>(), centre = new Vector3();
-  for (const chunk of chunks) {
-    const box = chunk.part.geometry.boundingBox; if (box === null) throw new Error('Slab chunk omits its frozen bounds');
-    box.getCenter(centre).applyMatrix4(chunk.frame);
-    let best = -1, distance = Infinity;
-    for (const tile of fine) {
-      const d = (-250 + (tile.x + 0.5) * 62.5 - centre.x) ** 2 + (-250 + (tile.z + 0.5) * 62.5 - centre.z) ** 2, id = tile.z * 8 + tile.x;
-      if (d < distance || d === distance && id < best) { best = id; distance = d; }
-    }
-    if (best < 0) throw new Error('Slab cell has no fine tile');
-    const rows = banks.get(best) ?? []; rows.push(chunk); banks.set(best, rows);
-  }
-  return new Map([...banks].sort(([a], [b]) => a - b));
-}
-
 /** Validate cached slab metadata through its defining bounded grammar; author folders need no format/parser imports. */
 export function readSlabLibrary(bytes: Uint8Array): WorldSceneSlabLibrary {
   return v.parse(WorldSceneSlabsSchema, JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bytes)));
@@ -266,21 +247,15 @@ export async function bakeWholeSlabs(input: {
       for (const group of groups.values()) {
         const geometry = concatenate(group.geometries);
         try {
-          for (const part of partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell)) chunks.push({ key: group.key, part, custom: group.custom, error: group.error, frame: group.frame });
+          for (const part of partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell)) chunks.push({ key: group.key, part, custom: group.custom, error: group.error });
         } finally { geometry.dispose(); }
       }
-      if (chunks.length === 0) throw new Error('Slab tile exceeds its chunk budget');
+      if (chunks.length === 0 || chunks.length > 64) throw new Error('Slab tile exceeds its chunk budget');
       const triangles = chunks.reduce((sum, chunk) => sum + chunk.part.triangles.length, 0);
       if (triangles !== sourceTriangles) throw new Error('Slab triangle partition differs');
-      // NB9: a resident cell's ground-compact chunks can outgrow one storage bank's 64; each then banks under the fine
-      // tile it stands on. A ring tile, or a cell that fits, keeps its one owner.
-      const banks = cell && chunks.length > 64 ? residentBanks(chunks, fine) : new Map([[tile.z * 8 + tile.x, chunks]]);
-      for (const [bank, rows] of banks) {
-        if (rows.length === 0 || rows.length > 64) throw new Error('Slab tile exceeds its chunk budget');
-        const packed = encodeFiles(bank, rows, assets), counted = rows.reduce((sum, chunk) => sum + chunk.part.triangles.length, 0); output.push({ tile: bank, files: packed });
-        report.push({ tile: bank, sourceTriangles: banks.size === 1 ? sourceTriangles : counted, triangles: counted, chunks: rows.length, files: packed.length,
-          bytes: rows.reduce((sum, chunk) => sum + chunk.part.bytes, 0), maxHeight: Math.max(...rows.map(chunk => chunk.part.worldHeight)), maxTriangleHeight: Math.max(...rows.map(chunk => chunk.part.maxTriangleHeight)) });
-      }
+      const packed = encodeFiles(tile.z * 8 + tile.x, chunks, assets); output.push({ tile: tile.z * 8 + tile.x, files: packed });
+      report.push({ tile: tile.z * 8 + tile.x, sourceTriangles, triangles, chunks: chunks.length, files: packed.length,
+        bytes: chunks.reduce((sum, chunk) => sum + chunk.part.bytes, 0), maxHeight: Math.max(...chunks.map(chunk => chunk.part.worldHeight)), maxTriangleHeight: Math.max(...chunks.map(chunk => chunk.part.maxTriangleHeight)) });
     } finally { for (const piece of staging) piece.geometry.dispose(); for (const group of groups.values()) for (const geometry of group.geometries) geometry.dispose(); for (const chunk of chunks) chunk.part.geometry.dispose(); }
   }
   const library = v.parse(WorldSceneSlabsSchema, { id: input.id, kind: 'slabs', of: input.library.id, keys: keys.map(entry => entry.key), tiles: output });
