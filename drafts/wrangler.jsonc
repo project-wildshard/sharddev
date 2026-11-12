@@ -1,0 +1,21 @@
+// The drafts site on a Cloudflare Worker (meta DRAFTS-PLAN DR4, D3): https://drafts.wildshard.io, public (J67).
+// `pnpm drafts:deploy` builds a clean export of HEAD into tmp/drafts-deploy and deploys it with this file; deploys stay
+// by hand, at a stage boundary (J16, J26). The build lands in ../tmp/dist-drafts (vite.config.ts), relative to here.
+{
+  "name": "wildshard-drafts",
+  "main": "worker.ts",
+  "compatibility_date": "2026-11-01",
+  "workers_dev": true,
+  "assets": {
+    "directory": "../tmp/dist-drafts",
+    "binding": "ASSETS",
+    // The Worker sees every request: /media/ from R2, the cache headers and noindex.
+    "run_worker_first": true
+  },
+  // Private bucket, shared with wildshard-www: the Worker reads only drafts/<slug>/<hash>-<full|thumb>.webp from it
+  // (drafts/tools/images.ts writes there, DRAFTS DR3).
+  "r2_buckets": [{ "binding": "MEDIA", "bucket_name": "wildshard-records" }],
+  // Custom domain (it owns its DNS record): overrides the zone's wildcard *.wildshard.io CNAME to Vercel for this name.
+  "routes": [{ "pattern": "drafts.wildshard.io", "custom_domain": true }],
+  "observability": { "enabled": true }
+}

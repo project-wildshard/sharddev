@@ -2,7 +2,9 @@
 
 The second website (WORLDCLAW-TOOLS J16, J57): only the shards that are still **drafts**, before they are a world in
 the game. It lives here, beside the game's `src/`, and shares nothing with the game's bundle (J15): the game site never
-loads a byte of it. **Live:** https://wildshard-drafts.vercel.app (a home-screen app, "Wildshard Drafts").
+loads a byte of it. **Live:** https://drafts.wildshard.io (a home-screen app, "Wildshard Drafts"), the Cloudflare Worker `wildshard-drafts`
+(`wrangler.jsonc`, `worker.ts`: the static site, and the pictures from R2 `wildshard-records` under `drafts/` only). Ship
+it with `pnpm drafts:deploy` (DRAFTS DR4).
 
 Everything on it is **read-only** (J17, J24): Jake looks, compares, plays and walks; he answers in chat.
 
@@ -17,7 +19,8 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
 | The data contract | `src/atlas.ts` (types shared by the site, the tools and the tests) |
 | A draft's sources (hand-kept by the run) | `shards/<slug>/draft.json` (where its art and design are, what each round's pictures are, Jake's answers per stage, the run header), `shards/<slug>/content.json` (places, quest steps, lanes, side content, mechanics, camera checks, sets), `shards/<slug>/images.json` (generated: the R2 keys of the phone copies) |
 | Generated, committed, shipped | `public/data/index.json` (the title's public cards), `public/data/<slug>/atlas.json`, Map Lab's `terrain.f32` / `labels.u8` |
-| The tools | `tools/atlas.ts` (generate / publish / check), `tools/images.ts` (the phone copies in R2), `tools/deploy.sh` |
+| The tools | `tools/atlas.ts` (generate / publish / check), `tools/images.ts` (the phone copies in R2), `tools/deploy.sh` (`pnpm drafts:deploy`) |
+| The host | `wrangler.jsonc` (Worker `wildshard-drafts`, custom domain `drafts.wildshard.io`), `worker.ts` (`/media/<slug>/<hash>-<full or thumb>.webp` from the R2 key `drafts/…`; anything else under `/media/` is a 404 that never reads R2) |
 | Tests | `test/` (in `pnpm test`; `pnpm drafts:test` runs them with the typecheck and `atlas.ts --check`) |
 | Build, local preview | `pnpm drafts:build` (to `tmp/dist-drafts/`, `version.json` names HEAD), `pnpm drafts:dev` (localhost:5190; `/media/*` serves the pictures from `~/.cache/wildshard/drafts-blob-export/draft/` or `$DRAFTS_MEDIA_DIR`, laid out as the R2 keys under `drafts/`) |
 | Originals | where the run made them (DRAFTS D5): Thin Ice's are in the singleplayer checkout. The tools take `--sources <dir>`; without it the committed `atlas.json` and `images.json` stand in, so `--check` and the tests run anywhere |
@@ -39,8 +42,9 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
    (once each, content-hashed: a re-run uploads nothing new); `atlas.json` and `index.json` are regenerated. It exits 1
    and names the problem when a round has no README, a pick is not an item, or a picture has no copy.
 4. **Commit** the sources and the generated data (pathspec), push with `scripts/push-main.sh`.
-5. **At a step boundary, deploy:** `bash drafts/tools/deploy.sh` (it ships HEAD; run it with `run_in_background`). It
-   checks `https://wildshard-drafts.vercel.app/version.json` reports HEAD's sha.
+5. **At a step boundary, deploy:** `pnpm drafts:deploy` (it ships HEAD; run it with `run_in_background`). It builds a
+   clean export in `tmp/drafts-deploy`, runs `wrangler deploy` and checks `https://drafts.wildshard.io/version.json`
+   reports HEAD's sha.
 6. **Republish the draft's artifact page** (J25, J62): `node drafts/tools/artifact.ts <slug> <a scratchpad dir>`
    writes `index.html` and `img/*.webp` (the artifact frame loads no outside images, so the pictures ship as the
    page's files); publish `<dir>/index.html` with the Artifact tool, `root` = the dir, every `img/` file in `files`,
@@ -51,8 +55,7 @@ The game's COMING SOON card (W9) comes from the same index: `atlas.ts --engine <
 
 The upload is `wrangler r2 object put --remote` on wrangler's own login (`wrangler whoami` shows account
 `0a870ffdd1b0bca67f7fedad77f67957`); no key is kept in the repo. The site reads the pictures at `/media/<slug>/…`, which
-the drafts Worker answers from the R2 keys under `drafts/` (DRAFTS DR4). Until DR4, `deploy.sh` refuses to ship to
-Vercel: that site cannot serve `/media/`.
+the drafts Worker answers from the R2 keys under `drafts/` (DRAFTS DR4).
 
 ## A new draft
 

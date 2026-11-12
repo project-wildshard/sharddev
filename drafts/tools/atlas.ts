@@ -20,7 +20,7 @@ import { buildAtlas, publicLeaks } from './build-atlas.ts';
 import { publishImages } from './images.ts';
 import { loadDraft, OUT, readJson, ROOT, SHARDS } from './sources.ts';
 
-export const SITE = 'https://wildshard-drafts.vercel.app';
+export const SITE = 'https://drafts.wildshard.io';
 /** The game's cards need absolute picture URLs: the drafts Worker's origin (DRAFTS DR4), which serves MEDIA_BASE. DR5
  * replaces these with key-art copies in engine's public/drafts/. */
 export const MEDIA_ORIGIN = 'https://drafts.wildshard.io';

@@ -14,7 +14,7 @@ import { STAGES, TICKS, stageName, type Atlas, type Board, type Item } from '../
 import { THUMB_EDGE, toWebp, type ImageIndex } from './images.ts';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
-const SITE = 'https://wildshard-drafts.vercel.app';
+const SITE = 'https://drafts.wildshard.io';
 const MAX_FILES = 255;
 
 const esc = (s: string): string => s.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;');

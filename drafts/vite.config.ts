@@ -41,8 +41,8 @@ function draftsPwa(): Plugin {
     generateBundle(_options, bundle) {
       this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ build: BUILD, sha: SHA, time: new Date().toISOString() }) });
       const code = Object.keys(bundle).filter((f) => f !== 'index.html' && !f.endsWith('.map')).map((f) => `/${f}`);
-      // public/ files the app uses (vercel.json is the host's, not the app's)
-      const pub = walk(publicDir).map((p) => `/${relative(publicDir, p).split('\\').join('/')}`).filter((u) => u !== '/vercel.json');
+      // public/ files the app uses (the host's headers are drafts/worker.ts's, DRAFTS DR4)
+      const pub = walk(publicDir).map((p) => `/${relative(publicDir, p).split('\\').join('/')}`);
       const precache = ['/', ...code, ...pub];
       const source = readFileSync(join(root, 'src', 'sw.js'), 'utf8')
         .replace("'__BUILD__'", JSON.stringify(BUILD))

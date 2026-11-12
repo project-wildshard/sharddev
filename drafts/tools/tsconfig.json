@@ -7,5 +7,5 @@
     "erasableSyntaxOnly": true,
     "noEmit": true
   },
-  "include": [".", "../test", "../vite.config.ts"]
+  "include": [".", "../test", "../vite.config.ts", "../worker.ts"]
 }
