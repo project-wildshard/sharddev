@@ -47,6 +47,41 @@
       "x": -18,
       "z": 16,
       "r": 8
+    },
+    {
+      "id": "blob",
+      "name": "Grey blob",
+      "x": 0,
+      "z": -19,
+      "r": 4
+    },
+    {
+      "id": "mossgate",
+      "name": "Moss gate",
+      "x": -9,
+      "z": -5,
+      "r": 3
+    },
+    {
+      "id": "brazier-a",
+      "name": "Brazier A",
+      "x": -6.8,
+      "z": -1.4,
+      "r": 2
+    },
+    {
+      "id": "brazier-c",
+      "name": "Brazier C",
+      "x": -6.6,
+      "z": 10.7,
+      "r": 2
+    },
+    {
+      "id": "lamplighter",
+      "name": "Lamplighter",
+      "x": 2.6,
+      "z": -2.2,
+      "r": 2
     }
   ],
   "assetGlobs": [

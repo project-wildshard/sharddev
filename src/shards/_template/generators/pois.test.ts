@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import manifest from '../manifest.json' with { type: 'json' };
+import card from '../data/card.json' with { type: 'json' };
 import { templateHeightAt } from './landscape';
 
 // TEMPLATE-E2E S-T1.0: the test yard. Every station within 25 m of spawn has a named POI, so a Template 1 spec walks to
@@ -64,6 +65,11 @@ test('each yard station has a named POI on it, and poseAt resolves it within 25 
     for (const v of [pose.x, pose.y, pose.z, pose.yaw]) expect(Number.isFinite(v), `poseAt(${id})`).toBe(true);
     expect(fromSpawn(pose.x, pose.z), `poseAt(${id}) from spawn`).toBeLessThanOrEqual(YARD);
   }
+});
+
+test('the shardfile card carries the same POIs as the manifest', () => {
+  // `generators/product.ts` ships `data/card.json` as the shardfile's manifest; the build refuses a manifest that differs.
+  expect(card.pois).toStrictEqual(manifest.pois);
 });
 
 test('poseAt refuses a name that is not a POI', () => {
