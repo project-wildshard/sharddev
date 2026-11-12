@@ -89,17 +89,20 @@
     {
       "id": "template.brazier-a.use",
       "radius": 2.5,
-      "scene": "template.brazier-a.light"
+      "scene": "template.brazier-a.light",
+      "unless": "template.brazier-a.lit"
     },
     {
       "id": "template.brazier-b.use",
       "radius": 2.5,
-      "scene": "template.brazier-b.light"
+      "scene": "template.brazier-b.light",
+      "unless": "template.brazier-b.lit"
     },
     {
       "id": "template.brazier-c.use",
       "radius": 2.5,
-      "scene": "template.brazier-c.light"
+      "scene": "template.brazier-c.light",
+      "unless": "template.brazier-c.lit"
     }
   ],
   "talk": {
