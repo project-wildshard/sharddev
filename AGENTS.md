@@ -15,7 +15,7 @@
 Git hygiene
 
  - Small Commit early & often.
- - main branch only, no worktrees, no branches, multiple agents main branch only.
+ - Shared-checkout work commits on main. Plan work may instead use a plan worktree and `land` (J240): `node scripts/worktree.mjs new <slug>` makes `.worktrees/<slug>` on `plan/<slug>`; commit there by pathspec, then `WS_LANE_NAME=<lane> node scripts/land.mjs` pushes the branch, waits for its exact-SHA `ci` (land.config.json), rebases and fast-forwards main. Never hand-push a plan branch to main, never `--no-verify` or `SKIP_*`; `--force-with-lease` only on your own `plan/*` branch. No other branches or worktrees.
  - Use pre-commit & pre-push git hooks for keeping checks/quality/lints etc.
  - Push often after every commit.
  - Every meaningful commit writes a journal into project/journal, the why & informal.
