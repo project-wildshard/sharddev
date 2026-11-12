@@ -16,6 +16,9 @@ this repo's own decisions are D-numbers.
   `project/journal/` entry (from greenroom; `.githooks/pre-commit`).
 - **D27**: 2026-11-04: main only: no branches, no worktrees, every
   agent commits on `main` by pathspec (from greenroom).
+  Replaced for plan work by J240/J290 (2026-11-12): a plan may use
+  `.worktrees/<slug>` on `plan/<slug>`, pushed and landed only by
+  `land`; everything else still commits on `main`.
 - **D28**: 2026-11-05: lint is the strictest of greenroom and
   wildshard-singleplayer (every oxlint category denied, type-aware, warnings
   denied, unused disable directives are errors, `import/no-nodejs-modules`
