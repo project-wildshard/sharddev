@@ -74,11 +74,20 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   // Mossgate Hollow v3 (MH-2): brazier A's flame, a panel the shared field `template.brazier-a` shows, and the moss gate
   // it opens (a panel and collider the same field hides). The fire's colour is the client script's particles: the measure
   // look gives every surface its role colour, so the flame shape itself reads as stone.
+  // B and C (MH-3) burn particles only: a panel costs its L0 tile two draws, and tile 0/4/3 is at its cap of 8.
   const [ax = 3, az = -6] = layout.BRAZIERS[0] ?? [], flame = brazierFlame(ax, heightAt(ax, az) + 1.5, az);
   ctx.root.add(flame); ctx.piece({ id: 'template.brazier-a.flame', name: 'Brazier A flame', category: 'props', file, object: flame });
   const gate = mossGate(heightAt);
   ctx.root.add(gate.frame); ctx.piece({ id: 'template.mossgate-frame', name: 'Moss gate frame', category: 'buildings', file, object: gate.frame, colliders: gate.frameColliders, surface: 'stone' });
   ctx.root.add(gate.panel); ctx.piece({ id: 'template.mossgate', name: 'Moss gate', category: 'nature', file, object: gate.panel, colliders: gate.panelColliders, active: () => true });
+  // Mossgate Hollow v3 (MH-3): brazier B's field raises the pond's stones out of the water, and brazier C's takes away the
+  // bars across the arena's one way in. The sunken stones are static (no collider), so the raised panel covers them.
+  const stones = pondStones();
+  ctx.root.add(stones.raised); ctx.piece({ id: 'template.pond-stones', name: 'Pond stepping stones', category: 'nature', file, object: stones.raised, colliders: stones.colliders, active: () => false });
+  ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk, surface: 'stone' });
+  const arena = arenaRing(heightAt);
+  ctx.root.add(arena.wall); ctx.piece({ id: 'template.arena-wall', name: 'Arena wall', category: 'buildings', file, object: arena.wall, colliders: arena.wallColliders, surface: 'stone' });
+  ctx.root.add(arena.gate); ctx.piece({ id: 'template.arena-gate', name: 'Arena gate', category: 'buildings', file, object: arena.gate, colliders: arena.gateColliders, active: () => true });
   const dressing = mossgateDressing(heightAt);
   ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
   const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
@@ -183,6 +192,56 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
   panel.add(block(0.24, 2.9, 2.4, 2, x, y + 1.75, z));
   for (let k = 0; k < 7; k++) { const h = 0.6 + (jitter(k, 70) + 1) * 0.5, sz = z - 1.05 + k * 0.35; panel.add(block(0.32, h, 0.18, 2, x + 0.04 * jitter(k, 71), y + 3.2 - h / 2, sz)); }
   return { frame, panel, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, 1.2)] };
+}
+
+type Colliders = NonNullable<TemplatePart['colliders']>;
+/** A stone box collider at (x, y, z), half sizes `hx`, `hy`, `hz`, turned `yaw`. */
+const stoneBox = (x: number, y: number, z: number, hx: number, hy: number, hz: number, yaw = 0): Colliders[number] =>
+  BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: yaw === 0 ? -0 : yaw, surface: 'stone' }).toColliderData();
+/**
+ * The moss bridge (MH-3): five stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
+ * `raised` stands their moss-capped tops 0.1 m over the water, with colliders, for brazier B's field to show; `sunk` is the
+ * same pillars, a little thinner and 1.4 m under, with no collider, so before B the walk ends in the water.
+ */
+export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders } {
+  const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], BED = -3, w = 1.75;
+  for (let i = 0; i < 5; i++) {
+    const x = cx - 4.1 + i * 2.05, z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
+    for (const [root, top, s] of [[raised, 0.1, w], [sunk, -1.4, w - 0.2]] as const) {
+      const h = top - BED - 0.1;
+      root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw), block(s + 0.1, 0.1, s + 0.1, 2, x, top - 0.05, z, yaw));
+    }
+    colliders.push(stoneBox(x, (0.1 + BED) / 2, z, w / 2, (0.1 - BED) / 2, w / 2, yaw));
+  }
+  return { raised, sunk, colliders };
+}
+/**
+ * The arena (MH-3): a 3.2 m stone ring at `layout.ARENA` round the boss's floor, twenty segments with the one facing spawn
+ * left out as the way in. Two posts and a lintel frame it, and `gate` (bars, a panel with its own collider) shuts it
+ * until brazier C's field takes it away. It sits north-west of spawn so the gate's panel lands in L0 tile 0/3/4, the
+ * one tile there with two draws to spare.
+ */
+export function arenaRing(heightAt: (x: number, z: number) => number): { wall: Group; gate: Group; wallColliders: Colliders; gateColliders: Colliders } {
+  const { x: cx, z: cz, radius: r } = layout.ARENA, wall = new Group(), gate = new Group(), wallColliders: Colliders = [], N = 20, H = 3.2;
+  const door = Math.atan2(-cx, -cz), len = 2 * r * Math.sin(Math.PI / N) + 0.2;
+  for (let k = 1; k < N; k++) {
+    const a = door + (k / N) * Math.PI * 2, x = cx + r * Math.sin(a), z = cz + r * Math.cos(a), y = heightAt(x, z) - 0.2;
+    wall.add(block(len, H, 0.7, 1, x, y + H / 2, z, a), block(len + 0.05, 0.14, 0.86, 2, x, y + H + 0.07, z, a));
+    wallColliders.push(stoneBox(x, y + H / 2, z, len / 2, H / 2, 0.35, a));
+  }
+  // the way in: posts at the gap's two ends, a lintel over it, and the bars between, all in the gap's own frame
+  const half = r * Math.sin(Math.PI / N), inner = r * Math.cos(Math.PI / N), at = (along: number): [number, number] =>
+    [cx + inner * Math.sin(door) + along * Math.cos(door), cz + inner * Math.cos(door) - along * Math.sin(door)];
+  const [gx, gz] = at(0), gy = heightAt(gx, gz) - 0.2;
+  for (const side of [-1, 1]) {
+    const [px, pz] = at(side * half);
+    wall.add(block(0.9, H + 0.8, 0.9, 1, px, gy + (H + 0.8) / 2, pz, door), block(1.0, 0.14, 1.0, 2, px, gy + H + 0.87, pz, door));
+    wallColliders.push(stoneBox(px, gy + (H + 0.8) / 2, pz, 0.45, (H + 0.8) / 2, 0.45, door));
+  }
+  wall.add(block(half * 2 + 0.9, 0.5, 0.8, 1, gx, gy + H + 0.55, gz, door));
+  for (let k = 0; k < 7; k++) { const [bx, bz] = at(-half + 0.45 + (k + 0.5) * (half * 2 - 0.9) / 7); gate.add(block(0.14, H - 0.1, 0.14, 2, bx, gy + (H - 0.1) / 2, bz, door)); }
+  for (const y of [0.5, 1.7, 2.8]) gate.add(block(half * 2 - 0.9, 0.12, 0.1, 2, gx, gy + y, gz, door));
+  return { wall, gate, wallColliders, gateColliders: [stoneBox(gx, gy + H / 2, gz, half - 0.45, H / 2, 0.15, door)] };
 }
 
 /** The jump course's three practice pads, `baseHeight` up at `x`. */

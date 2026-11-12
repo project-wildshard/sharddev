@@ -12,6 +12,18 @@
         "scope": "shared",
         "fieldId": 102,
         "equals": 1
+      },
+      {
+        "id": "template.brazier-b.lit",
+        "scope": "shared",
+        "fieldId": 103,
+        "equals": 1
+      },
+      {
+        "id": "template.brazier-c.lit",
+        "scope": "shared",
+        "fieldId": 104,
+        "equals": 1
       }
     ],
     "scenes": [
@@ -34,6 +46,16 @@
         "id": "template.brazier-a.light",
         "type": 202,
         "value": 1
+      },
+      {
+        "id": "template.brazier-b.light",
+        "type": 203,
+        "value": 1
+      },
+      {
+        "id": "template.brazier-c.light",
+        "type": 204,
+        "value": 1
       }
     ]
   },
@@ -52,6 +74,20 @@
       {
         "id": 102,
         "name": "template.brazier-a",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
+      },
+      {
+        "id": 103,
+        "name": "template.brazier-b",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
+      },
+      {
+        "id": 104,
+        "name": "template.brazier-c",
         "type": "bool",
         "privacy": "public",
         "default": false

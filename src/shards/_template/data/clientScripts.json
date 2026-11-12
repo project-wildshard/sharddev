@@ -159,6 +159,146 @@
             "gravity": 0
           }
         ]
+      },
+      {
+        "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+        "entity": 5,
+        "name": "brazier-b.flame",
+        "target": {
+          "kind": "particles",
+          "id": "template.brazier-b.flame",
+          "at": [
+            6.5,
+            1.6,
+            -6
+          ]
+        },
+        "reads": [
+          {
+            "scope": "shared",
+            "id": 103
+          }
+        ],
+        "parameters": [
+          3,
+          2,
+          2,
+          1
+        ],
+        "pose": false,
+        "maxOffset": 0,
+        "minScale": 1,
+        "maxScale": 1,
+        "emitters": [
+          {
+            "id": 1,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 40,
+            "colour": [
+              1,
+              0.52,
+              0.1
+            ],
+            "size": 0.9,
+            "velocity": [
+              0,
+              1.1,
+              0
+            ],
+            "gravity": 0
+          },
+          {
+            "id": 2,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 28,
+            "colour": [
+              1,
+              0.85,
+              0.3
+            ],
+            "size": 0.6,
+            "velocity": [
+              0,
+              1.6,
+              0
+            ],
+            "gravity": 0
+          }
+        ]
+      },
+      {
+        "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+        "entity": 6,
+        "name": "brazier-c.flame",
+        "target": {
+          "kind": "particles",
+          "id": "template.brazier-c.flame",
+          "at": [
+            10,
+            1.6,
+            -6
+          ]
+        },
+        "reads": [
+          {
+            "scope": "shared",
+            "id": 104
+          }
+        ],
+        "parameters": [
+          3,
+          2,
+          2,
+          1
+        ],
+        "pose": false,
+        "maxOffset": 0,
+        "minScale": 1,
+        "maxScale": 1,
+        "emitters": [
+          {
+            "id": 1,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 40,
+            "colour": [
+              1,
+              0.52,
+              0.1
+            ],
+            "size": 0.9,
+            "velocity": [
+              0,
+              1.1,
+              0
+            ],
+            "gravity": 0
+          },
+          {
+            "id": 2,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 28,
+            "colour": [
+              1,
+              0.85,
+              0.3
+            ],
+            "size": 0.6,
+            "velocity": [
+              0,
+              1.6,
+              0
+            ],
+            "gravity": 0
+          }
+        ]
       }
     ]
   }

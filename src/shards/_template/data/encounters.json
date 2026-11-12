@@ -47,9 +47,9 @@
       "retry": "Try the big blob again",
       "arena": {
         "at": [
-          -15,
+          -18,
           0,
-          -20
+          16
         ],
         "radius": 8
       },
