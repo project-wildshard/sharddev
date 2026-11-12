@@ -22,7 +22,7 @@ afterEach(() => { for (const directory of directories.splice(0)) rmSync(director
 function root(): string { mkdirSync('tmp', { recursive: true }); const path = mkdtempSync(resolve('tmp', 'server-class-')); directories.push(path); return path; }
 const MARK = new TextEncoder().encode('server-class-only-bytes-never-in-a-client-pack');
 
-/** One product with a client file (library, small enough to pack) and one server-class binary. */
+/** One product with a client file (library) and one server-class binary. */
 function product(destination: string) {
   const shard = emptyShardfile({ slug: 'server-class', name: 'Server class', author: 'Test', revision: 1, seed: 3 });
   const client = new Uint8Array([1, 2, 3]), hash = hashImmutableBytes(client);
@@ -34,14 +34,11 @@ function product(destination: string) {
 const every = (folder: string): string[] => readdirSync(folder, { recursive: true, withFileTypes: true }).filter(row => row.isFile()).map(row => join(row.parentPath, row.name));
 const holds = (bytes: Uint8Array): boolean => Buffer.from(bytes).includes(Buffer.from(MARK));
 
-it('lists a server file in the index, validated and hashed, but never in its client files or packs', () => {
+it('lists a server file in the index, validated and hashed, but never in its client files', () => {
   const directory = root(), { server, index } = product(directory);
   expect(index.admission.server).toEqual([server.file]);
   expect(existsSync(resolve(directory, server.file.path))).toBe(true);
   expect(index.files.map(file => file.hash)).not.toContain(server.file.hash);
-  expect((index.packs ?? []).flatMap(pack => pack.entries.map(entry => entry.hash))).not.toContain(server.file.hash);
-  for (const pack of index.packs ?? []) expect(holds(readFileSync(resolve(directory, pack.path)))).toBe(false);
-  expect(index.packs?.length).toBeGreaterThan(0);
 
   const validated = validateOutputProduct(directory);
   expect(validated.shard.files.map(file => file.hash)).not.toContain(server.file.hash);

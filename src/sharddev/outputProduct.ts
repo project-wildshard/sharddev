@@ -1,6 +1,4 @@
 import { ktx2DeviceCosts } from '@wildshard/format/ktx2Cost';
-import { controlFileHashes, playLibrarySteps } from '@wildshard/format/admissionControl';
-import { entryFileSteps } from '@wildshard/format/tierSelection';
 import { HEADLESS_CONTEXT_SECTIONS } from '@wildshard/engine/host/headlessSections';
 import {publishedSourceResidency} from '@wildshard/format/sourceResidency';
 import {postStackCost} from '@wildshard/format/postStack';
@@ -31,8 +29,6 @@ import { parseDiscoveryValues, type DiscoveryValues } from '@wildshard/format/di
 import { checkWorldTargets, outputBlobExtension as blobExtension, outputBlobKind as blobKind, readCanonicalJson as readJson, validateShardfileProduct, type ProductFiles, type ValidatedProduct } from '@wildshard/format/productValidation';
 
 const encoder = new TextEncoder();
-/** I5: larger encoded textures use separate envelopes; existing small packs stay stable. */
-const SMALL_PACK_MEMBER_BYTES = 1_048_576, PACK_BYTES = 4_194_304;
 function jsonBytes(value: unknown): Uint8Array { return encoder.encode(encodeCanonicalJson(value)); }
 function put(destination: string, path: string, bytes: Uint8Array): void { const target = resolve(destination,path); mkdirSync(dirname(target),{recursive:true});writeFileSync(target,bytes); }
 /** Optional build-only extensions. Runtime bytes themselves are written by the P3 copier. */
@@ -41,7 +37,7 @@ export interface OutputProductOptions {
   readonly discovery?: DiscoveryValues;
   readonly platform?: EmittedSections;
   readonly namedFiles?: readonly OutputFile[];
-  /** J91: server-class files. They enter the index's `admission.server`, never `files` or a pack. */
+  /** J91: server-class files. They enter the index's `admission.server`, never `files`. */
   readonly server?: readonly ServerBlob[];
   readonly runtime?: { readonly files: readonly NonNullable<OutputIndex['runtime']>['files'][number][]; readonly lines: number };
   /** C0 (J137): the files and hints that let this product stand alone (`cook.json`). */
@@ -130,78 +126,16 @@ export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Ui
     const bytes=emitted.get(file.path);if(bytes===undefined)throw new Error('Missing KTX2 cost bytes');
     ktx2Costs[file.hash]=ktx2DeviceCosts(bytes);
   }
-  // iPhone downloads I5: the sections, schemas and small files again as a few content-hashed packs, so a reader fetches
-  // one pack instead of hundreds of files; every member keeps its own path, which stays on disk for any other reader
-  const packs:{path:string;hash:string;bytes:number;entries:{hash:string;offset:number;bytes:number}[]}[]=[],packed=new Set<string>();
-  // Descriptor, required-body and deferred-body reads are distinct phases. A required member must never bring
-  // late/spatial bytes along in its pack; every member keeps its unchanged path/hash, and all pack caps stay fixed.
-  // Explicit device variants also stay apart: selecting a phone member cannot fetch a packed desktop alternative.
-  // Keep the author tables' consumer order inside each existing phase/tier
-  // group. Runtime read-ahead can then request adjacent members without gaps.
-  const consumerNames = new Map<string, string>();
-  for (const file of files) for (const name of [file.hash, file.path, ...file.name === undefined ? [] : [file.name]]) consumerNames.set(name, file.hash);
-  const order = new Map<string, number>();
-  const note = (references: unknown): void => {
-    const pending: unknown[] = [references];
-    while (pending.length > 0) {
-      const value = pending.pop();
-      if (typeof value === 'string') { const hash = consumerNames.get(value); if (hash !== undefined && !order.has(hash)) order.set(hash, order.size); }
-      else if (value !== null && typeof value === 'object') {
-        const children: readonly unknown[] = Array.isArray(value) ? value : Object.values(value);
-        for (let i = children.length - 1; i >= 0; i--) pending.push(children[i]);
-      }
-    }
-  };
-  for (const row of options.platform?.sections ?? []) {
-    const bytes = emitted.get(row.path); if (bytes === undefined) throw new Error('Missing pack consumer section');
-    note(readJson(bytes));
-  }
-  note(source.props?.tiles); note(source.tiles);
-  const packable = files.filter(file=>file.compressed<SMALL_PACK_MEMBER_BYTES || file.kind==='ktx2'&&file.compressed<=PACK_BYTES).sort((a,b)=>(order.get(a.hash) ?? Infinity)-(order.get(b.hash) ?? Infinity)
-    || (a.name ?? a.hash).localeCompare(b.name ?? b.hash) || a.hash.localeCompare(b.hash));
-  // A typed alternative need not have an explicit file.tier. Use the same entry
-  // projection as admission so an inactive variant cannot poison a whole pack.
-  const selection = { index: { files }, sections: new Map(sections.map(row => {
-    const bytes = emitted.get(row.path); if (bytes === undefined) throw new Error('Missing pack selection section');
-    return [row.name, readJson(bytes)] as const;
-  })) };
-  const excluded = (tier: 'phone' | 'desktop'): ReadonlySet<string> => {
-    const steps = entryFileSteps(source, tier, selection);
-    for (;;) { const step = steps.next(); if (step.done === true) return step.value; }
-  };
-  const play = playLibrarySteps(source, selection);
-  let projected = play.next(); while (projected.done !== true) projected = play.next();
-  const cold = projected.value;
-  const required = controlFileHashes({ ...source, library: source.library.filter(hash => !cold.has(hash)) });
-  const phone = excluded('phone'), desktop = excluded('desktop');
-  const membership = (hash: string): number => (phone.has(hash) ? 0 : 1) + (desktop.has(hash) ? 0 : 2);
-  const groups=[[...[...sections].sort((a,b)=>a.name.localeCompare(b.name)),...[...schemas].sort((a,b)=>a.path.localeCompare(b.path))],
-    ...[true,false].flatMap(initial=>[undefined,'phone','desktop'].flatMap(tier=>[0,1,2,3].flatMap(mask=>[false,true].map(large=>packable.filter(file=>required.has(file.hash)===initial&&file.tier===tier&&membership(file.hash)===mask&&(file.compressed>=SMALL_PACK_MEMBER_BYTES)===large).map(file=>({path:file.path,hash:file.hash,bytes:file.compressed})))) ) )];
-  let pending:{path:string;hash:string;bytes:number}[]=[],pendingBytes=0;
-  const flush=():void=>{
-    if(pending.length===0)return;
-    const bytes=new Uint8Array(pendingBytes),entries:{hash:string;offset:number;bytes:number}[]=[];let offset=0;
-    for(const member of pending){const part=emitted.get(member.path);if(part===undefined||part.length!==member.bytes)throw new Error('Pack member bytes missing');bytes.set(part,offset);entries.push({hash:member.hash,offset,bytes:member.bytes});offset+=member.bytes;}
-    const hash=hashAssetBytes(bytes),path=`blobs/pack/${hash}.pack`;emitted.set(path,bytes);packs.push({path,hash,bytes:bytes.length,entries});pending=[];pendingBytes=0;
-  };
-  for(const members of groups){
-    for(const member of members){
-      if(packed.has(member.hash))continue;packed.add(member.hash);
-      if(pendingBytes+member.bytes>PACK_BYTES)flush();
-      pending.push(member);pendingBytes+=member.bytes;
-    }
-    flush();
-  }
   const cook=cookRow(options.cook,emitted,files);
   const {spawns:_spawns,...runtime} = source.runtime ?? {};
   const index = parseOutputIndex({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,identity:source.identity,requires:source.requires,
     build:{sourceHash:hashImmutableBytes(jsonBytes(source)),validator:validationRevision() ?? 'source'},admission:{budgets:source.budgets,serverBudget:source.serverBudget,authorCaps:source.authorCaps,critical:source.critical,library:source.library,...(source.late===undefined?{}:{late:source.late}),...(options.server===undefined||options.server.length===0?{}:{server:options.server.map(blob=>blob.file).sort((a,b)=>a.name.localeCompare(b.name))})},
     ...(Object.keys(ktx2Costs).length===0?{}:{ktx2Costs}),
-    sections:sections.sort((a,b)=>a.name.localeCompare(b.name)),schemas:schemas.sort((a,b)=>a.path.localeCompare(b.path)),files:files.sort((a,b)=>a.hash.localeCompare(b.hash)||a.path.localeCompare(b.path)),...(packs.length===0?{}:{packs}),...(cook===undefined?{}:{cook}),runtime:source.runtime === null ? null : {...runtime,trust:'first-party',files:options.runtime?.files ?? [],lines:options.runtime?.lines ?? 0}});
+    sections:sections.sort((a,b)=>a.name.localeCompare(b.name)),schemas:schemas.sort((a,b)=>a.path.localeCompare(b.path)),files:files.sort((a,b)=>a.hash.localeCompare(b.hash)||a.path.localeCompare(b.path)),...(cook===undefined?{}:{cook}),runtime:source.runtime === null ? null : {...runtime,trust:'first-party',files:options.runtime?.files ?? [],lines:options.runtime?.lines ?? 0}});
   // A writer owns this product directory, never a source folder. Preserve only the
   // already-copied runtime files; refuse unrelated leftovers in validation below.
   mkdirSync(destination,{recursive:true});
-  // I5: a pack's hash follows every member, so a rewrite into the same product leaves no stale pack behind
+  // S5: engine cooks packs from the raw upload, so a product holds none; clear any an older writer left here
   rmSync(resolve(destination,'blobs/pack'),{recursive:true,force:true});
   for (const [path,bytes] of emitted) put(destination,path,bytes);
   put(destination,'shard.json',jsonBytes(index));

@@ -54,12 +54,10 @@ export async function crawlEntryReadSet(entries: readonly EntryCrawlRegion[], po
 export interface EntryCrawlDemand { readonly url: string; readonly range?: string }
 export interface EntryCrawlInventory {
   readonly files: readonly { readonly path: string; readonly hash: string; readonly compressed: number }[];
-  readonly packs?: readonly { readonly path: string; readonly bytes: number; readonly entries: readonly { readonly hash: string; readonly offset: number; readonly bytes: number }[] }[];
 }
 
-/** Expand observed pack ranges to the exact declared file members they covered.
- * Metadata sections are already acquired by admission. Partial members refuse;
- * an entry hint must never replace a range with an unrelated full-pack fetch. */
+/** The product files and `/assets/` URLs an entry demanded, in first-demand order. Metadata sections are already
+ * acquired by admission. SHARD-SIZE S5: a product holds no packs, so every demand names one file. */
 export function entryDemandUrls(slug: string, inventory: EntryCrawlInventory, demands: readonly EntryCrawlDemand[]): readonly string[] {
   if (!/^[a-zA-Z0-9_-]+$/u.test(slug)) throw new Error('Canonical entry slug required');
   const prefix = `/shardfiles/${slug}/`, result = new Set<string>();
@@ -68,24 +66,8 @@ export function entryDemandUrls(slug: string, inventory: EntryCrawlInventory, de
     if (path.endsWith('/entry-reads.json') || /\.(?:js|css|wasm)$/u.test(path)) continue;
     if (path.startsWith('/assets/')) { result.add(url); continue; }
     if (!path.startsWith(prefix)) continue;
-    const relative = path.slice(prefix.length), pack = inventory.packs?.find(row => row.path === relative);
-    if (pack === undefined) {
-      if (inventory.files.some(file => file.path === relative)) result.add(url);
-      continue;
-    }
-    const match = demand.range === undefined ? null : /^bytes=(\d+)-(\d+)$/u.exec(demand.range);
-    if (demand.range !== undefined && match === null) throw new Error('Entry pack requires one bounded range');
-    const start = match === null ? 0 : Number(match[1]), end = match === null ? pack.bytes : Number(match[2]) + 1;
-    if (!Number.isSafeInteger(start) || !Number.isSafeInteger(end) || start < 0 || end <= start || end > pack.bytes) throw new Error('Entry pack range outside its inventory');
-    for (const member of pack.entries) {
-      const limit = member.offset + member.bytes;
-      if (limit <= start || member.offset >= end) continue;
-      if (member.offset < start || limit > end) throw new Error('Entry pack range cuts a member');
-      const file = inventory.files.find(row => row.hash === member.hash);
-      if (file === undefined) continue;
-      if (file.compressed !== member.bytes) throw new Error('Entry pack file size differs');
-      result.add(`${prefix}${file.path}`);
-    }
+    const relative = path.slice(prefix.length);
+    if (inventory.files.some(file => file.path === relative)) result.add(url);
   }
   return [...result];
 }
