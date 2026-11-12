@@ -39,12 +39,12 @@
     },
     {
       "id": "template.boss",
-      "entity": "big-blob",
+      "entity": "barrow-warden",
       "kind": "boss",
-      "panel": "big-blob-panel",
-      "name": "Big blob",
-      "title": "Two-phase teaching encounter",
-      "retry": "Try the big blob again",
+      "panel": "warden-panel",
+      "name": "Barrow Warden",
+      "title": "Keeper of the hollow",
+      "retry": "Try the Barrow Warden again",
       "arena": {
         "at": [
           -18,
@@ -73,7 +73,7 @@
           "turnRate": 4
         },
         {
-          "at": 0.5,
+          "at": 0.6,
           "name": "Second phase",
           "caption": "Second phase",
           "speed": 2.5,
@@ -86,11 +86,11 @@
   "ui": [
     {
       "kind": "bossPanel",
-      "id": "big-blob-panel",
+      "id": "warden-panel",
       "encounter": "template.boss",
-      "name": "Big blob",
-      "title": "Two-phase teaching encounter",
-      "retry": "Try the big blob again"
+      "name": "Barrow Warden",
+      "title": "Keeper of the hollow",
+      "retry": "Try the Barrow Warden again"
     }
   ]
 }

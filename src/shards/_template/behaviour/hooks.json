@@ -91,6 +91,20 @@
         "type": "bool",
         "privacy": "public",
         "default": false
+      },
+      {
+        "id": 110,
+        "name": "template.warden-tell",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
+      },
+      {
+        "id": 111,
+        "name": "template.warden-core",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
       }
     ],
     "player": [

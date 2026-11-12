@@ -47,13 +47,13 @@
       "yaw": 0
     },
     {
-      "id": "big-blob",
+      "id": "barrow-warden",
       "species": "grey-blob",
-      "variant": "big",
+      "variant": "warden",
       "brain": null,
-      "strike": "template.blob.bump",
+      "strike": "template.warden.slam",
       "seed": 437,
-      "scale": 1.8,
+      "scale": 2.2,
       "at": [
         -18,
         0,

@@ -34,6 +34,9 @@ const BRAZIER_FLAMES = ['template.brazier-a.flame', 'template.brazier-b.flame', 
 /** MH-3's share of the resident library budget: braziers B and C's particle pools (2 × 2 emitters × 96 live). Measured on the
  *  build: the compendium sketch check passes at 100 000 and refuses at 75 000. */
 const MH3_LIBRARY_RESIDENT = 100_000;
+/** MH-4's share: the Warden's ring (12 anchors × 32 live) and core (2 × 64 live) particle pools. Measured on the build:
+ *  the sketch check passes at 45 000 and refuses at 30 000; 60 000 leaves a margin. */
+const MH4_LIBRARY_RESIDENT = 60_000;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
 const TEMPLATE_ROWS = parseRows(rows);
 /** Assemble the original authored product from this build's terrain rows. */
@@ -75,7 +78,7 @@ const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as con
 // Retain the old producer's JSON boundary, including signed-zero normalization.
 // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
-  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
+  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
   look: TEMPLATE_LOOK, spawn: SPAWN, rows: { ...TEMPLATE_ROWS, looks: TEMPLATE_SKIN_LOOKS }, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
   terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,

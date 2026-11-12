@@ -46,8 +46,8 @@ importers:
         specifier: 1.8.0
         version: 1.8.0(valibot@1.5.0(typescript@7.0.2))
       '@wildshard/engine':
-        specifier: github:project-wildshard/engine#80d5cc0d8d5faa1336708eeee10359f30a715204
-        version: https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(typescript@7.0.2)
+        specifier: github:project-wildshard/engine#29f086d07c2a82d4d7b29f4bbc697e8e5725a4be
+        version: https://codeload.github.com/project-wildshard/engine/tar.gz/29f086d07c2a82d4d7b29f4bbc697e8e5725a4be(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)
       '@wildshard/format':
         specifier: github:project-wildshard/shardfile#4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3
         version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)
@@ -631,21 +631,29 @@ packages:
   '@vitest/spy@5.0.1':
     resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
 
-  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204':
-    resolution: {gitHosted: true, integrity: sha512-Pfuo9HgrfPnCmAnknqYfsyjYD0/n/Ne9V9BeHNAJ4CmlR4KtZphA/SeBXjSosRzlrR+fNF7fq3Ehl9uZrZuatw==, tarball: https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204}
-    version: 0.1.2
+  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/29f086d07c2a82d4d7b29f4bbc697e8e5725a4be':
+    resolution: {gitHosted: true, integrity: sha512-xcJGYEjVsF4I/DAaBsoko3OEIns4B4QTvkxmgFdYIFvTHa36n13CmXeO1kAkU8fCFiR9T2g+GtOoi5WeTRje4w==, tarball: https://codeload.github.com/project-wildshard/engine/tar.gz/29f086d07c2a82d4d7b29f4bbc697e8e5725a4be}
+    version: 0.1.10
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
       '@types/three': '*'
+      sharp: 0.35.5
     peerDependenciesMeta:
       '@types/three':
+        optional: true
+      sharp:
         optional: true
 
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3':
     resolution: {gitHosted: true, integrity: sha512-jiHVEJ6DgEyBBy2naiSkzRxQUJ07KMf7IzT7/emPx+7HK02lzynhPxmD5Sn6+XcFFsDjPJXUm65IGbBYsmkfdg==, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3}
     version: 0.4.2
     engines: {node: '>=24.18.0'}
+    hasBin: true
+
+  '@wildshard/wire@https://codeload.github.com/project-wildshard/shardfile/tar.gz/a51f56fbe54197b879fa309a1b1946df7384d576#path:/packages/wire':
+    resolution: {gitHosted: true, path: /packages/wire, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/a51f56fbe54197b879fa309a1b1946df7384d576}
+    version: 0.0.0
     hasBin: true
 
   ajv@6.15.0:
@@ -914,6 +922,40 @@ packages:
       vite-plus:
         optional: true
 
+  pg-cloudflare@1.4.1:
+    resolution: {integrity: sha512-6PQbsFWZcp9EmJEwy5cGQ2La+AMWpP46lgbb8X+U/XsHIUweYDNCpeuKck5RxL2MdVFi7krbbEi5nX4Zh7JhrQ==}
+
+  pg-connection-string@2.14.1:
+    resolution: {integrity: sha512-qR3kGNPBLpCNtz0evbKA0Y/MRFXwSSdT+pTJvYp/bXTcReZbvX1kzF0IyTc1QnxqF7AZbOeBhNL8R5mYQZV/MA==}
+
+  pg-int8@1.0.1:
+    resolution: {integrity: sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==}
+    engines: {node: '>=4.0.0'}
+
+  pg-pool@3.14.0:
+    resolution: {integrity: sha512-gKtPkFdQPU3DksooVLi9LsjZxrsBUZIpa+7aVx+LV5pNh0KzP4Zleud2po+ConrxbuXGBJ6Hfer6hdgpIBpBaw==}
+    peerDependencies:
+      pg: '>=8.0'
+
+  pg-protocol@1.16.1:
+    resolution: {integrity: sha512-p9VOFMiHB/ZbJATetbg+99PxssTVSQRnyuPSQ67mN1+1KBOjZaZ83ZQzltnxPhJwSsC3nwVjJ10DVJlerbFzLg==}
+
+  pg-types@2.2.0:
+    resolution: {integrity: sha512-qTAAlrEsl8s4OiEQY69wDvcMIdQN6wdz5ojQiOy6YRMuynxenON0O5oCpJI6lshc6scgAY8qvJ2On/p+CXY0GA==}
+    engines: {node: '>=4'}
+
+  pg@8.23.1:
+    resolution: {integrity: sha512-aL96AHANtWjPLDOLqnhx+ngp9+UK7ETEU8VJrDCGvsSSi/mGLcWYsS6Herg7lmaBJe4uwrfqsa7gTEFaSizDoQ==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
+  pgpass@1.0.5:
+    resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
+
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
 
@@ -935,6 +977,22 @@ packages:
   postcss@8.5.32:
     resolution: {integrity: sha512-LJlKCCAUFKOuZxipUdYw1NzIITEsPcgyOG9LkvRJvuKj/bRzbuRY0ARXvL0pWGpsZvn8jku+LMep2eU0seHp8g==}
     engines: {node: ^10 || ^12 || >=14}
+
+  postgres-array@2.0.0:
+    resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
+    engines: {node: '>=4'}
+
+  postgres-bytea@1.0.1:
+    resolution: {integrity: sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-date@1.0.7:
+    resolution: {integrity: sha512-suDmjLVQg78nMK2UZ454hAG+OAW+HQPZ6n++TNDUX+L0+uUlLywnoxJKDou51Zm+zTCjrCl0Nq6J9C5hP9vK/Q==}
+    engines: {node: '>=0.10.0'}
+
+  postgres-interval@1.2.0:
+    resolution: {integrity: sha512-9ZhXKM/rw350N1ovuWHbGxnGh/SNJ4cnxHiM0rxE4VN41wsg8P8zWn9hv/buK00RP4WvlOyr/RBDiptyxVbkZQ==}
+    engines: {node: '>=0.10.0'}
 
   postprocessing@6.39.5:
     resolution: {integrity: sha512-YmH+t74J2X1lwYjKzK/tgs9C9kqWWPB9JwZiDF5mEf4BdCEAmEFbO8lXBA7NM0/j4g+x6FgD/Tt5/kT7ogbEDA==}
@@ -985,6 +1043,10 @@ packages:
   source-map-js@1.2.2:
     resolution: {integrity: sha512-KGj/8Y43x35aZVDtt+J4mK1hoLGHULMYfSkODJNQjNDC3oW1PqPoxMwo0pLUsWM/UEGzON/NxeHywEfNXNP3Vw==}
     engines: {node: '>=0.10.0'}
+
+  split2@4.2.0:
+    resolution: {integrity: sha512-UcjcJOWknrNkF6PLX83qcHM6KHgVKNkV62Y8a5uYDVv9ydGQVwAHMKqHdJje1VTWpljG0WYpCDhrCdAOYH4TWg==}
+    engines: {node: '>= 10.x'}
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
@@ -1140,6 +1202,18 @@ packages:
     engines: {node: '>=8'}
     hasBin: true
 
+  ws@8.22.0:
+    resolution: {integrity: sha512-Ydggc987+RO0AnWtZ/7Wq9FtNvcrL1b/RO0ud9mWjUPgDrsAAwQSF51sm2hm1XofbU/4jkpGEsLFsZZxU+1DOg==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+
   ws@8.22.1:
     resolution: {integrity: sha512-oyL6OPYme/CmiFvNuGzeoxCJ4nOrZE2O1FwM9MWM1AsGri6nLXB2pg+lNA8aLeXMSav0J6eIVS1j6vUPzUtK9g==}
     engines: {node: '>=10.0.0'}
@@ -1151,6 +1225,10 @@ packages:
         optional: true
       utf-8-validate:
         optional: true
+
+  xtend@4.0.2:
+    resolution: {integrity: sha512-LKYU1iAXJXUgAXn9URjiu+MWhyUXHsvfp7mcuYm9dSUKK0/CjtrUwFAxD82/mCWbtLsGjFIad0wIsod4zrTAEQ==}
+    engines: {node: '>=0.4'}
 
 ignoredOptionalDependencies:
   - '@esbuild/aix-ppc64'
@@ -1626,33 +1704,39 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/80d5cc0d8d5faa1336708eeee10359f30a715204(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(typescript@7.0.2)':
+  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/29f086d07c2a82d4d7b29f4bbc697e8e5725a4be(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.5(hono@4.13.13)
       '@sentry/browser': 11.0.0
+      '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
       '@wildshard/format': https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)
+      '@wildshard/wire': https://codeload.github.com/project-wildshard/shardfile/tar.gz/a51f56fbe54197b879fa309a1b1946df7384d576#path:/packages/wire(typescript@7.0.2)
       ajv: 6.15.0
       fflate: 0.8.3
       hono: 4.13.13
       n8ao: 2.0.1(@types/three@0.186.0)(postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0))(three@0.186.0)
       navcat: 0.4.1(@types/three@0.186.0)(three@0.186.0)
+      pg: 8.23.1
       postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       preact: 11.1.1
-      sharp: 0.35.5(@types/node@24.3.1)
       three: 0.186.0
       valibot: 1.5.0(typescript@7.0.2)
       vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
+      ws: 8.22.0
     optionalDependencies:
       '@types/three': 0.186.0
+      sharp: 0.35.5(@types/node@24.3.1)
     transitivePeerDependencies:
       - '@types/node'
       - '@vitejs/devtools'
+      - bufferutil
       - esbuild
       - jiti
       - less
+      - pg-native
       - preact-render-to-string
       - sass
       - sass-embedded
@@ -1661,11 +1745,18 @@ snapshots:
       - terser
       - tsx
       - typescript
+      - utf-8-validate
       - yaml
 
   '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/4f8280c58ab6e527aa9735eaa80fccf1f34ab6d3(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
+      valibot: 1.5.0(typescript@7.0.2)
+    transitivePeerDependencies:
+      - typescript
+
+  '@wildshard/wire@https://codeload.github.com/project-wildshard/shardfile/tar.gz/a51f56fbe54197b879fa309a1b1946df7384d576#path:/packages/wire(typescript@7.0.2)':
+    dependencies:
       valibot: 1.5.0(typescript@7.0.2)
     transitivePeerDependencies:
       - typescript
@@ -1880,6 +1971,41 @@ snapshots:
       '@oxlint/binding-linux-x64-gnu': 1.89.0
       oxlint-tsgolint: 7.0.2004
 
+  pg-cloudflare@1.4.1:
+    optional: true
+
+  pg-connection-string@2.14.1: {}
+
+  pg-int8@1.0.1: {}
+
+  pg-pool@3.14.0(pg@8.23.1):
+    dependencies:
+      pg: 8.23.1
+
+  pg-protocol@1.16.1: {}
+
+  pg-types@2.2.0:
+    dependencies:
+      pg-int8: 1.0.1
+      postgres-array: 2.0.0
+      postgres-bytea: 1.0.1
+      postgres-date: 1.0.7
+      postgres-interval: 1.2.0
+
+  pg@8.23.1:
+    dependencies:
+      pg-connection-string: 2.14.1
+      pg-pool: 3.14.0(pg@8.23.1)
+      pg-protocol: 1.16.1
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.4.1
+
+  pgpass@1.0.5:
+    dependencies:
+      split2: 4.2.0
+
   picocolors@1.1.1: {}
 
   picomatch@4.0.7: {}
@@ -1895,6 +2021,16 @@ snapshots:
       nanoid: 3.3.20
       picocolors: 1.1.1
       source-map-js: 1.2.2
+
+  postgres-array@2.0.0: {}
+
+  postgres-bytea@1.0.1: {}
+
+  postgres-date@1.0.7: {}
+
+  postgres-interval@1.2.0:
+    dependencies:
+      xtend: 4.0.2
 
   postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0):
     dependencies:
@@ -1967,6 +2103,8 @@ snapshots:
   siginfo@2.0.0: {}
 
   source-map-js@1.2.2: {}
+
+  split2@4.2.0: {}
 
   stackback@0.0.2: {}
 
@@ -2051,4 +2189,8 @@ snapshots:
       siginfo: 2.0.0
       stackback: 0.0.2
 
+  ws@8.22.0: {}
+
   ws@8.22.1: {}
+
+  xtend@4.0.2: {}

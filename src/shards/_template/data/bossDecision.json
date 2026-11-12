@@ -18,26 +18,28 @@
   ],
   "tick": null,
   "reads": [
-    "nearestPlayer"
+    "nearestPlayer",
+    "hpShare"
   ],
   "commands": [
-    "move",
     "strike",
     "stop",
     "timer",
-    "encounter"
+    "encounter",
+    "field"
   ],
   "actors": {
-    "boss": "big-blob"
+    "boss": "barrow-warden"
   },
-  "moves": {
-    "approach": "template.boss.approach"
-  },
+  "moves": {},
   "strikes": {
-    "bump": "template.blob.bump"
+    "slam": "template.warden.slam"
   },
   "cues": {},
-  "fields": {},
+  "fields": {
+    "tell": "template.warden-tell",
+    "core": "template.warden-core"
+  },
   "flags": {},
   "zones": {},
   "spots": {},
@@ -50,7 +52,10 @@
   "impulses": {},
   "weather": {},
   "timers": [
-    "beat"
+    "arm",
+    "beat",
+    "open",
+    "shut"
   ],
   "stateVersion": 1,
   "state": [
@@ -70,7 +75,9 @@
     }
   ],
   "params": {
-    "firstBeat": 1,
-    "secondBeat": 0.5
+    "firstBeat": 1.6,
+    "secondBeat": 0.9,
+    "windup": 1.2,
+    "window": 3
   }
 }

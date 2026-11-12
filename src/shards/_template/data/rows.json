@@ -55,6 +55,24 @@
       ],
       "weight": 1,
       "speed": 7.5
+    },
+    {
+      "id": "template.warden.slam",
+      "shape": {
+        "kind": "point",
+        "radius": 1.6
+      },
+      "windup": 1.2,
+      "active": 0.2,
+      "recover": 0.6,
+      "cooldown": 0.5,
+      "range": 4,
+      "damage": 20,
+      "tags": [
+        "creature.greyBlob"
+      ],
+      "weight": 3,
+      "speed": 0
     }
   ],
   "weather": [
@@ -184,15 +202,15 @@
           }
         },
         {
-          "id": "big",
-          "label": "Big blob",
+          "id": "warden",
+          "label": "Barrow Warden",
           "rarity": "rare",
           "weight": 0,
           "scale": [
-            1.8,
-            1.8
+            2.2,
+            2.2
           ],
-          "hp": 180,
+          "hp": 420,
           "mods": {
             "speed": 1,
             "chargeDist": 1,
