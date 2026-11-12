@@ -425,7 +425,7 @@
     "exposure": 0,
     "saturation": 1.12,
     "contrast": 1.06,
-    "lut": null,
+    "lut": "f2db05998615ce1cb79ea96be32c168842eb6a2b34ec01feb86d36404603ee54",
     "bloom": {
       "intensity": 0.9,
       "threshold": 0.85
