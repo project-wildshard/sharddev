@@ -61,7 +61,8 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const panel = cube(1.8, 2.5, 0.2, 0x6e4a2a, 2); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
   ctx.root.add(panel); ctx.piece({ id: 'template.door', name: 'Open hut door', category: 'buildings', file, object: panel,
     colliders: [BoxCollider.fromData({ kind: 'box', x: layout.HUT.x, y: (y + 2.5 + y) / 2, z: layout.HUT.doorZ, hx: 0.9, hy: Math.max(0.005, (y + 2.5 - y) / 2), hz: 0.1, yaw: -0, surface: 'wood' }).toColliderData()], active: () => true });
-  // Mossgate Hollow v3 (MH-1): braziers A, B and C on labelled pads east of the slab path, unlit until MH-2.
+  // Mossgate Hollow v3: braziers A, B and C on labelled pads where the story puts them (LF1-0): A by the moss gate, B on
+  // the pond's far bank, C beside the arena gate. Unlit until their fields say so.
   const braziers = new Group(), stands: NonNullable<TemplatePart['colliders']> = [];
   for (const [x, z] of layout.BRAZIERS) {
     if (x === undefined || z === undefined) continue;
@@ -71,14 +72,13 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
   }
   ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
-  // Mossgate Hollow v3 (MH-2): brazier A's flame, a panel the shared field `template.brazier-a` shows, and the moss gate
-  // it opens (a panel and collider the same field hides). The fire's colour is the client script's particles: the measure
-  // look gives every surface its role colour, so the flame shape itself reads as stone.
-  // B and C (MH-3) burn particles only: a panel costs its L0 tile two draws, and tile 0/4/3 is at its cap of 8.
-  const [ax = 3, az = -6] = layout.BRAZIERS[0] ?? [], flame = brazierFlame(ax, heightAt(ax, az) + 1.5, az);
-  ctx.root.add(flame); ctx.piece({ id: 'template.brazier-a.flame', name: 'Brazier A flame', category: 'props', file, object: flame });
+  // Mossgate Hollow v3 (MH-2): the moss gate brazier A's shared field `template.brazier-a` opens (its bars are a panel and
+  // collider the field hides). All three braziers burn particles only (client scripts on fields 102 to 104), with no flame
+  // panel: a panel costs each L0 tile it touches two draws, and A's tile 0/3/3 is at the cap of 8 with the terrain, the
+  // static props, the hut door (it straddles x = 0) and the gate's bars (LF1-0).
   const gate = mossGate(heightAt);
   ctx.root.add(gate.frame); ctx.piece({ id: 'template.mossgate-frame', name: 'Moss gate frame', category: 'buildings', file, object: gate.frame, colliders: gate.frameColliders, surface: 'stone' });
+  ctx.root.add(gate.vines); ctx.piece({ id: 'template.mossgate-vines', name: 'Moss gate vines', category: 'nature', file, object: gate.vines });
   ctx.root.add(gate.panel); ctx.piece({ id: 'template.mossgate', name: 'Moss gate', category: 'nature', file, object: gate.panel, colliders: gate.panelColliders, active: () => true });
   // Mossgate Hollow v3 (MH-3): brazier B's field raises the pond's stones out of the water, and brazier C's takes away the
   // bars across the arena's one way in. The sunken stones are static (no collider), so the raised panel covers them.
@@ -135,7 +135,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   root.add(block(0.42, 0.5, 0.42, 1, lx - 1.0, ly + 2.0, lz), block(0.56, 0.1, 0.56, 2, lx - 1.0, ly + 2.3, lz), block(0.5, 0.08, 0.5, 2, lx - 1.0, ly + 1.71, lz), block(0.46, 0.24, 0.46, 1, lx, ly + 0.12, lz));
   box(lx, ly + 1.25, lz, 0.12, 1.25, 0.12);
   // mossy boulders: two or three tumbled stones and a moss cap each
-  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-6.2, -2.4, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-2.6, 2.6, 0.8]];
+  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-5.2, 1.9, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-2.6, 2.6, 0.8]];
   boulders.forEach(([x, z, s], i) => {
     const y = heightAt(x, z);
     root.add(block(s, s * 0.7, s * 0.9, 1, x, y + s * 0.3, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));
@@ -145,7 +145,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     box(x, y + s * 0.35, z, s * 0.55, s * 0.35, s * 0.5);
   });
   // ferns: seven moss fronds fanned up and out from one root
-  const ferns: [number, number, number][] = [[-2.7, -8.0, 1], [2.8, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-5.0, -1.3, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
+  const ferns: [number, number, number][] = [[-2.7, -8.0, 1], [2.8, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-4.4, -0.6, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
   ferns.forEach(([x, z, s], i) => {
     const y = heightAt(x, z);
     for (let k = 0; k < 7; k++) {
@@ -156,7 +156,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     }
   });
   // mushroom clumps: pale stems under wide stone caps, by the path and the boulders
-  const mushrooms: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.6, -3.1], [2.2, -8.6], [-1.9, -7.4]];
+  const mushrooms: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.0, -3.6], [2.2, -8.6], [-1.9, -7.4]];
   mushrooms.forEach(([x, z], i) => {
     for (let k = 0; k < 3; k++) {
       const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
@@ -166,32 +166,35 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   return { object: root, colliders };
 }
 
-/** Brazier A's flame (MH-2): four tapering boxes, each turned, standing in the bowl whose rim is at `y`. */
-export function brazierFlame(x: number, y: number, z: number): Group {
-  const root = new Group();
-  for (const [w, h, at, yaw] of [[0.9, 0.22, 0.11, 0], [0.62, 0.42, 0.42, 0.6], [0.36, 0.5, 0.86, 1.3], [0.14, 0.34, 1.26, 0.3]] as const) root.add(block(w, h, w, 1, x, y + at, z, yaw));
-  return root;
-}
 /**
- * The moss gate (MH-2) at `layout.MOSSGATE`: two stone posts and a lintel with low wing walls running north and south, and in
- * the 2.4 m gap a moss curtain (the panel, with its own collider) that brazier A's field takes away. You walk west through it.
+ * The moss gate (MH-2, LF1-0's form) at `layout.MOSSGATE`: two chunky square stone pillars with moss caps, a lintel between
+ * them and low wing walls running north and south, and across the 2.6 m gap a row of thick stone bars on a sill (the
+ * panel, with its own collider) that brazier A's field takes away. Vines hang down the pillars' yard faces; they are their
+ * own piece so the coarse (L1) tiles can skip them. You walk west through it.
  */
-export function mossGate(heightAt: (x: number, z: number) => number): { frame: Group; panel: Group; frameColliders: NonNullable<TemplatePart['colliders']>; panelColliders: NonNullable<TemplatePart['colliders']> } {
-  const { x, z } = layout.MOSSGATE, y = heightAt(x, z), frame = new Group(), panel = new Group(), frameColliders: NonNullable<TemplatePart['colliders']> = [];
+export function mossGate(heightAt: (x: number, z: number) => number): { frame: Group; panel: Group; vines: Group; frameColliders: NonNullable<TemplatePart['colliders']>; panelColliders: NonNullable<TemplatePart['colliders']> } {
+  const { x, z } = layout.MOSSGATE, y = heightAt(x, z), frame = new Group(), panel = new Group(), vines = new Group(), frameColliders: NonNullable<TemplatePart['colliders']> = [];
   const box = (bx: number, by: number, bz: number, hx: number, hy: number, hz: number): NonNullable<TemplatePart['colliders']>[number] => BoxCollider.fromData({ kind: 'box', x: bx, y: by, z: bz, hx, hy, hz, yaw: -0, surface: 'stone' }).toColliderData();
+  const GAP = 1.3, P = 1.1, H = 3.2;
   for (const side of [-1, 1]) {
-    const pz = z + side * 1.55;
-    frame.add(block(0.7, 3.2, 0.7, 1, x, y + 1.6, pz), block(0.82, 0.12, 0.82, 2, x, y + 3.26, pz));
-    frameColliders.push(box(x, y + 1.6, pz, 0.35, 1.6, 0.35));
+    const pz = z + side * (GAP + P / 2);
+    frame.add(block(P, H, P, 1, x, y + H / 2, pz), block(P + 0.16, 0.2, P + 0.16, 2, x, y + H + 0.1, pz), block(P + 0.12, 0.3, P + 0.12, 1, x, y + 0.15, pz));
+    frameColliders.push(box(x, y + H / 2, pz, P / 2, H / 2, P / 2));
     const wz = z + side * 4.1;
     frame.add(block(0.6, 1.5, 4.4, 1, x, y + 0.75, wz), block(0.7, 0.1, 4.5, 2, x, y + 1.55, wz));
     frameColliders.push(box(x, y + 0.75, wz, 0.3, 0.75, 2.2));
+    // three vines down the pillar's yard (east) face, each a moss strand with two leaf tufts
+    for (let k = 0; k < 3; k++) {
+      const vz = pz + (k - 1) * 0.34 + jitter(k, 90 + side) * 0.06, len = 1.1 + (jitter(k, 92 + side) + 1) * 0.55, vx = x + P / 2 + 0.03;
+      vines.add(block(0.05, len, 0.09, 2, vx, y + H - len / 2, vz));
+      for (let t = 0; t < 2; t++) vines.add(block(0.08, 0.16, 0.2, 2, vx + 0.02, y + H - len * (0.35 + t * 0.45), vz + (t === 0 ? 0.07 : -0.07), 0, 0.3));
+    }
   }
-  frame.add(block(0.8, 0.5, 4.0, 1, x, y + 3.45, z), block(0.9, 0.12, 4.1, 2, x, y + 3.76, z));
-  // the curtain: a moss sheet and hanging strands of uneven length
-  panel.add(block(0.24, 2.9, 2.4, 2, x, y + 1.75, z));
-  for (let k = 0; k < 7; k++) { const h = 0.6 + (jitter(k, 70) + 1) * 0.5, sz = z - 1.05 + k * 0.35; panel.add(block(0.32, h, 0.18, 2, x + 0.04 * jitter(k, 71), y + 3.2 - h / 2, sz)); }
-  return { frame, panel, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, 1.2)] };
+  frame.add(block(0.8, 0.4, GAP * 2, 1, x, y + 2.85, z), block(0.86, 0.08, GAP * 2, 2, x, y + 3.09, z));
+  // the panel: five thick stone bars on a sill, under the lintel
+  panel.add(block(0.34, 0.2, GAP * 2, 1, x, y + 0.1, z));
+  for (let k = 0; k < 5; k++) panel.add(block(0.26, 2.45, 0.26, 1, x, y + 0.2 + 2.45 / 2, z - 1.04 + k * 0.52));
+  return { frame, panel, vines, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, GAP)] };
 }
 
 type Colliders = NonNullable<TemplatePart['colliders']>;

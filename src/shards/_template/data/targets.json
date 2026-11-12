@@ -13,15 +13,6 @@
         "activeWhenMatched": false
       },
       {
-        "panel": "template.brazier-a.flame",
-        "scope": "shared",
-        "fieldId": 102,
-        "equals": 1,
-        "visibleWhenMatched": true,
-        "colliders": [],
-        "activeWhenMatched": true
-      },
-      {
         "panel": "template.mossgate",
         "scope": "shared",
         "fieldId": 102,

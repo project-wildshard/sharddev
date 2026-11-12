@@ -98,9 +98,9 @@
           "kind": "particles",
           "id": "template.brazier-a.flame",
           "at": [
-            3,
+            -6.8,
             1.6,
-            -6
+            -1.4
           ]
         },
         "reads": [
@@ -168,9 +168,9 @@
           "kind": "particles",
           "id": "template.brazier-b.flame",
           "at": [
-            6.5,
+            32.5,
             1.6,
-            -6
+            22.5
           ]
         },
         "reads": [
@@ -238,9 +238,9 @@
           "kind": "particles",
           "id": "template.brazier-c.flame",
           "at": [
-            10,
+            -6.6,
             1.6,
-            -6
+            10.7
           ]
         },
         "reads": [
