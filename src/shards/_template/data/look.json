@@ -44,13 +44,328 @@
           "step": 0.25
         },
         "trim": [
-          0.36,
-          0.48,
-          0.22
+          0.3,
+          0.44,
+          0.18
         ]
       }
     }
   },
+  "post": [
+    {
+      "graph": {
+        "version": 1,
+        "kind": "post",
+        "params": {},
+        "nodes": {
+          "c": {
+            "op": "sceneColour"
+          },
+          "rgb": {
+            "op": "swizzle",
+            "in": [
+              "c"
+            ],
+            "mask": "xyz"
+          },
+          "uv": {
+            "op": "screenUV"
+          },
+          "depth": {
+            "op": "sceneDepth"
+          },
+          "sky": {
+            "op": "smoothstep",
+            "in": [
+              400,
+              480,
+              "depth"
+            ]
+          },
+          "uy": {
+            "op": "swizzle",
+            "in": [
+              "uv"
+            ],
+            "mask": "y"
+          },
+          "p1": {
+            "op": "mul",
+            "in": [
+              "uv",
+              [
+                2.6,
+                11.0
+              ]
+            ]
+          },
+          "n1": {
+            "op": "noise",
+            "in": [
+              "p1"
+            ]
+          },
+          "p2": {
+            "op": "mul",
+            "in": [
+              "uv",
+              [
+                7.0,
+                26.0
+              ]
+            ]
+          },
+          "n2": {
+            "op": "noise",
+            "in": [
+              "p2"
+            ]
+          },
+          "n2h": {
+            "op": "mul",
+            "in": [
+              "n2",
+              0.45
+            ]
+          },
+          "nn": {
+            "op": "add",
+            "in": [
+              "n1",
+              "n2h"
+            ]
+          },
+          "cover": {
+            "op": "smoothstep",
+            "in": [
+              0.12,
+              0.42,
+              "nn"
+            ]
+          },
+          "bandLo": {
+            "op": "smoothstep",
+            "in": [
+              0.54,
+              0.64,
+              "uy"
+            ]
+          },
+          "bandHi0": {
+            "op": "smoothstep",
+            "in": [
+              0.86,
+              0.99,
+              "uy"
+            ]
+          },
+          "bandHi": {
+            "op": "oneMinus",
+            "in": [
+              "bandHi0"
+            ]
+          },
+          "band": {
+            "op": "mul",
+            "in": [
+              "bandLo",
+              "bandHi"
+            ]
+          },
+          "cl0": {
+            "op": "mul",
+            "in": [
+              "cover",
+              "band"
+            ]
+          },
+          "cl1": {
+            "op": "mul",
+            "in": [
+              "cl0",
+              "sky"
+            ]
+          },
+          "clouds": {
+            "op": "mul",
+            "in": [
+              "cl1",
+              0.92
+            ]
+          },
+          "cmix": {
+            "op": "smoothstep",
+            "in": [
+              0.6,
+              0.92,
+              "uy"
+            ]
+          },
+          "ccol": {
+            "op": "mix",
+            "in": [
+              [
+                1.0,
+                0.66,
+                0.5
+              ],
+              [
+                0.9,
+                0.46,
+                0.62
+              ],
+              "cmix"
+            ]
+          },
+          "withClouds": {
+            "op": "mix",
+            "in": [
+              "rgb",
+              "ccol",
+              "clouds"
+            ]
+          },
+          "d0": {
+            "op": "sub",
+            "in": [
+              "uv",
+              [
+                0.5,
+                0.55
+              ]
+            ]
+          },
+          "d1": {
+            "op": "mul",
+            "in": [
+              "d0",
+              [
+                1.6,
+                1.0
+              ]
+            ]
+          },
+          "r2": {
+            "op": "dot",
+            "in": [
+              "d1",
+              "d1"
+            ]
+          },
+          "g0": {
+            "op": "mul",
+            "in": [
+              "r2",
+              -14.0
+            ]
+          },
+          "g1": {
+            "op": "exp",
+            "in": [
+              "g0"
+            ]
+          },
+          "gs": {
+            "op": "mul",
+            "in": [
+              "sky",
+              0.6
+            ]
+          },
+          "gw": {
+            "op": "add",
+            "in": [
+              "gs",
+              0.12
+            ]
+          },
+          "g2": {
+            "op": "mul",
+            "in": [
+              "g1",
+              "gw"
+            ]
+          },
+          "glow": {
+            "op": "mul",
+            "in": [
+              [
+                1.0,
+                0.6,
+                0.3
+              ],
+              "g2"
+            ]
+          },
+          "lit": {
+            "op": "add",
+            "in": [
+              "withClouds",
+              "glow"
+            ]
+          },
+          "warm": {
+            "op": "mul",
+            "in": [
+              "lit",
+              [
+                1.05,
+                1.0,
+                0.93
+              ]
+            ]
+          },
+          "vd": {
+            "op": "sub",
+            "in": [
+              "uv",
+              0.5
+            ]
+          },
+          "vr": {
+            "op": "dot",
+            "in": [
+              "vd",
+              "vd"
+            ]
+          },
+          "v0": {
+            "op": "smoothstep",
+            "in": [
+              0.2,
+              0.75,
+              "vr"
+            ]
+          },
+          "v1": {
+            "op": "mul",
+            "in": [
+              "v0",
+              0.22
+            ]
+          },
+          "vig": {
+            "op": "oneMinus",
+            "in": [
+              "v1"
+            ]
+          },
+          "out": {
+            "op": "mul",
+            "in": [
+              "warm",
+              "vig"
+            ]
+          }
+        },
+        "stages": {
+          "post": {
+            "colour": "out"
+          }
+        }
+      }
+    }
+  ],
   "grade": {
     "exposure": 0,
     "saturation": 1.12,
@@ -82,13 +397,13 @@
       },
       "fog": {
         "colour": [
-          0.88,
-          0.5,
-          0.38
+          0.94,
+          0.56,
+          0.42
         ],
         "density": 0,
-        "near": 120,
-        "far": 600
+        "near": 28,
+        "far": 300
       },
       "sun": {
         "colour": [
@@ -96,7 +411,7 @@
           0.66,
           0.42
         ],
-        "intensity": 1.8
+        "intensity": 2.0
       },
       "ambient": {
         "sky": [
@@ -105,9 +420,9 @@
           0.62
         ],
         "ground": [
+          0.36,
           0.26,
-          0.22,
-          0.12
+          0.14
         ],
         "intensity": 0.75
       }

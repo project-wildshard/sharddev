@@ -71,6 +71,8 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
   }
   ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
+  const dressing = mossgateDressing(heightAt);
+  ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
   const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
   for (let i = 0; i < 10; i++) { const tread = cube(3, 0.2, 0.6, 0x888888, 2); tread.position.set(8, from[1] + (i + 1) * 0.2 - 0.1, -8 - (i + 0.5) * 0.6); ramp.add(tread); }
   const slope = cube(3, 0.24, Math.sqrt(40), 0x888888, 2); slope.position.set(12, from[1] + 0.9, -11); slope.rotation.x = Math.atan2(2, 6); ramp.add(slope);
@@ -89,6 +91,62 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     for (const material of Array.isArray(node.material) ? node.material : [node.material]) if (material instanceof Material) ctx.scope.own(material);
   });
   ctx.scope.onDispose(() => { ctx.root.removeFromParent(); });
+}
+
+/** A fixed jitter in −1 … 1 from two integers (the dressing never draws from the scatter stream, so the props stay put). */
+const jitter = (i: number, k: number): number => { const s = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return (s - Math.floor(s)) * 2 - 1; };
+/** A box of role `role` at (x, y, z), turned `yaw` and tipped `tilt` (radians). */
+function block(w: number, h: number, d: number, role: MeasureRole, x: number, y: number, z: number, yaw = 0, tilt = 0): Mesh {
+  const mesh = cube(w, h, d, 0x888888, role); mesh.position.set(x, y, z); mesh.rotation.set(tilt, yaw, tilt * 0.6, 'YXZ'); return mesh;
+}
+/**
+ * Mossgate Hollow v3 (MH-1b): the yard's dressing, one step past grey-box and still a test level. A stepping-slab path
+ * from spawn to the hut door, the door lamp, mossy boulders, ferns and mushroom clumps, all measure boxes (the dev-map
+ * look draws stone as structure, moss as trim). Fixed placements, so the build is stable; colliders on the solid pieces.
+ */
+export function mossgateDressing(heightAt: (x: number, z: number) => number): { object: Group; colliders: NonNullable<TemplatePart['colliders']> } {
+  const root = new Group(), colliders: NonNullable<TemplatePart['colliders']> = [];
+  const box = (x: number, y: number, z: number, hx: number, hy: number, hz: number): void => { colliders.push(BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: -0, surface: 'stone' }).toColliderData()); };
+  // the slab path: eight stepping stones from spawn to the door, each a little off the line and turned
+  for (let i = 0; i < 8; i++) {
+    const z = -1.4 - i * 1.0, x = jitter(i, 1) * 0.28, w = 1.05 + jitter(i, 2) * 0.2, d = 0.72 + jitter(i, 3) * 0.12;
+    root.add(block(w, 0.08, d, 1, x, heightAt(x, z) + 0.04, z, jitter(i, 4) * 0.35));
+  }
+  // the door lamp: a post right of the door, an arm over the doorway and a lamp box under a moss cap
+  const lx = 1.55, lz = -8.3, ly = heightAt(lx, lz);
+  root.add(block(0.2, 2.6, 0.2, 2, lx, ly + 1.3, lz), block(1.2, 0.12, 0.12, 2, lx - 0.5, ly + 2.5, lz), block(0.08, 0.2, 0.08, 2, lx - 1.0, ly + 2.36, lz));
+  root.add(block(0.42, 0.5, 0.42, 1, lx - 1.0, ly + 2.0, lz), block(0.56, 0.1, 0.56, 2, lx - 1.0, ly + 2.3, lz), block(0.5, 0.08, 0.5, 2, lx - 1.0, ly + 1.71, lz), block(0.46, 0.24, 0.46, 1, lx, ly + 0.12, lz));
+  box(lx, ly + 1.25, lz, 0.12, 1.25, 0.12);
+  // mossy boulders: two or three tumbled stones and a moss cap each
+  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-6.2, -2.4, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-2.6, 2.6, 0.8]];
+  boulders.forEach(([x, z, s], i) => {
+    const y = heightAt(x, z);
+    root.add(block(s, s * 0.7, s * 0.9, 1, x, y + s * 0.3, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));
+    root.add(block(s * 0.62, s * 0.5, s * 0.6, 1, x + s * 0.45, y + s * 0.2, z + s * 0.28, jitter(i, 7) * 1.5, jitter(i, 8) * 0.25));
+    if (s > 1.1) root.add(block(s * 0.45, s * 0.38, s * 0.5, 1, x - s * 0.5, y + s * 0.14, z - s * 0.2, jitter(i, 9) * 1.5, 0.2));
+    root.add(block(s * 0.8, 0.1, s * 0.7, 2, x, y + s * 0.67, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));
+    box(x, y + s * 0.35, z, s * 0.55, s * 0.35, s * 0.5);
+  });
+  // ferns: seven moss fronds fanned up and out from one root
+  const ferns: [number, number, number][] = [[-2.7, -8.0, 1], [2.8, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-5.0, -1.3, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
+  ferns.forEach(([x, z, s], i) => {
+    const y = heightAt(x, z);
+    for (let k = 0; k < 7; k++) {
+      const yaw = (k / 7) * Math.PI * 2 + jitter(i, 10) + jitter(i * 7 + k, 11) * 0.2, len = s * (0.75 + jitter(i * 7 + k, 12) * 0.15);
+      const frond = cube(0.16 * s, 0.03, len, 0x888888, 2), pivot = new Group(), lift = 0.75 + jitter(i * 7 + k, 13) * 0.15;
+      frond.rotation.x = -lift; frond.position.set(0, Math.sin(lift) * len / 2, Math.cos(lift) * len / 2);
+      pivot.add(frond); pivot.position.set(x, y + 0.02, z); pivot.rotation.y = yaw; root.add(pivot);
+    }
+  });
+  // mushroom clumps: pale stems under wide stone caps, by the path and the boulders
+  const mushrooms: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.6, -3.1], [2.2, -8.6], [-1.9, -7.4]];
+  mushrooms.forEach(([x, z], i) => {
+    for (let k = 0; k < 3; k++) {
+      const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
+      root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz), block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2));
+    }
+  });
+  return { object: root, colliders };
 }
 
 /** The jump course's three practice pads, `baseHeight` up at `x`. */

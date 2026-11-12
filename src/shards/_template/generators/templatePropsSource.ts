@@ -14,11 +14,11 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   buildTemplateWorld({ root: original, scope, piece, rng: { stream: () => random }, heightAt: templateHeightAt() }, count);
   const cell = buildCellFill({ root: original, scope, piece });
   const shape = (id: string): Object3D => { const object = pieces.find(part => part.id === id)?.object; if (object === undefined) throw new Error(`Missing template shape ${id}`); return object; };
-  const staticRoot = new Group(); staticRoot.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.braziers').clone());
+  const staticRoot = new Group(); staticRoot.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.braziers').clone(), shape('template.dressing').clone());
   // G220's cell fill: drawn whole near; the coarse tiles and the far proxy keep its big shapes (no stripes, posts or cubes)
   const cellIds = CELL_PIECES, coarse = new Group(), far = new Group();
   for (const id of cellIds) { staticRoot.add(shape(id).clone()); coarse.add(cellCoarse(shape(id))); far.add(cellFar(shape(id))); }
-  coarse.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.door').clone(), shape('template.braziers').clone()); far.add(shape('template.hut').clone());
+  coarse.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.door').clone(), shape('template.braziers').clone(), shape('template.dressing').clone()); far.add(shape('template.hut').clone());
   const scatter = shape('template.props'), transforms: Matrix4[] = []; scatter.updateMatrixWorld(true);
   for (const prop of scatter.children) transforms.push(prop.matrixWorld.clone());
   const model = new Mesh(measureBox(0.6, 0.6, 0.6, 1), new MeshStandardMaterial({ color: 0x888888, flatShading: true }));
