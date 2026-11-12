@@ -14,3 +14,6 @@
 
 - Synced repo-kit at 696282d (15 files, 1751 lines):
   chore(kit): stamp land tool and plan worktrees.
+
+- Synced repo-kit at 523af37 (5 files, 357 lines):
+  chore(kit): sync pinned-links guard.

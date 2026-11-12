@@ -10,6 +10,9 @@
 //   3. `pnpm install --frozen-lockfile --offline`: pnpm's store, cloned, not downloaded;
 //   4. `pnpm pins` when the repo has that script (shard products from ~/.cache/wildshard/pins);
 //   5. names the herdr pane (inside herdr only) and prints the land steps.
+// Before step 1 adds anything, meta REPO-DISK DK9 (Q41): it refuses when the repo's volume has under MIN_FREE_GIB
+// free or the repo already has MAX_WORKTREES live worktrees under .worktrees/, and names the oldest parked one.
+// WS_WORKTREE_FREE_GIB stands in for the measured free GiB (tests); setting it is a deliberate override.
 //
 // Never copied: .env*, tmp/, .review/, .cache/, browser profiles, leases, ports, push proofs; the worktree gets
 // only tracked files and its own install. Each step's seconds go to <worktree>/tmp/worktree-setup.json and, with
@@ -17,12 +20,12 @@
 // (scripts/worktree-reap.mjs) removes landed, clean, idle worktrees with their branches, local and on origin.
 import {execFileSync,spawn,spawnSync} from 'node:child_process';
 import {randomBytes} from 'node:crypto';
-import {appendFileSync,existsSync,linkSync,lstatSync,mkdirSync,readFileSync,rmSync,statSync,unlinkSync,writeFileSync} from 'node:fs';
+import {appendFileSync,existsSync,linkSync,lstatSync,mkdirSync,readFileSync,realpathSync,rmSync,statSync,statfsSync,unlinkSync,writeFileSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {basename,dirname,join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {WORKTREES} from './worktree-ignore.mjs';
-import {parseReapArgs,reap} from './worktree-reap.mjs';
+import {lastActivity,linkedWorktrees,onMain,parseReapArgs,reap} from './worktree-reap.mjs';
 
 export const SLUG=/^[a-z0-9][a-z0-9._-]{0,63}$/u;
 const REGULAR=/^100(?:644|755)$/u;
@@ -78,6 +81,56 @@ export function withStoreUse(env,what,fn){
   if(probe.status!==0)throw new Error(`worktree: could not check the store prune reservation (${probe.error?.message??probe.stderr.trim()})`);
   return fn();
  }finally{rmSync(mine,{force:true});}
+}
+
+/** Meta REPO-DISK DK9 (DEV-SPEED Q41): at most this many live plan worktrees per repo. */
+export const MAX_WORKTREES=6;
+/** Meta REPO-DISK DK9: refuse a new worktree when the repo's volume has less free than this, in GiB. */
+export const MIN_FREE_GIB=60;
+
+/** Free GiB on the volume holding `path`; WS_WORKTREE_FREE_GIB fakes it (tests). @param {string} path @param {NodeJS.ProcessEnv} env */
+export function freeGib(path,env){
+ const faked=env.WS_WORKTREE_FREE_GIB;
+ if(faked!==undefined&&faked!==''){
+  const value=Number(faked);
+  if(!Number.isFinite(value)||value<0)throw new StopError(`WS_WORKTREE_FREE_GIB=${faked} is not a number of GiB`);
+  return value;
+ }
+ const volume=statfsSync(path);
+ return Number(volume.bavail)*Number(volume.bsize)/2**30;
+}
+
+/**
+ * DK9: why `worktree new` must not add another worktree here, or '' when it may. Live means a registered worktree
+ * whose folder exists under <canonical>/.worktrees/. A refusal names the oldest parked one (on plan/<slug>, landed:
+ * its tip on origin/main, and clean), by its last Git activity, and the reap command that frees it.
+ * @param {string} canonical @param {NodeJS.ProcessEnv} env @returns {string}
+ */
+export function capRefusal(canonical,env){
+ const roots=new Set([join(canonical,WORKTREES),join(realpathSync(canonical),WORKTREES)]);
+ const live=linkedWorktrees(canonical).filter(tree=>roots.has(dirname(resolve(tree.path)))&&existsSync(tree.path));
+ const free=freeGib(canonical,env);
+ const full=live.length>=MAX_WORKTREES,low=free<MIN_FREE_GIB;
+ if(!full&&!low)return '';
+ const why=[
+  ...(full?[`${basename(canonical)} already has ${String(live.length)} live worktrees under ${WORKTREES}/ (cap ${String(MAX_WORKTREES)})`]:[]),
+  ...(low?[`only ${free.toFixed(1)} GiB free on the volume of ${canonical} (floor ${String(MIN_FREE_GIB)} GiB)`]:[]),
+ ].join(', and ');
+ const parked=live.flatMap(tree=>{
+  const slug=basename(tree.path);
+  if(tree.branch!==`refs/heads/plan/${slug}`||!onMain(canonical,tree.head))return [];
+  // Activity first, and a status that takes no optional lock: a plain `git status` may rewrite the index and so
+  // make every worktree look active now.
+  const at=lastActivity(tree.path,git(tree.path,['rev-parse','--absolute-git-dir']).trim());
+  const dirty=spawnSync('git',['--no-optional-locks','status','--porcelain','--untracked-files=all'],{cwd:tree.path,encoding:'utf8',maxBuffer:64<<20});
+  if(dirty.status!==0||dirty.stdout.trim()!=='')return [];
+  return [{slug,at}];
+ }).sort((a,b)=>a.at-b.at);
+ const oldest=parked[0];
+ const hint=oldest===undefined
+  ?`none of them is parked (landed on origin/main and clean): land one, or remove one by hand`
+  :`the oldest parked worktree is ${WORKTREES}/${oldest.slug} (landed, clean, idle ${((Date.now()-oldest.at)/3_600_000).toFixed(1)} h); \`node scripts/worktree.mjs reap\` frees it once idle 24 h with no process inside, or land and remove one by hand`;
+ return `${why}; ${hint}`;
 }
 
 /** @param {string[]} argv */
@@ -265,6 +318,9 @@ export function worktreeNew(argv,cwd=process.cwd(),env=process.env){
   if(existsSync(tree))throw new StopError(`${relative} already exists; work there, or pick another slug`);
   if(tryGit(canonical,['rev-parse','--verify','--quiet',`refs/heads/${branch}`]).status===0)throw new StopError(`branch ${branch} already exists; delete it or pick another slug`);
   timed('fetch',()=>{git(canonical,['fetch','--quiet','origin','main']);base=git(canonical,['rev-parse','origin/main']).trim();return `origin/main ${base.slice(0,10)}; ${followMain(canonical,base)}`;});
+  // DK9: after the fetch, so "landed" reads the current origin/main; before anything is added.
+  const refused=capRefusal(canonical,env);
+  if(refused!=='')throw new StopError(refused);
   // Git refuses `-b` for a branch that appeared since the check, before anything here owns one.
   timed('add',()=>{git(canonical,['worktree','add','--quiet','--no-checkout','-b',branch,relative,base]);});
   try{
