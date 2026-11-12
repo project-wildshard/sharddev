@@ -1,7 +1,7 @@
 // The Atlas generator's pure half (WORLDCLAW-TOOLS W1): a draft's sources → `Atlas`. No uploads, no writes; atlas.ts
 // does those. The tests drive it on fixtures.
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 import {
   STAGES, isStageId, spoilerByKind, stageName, stageOrder, ticksDone,
   type Atlas, type Cam, type ConceptSub, type DraftCard, type Img, type Item, type ItemKind, type ItemStatus,
@@ -86,6 +86,29 @@ function walk(dir: string): string[] {
   return out;
 }
 
+/** What the generator reads from a draft's art folder: its rounds, each round's pictures and its README. The originals
+ * on disk are one listing (`diskListing`); a checkout without them uses the committed copies (tools/sources.ts). */
+export interface Listing {
+  /** the round folders, any order */
+  rounds: () => string[];
+  /** a round's pictures, relative to its folder with `/`, in the order a sorted depth-first walk gives */
+  files: (round: string) => string[];
+  /** the round's README.md, or null when it has none */
+  readme: (round: string) => Readme | null;
+}
+
+/** The originals: `<artDir>/<round>/**` on disk. A missing art folder is a draft with no art yet. */
+export function diskListing(artDir: string): Listing {
+  return {
+    rounds: () => (existsSync(artDir) ? readdirSync(artDir).filter((d) => statSync(join(artDir, d)).isDirectory()) : []),
+    files: (round) => walk(join(artDir, round)).map((f) => relative(join(artDir, round), f).split(sep).join('/')),
+    readme: (round) => {
+      const p = join(artDir, round, 'README.md');
+      return existsSync(p) ? parseReadme(readFileSync(p, 'utf8')) : null;
+    },
+  };
+}
+
 /** `round-10-…` sorts after `round-9-…`. */
 export function roundNumber(id: string): number {
   const m = /^round-(\d+)/.exec(id);
@@ -149,6 +172,8 @@ export interface BuildInput {
   design?: DesignDoc[];
   index: ImageIndex;
   now: string;
+  /** where the rounds and pictures come from; the originals under `root` when absent */
+  listing?: Listing;
 }
 
 export interface BuildResult {
@@ -159,9 +184,9 @@ export interface BuildResult {
   problems: string[];
 }
 
-export function buildAtlas({ root, config, content, cams, terrain, design = [], index, now }: BuildInput): BuildResult {
+export function buildAtlas({ root, config, content, cams, terrain, design = [], index, now, listing }: BuildInput): BuildResult {
   const problems: string[] = [];
-  const rel = (p: string): string => relative(root, p);
+  const art = listing ?? diskListing(join(root, config.art));
   if (!isStageId(config.run.stage)) problems.push(`run.stage ${config.run.stage} is not a stage`);
   const runStage: StageId = isStageId(config.run.stage) ? config.run.stage : 'P0';
 
@@ -171,22 +196,20 @@ export function buildAtlas({ root, config, content, cams, terrain, design = [], 
 
   const rounds: Round[] = [];
   const items: Item[] = [];
-  const artDir = join(root, config.art);
-  const roundIds = !existsSync(artDir) ? [] : readdirSync(artDir).filter((d) => statSync(join(artDir, d)).isDirectory()).sort((a, b) => roundNumber(a) - roundNumber(b));
+  const roundIds = art.rounds().sort((a, b) => roundNumber(a) - roundNumber(b));
   for (const rid of roundIds) {
     const def = config.rounds[rid];
     if (!def) { problems.push(`round ${rid} has no entry in draft.json rounds`); continue; }
     if (!isStageId(def.stage)) { problems.push(`round ${rid}: stage ${def.stage} is not a stage`); continue; }
-    const readmePath = join(artDir, rid, 'README.md');
-    const readme = existsSync(readmePath) ? parseReadme(readFileSync(readmePath, 'utf8')) : { title: rid, note: '', made: '', verdict: '' };
-    if (!existsSync(readmePath)) problems.push(`round ${rid} has no README.md`);
+    const found = art.readme(rid);
+    const readme = found ?? { title: rid, note: '', made: '', verdict: '' };
+    if (!found) problems.push(`round ${rid} has no README.md`);
     rounds.push({ id: rid, stage: def.stage, title: readme.title, note: readme.note, made: readme.made, verdict: readme.verdict });
 
-    for (const file of walk(join(artDir, rid))) {
-      const name = relative(join(artDir, rid), file);
+    for (const name of art.files(rid)) {
       const item: Item = {
         id: `${rid}/${name}`, round: rid, stage: def.stage, kind: def.kind, title: name, status: def.status,
-        images: img(index, rel(file)), spoiler: false,
+        images: img(index, `${config.art}/${rid}/${name}`), spoiler: false,
       };
       let modelId: string | undefined;
       for (const r of rules) {

@@ -17,13 +17,16 @@ if [ -n "$dirty" ]; then
   echo "$dirty" >&2
 fi
 
-work="$(mktemp -d "${TMPDIR:-/tmp}/wildshard-drafts-deploy.XXXXXX")"
+# The clean export goes under the repo's gitignored tmp/, never /tmp or $TMPDIR (meta AGENTS.md "Disk", DRAFTS DR2).
+work="$repo/tmp/drafts-deploy"
+rm -rf "$work"
+mkdir -p "$work"
 trap 'rm -rf "$work"' EXIT
-git archive HEAD drafts tsconfig.json package.json | tar -x -C "$work"
+git archive HEAD drafts scripts/vite-tmp.mjs tsconfig.json package.json | tar -x -C "$work"
 ln -s "$repo/node_modules" "$work/node_modules"
 
 echo "deploy-drafts: building $sha"
-(cd "$work" && DRAFTS_BUILD_SHA="$sha" "$repo/node_modules/.bin/vite" build --config drafts/vite.config.ts --logLevel warn)
+(cd "$work" && DRAFTS_BUILD_SHA="$sha" DRAFTS_OUT_DIR="$work/dist-drafts" "$repo/node_modules/.bin/vite" build --config drafts/vite.config.ts --logLevel warn)
 
 # Link the output folder to the project (ids are not secrets; the CLI's own login is the credential).
 mkdir -p "$work/dist-drafts/.vercel"

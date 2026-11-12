@@ -3,7 +3,7 @@
 // atlas.json as the drafts site, republished at every step boundary so Jake reads the draft inside Claude where he
 // answers. Map Lab and the playable prototypes stay on the drafts site.
 //
-//   node drafts/tools/artifact.ts <slug> <out dir>
+//   node drafts/tools/artifact.ts <slug> <out dir> [<sources dir>]   (the originals' root, DRAFTS D5; default this checkout)
 //
 // Writes <out>/index.html and <out>/img/*.webp. The artifact frame loads no outside images, so the pictures ship as
 // the page's own files: every thumbnail, plus the full phone copy of each stage pick, the key art and the current
@@ -217,12 +217,13 @@ document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { va
 }
 
 function main(): void {
-  const [slug, outArg] = process.argv.slice(2);
+  const [slug, outArg, sourcesArg] = process.argv.slice(2);
   if (!slug || !outArg) {
-    console.error('usage: node drafts/tools/artifact.ts <slug> <out dir>');
+    console.error('usage: node drafts/tools/artifact.ts <slug> <out dir> [<sources dir>]');
     process.exit(2);
   }
   const out = resolve(outArg);
+  const sources = resolve(sourcesArg ?? ROOT);
   const a =JSON.parse(readFileSync(join(ROOT, 'drafts/public/data', slug, 'atlas.json'), 'utf8')) as Atlas;
   const index =JSON.parse(readFileSync(join(ROOT, 'drafts/shards', slug, 'images.json'), 'utf8')) as ImageIndex;
   const picks = new Set(a.stages.flatMap((s) => (s.pick ? [s.pick] : [])));
@@ -236,8 +237,8 @@ function main(): void {
     const e = index[src];
     if (!e) continue;
     const dims = { w: e.w, h: e.h };
-    copyFileSync(toWebp(join(ROOT, src), e.hash, THUMB_EDGE, dims), join(out, 'img', `${e.hash}-t.webp`));
-    if (fulls.has(it.id)) copyFileSync(toWebp(join(ROOT, src), e.hash, null, dims), join(out, 'img', `${e.hash}-f.webp`));
+    copyFileSync(toWebp(join(sources, src), e.hash, THUMB_EDGE, dims), join(out, 'img', `${e.hash}-t.webp`));
+    if (fulls.has(it.id)) copyFileSync(toWebp(join(sources, src), e.hash, null, dims), join(out, 'img', `${e.hash}-f.webp`));
   }
   writeFileSync(join(out, 'index.html'), buildPage(a, fulls));
   console.log(`${slug}: ${withImages.length} thumbnails + ${fulls.size} full pictures → ${out}`);

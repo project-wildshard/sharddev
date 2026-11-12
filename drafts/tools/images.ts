@@ -4,8 +4,8 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
-import { homedir, tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { homedir } from 'node:os';
+import { join, resolve } from 'node:path';
 
 export interface Copy {
   url: string;
@@ -64,9 +64,12 @@ export function imageSize(buf: Uint8Array): { w: number; h: number } {
   throw new Error('imageSize: not a JPEG, PNG or WebP');
 }
 
+/** The conversions' scratch folder: the repo's gitignored tmp/, never the system temp dir (meta AGENTS.md "Disk"). */
+export const SCRATCH = resolve(import.meta.dirname, '..', '..', 'tmp', 'drafts-images');
+
 /** Converts `src` to a WebP, scaled to at most `edge` px on its long side when given; returns its path in a scratch folder. */
 export function toWebp(src: string, hash: string, edge: number | null, dims: { w: number; h: number }): string {
-  const dir = join(tmpdir(), 'wildshard-drafts');
+  const dir = SCRATCH;
   mkdirSync(dir, { recursive: true });
   const out = join(dir, `${hash}-${ENC}-${edge ?? 'orig'}.webp`);
   if (existsSync(out)) return out;
@@ -105,19 +108,20 @@ export async function upload(path: string, pathname: string, token: string): Pro
 }
 
 /** Makes and uploads the copies of every source not yet in `index` (or whose bytes changed). Returns how many uploaded. */
-export async function publishImages(slug: string, sources: string[], index: ImageIndex, log: (s: string) => void): Promise<number> {
+export async function publishImages(slug: string, sources: string[], index: ImageIndex, log: (s: string) => void, root: string): Promise<number> {
   const todo = sources.filter((s) => {
     const e = index[s];
-    return !e || e.enc !== ENC || e.hash !== hashFile(s);
+    return !e || e.enc !== ENC || e.hash !== hashFile(join(root, s));
   });
   if (todo.length === 0) return 0;
   const token = blobToken();
   let done = 0;
   const work = async (src: string): Promise<void> => {
-    const hash = hashFile(src);
-    const dims = imageSize(readFileSync(src));
-    const full = toWebp(src, hash, null, dims);
-    const thumb = toWebp(src, hash, THUMB_EDGE, dims);
+    const file = join(root, src);
+    const hash = hashFile(file);
+    const dims = imageSize(readFileSync(file));
+    const full = toWebp(file, hash, null, dims);
+    const thumb = toWebp(file, hash, THUMB_EDGE, dims);
     const [f, t] = await Promise.all([
       upload(full, `draft/${slug}/${hash}-full.webp`, token),
       upload(thumb, `draft/${slug}/${hash}-thumb.webp`, token),

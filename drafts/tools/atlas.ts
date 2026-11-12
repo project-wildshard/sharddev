@@ -1,25 +1,28 @@
 #!/usr/bin/env node
 // The Atlas: a draft's sources → drafts/public/data/<slug>/atlas.json, plus the title's drafts/public/data/index.json
-// (WORLDCLAW-TOOLS W1, W2).
+// (WORLDCLAW-TOOLS W1, W2; DRAFTS DR2).
 //
-//   node drafts/tools/atlas.ts <slug>             regenerate from the sources and the committed images.json
-//   node drafts/tools/atlas.ts <slug> --publish   first make + upload the phone copies of any new picture (Blob, J28)
-//   node drafts/tools/atlas.ts --all [--publish]  every draft in drafts/shards/
-//   node drafts/tools/atlas.ts --check            fail if any committed atlas is stale or has a picture with no copy
+//   node drafts/tools/atlas.ts <slug> [--sources <dir>]             regenerate atlas.json and index.json
+//   node drafts/tools/atlas.ts <slug> --sources <dir> --publish     first make + upload the phone copies of new pictures
+//   node drafts/tools/atlas.ts --all [--sources <dir>] [--publish]  every draft in drafts/shards/
+//   node drafts/tools/atlas.ts [<slug>] --check [--sources <dir>]   fail if a committed atlas is stale or a picture has no copy
+//   ... --engine <checkout>                                         also write (or --check) engine's draftTitles.ts
 //
-// Sources: drafts/shards/<slug>/draft.json (hand-kept by the run), its content.json, the art READMEs and the pictures.
-import { existsSync, readdirSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+// Sources: drafts/shards/<slug>/draft.json (hand-kept by the run), its content.json and images.json, and the originals
+// (art rounds, READMEs, design docs, cameras, the map's scene) under `--sources <dir>`, where the run made them (Thin
+// Ice: the singleplayer checkout, D5). Without `--sources` the committed atlas.json stands in for the originals
+// (tools/sources.ts), so --check runs anywhere; --publish needs the originals.
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { imgUrl, type Atlas, type DesignDoc, type DraftCard, type DraftIndex, type Terrain, type VariantStats } from '../src/atlas.ts';
-import { buildAtlas, publicLeaks, type DraftConfig, type DraftContent } from './build-atlas.ts';
-import { publishImages, type ImageIndex } from './images.ts';
+import { parseArgs } from 'node:util';
+import { imgUrl, type Atlas, type DraftCard, type DraftIndex } from '../src/atlas.ts';
+import { buildAtlas, publicLeaks } from './build-atlas.ts';
+import { publishImages } from './images.ts';
+import { loadDraft, OUT, readJson, ROOT, SHARDS } from './sources.ts';
 
-const ROOT = resolve(import.meta.dirname, '..', '..');
-const SHARDS = join(ROOT, 'drafts', 'shards');
-const OUT = join(ROOT, 'drafts', 'public', 'data');
-/** The game's COMING SOON cards (W9, J19, J38): the drafts' public cards as data the title deck reads. */
-const GAME_CARDS = join(ROOT, 'src', 'game', 'draftTitles.ts');
 export const SITE = 'https://wildshard-drafts.vercel.app';
+/** The game's COMING SOON cards (W9, J19, J38) live in engine: `--engine <checkout>` names the checkout to write. */
+export const GAME_CARDS = join('src', 'client', 'game', 'draftTitles.ts');
 
 /** The game's card data for every draft in the index: public fields only (name, line, stage, the key art on Blob). */
 export function gameCards(index: DraftIndex): string {
@@ -48,61 +51,24 @@ ${rows.map((r) => `  {\n${Object.entries(r).map(([k, v]) => `    ${k}: ${JSON.st
 `;
 }
 
-// oxlint-disable-next-line typescript/no-unnecessary-type-parameters -- JSON.parse is untyped; the caller names the file's shape
-const readJson = <T>(p: string): T => JSON.parse(readFileSync(p, 'utf8')) as T;
 const json = (v: unknown): string => `${JSON.stringify(v, null, 1)}\n`;
 /** atlas.json ships to phones: one item per line keeps it diffable and small. */
 const compact = (a: Atlas): string => `${JSON.stringify(a).replaceAll('},{"id"', '},\n{"id"')}\n`;
 
-/** Map Lab's data: the blockout's binaries (already under drafts/public/data/<slug>/), the scene's roads, the spec's radii. */
-function loadTerrain(config: DraftConfig): Terrain | null {
-  const t = config.terrain;
-  if (!t) return null;
-  interface Scene { S: number; roads: Record<string, { w: number; pts: [number, number][] }>; places: Record<string, [number, number]> }
-  interface Spec { regions: { id: string; color: string; walkable: boolean }[]; places: { id: string; r: number }[] }
-  const scene = readJson<Scene>(join(ROOT, t.scene));
-  const spec = readJson<Spec>(join(ROOT, t.spec));
-  for (const f of [t.heights, t.labels]) {
-    if (!existsSync(join(OUT, config.slug, f))) throw new Error(`${config.slug}: terrain file drafts/public/data/${config.slug}/${f} is missing`);
-  }
-  return {
-    heights: t.heights, labels: t.labels, res: t.res, size: scene.S,
-    cats: spec.regions.map((r) => ({ id: r.id, color: r.color, walkable: r.walkable })),
-    roads: Object.entries(scene.roads).map(([name, r]) => ({ name, w: r.w, pts: r.pts })),
-    places: Object.entries(scene.places).map(([id, [x, z]]) => ({
-      id: t.placeIds[id] ?? id, x, z, r: spec.places.find((p) => p.id === id)?.r ?? 0,
-    })),
-    variants: t.variants.map((v) => ({ id: v.id, title: v.title, stats: readJson<VariantStats>(join(ROOT, v.stats)) })),
-  };
-}
-
-/** The draft's design documents: every .md in its design folder, design.md first (W1: the design is part of the draft). */
-function loadDesign(config: DraftConfig): DesignDoc[] {
-  const dir = join(ROOT, config.design);
-  if (!config.design || !existsSync(dir)) return [];
-  const names = readdirSync(dir).filter((n) => n.endsWith('.md') && n !== 'README.md').sort((a, b) => (a === 'design.md' ? -1 : b === 'design.md' ? 1 : a.localeCompare(b)));
-  return names.map((name) => ({ name, text: readFileSync(join(dir, name), 'utf8') }));
-}
-
 interface Built { atlas: Atlas; card: DraftCard; problems: string[] }
 
-async function one(slug: string, publish: boolean): Promise<Built> {
-  const dir = join(SHARDS, slug);
-  const config = readJson<DraftConfig>(join(dir, 'draft.json'));
-  const content = readJson<DraftContent>(join(ROOT, config.content));
-  const cams = config.cams ? readJson<Record<string, { eye: [number, number, number]; look: [number, number, number] }>>(join(ROOT, config.cams)) : {};
-  const indexPath = join(dir, 'images.json');
-  const index: ImageIndex = existsSync(indexPath) ? readJson<ImageIndex>(indexPath) : {};
+async function one(slug: string, sources: string | null, publish: boolean): Promise<Built> {
+  const d = loadDraft(slug, sources);
+  if (publish && d.sources === null) throw new Error(`${slug}: --publish needs the originals: --sources <dir> holding ${d.config.art}/`);
   const now = new Date().toISOString();
-  const terrain = loadTerrain(config);
-  const design = loadDesign(config);
-  let res = buildAtlas({ root: ROOT, config, content, cams, terrain, design, index, now });
-  if (publish) {
-    const n = await publishImages(slug, res.sources, index, (s) => console.log(s));
-    const sorted = Object.fromEntries(Object.entries(index).sort(([a], [b]) => a.localeCompare(b)));
-    writeFileSync(indexPath, json(sorted));
-    console.log(`${slug}: ${n} new picture(s) uploaded, ${Object.keys(index).length} in images.json`);
-    res = buildAtlas({ root: ROOT, config, content, cams, terrain, design, index, now });
+  const input = { root: d.sources ?? ROOT, config: d.config, content: d.content, cams: d.cams, terrain: d.terrain, design: d.design, index: d.index, now, listing: d.listing };
+  let res = buildAtlas(input);
+  if (publish && d.sources !== null) {
+    const n = await publishImages(slug, res.sources, d.index, (s) => console.log(s), d.sources);
+    const sorted = Object.fromEntries(Object.entries(d.index).sort(([a], [b]) => a.localeCompare(b)));
+    writeFileSync(d.indexPath, json(sorted));
+    console.log(`${slug}: ${n} new picture(s) uploaded, ${Object.keys(d.index).length} in images.json`);
+    res = buildAtlas({ ...input, index: sorted });
   }
   return { atlas: res.atlas, card: res.card, problems: [...res.problems, ...publicLeaks(res.card, res.atlas)] };
 }
@@ -113,22 +79,33 @@ function same(a: Atlas, b: Atlas): boolean {
 }
 
 async function main(): Promise<void> {
-  const args = process.argv.slice(2);
-  const publish = args.includes('--publish');
-  const check = args.includes('--check');
-  const all = check || args.includes('--all');
-  const slugs = all
-    ? readdirSync(SHARDS).filter((d) => existsSync(join(SHARDS, d, 'draft.json'))).sort()
-    : args.filter((a) => !a.startsWith('--'));
+  const { values, positionals } = parseArgs({
+    allowPositionals: true,
+    options: {
+      publish: { type: 'boolean', default: false },
+      check: { type: 'boolean', default: false },
+      all: { type: 'boolean', default: false },
+      sources: { type: 'string' },
+      engine: { type: 'string' },
+    },
+  });
+  const { publish, check } = values;
+  const sources = values.sources ?? null;
+  const all = values.all || (check && positionals.length === 0);
+  const slugs = all ? readdirSync(SHARDS).filter((d) => existsSync(join(SHARDS, d, 'draft.json'))).sort() : positionals;
   if (slugs.length === 0) {
-    console.error('usage: node drafts/tools/atlas.ts <slug> [--publish] | --all [--publish] | --check');
+    console.error('usage: node drafts/tools/atlas.ts <slug>|--all [--sources <dir>] [--publish] [--check] [--engine <checkout>]');
+    process.exit(2);
+  }
+  if (sources !== null && !existsSync(sources)) {
+    console.error(`--sources ${sources} does not exist`);
     process.exit(2);
   }
   let failed = false;
   const cards: DraftCard[] = [];
   let blob = '';
   for (const slug of slugs) {
-    const { atlas, card, problems } = await one(slug, publish);
+    const { atlas, card, problems } = await one(slug, sources, publish);
     cards.push(card);
     blob ||= atlas.blob;
     for (const p of problems) console.error(`${slug}: ${p}`);
@@ -139,7 +116,7 @@ async function main(): Promise<void> {
       if (!prev || !same(prev, atlas)) {
         console.error(`${slug}: drafts/public/data/${slug}/atlas.json is stale; run node drafts/tools/atlas.ts ${slug}`);
         failed = true;
-      }
+      } else console.log(`${slug}: atlas.json is current (${sources === null ? 'committed copies' : `originals in ${sources}`})`);
       continue;
     }
     mkdirSync(join(OUT, slug), { recursive: true });
@@ -147,23 +124,26 @@ async function main(): Promise<void> {
     if (!prev || !same(prev, atlas)) writeFileSync(path, compact(atlas));
     console.log(`${slug}: ${atlas.items.length} items, ${atlas.rounds.length} rounds, stage ${atlas.run.stage}`);
   }
-  if (!check && !failed) {
-    const indexPath = join(OUT, 'index.json');
-    const prev = existsSync(indexPath) ? readJson<DraftIndex>(indexPath) : null;
-    const keep = (prev?.drafts ?? []).filter((d) => !slugs.includes(d.slug));
-    const drafts = [...keep, ...cards].sort((a, b) => a.slug.localeCompare(b.slug));
-    if (JSON.stringify(prev?.drafts) !== JSON.stringify(drafts)) {
-      writeFileSync(indexPath, json({ version: 1, blob: blob || (prev?.blob ?? ''), generated: new Date().toISOString(), drafts } satisfies DraftIndex));
-    }
-  }
-  const index = readJson<DraftIndex>(join(OUT, 'index.json'));
-  const cardsTs = gameCards(index);
-  const prevTs = existsSync(GAME_CARDS) ? readFileSync(GAME_CARDS, 'utf8') : '';
-  if (prevTs !== cardsTs && !failed) {
+  const indexPath = join(OUT, 'index.json');
+  const prev = existsSync(indexPath) ? readJson<DraftIndex>(indexPath) : null;
+  const keep = (prev?.drafts ?? []).filter((d) => !slugs.includes(d.slug));
+  const drafts = [...keep, ...cards].sort((a, b) => a.slug.localeCompare(b.slug));
+  if (!failed && JSON.stringify(prev?.drafts) !== JSON.stringify(drafts)) {
     if (check) {
-      console.error('src/client/game/draftTitles.ts is stale; run node drafts/tools/atlas.ts --all');
+      console.error('drafts/public/data/index.json is stale; run node drafts/tools/atlas.ts --all');
       failed = true;
-    } else writeFileSync(GAME_CARDS, cardsTs);
+    } else writeFileSync(indexPath, json({ version: 1, blob: blob || (prev?.blob ?? ''), generated: new Date().toISOString(), drafts } satisfies DraftIndex));
+  }
+  if (values.engine !== undefined && !failed) {
+    const target = join(resolve(values.engine), GAME_CARDS);
+    const cardsTs = gameCards(readJson<DraftIndex>(indexPath));
+    const prevTs = existsSync(target) ? readFileSync(target, 'utf8') : '';
+    if (prevTs !== cardsTs) {
+      if (check) {
+        console.error(`${target} is stale; run node drafts/tools/atlas.ts --all --engine ${values.engine}`);
+        failed = true;
+      } else writeFileSync(target, cardsTs);
+    }
   }
   if (failed) process.exit(1);
 }

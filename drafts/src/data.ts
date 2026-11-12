@@ -25,8 +25,14 @@ export function atlas(slug: string): Promise<Atlas> {
   return p;
 }
 
+/** Where the pictures come from: the data's image base, or in `pnpm drafts:dev` the dev server's /media/, which reads them
+ * from a local copy (DRAFTS DR2: the DR1 export, drafts/vite.config.ts). */
+export function mediaBase(blob: string): string {
+  return import.meta.env.DEV ? '/media' : blob;
+}
+
 export function url(a: { blob: string; slug: string }, img: Img, size: 'full' | 'thumb'): string {
-  return imgUrl(a.blob, a.slug, img, size);
+  return imgUrl(mediaBase(a.blob), a.slug, img, size);
 }
 
 export function itemUrl(a: Atlas, it: Item, size: 'full' | 'thumb'): string {

@@ -18,7 +18,9 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
 | A draft's sources (hand-kept by the run) | `shards/<slug>/draft.json` (where its art and design are, what each round's pictures are, Jake's answers per stage, the run header), `shards/<slug>/content.json` (places, quest steps, lanes, side content, mechanics, camera checks, sets), `shards/<slug>/images.json` (generated: the Blob copies) |
 | Generated, committed, shipped | `public/data/index.json` (the title's public cards), `public/data/<slug>/atlas.json`, Map Lab's `terrain.f32` / `labels.u8` |
 | The tools | `tools/atlas.ts` (generate / publish / check), `tools/images.ts` (the phone copies on Blob), `tools/deploy.sh` |
-| Tests | `test/` (in `pnpm test`) |
+| Tests | `test/` (in `pnpm test`; `pnpm drafts:test` runs them with the typecheck and `atlas.ts --check`) |
+| Build, local preview | `pnpm drafts:build` (to `tmp/dist-drafts/`, `version.json` names HEAD), `pnpm drafts:dev` (localhost:5190; `/media/*` serves the pictures from `~/.cache/wildshard/drafts-blob-export/` or `$DRAFTS_MEDIA_DIR`) |
+| Originals | where the run made them (DRAFTS D5): Thin Ice's are in the singleplayer checkout. The tools take `--sources <dir>`; without it the committed `atlas.json` and `images.json` stand in, so `--check` and the tests run anywhere |
 
 ## The run's loop (W13: what `worldclaw-interactive` / `-auto` do at every step)
 
@@ -33,7 +35,7 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
      together across rounds: that is the lineage on its stage page;
    - `stages["P<n>"]`: Jake's answers **verbatim** from chat, notes, and the `pick` (an item id `round/file`);
    - `run`: the stage now, what it waits on, what is next.
-3. **Publish:** `node drafts/tools/atlas.ts <slug> --publish`. New pictures get their phone copy and thumbnail on Blob
+3. **Publish:** `node drafts/tools/atlas.ts <slug> --sources <checkout> --publish`. New pictures get their phone copy and thumbnail on Blob
    (once each, content-hashed: a re-run uploads nothing new); `atlas.json` and `index.json` are regenerated. It exits 1
    and names the problem when a round has no README, a pick is not an item, or a picture has no copy.
 4. **Commit** the sources and the generated data (pathspec), push with `scripts/push-main.sh`.
@@ -44,8 +46,8 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
    page's files); publish `<dir>/index.html` with the Artifact tool, `root` = the dir, every `img/` file in `files`,
    to the draft's existing page (Thin Ice: https://claude.ai/artifact/1v5EE7bt75m3dGFAkVh7P1).
 
-The game's COMING SOON card (W9) comes from the same index: `atlas.ts` writes `src/client/game/draftTitles.ts`, which ships
-with the next game deploy. Commit it with the rest.
+The game's COMING SOON card (W9) comes from the same index: `atlas.ts --engine <engine checkout>` writes engine's
+`src/client/game/draftTitles.ts`, which ships with engine's next deploy. Commit it there.
 
 The Blob token is read from `BLOB_READ_WRITE_TOKEN` or `~/.config/wildshard-drafts/blob.env` (not in git). A new
 machine: `vercel blob list-stores --scope raynos-projects`, then `vercel env pull` from a folder linked to

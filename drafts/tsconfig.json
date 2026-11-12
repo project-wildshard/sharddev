@@ -1,30 +1,10 @@
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
-    "types": [
-      "vite/client"
-    ],
-    "lib": [
-      "ES2023",
-      "DOM",
-      "DOM.Iterable"
-    ],
-    "composite": true,
-    "incremental": true,
-    "noEmit": false,
-    "rootDir": "..",
-    "tsBuildInfoFile": "../.tsc-layers/drafts.tsbuildinfo",
-    "declaration": true,
-    "emitDeclarationOnly": true,
-    "outDir": "../.tsc-layers/drafts",
+    "types": ["vite/client"],
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "noEmit": true,
     "allowImportingTsExtensions": true
   },
-  "include": [
-    "src"
-  ],
-  "references": [
-    {
-      "path": "../tsconfig.game.json"
-    }
-  ]
+  "include": ["src"]
 }

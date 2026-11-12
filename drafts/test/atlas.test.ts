@@ -6,22 +6,22 @@ import { STAGES, TICKS, spoilerByKind, ticksDone, type Atlas, type DraftIndex } 
 import { numbers, placeGentlePct, sightlines, slopeDeg, type Field } from '../src/maplab-math.ts';
 import { buildAtlas, parseReadme, publicLeaks, roundNumber, type DraftConfig, type DraftContent } from '../tools/build-atlas.ts';
 import { imageSize, type ImageIndex } from '../tools/images.ts';
+import { loadDraft } from '../tools/sources.ts';
 
 const ROOT = resolve(import.meta.dirname, '..', '..');
-// The art originals are not in the tree Vercel sees (.vercelignore), so the pre-push gate skips the tests that read
-// them; CI runs them on the full tree.
-const HAS_ART = existsSync(join(ROOT, 'art/thin-ice'));
+// The originals stay in singleplayer (DRAFTS D5): DRAFTS_SOURCES=<checkout> builds from them; without it the committed
+// atlas.json and images.json stand in (tools/sources.ts), so CI runs every test but the one that reads a JPEG.
+const SOURCES = process.env['DRAFTS_SOURCES'] ?? null;
+const HAS_ART = SOURCES !== null && existsSync(join(SOURCES, 'art/thin-ice'));
 
 // oxlint-disable-next-line typescript/no-unnecessary-type-parameters -- JSON.parse is untyped; the caller names the file's shape
 const read = <T>(p: string): T => JSON.parse(readFileSync(join(ROOT, p), 'utf8')) as T;
 
 function thinIce(index?: ImageIndex): ReturnType<typeof buildAtlas> {
-  const config = read<DraftConfig>('drafts/shards/thin-ice/draft.json');
-  const content = read<DraftContent>(config.content);
-  const cams = config.cams ? read<Record<string, { eye: [number, number, number]; look: [number, number, number] }>>(config.cams) : {};
+  const d = loadDraft('thin-ice', SOURCES);
   return buildAtlas({
-    root: ROOT, config, content, cams, terrain: null,
-    index: index ?? read<ImageIndex>('drafts/shards/thin-ice/images.json'), now: '2026-10-02T00:00:00.000Z',
+    root: d.sources ?? ROOT, config: d.config, content: d.content, cams: d.cams, terrain: null, listing: d.listing,
+    index: index ?? d.index, now: '2026-10-02T00:00:00.000Z',
   });
 }
 
@@ -49,8 +49,8 @@ describe('the README parser', () => {
   });
 });
 
-describe.skipIf(!HAS_ART)('Thin Ice → atlas.json', () => {
-  // Built in the tests, not here: vitest runs a skipped suite's body to collect it, and this reads art/.
+describe('Thin Ice → atlas.json', () => {
+  // Built once, in the first test that needs it.
   let built: ReturnType<typeof thinIce> | null = null;
   const b = (): ReturnType<typeof thinIce> => (built ??= thinIce());
 
@@ -101,7 +101,7 @@ describe.skipIf(!HAS_ART)('Thin Ice → atlas.json', () => {
   });
 });
 
-describe.skipIf(!HAS_ART)('spoilers stay off public pages (Done-when 3)', () => {
+describe('spoilers stay off public pages (Done-when 3)', () => {
   it('marks maps, the journey, steps, the boss and secret places by kind; never the key art', () => {
     expect(spoilerByKind('map', undefined, undefined)).toBe(true);
     expect(spoilerByKind('step', undefined, undefined)).toBe(true);
@@ -123,14 +123,14 @@ describe.skipIf(!HAS_ART)('spoilers stay off public pages (Done-when 3)', () => 
   });
 });
 
-describe.skipIf(!HAS_ART)('a picture with no phone copy is a problem, not a silent gap (W2)', () => {
+describe('a picture with no phone copy is a problem, not a silent gap (W2)', () => {
   it('names the missing source', () => {
     const { problems } = thinIce({});
     expect(problems.some((p) => p.includes('no phone copy yet: art/thin-ice/round-3-concepts/p4-keyart.jpg'))).toBe(true);
   });
 });
 
-describe.skipIf(!HAS_ART)('the committed atlas is current', () => {
+describe('the committed atlas is current', () => {
   it('matches a rebuild from the sources, apart from the time stamp', () => {
     const committed = read<Atlas>('drafts/public/data/thin-ice/atlas.json');
     const { atlas } = thinIce();
@@ -138,11 +138,20 @@ describe.skipIf(!HAS_ART)('the committed atlas is current', () => {
     const strip = (a: Atlas): string => JSON.stringify({ ...a, generated: '', terrain: null, design: [] });
     expect(strip(committed)).toBe(strip(atlas));
   });
+  it('goes stale when draft.json changes, even with no originals (DRAFTS DR2)', () => {
+    const d = loadDraft('thin-ice', null);
+    const committed = read<Atlas>('drafts/public/data/thin-ice/atlas.json');
+    const config = { ...d.config, run: { ...d.config.run, waiting: 'something else' } };
+    const { atlas } = buildAtlas({ root: ROOT, config, content: d.content, cams: d.cams, terrain: d.terrain, design: d.design, index: d.index, now: '', listing: d.listing });
+    expect(atlas.run.waiting).toBe('something else');
+    expect(JSON.stringify({ ...atlas, generated: '' })).not.toBe(JSON.stringify({ ...committed, generated: '' }));
+    expect(JSON.stringify({ ...atlas, run: committed.run, generated: '' })).toBe(JSON.stringify({ ...committed, generated: '' }));
+  });
 });
 
 describe.skipIf(!HAS_ART)('image headers', () => {
   it('reads a JPEG\'s size', () => {
-    const buf = readFileSync(join(ROOT, 'art/thin-ice/round-3-concepts/p4-keyart.jpg'));
+    const buf = readFileSync(join(SOURCES ?? ROOT, 'art/thin-ice/round-3-concepts/p4-keyart.jpg'));
     expect(imageSize(buf)).toEqual({ w: 1024, h: 1536 });
   });
 });

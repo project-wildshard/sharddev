@@ -1,6 +1,7 @@
 // The drafts site as an offline home-screen app (E391): registers /sw.js, announces a waiting build to the reload pill,
 // and warms the picture cache with every picture of an opened draft so it reads with the network off.
 import { imgUrl, type Atlas } from './atlas';
+import { mediaBase } from './data';
 
 export interface DraftsSw {
   /** a newer build installed and waiting for the pill's tap */
@@ -82,8 +83,8 @@ export function draftUrls(a: Atlas): string[] {
   const urls = new Set<string>();
   for (const it of a.items) {
     if (!it.images) continue;
-    urls.add(imgUrl(a.blob, a.slug, it.images, 'thumb'));
-    urls.add(imgUrl(a.blob, a.slug, it.images, 'full'));
+    urls.add(imgUrl(mediaBase(a.blob), a.slug, it.images, 'thumb'));
+    urls.add(imgUrl(mediaBase(a.blob), a.slug, it.images, 'full'));
   }
   return [...urls];
 }
