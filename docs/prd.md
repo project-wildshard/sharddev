@@ -25,7 +25,8 @@ The author's toolbox: the `wildshard` CLI that bakes shard source into a shardfi
 - **R-2**: The bake pipeline, including the AssemblyScript to Wasm compiler
 - **R-3**: The author SDK that shard generators import (J21)
 - **R-4**: Model, set and world explorers, the arena
-- **R-5**: The drafts tool and its deploy (`wildshard-drafts`)
+- **R-5**: The drafts tool and its deploy: the Cloudflare Worker `wildshard-drafts` at https://drafts.wildshard.io,
+  pictures in R2 `wildshard-records` under `drafts/` (meta DRAFTS-PLAN; Vercel project and Blob store deleted 11-11)
 
 ## Not this repo
 
