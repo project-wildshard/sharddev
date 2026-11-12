@@ -25,3 +25,6 @@ out/
 /src/shards/_template/discovery.generated.ts
 /src/shards/ink-cel-valley/discovery.generated.ts
 /src/shards/pastel-plain/discovery.generated.ts
+
+# Packed shardfile output written next to a shard by old pack recipes; build:shards writes out/ instead
+/src/shards/*/public/shardfiles/
