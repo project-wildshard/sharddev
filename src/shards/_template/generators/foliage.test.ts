@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import { templateHeightAt } from './landscape';
-import { mossgateFoliage, mushroomCaps, TREES } from './world';
+import { mossgateDressing, mossgateFoliage, mushroomCaps, TREES } from './world';
 
 // LF1-5: the yard's foliage stands clear of every walk the MH-2, MH-3 and LF1-0 proofs take and of every use point, so no
 // tree trunk blocks a path. Tufts and ferns carry no collider at all.
@@ -25,6 +25,19 @@ test('every foliage collider stands at least 1.5 m off the proofs\' walks and us
     expect(c.surface).toBe('wood');
     const reach = Math.hypot(c.hx, c.hz);
     for (const route of ROUTES) expect(distance([c.x, c.z], route) - reach, `trunk at (${c.x}, ${c.z})`).toBeGreaterThan(1.5);
+  }
+});
+
+// LF1-7 checks: the dressing's solid pieces (boulders, the lamp post, the hut's bench and barrels) stand clear of the
+// same walks by more than the player's 0.38 m capsule, so no proof walk has to slide round one (the boulder at (-2.6, 2.6)
+// stood on the spawn-to-arena walk until LF1-7's re-run).
+test('every dressing collider stands at least 0.5 m off the proofs\' walks and use points', () => {
+  const { colliders } = mossgateDressing(templateHeightAt());
+  expect(colliders.length).toBeGreaterThan(0);
+  for (const c of colliders) {
+    if (c.kind !== 'box') throw new Error('a dressing collider is a box');
+    const reach = Math.hypot(c.hx, c.hz);
+    for (const route of ROUTES) expect(distance([c.x, c.z], route) - reach, `dressing collider at (${c.x}, ${c.z})`).toBeGreaterThan(0.5);
   }
 });
 

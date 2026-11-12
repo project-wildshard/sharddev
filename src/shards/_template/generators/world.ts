@@ -155,8 +155,9 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   for (const [cx, cz] of [[-1, -1], [-1, 1], [1, -1], [1, 1]] as const) root.add(block(0.05, 0.5, 0.05, 1, lx - 1.0 + cx * 0.2, ly + 2.0, lz + cz * 0.2, 0, 0, IRON));
   box(lx, ly + 1.25, lz, 0.12, 1.25, 0.12);
   hutFront(root, colliders, heightAt);
-  // mossy boulders: two or three tumbled stones and a moss cap each
-  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-5.2, 1.9, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-2.6, 2.6, 0.8]];
+  // mossy boulders: two or three tumbled stones and a moss cap each. LF1-7 checks: the small one moved from (-2.6, 2.6),
+  // which sat on the spawn-to-arena walk, to between the arena and brazier C walks (foliage.test.ts keeps them clear)
+  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-5.2, 1.9, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-1.0, 4.0, 0.8]];
   boulders.forEach(([x, z, s], i) => {
     const y = heightAt(x, z);
     root.add(block(s, s * 0.7, s * 0.9, 1, x, y + s * 0.3, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));

@@ -18,3 +18,16 @@
 - **Bytes:** 0/3/3 has ~4 KB left. A flat-shaded triangle costs about 150 B there, so the roof is two slabs, not
   shingle boxes.
 - Rounds: meta `~/.cache/wildshard/plan-artifacts/look-loop/mossgate-hut-r{1,2,3}/`.
+
+## Checks (opus-lf17b, ~02:00 Cancún)
+
+- Headless engine preview of sharddev main, every walk re-run: spawn to the door stops at z −8.5; the gate stops at
+  x −8.4 before A and passes to −25.9 after, and after a reload; the pond swims (y −2.95) before B and crosses dry to
+  35.3 after; the arena stops 9.9 m out before C and reaches 1.4 m after. A 12-leg orbit walk round the hut (1.25 m off
+  the walls, in front of the bench, barrels and lamp post) reached every stop. No console errors.
+- **Fix:** the small boulder at (-2.6, 2.6), there since MH-1b, sat on the spawn-to-arena walk; the walk only got past it
+  by the harness skipping a stuck waypoint. It moved to (-1.0, 4.0), same tile 0/3/4, and `foliage.test.ts` now keeps
+  every dressing collider (boulders, lamp post, bench, barrels) 0.5 m off the walks (red on the old spot).
+- **Trap:** `build:shards` now writes `out/_template`. The untracked `src/shards/_template/public/` is a stale build
+  from 2026-11-11 23:38 (pre-LF1-5); packing it gives a flat roof and no trees. Pack `out/_template`.
+- Shot: meta `template-e2e-v3/progress/t1-07-brazier-a-lit.jpg`; orbit frames in `progress/lf1-7b/`.
