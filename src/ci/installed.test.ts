@@ -50,11 +50,28 @@ test('an installed wildshard packs a real product and uploads it', async (contex
   const folder = await writeProduct(dir, 'real')
   const packed = await wildshard(['pack', folder, '--out', tar])
   const key = { WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }
-  const uploaded = await wildshard(['upload', tar, '--server', server.url], key)
+  // Explicit provenance (AC16): this bin runs from no shard project, so the
+  // package.json and git HEAD defaults would read whatever the cwd holds.
+  const uploaded = await wildshard(
+    [
+      'upload',
+      tar,
+      '--server',
+      server.url,
+      '--version',
+      '1.0.0',
+      '--commit',
+      'a'.repeat(40),
+    ],
+    key,
+  )
 
   assert.equal(packed.code, 0)
   assert.equal(uploaded.code, 0)
-  assert.deepEqual([...server.state.revisions.values()], [1])
+  assert.deepEqual(
+    [...server.state.revisions.values()],
+    [{ revision: 1, version: '1.0.0' }],
+  )
 })
 
 test('an installed wildshard refuses a product a server would', async (): Promise<void> => {

@@ -3,7 +3,7 @@ import '@wildshard/engine/scripts/sim-node-loader.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -76,6 +76,10 @@ test('author and engine share the format schema and Three instance without a tes
 });
 test('the outside author uploads its newly built tarball through the real CLI to the local service double', { timeout: 9_500 }, async context => {
   const server = await openUploadServer(context);
+  // A real author's app has a package.json and a git HEAD; upload sends both (AC16).
+  writeFileSync(join(app, 'package.json'), '{ "name": "outside-author", "version": "1.0.0", "private": true }\n');
+  const git = args => assert.equal(spawnSync('git', ['-c', 'user.name=Outside Author', '-c', 'user.email=author@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: app, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
+  git(['init', '-q']); git(['add', 'package.json']); git(['commit', '-q', '--no-verify', '-m', 'outside author']);
   // An asynchronous child leaves this process free to serve the real HTTP requests.
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
@@ -86,7 +90,7 @@ test('the outside author uploads its newly built tarball through the real CLI to
   let output = ''; child.stdout.on('data', bytes => { output += bytes; }); child.stderr.on('data', bytes => { output += bytes; });
   const [code] = await once(child, 'close');
   assert.equal(code, 0, output);
-  assert.deepEqual([...server.state.revisions.values()], [1]);
+  assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version: '1.0.0' }]);
 });
 test('the newly built outside-author product boots and accepts real worker input', { timeout: 9_500 }, async () => {
   const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
