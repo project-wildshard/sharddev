@@ -1,8 +1,8 @@
-import { Group, type Matrix4, Mesh, MeshStandardMaterial, type Object3D } from 'three';
+import { Group, Mesh, type MeshStandardMaterial, type Object3D } from 'three';
 import { templateHeightAt } from './landscape';
 import { templateScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
-import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, measureBox, mushroomCaps, rimFlames, wardenTell, type TemplatePart } from './world';
+import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, mushroomCaps, rimFlames, wardenTell, type TemplatePart } from './world';
 import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
 
 /** LF1-5: the GLB material names `props.materials` binds (product.ts): the measure stone every merged shape draws in, and the
@@ -32,10 +32,9 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   // The coarse (L1) tiles skip the dressing and the moss gate's vines: ferns, mushrooms and slabs are too small to read at L1 range and pushed tiles
   // 1/1/1 and 1/2/1 past the 200000-byte compressed cap the tile-bake policy refuses (CI red from 8b3307b).
   coarse.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.door').clone(), shape('template.braziers').clone(), shape('template.mossgate-frame').clone(), shape('template.arena-wall').clone()); far.add(shape('template.hut').clone());
-  const scatter = shape('template.props'), transforms: Matrix4[] = []; scatter.updateMatrixWorld(true);
-  // LF1-9: no grey scatter cube in the arena's tile 0/3/4 (x < 0, z ≥ 0): they stood on its floor, and their draw pays for the tell
-  for (const prop of scatter.children) if (!(prop.position.x < 0 && prop.position.z >= 0)) transforms.push(prop.matrixWorld.clone());
-  const model = new Mesh(measureBox(0.6, 0.6, 0.6, 1), new MeshStandardMaterial({ color: 0x888888, flatShading: true }));
+  // opus-greybox: the legacy grey scatter cubes (`template.props`, 0.6 m measure boxes on the pond's banks and the yard) are
+  // not baked at all now (LF1-9 had dropped them from tile 0/3/4 only). The world still builds them, so its seeded stream
+  // and everything placed after them stay put; they had no collider, so no walk changes.
   const door = shape('template.door');
   // SF16 relocates the course into the cell; this fixture records its same three pads at a bounded practice location.
   const course = jumpCoursePads(30, 90);
@@ -53,7 +52,7 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   // LF1-9: the rim braziers' flames (field 104), the Warden's tell ring (110) and core (111), each a shadowless emissive panel
   // in 0/3/4, paid for by the arena gate casting no shadow and the tile's scatter cubes going
   const rim = rimFlames(templateHeightAt()), tell = wardenTell(templateHeightAt());
-  return { source: { static: staticRoot, materialName: TEMPLATE_STONE, whole: [{ id: 'template_mushroom_caps', mesh: caps.mesh, transform: caps.transform, materialName: TEMPLATE_MUSHROOM_CAP }, { id: 'template_hut_lamp', mesh: glass.mesh, transform: glass.transform, materialName: TEMPLATE_LAMP }], scatter: [{ model, transforms }, cell.posts], panels: [{ id: 'template.door', model: door, castShadow: false }, { id: 'template.flame-a', model: flame, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.flame-b', model: flameB, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.mossgate', model: shape('template.mossgate') },
+  return { source: { static: staticRoot, materialName: TEMPLATE_STONE, whole: [{ id: 'template_mushroom_caps', mesh: caps.mesh, transform: caps.transform, materialName: TEMPLATE_MUSHROOM_CAP }, { id: 'template_hut_lamp', mesh: glass.mesh, transform: glass.transform, materialName: TEMPLATE_LAMP }], scatter: [cell.posts], panels: [{ id: 'template.door', model: door, castShadow: false }, { id: 'template.flame-a', model: flame, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.flame-b', model: flameB, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.mossgate', model: shape('template.mossgate') },
     { id: 'template.pond-stones', model: shape('template.pond-stones'), visible: false, castShadow: false }, { id: 'template.arena-gate', model: shape('template.arena-gate'), castShadow: false },
-    { id: 'template.rim-flames', model: rim, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.warden-ring', model: tell.ring, visible: false, materialName: TEMPLATE_TELL, castShadow: false }, { id: 'template.warden-core', model: tell.core, visible: false, materialName: TEMPLATE_LAMP, castShadow: false }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); model.geometry.dispose(); model.material.dispose(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); glass.mesh.geometry.dispose(); glass.mesh.material.dispose(); for (const f of [flame, flameB, rim, tell.ring, tell.core]) f.traverse((o) => { if (o instanceof Mesh) { o.geometry.dispose(); (o.material as MeshStandardMaterial).dispose(); } }); } };
+    { id: 'template.rim-flames', model: rim, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.warden-ring', model: tell.ring, visible: false, materialName: TEMPLATE_TELL, castShadow: false }, { id: 'template.warden-core', model: tell.core, visible: false, materialName: TEMPLATE_LAMP, castShadow: false }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); glass.mesh.geometry.dispose(); glass.mesh.material.dispose(); for (const f of [flame, flameB, rim, tell.ring, tell.core]) f.traverse((o) => { if (o instanceof Mesh) { o.geometry.dispose(); (o.material as MeshStandardMaterial).dispose(); } }); } };
 }
