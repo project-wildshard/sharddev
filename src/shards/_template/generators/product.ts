@@ -4,7 +4,7 @@ import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile
 import type { templateTerrain } from './terrain';
 import type { TemplateBehaviour } from './behaviour';
 import type { BakedProps } from '@wildshard/sharddev/bake/props';
-import { TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE } from './templatePropsSource';
+import { TEMPLATE_FLAME, TEMPLATE_LAMP, TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE } from './templatePropsSource';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
 import rows from '../data/rows.json' with { type: 'json' };
 import { parseRows } from '@wildshard/sharddev/rows';
@@ -42,7 +42,7 @@ const MH4_LIBRARY_RESIDENT = 60_000;
 const TEMPLATE_ROWS = parseRows(rows);
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone keeps the look's measure `pbr`; the red
  *  mushroom caps draw in the look's emissive `mossgate.mushroom-cap` (LF1-2: it keeps its colour under the measure look). */
-const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP } };
+const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME } };
 /** Assemble the original authored product from this build's terrain rows. */
 export function templateProduct(terrain: Omit<ReturnType<typeof templateTerrain>, 'assets'>, props: BakedProps, behaviour: TemplateBehaviour, boss: { compressed: number }): Shardfile {
 const door = behaviour.door, itemModule = behaviour.items.hash;

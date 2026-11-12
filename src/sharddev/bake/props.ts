@@ -15,7 +15,9 @@ export interface PropScatter { model: Object3D; transforms: readonly Matrix4[] }
 /** Trusted static content. Named panels remain separate, and coarse/far replacements are optional build-time inputs. */
 export interface PropsBakeSource {
   static: Object3D; scatter?: readonly PropScatter[];
-  panels?: readonly { id: string; model: Object3D; visible?: boolean }[]; colliders?: ShardProps['colliders']; models?: readonly { id: string; model: Object3D }[];
+  /** A panel draws in `materialName` (a `props.materials` name; omitted: the merged surfaces' own) and casts a shadow unless
+   *  `castShadow` is false: a shadowless panel costs each L0 tile it touches one draw, not two. Omitted keeps native bytes. */
+  panels?: readonly { id: string; model: Object3D; visible?: boolean; materialName?: string; castShadow?: boolean }[]; colliders?: ShardProps['colliders']; models?: readonly { id: string; model: Object3D }[];
   /** Achieved source simplification error in world metres, before tile storage rounding. */
   coarseErrorMetres?: number;
   coarse?: Object3D; far?: Object3D; family?: string; colourTexture?: Uint8Array;
@@ -349,7 +351,7 @@ export function bakeProps(source: PropsBakeSource, terrain: readonly Shardfile['
   }
   // Hidden panels remain controllable library objects; an unconditional proxy must never make them visible.
   const scattered = (source.scatter ?? []).flatMap((s) => s.transforms.flatMap((m) => vertices(s.model, m))), panelTriangles = (source.panels ?? []).filter((p) => p.visible !== false).flatMap((p) => vertices(p.model)), coarse = source.coarse === undefined ? [...base, ...scattered, ...panelTriangles] : vertices(source.coarse);
-  const panelFiles = (source.panels ?? []).map((entry) => { let storageError = 0; const g = geometry(vertices(entry.model), undefined, metres => { storageError = metres; }), file = save([{ geometry: g, material: mergedMaterial(source.materialName) }], entry.id); g.computeBoundingBox(); library.push(file.hash); section.panels.push({ id: entry.id, file: file.hash, visible: entry.visible ?? true }); return { file, bounds: g.boundingBox, storageError }; });
+  const panelFiles = (source.panels ?? []).map((entry) => { let storageError = 0; const g = geometry(vertices(entry.model), undefined, metres => { storageError = metres; }), file = save([{ geometry: g, material: mergedMaterial(entry.materialName ?? source.materialName), ...(entry.castShadow === false ? { castShadow: false } : {}) }], entry.id); g.computeBoundingBox(); library.push(file.hash); section.panels.push({ id: entry.id, file: file.hash, visible: entry.visible ?? true }); return { file, bounds: g.boundingBox, storageError }; });
   for (const lod of [0, 1] as const) {
     const size = lod === 0 ? 62.5 : 125, count = 500 / size;
     for (let z = 0; z < count; z++) for (let x = 0; x < count; x++) {

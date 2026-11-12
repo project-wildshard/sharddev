@@ -43,3 +43,23 @@ test('whole surface names override merged names without changing any binary chan
     expect(material.name).toBe('source');
   } finally { geometry.dispose(); material.dispose(); }
 });
+
+test('a panel names its own surface and, shadowless, costs each tile it touches one draw instead of two', () => {
+  const geometry = new BufferGeometry(), material = new MeshStandardMaterial();
+  geometry.setAttribute('position', new BufferAttribute(new Float32Array([1, 0, 1, 2, 0, 1, 1, 1, 1]), 3));
+  geometry.computeVertexNormals();
+  const model = new Mesh(geometry, material);
+  try {
+    const plain = bakeProps({ static: new Group(), materialName: 'merged', panels: [{ id: 'flame', model }] });
+    const own = bakeProps({ static: new Group(), materialName: 'merged', panels: [{ id: 'flame', model, materialName: 'glow', castShadow: false }] });
+    const panelBytes = (baked: typeof plain): Uint8Array => {
+      const hash = baked.props.panels[0]?.file, bytes = hash === undefined ? undefined : baked.assets.get(hash);
+      if (bytes === undefined) throw new Error('Expected panel bytes'); return bytes;
+    };
+    expect(glbMaterialNames(panelBytes(plain))).toEqual(['merged']);
+    expect(glbMaterialNames(panelBytes(own))).toEqual(['glow']);
+    const draws = (baked: typeof plain): number[] => baked.tiles.filter(row => row.lod === 0).map(row => row.draws);
+    expect(draws(plain)).toEqual([2]);
+    expect(draws(own)).toEqual([1]);
+  } finally { geometry.dispose(); material.dispose(); }
+});

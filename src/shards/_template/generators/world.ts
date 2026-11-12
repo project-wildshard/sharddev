@@ -28,8 +28,16 @@ export function measureBox(w: number, h: number, d: number, role: MeasureRole): 
   }
   return geometry.setAttribute('uv', new Float32BufferAttribute(packed, 2));
 }
-/** a grey-box shape (role 1, structure: orange in the dev-map look; role 2, trim: grey) */
-const cube = (w: number, h: number, d: number, color = 0x888888, role: MeasureRole = 1): Mesh => new Mesh(measureBox(w, h, d, role), new MeshStandardMaterial({ color, flatShading: true }));
+/**
+ * LF1-7: the colours the look's `tint` keeps (look.json `materials.pbr.measure.tint`). Stone is a cool grey-violet, the
+ * hut's blocks a warmer grey, moss its own green (so a trim cap stays moss under a trim tint), wood and iron for the hut's
+ * posts, bench, barrels and lamp.
+ */
+export const STONE = 0x847a7d, HUT_STONE = 0x8d8479, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2;
+/** LF1-7: the door lamp's post (the lantern hangs 1 m left of it, over the doorway's right edge, in L0 tile 0/4/3). */
+export const LAMP_POST = { x: 1.55, z: -8.3 } as const;
+/** a grey-box shape (role 1, structure: stone; role 2, trim: moss) */
+const cube = (w: number, h: number, d: number, color?: number, role: MeasureRole = 1): Mesh => new Mesh(measureBox(w, h, d, role), new MeshStandardMaterial({ color: color ?? (role === 2 ? MOSS : STONE), flatShading: true }));
 /** What the shapes need: a root, a scope that owns their buffers, the registry sink, the seeded RNG and the ground height. */
 /** One authored scene part and its collider rows, before SDK compilation. No native registry owns it. */
 export interface TemplatePart {
@@ -50,15 +58,15 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const { heightAt } = ctx, file = 'src/shards/_template/generators/world.ts';
   const y = heightAt(layout.HUT.x, layout.HUT.z);
   const hut = new Group(); hut.position.set(layout.HUT.x, y, layout.HUT.z);
-  const roof = cube(6.6, 0.4, 6.6, 0x5c7a34, 2); roof.position.y = 3; hut.add(roof);
+  hut.add(hutRoof());
   const colliders = [];
   for (const [x, z, hw, hd] of [[-3, 0, 0.15, 3], [3, 0, 0.15, 3], [0, -3, 3, 0.15], [-2, 3, 1, 0.15], [2, 3, 1, 0.15]]) {
     if (x === undefined || z === undefined || hw === undefined || hd === undefined) continue;
-    const wall = cube(hw * 2, 3, hd * 2, 0x7d7a68); wall.position.set(x, 1.5, z); hut.add(wall);
+    const wall = cube(hw * 2, 3, hd * 2, HUT_STONE); wall.position.set(x, 1.5, z); hut.add(wall);
     colliders.push(BoxCollider.fromData({ kind: 'box', x: layout.HUT.x + x, y: (y + 3 + y) / 2, z: layout.HUT.z + z, hx: hw, hy: Math.max(0.005, (y + 3 - y) / 2), hz: hd, yaw: -0, surface: 'wood' }).toColliderData());
   }
   ctx.root.add(hut); ctx.piece({ id: 'template.hut', name: 'Grey hut', category: 'buildings', file, object: hut, colliders, surface: 'wood' });
-  const panel = cube(1.8, 2.5, 0.2, 0x6e4a2a, 2); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
+  const panel = cube(1.8, 2.5, 0.2, WOOD_DARK, 1); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
   ctx.root.add(panel); ctx.piece({ id: 'template.door', name: 'Open hut door', category: 'buildings', file, object: panel,
     colliders: [BoxCollider.fromData({ kind: 'box', x: layout.HUT.x, y: (y + 2.5 + y) / 2, z: layout.HUT.doorZ, hx: 0.9, hy: Math.max(0.005, (y + 2.5 - y) / 2), hz: 0.1, yaw: -0, surface: 'wood' }).toColliderData()], active: () => true });
   // Mossgate Hollow v3: braziers A, B and C on labelled pads where the story puts them (LF1-0): A by the moss gate, B on
@@ -66,16 +74,16 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const braziers = new Group(), stands: NonNullable<TemplatePart['colliders']> = [];
   for (const [x, z] of layout.BRAZIERS) {
     if (x === undefined || z === undefined) continue;
-    const by = heightAt(x, z), pad = cube(3, 0.1, 3, 0x6d6a5c, 2), base = cube(1.1, 0.4, 1.1, 0x7d7a68), stem = cube(0.6, 0.7, 0.6, 0x7d7a68), bowl = cube(1.3, 0.3, 1.3, 0x5a5650, 2);
+    const by = heightAt(x, z), pad = cube(3, 0.1, 3, 0x6f6866, 1), base = cube(1.1, 0.4, 1.1, STONE), stem = cube(0.6, 0.7, 0.6, STONE), bowl = cube(1.3, 0.3, 1.3, 0x6c6264, 1);
     pad.position.set(x, by + 0.05, z); base.position.set(x, by + 0.3, z); stem.position.set(x, by + 0.85, z); bowl.position.set(x, by + 1.35, z);
     braziers.add(pad, base, stem, bowl);
     stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
   }
   ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
   // Mossgate Hollow v3 (MH-2): the moss gate brazier A's shared field `template.brazier-a` opens (its bars are a panel and
-  // collider the field hides). All three braziers burn particles only (client scripts on fields 102 to 104), with no flame
-  // panel: a panel costs each L0 tile it touches two draws, and A's tile 0/3/3 is at the cap of 8 with the terrain, the
-  // static props, the hut door (it straddles x = 0) and the gate's bars (LF1-0).
+  // collider the field hides). The braziers burn particles (client scripts on fields 102 to 104); A also shows an emissive
+  // flame panel (LF1-7, `brazierFlame`): its tile 0/3/3 is at the cap of 8, paid for by drawing the panel and the hut door
+  // (it straddles x = 0) with no shadow, one draw each instead of two.
   const gate = mossGate(heightAt);
   ctx.root.add(gate.frame); ctx.piece({ id: 'template.mossgate-frame', name: 'Moss gate frame', category: 'buildings', file, object: gate.frame, colliders: gate.frameColliders, surface: 'stone' });
   ctx.root.add(gate.vines); ctx.piece({ id: 'template.mossgate-vines', name: 'Moss gate vines', category: 'nature', file, object: gate.vines });
@@ -115,8 +123,8 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
 /** A fixed jitter in −1 … 1 from two integers (the dressing never draws from the scatter stream, so the props stay put). */
 const jitter = (i: number, k: number): number => { const s = Math.sin(i * 127.1 + k * 311.7) * 43758.5453; return (s - Math.floor(s)) * 2 - 1; };
 /** A box of role `role` at (x, y, z), turned `yaw` and tipped `tilt` (radians). */
-function block(w: number, h: number, d: number, role: MeasureRole, x: number, y: number, z: number, yaw = 0, tilt = 0): Mesh {
-  const mesh = cube(w, h, d, 0x888888, role); mesh.position.set(x, y, z); mesh.rotation.set(tilt, yaw, tilt * 0.6, 'YXZ'); return mesh;
+function block(w: number, h: number, d: number, role: MeasureRole, x: number, y: number, z: number, yaw = 0, tilt = 0, color?: number): Mesh {
+  const mesh = cube(w, h, d, color, role); mesh.position.set(x, y, z); mesh.rotation.set(tilt, yaw, tilt * 0.6, 'YXZ'); return mesh;
 }
 type Colliders = NonNullable<TemplatePart['colliders']>;
 /** A stone box collider at (x, y, z), half sizes `hx`, `hy`, `hz`, turned `yaw`. */
@@ -140,10 +148,13 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     root.add(block(w, 0.08, d, 1, x, heightAt(x, z) + 0.04, z, jitter(i, 4) * 0.35));
   }
   // the door lamp: a post right of the door, an arm over the doorway and a lamp box under a moss cap
-  const lx = 1.55, lz = -8.3, ly = heightAt(lx, lz);
-  root.add(block(0.2, 2.6, 0.2, 2, lx, ly + 1.3, lz), block(1.2, 0.12, 0.12, 2, lx - 0.5, ly + 2.5, lz), block(0.08, 0.2, 0.08, 2, lx - 1.0, ly + 2.36, lz));
-  root.add(block(0.42, 0.5, 0.42, 1, lx - 1.0, ly + 2.0, lz), block(0.56, 0.1, 0.56, 2, lx - 1.0, ly + 2.3, lz), block(0.5, 0.08, 0.5, 2, lx - 1.0, ly + 1.71, lz), block(0.46, 0.24, 0.46, 1, lx, ly + 0.12, lz));
+  const { x: lx, z: lz } = LAMP_POST, ly = heightAt(lx, lz);
+  root.add(block(0.18, 2.6, 0.18, 1, lx, ly + 1.3, lz, 0, 0, IRON), block(1.2, 0.1, 0.1, 1, lx - 0.5, ly + 2.5, lz, 0, 0, IRON), block(0.06, 0.2, 0.06, 1, lx - 1.0, ly + 2.36, lz, 0, 0, IRON));
+  // LF1-7: the lantern's iron frame (lid, base, four corner bars) round the glass (`hutLamp`, emissive)
+  root.add(block(0.5, 0.1, 0.5, 1, lx - 1.0, ly + 2.29, lz, 0, 0, IRON), block(0.46, 0.08, 0.46, 1, lx - 1.0, ly + 1.72, lz, 0, 0, IRON), block(0.46, 0.24, 0.46, 1, lx, ly + 0.12, lz));
+  for (const [cx, cz] of [[-1, -1], [-1, 1], [1, -1], [1, 1]] as const) root.add(block(0.05, 0.5, 0.05, 1, lx - 1.0 + cx * 0.2, ly + 2.0, lz + cz * 0.2, 0, 0, IRON));
   box(lx, ly + 1.25, lz, 0.12, 1.25, 0.12);
+  hutFront(root, colliders, heightAt);
   // mossy boulders: two or three tumbled stones and a moss cap each
   const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-5.2, 1.9, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-2.6, 2.6, 0.8]];
   boulders.forEach(([x, z, s], i) => {
@@ -155,7 +166,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     box(x, y + s * 0.35, z, s * 0.55, s * 0.35, s * 0.5);
   });
   // ferns: seven moss fronds fanned up and out from one root (LF1-5: tent fronds, half a box frond's bytes)
-  const ferns: [number, number, number][] = [[-2.7, -8.0, 1], [2.8, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-4.4, -0.6, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
+  const ferns: [number, number, number][] = [[-3.45, -8.1, 1], [3.5, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-4.4, -0.6, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
   ferns.forEach(([x, z, s], i) => { root.add(fern(x, heightAt(x, z), z, s, i)); });
   // mushroom clumps: pale stems under domed caps, by the path and the boulders. LF1-5: a cap in L0 tile 0/4/3 (x ≥ 0, z < 0)
   // is red (`mushroomCaps`, its own emissive draw); 0/3/3 is at its 8 draws, so a cap there stays a stone box (its bytes
@@ -163,8 +174,8 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   MUSHROOMS.forEach(([x, z], i) => {
     for (let k = 0; k < 3; k++) {
       const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
-      root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz));
-      if (!redCap(mx, mz)) root.add(block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2));
+      root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz, 0, 0, STEM));
+      if (!redCap(mx, mz)) root.add(block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2, CAP_RED));
     }
   });
   return { object: root, colliders };
@@ -228,11 +239,76 @@ function mushroomCap(r: number, material: MeshStandardMaterial, role: MeasureRol
   return new Mesh(geometry, material);
 }
 
+/**
+ * LF1-7: the hut's pitched moss roof, in the hut's own frame (walls 3 m up at x, z = ±3). The ridge runs east to west: two
+ * moss slabs (trim, so the look's trim grid draws their shingle courses) with a 0.5 m overhang, a pale ridge cap, and stone
+ * gables closing the ends. Replaces MH-1's flat slab. Lean on purpose: L0 tile 0/3/3 is near its 300 000-byte cap.
+ */
+function hutRoof(): Group {
+  const roof = new Group(), run = 3.5, rise = 1.5, pitch = Math.atan2(rise, run), length = Math.hypot(run, rise), ridge = 4.55;
+  for (const side of [1, -1]) {
+    const slab = cube(7.0, 0.26, length, MOSS, 2);
+    slab.position.set(0, ridge - (length / 2) * Math.sin(pitch), side * (length / 2) * Math.cos(pitch)); slab.rotation.x = side * pitch; roof.add(slab);
+  }
+  const cap = cube(7.1, 0.2, 0.44, MOSS_LIGHT, 2); cap.position.y = ridge + 0.16; roof.add(cap);
+  // each gable's top edges lie on its slab's underside (Codex review): a base `half` wide at the wall top meets the slope
+  const under = ridge - 0.13 / Math.cos(pitch), half = (under - 3) / Math.tan(pitch);
+  for (const x of [-3, 3]) {
+    const points = [[-0.15, 3, -half], [-0.15, 3, half], [-0.15, under, 0], [0.15, 3, -half], [0.15, 3, half], [0.15, under, 0]].map(([px = 0, py = 0, pz = 0]) => new Vector3(x + px, py, pz));
+    roof.add(new Mesh(tent(points, [[0, 1, 2], [3, 4, 5], [1, 2, 5], [1, 5, 4], [2, 0, 3], [2, 3, 5]], new Vector3(x, 3.4, 0), 1), foliageMaterial(HUT_STONE)));
+  }
+  return roof;
+}
+/**
+ * LF1-7: the hut's front, around the door at (layout.HUT.x, doorZ): wood door posts and a lintel, a bench left of the door
+ * and two hooped barrels right of it (eight-sided, open hoops: bytes are tight; each with a wood collider), all in the static draw (bytes, not draws).
+ */
+function hutFront(root: Group, colliders: Colliders, heightAt: (x: number, z: number) => number): void {
+  const { x: hx, doorZ } = layout.HUT, y = heightAt(hx, doorZ), front = doorZ + 0.17;
+  const wood = (x: number, z: number, hx2: number, hy: number, hz: number, y0: number): void => { colliders.push(BoxCollider.fromData({ kind: 'box', x, y: y0 + hy, z, hx: hx2, hy, hz, yaw: -0, surface: 'wood' }).toColliderData()); };
+  for (const side of [-1, 1]) root.add(block(0.26, 2.7, 0.36, 1, hx + side * 1.06, y + 1.35, front, 0, 0, WOOD));
+  root.add(block(2.6, 0.3, 0.4, 1, hx, y + 2.85, front, 0, 0, WOOD));
+  // the bench: a seat on two legs against the wall, left of the door
+  const bx = hx - 2.05, bz = doorZ + 0.5, by = heightAt(bx, bz);
+  root.add(block(1.5, 0.1, 0.42, 1, bx, by + 0.45, bz, 0, 0, WOOD), block(0.12, 0.4, 0.36, 1, bx - 0.6, by + 0.2, bz, 0, 0, WOOD_DARK), block(0.12, 0.4, 0.36, 1, bx + 0.6, by + 0.2, bz, 0, 0, WOOD_DARK));
+  wood(bx, bz, 0.75, 0.25, 0.21, by);
+  // two barrels right of the door: a ten-sided staved body with two iron hoops
+  for (const [x, z, s] of [[hx + 2.2, doorZ + 0.52, 1], [hx + 2.82, doorZ + 0.42, 0.9]] as const) {
+    const gy = heightAt(x, z), h = 0.82 * s, r = 0.3 * s;
+    const body = new Mesh(foliageUv(new CylinderGeometry(r * 0.9, r * 0.9, h, 8), 1), foliageMaterial(WOOD)); body.position.set(x, gy + h / 2, z); root.add(body);
+    for (const at of [0.22, 0.78]) { const hoop = new Mesh(foliageUv(new CylinderGeometry(r, r, 0.07, 8, 1, true), 1), foliageMaterial(IRON)); hoop.position.set(x, gy + h * at, z); root.add(hoop); }
+    wood(x, z, r, h / 2, r, gy);
+  }
+}
+/**
+ * LF1-7 with LF1-2: the door lamp's glass, one whole shape at the lantern (L0 tile 0/4/3) in the GLB material
+ * `mossgate.lamp`, which `props.materials` binds to an emissive look entry: one draw, no shadow.
+ */
+export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mesh; transform: Matrix4 } {
+  const x = LAMP_POST.x - 1.0, z = LAMP_POST.z, y = heightAt(LAMP_POST.x, LAMP_POST.z) + 2.0;
+  const geometry = new BoxGeometry(0.36, 0.48, 0.36).toNonIndexed(); geometry.deleteAttribute('uv');
+  geometry.setAttribute('color', new Float32BufferAttribute(new Float32Array(geometry.getAttribute('position').count * 3).fill(1), 3));
+  const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: 0xffffff, vertexColors: true })); mesh.castShadow = false;
+  return { mesh, transform: new Matrix4().makeTranslation(x, y, z) };
+}
+/**
+ * LF1-7 with LF1-2: brazier A's flame, a panel brazier A's field shows (data/targets.json, field 102): five faceted cones
+ * in the bowl, in the GLB material `mossgate.flame` (emissive), with no shadow, so it costs L0 tile 0/3/3 one draw.
+ */
+export function brazierFlame(heightAt: (x: number, z: number) => number): Group {
+  const [x = 0, z = 0] = layout.BRAZIERS[0] ?? [], y = heightAt(x, z) + 1.5, flame = new Group();
+  const cones: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
+  cones.forEach(([dx, dz, r, h], i) => {
+    const cone = new Mesh(foliageUv(new CylinderGeometry(0, r, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + h / 2, z + dz); cone.rotation.y = jitter(i, 110) * 1.2; flame.add(cone);
+  });
+  return flame;
+}
+
 /** Round toy trees in the yard (LF1-5): x, z, size. Off every walk the MH-2, MH-3 and LF1-0 proofs take (see foliage test). */
 export const TREES: readonly [number, number, number][] = [[-6.0, -13.5, 1.1], [-9.0, -16.5, 0.95], [5.3, -13.6, 1.1], [9.5, -2.5, 0.9], [15.5, -5.0, 1.0], [2.5, 7.5, 1.0], [12.5, 3.0, 1.05], [-12.5, 3.5, 0.9]];
 /** Grass tufts at the wall bases (the hut, the moss gate's wings and pillars, the arena ring) and a few in the open yard. */
 const TUFTS: readonly [number, number, number][] = [
-  [-2.3, -8.75, 1], [2.3, -8.7, 0.9], [-3.35, -10.2, 1.1], [-3.35, -12.6, 0.9], [-3.35, -14.3, 1], [3.35, -10.4, 1], [3.35, -12.2, 1.1], [3.35, -14.5, 0.9], [-1.4, -15.35, 1], [1.3, -15.35, 0.9],
+  [-3.6, -8.75, 1], [3.65, -8.7, 0.9], [-3.35, -10.2, 1.1], [-3.35, -12.6, 0.9], [-3.35, -14.3, 1], [3.35, -10.4, 1], [3.35, -12.2, 1.1], [3.35, -14.5, 0.9], [-1.4, -15.35, 1], [1.3, -15.35, 0.9],
   [-8.6, -10.4, 1], [-8.6, -8.2, 0.9], [-8.4, -6.65, 1.1], [-8.4, -3.35, 1], [-8.6, -2.2, 0.9], [-8.6, 0.6, 1],
   [3.6, -1.6, 0.8], [-2.2, -5.6, 0.8], [5.8, -7.0, 0.9], [-5.6, -11.8, 1], [7.5, -1.2, 0.9], [11.2, -4.6, 0.8], [-0.8, 3.2, 0.8], [4.2, 4.8, 0.9],
 ];

@@ -1,5 +1,5 @@
 import { Group, Mesh, MeshStandardMaterial } from 'three';
-import { measureBox, type TemplateWorldPorts } from './world';
+import { measureBox, MOSS, type TemplateWorldPorts } from './world';
 
 // the engine types this generator speaks, through world.ts's ports (no new engine edges for one build-time module)
 type Piece = Parameters<TemplateWorldPorts['piece']>[0];
@@ -23,7 +23,7 @@ export class Kit {
   /** while set, boxes are named `detail`: drawn near, left out of the coarse tiles and the far proxy (`cellCoarse`) */
   detail = false;
   private mesh(w: number, h: number, d: number, role: MeasureRole): Mesh {
-    const geometry = measureBox(w, h, d, role), material = new MeshStandardMaterial({ color: 0x888888, flatShading: true }), mesh = new Mesh(geometry, material);
+    const geometry = measureBox(w, h, d, role), material = new MeshStandardMaterial({ color: role === 2 ? MOSS : 0x888888, flatShading: true }), mesh = new Mesh(geometry, material);
     this.owned.push(geometry, material);
     if (this.detail) mesh.name = 'detail';
     this.root.add(mesh);

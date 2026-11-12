@@ -24,6 +24,15 @@
         "activeWhenMatched": false
       },
       {
+        "panel": "template.flame-a",
+        "scope": "shared",
+        "fieldId": 102,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
+      },
+      {
         "panel": "template.pond-stones",
         "scope": "shared",
         "fieldId": 103,

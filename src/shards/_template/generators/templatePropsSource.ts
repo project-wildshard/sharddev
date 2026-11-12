@@ -2,12 +2,14 @@ import { Group, type Matrix4, Mesh, MeshStandardMaterial, type Object3D } from '
 import { templateHeightAt } from './landscape';
 import { templateScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
-import { buildTemplateWorld, jumpCoursePads, lanternModel, measureBox, mushroomCaps, type TemplatePart } from './world';
+import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, measureBox, mushroomCaps, type TemplatePart } from './world';
 import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
 
 /** LF1-5: the GLB material names `props.materials` binds (product.ts): the measure stone every merged shape draws in, and the
  *  red mushroom caps' emissive surface. */
 export const TEMPLATE_STONE = 'measure', TEMPLATE_MUSHROOM_CAP = 'mossgate.mushroom-cap';
+/** LF1-7: the door lamp's glass and brazier A's flame, each bound to an emissive look entry. */
+export const TEMPLATE_LAMP = 'mossgate.lamp', TEMPLATE_FLAME = 'mossgate.flame';
 /** Pieces whose colliders a target row switches (MH-2: the moss gate; MH-3: the pond's stones and the arena gate). */
 const PANELS: ReadonlySet<string> = new Set(['template.door', 'template.mossgate', 'template.pond-stones', 'template.arena-gate']);
 /** Panel colliders that start off: the pond's raised stones stand only once brazier B is lit. */
@@ -41,6 +43,9 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   colliders.push({ id: 'template.jump', panel: 'template.jump', initialActive: false, shapes: course.children.map((pad) => ({ kind: 'box', x: pad.position.x, y: pad.position.y, z: pad.position.z === 0 ? 0 : pad.position.z, hx: 1.5, hy: 0.15, hz: 1.5 })) });
   // LF1-5: the red mushroom caps, one whole emissive shape in tile 0/4/3 (its own draw, no shadow), named for props.materials
   const caps = mushroomCaps(templateHeightAt());
-  return { source: { static: staticRoot, materialName: TEMPLATE_STONE, whole: [{ id: 'template_mushroom_caps', mesh: caps.mesh, transform: caps.transform, materialName: TEMPLATE_MUSHROOM_CAP }], scatter: [{ model, transforms }, cell.posts], panels: [{ id: 'template.door', model: door }, { id: 'template.mossgate', model: shape('template.mossgate') },
-    { id: 'template.pond-stones', model: shape('template.pond-stones'), visible: false }, { id: 'template.arena-gate', model: shape('template.arena-gate') }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); model.geometry.dispose(); model.material.dispose(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); } };
+  // LF1-7: the door lamp's glass, one emissive whole in 0/4/3 (1 draw, no shadow); brazier A's flame, a shadowless emissive
+  // panel A's field shows (1 draw in 0/3/3); the hut door casts no shadow, so 0/3/3 and 0/4/3 each pay one draw less for it
+  const glass = hutLamp(templateHeightAt()), flame = brazierFlame(templateHeightAt());
+  return { source: { static: staticRoot, materialName: TEMPLATE_STONE, whole: [{ id: 'template_mushroom_caps', mesh: caps.mesh, transform: caps.transform, materialName: TEMPLATE_MUSHROOM_CAP }, { id: 'template_hut_lamp', mesh: glass.mesh, transform: glass.transform, materialName: TEMPLATE_LAMP }], scatter: [{ model, transforms }, cell.posts], panels: [{ id: 'template.door', model: door, castShadow: false }, { id: 'template.flame-a', model: flame, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.mossgate', model: shape('template.mossgate') },
+    { id: 'template.pond-stones', model: shape('template.pond-stones'), visible: false }, { id: 'template.arena-gate', model: shape('template.arena-gate') }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); model.geometry.dispose(); model.material.dispose(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); glass.mesh.geometry.dispose(); glass.mesh.material.dispose(); flame.traverse((o) => { if (o instanceof Mesh) { o.geometry.dispose(); (o.material as MeshStandardMaterial).dispose(); } }); } };
 }
