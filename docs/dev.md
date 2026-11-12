@@ -181,7 +181,9 @@ Run `node --test test/ci/map-author.test.mjs` explicitly, outside hooks.
 Five quick cases exercise a packed SDK from a real outside author: real
 nonempty map geometry, every legacy RGBA byte, lossless product intake,
 repeatable packed output, undeclared-input refusal and selected/placed
-baked geometry. Each case is capped at 9.5 s and its temporary products
+baked geometry. Each case is capped at 20 s and each CLI call at 15 s.
+Hosted builds take 6.2-7.4 s, and one slow runner took every build to
+about 8.0 s, which the old 8 s spawn kill failed. Temporary products
 are removed at the end. The reviewed SDK waiting ceiling is now 47.
 
 ## Installed keyed sky codec

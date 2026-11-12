@@ -11,6 +11,11 @@ import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { installWildshard } from '../../src/test/helpers/install.ts';
 
+// Hosted `build` calls take 6.2-7.4 s; one slow runner pushed every build to
+// about 8.0 s (ci run 43268663496, attempt 1), so the old 8 s kill failed cases
+// 2 and 3. The spawn timeout kills a hung CLI (spawnSync blocks the runner's
+// timer); the case cap must cover each case's spawns plus its awaits.
+const spawnTimeout = 15_000, cap = { timeout: 20_000 };
 const parent = process.env.WS_PROOF_SCRATCH ?? tmpdir();
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, 'map-author-'));
@@ -39,7 +44,7 @@ const style = { kind: 'void', void: 'transparent', stone: ['#7d7466', '#a0937a',
 const settings = { style, painter: { version: 1, glbs: ['floor.glb'] } };
 function run(args, success = true) {
   const started = performance.now();
-  const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 8000,
+  const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: spawnTimeout,
     env: { ...process.env, WILDSHARD_GEN_CACHE: join(root, 'gen'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') } });
   const timing = (result.stdout ?? '').split('\n').filter(line => line.startsWith('author timing: '));
   console.info(`map author CLI: ${JSON.stringify({ command: args[0], seconds: (performance.now() - started) / 1000, exit: result.status, error: result.error?.message, timing })}`);
@@ -64,13 +69,13 @@ export default async function generate(ctx) {
 `);
 }
 let baseline;
-test('the installed author owns its source inputs', { timeout: 9500 }, () => {
+test('the installed author owns its source inputs', cap, () => {
   run(['new', source, 'map-isle', '--empty']);
   rmSync(join(source, 'generators/output.ts'));
   writeFileSync(join(source, 'floor.glb'), floor);
   config();
 });
-test('owned map pixels survive actual build, lossless encoding and product readmission', { timeout: 9500 }, async () => {
+test('owned map pixels survive actual build, lossless encoding and product readmission', cap, async () => {
   run(['build', source, join(app, 'first'), '--product-only']);
   const read = name => { assert.equal(name, 'floor.glb'); return floor; };
   const direct = await rasterSceneMap(settings, { input: read, bytes: read, json: () => { throw new Error('No JSON'); } });
@@ -85,20 +90,20 @@ test('owned map pixels survive actual build, lossless encoding and product readm
   direct.pixels.fill(0);
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
 });
-test('a second map build keeps every encoded byte and packs the real product', { timeout: 9500 }, async () => {
+test('a second map build keeps every encoded byte and packs the real product', cap, async () => {
   run(['build', source, join(app, 'second'), '--product-only']);
   const product = await loadHeadlessProduct(join(app, 'second'));
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
   run(['pack', join(app, 'second'), '--out', join(root, 'map.tar')]);
 });
-test('an undeclared map input fails the real build without changing its prior product', { timeout: 9500 }, async () => {
+test('an undeclared map input fails the real build without changing its prior product', cap, async () => {
   config(true);
   const failed = run(['build', source, join(app, 'refused'), '--product-only'], false);
   assert.match(`${failed.stdout}\n${failed.stderr}`, /Undeclared map input absent.glb/);
   const product = await loadHeadlessProduct(join(app, 'first'));
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
 });
-test('owned baked selectors and repeated placements reach the packed map without a file handoff', { timeout: 9500 }, async () => {
+test('owned baked selectors and repeated placements reach the packed map without a file handoff', cap, async () => {
   const recipe = { scene: { root: 'root', nodes: [
     { kind: 'group', id: 'root', children: ['left', 'right', 'pooled'] },
     { kind: 'object', id: 'left', source: 'selected', position: [-20, 0, 0] },
