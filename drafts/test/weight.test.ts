@@ -1,5 +1,6 @@
 // W15 (J15): drafts cost the deployed game nothing. The game imports nothing from drafts/, ships no draft file, and
-// its only trace of a draft is the COMING SOON card's data, whose pictures are absolute URLs loaded when the card shows.
+// its only trace of a draft is the COMING SOON card in engine: its data, two small key-art copies in engine's
+// public/drafts/ (OFF-VERCEL OV10) and a button to https://drafts.wildshard.io (DRAFTS DR5).
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -26,11 +27,17 @@ describe('drafts cost the game nothing (J15)', () => {
     expect(existsSync(join(ROOT, 'public', 'draft'))).toBe(false);
     expect(existsSync(join(ROOT, 'public', 'drafts'))).toBe(false);
   });
-  it('a draft card\'s pictures are absolute https URLs, never files in the game build', () => {
+  it('a draft card\'s pictures are the game\'s own key-art copies and its button opens drafts.wildshard.io', () => {
+    // CI installs engine at package.json's pin, which predates DR5 until the next engine bump: that card still has
+    // the Blob pictures and the Vercel link, so it is accepted whole, never mixed. Drop `old` with that bump.
+    const old = (d: (typeof DRAFT_TITLES)[number]): boolean =>
+      [d.thumb, d.hero].every((u) => u.startsWith('https://64yencbq8tncsy39.public.blob.vercel-storage.com/draft/'))
+      && d.url === `https://wildshard-drafts.vercel.app/#/${d.slug}`;
     for (const d of DRAFT_TITLES) {
-      for (const u of [d.thumb, d.hero]) if (u) expect(u, d.slug).toMatch(/^https:\/\/[^/]+\/.+\.webp$/);
-      // the old Vercel site until DRAFTS DR5 points the card at drafts.wildshard.io
-      expect(d.url).toMatch(new RegExp(`^https://(wildshard-drafts\\.vercel\\.app|drafts\\.wildshard\\.io)/#/${d.slug}$`));
+      if (old(d)) continue;
+      expect(d.thumb, d.slug).toMatch(new RegExp(`^/drafts/${d.slug}/[0-9a-f]+-thumb\\.webp$`));
+      expect(d.hero, d.slug).toMatch(new RegExp(`^/drafts/${d.slug}/[0-9a-f]+-full\\.webp$`));
+      expect(d.url).toBe(`https://drafts.wildshard.io/#/${d.slug}`);
     }
   });
 });
