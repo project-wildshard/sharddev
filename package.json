@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/sharddev",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "The author's toolbox: the `wildshard` CLI that bakes shard source into a shardfile, the author SDK, the local dev server (engine client against engine server), the explorers, arena and drafts tool.",
   "type": "module",
