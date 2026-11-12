@@ -5,8 +5,13 @@
 #
 #   bash drafts/tools/deploy.sh          # commit first: it ships HEAD, not the working tree
 #
-# The pictures are not in the deploy: they are on Blob already (drafts/tools/atlas.ts --publish, J28).
+# The pictures are not in the deploy: they are in R2 already (drafts/tools/atlas.ts --publish, DRAFTS DR3).
 set -euo pipefail
+
+# Since DRAFTS DR3 the data points the pictures at the site's own /media/, which only the drafts Worker (DR4) serves. A
+# Vercel deploy now would ship a site with no pictures: the live Vercel build stays as it is until DR4 replaces this.
+echo "deploy-drafts: the Vercel deploy is retired (DRAFTS DR3); DR4's pnpm drafts:deploy ships to Cloudflare" >&2
+exit 1
 
 repo="$(git rev-parse --show-toplevel)"
 cd "$repo"

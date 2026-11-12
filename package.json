@@ -56,7 +56,6 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
-    "@vercel/blob": "2.8.0",
     "@wildshard/engine": "github:project-wildshard/engine#80d5cc0d8d5faa1336708eeee10359f30a715204",
     "@wildshard/format": "github:project-wildshard/shardfile#4f8280c",
     "ajv": "6.15.0",

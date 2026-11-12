@@ -7,7 +7,7 @@
  * Two caches:
  *   wd-shell-<build>  this build's files, precached at install (strict: a failed file fails the install, so the old
  *                     worker keeps serving). `activate` drops the other builds' shells.
- *   wd-images         the pictures on Blob (content-hashed names: they never change), cache-first; the page warms it
+ *   wd-images         the pictures under /media/ (R2 through the Worker; content-hashed names: they never change), cache-first; the page warms it
  *                     with every picture of an opened draft (src/pwa.ts), so the whole draft reads offline.
  *
  * Updates never reload on their own: a new build installs and WAITS; the reload pill lights up (src/update.ts), and its
@@ -18,7 +18,6 @@ const BUILD = '__BUILD__';
 const PRECACHE = JSON.parse('__PRECACHE__');
 const SHELL = `wd-shell-${BUILD}`;
 const IMAGES = 'wd-images';
-const BLOB = '.public.blob.vercel-storage.com';
 
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
@@ -60,8 +59,8 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
   const url = new URL(request.url);
-  if (url.hostname.endsWith(BLOB)) { event.respondWith(imageFirst(request)); return; }
   if (url.origin !== self.location.origin) return;
+  if (url.pathname.startsWith('/media/')) { event.respondWith(imageFirst(request)); return; }
   if (url.pathname === '/version.json' || url.pathname === '/sw.js') return;
   if (request.mode === 'navigate' && url.pathname === '/') {
     event.respondWith((async () => {

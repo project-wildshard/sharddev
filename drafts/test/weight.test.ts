@@ -1,5 +1,5 @@
 // W15 (J15): drafts cost the deployed game nothing. The game imports nothing from drafts/, ships no draft file, and
-// its only trace of a draft is the COMING SOON card's data, whose pictures are Blob URLs loaded when the card shows.
+// its only trace of a draft is the COMING SOON card's data, whose pictures are absolute URLs loaded when the card shows.
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
@@ -26,10 +26,11 @@ describe('drafts cost the game nothing (J15)', () => {
     expect(existsSync(join(ROOT, 'public', 'draft'))).toBe(false);
     expect(existsSync(join(ROOT, 'public', 'drafts'))).toBe(false);
   });
-  it('a draft card\'s pictures are Blob URLs, never files in the game build', () => {
+  it('a draft card\'s pictures are absolute https URLs, never files in the game build', () => {
     for (const d of DRAFT_TITLES) {
-      for (const u of [d.thumb, d.hero]) if (u) expect(u, d.slug).toMatch(/^https:\/\/[a-z0-9]+\.public\.blob\.vercel-storage\.com\/draft\//);
-      expect(d.url).toBe(`https://wildshard-drafts.vercel.app/#/${d.slug}`);
+      for (const u of [d.thumb, d.hero]) if (u) expect(u, d.slug).toMatch(/^https:\/\/[^/]+\/.+\.webp$/);
+      // the old Vercel site until DRAFTS DR5 points the card at drafts.wildshard.io
+      expect(d.url).toMatch(new RegExp(`^https://(wildshard-drafts\\.vercel\\.app|drafts\\.wildshard\\.io)/#/${d.slug}$`));
     }
   });
 });

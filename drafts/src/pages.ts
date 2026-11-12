@@ -16,11 +16,11 @@ export function titlePage(index: DraftIndex): HTMLElement {
   const bg = h('div', { class: 'wd-title-bg' });
   const dots = h('div', { class: 'wd-dots' }, index.drafts.map((_, i) => h('span', { class: `wd-dot${i === 0 ? ' wd-on' : ''}` })));
   const setBg = (d: DraftCard | undefined): void => {
-    bg.style.backgroundImage = d?.keyArt ? `url("${url({ blob: index.blob, slug: d.slug }, d.keyArt, 'full')}")` : '';
+    bg.style.backgroundImage = d?.keyArt ? `url("${url({ media: index.media, slug: d.slug }, d.keyArt, 'full')}")` : '';
   };
   const cards = index.drafts.map((d) => {
     const art = d.keyArt
-      ? h('img', { class: 'wd-card-art', src: url({ blob: index.blob, slug: d.slug }, d.keyArt, 'thumb'), alt: '' })
+      ? h('img', { class: 'wd-card-art', src: url({ media: index.media, slug: d.slug }, d.keyArt, 'thumb'), alt: '' })
       : h('div', { class: 'wd-card-empty' }, d.name);
     return h('a', { class: 'wd-card', href: `#/${d.slug}` },
       art,

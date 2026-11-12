@@ -3,7 +3,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import {
-  STAGES, isStageId, spoilerByKind, stageName, stageOrder, ticksDone,
+  MEDIA_BASE, STAGES, isStageId, spoilerByKind, stageName, stageOrder, ticksDone,
   type Atlas, type Cam, type ConceptSub, type DraftCard, type Img, type Item, type ItemKind, type ItemStatus,
   type Mechanic, type Model, type Place, type Proto, type Round, type SetPlan, type Side, type StageEntry, type StageId,
   type Step, type Terrain, type Board, type DesignDoc,
@@ -156,11 +156,6 @@ function img(index: ImageIndex, source: string): Img | null {
   return e ? { hash: e.hash, w: e.w, h: e.h } : null;
 }
 
-/** The Blob origin the index's uploads live on (every entry shares one store). */
-export function blobOrigin(index: ImageIndex): string {
-  const first = Object.values(index)[0];
-  return first ? new URL(first.full.url).origin : '';
-}
 
 export interface BuildInput {
   root: string;
@@ -318,7 +313,7 @@ export function buildAtlas({ root, config, content, cams, terrain, design = [], 
 
   const keyArt = keyItem ? keyItem.images : null;
   const atlas: Atlas = {
-    version: 1, blob: blobOrigin(index), art: config.art, slug: config.slug, name: config.name, line: config.line, generated: now,
+    version: 1, media: MEDIA_BASE, art: config.art, slug: config.slug, name: config.name, line: config.line, generated: now,
     run: { stage: runStage, waiting: config.run.waiting, next: config.run.next }, keyArt,
     map: mapItem && config.map ? { item: mapItem.id, size: config.map.size } : null,
     stages, rounds, items, places: content.places, cams: camList, steps, side: content.side, lanes: content.lanes,

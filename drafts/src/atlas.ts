@@ -67,16 +67,26 @@ export type ItemStatus = 'picked' | 'current' | 'rejected' | 'superseded' | 'inp
 
 export type ConceptSub = 'place' | 'character' | 'creature' | 'boss' | 'gear';
 
-/** One picture on Blob (J28): `<blob>/draft/<slug>/<hash>-full.webp` (the original's pixels as WebP) and `…-thumb.webp`
- * (a grid tile's size). `w` / `h` are the original's, for the aspect. */
+/** One picture in R2 `wildshard-records` (DRAFTS DR3): key `drafts/<slug>/<hash>-full.webp` (the original's pixels as
+ * WebP) and `…-thumb.webp` (a grid tile's size), served by the site's Worker at `/media/<slug>/…`. `w` / `h` are the
+ * original's, for the aspect. */
 export interface Img {
   hash: string;
   w: number;
   h: number;
 }
 
-export function imgUrl(blob: string, slug: string, img: Img, size: 'full' | 'thumb'): string {
-  return `${blob}/draft/${slug}/${img.hash}-${size}.webp`;
+/** The pictures' base in the data (DRAFTS DR3): the site's own `/media/`, which its Worker answers from R2 keys under
+ * `drafts/`, and `pnpm drafts:dev` from a local copy. */
+export const MEDIA_BASE = '/media/';
+
+/** The R2 key of a picture's copy; its URL is the same path under the media base, less the `drafts/` prefix. */
+export function mediaKey(slug: string, hash: string, size: 'full' | 'thumb'): string {
+  return `drafts/${slug}/${hash}-${size}.webp`;
+}
+
+export function imgUrl(media: string, slug: string, img: Img, size: 'full' | 'thumb'): string {
+  return `${media}${slug}/${img.hash}-${size}.webp`;
 }
 
 export interface Item {
@@ -254,8 +264,8 @@ export interface RunHeader {
 
 export interface Atlas {
   version: 1;
-  /** The public Blob store's origin (J28). */
-  blob: string;
+  /** The pictures' base (MEDIA_BASE). */
+  media: string;
   /** The originals' folder in git (J30): an item's original is `<art>/<item id>`; how it was made is its round's `made`. */
   art: string;
   slug: string;
@@ -301,7 +311,7 @@ export interface DraftCard {
 
 export interface DraftIndex {
   version: 1;
-  blob: string;
+  media: string;
   generated: string;
   drafts: DraftCard[];
 }

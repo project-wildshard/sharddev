@@ -21,9 +21,10 @@ function headSha(): string {
 }
 const SHA = headSha();
 const BUILD = `${SHA || 'b'}-${Date.now().toString(36)}`;
-/** The pictures `pnpm drafts:dev` serves at /media/: a folder laid out as the store's keys (draft/<slug>/<hash>-full.webp).
- * Until DR3 moves them to R2 that is the DR1 export of the Blob store. */
-const MEDIA = resolve(process.env['DRAFTS_MEDIA_DIR'] ?? join(homedir(), '.cache', 'wildshard', 'drafts-blob-export'));
+/** The pictures `pnpm drafts:dev` serves at /media/: a folder laid out as the R2 keys under `drafts/`
+ * (<slug>/<hash>-full.webp). By default the DR1 export of the old Blob store, whose `draft/` folder is byte-equal to
+ * R2's `drafts/` (DRAFTS DR3). */
+const MEDIA = resolve(process.env['DRAFTS_MEDIA_DIR'] ?? join(homedir(), '.cache', 'wildshard', 'drafts-blob-export', 'draft'));
 const OUT_DIR = resolve(process.env['DRAFTS_OUT_DIR'] ?? join(root, '..', 'tmp', 'dist-drafts'));
 
 function walk(dir: string): string[] {

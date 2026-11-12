@@ -1,16 +1,22 @@
-// Phone copies and thumbnails on Vercel Blob (WORLDCLAW-TOOLS W2, J27, J28): each original is converted once, uploaded
-// once under a content-hashed name, and remembered in drafts/shards/<slug>/images.json (committed), so a re-publish with
-// no new art uploads nothing.
+// Phone copies and thumbnails in R2 (WORLDCLAW-TOOLS W2, J27; DRAFTS DR3, which moved them off Vercel Blob): each
+// original is converted once, uploaded once to `wildshard-records` under a content-hashed key
+// (`drafts/<slug>/<hash>-{full,thumb}.webp`), and remembered in drafts/shards/<slug>/images.json (committed), so a
+// re-publish with no new art uploads nothing. The upload is `wrangler r2 object put` on wrangler's own login: no key
+// is read or printed here.
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, statSync } from 'node:fs';
-import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
+import { mediaKey } from '../src/atlas.ts';
 
 export interface Copy {
-  url: string;
+  /** the R2 key in BUCKET */
+  key: string;
   bytes: number;
 }
+
+/** The private bucket the drafts Worker reads `drafts/` from (DRAFTS D2; www reads `site/media/` from it). */
+export const BUCKET = 'wildshard-records';
 
 export interface ImageEntry {
   hash: string;
@@ -82,29 +88,13 @@ export function toWebp(src: string, hash: string, edge: number | null, dims: { w
   return out;
 }
 
-export function blobToken(): string {
-  const env = process.env['BLOB_READ_WRITE_TOKEN'];
-  if (env) return env;
-  const file = join(homedir(), '.config', 'wildshard-drafts', 'blob.env');
-  if (existsSync(file)) {
-    const m = /BLOB_READ_WRITE_TOKEN="?([^"\n]+)"?/.exec(readFileSync(file, 'utf8'));
-    if (m?.[1]) return m[1];
-  }
-  throw new Error('no Blob token: set BLOB_READ_WRITE_TOKEN or write ~/.config/wildshard-drafts/blob.env (drafts/README.md)');
-}
-
-export async function upload(path: string, pathname: string, token: string): Promise<Copy> {
-  const { put } = await import('@vercel/blob');
-  const body = readFileSync(path);
-  const res = await put(pathname, body, {
-    access: 'public',
-    token,
-    contentType: 'image/webp',
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    cacheControlMaxAge: 31_536_000,
-  });
-  return { url: res.url, bytes: statSync(path).size };
+/** Puts one WebP in R2 at `key` (immutable: its name is its content's hash). */
+export function upload(path: string, key: string): Copy {
+  execFileSync('wrangler', [
+    'r2', 'object', 'put', `${BUCKET}/${key}`, '--file', path, '--content-type', 'image/webp',
+    '--cache-control', 'public, max-age=31536000, immutable', '--remote',
+  ], { stdio: ['ignore', 'ignore', 'inherit'] });
+  return { key, bytes: statSync(path).size };
 }
 
 /** Makes and uploads the copies of every source not yet in `index` (or whose bytes changed). Returns how many uploaded. */
@@ -114,7 +104,6 @@ export async function publishImages(slug: string, sources: string[], index: Imag
     return !e || e.enc !== ENC || e.hash !== hashFile(join(root, s));
   });
   if (todo.length === 0) return 0;
-  const token = blobToken();
   let done = 0;
   const work = async (src: string): Promise<void> => {
     const file = join(root, src);
@@ -122,10 +111,8 @@ export async function publishImages(slug: string, sources: string[], index: Imag
     const dims = imageSize(readFileSync(file));
     const full = toWebp(file, hash, null, dims);
     const thumb = toWebp(file, hash, THUMB_EDGE, dims);
-    const [f, t] = await Promise.all([
-      upload(full, `draft/${slug}/${hash}-full.webp`, token),
-      upload(thumb, `draft/${slug}/${hash}-thumb.webp`, token),
-    ]);
+    const f = upload(full, mediaKey(slug, hash, 'full'));
+    const t = upload(thumb, mediaKey(slug, hash, 'thumb'));
     index[src] = { hash, enc: ENC, w: dims.w, h: dims.h, full: f, thumb: t };
     done++;
     if (done % 10 === 0 || done === todo.length) log(`  uploaded ${done} / ${todo.length}`);

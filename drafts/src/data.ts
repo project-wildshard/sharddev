@@ -1,5 +1,5 @@
 // Loading the drafts' data: `/data/index.json` for the title, `/data/<slug>/atlas.json` for a draft. Both are generated
-// by drafts/tools/atlas.ts and ship with each drafts deploy; the pictures come from Blob (J28).
+// by drafts/tools/atlas.ts and ship with each drafts deploy; the pictures come from the site's /media/ (DRAFTS DR3).
 import { imgUrl, type Atlas, type DraftIndex, type Img, type Item } from './atlas';
 
 let indexP: Promise<DraftIndex> | null = null;
@@ -25,14 +25,10 @@ export function atlas(slug: string): Promise<Atlas> {
   return p;
 }
 
-/** Where the pictures come from: the data's image base, or in `pnpm drafts:dev` the dev server's /media/, which reads them
- * from a local copy (DRAFTS DR2: the DR1 export, drafts/vite.config.ts). */
-export function mediaBase(blob: string): string {
-  return import.meta.env.DEV ? '/media' : blob;
-}
-
-export function url(a: { blob: string; slug: string }, img: Img, size: 'full' | 'thumb'): string {
-  return imgUrl(mediaBase(a.blob), a.slug, img, size);
+/** A picture's URL under the data's media base: the Worker's /media/ (R2), or in `pnpm drafts:dev` the dev server's,
+ * which reads a local copy (drafts/vite.config.ts). */
+export function url(a: { media: string; slug: string }, img: Img, size: 'full' | 'thumb'): string {
+  return imgUrl(a.media, a.slug, img, size);
 }
 
 export function itemUrl(a: Atlas, it: Item, size: 'full' | 'thumb'): string {

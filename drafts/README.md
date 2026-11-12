@@ -15,11 +15,11 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
 |---|---|
 | The site (TypeScript, no framework) | `src/`: `main.ts` (routes), `pages.ts` (title, STAGES, a stage page, prototypes), `explore.ts` (Draft Explore's five tabs), `viewer.ts` (the swipe), `map.ts`, `maplab*.ts` + `walk.ts` (Map Lab), `styles.css` (`wd-` classes) |
 | The data contract | `src/atlas.ts` (types shared by the site, the tools and the tests) |
-| A draft's sources (hand-kept by the run) | `shards/<slug>/draft.json` (where its art and design are, what each round's pictures are, Jake's answers per stage, the run header), `shards/<slug>/content.json` (places, quest steps, lanes, side content, mechanics, camera checks, sets), `shards/<slug>/images.json` (generated: the Blob copies) |
+| A draft's sources (hand-kept by the run) | `shards/<slug>/draft.json` (where its art and design are, what each round's pictures are, Jake's answers per stage, the run header), `shards/<slug>/content.json` (places, quest steps, lanes, side content, mechanics, camera checks, sets), `shards/<slug>/images.json` (generated: the R2 keys of the phone copies) |
 | Generated, committed, shipped | `public/data/index.json` (the title's public cards), `public/data/<slug>/atlas.json`, Map Lab's `terrain.f32` / `labels.u8` |
-| The tools | `tools/atlas.ts` (generate / publish / check), `tools/images.ts` (the phone copies on Blob), `tools/deploy.sh` |
+| The tools | `tools/atlas.ts` (generate / publish / check), `tools/images.ts` (the phone copies in R2), `tools/deploy.sh` |
 | Tests | `test/` (in `pnpm test`; `pnpm drafts:test` runs them with the typecheck and `atlas.ts --check`) |
-| Build, local preview | `pnpm drafts:build` (to `tmp/dist-drafts/`, `version.json` names HEAD), `pnpm drafts:dev` (localhost:5190; `/media/*` serves the pictures from `~/.cache/wildshard/drafts-blob-export/` or `$DRAFTS_MEDIA_DIR`) |
+| Build, local preview | `pnpm drafts:build` (to `tmp/dist-drafts/`, `version.json` names HEAD), `pnpm drafts:dev` (localhost:5190; `/media/*` serves the pictures from `~/.cache/wildshard/drafts-blob-export/draft/` or `$DRAFTS_MEDIA_DIR`, laid out as the R2 keys under `drafts/`) |
 | Originals | where the run made them (DRAFTS D5): Thin Ice's are in the singleplayer checkout. The tools take `--sources <dir>`; without it the committed `atlas.json` and `images.json` stand in, so `--check` and the tests run anywhere |
 
 ## The run's loop (W13: what `worldclaw-interactive` / `-auto` do at every step)
@@ -35,7 +35,7 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
      together across rounds: that is the lineage on its stage page;
    - `stages["P<n>"]`: Jake's answers **verbatim** from chat, notes, and the `pick` (an item id `round/file`);
    - `run`: the stage now, what it waits on, what is next.
-3. **Publish:** `node drafts/tools/atlas.ts <slug> --sources <checkout> --publish`. New pictures get their phone copy and thumbnail on Blob
+3. **Publish:** `node drafts/tools/atlas.ts <slug> --sources <checkout> --publish`. New pictures get their phone copy and thumbnail in R2 `wildshard-records` at `drafts/<slug>/<hash>-{full,thumb}.webp`
    (once each, content-hashed: a re-run uploads nothing new); `atlas.json` and `index.json` are regenerated. It exits 1
    and names the problem when a round has no README, a pick is not an item, or a picture has no copy.
 4. **Commit** the sources and the generated data (pathspec), push with `scripts/push-main.sh`.
@@ -49,9 +49,10 @@ a tap takes it. A deploy is a new worker: it waits for that tap, never reloading
 The game's COMING SOON card (W9) comes from the same index: `atlas.ts --engine <engine checkout>` writes engine's
 `src/client/game/draftTitles.ts`, which ships with engine's next deploy. Commit it there.
 
-The Blob token is read from `BLOB_READ_WRITE_TOKEN` or `~/.config/wildshard-drafts/blob.env` (not in git). A new
-machine: `vercel blob list-stores --scope raynos-projects`, then `vercel env pull` from a folder linked to
-`wildshard-drafts`.
+The upload is `wrangler r2 object put --remote` on wrangler's own login (`wrangler whoami` shows account
+`0a870ffdd1b0bca67f7fedad77f67957`); no key is kept in the repo. The site reads the pictures at `/media/<slug>/…`, which
+the drafts Worker answers from the R2 keys under `drafts/` (DRAFTS DR4). Until DR4, `deploy.sh` refuses to ship to
+Vercel: that site cannot serve `/media/`.
 
 ## A new draft
 
