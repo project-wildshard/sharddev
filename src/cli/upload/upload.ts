@@ -7,21 +7,22 @@ import { validateShardfile } from './validate.ts'
 
 import type { ApiOptions } from './api.ts'
 import type { StoredForm } from './compress.ts'
+import type { Provenance } from './provenance.ts'
 import type { SignedShardfile } from './signature.ts'
-import type { UploadResult } from './wire.ts'
 
 // `sharddev upload` (J60, J96): check the shardfile here, compress it here,
 // sign the tarball, then ticket, PUT, commit. api-server only checks and
-// stores what arrives.
+// stores what arrives. The commit carries the shard version and commit
+// (API-CLOUDFLARE AC16, V1), and is sent for held bytes too, so the API
+// answers which version holds them: a retry, or a 409 for another version.
 
 const MS_PER_SECOND = 1000
 const BYTES_PER_MB = 1_000_000
 const PERCENT = 100
 const ONE_DECIMAL = 1
 const WHOLE = 1
-const NEWEST = -1
 
-interface UploadOptions extends ApiOptions {
+interface UploadOptions extends ApiOptions, Provenance {
   /** The shardfile tarball. */
   readonly file: string
   /** Base64 PKCS#8: WILDSHARD_CREATOR_PRIVATE_KEY. */
@@ -32,14 +33,22 @@ interface UploadOptions extends ApiOptions {
   readonly report: (line: string) => void
 }
 
-/** The revision that holds the bytes. */
+/** The upload that holds the bytes, as the API answered its commit. */
 interface UploadOutcome {
   readonly hash: string
   readonly shard: string
   readonly revision: number
-  /** The bytes were stored already, so nothing was sent. */
+  /** The bytes were stored already, so nothing new was recorded. */
   readonly alreadyStored: boolean
+  /** The shard version the API holds these bytes as. */
+  readonly version: string
+  /** The API's format version. */
+  readonly formatVersion: string
+  /** The migrations the API ran. */
+  readonly migrations: readonly unknown[]
 }
+
+type Encoding = StoredForm['contentEncoding']
 
 function mb(bytes: number): string {
   return `${(bytes / BYTES_PER_MB).toFixed(ONE_DECIMAL)} MB`
@@ -50,35 +59,26 @@ function secondsSince(start: number): string {
   return `${elapsed.toFixed(ONE_DECIMAL)} s`
 }
 
-async function alreadyStored(
-  options: UploadOptions,
-  hash: string,
-): Promise<UploadOutcome | undefined> {
-  const stored = await findStored(options, hash)
-  const newest = stored?.revisions.at(NEWEST)
-  return newest === undefined
-    ? undefined
-    : { hash, ...newest, alreadyStored: true }
-}
-
 /**
- * Stored bytes still ask for a ticket: the listing says they are held, and
+ * Listed bytes still ask for a ticket: the listing says they are held, and
  * only the ticket says today's format takes them. A break refuses them here.
+ * True when they are held, so nothing needs compressing or sending.
  */
-async function storedAndAdmitted(
+async function held(
   options: UploadOptions,
   signed: SignedShardfile,
   tarballBytes: number,
-): Promise<UploadOutcome | undefined> {
-  const stored = await alreadyStored(options, signed.hash)
-  if (stored !== undefined) {
-    await requestTicket(
-      options,
-      { hash: signed.hash, storedBytes: tarballBytes },
-      signed.signature,
-    )
+): Promise<boolean> {
+  const listed = await findStored(options, signed.hash)
+  if (listed === undefined) {
+    return false
   }
-  return stored
+  const ticket = await requestTicket(
+    options,
+    { hash: signed.hash, storedBytes: tarballBytes },
+    signed.signature,
+  )
+  return ticket.stored
 }
 
 async function compressed(
@@ -96,13 +96,13 @@ async function compressed(
   return form
 }
 
-/** Ticket, PUT, commit; undefined when the server had the bytes already. */
-async function send(
+/** Compress, ticket, and PUT unless the server has the bytes already. */
+async function deliver(
   options: UploadOptions,
+  tarball: Readonly<Uint8Array>,
   signed: SignedShardfile,
-  form: StoredForm,
-): Promise<UploadResult | undefined> {
-  const { body, contentEncoding } = form
+): Promise<Encoding> {
+  const { body, contentEncoding } = await compressed(options, tarball)
   const ticket = await requestTicket(
     options,
     {
@@ -112,48 +112,58 @@ async function send(
     },
     signed.signature,
   )
-  if (ticket.stored) {
-    return undefined
+  if (!ticket.stored) {
+    const start = performance.now()
+    await putObject(ticket, body)
+    options.report(`uploaded ${mb(body.length)} in ${secondsSince(start)}`)
   }
-  const start = performance.now()
-  await putObject(ticket, body)
-  options.report(`uploaded ${mb(body.length)} in ${secondsSince(start)}`)
-  return await commitUpload(options, signed, contentEncoding)
+  return contentEncoding
 }
 
-async function deliver(
+/** The commit, always: the API names the version that holds the bytes (V1). */
+async function commit(
   options: UploadOptions,
-  tarball: Readonly<Uint8Array>,
   signed: SignedShardfile,
+  contentEncoding: Encoding,
 ): Promise<UploadOutcome> {
-  const form = await compressed(options, tarball)
-  const result = await send(options, signed, form)
-  if (result !== undefined) {
-    const { hash, shard, revision, signedBy, created, staged } = result
-    options.report(
-      `signed by ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(result.notified)}`,
-    )
-    return { hash, shard, revision, alreadyStored: false }
+  const answer = await commitUpload(options, signed, {
+    contentEncoding,
+    version: options.version,
+    commit: options.commit,
+  })
+  const { hash, shard, revision, signedBy, created, staged, notified } = answer
+  const { version, formatVersion, migrations } = answer
+  options.report(
+    `signed by ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(notified)}`,
+  )
+  options.report(
+    `api: version ${version}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}`,
+  )
+  return {
+    hash,
+    shard,
+    revision,
+    alreadyStored: !created,
+    version,
+    formatVersion,
+    migrations,
   }
-  const stored = await alreadyStored(options, signed.hash)
-  if (stored === undefined) {
-    throw new Error('the server has these bytes but does not list them')
-  }
-  return stored
 }
 
-/** Check, compress, sign and upload; the revision that holds the bytes. */
+/** Check, compress, sign, upload and commit; the upload that holds the bytes. */
 async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
   const tarball = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length)
   const { slug, name } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
   const signed = signTarball(options.privateKey, tarball)
-  const stored = await storedAndAdmitted(options, signed, tarball.length)
-  const outcome = stored ?? (await deliver(options, tarball, signed))
+  const encoding = (await held(options, signed, tarball.length))
+    ? undefined
+    : await deliver(options, tarball, signed)
+  const outcome = await commit(options, signed, encoding)
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
   options.report(
-    `${verb}: ${outcome.shard} revision ${String(outcome.revision)} (${outcome.hash})`,
+    `${verb}: ${outcome.shard} ${outcome.version} revision ${String(outcome.revision)} (${outcome.hash})`,
   )
   return outcome
 }

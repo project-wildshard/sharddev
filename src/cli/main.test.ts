@@ -1,6 +1,9 @@
 import assert from 'node:assert/strict'
-import { spawnSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import type { SpawnSyncReturns } from 'node:child_process'
+import { mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
+import path from 'node:path'
 import { describe, it } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
@@ -11,12 +14,16 @@ const MAIN = fileURLToPath(new URL('main.ts', import.meta.url))
 function cli(
   args: readonly string[],
   env: Readonly<Record<string, string>> = {},
+  cwd?: string,
 ): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, [MAIN, ...args], {
     encoding: 'utf8',
     env: { PATH: process.env['PATH'], ...env },
+    ...(cwd === undefined ? {} : { cwd }),
   })
 }
+
+const PROVENANCE = ['--version', '0.0.1', '--commit', 'c'.repeat(40)]
 
 describe('the sharddev CLI', (): void => {
   it('prints the package version for --version', async (): Promise<void> => {
@@ -85,10 +92,59 @@ describe('the upload command', (): void => {
       '/nonexistent.tar',
       '--server',
       'http://127.0.0.1:9',
+      ...PROVENANCE,
     ]
     const run = cli(args, { WILDSHARD_CREATOR_PRIVATE_KEY: 'unused' })
 
     assert.equal(run.status, 3)
     assert.match(run.stderr, /upload failed: .*ENOENT/u)
+  })
+})
+
+/** A committed project at 0.0.1 with an uncommitted edit to package.json. */
+async function dirtyProject(): Promise<string> {
+  const dir = await mkdtemp(path.join(tmpdir(), 'sharddev-dirty-'))
+  const git = (args: readonly string[]): void => {
+    execFileSync('git', [...args], { cwd: dir })
+  }
+  const author = ['-c', 'user.name=t', '-c', 'user.email=t@t']
+  await writeFile(path.join(dir, 'package.json'), '{"version":"0.0.1"}\n')
+  git(['init', '--quiet'])
+  git(['add', 'package.json'])
+  git([...author, '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'init'])
+  await writeFile(path.join(dir, 'package.json'), '{"version":"0.0.2"}\n')
+  return dir
+}
+
+describe("the upload's shard version and commit (AC16)", (): void => {
+  const key = { WILDSHARD_CREATOR_PRIVATE_KEY: 'unused' }
+  const server = ['--server', 'http://127.0.0.1:9']
+
+  it('refuses a dirty shard project before any request', async (): Promise<void> => {
+    const dir = await dirtyProject()
+    try {
+      const run = cli(['upload', 'shard.tar', ...server], key, dir)
+
+      assert.equal(run.status, 1)
+      assert.match(run.stderr, /uncommitted changes/u)
+    } finally {
+      await rm(dir, { recursive: true })
+    }
+  })
+
+  it('prints the CLI version for --version before upload', async (): Promise<void> => {
+    const run = cli(['--version', 'upload', 'shard.tar'])
+
+    assert.equal(run.status, 0)
+    assert.equal(run.stdout.trim(), await readVersion())
+  })
+
+  it('takes --version as the shard version after upload', (): void => {
+    const args = ['upload', '/nonexistent.tar', ...server, '--version', 'v1']
+
+    const run = cli(args, key)
+
+    assert.equal(run.status, 1)
+    assert.match(run.stderr, /--version v1 is not X\.Y\.Z/u)
   })
 })

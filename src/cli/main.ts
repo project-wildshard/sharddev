@@ -1,16 +1,19 @@
 #!/usr/bin/env node
-import { parseArgs } from 'node:util'
 
 import { serve } from '../server/serve.ts'
+import { parseCliArgs } from './args.ts'
 import { packProduct } from './pack/pack.ts'
 import {
   DEFAULT_BROTLI_LEVEL,
   MAX_BROTLI_LEVEL,
   MIN_BROTLI_LEVEL,
 } from './upload/compress.ts'
+import { resolveProvenance } from './upload/provenance.ts'
 import { uploadShardfile } from './upload/upload.ts'
 import { readVersion } from './version.ts'
 
+import type { CliArgs } from './args.ts'
+import type { Provenance } from './upload/provenance.ts'
 import type { UploadOptions } from './upload/upload.ts'
 
 const EXIT_OK = 0
@@ -36,15 +39,19 @@ Commands:
                        Tar a built product folder into a shardfile and check
                        it as api-server will. Writes <slug>.tar by default
   upload <shardfile> [--server <url>] [--level <n>]
+         [--version <X.Y.Z>] [--commit <sha>]
                        Check a shardfile tarball, compress it (Brotli level
                        <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and upload it to
-                       api-server. Prints the revision. Reads
+                       api-server with its shard version (default: the
+                       shard project's package.json version) and commit
+                       (default: git HEAD of a clean tree). Prints the
+                       API's version, formatVersion and migrations. Reads
                        WILDSHARD_API_URL when --server is absent,
                        WILDSHARD_CREATOR_PRIVATE_KEY, and
                        VERCEL_AUTOMATION_BYPASS_SECRET for a protected preview
 
 Options:
-  --version            Print the version
+  --version            Print the version (after upload: the shard version)
   --help               Print this help
 
 Also installed as \`wildshard\`.
@@ -53,43 +60,6 @@ Also installed as \`wildshard\`.
 // The CLI is the one place that reads the environment; it hands it on.
 // oxlint-disable-next-line node/no-process-env -- the CLI is the env boundary
 const ENV: Readonly<Record<string, string | undefined>> = process.env
-
-interface CliArgs {
-  readonly command: string | undefined
-  readonly operand: string | undefined
-  readonly help: boolean
-  readonly level: string | undefined
-  readonly out: string | undefined
-  readonly port: string | undefined
-  readonly server: string | undefined
-  readonly version: boolean
-}
-
-function parseCliArgs(argv: readonly string[]): CliArgs {
-  const { values, positionals } = parseArgs({
-    args: [...argv],
-    allowPositionals: true,
-    options: {
-      help: { type: 'boolean', default: false },
-      level: { type: 'string' },
-      out: { type: 'string' },
-      port: { type: 'string' },
-      server: { type: 'string' },
-      version: { type: 'boolean', default: false },
-    },
-  })
-  const [command, operand] = positionals
-  return {
-    command,
-    operand,
-    help: values.help,
-    level: values.level,
-    out: values.out,
-    port: values.port,
-    server: values.server,
-    version: values.version,
-  }
-}
 
 function parsePort(raw: string | undefined): number | undefined {
   if (raw === undefined) {
@@ -133,8 +103,27 @@ function bypassOption(): { readonly bypassSecret?: string } {
   return bypassSecret === '' ? {} : { bypassSecret }
 }
 
-/** The upload's settings from flags and environment, or what is wrong. */
-function uploadOptions(args: CliArgs): UploadOptions | string {
+/** The shard version and commit to send, or what is wrong (AC16). */
+async function provenanceOf(args: CliArgs): Promise<Provenance | string> {
+  try {
+    const provenance = await resolveProvenance({
+      cwd: process.cwd(),
+      version: args.shardVersion,
+      commit: args.commit,
+    })
+    reportLine(
+      `shard version ${provenance.version}, commit ${provenance.commit}`,
+    )
+    return provenance
+  } catch (error: unknown) {
+    return error instanceof Error ? error.message : String(error)
+  }
+}
+
+/** Everything but the shard version and commit, or what is wrong. */
+function uploadSettings(
+  args: CliArgs,
+): Omit<UploadOptions, keyof Provenance> | string {
   const level = parseLevel(args.level)
   const server = args.server ?? ENV['WILDSHARD_API_URL'] ?? ''
   const privateKey = ENV['WILDSHARD_CREATOR_PRIVATE_KEY'] ?? ''
@@ -157,8 +146,20 @@ function uploadOptions(args: CliArgs): UploadOptions | string {
   }
 }
 
+/** The upload's settings from flags and environment, or what is wrong. */
+async function uploadOptions(args: CliArgs): Promise<UploadOptions | string> {
+  const settings = uploadSettings(args)
+  if (typeof settings === 'string') {
+    return settings
+  }
+  const provenance = await provenanceOf(args)
+  return typeof provenance === 'string'
+    ? provenance
+    : { ...settings, ...provenance }
+}
+
 async function runUpload(args: CliArgs): Promise<number> {
-  const options = uploadOptions(args)
+  const options = await uploadOptions(args)
   if (typeof options === 'string') {
     process.stderr.write(`sharddev: ${options}\n`)
     return EXIT_USAGE

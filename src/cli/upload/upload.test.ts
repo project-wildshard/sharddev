@@ -19,6 +19,8 @@ import type { UploadOutcome } from './upload.ts'
 
 const TARBALL = await makeShardfile({ slug: 'upload-test' })
 const BYPASS_HEADER = 'x-vercel-protection-bypass'
+const VERSION = '0.0.3'
+const COMMIT = 'c'.repeat(40)
 
 interface Run {
   readonly server: UploadServer
@@ -39,12 +41,18 @@ async function open(
   return { server: await openUploadServer(context), file, lines: [] }
 }
 
-async function upload(run: Run, bypassSecret?: string): Promise<UploadOutcome> {
+async function upload(
+  run: Run,
+  bypassSecret?: string,
+  version: string = VERSION,
+): Promise<UploadOutcome> {
   return await uploadShardfile({
     file: run.file,
     server: run.server.url,
     privateKey: run.server.privateKey,
     level: 5,
+    version,
+    commit: COMMIT,
     report: (line: string): void => {
       run.lines.push(line)
     },
@@ -69,8 +77,46 @@ test('compresses, signs, uploads and prints the revision', async (context: TestC
     shard: 'upload-test',
     revision: 1,
     alreadyStored: false,
+    version: VERSION,
+    formatVersion: '0.1',
+    migrations: [],
   })
-  assert.match(run.lines.at(-1) ?? '', /^committed: upload-test revision 1 /u)
+  assert.match(
+    run.lines.at(-1) ?? '',
+    /^committed: upload-test 0\.0\.3 revision 1 /u,
+  )
+})
+
+test('sends the version and commit in the commit body (AC16, V1)', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+
+  await upload(run)
+
+  assert.deepEqual(run.server.state.commits, [
+    { contentEncoding: 'br', version: VERSION, commit: COMMIT },
+  ])
+})
+
+test("prints the API's version, formatVersion and migrations", async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+
+  await upload(run)
+
+  assert.ok(
+    run.lines.includes('api: version 0.0.3, formatVersion 0.1, migrations []'),
+    run.lines.join('\n'),
+  )
+})
+
+test('stored bytes under another version are refused, not stored', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  await upload(run)
+
+  await assert.rejects(
+    upload(run, undefined, '0.0.4'),
+    /commit answered 409: these bytes are already upload-test 0\.0\.3/u,
+  )
+  onlyPut(run)
 })
 
 test("puts the tarball's Brotli under exactly the signed headers", async (context: TestContext): Promise<void> => {
@@ -106,8 +152,29 @@ test('sends nothing when the bytes are already stored', async (context: TestCont
 
   assert.equal(outcome.alreadyStored, true)
   assert.equal(outcome.revision, 1)
+  assert.equal(outcome.version, VERSION)
   onlyPut(run)
-  assert.match(run.lines.at(-1) ?? '', /^already stored: upload-test /u)
+  assert.match(run.lines.at(-1) ?? '', /^already stored: upload-test 0\.0\.3 /u)
+})
+
+test('held bytes the listing misses still commit, and send nothing', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  await upload(run)
+  run.server.state.unlisted = true
+
+  const outcome = await upload(run)
+
+  assert.equal(outcome.alreadyStored, true)
+  onlyPut(run)
+  assert.deepEqual(run.server.state.commits.at(-1), {
+    contentEncoding: 'br',
+    version: VERSION,
+    commit: COMMIT,
+  })
+  await assert.rejects(
+    upload(run, undefined, '0.0.4'),
+    /commit answered 409: these bytes are already upload-test 0\.0\.3/u,
+  )
 })
 
 test('retries a PUT the store answered 5xx', async (context: TestContext): Promise<void> => {

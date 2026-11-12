@@ -10,6 +10,15 @@ import { brotliDecompressSync } from 'node:zlib'
 
 import { literal, number, object, optional, parse, string } from 'valibot'
 
+import {
+  commitBodyOf,
+  createdReply,
+  knownReply,
+  listingOf,
+  missingVersion,
+} from './upload-commit.ts'
+
+import type { Recorded, Reply } from './upload-commit.ts'
 import type { InferOutput } from 'valibot'
 
 // An api-server stand-in for `sharddev upload`: real sockets, real Ed25519
@@ -19,7 +28,6 @@ import type { InferOutput } from 'valibot'
 const JSON_TYPE = { 'content-type': 'application/json' }
 const SIGNATURE_HEADER = 'x-wildshard-signature'
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
-const SHARD = 'upload-test'
 const TIME = '2026-11-05T00:00:00.000Z'
 
 const TicketRequestSchema = object({
@@ -40,13 +48,17 @@ interface UploadServerState {
   readonly apiRequests: IncomingMessage[]
   readonly puts: StoredObject[]
   /** Revisions recorded, by hash. */
-  readonly revisions: Map<string, number>
+  readonly revisions: Map<string, Recorded>
+  /** Every commit body, parsed or not. */
+  readonly commits: unknown[]
   /** PUT replies still to answer 503. */
   failPuts: number
   /** The reason commits are refused with, if any. */
   refuseCommit: string | undefined
   /** The reason a ticket for stored bytes is refused with, if any. */
   refuseStored: string | undefined
+  /** Leave every recorded hash out of the listing. */
+  unlisted: boolean
   /** Answer every API call with Vercel's HTML, as SSO does. */
   sso: boolean
 }
@@ -140,27 +152,42 @@ function commitRefusal(
     : { status: 422, error: 'the bytes are not this hash' }
 }
 
-function commit(double: Double, exchange: Exchange, hash: string): void {
-  const { request, response } = exchange
-  const { state } = double
-  const refused = commitRefusal(double, request, hash)
-  const stored = state.puts.at(-1)
+/** A new upload: the double's checks, then its 201. */
+function freshReply(
+  double: Double,
+  request: IncomingMessage,
+  fresh: Readonly<{ hash: string; version: string }>,
+): Reply {
+  const refused = commitRefusal(double, request, fresh.hash)
+  const stored = double.state.puts.at(-1)
   if (refused !== undefined || stored === undefined) {
-    sendJson(response, refused?.status ?? 500, { error: refused?.error })
-    return
+    return { status: refused?.status ?? 500, body: { error: refused?.error } }
   }
-  state.revisions.set(hash, state.revisions.size + 1)
-  sendJson(response, 201, {
-    hash,
-    shard: SHARD,
-    revision: state.revisions.size,
-    created: true,
-    staged: true,
+  const { revisions } = double.state
+  const recorded = { revision: revisions.size + 1, version: fresh.version }
+  revisions.set(fresh.hash, recorded)
+  return createdReply(fresh.hash, recorded, {
     bytes: tarballOf(stored).length,
     storedBytes: stored.bytes.length,
-    signedBy: 'test',
-    notified: false,
   })
+}
+
+/** What the commit answers: §2's 422, a known hash, or a new upload. */
+function commitReply(
+  double: Double,
+  request: IncomingMessage,
+  call: Readonly<{ hash: string; body: string }>,
+): Reply {
+  const raw: unknown = JSON.parse(call.body)
+  double.state.commits.push(raw)
+  const body = commitBodyOf(raw)
+  if (body === undefined) {
+    return missingVersion()
+  }
+  const known = double.state.revisions.get(call.hash)
+  return known === undefined
+    ? freshReply(double, request, { hash: call.hash, version: body.version })
+    : knownReply(call.hash, known, body.version)
 }
 
 function ticket(double: Double, exchange: Exchange, body: string): void {
@@ -192,20 +219,6 @@ function ticket(double: Double, exchange: Exchange, body: string): void {
   })
 }
 
-function listing(state: UploadServerState): unknown {
-  return {
-    shardfiles: [...state.revisions].map(
-      ([hash, revision]: readonly [string, number]): unknown => ({
-        hash,
-        bytes: 1,
-        storedBytes: 1,
-        uploadedAt: TIME,
-        revisions: [{ shard: SHARD, revision }],
-      }),
-    ),
-  }
-}
-
 function route(double: Double, exchange: Exchange, body: string): void {
   const { request, response } = exchange
   const path = request.url ?? ''
@@ -213,11 +226,16 @@ function route(double: Double, exchange: Exchange, body: string): void {
   if (double.state.sso) {
     response.writeHead(401, { 'content-type': 'text/html' }).end('<html>')
   } else if (committed !== undefined) {
-    commit(double, exchange, committed)
+    const reply = commitReply(double, request, { hash: committed, body })
+    sendJson(response, reply.status, reply.body)
   } else if (path === '/api/shardfiles/uploads') {
     ticket(double, exchange, body)
   } else {
-    sendJson(response, 200, listing(double.state))
+    sendJson(
+      response,
+      200,
+      listingOf(double.state.unlisted ? new Map() : double.state.revisions),
+    )
   }
 }
 
@@ -247,9 +265,11 @@ function newState(): UploadServerState {
     apiRequests: [],
     puts: [],
     revisions: new Map(),
+    commits: [],
     failPuts: 0,
     refuseCommit: undefined,
     refuseStored: undefined,
+    unlisted: false,
     sso: false,
   }
 }

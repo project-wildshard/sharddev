@@ -1,17 +1,18 @@
 import { safeParse } from 'valibot'
 
 import {
+  CommitAnswerSchema,
   DirectUploadTicketSchema,
   ErrorBodySchema,
   ShardfileListSchema,
-  UploadResultSchema,
 } from './wire.ts'
 
+import type { Provenance } from './provenance.ts'
 import type { SignedShardfile } from './signature.ts'
 import type {
+  CommitAnswer,
   DirectUploadTicket,
   ShardfileSummary,
-  UploadResult,
 } from './wire.ts'
 import type { BaseIssue, BaseSchema, InferOutput } from 'valibot'
 
@@ -169,19 +170,25 @@ async function putObject(
   throw new Error(`the PUT to R2 failed: ${answer}`)
 }
 
+/** The commit: the bytes' encoding, and the shard version and commit (V1). */
 async function commitUpload(
   options: ApiOptions,
   signed: SignedShardfile,
-  contentEncoding: 'br' | undefined,
-): Promise<UploadResult> {
+  body: Provenance & { readonly contentEncoding?: 'br' | undefined },
+): Promise<CommitAnswer> {
+  const { contentEncoding, version, commit } = body
   return await postSigned(
     options,
     {
       path: `/api/shardfiles/uploads/${signed.hash}/commit`,
       signature: signed.signature,
-      body: contentEncoding === undefined ? {} : { contentEncoding },
+      body: {
+        ...(contentEncoding === undefined ? {} : { contentEncoding }),
+        version,
+        commit,
+      },
     },
-    UploadResultSchema,
+    CommitAnswerSchema,
   )
 }
 

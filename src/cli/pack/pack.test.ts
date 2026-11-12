@@ -143,6 +143,8 @@ test('what pack writes, upload sends', async (context: TestContext): Promise<voi
     server: server.url,
     privateKey: server.privateKey,
     level: 5,
+    version: '0.0.1',
+    commit: 'c'.repeat(40),
     report: (): void => undefined,
   })
 
