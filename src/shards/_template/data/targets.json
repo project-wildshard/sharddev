@@ -33,6 +33,15 @@
         "activeWhenMatched": true
       },
       {
+        "panel": "template.flame-b",
+        "scope": "shared",
+        "fieldId": 103,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
+      },
+      {
         "panel": "template.pond-stones",
         "scope": "shared",
         "fieldId": 103,

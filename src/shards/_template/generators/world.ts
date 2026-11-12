@@ -93,6 +93,8 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const stones = pondStones();
   ctx.root.add(stones.raised); ctx.piece({ id: 'template.pond-stones', name: 'Pond stepping stones', category: 'nature', file, object: stones.raised, colliders: stones.colliders, active: () => false });
   ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk, surface: 'stone' });
+  const planting = pondPlanting(heightAt);
+  ctx.root.add(planting); ctx.piece({ id: 'template.pond-planting', name: 'Pond reeds, lily pads and lip', category: 'nature', file, object: planting });
   const arena = arenaRing(heightAt);
   ctx.root.add(arena.wall); ctx.piece({ id: 'template.arena-wall', name: 'Arena wall', category: 'buildings', file, object: arena.wall, colliders: arena.wallColliders, surface: 'stone' });
   ctx.root.add(arena.gate); ctx.piece({ id: 'template.arena-gate', name: 'Arena gate', category: 'buildings', file, object: arena.gate, colliders: arena.gateColliders, active: () => true });
@@ -294,10 +296,11 @@ export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mes
 }
 /**
  * LF1-7 with LF1-2: brazier A's flame, a panel brazier A's field shows (data/targets.json, field 102): five faceted cones
+ * (LF1-8: `which` 1 is brazier B's, field 103, in 0/4/4, paid for by the pond's raised stones casting no shadow)
  * in the bowl, in the GLB material `mossgate.flame` (emissive), with no shadow, so it costs L0 tile 0/3/3 one draw.
  */
-export function brazierFlame(heightAt: (x: number, z: number) => number): Group {
-  const [x = 0, z = 0] = layout.BRAZIERS[0] ?? [], y = heightAt(x, z) + 1.5, flame = new Group();
+export function brazierFlame(heightAt: (x: number, z: number) => number, which = 0): Group {
+  const [x = 0, z = 0] = layout.BRAZIERS[which] ?? [], y = heightAt(x, z) + 1.5, flame = new Group();
   const cones: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
   cones.forEach(([dx, dz, r, h], i) => {
     const cone = new Mesh(foliageUv(new CylinderGeometry(0, r, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + h / 2, z + dz); cone.rotation.y = jitter(i, 110) * 1.2; flame.add(cone);
@@ -377,7 +380,8 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
   const GAP = 1.3, P = 1.1, H = 3.2;
   for (const side of [-1, 1]) {
     const pz = z + side * (GAP + P / 2);
-    frame.add(block(P, H, P, 1, x, y + H / 2, pz), block(P + 0.16, 0.2, P + 0.16, 2, x, y + H + 0.1, pz), block(P + 0.12, 0.3, P + 0.12, 1, x, y + 0.15, pz));
+    // LF1-8: a thick moss cushion over each pillar (t1-06), the same box resized, so no bytes added in 0/3/3
+    frame.add(block(P, H, P, 1, x, y + H / 2, pz), block(P + 0.28, 0.36, P + 0.28, 2, x, y + H + 0.16, pz, jitter(side, 95) * 0.06), block(P + 0.12, 0.3, P + 0.12, 1, x, y + 0.15, pz));
     frameColliders.push(box(x, y + H / 2, pz, P / 2, H / 2, P / 2));
     const wz = z + side * 4.1;
     frame.add(block(0.6, 1.5, 4.4, 1, x, y + 0.75, wz), block(0.7, 0.1, 4.5, 2, x, y + 1.55, wz));
@@ -389,7 +393,13 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
       for (let t = 0; t < 2; t++) vines.add(block(0.08, 0.16, 0.2, 2, vx + 0.02, y + H - len * (0.35 + t * 0.45), vz + (t === 0 ? 0.07 : -0.07), 0, 0.3));
     }
   }
-  frame.add(block(0.8, 0.4, GAP * 2, 1, x, y + 2.85, z), block(0.86, 0.08, GAP * 2, 2, x, y + 3.09, z));
+  frame.add(block(0.8, 0.4, GAP * 2, 1, x, y + 2.85, z), block(0.96, 0.16, GAP * 2, 2, x, y + 3.13, z));
+  // LF1-8: four flagstones leading up to the sill from the yard (t1-06): flat quads, two triangles each (0/3/3 is near its bytes)
+  for (let k = 0; k < 4; k++) {
+    const fx = x + 1.25 + k * 1.05, fz = z + jitter(k, 96) * 0.22, w = 0.95 + jitter(k, 97) * 0.12, d = 1.15 + jitter(k, 98) * 0.15, slab = new Mesh(flagstone(w, d), foliageMaterial(STONE));
+    slab.position.set(fx, Math.max(...[[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([sx = 0, sz = 0]) => heightAt(fx + sx * 0.75, fz + sz * 0.75))) + 0.03, fz);
+    slab.rotation.y = jitter(k, 99) * 0.25; frame.add(slab); // over its highest corner (Codex review), so no edge sinks into the ground
+  }
   // the panel: five thick stone bars on a sill, under the lintel
   panel.add(block(0.34, 0.2, GAP * 2, 1, x, y + 0.1, z));
   for (let k = 0; k < 5; k++) panel.add(block(0.26, 2.45, 0.26, 1, x, y + 0.2 + 2.45 / 2, z - 1.04 + k * 0.52));
@@ -413,6 +423,92 @@ export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders
   }
   return { raised, sunk, colliders };
 }
+/** LF1-8: the pond's planting colours (the look's `tint` keeps them: reeds and pads trim green, cattails and flowers structure). */
+export const REED = 0x5f8a32, CATTAIL = 0x6b4226, LILY = 0x4c8a3a, LILY_FLOWER = 0xf2a6c2;
+/** LF1-8: the crossing's line (the MH-3 bridge walk runs along z = POND.z) and the half width kept clear of plants and lip. */
+export const CROSSING_CLEAR = 1.5;
+/** LF1-8: reed clumps round the pond: angle (degrees from +x), radius, size. Off the crossing line and B's pad. */
+export const REEDS: readonly [number, number, number][] = [
+  [28, 5.3, 1.05], [52, 4.6, 0.9], [74, 5.4, 1.1], [101, 5.25, 0.95], [126, 4.7, 1.0], [152, 5.4, 1.1],
+  [205, 5.3, 1.0], [228, 4.6, 0.9], [251, 5.45, 1.1], [283, 5.2, 0.95], [306, 4.65, 1.05], [333, 5.35, 0.9],
+];
+/** LF1-8: lily pads on the water: x and z off the pond's centre, radius; `flower` marks the three in bloom. */
+export const LILIES: readonly [number, number, number, boolean][] = [
+  [-2.6, 2.4, 0.42, true], [-1.2, 3.3, 0.34, false], [1.4, 2.6, 0.4, false], [2.9, 1.9, 0.3, true], [0.2, 3.9, 0.28, false],
+  [-2.9, -2.1, 0.38, false], [-0.8, -3.2, 0.44, true], [1.8, -2.7, 0.32, false], [3.1, -1.8, 0.36, false], [-1.9, -3.6, 0.26, false],
+];
+/** LF1-8: a flat, upward-facing w × d quad (a flagstone): two triangles, no grid. */
+function flagstone(w: number, d: number): BufferGeometry {
+  const a = w / 2, b = d / 2, geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute([-a, 0, -b, -a, 0, b, a, 0, b, -a, 0, -b, a, 0, b, a, 0, -b], 3));
+  geometry.computeVertexNormals(); return foliageUv(geometry, 1);
+}
+/** A flat, upward-facing fan (a lily pad): `n` wedges round (0, 0, 0) with one wedge left out as the notch. */
+function lilyPad(r: number, notch: number): BufferGeometry {
+  const out: number[] = [], n = 9;
+  for (let k = 1; k < n; k++) {
+    const a = notch + (k / n) * Math.PI * 2, b = notch + ((k + 1) / n) * Math.PI * 2;
+    out.push(0, 0, 0, Math.cos(b) * r, 0, Math.sin(b) * r, Math.cos(a) * r, 0, Math.sin(a) * r);
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
+  return foliageUv(geometry, 2);
+}
+/** A reed clump at (x, y, z): six tall three-sided blades leaning out, and two cattail heads on stalks, `s` its size. */
+function reedClump(x: number, y: number, z: number, s: number, i: number): Group {
+  const root = new Group(), blades: number[] = [];
+  root.position.set(x, y, z);
+  for (let k = 0; k < 6; k++) {
+    const a = (k / 6) * Math.PI * 2 + jitter(i, 120 + k) * 0.5, h = s * (1.05 + jitter(i, 126 + k) * 0.3), r = 0.035 * s, cx = Math.cos(a) * 0.09 * s, cz = Math.sin(a) * 0.09 * s;
+    const base = [0, 1, 2].map(c => new Vector3(cx + Math.cos(a + (c * 2 * Math.PI) / 3) * r, 0, cz + Math.sin(a + (c * 2 * Math.PI) / 3) * r));
+    const blade = tent([...base, new Vector3(cx + Math.cos(a) * h * 0.22, h, cz + Math.sin(a) * h * 0.22)], [[0, 1, 3], [1, 2, 3], [2, 0, 3]], new Vector3(cx, 0, cz), 2).getAttribute('position');
+    for (let v = 0; v < blade.count; v++) blades.push(blade.getX(v), blade.getY(v), blade.getZ(v));
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(blades, 3)); geometry.computeVertexNormals();
+  root.add(new Mesh(foliageUv(geometry, 2), foliageMaterial(REED)));
+  for (let k = 0; k < 2; k++) {
+    const dx = jitter(i, 140 + k) * 0.12, dz = jitter(i, 142 + k) * 0.12, h = s * (1.25 + k * 0.18);
+    const stalk = new Mesh(foliageUv(new CylinderGeometry(0.012, 0.016, h, 3, 1, true), 2), foliageMaterial(REED)); stalk.position.set(dx, h / 2, dz);
+    const head = new Mesh(foliageUv(new CylinderGeometry(0.035, 0.055, 0.26 * s, 4, 1, true), 1), foliageMaterial(CATTAIL)); head.position.set(dx, h + 0.1 * s, dz);
+    root.add(stalk, head);
+  }
+  return root;
+}
+/**
+ * LF1-8: the pond's planting and bank (t1-08 to t1-10): reed clumps round the rim and in the shallows, lily pads on the
+ * water with three pink flowers, and a low moss-capped stone lip round the bank that hides the crater's slanted edge,
+ * open where the crossing meets each bank. All in L0 tile 0/4/4's static draw (bytes, not draws: it is at 8). No
+ * colliders: the bridge walk and the swim are unchanged.
+ */
+export function pondPlanting(heightAt: (x: number, z: number) => number): Group {
+  const { x: cx, z: cz } = layout.POND, root = new Group(), WATER = 0, R = 5;
+  REEDS.forEach(([deg, r, s], i) => {
+    const a = (deg * Math.PI) / 180, x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
+    // a clump in the shallows (inside the rim) stands up from just under the surface; one on the bank from the ground
+    root.add(reedClump(x, r < R ? WATER - 0.35 : heightAt(x, z), z, s, i));
+  });
+  const flowers = foliageMaterial(LILY_FLOWER), pads = foliageMaterial(LILY);
+  LILIES.forEach(([dx, dz, r, flower], i) => {
+    const pad = new Mesh(lilyPad(r, jitter(i, 150) * Math.PI), pads); pad.name = 'lily-pad'; pad.position.set(cx + dx, WATER + 0.03, cz + dz); root.add(pad);
+    if (!flower) return;
+    const points = [0, 1, 2, 3, 4].map(k => new Vector3(Math.cos((k / 5) * Math.PI * 2) * 0.13, 0, Math.sin((k / 5) * Math.PI * 2) * 0.13));
+    const bloom = new Mesh(tent([...points, new Vector3(0, 0.14, 0)], [[0, 1, 5], [1, 2, 5], [2, 3, 5], [3, 4, 5], [4, 0, 5]], new Vector3(0, 0.03, 0), 1), flowers);
+    bloom.position.set(cx + dx + 0.08, WATER + 0.05, cz + dz - 0.05); root.add(bloom);
+  });
+  // the lip: 20 segments of a moss-topped stone kerb over the rim (a top, an inner face down to the water and a short outer
+  // face, six triangles a segment), the ones the crossing passes through left out
+  const N = 20, RIN = R - 0.3, ROUT = R + 0.45, moss = foliageMaterial(MOSS), stone = foliageMaterial(STONE);
+  for (let k = 0; k < N; k++) {
+    const a0 = (k / N) * Math.PI * 2, a1 = ((k + 1) / N) * Math.PI * 2, am = (a0 + a1) / 2;
+    if (Math.abs(Math.sin(am) * R) < CROSSING_CLEAR) continue;
+    const at = (r: number, a: number, y: number): Vector3 => new Vector3(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r);
+    const ground = heightAt(cx + Math.cos(am) * ROUT, cz + Math.sin(am) * ROUT) - 0.05, top = Math.max(ground + 0.17, WATER + 0.12); // the kerb stands proud of the water
+    const lid = [at(RIN, a0, top), at(ROUT, a0, top), at(ROUT, a1, top), at(RIN, a1, top)];
+    root.add(new Mesh(tent(lid, [[0, 1, 2], [0, 2, 3]], at((RIN + ROUT) / 2, am, top - 1), 2), moss));
+    const sides = [at(RIN, a0, top), at(RIN, a1, top), at(RIN, a1, WATER - 0.4), at(RIN, a0, WATER - 0.4), at(ROUT, a0, top), at(ROUT, a1, top), at(ROUT, a1, ground), at(ROUT, a0, ground)];
+    root.add(new Mesh(tent(sides, [[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]], at((RIN + ROUT) / 2, am, (top + ground) / 2), 1), stone));
+  }
+  return root;
+}
+
 /**
  * The arena (MH-3): a 3.2 m stone ring at `layout.ARENA` round the boss's floor, twenty segments with the one facing spawn
  * left out as the way in. Two posts and a lintel frame it, and `gate` (bars, a panel with its own collider) shuts it
