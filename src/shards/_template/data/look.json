@@ -1,7 +1,8 @@
 {
   "families": [
     "toon",
-    "pbr"
+    "pbr",
+    "emissive"
   ],
   "materials": {
     "pbr": {
@@ -49,6 +50,15 @@
           0.18
         ]
       }
+    },
+    "mossgate.mushroom-cap": {
+      "family": "emissive",
+      "colour": [
+        0.78,
+        0.13,
+        0.09
+      ],
+      "intensity": 1.1
     }
   },
   "post": [

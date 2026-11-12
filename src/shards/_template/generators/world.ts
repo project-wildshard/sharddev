@@ -1,7 +1,7 @@
 import { BoxCollider } from '@wildshard/sharddev/physics';
 import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
 import { measureUv, type MeasureRole } from '@wildshard/sharddev/measure';
-import { BoxGeometry, BufferGeometry, CircleGeometry, Float32BufferAttribute, Group, Material, Mesh, MeshStandardMaterial, PointLight, type Object3D } from 'three';
+import { BoxGeometry, BufferGeometry, CircleGeometry, CylinderGeometry, Float32BufferAttribute, Group, IcosahedronGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, PointLight, Vector3, type Object3D } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 
 /**
@@ -90,6 +90,8 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   ctx.root.add(arena.gate); ctx.piece({ id: 'template.arena-gate', name: 'Arena gate', category: 'buildings', file, object: arena.gate, colliders: arena.gateColliders, active: () => true });
   const dressing = mossgateDressing(heightAt);
   ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
+  const foliage = mossgateFoliage(heightAt);
+  ctx.root.add(foliage.object); ctx.piece({ id: 'template.foliage', name: 'Mossgate trees, tufts and ferns', category: 'nature', file, object: foliage.object, colliders: foliage.colliders, surface: 'wood' });
   const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
   for (let i = 0; i < 10; i++) { const tread = cube(3, 0.2, 0.6, 0x888888, 2); tread.position.set(8, from[1] + (i + 1) * 0.2 - 0.1, -8 - (i + 0.5) * 0.6); ramp.add(tread); }
   const slope = cube(3, 0.24, Math.sqrt(40), 0x888888, 2); slope.position.set(12, from[1] + 0.9, -11); slope.rotation.x = Math.atan2(2, 6); ramp.add(slope);
@@ -116,6 +118,14 @@ const jitter = (i: number, k: number): number => { const s = Math.sin(i * 127.1 
 function block(w: number, h: number, d: number, role: MeasureRole, x: number, y: number, z: number, yaw = 0, tilt = 0): Mesh {
   const mesh = cube(w, h, d, 0x888888, role); mesh.position.set(x, y, z); mesh.rotation.set(tilt, yaw, tilt * 0.6, 'YXZ'); return mesh;
 }
+type Colliders = NonNullable<TemplatePart['colliders']>;
+/** A stone box collider at (x, y, z), half sizes `hx`, `hy`, `hz`, turned `yaw`. */
+const stoneBox = (x: number, y: number, z: number, hx: number, hy: number, hz: number, yaw = 0): Colliders[number] =>
+  BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: yaw === 0 ? -0 : yaw, surface: 'stone' }).toColliderData();
+/** L0 tile 0/4/3 (x in [0, 62.5), z in [−62.5, 0)): the one yard tile with draws to spare for the red caps' emissive draw. */
+export const redCap = (x: number, z: number): boolean => x >= 0.3 && x < 62 && z < -0.3 && z >= -62;
+/** The dressing's mushroom positions, as `mossgateDressing` places them. */
+const MUSHROOMS: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.0, -3.6], [2.2, -8.6], [-1.9, -7.4]];
 /**
  * Mossgate Hollow v3 (MH-1b): the yard's dressing, one step past grey-box and still a test level. A stepping-slab path
  * from spawn to the hut door, the door lamp, mossy boulders, ferns and mushroom clumps, all measure boxes (the dev-map
@@ -144,26 +154,138 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     root.add(block(s * 0.8, 0.1, s * 0.7, 2, x, y + s * 0.67, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));
     box(x, y + s * 0.35, z, s * 0.55, s * 0.35, s * 0.5);
   });
-  // ferns: seven moss fronds fanned up and out from one root
+  // ferns: seven moss fronds fanned up and out from one root (LF1-5: tent fronds, half a box frond's bytes)
   const ferns: [number, number, number][] = [[-2.7, -8.0, 1], [2.8, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-4.4, -0.6, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
-  ferns.forEach(([x, z, s], i) => {
-    const y = heightAt(x, z);
-    for (let k = 0; k < 7; k++) {
-      const yaw = (k / 7) * Math.PI * 2 + jitter(i, 10) + jitter(i * 7 + k, 11) * 0.2, len = s * (0.75 + jitter(i * 7 + k, 12) * 0.15);
-      const frond = cube(0.16 * s, 0.03, len, 0x888888, 2), pivot = new Group(), lift = 0.75 + jitter(i * 7 + k, 13) * 0.15;
-      frond.rotation.x = -lift; frond.position.set(0, Math.sin(lift) * len / 2, Math.cos(lift) * len / 2);
-      pivot.add(frond); pivot.position.set(x, y + 0.02, z); pivot.rotation.y = yaw; root.add(pivot);
-    }
-  });
-  // mushroom clumps: pale stems under wide stone caps, by the path and the boulders
-  const mushrooms: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.0, -3.6], [2.2, -8.6], [-1.9, -7.4]];
-  mushrooms.forEach(([x, z], i) => {
+  ferns.forEach(([x, z, s], i) => { root.add(fern(x, heightAt(x, z), z, s, i)); });
+  // mushroom clumps: pale stems under domed caps, by the path and the boulders. LF1-5: a cap in L0 tile 0/4/3 (x ≥ 0, z < 0)
+  // is red (`mushroomCaps`, its own emissive draw); 0/3/3 is at its 8 draws, so a cap there stays a stone box (its bytes
+  // are near the 300 000-byte L0 cap too)
+  MUSHROOMS.forEach(([x, z], i) => {
     for (let k = 0; k < 3; k++) {
       const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
-      root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz), block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2));
+      root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz));
+      if (!redCap(mx, mz)) root.add(block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2));
     }
   });
   return { object: root, colliders };
+}
+
+/**
+ * LF1-5's foliage surfaces. A measure-look surface takes its role's flat colour (trim green, structure stone) and draws
+ * the grid and size labels from its first UV set; every foliage vertex carries one fixed point 0.37 m into a 0.74 m face,
+ * so no 1 m line, 0.25 m sub-line or label ever crosses a leaf. The mesh colour is real (a later `tint` keeps it).
+ */
+const foliageMaterial = (color: number): MeshStandardMaterial => new MeshStandardMaterial({ color, flatShading: true });
+function foliageUv<T extends BufferGeometry>(geometry: T, role: MeasureRole): T {
+  const [u, v] = measureUv(role, 0.37, 0.37, 0.74, 0.74), n = geometry.getAttribute('position').count, packed = new Float32Array(n * 2);
+  for (let i = 0; i < n; i++) { packed[i * 2] = u; packed[i * 2 + 1] = v; }
+  geometry.setAttribute('uv', new Float32BufferAttribute(packed, 2));
+  return geometry;
+}
+/** Closed triangles from `points`, each wound to face away from `centre`, as one flat-normalled foliage geometry. */
+function tent(points: readonly Vector3[], triangles: readonly [number, number, number][], centre: Vector3, role: MeasureRole): BufferGeometry {
+  const out: number[] = [], ab = new Vector3(), ac = new Vector3(), mid = new Vector3();
+  for (const [i, j, k] of triangles) {
+    const a = points[i], b = points[j], c = points[k]; if (a === undefined || b === undefined || c === undefined) throw new Error('tent: a point per corner');
+    const normal = ab.subVectors(b, a).cross(ac.subVectors(c, a)), away = mid.copy(a).add(b).add(c).divideScalar(3).sub(centre);
+    for (const p of normal.dot(away) >= 0 ? [a, b, c] : [a, c, b]) out.push(p.x, p.y, p.z);
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
+  return foliageUv(geometry, role);
+}
+/** A fern at (x, y, z), `s` its size: seven tent fronds (six triangles each, seen from above and below) fanned up and out. */
+function fern(x: number, y: number, z: number, s: number, i: number): Group {
+  const root = new Group(), material = foliageMaterial(0x4f7a2a); root.position.set(x, y + 0.02, z);
+  for (let k = 0; k < 7; k++) {
+    const yaw = (k / 7) * Math.PI * 2 + jitter(i, 10) + jitter(i * 7 + k, 11) * 0.2, len = s * (0.75 + jitter(i * 7 + k, 12) * 0.15), w = 0.11 * s;
+    const lift = 0.75 + jitter(i * 7 + k, 13) * 0.15, tip = new Vector3(0, 0, len), points = [new Vector3(0, 0, 0), new Vector3(-w, 0, len * 0.42), new Vector3(0, 0.035 * s, len * 0.45), new Vector3(w, 0, len * 0.42), tip];
+    const frond = new Mesh(tent(points, [[0, 1, 2], [1, 4, 2], [0, 2, 3], [2, 4, 3], [0, 3, 1], [1, 3, 4]], new Vector3(0, 0.012 * s, len * 0.4), 2), material);
+    frond.rotation.set(-lift * 0.75, 0, 0); const pivot = new Group(); pivot.rotation.y = yaw; pivot.add(frond); root.add(pivot);
+  }
+  return root;
+}
+/** A grass tuft at (x, y, z): five thin three-sided blades leaning out from one root, `s` its height in ~0.4 m. */
+function tuft(x: number, y: number, z: number, s: number, i: number): Mesh {
+  const points: Vector3[] = [];
+  for (let k = 0; k < 5; k++) {
+    const a = (k / 5) * Math.PI * 2 + jitter(i, 70 + k) * 0.5, h = s * (0.34 + jitter(i, 75 + k) * 0.1), r = 0.035 * s, cx = Math.cos(a) * 0.05 * s, cz = Math.sin(a) * 0.05 * s;
+    for (let c = 0; c < 3; c++) points.push(new Vector3(cx + Math.cos(a + (c * 2 * Math.PI) / 3) * r, 0, cz + Math.sin(a + (c * 2 * Math.PI) / 3) * r));
+    points.push(new Vector3(cx + Math.cos(a) * h * 0.4, h, cz + Math.sin(a) * h * 0.4));
+  }
+  // each blade faces out from its own axis, so wind each side against that blade's base centre, not the tuft's
+  const geometry = new BufferGeometry(), out: number[] = [];
+  for (let k = 0; k < 5; k++) {
+    const blade = points.slice(k * 4, k * 4 + 4), base = blade.slice(0, 3).reduce((sum, p) => sum.add(p), new Vector3()).divideScalar(3);
+    const one = tent(blade, [[0, 1, 3], [1, 2, 3], [2, 0, 3]], base, 2).getAttribute('position');
+    for (let v = 0; v < one.count; v++) out.push(one.getX(v), one.getY(v), one.getZ(v));
+  }
+  geometry.setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
+  const mesh = new Mesh(foliageUv(geometry, 2), foliageMaterial(0x6a8a34)); mesh.position.set(x, y, z); return mesh;
+}
+/** A domed mushroom cap, `r` across, seated on its stem's top: an eight-sided frustum with its lid. */
+function mushroomCap(r: number, material: MeshStandardMaterial, role: MeasureRole = 1): Mesh {
+  const geometry = foliageUv(new CylinderGeometry(r * 0.35, r, r * 0.55, 8, 1, false), role); geometry.translate(0, r * 0.2, 0);
+  return new Mesh(geometry, material);
+}
+
+/** Round toy trees in the yard (LF1-5): x, z, size. Off every walk the MH-2, MH-3 and LF1-0 proofs take (see foliage test). */
+export const TREES: readonly [number, number, number][] = [[-6.0, -13.5, 1.1], [-9.0, -16.5, 0.95], [5.3, -13.6, 1.1], [9.5, -2.5, 0.9], [15.5, -5.0, 1.0], [2.5, 7.5, 1.0], [12.5, 3.0, 1.05], [-12.5, 3.5, 0.9]];
+/** Grass tufts at the wall bases (the hut, the moss gate's wings and pillars, the arena ring) and a few in the open yard. */
+const TUFTS: readonly [number, number, number][] = [
+  [-2.3, -8.75, 1], [2.3, -8.7, 0.9], [-3.35, -10.2, 1.1], [-3.35, -12.6, 0.9], [-3.35, -14.3, 1], [3.35, -10.4, 1], [3.35, -12.2, 1.1], [3.35, -14.5, 0.9], [-1.4, -15.35, 1], [1.3, -15.35, 0.9],
+  [-8.6, -10.4, 1], [-8.6, -8.2, 0.9], [-8.4, -6.65, 1.1], [-8.4, -3.35, 1], [-8.6, -2.2, 0.9], [-8.6, 0.6, 1],
+  [3.6, -1.6, 0.8], [-2.2, -5.6, 0.8], [5.8, -7.0, 0.9], [-5.6, -11.8, 1], [7.5, -1.2, 0.9], [11.2, -4.6, 0.8], [-0.8, 3.2, 0.8], [4.2, 4.8, 0.9],
+];
+/** New ferns at the wall bases (the dressing's ten stay where they were): the hut's back corners, the gate wings, the arena. */
+const WALL_FERNS: readonly [number, number, number][] = [[3.5, -14.9, 0.95], [-3.55, -14.8, 0.9], [-8.5, -9.4, 1], [-8.5, 0.1, 0.9]];
+
+/**
+ * LF1-5: the yard's foliage, all in the measure stone's one static draw per tile (the props bake merges a tile's static
+ * shapes into one primitive, so a tree, a tuft or a fern costs bytes, never a draw): eight round toy trees (a six-sided
+ * trunk under an 80-face crown, a trunk collider each), grass tufts and fern clumps at the wall bases and around the arena
+ * ring. The red mushroom caps are separate (`mushroomCaps`): an emissive surface is its own draw.
+ */
+export function mossgateFoliage(heightAt: (x: number, z: number) => number): { object: Group; colliders: Colliders } {
+  const root = new Group(), colliders: Colliders = [], bark = foliageMaterial(0x6b4a2e), leaves = foliageMaterial(0x557a2c);
+  TREES.forEach(([x, z, s], i) => {
+    const y = heightAt(x, z), h = 2.3 * s, r = 1.3 * s;
+    const trunk = new Mesh(foliageUv(new CylinderGeometry(0.17 * s, 0.26 * s, h + 0.3, 6, 1, true), 1), bark); trunk.position.set(x, y + h / 2 - 0.15, z);
+    const crown = new Mesh(foliageUv(new IcosahedronGeometry(r, 1), 2), leaves); crown.position.set(x, y + h + r * 0.75, z); crown.rotation.set(jitter(i, 100) * 0.4, jitter(i, 101) * 3, 0);
+    root.add(trunk, crown);
+    colliders.push(BoxCollider.fromData({ kind: 'box', x, y: y + h / 2, z, hx: 0.24 * s, hy: h / 2, hz: 0.24 * s, yaw: -0, surface: 'wood' }).toColliderData());
+  });
+  TUFTS.forEach(([x, z, s], i) => { root.add(tuft(x, heightAt(x, z), z, s, i)); });
+  WALL_FERNS.forEach(([x, z, s], i) => { root.add(fern(x, heightAt(x, z), z, s, 20 + i)); });
+  // the arena ring's outer foot, on the yard's side of it: tufts and two ferns either side of the way in
+  const { x: cx, z: cz, radius } = layout.ARENA, door = Math.atan2(-cx, -cz);
+  [-0.62, -0.44, -0.3, 0.3, 0.46, 0.66, -0.95, 0.98].forEach((da, k) => {
+    const x = cx + (radius + 0.75) * Math.sin(door + da), z = cz + (radius + 0.75) * Math.cos(door + da);
+    root.add(k < 6 ? tuft(x, heightAt(x, z), z, 1, 40 + k) : fern(x, heightAt(x, z), z, 0.95, 30 + k));
+  });
+  return { object: root, colliders };
+}
+/**
+ * LF1-5 with LF1-2: the red caps of the dressing's mushrooms in tile 0/4/3, as one whole shape at its first cap (one
+ * draw, no shadow) in the `mossgate.mushroom-cap` GLB material, which `props.materials` binds to an emissive look entry.
+ */
+export function mushroomCaps(heightAt: (x: number, z: number) => number): { mesh: Mesh; transform: Matrix4 } {
+  const out: number[] = [], normals: number[] = [];
+  let origin: Vector3 | undefined;
+  MUSHROOMS.forEach(([x, z], i) => {
+    for (let k = 0; k < 3; k++) {
+      const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
+      if (!redCap(mx, mz)) continue;
+      origin ??= new Vector3(mx, y, mz);
+      const cap = mushroomCap(0.12 - k * 0.02, foliageMaterial(0xffffff)); cap.position.set(mx - origin.x, y + h - origin.y, mz - origin.z); cap.updateMatrix();
+      const g = cap.geometry.toNonIndexed().applyMatrix4(cap.matrix), p = g.getAttribute('position'), n = g.getAttribute('normal');
+      for (let v = 0; v < p.count; v++) { out.push(p.getX(v), p.getY(v), p.getZ(v)); normals.push(n.getX(v), n.getY(v), n.getZ(v)); }
+    }
+  });
+  if (origin === undefined) throw new Error('mushroomCaps: no cap in tile 0/4/3');
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)).setAttribute('normal', new Float32BufferAttribute(normals, 3))
+    .setAttribute('color', new Float32BufferAttribute(new Float32Array(out.length).fill(1), 3));
+  const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: 0xffffff, vertexColors: true })); mesh.castShadow = false;
+  return { mesh, transform: new Matrix4().makeTranslation(origin.x, origin.y, origin.z) };
 }
 
 /**
@@ -197,10 +319,6 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
   return { frame, panel, vines, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, GAP)] };
 }
 
-type Colliders = NonNullable<TemplatePart['colliders']>;
-/** A stone box collider at (x, y, z), half sizes `hx`, `hy`, `hz`, turned `yaw`. */
-const stoneBox = (x: number, y: number, z: number, hx: number, hy: number, hz: number, yaw = 0): Colliders[number] =>
-  BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: yaw === 0 ? -0 : yaw, surface: 'stone' }).toColliderData();
 /**
  * The moss bridge (MH-3): five stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
  * `raised` stands their moss-capped tops 0.1 m over the water, with colliders, for brazier B's field to show; `sunk` is the
