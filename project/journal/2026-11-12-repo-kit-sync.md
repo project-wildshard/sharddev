@@ -11,3 +11,6 @@
 - Stamped the agent layer from repo-kit v2.2.1: the SubagentStop
   cleanup hook defers while a lane waits on a quoted background
   command instead of killing it (meta RK-1).
+
+- Synced repo-kit at 696282d (15 files, 1751 lines):
+  chore(kit): stamp land tool and plan worktrees.
