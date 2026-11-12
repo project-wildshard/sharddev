@@ -10,9 +10,9 @@
   "biome": "Grey-box teaching level",
   "blurb": "A hut, a blob, and declared platform systems.",
   "card": {
-    "thumb": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
-    "portrait": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E",
-    "landscape": "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22390%22%20height%3D%22844%22%3E%3Crect%20width%3D%22390%22%20height%3D%22844%22%20fill%3D%22%239099a3%22%2F%3E%3Cpath%20d%3D%22M70%20480h250v200H70z%22%20fill%3D%22%23686e74%22%2F%3E%3Cpath%20d%3D%22M170%20570h50v110h-50z%22%20fill%3D%22%23393e43%22%2F%3E%3C%2Fsvg%3E"
+    "thumb": "/src/shards/_template/card/thumb.jpg",
+    "portrait": "/src/shards/_template/card/portrait.jpg",
+    "landscape": "/src/shards/_template/card/landscape.jpg"
   },
   "style": "greybox",
   "kitLook": "toon",

@@ -3,6 +3,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
 import { resolve } from 'node:path';
 import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { authorCard } from './authorManifest';
 
 /** Copy the shipped teaching world; generation and gameplay remain authored there. */
 export function writeReferenceProject(project: string, slug: string): void {
@@ -10,10 +11,13 @@ export function writeReferenceProject(project: string, slug: string): void {
   // The trusted CLI bundle defines dirname as its installed source directory.
   const template = resolve(import.meta.dirname, '../shards/_template');
   cpSync(template, project, { recursive: true, errorOnExist: true, force: false,
-    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) });
+    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) && source !== resolve(template, 'card') });
   const card: unknown = JSON.parse(readFileSync(resolve(project, 'manifest.json'), 'utf8'));
   if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project manifest is missing');
-  const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental' }).replaceAll('/assets/_template/', `/assets/${slug}/`);
+  // The template's card is Mossgate's own in-engine hero (template/card/): a new project wears a generated card until its
+  // author captures one, never another shard's art.
+  const art = authorCard(slug, 1);
+  const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental', card: { thumb: art, portrait: art, landscape: art } }).replaceAll('/assets/_template/', `/assets/${slug}/`);
   writeFileSync(resolve(project, 'manifest.json'), manifest);
   writeFileSync(resolve(project, 'data/card.json'), manifest);
   writeFileSync(resolve(project, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));

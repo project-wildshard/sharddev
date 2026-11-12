@@ -12,7 +12,7 @@ export const AUTHOR_BUDGETS: Readonly<Record<'phone' | 'desktop', Readonly<Recor
 export const AUTHOR_BUDGETS_MODULE = './data/author-budgets.json';
 
 /** A card from the shard's name and seed, so two authors' shards differ on the title with no art of their own. */
-function authorCard(name: string, seed: number): string {
+export function authorCard(name: string, seed: number): string {
   const hue = Math.abs(seed * 47) % 360, label = name.replaceAll(/[^\p{L}\p{N} .'-]/gu, '').slice(0, 24);
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844"><rect width="390" height="844" fill="hsl(${hue} 30% 28%)"/><path d="M0 600l130-90 110 60 150-110v384H0z" fill="hsl(${hue} 30% 18%)"/><text x="195" y="420" fill="#fff" font-family="sans-serif" font-size="30" text-anchor="middle">${label}</text></svg>`;
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
