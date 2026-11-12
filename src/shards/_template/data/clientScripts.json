@@ -89,6 +89,76 @@
         "minScale": 0.8,
         "maxScale": 1.25,
         "emitters": []
+      },
+      {
+        "module": "875e798b8b1be62129b477e6b85e7c45cf11ae67cba006596d869133b469726b",
+        "entity": 4,
+        "name": "brazier-a.flame",
+        "target": {
+          "kind": "particles",
+          "id": "template.brazier-a.flame",
+          "at": [
+            3,
+            1.6,
+            -6
+          ]
+        },
+        "reads": [
+          {
+            "scope": "shared",
+            "id": 102
+          }
+        ],
+        "parameters": [
+          3,
+          2,
+          2,
+          1
+        ],
+        "pose": false,
+        "maxOffset": 0,
+        "minScale": 1,
+        "maxScale": 1,
+        "emitters": [
+          {
+            "id": 1,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 40,
+            "colour": [
+              1,
+              0.52,
+              0.1
+            ],
+            "size": 0.9,
+            "velocity": [
+              0,
+              1.1,
+              0
+            ],
+            "gravity": 0
+          },
+          {
+            "id": 2,
+            "recipe": "platform.particles",
+            "perTick": 4,
+            "live": 96,
+            "lifetimeTicks": 28,
+            "colour": [
+              1,
+              0.85,
+              0.3
+            ],
+            "size": 0.6,
+            "velocity": [
+              0,
+              1.6,
+              0
+            ],
+            "gravity": 0
+          }
+        ]
       }
     ]
   }

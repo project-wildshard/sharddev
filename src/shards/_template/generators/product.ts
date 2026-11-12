@@ -37,11 +37,15 @@ const door = behaviour.door, itemModule = behaviour.items.hash;
 const CLIENT_IDLE_HASH = behaviour.idle.hash, CLIENT_IDLE_BYTES = behaviour.idle.compressed;
 const CLIENT_IDLE_RESIDENT = idle.module.resident - idle.module.bytes + CLIENT_IDLE_BYTES;
 const clientScripts = structuredClone(idle.scripts);
-for (const binding of clientScripts.bindings) binding.module = CLIENT_IDLE_HASH;
+for (const binding of clientScripts.bindings) {
+  binding.module = CLIENT_IDLE_HASH;
+  // MH-2: brazier A's fire rises from its bowl (1.6 m over the pad, just under the use point)
+  if (binding.target.kind === 'particles' && binding.target.id === 'template.brazier-a.flame') binding.target.at = [terrain.sites.brazierA[0], terrain.sites.brazierA[1] - 0.1, terrain.sites.brazierA[2]];
+}
 // Keep generated door positions and the shared teaching text authoritative.
 const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: terrain.sites.door }, ui.oil, ui.jump,
   { ...ui.notes, tab: { ...ui.notes.tab, title: text.notes }, paragraphs: [text.note] }, ...ENCOUNTERS.ui];
-const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: terrain.sites.door, label: text.door }] };
+const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: terrain.sites.door, label: text.door }, { ...targets.brazier, at: terrain.sites.brazierA, label: text.brazier }] };
 const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });
 const playerHandle = 1106943697; // fnv1a32('actor.player') & 0x7fffffff; admission compares this with the session map.
 const script = { hash: door.hash, kind: 'wasm', compressed: door.compressed, decoded: door.compressed, gpu: 0, triangles: 0, draws: 0, dependencies: [], critical: true };

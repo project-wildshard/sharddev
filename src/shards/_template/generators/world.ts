@@ -71,6 +71,14 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
   }
   ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
+  // Mossgate Hollow v3 (MH-2): brazier A's flame, a panel the shared field `template.brazier-a` shows, and the moss gate
+  // it opens (a panel and collider the same field hides). The fire's colour is the client script's particles: the measure
+  // look gives every surface its role colour, so the flame shape itself reads as stone.
+  const [ax = 3, az = -6] = layout.BRAZIERS[0] ?? [], flame = brazierFlame(ax, heightAt(ax, az) + 1.5, az);
+  ctx.root.add(flame); ctx.piece({ id: 'template.brazier-a.flame', name: 'Brazier A flame', category: 'props', file, object: flame });
+  const gate = mossGate(heightAt);
+  ctx.root.add(gate.frame); ctx.piece({ id: 'template.mossgate-frame', name: 'Moss gate frame', category: 'buildings', file, object: gate.frame, colliders: gate.frameColliders, surface: 'stone' });
+  ctx.root.add(gate.panel); ctx.piece({ id: 'template.mossgate', name: 'Moss gate', category: 'nature', file, object: gate.panel, colliders: gate.panelColliders, active: () => true });
   const dressing = mossgateDressing(heightAt);
   ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
   const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
@@ -147,6 +155,34 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     }
   });
   return { object: root, colliders };
+}
+
+/** Brazier A's flame (MH-2): four tapering boxes, each turned, standing in the bowl whose rim is at `y`. */
+export function brazierFlame(x: number, y: number, z: number): Group {
+  const root = new Group();
+  for (const [w, h, at, yaw] of [[0.9, 0.22, 0.11, 0], [0.62, 0.42, 0.42, 0.6], [0.36, 0.5, 0.86, 1.3], [0.14, 0.34, 1.26, 0.3]] as const) root.add(block(w, h, w, 1, x, y + at, z, yaw));
+  return root;
+}
+/**
+ * The moss gate (MH-2) at `layout.MOSSGATE`: two stone posts and a lintel with low wing walls running north and south, and in
+ * the 2.4 m gap a moss curtain (the panel, with its own collider) that brazier A's field takes away. You walk west through it.
+ */
+export function mossGate(heightAt: (x: number, z: number) => number): { frame: Group; panel: Group; frameColliders: NonNullable<TemplatePart['colliders']>; panelColliders: NonNullable<TemplatePart['colliders']> } {
+  const { x, z } = layout.MOSSGATE, y = heightAt(x, z), frame = new Group(), panel = new Group(), frameColliders: NonNullable<TemplatePart['colliders']> = [];
+  const box = (bx: number, by: number, bz: number, hx: number, hy: number, hz: number): NonNullable<TemplatePart['colliders']>[number] => BoxCollider.fromData({ kind: 'box', x: bx, y: by, z: bz, hx, hy, hz, yaw: -0, surface: 'stone' }).toColliderData();
+  for (const side of [-1, 1]) {
+    const pz = z + side * 1.55;
+    frame.add(block(0.7, 3.2, 0.7, 1, x, y + 1.6, pz), block(0.82, 0.12, 0.82, 2, x, y + 3.26, pz));
+    frameColliders.push(box(x, y + 1.6, pz, 0.35, 1.6, 0.35));
+    const wz = z + side * 4.1;
+    frame.add(block(0.6, 1.5, 4.4, 1, x, y + 0.75, wz), block(0.7, 0.1, 4.5, 2, x, y + 1.55, wz));
+    frameColliders.push(box(x, y + 0.75, wz, 0.3, 0.75, 2.2));
+  }
+  frame.add(block(0.8, 0.5, 4.0, 1, x, y + 3.45, z), block(0.9, 0.12, 4.1, 2, x, y + 3.76, z));
+  // the curtain: a moss sheet and hanging strands of uneven length
+  panel.add(block(0.24, 2.9, 2.4, 2, x, y + 1.75, z));
+  for (let k = 0; k < 7; k++) { const h = 0.6 + (jitter(k, 70) + 1) * 0.5, sz = z - 1.05 + k * 0.35; panel.add(block(0.32, h, 0.18, 2, x + 0.04 * jitter(k, 71), y + 3.2 - h / 2, sz)); }
+  return { frame, panel, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, 1.2)] };
 }
 
 /** The jump course's three practice pads, `baseHeight` up at `x`. */

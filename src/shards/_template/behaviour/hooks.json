@@ -6,6 +6,12 @@
         "scope": "shared",
         "fieldId": 101,
         "equals": 1
+      },
+      {
+        "id": "template.brazier-a.lit",
+        "scope": "shared",
+        "fieldId": 102,
+        "equals": 1
       }
     ],
     "scenes": [
@@ -23,6 +29,11 @@
         "id": "template.lantern.refill",
         "type": 102,
         "value": 4
+      },
+      {
+        "id": "template.brazier-a.light",
+        "type": 202,
+        "value": 1
       }
     ]
   },
@@ -34,6 +45,13 @@
       {
         "id": 101,
         "name": "template.door.open",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
+      },
+      {
+        "id": 102,
+        "name": "template.brazier-a",
         "type": "bool",
         "privacy": "public",
         "default": false

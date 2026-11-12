@@ -11,6 +11,26 @@
           "template.door"
         ],
         "activeWhenMatched": false
+      },
+      {
+        "panel": "template.brazier-a.flame",
+        "scope": "shared",
+        "fieldId": 102,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
+      },
+      {
+        "panel": "template.mossgate",
+        "scope": "shared",
+        "fieldId": 102,
+        "equals": 1,
+        "visibleWhenMatched": false,
+        "colliders": [
+          "template.mossgate"
+        ],
+        "activeWhenMatched": false
       }
     ],
     "itemActions": [
@@ -42,5 +62,10 @@
     "id": "template.door.use",
     "radius": 3,
     "scene": "template.door.toggle"
+  },
+  "brazier": {
+    "id": "template.brazier-a.use",
+    "radius": 2.5,
+    "scene": "template.brazier-a.light"
   }
 }

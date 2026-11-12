@@ -8,6 +8,7 @@
 //   style 0  breathe   a slow squash and stretch with a small bob (the grey blob)
 //   style 1  graze     head-down nods with long rests, a slow drifting shuffle and a little yaw (the boar)
 //   style 2  sway      a light two-axis rock about the base (foliage)
+//   style 3  flame     no pose; while the first read field is 1, `amplitude` emitters from `emitter` on burn every step
 //   emitter  an admitted emitter id (0: none): one particle every rate-scaled interval while frozen
 @external("env", "query") declare function query(kind: i32, input: i32, output: i32): i32;
 export function abi_version(): i32 { return 0; }
@@ -43,6 +44,11 @@ export function on_tick(): void {
   const x = load<f64>(16384 + 32), z = load<f64>(16384 + 48);
   query(410, 31000, 32000);
   const style = load<f64>(32000), amplitude = load<f64>(32008), rate = load<f64>(32016), emitter = load<f64>(32024);
+  if (style > 2.5) {
+    // MH-2: a lit brazier's fire, live or frozen (a particles anchor has no pose)
+    if (load<f64>(16384 + 56) >= 1 && load<f64>(16384 + 64) >= 0.5) for (let k: f64 = 0; k < amplitude && count < 4; k++) emit(104, emitter + k, rate, 0);
+    return;
+  }
   if (frozen < 0.5) { emit(101, 0, 0, 0); emit(102, 0, 0, 0); emit(103, 1, 1, 1); return; }
   const seconds = tick / 60;
   // each entity runs out of step with its neighbours (its id and where it stands)
