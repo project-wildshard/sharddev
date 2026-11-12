@@ -11,6 +11,7 @@ import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
+import {preparationSaveSeed} from './preparation-seed.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
 const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), slugs=args.filter(arg=>!arg.startsWith('--'));
@@ -28,12 +29,8 @@ async function record(browser,slug){
   try{
     // The served epoch owns this fresh diagnostic context. The installed SDK
     // may predate that epoch; never write fixtures through its old namespace.
-    await context.addInitScript(({epoch})=>{
-      const prefix=`wildshard.save.v2${epoch===0?'':`@${epoch}`}.`,row=data=>({v:1,data});
-      localStorage.setItem(`${prefix}global`,JSON.stringify({keys:{settings:row({tier:'phone',volume:0,time:'midday',weather:'clear'}),gfx:row({dpr:'2',aa:'auto'})}}));
-      // a phone's first PLAY skips SHARD SELECT for Driftwood's first-play card (engine firstPlay.ts): this device has played
-      localStorage.setItem(`${prefix}device`,JSON.stringify({keys:{devMode:row(true),firstPlayDone:row(true),'debug.global.holdLoading':row('off'),'debug.earlyPrograms':row('off')}}));
-    },{epoch});
+    // A device that has played and answered the Name prompt (engine MP2.4), or PLAY never reaches SHARD SELECT.
+    await context.addInitScript(({seed})=>{for(const [key,value] of Object.entries(seed))localStorage.setItem(key,value);},{seed:preparationSaveSeed(epoch)});
     await context.addInitScript(hideDeveloperOverlays);
     // in the page: each document's own shaderSource / attachShader / linkProgram calls, the sources of every linked pair
     await context.addInitScript(`(() => {
