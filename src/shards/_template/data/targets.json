@@ -62,6 +62,33 @@
           "template.arena-gate"
         ],
         "activeWhenMatched": false
+      },
+      {
+        "panel": "template.rim-flames",
+        "scope": "shared",
+        "fieldId": 104,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
+      },
+      {
+        "panel": "template.warden-ring",
+        "scope": "shared",
+        "fieldId": 110,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
+      },
+      {
+        "panel": "template.warden-core",
+        "scope": "shared",
+        "fieldId": 111,
+        "equals": 1,
+        "visibleWhenMatched": true,
+        "colliders": [],
+        "activeWhenMatched": true
       }
     ],
     "itemActions": [

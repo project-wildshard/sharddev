@@ -4,7 +4,7 @@ import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile
 import type { templateTerrain } from './terrain';
 import type { TemplateBehaviour } from './behaviour';
 import type { BakedProps } from '@wildshard/sharddev/bake/props';
-import { TEMPLATE_FLAME, TEMPLATE_LAMP, TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE } from './templatePropsSource';
+import { TEMPLATE_FLAME, TEMPLATE_LAMP, TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE, TEMPLATE_TELL } from './templatePropsSource';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
 import rows from '../data/rows.json' with { type: 'json' };
 import { parseRows } from '@wildshard/sharddev/rows';
@@ -38,11 +38,14 @@ const MH3_LIBRARY_RESIDENT = 100_000;
 /** MH-4's share: the Warden's ring (12 anchors × 32 live) and core (2 × 64 live) particle pools. Measured on the build:
  *  the sketch check passes at 45 000 and refuses at 30 000; 60 000 leaves a margin. */
 const MH4_LIBRARY_RESIDENT = 60_000;
+/** LF1-9: the rim braziers' flame panel and the Warden's tell ring and core panels (props.library). Measured on the build:
+ *  63 092 resident, 33 512 compressed (14 244 + 15 116 + 4 152); these leave a margin. */
+const LF19_LIBRARY = { resident: 70_000, compressed: 36_000 } as const;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
 const TEMPLATE_ROWS = parseRows(rows);
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone keeps the look's measure `pbr`; the red
  *  mushroom caps draw in the look's emissive `mossgate.mushroom-cap` (LF1-2: it keeps its colour under the measure look). */
-const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME } };
+const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME }, [TEMPLATE_TELL]: { id: TEMPLATE_TELL } };
 /** Assemble the original authored product from this build's terrain rows. */
 export function templateProduct(terrain: Omit<ReturnType<typeof templateTerrain>, 'assets'>, props: BakedProps, behaviour: TemplateBehaviour, boss: { compressed: number }): Shardfile {
 const door = behaviour.door, itemModule = behaviour.items.hash;
@@ -84,7 +87,7 @@ const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as con
 // Retain the old producer's JSON boundary, including signed-zero normalization.
 // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
-  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
+  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
   look: TEMPLATE_LOOK, spawn: SPAWN, rows: { ...TEMPLATE_ROWS, looks: TEMPLATE_SKIN_LOOKS }, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
   terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,

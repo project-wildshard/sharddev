@@ -98,6 +98,9 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const arena = arenaRing(heightAt);
   ctx.root.add(arena.wall); ctx.piece({ id: 'template.arena-wall', name: 'Arena wall', category: 'buildings', file, object: arena.wall, colliders: arena.wallColliders, surface: 'stone' });
   ctx.root.add(arena.gate); ctx.piece({ id: 'template.arena-gate', name: 'Arena gate', category: 'buildings', file, object: arena.gate, colliders: arena.gateColliders, active: () => true });
+  // LF1-9: the arena's checker floor, moss drips and rim braziers (its own piece, so the coarse L1 tiles skip it)
+  const arenaDress = new Group(); arenaDressing(arenaDress, heightAt);
+  ctx.root.add(arenaDress); ctx.piece({ id: 'template.arena-dressing', name: 'Arena floor, moss and rim braziers', category: 'buildings', file, object: arenaDress });
   const dressing = mossgateDressing(heightAt);
   ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
   const foliage = mossgateFoliage(heightAt);
@@ -536,6 +539,80 @@ export function arenaRing(heightAt: (x: number, z: number) => number): { wall: G
   for (let k = 0; k < 7; k++) { const [bx, bz] = at(-half + 0.45 + (k + 0.5) * (half * 2 - 0.9) / 7); gate.add(block(0.14, H - 0.1, 0.14, 2, bx, gy + (H - 0.1) / 2, bz, door)); }
   for (const y of [0.5, 1.7, 2.8]) gate.add(block(half * 2 - 0.9, 0.12, 0.1, 2, gx, gy + y, gz, door));
   return { wall, gate, wallColliders, gateColliders: [stoneBox(gx, gy + H / 2, gz, half - 0.45, H / 2, 0.15, door)] };
+}
+
+/** LF1-9: the arena floor's slate (the checker's dark squares; the light ones are moss) and its cell, in metres. */
+export const SLATE = 0x4f4d52, FLOOR_MOSS = 0x4e6a2a, ARENA_CELL = 1.5;
+/** LF1-9: the three braziers on the arena rim, as angles round `layout.ARENA` from the way in (across from it and either side). */
+export const RIM_BRAZIERS: readonly number[] = [Math.PI - 0.72, Math.PI, Math.PI + 0.72];
+/** LF1-9: the Warden's slam tell, a ring this far round `layout.BOSS` (MH-4's twelve anchors stood 3.5 m out). */
+export const TELL_RADIUS = 3.5;
+/** The arena's way in, as an angle round `layout.ARENA` (the gap faces spawn). */
+const arenaDoor = (): number => Math.atan2(-layout.ARENA.x, -layout.ARENA.z);
+/** A rim brazier's centre, on the wall cap's top. */
+function rimBrazier(heightAt: (x: number, z: number) => number, k: number): [number, number, number] {
+  const { x: cx, z: cz, radius: r } = layout.ARENA, a = arenaDoor() + (RIM_BRAZIERS[k] ?? 0), x = cx + r * Math.sin(a), z = cz + r * Math.cos(a);
+  return [x, heightAt(x, z) - 0.2 + 3.2 + 0.14, z];
+}
+/**
+ * LF1-9 (t1-12 to t1-15): the arena's floor and rim, in its tile's (0/3/4) one static draw. A checker of flat 1.5 m squares,
+ * slate and moss, over the ground inside the ring (each square over its highest corner, no collider: the walk is the
+ * ground's); a jagged moss drip under each wall segment's cap on the inner face; and three stone braziers on the rim across
+ * from the way in, their flames a panel brazier C's field shows (`rimFlames`).
+ */
+function arenaDressing(root: Group, heightAt: (x: number, z: number) => number): void {
+  const { x: cx, z: cz, radius: r } = layout.ARENA, door = arenaDoor(), N = 20, H = 3.2, slate = foliageMaterial(SLATE), moss = foliageMaterial(MOSS), floorMoss = foliageMaterial(FLOOR_MOSS);
+  const reach = r - 1.0, n = Math.ceil(reach / ARENA_CELL), s = ARENA_CELL / 2 - 0.04;
+  for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
+    const x = cx + i * ARENA_CELL, z = cz + j * ARENA_CELL;
+    if (Math.hypot(Math.abs(i * ARENA_CELL) + ARENA_CELL / 2, Math.abs(j * ARENA_CELL) + ARENA_CELL / 2) > reach + 0.6) continue;
+    const y = Math.max(...[[-1, -1], [-1, 1], [1, -1], [1, 1]].map(([a = 0, b = 0]) => heightAt(x + a * s, z + b * s))) + 0.03;
+    const square = new Mesh(flagstone(s * 2, s * 2), (i + j) % 2 === 0 ? slate : floorMoss); square.position.set(x, y, z); root.add(square);
+  }
+  // the moss drip: under each segment's cap on the inner face, a strip whose lower edge hangs 0.2 to 0.9 m down
+  for (let k = 1; k < N; k++) {
+    // on the segment box's inner face (a chord `half` long each way, 0.35 m in from the ring), 2 cm proud of it
+    const am = door + (k / N) * Math.PI * 2, ri = r - 0.37, half = r * Math.sin(Math.PI / N) + 0.05;
+    const top = heightAt(cx + r * Math.sin(am), cz + r * Math.cos(am)) - 0.2 + H, at = (t: number, y: number): Vector3 => new Vector3(cx + ri * Math.sin(am) + t * Math.cos(am), y, cz + ri * Math.cos(am) - t * Math.sin(am));
+    const points: Vector3[] = [], tris: [number, number, number][] = [];
+    for (let c = 0; c <= 4; c++) { const t = -half + (half * 2 * c) / 4; points.push(at(t, top), at(t, top - 0.2 - (jitter(k, 160 + c) + 1) * 0.35)); }
+    for (let c = 0; c < 4; c++) tris.push([c * 2, c * 2 + 2, c * 2 + 1], [c * 2 + 1, c * 2 + 2, c * 2 + 3]);
+    root.add(new Mesh(tent(points, tris, new Vector3(cx + (r + 2) * Math.sin(am), top - 0.5, cz + (r + 2) * Math.cos(am)), 2), moss));
+  }
+  // the rim braziers: a plinth on the cap, a stem and a bowl, turned to the ring
+  RIM_BRAZIERS.forEach((da, k) => {
+    const [x, y, z] = rimBrazier(heightAt, k), yaw = door + da;
+    root.add(block(0.8, 0.3, 0.8, 1, x, y + 0.15, z, yaw, 0, STONE), block(0.46, 0.4, 0.46, 1, x, y + 0.5, z, yaw, 0, STONE), block(1.0, 0.24, 1.0, 1, x, y + 0.82, z, yaw, 0, 0x6c6264));
+  });
+}
+/** LF1-9: the rim braziers' flames, three faceted cones in each bowl, a panel brazier C's field (104) shows, in `mossgate.flame`. */
+export function rimFlames(heightAt: (x: number, z: number) => number): Group {
+  const flames = new Group();
+  RIM_BRAZIERS.forEach((_, k) => {
+    const [x, y, z] = rimBrazier(heightAt, k);
+    for (const [i, [dx, dz, rr, h]] of ([[0, 0, 0.34, 1.05], [0.18, 0.1, 0.2, 0.7], [-0.16, -0.12, 0.2, 0.62]] as const).entries()) {
+      const cone = new Mesh(foliageUv(new CylinderGeometry(0, rr, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + 0.94 + h / 2, z + dz); cone.rotation.y = jitter(k * 3 + i, 170) * 1.2; flames.add(cone);
+    }
+  });
+  return flames;
+}
+/**
+ * LF1-9: the Warden's slam tell, a glowing ring on the floor `TELL_RADIUS` round it (field 110 shows it), and its core, a
+ * faceted gem over its crown where it stands (field 111; a panel is fixed, so when the Warden steps toward a player in a
+ * window the gem stays over its spot). Panels in emissive materials with no shadow, one draw each in 0/3/4.
+ */
+export function wardenTell(heightAt: (x: number, z: number) => number): { ring: Group; core: Group } {
+  const { x: bx, z: bz } = layout.BOSS, ring = new Group(), core = new Group(), points: Vector3[] = [], tris: [number, number, number][] = [], N = 48, W = 0.22;
+  for (let k = 0; k < N; k++) {
+    const a = (k / N) * Math.PI * 2;
+    for (const rr of [TELL_RADIUS - W, TELL_RADIUS + W]) { const x = bx + Math.cos(a) * rr, z = bz + Math.sin(a) * rr; points.push(new Vector3(x, heightAt(x, z) + 0.09, z)); }
+    const i = k * 2, j = ((k + 1) % N) * 2;
+    tris.push([i, j, i + 1], [i + 1, j, j + 1]);
+  }
+  // `tent` winds each face away from a point under the ring, so every triangle faces up
+  ring.add(new Mesh(tent(points, tris, new Vector3(bx, heightAt(bx, bz) - 5, bz), 1), foliageMaterial(0xffffff)));
+  const gem = new Mesh(foliageUv(new IcosahedronGeometry(0.42, 0), 1), foliageMaterial(0xffffff)); gem.position.set(bx, heightAt(bx, bz) + 3.5, bz); gem.scale.set(1.2, 1.8, 1.2); core.add(gem);
+  return { ring, core };
 }
 
 /** The jump course's three practice pads, `baseHeight` up at `x`. */

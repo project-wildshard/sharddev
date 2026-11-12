@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import { templateHeightAt } from './landscape';
-import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, REEDS, TREES } from './world';
-import { Box3, Group, Mesh } from 'three';
+import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, REEDS, rimFlames, TELL_RADIUS, TREES, wardenTell } from './world';
+import { Box3, Group, Mesh, type Object3D } from 'three';
 
 // LF1-5: the yard's foliage stands clear of every walk the MH-2, MH-3 and LF1-0 proofs take and of every use point, so no
 // tree trunk blocks a path. Tufts and ferns carry no collider at all.
@@ -96,4 +96,24 @@ test('the pond planting stays in tile 0/4/4 and off the crossing', () => {
     expect(Math.abs(z - cz), `reed at ${deg} degrees`).toBeGreaterThan(CROSSING_CLEAR);
     for (const [bx = 0, bz = 0] of layout.BRAZIERS) expect(Math.hypot(x - bx, z - bz), `reed at ${deg} degrees by a brazier`).toBeGreaterThan(2.5);
   }
+});
+
+// LF1-9: the arena's floor, moss drips and rim braziers, the rim flames and the Warden's tell ring and core all sit in L0
+// tile 0/3/4 (x [-62.5, 0), z [0, 62.5)); the dressing carries no collider (the arena walk and the fight stand on the
+// ground); the tell ring lies flat on the floor TELL_RADIUS round the Warden, where MH-4's dodge expects it.
+test('the arena dressing and the Warden tell stay in tile 0/3/4, colliderless', () => {
+  const pieces: { id: string; object: Object3D; colliders?: unknown[] }[] = [];
+  buildTemplateWorld({ root: new Group(), scope: { own: () => undefined, onDispose: () => undefined }, piece: (part) => { pieces.push(part); }, rng: { stream: () => ({ range: (a: number) => a }) }, heightAt: templateHeightAt() }, 0);
+  const dress = pieces.find(part => part.id === 'template.arena-dressing');
+  if (dress === undefined) throw new Error('no arena dressing');
+  expect(dress.colliders ?? []).toHaveLength(0);
+  const tell = wardenTell(templateHeightAt());
+  for (const root of [dress.object, rimFlames(templateHeightAt()), tell.ring, tell.core]) {
+    root.updateMatrixWorld(true);
+    const box = new Box3().setFromObject(root);
+    expect(box.min.x >= -62.5 && box.max.x < 0 && box.min.z >= 0 && box.max.z < 62.5, `box (${box.min.x}, ${box.min.z})..(${box.max.x}, ${box.max.z})`).toBe(true);
+  }
+  const { x: bx, z: bz } = layout.BOSS, ring = new Box3().setFromObject(tell.ring);
+  expect(ring.max.x - bx).toBeCloseTo(TELL_RADIUS + 0.22, 1); expect(bz - ring.min.z).toBeCloseTo(TELL_RADIUS + 0.22, 1);
+  expect(ring.max.y - ring.min.y).toBeLessThan(0.6);
 });

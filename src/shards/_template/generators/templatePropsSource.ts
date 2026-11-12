@@ -2,7 +2,7 @@ import { Group, type Matrix4, Mesh, MeshStandardMaterial, type Object3D } from '
 import { templateHeightAt } from './landscape';
 import { templateScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
-import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, measureBox, mushroomCaps, type TemplatePart } from './world';
+import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, measureBox, mushroomCaps, rimFlames, wardenTell, type TemplatePart } from './world';
 import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
 
 /** LF1-5: the GLB material names `props.materials` binds (product.ts): the measure stone every merged shape draws in, and the
@@ -10,6 +10,8 @@ import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
 export const TEMPLATE_STONE = 'measure', TEMPLATE_MUSHROOM_CAP = 'mossgate.mushroom-cap';
 /** LF1-7: the door lamp's glass and brazier A's flame, each bound to an emissive look entry. */
 export const TEMPLATE_LAMP = 'mossgate.lamp', TEMPLATE_FLAME = 'mossgate.flame';
+/** LF1-9: the Warden's slam tell ring, an emissive amber (its core gem draws in the lamp's gold). */
+export const TEMPLATE_TELL = 'mossgate.tell';
 /** Pieces whose colliders a target row switches (MH-2: the moss gate; MH-3: the pond's stones and the arena gate). */
 const PANELS: ReadonlySet<string> = new Set(['template.door', 'template.mossgate', 'template.pond-stones', 'template.arena-gate']);
 /** Panel colliders that start off: the pond's raised stones stand only once brazier B is lit. */
@@ -23,7 +25,7 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   buildTemplateWorld({ root: original, scope, piece, rng: { stream: () => random }, heightAt: templateHeightAt() }, count);
   const cell = buildCellFill({ root: original, scope, piece });
   const shape = (id: string): Object3D => { const object = pieces.find(part => part.id === id)?.object; if (object === undefined) throw new Error(`Missing template shape ${id}`); return object; };
-  const staticRoot = new Group(); staticRoot.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.braziers').clone(), shape('template.dressing').clone(), shape('template.foliage').clone(), shape('template.mossgate-frame').clone(), shape('template.mossgate-vines').clone(), shape('template.arena-wall').clone(), shape('template.pond-stones-sunk').clone(), shape('template.pond-planting').clone());
+  const staticRoot = new Group(); staticRoot.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.braziers').clone(), shape('template.dressing').clone(), shape('template.foliage').clone(), shape('template.mossgate-frame').clone(), shape('template.mossgate-vines').clone(), shape('template.arena-wall').clone(), shape('template.arena-dressing').clone(), shape('template.pond-stones-sunk').clone(), shape('template.pond-planting').clone());
   // G220's cell fill: drawn whole near; the coarse tiles and the far proxy keep its big shapes (no stripes, posts or cubes)
   const cellIds = CELL_PIECES, coarse = new Group(), far = new Group();
   for (const id of cellIds) { staticRoot.add(shape(id).clone()); coarse.add(cellCoarse(shape(id))); far.add(cellFar(shape(id))); }
@@ -31,7 +33,8 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   // 1/1/1 and 1/2/1 past the 200000-byte compressed cap the tile-bake policy refuses (CI red from 8b3307b).
   coarse.add(shape('template.hut').clone(), shape('template.ramp').clone(), shape('template.door').clone(), shape('template.braziers').clone(), shape('template.mossgate-frame').clone(), shape('template.arena-wall').clone()); far.add(shape('template.hut').clone());
   const scatter = shape('template.props'), transforms: Matrix4[] = []; scatter.updateMatrixWorld(true);
-  for (const prop of scatter.children) transforms.push(prop.matrixWorld.clone());
+  // LF1-9: no grey scatter cube in the arena's tile 0/3/4 (x < 0, z ≥ 0): they stood on its floor, and their draw pays for the tell
+  for (const prop of scatter.children) if (!(prop.position.x < 0 && prop.position.z >= 0)) transforms.push(prop.matrixWorld.clone());
   const model = new Mesh(measureBox(0.6, 0.6, 0.6, 1), new MeshStandardMaterial({ color: 0x888888, flatShading: true }));
   const door = shape('template.door');
   // SF16 relocates the course into the cell; this fixture records its same three pads at a bounded practice location.
@@ -47,6 +50,10 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   // panel A's field shows (1 draw in 0/3/3); the hut door casts no shadow, so 0/3/3 and 0/4/3 each pay one draw less for it.
   // LF1-8: brazier B's flame likewise (field 103, 1 draw in 0/4/4), paid for by the pond's raised stones casting no shadow
   const glass = hutLamp(templateHeightAt()), flame = brazierFlame(templateHeightAt()), flameB = brazierFlame(templateHeightAt(), 1);
+  // LF1-9: the rim braziers' flames (field 104), the Warden's tell ring (110) and core (111), each a shadowless emissive panel
+  // in 0/3/4, paid for by the arena gate casting no shadow and the tile's scatter cubes going
+  const rim = rimFlames(templateHeightAt()), tell = wardenTell(templateHeightAt());
   return { source: { static: staticRoot, materialName: TEMPLATE_STONE, whole: [{ id: 'template_mushroom_caps', mesh: caps.mesh, transform: caps.transform, materialName: TEMPLATE_MUSHROOM_CAP }, { id: 'template_hut_lamp', mesh: glass.mesh, transform: glass.transform, materialName: TEMPLATE_LAMP }], scatter: [{ model, transforms }, cell.posts], panels: [{ id: 'template.door', model: door, castShadow: false }, { id: 'template.flame-a', model: flame, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.flame-b', model: flameB, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.mossgate', model: shape('template.mossgate') },
-    { id: 'template.pond-stones', model: shape('template.pond-stones'), visible: false, castShadow: false }, { id: 'template.arena-gate', model: shape('template.arena-gate') }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); model.geometry.dispose(); model.material.dispose(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); glass.mesh.geometry.dispose(); glass.mesh.material.dispose(); for (const f of [flame, flameB]) f.traverse((o) => { if (o instanceof Mesh) { o.geometry.dispose(); (o.material as MeshStandardMaterial).dispose(); } }); } };
+    { id: 'template.pond-stones', model: shape('template.pond-stones'), visible: false, castShadow: false }, { id: 'template.arena-gate', model: shape('template.arena-gate'), castShadow: false },
+    { id: 'template.rim-flames', model: rim, visible: false, materialName: TEMPLATE_FLAME, castShadow: false }, { id: 'template.warden-ring', model: tell.ring, visible: false, materialName: TEMPLATE_TELL, castShadow: false }, { id: 'template.warden-core', model: tell.core, visible: false, materialName: TEMPLATE_LAMP, castShadow: false }, { id: 'template.jump', model: course, visible: false }], colliders, models: [{ id: 'template.lantern', model: lampShapes }], coarse, far }, original, dispose: () => { for (const resource of resources) resource.dispose(); for (const cleanup of cleanups) cleanup(); model.geometry.dispose(); model.material.dispose(); caps.mesh.geometry.dispose(); caps.mesh.material.dispose(); glass.mesh.geometry.dispose(); glass.mesh.material.dispose(); for (const f of [flame, flameB, rim, tell.ring, tell.core]) f.traverse((o) => { if (o instanceof Mesh) { o.geometry.dispose(); (o.material as MeshStandardMaterial).dispose(); } }); } };
 }

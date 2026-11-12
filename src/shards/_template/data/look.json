@@ -95,6 +95,15 @@
         0.14
       ],
       "intensity": 2.4
+    },
+    "mossgate.tell": {
+      "family": "emissive",
+      "colour": [
+        1.0,
+        0.48,
+        0.08
+      ],
+      "intensity": 2.8
     }
   },
   "post": [
