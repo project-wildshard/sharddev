@@ -101,5 +101,11 @@
       "radius": 2.5,
       "scene": "template.brazier-c.light"
     }
-  ]
+  ],
+  "talk": {
+    "id": "template.lamplighter.talk",
+    "radius": 2.5,
+    "label": "Talk to the Lamplighter",
+    "dialogue": "template.lamplighter"
+  }
 }

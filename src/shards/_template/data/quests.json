@@ -6,7 +6,14 @@
     "template.complete-card",
     "template.door-open",
     "template.wave-started",
-    "template.wave-complete"
+    "template.wave-complete",
+    "template.lamp.accepted",
+    "template.lamp.a",
+    "template.lamp.b",
+    "template.lamp.c",
+    "template.lamp.reported",
+    "template.lamp.done",
+    "dead:barrow-warden"
   ],
   "quests": [
     {
@@ -38,6 +45,67 @@
         "fact": "template.quest",
         "coins": 5
       }
+    },
+    {
+      "id": "template.lamplighter",
+      "title": "Relight the Hollow",
+      "completeFlag": "template.lamp.done",
+      "startWhen": {
+        "all": [
+          "template.lamp.accepted"
+        ]
+      },
+      "steps": [
+        {
+          "id": "a",
+          "objective": "Light brazier A",
+          "done": {
+            "all": [
+              "template.lamp.a"
+            ]
+          }
+        },
+        {
+          "id": "b",
+          "objective": "Light brazier B",
+          "done": {
+            "all": [
+              "template.lamp.b"
+            ]
+          }
+        },
+        {
+          "id": "c",
+          "objective": "Light brazier C",
+          "done": {
+            "all": [
+              "template.lamp.c"
+            ]
+          }
+        },
+        {
+          "id": "warden",
+          "objective": "Beat the Barrow Warden",
+          "done": {
+            "all": [
+              "dead:barrow-warden"
+            ]
+          }
+        },
+        {
+          "id": "report",
+          "objective": "Tell the Lamplighter",
+          "done": {
+            "all": [
+              "template.lamp.reported"
+            ]
+          }
+        }
+      ],
+      "onComplete": {
+        "coins": 25,
+        "fact": "template.lamplighter"
+      }
     }
   ],
   "triggers": [
@@ -60,7 +128,96 @@
       "kind": "death",
       "flag": "template.blob",
       "tag": "creature.greyBlob"
+    },
+    {
+      "id": "lamp.a",
+      "kind": "script",
+      "flag": "template.lamp.a",
+      "condition": "template.brazier-a.lit",
+      "when": {
+        "all": [
+          "template.lamp.accepted"
+        ]
+      }
+    },
+    {
+      "id": "lamp.b",
+      "kind": "script",
+      "flag": "template.lamp.b",
+      "condition": "template.brazier-b.lit",
+      "when": {
+        "all": [
+          "template.lamp.accepted"
+        ]
+      }
+    },
+    {
+      "id": "lamp.c",
+      "kind": "script",
+      "flag": "template.lamp.c",
+      "condition": "template.brazier-c.lit",
+      "when": {
+        "all": [
+          "template.lamp.accepted"
+        ]
+      }
     }
   ],
-  "dialogue": []
+  "dialogue": [
+    {
+      "id": "template.lamplighter",
+      "name": "The Lamplighter",
+      "start": "offer",
+      "nodes": [
+        {
+          "id": "offer",
+          "lines": [
+            "The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring.",
+            "Light all three, then put the Warden down. Will you?"
+          ],
+          "choices": [
+            {
+              "id": "accept",
+              "label": "I'll relight them.",
+              "next": "waiting",
+              "sets": [
+                "template.lamp.accepted"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "waiting",
+          "lines": [
+            "A by the moss gate, B across the pond, C by the barrow ring. Then the Warden."
+          ],
+          "choices": [
+            {
+              "id": "report",
+              "label": "All three burn, and the Warden is down.",
+              "next": "thanks",
+              "when": {
+                "all": [
+                  "template.lamp.a",
+                  "template.lamp.b",
+                  "template.lamp.c",
+                  "dead:barrow-warden"
+                ]
+              },
+              "sets": [
+                "template.lamp.reported"
+              ]
+            }
+          ]
+        },
+        {
+          "id": "thanks",
+          "lines": [
+            "The Hollow breathes again. Take this for your trouble."
+          ],
+          "choices": []
+        }
+      ]
+    }
+  ]
 }

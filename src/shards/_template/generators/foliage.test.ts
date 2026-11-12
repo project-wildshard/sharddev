@@ -12,6 +12,9 @@ const ROUTES: readonly [[number, number], [number, number]][] = [
   [[0, 0], [-8.3, 7.4]], [[-8.3, 7.4], [layout.ARENA.x, layout.ARENA.z]], // MH-3: to the arena gate and in
   ...layout.BRAZIERS.map(([x, z]): [[number, number], [number, number]] => [[0, 0], [x ?? 0, z ?? 0]]), // each brazier's use point
 ];
+/** MH-5: the Lamplighter's feet, and the walk from spawn to talk to it (its own walk, so no collider may block it either). */
+const LAMPLIGHTER: [number, number] = [layout.LAMPLIGHTER.x, layout.LAMPLIGHTER.z];
+const TALK_WALK: [[number, number], [number, number]] = [[0, 0], LAMPLIGHTER];
 const distance = ([px, pz]: [number, number], [[ax, az], [bx, bz]]: [[number, number], [number, number]]): number => {
   const dx = bx - ax, dz = bz - az, t = Math.max(0, Math.min(1, ((px - ax) * dx + (pz - az) * dz) / (dx * dx + dz * dz)));
   return Math.hypot(px - ax - t * dx, pz - az - t * dz);
@@ -24,7 +27,7 @@ test('every foliage collider stands at least 1.5 m off the proofs\' walks and us
     if (c.kind !== 'box') throw new Error('a tree trunk is a box');
     expect(c.surface).toBe('wood');
     const reach = Math.hypot(c.hx, c.hz);
-    for (const route of ROUTES) expect(distance([c.x, c.z], route) - reach, `trunk at (${c.x}, ${c.z})`).toBeGreaterThan(1.5);
+    for (const route of [...ROUTES, TALK_WALK]) expect(distance([c.x, c.z], route) - reach, `trunk at (${c.x}, ${c.z})`).toBeGreaterThan(1.5);
   }
 });
 
@@ -37,7 +40,18 @@ test('every dressing collider stands at least 0.5 m off the proofs\' walks and u
   for (const c of colliders) {
     if (c.kind !== 'box') throw new Error('a dressing collider is a box');
     const reach = Math.hypot(c.hx, c.hz);
-    for (const route of ROUTES) expect(distance([c.x, c.z], route) - reach, `dressing collider at (${c.x}, ${c.z})`).toBeGreaterThan(0.5);
+    for (const route of [...ROUTES, TALK_WALK]) expect(distance([c.x, c.z], route) - reach, `dressing collider at (${c.x}, ${c.z})`).toBeGreaterThan(0.5);
+  }
+});
+
+// MH-5: the Lamplighter stands 1.5 m off every proof walk and use point (its body never pushes a walk aside or hides a
+// brazier's prompt), and 1 m off every tree trunk and dressing collider (its figure stands in the open).
+test('the Lamplighter stands clear of the walks and of the yard trees and dressing', () => {
+  for (const route of ROUTES) expect(distance(LAMPLIGHTER, route), `walk to (${String(route[1])})`).toBeGreaterThan(1.5);
+  const colliders = [...mossgateFoliage(templateHeightAt()).colliders, ...mossgateDressing(templateHeightAt()).colliders];
+  for (const c of colliders) {
+    if (c.kind !== 'box') throw new Error('a yard collider is a box');
+    expect(Math.hypot(c.x - LAMPLIGHTER[0], c.z - LAMPLIGHTER[1]) - Math.hypot(c.hx, c.hz), `collider at (${c.x}, ${c.z})`).toBeGreaterThan(1);
   }
 });
 

@@ -13,5 +13,20 @@
         "threshold": 1
       }
     ]
+  },
+  {
+    "fact": "template.lamplighter",
+    "origin": {
+      "kind": "engine",
+      "source": "quest.complete"
+    },
+    "rewards": [
+      {
+        "kind": "achievement",
+        "id": "template.lamplighter",
+        "title": "Relight the Hollow",
+        "threshold": 1
+      }
+    ]
   }
 ]
