@@ -7,7 +7,7 @@ settings:
 overrides:
   binaryen: npm:@pre-bundled/binaryen@132.0.0-patch-1
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
-  '@wildshard/format': github:project-wildshard/shardfile#598925de1364ad4931cd514b297829cb728c9a4e
+  '@wildshard/format': github:project-wildshard/shardfile#f32eae4502c2366fda0f1809da603007718f11f6
 
 packageExtensionsChecksum: sha256-UMHVVyHOzVelgV8/9fZPvtXKgauAhjToM3aacthJxQw=
 
@@ -49,8 +49,8 @@ importers:
         specifier: github:project-wildshard/engine#d1d73749b96f437fa5d788385b46d408da034589
         version: https://codeload.github.com/project-wildshard/engine/tar.gz/d1d73749b96f437fa5d788385b46d408da034589(@types/node@24.3.1)(@types/three@0.186.0)(esbuild@0.28.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)
       '@wildshard/format':
-        specifier: github:project-wildshard/shardfile#598925de1364ad4931cd514b297829cb728c9a4e
-        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/598925de1364ad4931cd514b297829cb728c9a4e(typescript@7.0.2)
+        specifier: github:project-wildshard/shardfile#f32eae4502c2366fda0f1809da603007718f11f6
+        version: https://codeload.github.com/project-wildshard/shardfile/tar.gz/f32eae4502c2366fda0f1809da603007718f11f6(typescript@7.0.2)
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -645,8 +645,8 @@ packages:
       sharp:
         optional: true
 
-  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/598925de1364ad4931cd514b297829cb728c9a4e':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/598925de1364ad4931cd514b297829cb728c9a4e}
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/f32eae4502c2366fda0f1809da603007718f11f6':
+    resolution: {gitHosted: true, tarball: https://codeload.github.com/project-wildshard/shardfile/tar.gz/f32eae4502c2366fda0f1809da603007718f11f6}
     version: 0.4.2
     engines: {node: '>=24.18.0'}
     hasBin: true
@@ -1712,7 +1712,7 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
-      '@wildshard/format': https://codeload.github.com/project-wildshard/shardfile/tar.gz/598925de1364ad4931cd514b297829cb728c9a4e(typescript@7.0.2)
+      '@wildshard/format': https://codeload.github.com/project-wildshard/shardfile/tar.gz/f32eae4502c2366fda0f1809da603007718f11f6(typescript@7.0.2)
       '@wildshard/wire': https://codeload.github.com/project-wildshard/shardfile/tar.gz/a51f56fbe54197b879fa309a1b1946df7384d576#path:/packages/wire(typescript@7.0.2)
       ajv: 6.15.0
       fflate: 0.8.3
@@ -1748,7 +1748,7 @@ snapshots:
       - utf-8-validate
       - yaml
 
-  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/598925de1364ad4931cd514b297829cb728c9a4e(typescript@7.0.2)':
+  '@wildshard/format@https://codeload.github.com/project-wildshard/shardfile/tar.gz/f32eae4502c2366fda0f1809da603007718f11f6(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)
