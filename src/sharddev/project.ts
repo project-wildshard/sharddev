@@ -25,7 +25,7 @@ import { hashAssetBytes } from './assetHandle';
 
 import { projectPerformancePolicy } from './performancePolicy';
 import { checkProjectRuntime } from './runtimePerformance';
-import { admitProduct, assertProductTargets } from './productOutput';
+import { admitProduct, assertBuildSides, assertProductTargets, namedJsonReader, SIDE_SECTIONS } from './productOutput';
 import { bakeAuthoredWorld } from './bake/authoredWorld';
 import { parseWorldSource } from './worldSource';
 import { compileBehaviourSource } from './behaviourSource';
@@ -256,6 +256,8 @@ export async function buildProject(project: string, output?: string, options: { 
   await buildBehaviourProject(project); phase('behaviour-compile');
   const loaded = await readProjectAssets(project, options.map, options.manifest, options), assets = loaded.assets;
   phase('project-read');
+  // SERVER-PARITY SS8: a kind or script whose side has no half to run it refuses here, one plain line each, before any write.
+  assertBuildSides(outputPlatformPayloads(loaded.output.platform, SIDE_SECTIONS), namedJsonReader(loaded.output.namedFiles ?? [], assets));
   // G348: a shardfile with a terrain gets its far and near placeholders from its own terrain, tiles and look (`wildshard
   // build` asks for them; the first-party product builds keep theirs in the repo bake until the grid reads `near`)
   // a static import: the author CLI must bundle to one module (scripts/wildshard.mjs); the bakers' closure stays

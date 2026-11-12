@@ -17,6 +17,7 @@ import { readBoundedFile } from './sourceReader';
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { hashAssetBytes } from './assetHandle';
 import { WS_CORE } from './as/ws';
+import { viewGameplayLine } from './productOutput';
 
 import type { AssemblyScriptMemo } from './bake/assemblyscriptMemoPort';
 
@@ -34,6 +35,9 @@ export function decisionLineCeiling(options: DecisionBuildOptions): number {
 export async function compileDecisionScripts(input: unknown, registries: DecisionRegistries, authored: ReadonlyMap<string, string>, options: DecisionBuildOptions): Promise<{
   rows: readonly DecisionScriptRow[]; blobs: readonly NamedBlob[]; generated: ReadonlyMap<string, string>; lines: number; ceiling: number;
 }> {
+  // SERVER-PARITY SS8: a view row that writes gameplay names itself here, ahead of the schema's unnamed row rule.
+  const viewWrites = (Array.isArray(input) ? input : []).flatMap((row: unknown) => viewGameplayLine(row));
+  if (viewWrites.length > 0) throw new Error(viewWrites.join('\n'));
   const rows=parseDecisionScripts(input),captured=await captureDecisionSources(authored,options),{lines,ceiling}=captured;
   const generated=new Map<string,string>(),compiled:DecisionScriptRow[]=[],blobs=new Map<string,NamedBlob>();
   for(const row of rows){
