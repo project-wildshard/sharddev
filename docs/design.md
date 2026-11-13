@@ -157,7 +157,7 @@ the whole-tarball one above.
 ## Dependencies
 
 - `engine`, by git tag (`github:project-wildshard/<repo>#vX.Y.Z`)
-- `shard-format` (`@wildshard/format`, the package `@wildshard/shard-format` under its old key until engine renames its imports, meta J308), by git tag (`github:project-wildshard/shard-format#v0.4.6`), locked with pnpm 10.26+
+- `shard-format` (`@wildshard/format`, the package `@wildshard/shard-format` under its old key until engine renames its imports, meta J308), by git tag (`github:project-wildshard/shard-format#v0.4.8`), locked with pnpm 10.26+
 
 ## Boundaries the checks enforce
 
