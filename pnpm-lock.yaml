@@ -46,8 +46,8 @@ importers:
         specifier: 1.8.0
         version: 1.8.0(valibot@1.5.0(typescript@7.0.2))
       '@wildshard/engine':
-        specifier: 0.1.17
-        version: 0.1.17(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.18
+        version: 0.1.18(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.4.9
         version: '@wildshard/shard-format@0.4.9(typescript@7.0.2)'
@@ -631,8 +631,8 @@ packages:
   '@vitest/spy@5.0.1':
     resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
 
-  '@wildshard/engine@0.1.17':
-    resolution: {integrity: sha512-V1VxV+Oxjxk0SAK2qGG3QIQFLDskI43cDfdUaXq0crFZknTeGOQTFB3k6SWj4TES9DRjAm8kjHkaZn8YQyFwog==}
+  '@wildshard/engine@0.1.18':
+    resolution: {integrity: sha512-DqF50oGJjCNmgSwBMO0AeylfPPf2Std99a/SS1GRYCQNpB/HMlH+XDfa7Cudjd5SDmRh5Sm2BMIkzS9FKKqphQ==}
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
@@ -1703,7 +1703,7 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wildshard/engine@0.1.17(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
+  '@wildshard/engine@0.1.18(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.5(hono@4.13.13)

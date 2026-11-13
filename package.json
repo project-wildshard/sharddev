@@ -83,7 +83,7 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
-    "@wildshard/engine": "0.1.17",
+    "@wildshard/engine": "0.1.18",
     "@wildshard/format": "npm:@wildshard/shard-format@0.4.9",
     "ajv": "6.15.0",
     "assemblyscript": "0.28.20",

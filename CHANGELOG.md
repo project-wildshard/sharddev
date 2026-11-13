@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.11 (2026-11-13)
+
+- Fix: `wildshard prepare <folder>` with no `--base` now finds
+  engine's preparation client on its own release, so an author
+  needs no `WILDSHARD_PREPARATION_CLIENT_URL` and no engine checkout.
+- Engine moves from 0.1.17 to 0.1.18.
+
 ## v0.2.10 (2026-11-13)
 
 - Fix: a recording the build re-encodes now gets a new name, the
