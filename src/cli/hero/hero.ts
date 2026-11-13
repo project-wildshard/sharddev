@@ -13,7 +13,7 @@ import {
 
 import type { HeroState } from './stamp.ts'
 
-// The cut's hero check (`wildshard pack`): see stamp.ts for what the stamp
+// The cut's hero check (`wildshard build`, as it writes the shard file, SA3): see stamp.ts for what the stamp
 // records. Jake, 2026-11-12 17:14 Cancún: "you have to update the hero
 // images for the templates."
 
@@ -54,7 +54,7 @@ async function assertProductCarries(
   )
   if (missing.length > NONE) {
     throw new Error(
-      `the product ${product} does not carry the captured hero (${missing.join(', ')}); it was built before the capture: rebuild it (pnpm build:shards), then pack`,
+      `the product ${product} does not carry the captured hero (${missing.join(', ')}); it was built before the capture: rebuild it (pnpm build:shards), then build its shard file`,
     )
   }
 }
@@ -81,12 +81,12 @@ function refusal(shard: string, hero: HeroState): string {
 async function assertHeroCurrent(
   product: string,
   report: (line: string) => void,
+  source?: string,
 ): Promise<void> {
-  const shard = sourceShard(product)
+  // SA3: `build` names the project it built; a bare folder is read by layout.
+  const shard = source ?? sourceShard(product)
   if ((await readJson(path.join(shard, MANIFEST))) === undefined) {
-    report(
-      `hero: no source shard at src/shards/${path.basename(shard)}; not checked`,
-    )
+    report(`hero: no source shard with a ${MANIFEST} at ${shard}; not checked`)
     return
   }
   const hero = await heroState(shard)

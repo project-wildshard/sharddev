@@ -217,7 +217,7 @@ async function checkHero(
   const newest = await findCatalogued(options, shard.slug)
   if (newest?.heroHash === shard.hero && newest.version !== options.version) {
     throw new Error(
-      `the hero is unchanged since ${[shard.slug, newest.version].filter(Boolean).join(' ')}: run wildshard hero, then pack and upload again`,
+      `the hero is unchanged since ${[shard.slug, newest.version].filter(Boolean).join(' ')}: run wildshard hero, then build and upload again`,
     )
   }
 }

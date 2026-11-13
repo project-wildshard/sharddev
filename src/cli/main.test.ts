@@ -57,19 +57,38 @@ describe('the sharddev CLI', (): void => {
   })
 })
 
-describe('the pack command', (): void => {
-  it('needs a product folder', (): void => {
+describe('the pack command, folded into build (SA3)', (): void => {
+  it('says once that it is deprecated and names build', (): void => {
+    const run = cli(['pack'])
+    const deprecated = run.stderr.match(/pack is deprecated/gu) ?? []
+
+    assert.equal(deprecated.length, 1)
+    assert.match(run.stderr, /`wildshard build <folder> \[file\]`/u)
+  })
+
+  it('needs a shard file folder', (): void => {
     const run = cli(['pack'])
 
     assert.equal(run.status, 1)
-    assert.match(run.stderr, /pack needs a product folder/u)
+    assert.match(run.stderr, /pack needs a shard file folder/u)
   })
 
-  it('reports a folder that is not a product', (): void => {
+  it('reports a folder that is not a shard file folder', (): void => {
     const run = cli(['pack', 'no-such-folder'])
 
     assert.equal(run.status, 3)
     assert.match(run.stderr, /pack failed/u)
+  })
+})
+
+describe('build of a built folder (SA3)', (): void => {
+  it('reports a folder that is not a shard file folder', (): void => {
+    const run = cli(['build', 'no-such-folder'])
+
+    assert.equal(run.status, 3)
+    assert.match(run.stderr, /build failed: .*ENOENT/u)
+    assert.match(run.stderr, /\[shardfile-folder-missing\]/u)
+    assert.doesNotMatch(run.stderr, /deprecated/u)
   })
 })
 
@@ -124,8 +143,8 @@ describe('the upload command', (): void => {
 // SA21: every pack and upload refusal names its rule, a fix and its
 // GUIDE.md section on the line after its reason.
 const REFUSALS: readonly (readonly [readonly string[], string])[] = [
-  [['pack'], 'pack-product-missing'],
-  [['pack', 'no-such-folder'], 'pack-product-missing'],
+  [['pack'], 'shardfile-folder-missing'],
+  [['pack', 'no-such-folder'], 'shardfile-folder-missing'],
   [['upload'], 'upload-shardfile-missing'],
   [['upload', 'shard.tar'], 'upload-channel'],
   [['upload', 'shard.tar', ...CHANNEL], 'upload-credentials'],

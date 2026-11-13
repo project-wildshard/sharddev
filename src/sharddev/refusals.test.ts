@@ -12,7 +12,7 @@ import { newProject } from './project';
 import { runCli } from './cli';
 
 const ALL = [...REFUSAL_RULES, ...LINT_RULES, LINT_OTHER];
-const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'pack', 'upload'];
+const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'shardfile', 'pack', 'upload'];
 
 describe('the refusal table (SA21)', () => {
   it('gives every rule id a one-line fix and a GUIDE.md anchor, each unique', () => {
@@ -135,4 +135,19 @@ describe('a seeded set of bad shards through the real check (SA21)', () => {
     await expect(runCli(['validate', product])).rejects.toThrow(`(${GUIDE_FILE}#validate-refused)`);
     await expect(runCli(['prove', taken, resolve(scratch, 'absent-proof.json')])).rejects.toThrow(/^absent-proof\.json: ENOENT[^\n]*\n {2}\[source-file-missing\] fix: /u);
   });
+});
+
+describe('the shard file build writes (SA3)', () => {
+  it('names the hero, link and format refusals of the shard file step, as pack did', () => {
+    const stale = 'the hero of dunes is older than its content (captured 2026-11-12T00:00:00.000Z); serve this candidate';
+    expect(refusalNote('shardfile', stale).rule).toBe('hero-stale');
+    expect(refusalNote('pack', stale).rule).toBe('hero-stale');
+    expect(refusalNote('shardfile', 'the product out/dunes does not carry the captured hero (thumb)').rule).toBe('hero-not-in-product');
+    expect(refusalNote('shardfile', 'not a regular file: out/dunes/link.json').rule).toBe('shardfile-link');
+    expect(refusalNote('shardfile', "ENOENT: no such file or directory, scandir 'out/dunes'").rule).toBe('shardfile-folder-missing');
+    expect(refusalNote('shardfile', 'no shard.json in the shardfile').rule).toBe('shardfile-invalid');
+    expect(refusalNote('shardfile', 'Invalid shardfile: bad index').rule).toBe('shardfile-invalid');
+    expect(refusalNote('pack', 'pack needs a shard file folder').rule).toBe('shardfile-folder-missing');
+  });
+
 });

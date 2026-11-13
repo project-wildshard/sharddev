@@ -37,7 +37,16 @@ async function admitBuild(shard: Shardfile, assets: ReadonlyMap<string, Uint8Arr
   if (shard.runtime !== null) { printReport(shard, unmeasured, policy); return; }
   printReport(shard, await measureSimulation(shard, assets, undefined, sections), policy);
 }
-interface CliOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource }
+/** SA3: writes a built folder's shard file (hero check against `source`, format and audio checks) and returns its path;
+ * scripts/wildshard.mjs gives it. */
+export type ShardfileWriter = (folder: string, source: string) => Promise<string>;
+/** A refusal from the shard file step, named by its own rules (SA3), not build's source rules. */
+class ShardfileRefusalError extends Error { override readonly name = 'ShardfileRefusalError'; }
+async function writeShardfileOf(options: CliOptions, folder: string, source: string): Promise<void> {
+  try { await options.writeShardfile?.(folder, source); }
+  catch (error) { throw new ShardfileRefusalError(error instanceof Error ? error.message : String(error), { cause: error }); }
+}
+interface CliOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: ShardfileWriter }
 async function runCommand(args: readonly string[], options: CliOptions): Promise<void> {
   const [command, input, output, buildFlag] = args;
   if (command === 'schema') {
@@ -66,7 +75,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     if (result.verdict === 'fail') process.exitCode = 1;
     return;
   }
-  if (input === undefined) throw new Error('usage: wildshard new <project> | check <project> [output] [--json] | synth <project> | build <project> [output] [--product-only] [--no-placeholders] [--output=<slug>] | build <project> --behaviour-only | validate <project|shard.json> | dev <project> [port]');
+  if (input === undefined) throw new Error('usage: wildshard new <project> | check <project> [output] [--json] | synth <project> | build <project> [output] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <project> --behaviour-only | validate <project|shard.json> | dev <project> [port]');
   if (command === 'synth') {
     if (output !== undefined) throw new Error('usage: wildshard synth <project>');
     const result = await synthProject(resolve(input));
@@ -92,12 +101,19 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
       const files = await buildBehaviourProject(resolve(input), { check: buildFlag === '--check' });
       console.info(`built ${files.length} native behaviour outputs`); return;
     }
-    const flags = args.slice(3), mapSourceHash = flags.find(flag => flag.startsWith('--generated-map-tiles-hash='))?.slice(27), mapPath = flags.find(flag => flag.startsWith('--map='))?.slice(6), tilesHash = flags.find(flag => flag.startsWith('--map-tiles-hash='))?.slice(17), selected = flags.find(flag => flag.startsWith('--output='))?.slice(9);
-    const unknownFlag = flags.find(flag => flag !== '--product-only' && flag !== '--no-placeholders' && flag !== '--format=2' && flag !== '--copy-runtime' && !flag.startsWith('--map=') && !flag.startsWith('--map-tiles-hash=') && !flag.startsWith('--output=') && !flag.startsWith('--generated-map-tiles-hash='));
+    // A flag straight after the project is a flag, not the output folder.
+    const folder = output?.startsWith('--') === true ? undefined : output;
+    const flags = args.slice(folder === undefined ? 2 : 3), mapSourceHash = flags.find(flag => flag.startsWith('--generated-map-tiles-hash='))?.slice(27), mapPath = flags.find(flag => flag.startsWith('--map='))?.slice(6), tilesHash = flags.find(flag => flag.startsWith('--map-tiles-hash='))?.slice(17), selected = flags.find(flag => flag.startsWith('--output='))?.slice(9);
+    // SA3: --shardfile-only skips the client; --folder-only also skips the shard file, for build-shards, whose folders are
+    // cached and prepared before anything tars them. --product-only keeps its old meaning: --folder-only.
+    const folderOnly = flags.includes('--folder-only') || flags.includes('--product-only'), noClient = folderOnly || flags.includes('--shardfile-only');
+    const unknownFlag = flags.find(flag => flag !== '--shardfile-only' && flag !== '--folder-only' && flag !== '--product-only' && flag !== '--no-placeholders' && flag !== '--format=2' && flag !== '--copy-runtime' && !flag.startsWith('--map=') && !flag.startsWith('--map-tiles-hash=') && !flag.startsWith('--output=') && !flag.startsWith('--generated-map-tiles-hash='));
     if (unknownFlag !== undefined) throw new Error(`unknown build flag: ${unknownFlag}`);
     if (flags.filter(flag => flag.startsWith('--output=')).length > 1 || flags.length !== new Set(flags).size || flags.filter(flag => flag.startsWith('--map=')).length > 1 || flags.filter(flag => flag.startsWith('--map-tiles-hash=')).length > 1 || flags.filter(flag => flag.startsWith('--generated-map-tiles-hash=')).length > 1 || mapSourceHash !== undefined && mapPath !== undefined || ((mapPath === undefined) !== (tilesHash === undefined))) throw new Error('unknown or incomplete build map flag');
     const map = mapPath === undefined || tilesHash === undefined ? undefined : { bytes: readBoundedFile(resolve(mapPath), STILL_IMAGE_LIMITS.bytes), tilesHash };
-    const shard = await buildProject(resolve(input), output === undefined ? undefined : resolve(output), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(flags.includes('--product-only') ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: admitBuild }); console.info(`built ${shard.identity.slug} v${shard.version}`); return;
+    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: admitBuild }); console.info(`built ${shard.identity.slug} v${shard.version}`);
+    if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(input, 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
+    return;
   }
   if (command === 'prove') {
     if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('prove requires a format-2 shard.json or author project');
@@ -147,7 +163,7 @@ const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', validate: 'va
 function authorRefusal(command: string | undefined, error: unknown): unknown {
   const located = locatedError(error);
   const message = located instanceof Error ? located.message : String(located);
-  const step = command !== undefined && Object.hasOwn(STEPS, command) ? STEPS[command] : undefined;
+  const step = error instanceof ShardfileRefusalError ? 'shardfile' : command !== undefined && Object.hasOwn(STEPS, command) ? STEPS[command] : undefined;
   const hint = refusalHint(refusalNote(step ?? 'build', message));
   return new Error(`${message}\n  ${hint}`, { cause: error });
 }

@@ -54,11 +54,11 @@ function assertBuiltWith(commit: unknown): void {
   assert.match(String(Reflect.get(commit, 'shardFormat')), xyz)
 }
 
-test('an installed wildshard packs a real product and uploads it', async (context: TestContext): Promise<void> => {
+test('an installed wildshard builds a real shard file and uploads it (SA3)', async (context: TestContext): Promise<void> => {
   const server = await openUploadServer(context)
   const tar = path.join(dir, 'real.tar')
   const folder = await writeProduct(dir, 'real')
-  const packed = await wildshard(['pack', folder, '--out', tar])
+  const packed = await wildshard(['build', folder, tar])
   const key = { WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }
   // Explicit provenance (AC16): this bin runs from no shard project, so the
   // package.json and git HEAD defaults would read whatever the cwd holds.
@@ -91,7 +91,7 @@ test('an installed wildshard refuses a product a server would', async (): Promis
   const broken = await writeProduct(dir, 'broken')
   const tar = path.join(dir, 'broken.tar')
   writeFileSync(path.join(broken, 'shard.json'), '{"format":"not a shard"}\n')
-  const done = await wildshard(['pack', broken, '--out', tar])
+  const done = await wildshard(['build', broken, tar])
 
   assert.equal(done.code, 3)
   assert.throws((): void => {

@@ -17,9 +17,9 @@ import type { TestContext } from 'node:test'
 import { sha256, shardfileFiles } from '../../test/helpers/shardfile.ts'
 import { openUploadServer } from '../../test/helpers/upload-server.ts'
 import { uploadShardfile } from '../upload/upload.ts'
-import { packProduct } from './pack.ts'
+import { writeShardfile } from './shardfile.ts'
 
-import type { PackOutcome } from './pack.ts'
+import type { ShardfileOutcome } from './shardfile.ts'
 
 // A real product folder on disk, the real validator, and the system's `tar`
 // as a reader that owes this repo nothing.
@@ -54,8 +54,11 @@ async function workspace(context: TestContext): Promise<Workspace> {
   return { root, product, out: path.join(root, 'shard.tar') }
 }
 
-async function pack(space: Workspace, out = space.out): Promise<PackOutcome> {
-  return await packProduct({
+async function pack(
+  space: Workspace,
+  out = space.out,
+): Promise<ShardfileOutcome> {
+  return await writeShardfile({
     dir: space.product,
     out,
     report: (): void => undefined,
@@ -114,27 +117,24 @@ test('format refuses a section whose bytes changed', async (context: TestContext
   assert.deepEqual(await readdir(space.root), ['product'])
 })
 
-test('names the tarball for its shard by default', async (context: TestContext): Promise<void> => {
+test('names the shard file <slug>.shardfile beside its folder by default (SA3)', async (context: TestContext): Promise<void> => {
   const space = await workspace(context)
   const lines: string[] = []
-  const previous = process.cwd()
-  process.chdir(space.root)
-  context.after((): void => {
-    process.chdir(previous)
-  })
-  const outcome = await packProduct({
+  const outcome = await writeShardfile({
     dir: space.product,
     report: (line: string): void => {
       lines.push(line)
     },
   })
+  const file = path.join(space.root, `${SLUG}.shardfile`)
 
-  assert.equal(outcome.file, `${SLUG}.tar`)
+  assert.equal(outcome.file, file)
+  assert.equal(outcome.hash, sha256(await readFile(file)))
   assert.match(lines.join('\n'), /^valid: upload-test /mu)
-  assert.match(lines.join('\n'), /^packed: upload-test\.tar, /mu)
+  assert.match(lines.join('\n'), /^shard file: .*upload-test\.shardfile, /mu)
 })
 
-test('what pack writes, upload sends', async (context: TestContext): Promise<void> => {
+test('what build writes, upload sends', async (context: TestContext): Promise<void> => {
   const space = await workspace(context)
   const packed = await pack(space)
   const server = await openUploadServer(context)

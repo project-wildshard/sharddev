@@ -10,6 +10,8 @@ interface CliArgs {
   readonly commit: string | undefined
   readonly shardVersion: string | undefined
   readonly operand: string | undefined
+  /** The second operand: `build <folder> [file]`'s shard file (SA3). */
+  readonly target: string | undefined
   readonly help: boolean
   readonly level: string | undefined
   readonly out: string | undefined
@@ -62,11 +64,12 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
       version: upload ? { type: 'string' } : { type: 'boolean' },
     },
   })
-  const [command, operand] = positionals
+  const [command, operand, target] = positionals
   const { version } = values
   return {
     command,
     operand,
+    target,
     channel: values.channel,
     commit: values.commit,
     shardVersion: typeof version === 'string' ? version : undefined,

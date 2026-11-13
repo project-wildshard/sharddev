@@ -3,7 +3,7 @@ import '@wildshard/engine/scripts/sim-node-loader.mjs';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -41,12 +41,32 @@ test('a packed CLI scaffolds outside its checkout and refuses overwriting it', {
   run(['new', source, 'outside-isle', '--empty']);
   run(['new', source, 'outside-isle', '--empty'], false);
 });
+// SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
+const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
+let built;
 test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
-  run(['build', source, join(app, 'first'), '--product-only']);
+  run(['build', source, join(app, 'first'), '--shardfile-only']);
+  built = sha(shardfile);
 });
 test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 9_500 }, () => {
-  run(['build', source, join(app, 'second'), '--product-only']);
+  run(['build', source, join(app, 'second'), '--shardfile-only']);
   assert.deepEqual(bytes(join(app, 'second')), bytes(join(app, 'first')));
+  assert.equal(sha(shardfile), built);
+});
+test('build of a built folder writes the same shard file, and pack is its deprecated alias', { timeout: 9_500 }, () => {
+  run(['build', join(app, 'first'), join(app, 'again.shardfile')]);
+  assert.equal(sha(join(app, 'again.shardfile')), built);
+  const packed = run(['pack', join(app, 'first'), '--out', join(app, 'packed.tar')]);
+  assert.equal(sha(join(app, 'packed.tar')), built);
+  assert.match(packed.stderr, /pack is deprecated: `wildshard build` writes the shard file/u);
+});
+test('--folder-only (old name --product-only) builds the folder and writes no shard file', { timeout: 9_500 }, () => {
+  rmSync(shardfile);
+  run(['build', source, join(app, 'folder'), '--folder-only']);
+  run(['build', source, join(app, 'product'), '--product-only']);
+  assert.deepEqual(bytes(join(app, 'folder')), bytes(join(app, 'first')));
+  assert.deepEqual(bytes(join(app, 'product')), bytes(join(app, 'first')));
+  assert.equal(existsSync(shardfile), false);
 });
 test('moving the authored source does not change the shipped bytes', { timeout: 9_500 }, () => {
   cpSync(source, join(app, 'moved'), { recursive: true });
@@ -66,6 +86,9 @@ test('installed check --json gives a verdict on the new author project', { timeo
   // Lint skips until the sdk ships oxlint and its author config (SA8); prove skips with no proof.json.
   assert.deepEqual(result.steps.map(step => step.status), ['skip', 'pass', 'pass', 'skip', 'pass']);
   assert.deepEqual(result.refusals, []);
+  // SA3: check's build writes the shard file too, and its note names it.
+  assert.match(result.steps[1].note, /outside-isle\.shardfile$/u);
+  assert.equal(sha(shardfile), built);
 });
 test('installed check --json fails a missing project with its refusal', { timeout: 9_500 }, () => {
   // Flags go anywhere: --json before the project still prints the document alone.

@@ -8,7 +8,7 @@ import path from 'node:path'
 // templates"). Rendering it needs a real GPU and a served build of the exact
 // candidate, which no cut step or CI runner has, so the cut refuses instead:
 // `hero.json` beside `manifest.json` records the hash of the shard's content
-// when the hero was captured, and `wildshard pack` refuses a product whose
+// when the hero was captured, and `wildshard build` refuses a product whose
 // source hashes differently now, whose hero files are not the ones stamped,
 // or which does not carry the stamped hero files as blobs (built before the
 // capture). `wildshard hero` captures and re-stamps.

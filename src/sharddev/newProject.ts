@@ -62,9 +62,10 @@ export function writeNewProject(project: string, slug: string): void {
   writeFileSync(resolve(project, 'shard.config.ts'), `import product from './generators/product';\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
   writeFileSync(resolve(project, 'README.md'), `# ${slug}
 
-Build with \`wildshard build <project> <output> --product-only\`, then
+Build with \`wildshard build <project> <output> --shardfile-only\`, then
 \`wildshard validate <output>\`. The output is a v2 index, schema-checked JSON
-sections and hash-named blobs. In this repository use \`out/<slug>/\`.
+sections and hash-named blobs, and the build writes the shard file you upload,
+\`<slug>.shardfile\`, beside it. In this repository use \`out/<slug>/\`.
 
 - \`shard.config.ts\` is the build entry; \`generators/product.ts\` assembles
   the declaration from data rows.

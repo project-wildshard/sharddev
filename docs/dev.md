@@ -21,7 +21,7 @@ Run from the repo root.
   proves wet/trail/water rules and refuses an invalid policy. CI only;
   Nalati owns the authored wet-field/product counterpart.
 - `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
-- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `pack <product>` tars a built product into a shardfile and `upload <shardfile>` sends one to api-server (`docs/design.md`).
+- `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `build <folder> [file]` writes a built folder's shard file (author builds write it themselves, SA3) and `upload <shard file>` sends one to api-server (`docs/design.md`).
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
 - `src/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
@@ -80,7 +80,8 @@ when the refusing tool names one. The code is `src/sharddev/check.ts`
 ## Refusals: rule, fix, guide
 
 Every refusal an author can hit (`check`'s five steps, `build`,
-`validate`, `prove`, `new`, and `pack` and `upload` before a byte is sent)
+`validate`, `prove`, `new`, the shard file `build` writes (and `pack`, its
+deprecated alias), and `upload` before a byte is sent)
 prints the refusing code's own words, then one line:
 `[<rule>] fix: <fix> (GUIDE.md#<anchor>)` (meta SHARD-AUTHORING SA21,
 J317). The one table is `src/sharddev/refusals.ts`: each row has a stable
@@ -102,12 +103,13 @@ sdk, engine, shard-format and `three` versions, one per line.
 A shard's hero (its SHARD SELECT card: thumb 640x360, portrait 804x1626,
 landscape 1600x900) is a picture of its world. `src/shards/<name>/hero.json`
 records the hash of the shard's content when the hero was captured, and
-`wildshard pack` refuses a product whose source now hashes differently, or
+`wildshard build` (as it writes the shard file) refuses a product whose
+source now hashes differently, or
 whose card names image files with no stamp. A generated `data:` card and a
 product with no `src/shards/<name>` source pass with a note.
 
 Rendering needs a real GPU and a served build of the exact candidate, so it
-is a separate command, not a pack step. Serve the candidate in an engine
+is a separate command, not a build step. Serve the candidate in an engine
 build (`scripts/serve-build.sh --shard <slug>`), then, from the shard
 project root, run
 `pnpm exec wildshard hero src/shards/<name> --base <served-build-url>`.
@@ -139,8 +141,8 @@ The producer computes a dependency fence plus the recorded manifest reads,
 chooses the existing whole/fence pack policy, and records actual linked GLSL
 pairs. It emits required cook version 3 and a `sdk: "0.3"` header, validates
 all resulting bytes, then updates an existing receipt index digest without
-inventing a new validator or cost. `wildshard pack` remains the final tar
-validation boundary. A failed capture leaves the candidate draft untouched.
+inventing a new validator or cost. Writing the shard file
+(`wildshard build <folder>`) remains the final tar validation boundary. A failed capture leaves the candidate draft untouched.
 
 This source pins format `82bfee4748873b03a8f9be5dafab34f745cb265b` (v0.4.3).
 Preparation binds the product, complete mounts and engine renderer digest.
@@ -184,8 +186,8 @@ The root stays thin: README.md and AGENTS.md (humans only), CLAUDE.md
 .editorconfig, `docs/`, `project/`, `src/` and the dot dirs. Scratch
 goes in `tmp/<task>/` and is deleted when done.
 
-- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import). `bin.mjs` is the installed entry: Node won't strip types under `node_modules`, so it installs format's hook first.
-- `src/cli/pack/`: `wildshard pack`: read the product, tar, validate, write.
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `build <folder>`, `upload`, and `pack`, `build`'s deprecated alias). `bin.mjs` is the installed entry: Node won't strip types under `node_modules`, so it installs format's hook first.
+- `src/cli/shardfile/`: the shard file `wildshard build` writes: read the folder, check the hero, tar, validate, print the audio rules, write.
 - `src/cli/upload/`: `sharddev upload`: check, compress, sign, ticket, PUT, commit.
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.
 - `src/server/`: the Hono app (`GET /api/health`) and `serve.ts`.

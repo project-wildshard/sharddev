@@ -133,7 +133,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     const how = await reuseOrBuild({ slug: name, key:key ?? randomBytes(32).toString('hex'), destination, fresh:!reuse && (strict || only === undefined), build: async out => {
       const receipt=resolve(shardfileCacheRoot(),'.input-traces',`${process.pid}-${randomBytes(8).toString('hex')}.json`);
       try {
-      await buildOne(['build',project,out,'--product-only','--no-placeholders','--format=2',...flags,...(recorded?[`--input-receipt=${receipt}`]:[])]);
+      await buildOne(['build',project,out,'--folder-only','--no-placeholders','--format=2',...flags,...(recorded?[`--input-receipt=${receipt}`]:[])]);
       if (recorded && toolchainOf() !== toolchain) throw new Error('Product toolchain changed during build');
       const next = recorded ? productInputKey(root,receipt,recipe,inputHashes) : currentKey();
       if (next === undefined) throw new Error(`Missing complete product input receipt: ${name}`);

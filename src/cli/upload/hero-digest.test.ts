@@ -33,7 +33,7 @@ const API_DIGEST = {
     'bd9c8e0df149c367a9421e2dbf9f8c1856118c490b6261501572b2ab2e109d1d',
 }
 
-/** A product folder as one tarball, as `wildshard pack` writes it (no `blobs/pack/`). */
+/** A product folder as one tarball, as `wildshard build` writes it (no `blobs/pack/`). */
 async function tarOf(root: string): Promise<Uint8Array> {
   installFormatHook()
   const { writeTar } = await import('@wildshard/format/tar')

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // `wildshard hero <shard-dir> --base <served-build-url>`: capture a shard's hero (its SHARD SELECT card) from a served
 // build of this exact candidate, write it over the card files the manifest names, and stamp `hero.json` with the
-// content it shows. `wildshard pack` refuses a cut whose stamp no longer matches the content (src/cli/hero/hero.ts).
+// content it shows. `wildshard build` refuses a cut whose stamp no longer matches the content (src/cli/hero/hero.ts).
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the templates."
 //
 // Serve the candidate first (engine: `scripts/serve-build.sh --shard <slug>`), and run this from the shard project

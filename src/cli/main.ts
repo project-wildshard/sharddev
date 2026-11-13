@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { serve } from '../server/serve.ts'
-import { refusalHint, refusalNote } from '../sharddev/refusals.ts'
 import { parseCliArgs } from './args.ts'
-import { packProduct } from './pack/pack.ts'
+import { refuse, reportLine } from './report.ts'
+import { runPack, runShardfile } from './shardfile/command.ts'
 import {
   DEFAULT_BROTLI_LEVEL,
   MAX_BROTLI_LEVEL,
@@ -13,7 +13,6 @@ import { resolveProvenance } from './upload/provenance.ts'
 import { uploadShardfile } from './upload/upload.ts'
 import { readVersion, readVersionChain } from './version.ts'
 
-import type { RefusalStep } from '../sharddev/refusals.ts'
 import type { CliArgs } from './args.ts'
 import type { Channel } from './upload/api.ts'
 import type { Provenance } from './upload/provenance.ts'
@@ -47,11 +46,21 @@ Commands:
   prepare <product> --base <exact-preview-url>
                        Record the exact candidate in phone WebKit, compute
                        required cook lists and validate the prepared output
-  pack <product> [--out <file>]
-                       Tar a built product folder into a shardfile and check
-                       it as api-server will. Writes <slug>.tar by default.
-                       Refuses a shard whose captured hero is older than its
-                       content (src/shards/<name>/hero.json)
+  build <project> [folder] [--shardfile-only | --folder-only]
+                       Build the shard file folder (default
+                       <project>/public/shardfiles/<slug>), then write the
+                       shard file <slug>.shardfile beside it and check it as
+                       api-server will: refuses a shard whose captured hero
+                       is older than its content (src/shards/<name>/hero.json)
+                       and prints the audio rules. --shardfile-only skips the
+                       client; --folder-only (old name --product-only)
+                       also skips the shard file
+  build <folder> [file]
+                       Write the shard file of a built shard file folder
+                       (default <slug>.shardfile beside it), with the same
+                       checks
+  pack <folder> [--out <file>]
+                       Deprecated: wildshard build <folder> [file]
   hero <shard-dir> --base <served-build-url>
                        Capture the shard's hero (thumb, portrait, landscape)
                        in headless Chromium from a served build of this
@@ -61,9 +70,9 @@ Commands:
                        shard as current. WARNING: use it ONLY when those
                        images show the current content; a wrong stamp
                        hides a stale hero from the cut
-  upload <shardfile> --channel staging|prod [--server <url>]
+  upload <shard file> --channel staging|prod [--server <url>]
          [--level <n>] [--version <X.Y.Z>] [--commit <sha>]
-                       Check a shardfile tarball, compress it (Brotli level
+                       Check a shard file, compress it (Brotli level
                        <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and upload it to
                        api-server for the channel it names (required; prod
                        is production) with its shard version (default: the
@@ -109,16 +118,6 @@ function parseLevel(raw: string | undefined): number | undefined {
     level <= MAX_BROTLI_LEVEL
     ? level
     : undefined
-}
-
-function reportLine(line: string): void {
-  process.stdout.write(`${line}\n`)
-}
-
-/** A refusal on stderr, then its rule, fix and GUIDE.md link (SA21). */
-function refuse(step: RefusalStep, prefix: string, reason: string): void {
-  const hint = refusalHint(refusalNote(step, reason))
-  process.stderr.write(`sharddev: ${prefix}${reason}\n  ${hint}\n`)
 }
 
 async function runServe(rawPort: string | undefined): Promise<number> {
@@ -233,25 +232,6 @@ async function runUpload(args: CliArgs): Promise<number> {
   }
 }
 
-async function runPack(args: CliArgs): Promise<number> {
-  if (args.operand === undefined) {
-    refuse('pack', '', 'pack needs a product folder')
-    return EXIT_USAGE
-  }
-  try {
-    await packProduct({
-      dir: args.operand,
-      report: reportLine,
-      ...(args.out === undefined ? {} : { out: args.out }),
-    })
-    return EXIT_OK
-  } catch (error: unknown) {
-    const reason = error instanceof Error ? error.message : String(error)
-    refuse('pack', 'pack failed: ', reason)
-    return EXIT_FAILED
-  }
-}
-
 async function printVersion(): Promise<number> {
   const chain = await readVersionChain()
   process.stdout.write(`${chain.join('\n')}\n`)
@@ -263,18 +243,26 @@ function printUsage(code: number): number {
   return code
 }
 
+/** The commands this program runs; the author commands run in src/sharddev/cli.ts. */
+const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
+  serve: async (args: CliArgs): Promise<number> => await runServe(args.port),
+  // SA3: a built shard file folder; bin/wildshard.mjs sends a project to the author CLI.
+  build: async (args: CliArgs): Promise<number> =>
+    await runShardfile('build', args.operand, args.target ?? args.out),
+  pack: async (args: CliArgs): Promise<number> =>
+    await runPack(args.operand, args.out ?? args.target),
+  upload: runUpload,
+}
+
 async function runCommand(args: CliArgs): Promise<number> {
   if (args.command === undefined) {
     return printUsage(EXIT_USAGE)
   }
-  if (args.command === 'serve') {
-    return await runServe(args.port)
-  }
-  if (args.command === 'pack') {
-    return await runPack(args)
-  }
-  if (args.command === 'upload') {
-    return await runUpload(args)
+  const run = Object.hasOwn(COMMANDS, args.command)
+    ? COMMANDS[args.command]
+    : undefined
+  if (run !== undefined) {
+    return await run(args)
   }
   process.stderr.write(`sharddev: unknown command ${args.command}\n\n${USAGE}`)
   return EXIT_USAGE

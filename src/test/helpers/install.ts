@@ -65,7 +65,7 @@ function installWildshard(dir: string): string {
   return path.join(unpacked, manifest.bin['wildshard'] ?? 'no bin')
 }
 
-/** The real product on disk, as `wildshard pack` reads it. */
+/** The real product on disk, as `wildshard build` reads it. */
 async function writeProduct(dir: string, name: string): Promise<string> {
   const folder = path.join(dir, name)
   const files = await shardfileFiles({ slug: 'upload-test' })

@@ -15,7 +15,7 @@ import {
 import { writeHeroStamp } from './stamp.ts'
 
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the
-// templates." A cut (`wildshard pack`) of a shard whose captured hero is
+// templates." A cut (`wildshard build`) of a shard whose captured hero is
 // older than its content is refused, and the refusal names the capture.
 
 const RECAPTURED =

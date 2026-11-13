@@ -1,6 +1,6 @@
 # sharddev: design
 
-Status: draft 2026-11-05: scaffold plus `pack` and `upload`; the rest arrives with the import.
+Status: draft 2026-11-05: scaffold plus `pack` and `upload`; the rest arrives with the import. 2026-11-13: `pack` folded into `build` (meta SHARD-AUTHORING SA3).
 
 Living doc: **how** this repo is built. What it does and why is
 `docs/prd.md`. Keep this true as the code changes.
@@ -9,8 +9,8 @@ Living doc: **how** this repo is built. What it does and why is
 
 The scaffold, plus the two commands that get a built product to the server:
 
-- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `pack`, `upload`; more commands arrive with the import).
-- `src/cli/pack/`: `wildshard pack` (below).
+- `src/cli/`: the CLI (`--version`, `--help`, `serve`, `build <folder>`, `upload`, and `pack`, `build`'s deprecated alias; the author commands live in `src/sharddev/`).
+- `src/cli/shardfile/`: the shard file `wildshard build` writes (below).
 - `src/cli/upload/`: `sharddev upload` (below).
 - `src/test/helpers/`: shared test helpers; `git.ts` makes real git repos in temp dirs.
 - `src/server/`: the Hono app (`GET /api/health`) and `serve.ts`.
@@ -20,10 +20,23 @@ The scaffold, plus the two commands that get a built product to the server:
 - `src/e2e/`: Playwright smoke test (CI).
 - `src/scripts/`: repo tooling (asks, md-wrap), plain JS.
 
-## Pack
+## The shard file
 
-`wildshard pack <product> [--out <file>]` turns a built product folder
-into the tarball `api-server` takes (C0, J137). `wildshard` is the same
+`wildshard build <project> [folder]` builds the shard file folder, then
+writes the shard file, the tarball `api-server` takes (C0, J137), as
+`<slug>.shardfile` beside the folder (meta SHARD-AUTHORING SA3, J170: there
+is no separate pack step). `wildshard check` does the same in its build
+step and names the file in its note. `wildshard build <folder> [file]`
+writes the shard file of a folder already built (a shard repo's
+`scripts/pack-all.mjs`, after `prepare`). `--shardfile-only` skips the
+client; `--folder-only` (old name `--product-only`, so its callers keep
+their behaviour) also skips the shard file, for `build-shards`, whose
+folders are cached and prepared first. The hero check reads the project
+`build` named; for a bare folder, `<root>/src/shards/<name>` for
+`<root>/out/<name>`. Its refusals, and format's, name the `shardfile`
+step's rules (`src/sharddev/refusals.ts`).
+`wildshard pack <folder> [--out <file>]` is the deprecated alias: it prints
+one line naming `build`, then does the same. `wildshard` is the same
 program as `sharddev`, a second name on the `bin`.
 
 1. **Read.** Every file under the folder. A link or anything else that
@@ -35,7 +48,8 @@ program as `sharddev`, a second name on the `bin`.
 3. **Check.** The tarball itself goes through `validateShardfileProduct`,
    as the server's commit does. An unlisted file is refused, so nothing
    strays in, and a refusal writes no file.
-4. **Write**, by rename, to `<slug>.tar` or `--out`. Over 450 MB
+4. **Write**, by rename, to `<slug>.shardfile` beside the folder, or the
+   path given. Over 450 MB
    (`api-server`'s D31) it warns and still writes: that cap is the
    server's to raise (J137).
 

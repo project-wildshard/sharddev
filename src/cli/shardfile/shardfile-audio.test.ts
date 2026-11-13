@@ -10,10 +10,10 @@ import { installFormatHook } from '@wildshard/format/formatHook'
 import { sha256, shardfileFiles } from '../../test/helpers/shardfile.ts'
 import { openUploadServer } from '../../test/helpers/upload-server.ts'
 import { uploadShardfile } from '../upload/upload.ts'
-import { packProduct } from './pack.ts'
+import { writeShardfile } from './shardfile.ts'
 
-// AUDIO AU5 (J299, J303): pack prints format's audio rules as AMBER with
-// the numbers and still packs, even a red; upload refuses the red before it
+// AUDIO AU5 (J299, J303): build prints format's audio rules as AMBER with
+// the numbers and still writes the shard file, even a red; upload refuses the red before it
 // sends a byte, as api-server's admission will.
 
 type Files = Map<string, Uint8Array | string>
@@ -144,11 +144,11 @@ async function loudProduct(context: TestContext): Promise<string> {
   return product
 }
 
-test('pack prints a red shard as AMBER with the numbers and still packs', async (context: TestContext): Promise<void> => {
+test('build prints a red shard as AMBER with the numbers and still writes it', async (context: TestContext): Promise<void> => {
   const product = await loudProduct(context)
   const lines: string[] = []
   const out = path.join(path.dirname(product), 'loud.tar')
-  const outcome = await packProduct({
+  const outcome = await writeShardfile({
     dir: product,
     out,
     report: (line: string): void => {
@@ -164,14 +164,14 @@ test('pack prints a red shard as AMBER with the numbers and still packs', async 
     text,
     /^AMBER audio budget: loud-test holds 11\.00 MB of its own audio, over the 10\.00 MB red line \(red: api-server refuses this at upload\)$/mu,
   )
-  assert.match(text, /^packed: /mu)
+  assert.match(text, /^shard file: /mu)
   assert.equal(outcome.hash, sha256(await readFile(out)))
 })
 
 test('upload refuses the red shard before it sends a byte', async (context: TestContext): Promise<void> => {
   const product = await loudProduct(context)
   const out = path.join(path.dirname(product), 'loud.tar')
-  await packProduct({ dir: product, out, report: (): void => undefined })
+  await writeShardfile({ dir: product, out, report: (): void => undefined })
   const server = await openUploadServer(context)
   await assert.rejects(
     uploadShardfile({

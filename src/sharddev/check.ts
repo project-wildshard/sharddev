@@ -3,7 +3,7 @@
 // SA21: every refusal carries a rule id, a one-line fix and a GUIDE.md link, from refusals.ts.
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { authorErrorText } from './authorError';
-import { refusalHint, refusalNote } from './refusals';
+import { refusalHint, refusalNote, type RefusalStep } from './refusals';
 
 /** The five steps, in the order they run. */
 export type CheckStepName = 'lint' | 'build' | 'validate' | 'prove' | 'report';
@@ -20,7 +20,7 @@ export interface CheckRefusal {
   readonly file?: string;
 }
 /** A refusal as a step reports it: a lint diagnostic brings oxlint's code and help; refusals.ts fills in the rest. */
-export interface StepRefusal { readonly message: string; readonly lint?: { readonly code: string | null; readonly help: string | null }; readonly file?: string }
+export interface StepRefusal { readonly message: string; readonly lint?: { readonly code: string | null; readonly help: string | null }; readonly file?: string; readonly as?: RefusalStep }
 /** One step's result and wall-clock duration in milliseconds. */
 export interface CheckStep { readonly name: CheckStepName; readonly status: CheckStatus; readonly ms: number; readonly note?: string }
 /** The `--json` document (version 1). `verdict` is `fail` when any step failed; `output` is the built product folder, null when the build failed. */
@@ -61,8 +61,9 @@ export async function runCheck(project: string, output: () => string | null, ste
     if (name === 'build' && outcome.status !== 'pass') built = false;
     const ms = Math.round(now() - begun);
     rows.push({ name, status: outcome.status, ms, ...(outcome.note === undefined ? {} : { note: outcome.note }) });
-    for (const { message, lint, file } of outcome.refusals ?? []) {
-      const { rule, fix, guide } = refusalNote(name, message, lint);
+    for (const { message, lint, file, as } of outcome.refusals ?? []) {
+      // SA3: build's shard file step names its rules by its own step (a format refusal is not a source one).
+      const { rule, fix, guide } = refusalNote(as ?? name, message, lint);
       refusals.push({ step: name, rule, message, fix, guide, ...(file === undefined ? {} : { file }) });
     }
   }

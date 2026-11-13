@@ -16,6 +16,12 @@ import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-l
 import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
 
 let runner;
+/** SA3 (J170): `build` and `check` end by writing the folder's shard file, the step `pack` was. It stays out of the author
+ * bundle: the same module serves `wildshard build <folder>` and the deprecated `pack` (src/cli/main.ts). */
+async function writeShardfile(dir, source) {
+  const { writeShardfile: write } = await import('../src/cli/shardfile/shardfile.ts');
+  return (await write({ dir, source, report: line => console.info(line) })).file;
+}
 // The bundle's import.meta.dirname stays src/sdk: headless.ts finds bake/headlessWorker.ts beside it, and src/sdk keeps the
 // author tools' dependency links until the host leaves at P3 (P1-F4).
 const authorRequire = createRequire(resolve(import.meta.dirname, '../src/sharddev/package.json'));
@@ -65,7 +71,7 @@ export async function runWildshard(args) {
     imageRoots: [{ prefix: `/src/shards/${basename(project)}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
   const legacy = project === undefined ? undefined : decisionLegacyLines(root, basename(project));
-  await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }) });
+  await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }), writeShardfile });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

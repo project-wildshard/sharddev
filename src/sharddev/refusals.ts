@@ -1,5 +1,6 @@
 // SHARD-AUTHORING SA21 (J317, "the first ten minutes"): every refusal an author can hit in `wildshard` (lint, build,
-// validate, prove, the report card, new, pack and upload's local checks) names a stable rule id, a one-line fix and a
+// validate, prove, the report card, new, the shard file build writes (and `pack`, its deprecated alias, SA3) and upload's
+// local checks) names a stable rule id, a one-line fix and a
 // GUIDE.md section. This file is the one table. GUIDE.md (SA13) writes one heading per anchor below, so
 // `GUIDE.md#<anchor>` lands on it; refusals.test.ts fails a row with no fix or anchor and a wildshard lint rule with no
 // row. Rule ids are stable: rename one only together with its GUIDE.md heading. A message takes the first row (in table
@@ -7,8 +8,8 @@
 //
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 
-/** Where a refusal came from: `check`'s five steps, then the other verbs. */
-export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'pack' | 'upload';
+/** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
+export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload';
 /** One rule: its id, its GUIDE.md anchor, the fix, and the refusal messages it names (none: the step's catch-all). */
 export interface RefusalRule {
   readonly id: string;
@@ -78,25 +79,25 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
   { id: 'budget-refused', anchor: 'budget-refused', steps: ['build', 'validate'], match: /Performance report refused/u,
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
-  // pack and upload, before a byte is sent
-  { id: 'hero-stale', anchor: 'hero-stale', steps: ['pack', 'upload'], match: /the hero (?:of .* is older than its content|of .* has no .* stamp)|the hero files of .* are not the ones stamped/u,
+  // the shard file build writes (SA3; `pack` is its deprecated alias) and upload, before a byte is sent
+  { id: 'hero-stale', anchor: 'hero-stale', steps: ['shardfile', 'pack', 'upload'], match: /the hero (?:of .* is older than its content|of .* has no .* stamp)|the hero files of .* are not the ones stamped/u,
     fix: 'Capture the hero again from a served build: `wildshard hero src/shards/<name> --base <url>`.' },
-  { id: 'hero-not-in-product', anchor: 'hero-not-in-product', steps: ['pack', 'upload'], match: /does not carry the captured hero/u,
-    fix: 'Rebuild the product after the hero capture, then pack it.' },
+  { id: 'hero-not-in-product', anchor: 'hero-not-in-product', steps: ['shardfile', 'pack', 'upload'], match: /does not carry the captured hero/u,
+    fix: 'Build again after the hero capture: `wildshard build` writes a shard file that carries it.' },
   { id: 'hero-unchanged', anchor: 'hero-unchanged', steps: ['upload'], match: /the hero is unchanged since/u,
-    fix: 'Capture a new hero (`wildshard hero`), then pack and upload again.' },
+    fix: 'Capture a new hero (`wildshard hero`), then build and upload again.' },
   { id: 'audio-refused', anchor: 'audio-refused', steps: ['pack', 'upload'], match: /^Audio rules \(AU5\) refuse/u,
     fix: 'Fix each red audio finding listed, or waive it in the shard\'s audio-waiver.json.' },
-  { id: 'pack-link', anchor: 'pack-link', steps: ['pack'], match: /not a regular file|link is refused/u,
-    fix: 'Replace links in the product folder with real files, then rebuild.' },
-  { id: 'pack-product-missing', anchor: 'pack-product-missing', steps: ['pack'], match: /pack needs a product folder|ENOENT/u,
-    fix: 'Pass the built product folder: `wildshard pack <project>/public/shardfiles/<slug>`.' },
-  { id: 'shardfile-invalid', anchor: 'shardfile-invalid', steps: ['pack', 'upload'], match: /^no \S+ in the shardfile|is larger than \d+ bytes|Invalid [a-z]+: /u,
-    fix: 'Pack the product `wildshard check` built, unedited: the format checks refuse this one.' },
-  { id: 'pack-refused', anchor: 'pack-refused', steps: ['pack'],
-    fix: 'Rebuild with `wildshard check`, then pack the product folder it names.' },
+  { id: 'shardfile-link', anchor: 'shardfile-link', steps: ['shardfile', 'pack'], match: /not a regular file|link is refused/u,
+    fix: 'Replace links in the shard file folder with real files, then build again.' },
+  { id: 'shardfile-folder-missing', anchor: 'shardfile-folder-missing', steps: ['shardfile', 'pack'], match: /(?:build|pack) needs a shard file folder|ENOENT/u,
+    fix: 'Build the project: `wildshard build <project>` writes public/shardfiles/<slug>.shardfile.' },
+  { id: 'shardfile-invalid', anchor: 'shardfile-invalid', steps: ['shardfile', 'pack', 'upload'], match: /^no \S+ in the shardfile|is larger than \d+ bytes|Invalid [a-z]+: /u,
+    fix: 'Upload the shard file `wildshard build` wrote, unedited: the format checks refuse this one.' },
+  { id: 'shardfile-refused', anchor: 'shardfile-refused', steps: ['shardfile', 'pack'],
+    fix: 'Build the project again with `wildshard build`: it writes and checks the shard file.' },
   { id: 'upload-shardfile-missing', anchor: 'upload-shardfile-missing', steps: ['upload'], match: /upload needs a shardfile|ENOENT/u,
-    fix: 'Pass the .tar `wildshard pack` wrote: `wildshard upload <slug>.tar --channel staging`.' },
+    fix: 'Pass the shard file `wildshard build` wrote: `wildshard upload public/shardfiles/<slug>.shardfile --channel staging`.' },
   { id: 'upload-channel', anchor: 'upload-channel', steps: ['upload'], match: /upload needs --channel/u,
     fix: 'Add `--channel staging` (try it there first) or `--channel prod`.' },
   { id: 'upload-credentials', anchor: 'upload-credentials', steps: ['upload'], match: /upload needs --server/u,
@@ -108,11 +109,11 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'upload-commit', anchor: 'upload-commit', steps: ['upload'], match: /is not a git checkout|^--commit \S+ is not a full 40-hex sha/u,
     fix: 'Upload from the shard project\'s git checkout, or pass `--commit <sha>` (40 hex) of the bytes\' commit.' },
   { id: 'upload-uncommitted', anchor: 'upload-uncommitted', steps: ['upload'], match: /has uncommitted changes/u,
-    fix: 'Commit your changes, rebuild and pack, then upload: the commit names the bytes.' },
+    fix: 'Commit your changes, build again, then upload: the commit names the bytes.' },
   { id: 'upload-sdk-missing', anchor: 'upload-sdk-missing', steps: ['upload'], match: /is not installed at or above|\(.*package\.json\) is not X\.Y\.Z/u,
     fix: 'Run `pnpm install` in the shard project.' },
   { id: 'upload-refused', anchor: 'upload-refused', steps: ['upload'],
-    fix: 'Read the reason: a format refusal means repack what `wildshard check` built; a server refusal names what it wants.' },
+    fix: 'Read the reason: a format refusal means build again (`wildshard build`); a server refusal names what it wants.' },
   // lint, besides the rules below
   { id: 'lint-not-run', anchor: 'lint-not-run', steps: ['lint'], match: /^oxlint (?:did not run|exited|report has no)/u,
     fix: 'Reinstall @wildshard/sdk (`pnpm install`): the author lint ships with it.' },

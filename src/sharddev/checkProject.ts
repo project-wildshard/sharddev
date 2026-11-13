@@ -49,9 +49,9 @@ function lintProject(project: string): StepOutcome {
 }
 
 interface Admitted { readonly shard: Shardfile; readonly observed: PerformanceObservations; readonly policy: 'warn' | 'refuse' }
-export interface CheckOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource }
+export interface CheckOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string) => Promise<string> }
 
-/** Lint, build (product only), validate the built product, prove its tape and read its report card. */
+/** Lint, build (no client; the shard file too, SA3), validate the built folder, prove its tape and read its report card. */
 export async function checkProject(projectPath: string, outputPath: string | undefined, options: CheckOptions = {}): Promise<CheckResult> {
   const project = resolve(projectPath);
   let output = outputPath === undefined ? undefined : resolve(outputPath), admitted: Admitted | undefined;
@@ -71,7 +71,10 @@ export async function checkProject(projectPath: string, outputPath: string | und
         ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }),
         ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
       output ??= resolve(project, 'public/shardfiles', shard.identity.slug);
-      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}` };
+      let file: string | undefined;
+      try { file = await options.writeShardfile?.(output, project); }
+      catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), as: 'shardfile' }] }; }
+      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}` };
     },
     validate: async (): Promise<StepOutcome> => {
       const checked = validateOutputProduct(built());

@@ -8,13 +8,15 @@ import { audioLines } from '../audio/audio.ts'
 import { assertHeroCurrent } from '../hero/hero.ts'
 import { validateShardfile } from '../upload/validate.ts'
 
-// `wildshard pack` (C0, J137): a built product folder becomes the one tarball
-// `api-server` takes, so a shardfile stands alone. It writes ustar through
-// format's `writeTar` and runs format's validator on the tarball itself, the
-// check the server runs at commit: what this writes, the server admits.
+// The shard file (C0, J137): `wildshard build` (SHARD-AUTHORING SA3, J170)
+// turns the shard file folder it built into the one tarball `api-server`
+// takes, so a shard file stands alone. It writes ustar through format's
+// `writeTar` and runs format's validator on the tarball itself, the check the
+// server runs at commit: what this writes, the server admits. `wildshard pack`
+// is the deprecated alias of this step.
 //
-// The same product packs to the same bytes, so to the same hash, and a
-// re-upload sends nothing.
+// The same folder writes the same bytes, so the same hash, and a re-upload
+// sends nothing.
 
 const BYTES_PER_MB = 1_000_000
 const ONE_DECIMAL = 1
@@ -32,21 +34,23 @@ interface ProductEntry {
   readonly isSymbolicLink: () => boolean
 }
 
-interface PackOptions {
-  /** The built product: `shard.json` at its root. */
+interface ShardfileOptions {
+  /** The built shard file folder: `shard.json` at its root. */
   readonly dir: string
-  /** Where the tarball goes; `<slug>.tar` in the working directory if unset. */
+  /** Where the shard file goes; `<slug>.shardfile` beside the folder if unset. */
   readonly out?: string
+  /** The shard source the hero check reads; `<root>/src/shards/<name>` for `<root>/out/<name>` if unset. */
+  readonly source?: string
   /** Receives one line per step. */
   readonly report: (line: string) => void
 }
 
-interface PackedProduct {
+interface Tarball {
   readonly tarball: Uint8Array<ArrayBuffer>
   readonly fileCount: number
 }
 
-interface PackOutcome {
+interface ShardfileOutcome {
   readonly slug: string
   readonly file: string
   readonly hash: string
@@ -61,8 +65,8 @@ function mb(bytes: number): string {
   return `${(bytes / BYTES_PER_MB).toFixed(ONE_DECIMAL)} MB`
 }
 
-// A pack repeats files that ship at their own paths: format rebuilds and
-// checks it from them, so a tarball leaves it out (C0). 109 MB of Pine Hollow.
+// A cook pack repeats files that ship at their own paths: format rebuilds and
+// checks it from them, so a shard file leaves it out (C0). 109 MB of Pine Hollow.
 const PACKS = 'blobs/pack/'
 
 function productPath(root: string, entry: ProductEntry): string {
@@ -94,14 +98,14 @@ async function readProduct(
   return new Map(pairs)
 }
 
-async function tarOf(dir: string): Promise<PackedProduct> {
+async function tarOf(dir: string): Promise<Tarball> {
   installFormatHook()
   const { writeTar } = await import('@wildshard/format/tar')
   const files = await readProduct(dir)
   return { tarball: writeTar(files), fileCount: files.size }
 }
 
-function reportOverCap(options: PackOptions, bytes: number): void {
+function reportOverCap(options: ShardfileOptions, bytes: number): void {
   if (bytes > SERVER_CAP_BYTES) {
     options.report(
       `warning: ${mb(bytes)} is over api-server's ${mb(SERVER_CAP_BYTES)} cap (its D34)`,
@@ -123,16 +127,16 @@ async function writeAtomically(
   }
 }
 
-/** Check the hero is as new as the content, tar the product, check the tarball. */
+/** Check the hero is as new as the content, tar the folder, check the tarball. */
 async function checkedTarball(
-  options: PackOptions,
+  options: ShardfileOptions,
 ): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
-  await assertHeroCurrent(options.dir, options.report)
+  await assertHeroCurrent(options.dir, options.report, options.source)
   const { tarball, fileCount } = await tarOf(options.dir)
   const { slug, name, audio } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
-  // AUDIO AU5: pack prints the audio rules as AMBER and still packs; only
-  // api-server's admission refuses a red.
+  // AUDIO AU5: build prints the audio rules as AMBER and still writes the
+  // shard file; only upload and api-server's admission refuse a red.
   for (const line of await audioLines(audio)) {
     options.report(line)
   }
@@ -140,15 +144,27 @@ async function checkedTarball(
   return { tarball, slug }
 }
 
-/** Check the product, then write its tarball; a refusal writes none. */
-async function packProduct(options: PackOptions): Promise<PackOutcome> {
+/** The shard file's default name: `<slug>.shardfile` beside its folder (SA3). */
+function shardfilePath(dir: string, slug: string): string {
+  return path.join(path.dirname(path.resolve(dir)), `${slug}.shardfile`)
+}
+
+/** Check the folder, then write its shard file; a refusal writes none. */
+async function writeShardfile(
+  options: ShardfileOptions,
+): Promise<ShardfileOutcome> {
   const { tarball, slug } = await checkedTarball(options)
   const bytes = tarball.length
-  const file = options.out ?? `${slug}.tar`
+  const file = options.out ?? shardfilePath(options.dir, slug)
   const hash = sha256(tarball)
   await writeAtomically(file, tarball)
-  options.report(`packed: ${file}, ${mb(bytes)} (${hash})`)
+  options.report(`shard file: ${file}, ${mb(bytes)} (${hash})`)
   return { slug, file, hash, bytes }
 }
 
-export { type PackOptions, type PackOutcome, packProduct }
+export {
+  type ShardfileOptions,
+  type ShardfileOutcome,
+  shardfilePath,
+  writeShardfile,
+}

@@ -4,7 +4,7 @@ import path from 'node:path'
 import type { TestContext } from 'node:test'
 
 import { heroState } from '../../cli/hero/stamp.ts'
-import { packProduct } from '../../cli/pack/pack.ts'
+import { writeShardfile } from '../../cli/shardfile/shardfile.ts'
 import { shardfileFiles } from './shardfile.ts'
 
 // A shard project for the hero tests (src/cli/hero): `<root>/src/shards/<name>`
@@ -97,7 +97,7 @@ async function stateOf(shard: string): Promise<string> {
 
 async function cut(space: Project): Promise<readonly string[]> {
   const lines: string[] = []
-  await packProduct({
+  await writeShardfile({
     dir: space.product,
     out: path.join(space.root, 'shard.tar'),
     report: (line: string): void => {
