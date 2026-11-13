@@ -39,7 +39,7 @@ test('compresses, signs, uploads and prints the revision', async (context: TestC
   })
   assert.match(
     run.lines.at(-1) ?? '',
-    /^committed: upload-test 0\.0\.3 revision 1 /u,
+    /^committed: upload-test 0\.0\.3 catalogue number 1 /u,
   )
 })
 
@@ -198,7 +198,7 @@ test('reports the channel and the versions sent', async (context: TestContext): 
   )
   assert.match(
     run.lines.at(-1) ?? '',
-    /^committed: upload-test 0\.0\.3 revision 1 for staging /u,
+    /^committed: upload-test 0\.0\.3 catalogue number 1 for staging /u,
   )
 })
 

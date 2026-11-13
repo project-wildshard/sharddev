@@ -46,7 +46,7 @@ describe('the sharddev CLI', (): void => {
     const run = cli(['--help'])
 
     assert.equal(run.status, 0)
-    assert.match(run.stdout, /^Usage: sharddev /u)
+    assert.match(run.stdout, /^Usage: wildshard /u)
   })
 
   it('rejects an unknown command with exit 1', (): void => {
@@ -97,7 +97,7 @@ describe('the upload command', (): void => {
     const run = cli(['upload'])
 
     assert.equal(run.status, 1)
-    assert.match(run.stderr, /upload needs a shardfile/u)
+    assert.match(run.stderr, /upload needs a shard file/u)
   })
 
   it('needs --channel staging or prod (J301)', (): void => {

@@ -106,7 +106,7 @@ async function compressed(
   const saved = PERCENT * (WHOLE - form.body.length / tarball.length)
   options.report(
     form.contentEncoding === undefined
-      ? `sending the plain tarball: Brotli would save under 1%`
+      ? `sending the shard file uncompressed: Brotli would save under 1%`
       : `brotli-${String(options.level)}: ${mb(tarball.length)} -> ${mb(form.body.length)}, ${saved.toFixed(ONE_DECIMAL)}% saved in ${secondsSince(start)}`,
   )
   return form
@@ -243,7 +243,7 @@ async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const outcome = await commit(options, signed, encoding)
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
   options.report(
-    `${verb}: ${outcome.shard} ${outcome.version} revision ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`,
+    `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`,
   )
   return outcome
 }

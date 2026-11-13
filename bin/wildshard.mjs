@@ -9,9 +9,17 @@ import '../src/sharddev/bake/format-hook.mjs';
 
 const AUTHOR = new Set(['new', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
+// SA2: `wildshard <verb> --help` and `wildshard help [verb]` print help (src/cli/help.ts) before any verb runs.
+const verbHelp = command === 'help' || (command !== undefined && !command.startsWith('-') && process.argv.slice(3).some(arg => arg === '--help' || arg === '-h'));
 const builtFolder = command === 'build' && operand !== undefined && !operand.startsWith('--')
   && existsSync(resolve(operand, 'shard.json')) && !existsSync(resolve(operand, 'shard.config.ts'));
-if (AUTHOR.has(command) && !builtFolder) {
+if (verbHelp) {
+  const help = await import('../src/cli/help.ts');
+  const verb = command === 'help' ? operand : command;
+  const text = verb === undefined ? help.USAGE : help.verbHelp(verb);
+  if (text === undefined) { process.stderr.write(`wildshard: unknown command ${verb}\n\n${help.USAGE}`); process.exitCode = 1; }
+  else process.stdout.write(text);
+} else if (AUTHOR.has(command) && !builtFolder) {
   const script = resolve(import.meta.dirname, '../scripts/wildshard.mjs');
   process.argv[1] = script;
   await import(pathToFileURL(script).href);

@@ -184,7 +184,7 @@ test('refuses a dirty tree when the commit comes from HEAD', async (context: Tes
 
   await assert.rejects(
     resolveProvenance({ cwd: dir }),
-    /the shard project has uncommitted changes .*--commit <sha>/u,
+    /the shard source has uncommitted changes .*--commit <sha>/u,
   )
 })
 

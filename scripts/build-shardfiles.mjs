@@ -67,17 +67,17 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   // A product folder no source declares any more (a folder that now emits outputs, a dropped output) never ships stale
   for (const entry of existsSync(outputRoot) ? readdirSync(outputRoot, { withFileTypes: true }) : []) {
     if (entry.isDirectory() && !entry.name.startsWith('.') && !built.includes(entry.name) && existsSync(resolve(outputRoot, entry.name, 'shard.json'))) {
-      rmSync(resolve(outputRoot, entry.name), { recursive: true, force: true }); console.info(`wildshard build: ${entry.name} is no longer a product; removed`);
+      rmSync(resolve(outputRoot, entry.name), { recursive: true, force: true }); console.info(`wildshard build: ${entry.name} is no longer built here; its folder removed`);
     }
   }
-  for (const slug of scope ?? only ?? []) if (!built.includes(slug)) throw new Error(`wildshard build: --shard=${slug} is not a first-party shardfile project (${built.join(', ')})`);
+  for (const slug of scope ?? only ?? []) if (!built.includes(slug)) throw new Error(`wildshard build: --shard=${slug} is not an output this repo builds (${built.join(', ')})`);
   const bound = (only === undefined || strict ? [] : products).filter(({ folder, output }) => {
     const manifest = resolve(projects, folder, 'manifest.json');
     if (!existsSync(manifest)) return false;
     const row = output === undefined ? undefined : shardOutputs(root, folder)?.find(entry => entry.slug === output);
     return usesProgramDiscovery(row === undefined ? JSON.parse(readFileSync(manifest, 'utf8')) : outputManifest(root, folder, row));
   }).map(row => row.name).filter(name => only?.includes(name) !== true);
-  if (bound.length > 0) console.info(`wildshard build: --shard also keeps the program-bound discovery products current: ${bound.join(', ')}`);
+  if (bound.length > 0) console.info(`wildshard build: --shard also keeps the program-bound discovery folders current: ${bound.join(', ')}`);
   const selected = scope ?? (strict || only === undefined ? undefined : [...only, ...bound]);
   if (only !== undefined && strict) console.warn('wildshard build: --shard ignored in CI; building every shard');
   const recorded = build === runWildshard;
@@ -126,8 +126,8 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     const key = currentKey();
     if (selected !== undefined && !selected.includes(name)) {
       const here = readBuildKey(destination);
-      if (here !== key && existsSync(destination)) { rmSync(destination, { recursive: true, force: true }); console.info(`wildshard build: ${name} skipped (--shard), stale product removed`); }
-      else console.info(`wildshard build: ${name} skipped (--shard)${here === key ? ', product current' : ''}`);
+      if (here !== key && existsSync(destination)) { rmSync(destination, { recursive: true, force: true }); console.info(`wildshard build: ${name} skipped (--shard), stale folder removed`); }
+      else console.info(`wildshard build: ${name} skipped (--shard)${here === key ? ', folder current' : ''}`);
       return;
     }
     const how = await reuseOrBuild({ slug: name, key:key ?? randomBytes(32).toString('hex'), destination, fresh:!reuse && (strict || only === undefined), build: async out => {
@@ -176,7 +176,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   } finally { inputHashes.flush(); }
   runtimeReport.sort((a,b)=>a.slug.localeCompare(b.slug));
   if (copyRuntime === 'closed') for (const report of runtimeReport) console.info(`runtime copy: ${JSON.stringify(report)}`);
-  console.info(`wildshard build: ${count} shardfile project(s)`);
+  console.info(`wildshard build: ${count} shard file folder(s)`);
   if (stale.length > 0) {
     const message = `wildshard build: the baked map of ${stale.join(', ')} does not match its world (SF66); rebake: node scripts/bake-maps.mjs --url=<scripts/serve-build.sh --head> --shards=${stale.join(',')}`;
     if (strict) throw new Error(message);

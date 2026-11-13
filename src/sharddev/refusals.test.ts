@@ -151,7 +151,7 @@ describe('the shard file build writes (SA3)', () => {
     const stale = 'the hero of dunes is older than its content (captured 2026-11-12T00:00:00.000Z); serve this candidate';
     expect(refusalNote('shardfile', stale).rule).toBe('hero-stale');
     expect(refusalNote('pack', stale).rule).toBe('hero-stale');
-    expect(refusalNote('shardfile', 'the product out/dunes does not carry the captured hero (thumb)').rule).toBe('hero-not-in-product');
+    expect(refusalNote('shardfile', 'the shard file folder out/dunes does not carry the captured hero (thumb)').rule).toBe('hero-not-in-product');
     expect(refusalNote('shardfile', 'not a regular file: out/dunes/link.json').rule).toBe('shardfile-link');
     expect(refusalNote('shardfile', "ENOENT: no such file or directory, scandir 'out/dunes'").rule).toBe('shardfile-folder-missing');
     expect(refusalNote('shardfile', 'no shard.json in the shardfile').rule).toBe('shardfile-invalid');

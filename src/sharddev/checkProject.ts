@@ -68,7 +68,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
     admitted = { shard, observed, policy };
   };
   const built = (): string => {
-    if (output === undefined) throw new Error('no built product');
+    if (output === undefined) throw new Error('no built shard file folder');
     return output;
   };
   return await runCheck(project, (): string | null => output ?? null, {

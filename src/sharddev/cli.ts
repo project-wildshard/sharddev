@@ -64,7 +64,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
   }
   if (command === 'check') {
     const rest = args.slice(1), json = rest.includes('--json'), positional = rest.filter(value => !value.startsWith('--'));
-    if (positional.length === 0 || positional.length > 2 || rest.some(value => value.startsWith('--') && value !== '--json') || rest.filter(value => value === '--json').length > 1) throw new Error('usage: wildshard check <project> [output] [--json]');
+    if (positional.length === 0 || positional.length > 2 || rest.some(value => value.startsWith('--') && value !== '--json') || rest.filter(value => value === '--json').length > 1) throw new Error('usage: wildshard check <source> [folder] [--json]');
     // --json: stdout carries the verdict document alone; everything the steps print goes to stderr.
     // (scripts/wildshard.mjs moves log and debug for the whole run; the steps here log with info and warn.)
     const saved = { info: console.info, warn: console.warn }, toError = console.error.bind(console);
@@ -75,15 +75,15 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     if (result.verdict === 'fail') process.exitCode = 1;
     return;
   }
-  if (input === undefined) throw new Error('usage: wildshard new <project> | check <project> [output] [--json] | synth <project> | build <project> [output] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <project> --behaviour-only | validate <project|shard.json> | dev <project> [port]');
+  if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] (wildshard --help lists them all)');
   if (command === 'synth') {
-    if (output !== undefined) throw new Error('usage: wildshard synth <project>');
+    if (output !== undefined) throw new Error('usage: wildshard synth <source>');
     const result = await synthProject(resolve(input));
     console.info(`synthesized ${result.path} (${result.hash})`); return;
   }
   if (command === 'new') {
     const newArguments = args.slice(2), names = newArguments.filter(value => !value.startsWith('--'));
-    if (names.length > 1 || newArguments.some(value => value.startsWith('--') && value !== '--empty') || newArguments.filter(value => value === '--empty').length > 1) throw new Error('usage: wildshard new <project> [slug] [--empty]');
+    if (names.length > 1 || newArguments.some(value => value.startsWith('--') && value !== '--empty') || newArguments.filter(value => value === '--empty').length > 1) throw new Error('usage: wildshard new <dir> [slug] [--empty]');
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
     if (newArguments.includes('--empty')) newProject(resolve(input), slug);
     else writeReferenceProject(resolve(input), slug);
@@ -116,8 +116,8 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     return;
   }
   if (command === 'prove') {
-    if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('prove requires a format-2 shard.json or author project');
-    if (output === undefined || buildFlag !== undefined) throw new Error('usage: wildshard prove <project|shard.json> <proof.json>');
+    if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('prove requires a format-2 shard.json or shard source');
+    if (output === undefined || buildFlag !== undefined) throw new Error('usage: wildshard prove <source|shard.json> <proof.json>');
     const built = input.endsWith('.json') || !existsSync(resolve(input, 'shard.config.ts'));
     const { shard, assets } = built
       ? validateOutputProduct(resolve(input.endsWith('.json') ? dirname(input) : input))
@@ -126,7 +126,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     console.info(JSON.stringify(await proveAuthorSimulation(shard, assets, plan), null, 2)); return;
   }
   if (command === 'validate') {
-    if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('validate requires a format-2 shard.json or author project');
+    if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('validate requires a format-2 shard.json or shard source');
     const folder=resolve(input.endsWith('.json') ? dirname(input) : input);
     if (input.endsWith('.json') || existsSync(resolve(folder, 'shard.json'))) {
       // P1-F3 (a): format validation, @wildshard/format/productValidation alone (schema, inventory, hashes, budgets, admission rows).

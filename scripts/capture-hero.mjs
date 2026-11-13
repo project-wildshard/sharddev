@@ -121,8 +121,8 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import
   const [dir, flag, base] = process.argv.slice(2);
   const adopt = flag === '--stamp-existing' && base === undefined;
   if (dir === undefined || (!adopt && (flag !== '--base' || base === undefined))) {
-    console.error('usage: wildshard hero <shard-dir> --base <served-build-url>  (serve the candidate first: engine scripts/serve-build.sh --shard <slug>)');
-    console.error('       wildshard hero <shard-dir> --stamp-existing  WARNING: no capture; stamps the hero images already there as current.');
+    console.error('usage: wildshard hero <source> --base <served-build-url>  (serve the candidate first: engine scripts/serve-build.sh --shard <slug>)');
+    console.error('       wildshard hero <source> --stamp-existing  WARNING: no capture; stamps the hero images already there as current.');
     console.error('       Use it ONLY when you have looked at those images and they show the current content; a wrong stamp hides a stale hero.');
     process.exit(2);
   }

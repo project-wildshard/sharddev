@@ -37,6 +37,17 @@ function bytes(directory, prefix = '') {
   }).sort(([a], [b]) => a.localeCompare(b));
 }
 
+// SA2 (J317): the installed help speaks the glossary; src/cli/help.test.ts holds the full retired-word list.
+test('the installed bin prints each verb\'s help in the glossary\'s words', { timeout: 9_500 }, () => {
+  const all = run(['--help']).stdout;
+  assert.match(all, /^Usage: wildshard /u);
+  for (const verb of ['new', 'check', 'build', 'upload']) {
+    const help = run([verb, '--help']).stdout;
+    assert.match(help, new RegExp(`^Usage: wildshard ${verb} `, 'u'));
+    assert.doesNotMatch(help, /\b(?:products?|publish\w*|promot\w*|cook\w*|tarball|head)\b/iu, verb);
+  }
+  assert.match(run(['upload', '--help']).stdout, /shard file/u);
+});
 test('a packed CLI scaffolds outside its checkout and refuses overwriting it', { timeout: 9_500 }, () => {
   run(['new', source, 'outside-isle', '--empty']);
   run(['new', source, 'outside-isle', '--empty'], false);

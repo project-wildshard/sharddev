@@ -122,7 +122,7 @@ async function headCommit(cwd: string): Promise<string> {
   ])
   if (dirty !== '') {
     throw new Error(
-      `the shard project has uncommitted changes (git status in ${cwd}); commit them, or pass --commit <sha> for bytes built elsewhere`,
+      `the shard source has uncommitted changes (git status in ${cwd}); commit them, or pass --commit <sha> for bytes built elsewhere`,
     )
   }
   return head
@@ -155,7 +155,7 @@ async function installedVersion(
     (await installedAt(SHARDDEV_DIR, names))
   if (found === undefined) {
     throw new Error(
-      `${names.join(' or ')} is not installed at or above ${cwd}; run pnpm install in the shard project`,
+      `${names.join(' or ')} is not installed at or above ${cwd}; run pnpm install in the shard repo`,
     )
   }
   const parsed = safeParse(PackageJsonSchema, JSON.parse(found.text))

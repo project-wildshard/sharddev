@@ -86,7 +86,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
       if(args.includes('--json'))for(const level of ['info','log','warn','debug'])console[level]=console.error.bind(console);
     }
     if(args[0]==='--prepare-compiler') {
-      if(args.length!==1)throw new Error('Compiler preparation accepts no product arguments');
+      if(args.length!==1)throw new Error('Compiler preparation accepts no other arguments');
       const started=performance.now(),compiler=await prepareWildshard();
       console.info(`Author compiler ${compiler.reused?'reused':'built'} in ${((performance.now()-started)/1000).toFixed(3)}s (before product workers)`);
     } else await runWildshard(args);

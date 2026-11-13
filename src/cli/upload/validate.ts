@@ -36,7 +36,7 @@ function productFiles(files: ReadonlyMap<string, Uint8Array>): ProductFiles {
     read: (path: string, maxBytes: number): Uint8Array => {
       const bytes = files.get(path)
       if (bytes === undefined) {
-        throw new Error(`no ${path} in the shardfile`)
+        throw new Error(`no ${path} in the shard file`)
       }
       if (bytes.length > maxBytes) {
         throw new Error(`${path} is larger than ${String(maxBytes)} bytes`)

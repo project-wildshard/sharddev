@@ -54,7 +54,7 @@ async function assertProductCarries(
   )
   if (missing.length > NONE) {
     throw new Error(
-      `the product ${product} does not carry the captured hero (${missing.join(', ')}); it was built before the capture: rebuild it (pnpm build:shards), then build its shard file`,
+      `the shard file folder ${product} does not carry the captured hero (${missing.join(', ')}); it was built before the capture: rebuild it (pnpm build:shards), then build its shard file`,
     )
   }
 }

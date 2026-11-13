@@ -23,9 +23,9 @@ const bytesOf=value=>validationSourceBytes(value);
 const drain=steps=>{for(;;){const row=steps.next();if(row.done)return row.value;}};
 
 function productPaths(dir){
-  if(lstatSync(dir).isSymbolicLink())throw new Error('Preparation product must be a regular directory');
+  if(lstatSync(dir).isSymbolicLink())throw new Error('The shard file folder to prepare must be a regular directory');
   const entries=readdirSync(dir,{recursive:true,withFileTypes:true});
-  if(entries.some(row=>!row.isDirectory()&&!row.isFile()))throw new Error('Preparation product must contain regular files, not symlinks');
+  if(entries.some(row=>!row.isDirectory()&&!row.isFile()))throw new Error('The shard file folder to prepare must hold regular files, not symlinks');
   return entries.filter(row=>row.isFile()).map(row=>join(row.parentPath,row.name).slice(dir.length+1).split('\\').join('/'));
 }
 async function validateFinished(dir,index){
@@ -96,6 +96,6 @@ export async function prepareProduct(dir,base){
 
 if(process.argv[1]!==undefined&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const [dir,flag,base]=process.argv.slice(2);
-  if(dir===undefined||flag!=='--base'||base===undefined)throw new Error('usage: wildshard prepare <product-dir> --base <exact-preview-url>');
+  if(dir===undefined||flag!=='--base'||base===undefined)throw new Error('usage: wildshard prepare <folder> --base <exact-preview-url>');
   console.log(JSON.stringify(await prepareProduct(resolve(dir),base)));
 }
