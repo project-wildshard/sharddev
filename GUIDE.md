@@ -39,7 +39,7 @@ repo's one `src/shards/<slug>/`).
 | 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide, the four `wildshard` skills and the agent files (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`) |
 | 2 | Walk it | `wildshard dev .` | Works. The first run fetches engine's dev client once. See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
-| 4 | Hero | `wildshard hero . --base <url>` | Works only with an engine checkout: it needs your shard in a served engine build. See "The hero" below |
+| 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
 | 5 | Prepare | `wildshard prepare public/shardfiles/my-shard --base <url>`, then `wildshard build public/shardfiles/my-shard` | Works only with an engine checkout. See "Uploading" below |
 | 6 | Upload to staging | `wildshard upload public/shardfiles/my-shard.shardfile --channel staging --version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
 | 7 | Upload to production | the same with `--channel prod` and a higher version | The same. Try staging first |
@@ -93,14 +93,13 @@ The hero is three images: thumb 640x360, portrait 804x1626 and landscape 1600x90
 generated card (a `data:` image) so it has one from the start. Build accepts that card with a note. To capture a real
 hero:
 
-1. Point `card.thumb`, `card.portrait` and `card.landscape` in `manifest.json` at image files inside the shard source
-   (for example `card/thumb.jpg`). Hero capture refuses a `data:` card.
-2. Serve an engine build that carries this exact shard and enters it from SHARD SELECT: an engine checkout today, not
-   `wildshard dev`. The steps are not written down for authors yet (HOW-WE-BUILD F5 writes them, in sharddev
-   `docs/second-machine.md`): ask the Wildshard team.
-3. Run `wildshard hero . --base <served-build-url>`. It opens the build in headless Chromium, enters your shard from
-   SHARD SELECT, shoots the view `hero.json`'s `camera` names (or the spawn view), writes the three files and stamps
-   `hero.json` with a hash of your content.
+1. Run `wildshard dev .` and leave it running. Any served build that carries this exact shard works too (an engine
+   checkout's, entered from SHARD SELECT).
+2. Run `wildshard hero . --base <url>` with the URL `dev` printed. It opens that page in headless Chromium, enters your
+   shard, shoots the view `hero.json`'s `camera` names (or the spawn view), writes the three files and stamps
+   `hero.json` with a hash of your content. A `data:` card becomes `card/thumb.jpg`, `card/portrait.jpg` and
+   `card/landscape.jpg`, named in both `manifest.json` and `data/card.json`.
+3. Look at the three images, then stop `dev` with Ctrl-C.
 
 Build then refuses a shard file whose content changed after the hero was stamped (`hero-stale`), and upload refuses a
 new version whose hero is the same as the previous version's (`hero-unchanged`). Section 6 has every hero refusal.

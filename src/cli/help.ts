@@ -53,8 +53,8 @@ const VERBS: Readonly<Record<string, string>> = {
   hero: `hero <source> --base <served-build-url>
                        Capture the shard's hero (thumb, portrait,
                        landscape) in headless Chromium from a served build
-                       of this candidate, and stamp hero.json with its
-                       content
+                       of this candidate (the URL \`wildshard dev .\` prints),
+                       and stamp hero.json with its content
   hero <source> --stamp-existing
                        No capture: stamp the hero images already in the
                        shard source as current. WARNING: use it ONLY when
