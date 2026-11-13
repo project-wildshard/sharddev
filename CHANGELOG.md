@@ -5,6 +5,27 @@ bullets in plain language, for shard authors and Jake, never commit
 subjects. Add the next version's section at the top, commit and push
 it, then release with repo-kit's `release.sh`.
 
+## v0.2.4 (2026-11-13)
+
+- New: `wildshard update`. After you move to a newer sdk, run it in
+  your shard repo to rewrite GUIDE.md and the four `wildshard` skills
+  from the sdk you now have installed. Edits you made to those files
+  are lost, so keep your own notes in AGENTS.md.
+- `wildshard new` also writes files for coding agents: AGENTS.md,
+  CLAUDE.md (which points Claude Code at AGENTS.md) and
+  `.agents/skills/` links, so Codex sees the same skills. `update`
+  adds any that are missing to an older repo and leaves the ones you
+  changed alone.
+- Each refusal now points at the right rule, picked from the error's
+  own code, and GUIDE.md has a heading for every rule, 17 of them new
+  (for example a broken `shard.json` is now `shardfile-index`).
+- Audio checks are stricter, and a shard that uploaded before may now
+  be refused. An audio file saved as FLAC, AIFF, Ogg, MP3 or another
+  format the game cannot play is now red, and every audio file counts
+  toward the shard's audio size limit (amber over 6 MB, red over
+  10 MB). Export such files again as AAC at 48 kHz in an `.m4a` file.
+  `build` prints each audio finding with the rule that explains it.
+
 ## v0.2.3 (2026-11-13)
 
 - The toolkit is now called `@wildshard/sdk`, and this is its first
