@@ -12,6 +12,7 @@
     "src/sharddev/**/*.mts",
     "src/commons/**/*.ts",
     "test/graph-scene-author-types.test.ts",
+    "test/sdk-engine-types.test.ts",
     "node_modules/@wildshard/engine/src/*/engine/**/*.d.ts",
     "node_modules/@wildshard/engine/src/*/game/**/*.merge.d.ts"
   ],

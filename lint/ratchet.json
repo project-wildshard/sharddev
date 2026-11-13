@@ -1,11 +1,3 @@
 {
-  "budgets": {},
-  "wildshard/sdk-no-facade": {
-    "src/sharddev/kit/bakedGeometry.ts": 7,
-    "src/sharddev/phasedBoss.ts": 9,
-    "src/sharddev/species/clips.ts": 11,
-    "src/sharddev/speciesBrains.ts": 3,
-    "src/sharddev/weapons/bowProfile.ts": 1,
-    "src/sharddev/weapons/meleeProfile.ts": 2
-  }
+  "budgets": {}
 }
