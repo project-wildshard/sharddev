@@ -12,6 +12,10 @@ describe('clientPage', () => {
     expect(bank(clientPage(page('{"common":[]}'), '{}', 'isle', false))).toEqual({ common: [], entryPrograms: { isle: false } });
     expect(bank(clientPage(page('{"entryPrograms":{"template":true}}'), '{}', 'isle', false))).toEqual({ entryPrograms: { template: true, isle: false } });
   });
+  it('keeps $ patterns literal and escapes < inside the bank', () => {
+    expect(clientPage(page('{}'), '{"name":"$&"}', 'isle', true)).toContain('{"name":"$&"}</script></head>');
+    expect(clientPage(page('{}'), '{}', 'a<b', false)).toContain(`"a${String.fromCodePoint(92)}u003cb":false`);
+  });
   it('leaves the bank alone when the programs are recorded', () => {
     expect(bank(clientPage(page('{"common":[]}'), '{}', 'isle', true))).toEqual({ common: [] });
   });

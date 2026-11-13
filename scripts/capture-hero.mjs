@@ -85,9 +85,12 @@ export async function captureHero(shard, given, { name = servedName(shard), log 
   // Loaded here, so --stamp-existing needs no browser or engine to resolve.
   const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([
     import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
-  // A slot with no file (new's generated `data:` card) is captured to card/<slot>.jpg and named in manifest.json after.
-  const files = { ...(await heroSlotFiles(shard)) };
-  const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined);
+  // A `data:` slot (new's generated card) is captured to card/<slot>.jpg and named in both card files after; any other
+  // slot must already name a file in the shard folder.
+  const files = { ...(await heroSlotFiles(shard)) }, card = JSON.parse(readFileSync(join(shard, 'manifest.json'), 'utf8')).card ?? {};
+  const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined && String(card[slot]).startsWith('data:'));
+  const unnamed = Object.keys(VIEWS).filter(slot => files[slot] === undefined && !missing.includes(slot));
+  if (unnamed.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${unnamed.join(', card.')} must name a file in the shard folder (e.g. card/${unnamed[0]}.jpg)`);
   for (const slot of missing) files[slot] = join(shard, 'card', `${slot}.jpg`);
   const stampFile = join(shard, 'hero.json');
   const camera = existsSync(stampFile) ? JSON.parse(readFileSync(stampFile, 'utf8')).camera : undefined;
@@ -146,7 +149,6 @@ export async function captureHero(shard, given, { name = servedName(shard), log 
     // differs; so the slots move in both. Each file keeps its own layout (new writes them on one line).
     for (const file of ['manifest.json', join('data', 'card.json')].map(name => join(shard, name)).filter(existsSync)) {
       const text = readFileSync(file, 'utf8'), json = JSON.parse(text);
-      if (file.endsWith('card.json') && missing.some(slot => json.card?.[slot] !== undefined && !String(json.card[slot]).startsWith('data:'))) continue;
       json.card = { ...json.card, ...named };
       writeFileSync(file, `${/^\{\s*\n/u.test(text) ? JSON.stringify(json, null, 2) : JSON.stringify(json)}\n`);
       log(`hero: ${file} card.${missing.join(', card.')} now name card/*.jpg`);
