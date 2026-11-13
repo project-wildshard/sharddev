@@ -12,6 +12,7 @@
   },
   "files": [
     "GUIDE.md",
+    "skills",
     "bin",
     "src",
     "!src/**/*.test.*",

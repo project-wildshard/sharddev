@@ -32,9 +32,16 @@ function writeInstallScriptPolicy(project: string): void {
 /** SA13 (J314): the author's manual at the package root, shipped by `files`; `new` copies it into every project. */
 export const GUIDE_SOURCE: string = resolve(import.meta.dirname, '../../GUIDE.md');
 
-/** Copy the installed sdk's GUIDE.md into the project, byte for byte. */
+/** SA14 (J314): the `wildshard` skill at the package's `skills/`, shipped by `files`; `new` copies it for Claude Code. */
+export const SKILL_SOURCE: string = resolve(import.meta.dirname, '../../skills/wildshard/SKILL.md');
+/** Where a project keeps the skill: Claude Code lists project skills from `.claude/skills/<name>/SKILL.md`. */
+export const SKILL_FILE = '.claude/skills/wildshard/SKILL.md';
+
+/** Copy the installed sdk's GUIDE.md and `wildshard` skill into the project, byte for byte. */
 function writeGuide(project: string): void {
   cpSync(GUIDE_SOURCE, resolve(project, 'GUIDE.md'));
+  mkdirSync(resolve(project, '.claude/skills/wildshard'), { recursive: true });
+  cpSync(SKILL_SOURCE, resolve(project, SKILL_FILE));
 }
 
 /** Copy the shipped teaching world; generation and gameplay remain authored there. */
