@@ -20,9 +20,8 @@ Run each step from the project folder. Read the step's section first: it says wh
 instead where a step is not built yet.
 
 1. **new**: `wildshard new <dir>` started this repo. `GUIDE.md#1-the-loop`; every flag in `GUIDE.md#every-verb`.
-2. **dev**: walk the shard on your machine. Not built yet (SA15): `GUIDE.md#walking-your-shard` says how to walk it
-   today, and `GUIDE.md#4-what-reloads-under-dev` how `dev` will behave. Done when you have walked it, or know which
-   way in needs the Wildshard team.
+2. **dev**: `wildshard dev .` serves the shard on localhost; open the URL it prints. `GUIDE.md#walking-your-shard`,
+   and what reloads on save in `GUIDE.md#4-what-reloads-under-dev`. Done when you have walked it.
 3. **check**: `wildshard check .` after every change. `GUIDE.md#1-the-loop`; what it measures in
    `GUIDE.md#3-budgets`. Done when the last line reads `check pass`.
 4. **hero**: capture a new hero after your last change to the world. `GUIDE.md#the-hero`, then step 1 of

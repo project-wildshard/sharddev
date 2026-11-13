@@ -43,8 +43,8 @@ Read `GUIDE.md#2-the-shard-source` before your first edit: it says what ships in
 6. **Check.** `wildshard check .` (`GUIDE.md#1-the-loop`). The report card measures draws, triangles, memory and
    download against their limits (`GUIDE.md#3-budgets`); a refusal names its fix, for example
    `GUIDE.md#budget-triangles` or `GUIDE.md#budget-download`. Done when the last line reads `check pass`.
-7. **See it in the world.** Walk the shard where the model stands (`GUIDE.md#walking-your-shard`). Done when you have
-   seen it there, or written down that walking needs the Wildshard team today.
+7. **See it in the world.** `wildshard dev .`, then walk to where the model stands (`GUIDE.md#walking-your-shard`).
+   Done when you have seen it there.
 8. **The hero.** The world changed, so before the next upload follow the `wildshard-goldens` skill
    (`GUIDE.md#the-hero`). Done when that skill's hero steps are done, or you have written down that this repo has no
    `manifest.json` card to capture.

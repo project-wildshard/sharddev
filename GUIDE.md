@@ -37,7 +37,7 @@ repo's one `src/shards/<slug>/`).
 | # | Step | Command | Today |
 |---|---|---|---|
 | 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide, the four `wildshard` skills and the agent files (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`) |
-| 2 | Walk it | `wildshard dev .` | **Not built yet (SA15).** See "Walking your shard" below |
+| 2 | Walk it | `wildshard dev .` | Works. The first run fetches engine's dev client once. See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works only with an engine checkout: it needs your shard in a served engine build. See "The hero" below |
 | 5 | Prepare | `wildshard prepare public/shardfiles/my-shard --base <url>`, then `wildshard build public/shardfiles/my-shard` | Works only with an engine checkout. See "Uploading" below |
@@ -56,7 +56,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 |---|---|
 | `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` copies the hand-written Blender template (below); any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
 | `wildshard update [dir] [--pins[=<version>]]` | Rewrite this guide and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
-| `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). **Not built yet** for an installed sdk (SA15) |
+| `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). The first run fetches engine's dev client once ("Walking your shard") |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
@@ -75,21 +75,16 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 
 ### Walking your shard
 
-`wildshard dev .` is how you will walk a shard on your machine: it serves the shard on localhost and reloads the page
-when you save. It is **not built yet (SA15)**: `dev` fetches engine's dev client once, from the engine release at
-this sdk's engine pin, into `~/.cache/wildshard/dev-client/`, and today's pin has none, so it stops with "engine release
-… has no devserver-client.tar.gz". Engine publishes it on every release from now on (HOW-WE-BUILD ENG-16); `dev`
-works once an sdk pins one of those (SD-2). Then open the URL it prints (it ends in `?skipintro`).
+`wildshard dev .` walks the shard on your machine: it serves the shard on localhost and reloads the page when you
+save (section 4). Open the URL it prints; it ends in `?skipintro`, which walks straight into your shard.
 
-Until then there are two ways to walk a shard, and neither works from this folder alone:
+The first run fetches engine's dev client once, from the engine release at this sdk's engine pin, into
+`~/.cache/wildshard/dev-client/` (about 300 MB; `$WILDSHARD_DEV_CLIENT_CACHE` moves it). Later runs, and every project
+on the same sdk, reuse it. If the download fails, `dev` stops and says which release it asked for; nothing half-fetched
+is kept, so run it again.
 
-- **In an engine checkout:** build an engine preview that carries your built shard file folder, then enter it from
-  SHARD SELECT. These steps are not written down for authors yet (HOW-WE-BUILD F5 writes them, in sharddev
-  `docs/second-machine.md`): ask the Wildshard team.
-- **On staging, after an upload:** only once the Wildshard team has placed the shard on the grid (section 5).
-
-What you can do from this folder alone: `wildshard check .` builds the shard, runs it headlessly against its budgets
-and, with a `proof.json` tape, plays its quests headlessly (`prove`).
+`dev` serves this shard alone: no other shards, no grid and no other players. To see it beside the rest of the
+world, upload it to staging once the Wildshard team has placed it on the grid (section 5).
 
 ### The hero
 
@@ -99,7 +94,9 @@ hero:
 
 1. Point `card.thumb`, `card.portrait` and `card.landscape` in `manifest.json` at image files inside the shard source
    (for example `card/thumb.jpg`). Hero capture refuses a `data:` card.
-2. Serve an engine build that carries this exact shard (see "Walking your shard": an engine checkout today).
+2. Serve an engine build that carries this exact shard and enters it from SHARD SELECT: an engine checkout today, not
+   `wildshard dev`. The steps are not written down for authors yet (HOW-WE-BUILD F5 writes them, in sharddev
+   `docs/second-machine.md`): ask the Wildshard team.
 3. Run `wildshard hero . --base <served-build-url>`. It opens the build in headless Chromium, enters your shard from
    SHARD SELECT, shoots the view `hero.json`'s `camera` names (or the spawn view), writes the three files and stamps
    `hero.json` with a hash of your content.
@@ -245,8 +242,6 @@ guide names them and points at what prints them:
 (sections "performance" and "audio"). Section 6 says what to do when one refuses.
 
 ## 4. What reloads under `dev`
-
-`wildshard dev` is **not built yet** for an installed sdk (SA15); this is how it behaves once it runs.
 
 - **Every saved file in the shard source rebuilds the whole shard**, about 0.1 s after the last save, and the open page
   reloads itself when the new build is ready. Nothing is patched in place: data, generators, behaviour scripts,

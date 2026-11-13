@@ -83,7 +83,7 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
-    "@wildshard/engine": "github:project-wildshard/engine#6f26d0eaffeb4c084dabb993b9b9247390b4d503",
+    "@wildshard/engine": "github:project-wildshard/engine#d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3",
     "@wildshard/format": "github:project-wildshard/shard-format#v0.4.9",
     "ajv": "6.15.0",
     "assemblyscript": "0.28.20",

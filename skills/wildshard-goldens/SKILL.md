@@ -26,8 +26,8 @@ down that the hero needs the Wildshard team.
 1. **Real image files.** `manifest.json` and `data/card.json` must name the same image files inside the shard source,
    not the `data:` card `new` wrote; change both together (`GUIDE.md#2-the-shard-source`). Done when both point at
    files such as `card/thumb.jpg`.
-2. **A served build carrying this exact shard source.** Today that needs an engine checkout
-   (`GUIDE.md#walking-your-shard`). Done when you have its URL, or have written down that it needs the Wildshard team.
+2. **A served build carrying this exact shard source.** Today that needs an engine checkout, not
+   `wildshard dev` (`GUIDE.md#the-hero`). Done when you have its URL, or have written down that it needs the Wildshard team.
 3. **Capture.** `wildshard hero . --base <url>` (`GUIDE.md#the-hero`). Done when `hero.json` and the three images are
    rewritten.
 4. **Look at all three images** with your own eyes or the Read tool: the shard, not a loading screen, a black frame or
