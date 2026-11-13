@@ -30,12 +30,19 @@ function trailDistance(x: number, z: number): number {
   return Math.sqrt(distance);
 }
 
+/** The pond's centre (world.ts `poolMask`, the water's 5 m circle) and its bowl: −3 m at the heart, shelving at 37° so the
+ * 257² lattice keeps a beach inside the water's circle (−0.4 m at its edge, shallower than the swim's 1.05 m stand-up). The old
+ * cliff at r 5 smeared over a 1.95 m cell into a pit wall past the water's edge, too steep to climb: Jake, 2026-11-12, "glitched
+ * into the pond cant use shift to surface". */
+export const POND = { x: 25, z: 20, bed: -3, flat: 1.5, shelf: 0.75 } as const;
+export const pondFloor = (r: number): number => POND.bed + Math.max(0, r - POND.flat) * POND.shelf;
+
 /** The retained Template author height law: seeded yard, pool, trail bed, flat roads and entry ramps.
  * No runtime field, registry, render service or captured height grid is read. */
 export function templateHeightAt(seed = 357): (x: number, z: number) => number {
   const noise = templateNoise(seed);
   return (x, z) => {
-    let height = Math.hypot(x - 25, z - 20) < 5 ? -3 : noise(x * 0.015, z * 0.015) * 0.5;
+    let height = Math.min(noise(x * 0.015, z * 0.015) * 0.5, pondFloor(Math.hypot(x - POND.x, z - POND.z)));
     height -= smoothstep(9, 2.5, trailDistance(x, z)) * 0.35;
     height = cellGround(x, z, height);
     const half = ROAD_WIDTH / 2 + 3;
