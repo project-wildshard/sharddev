@@ -1,18 +1,56 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
+import { readVersion } from '../version.ts'
 import { resolveProvenance } from './provenance.ts'
 
 // API-CLOUDFLARE AC16 (V1): every upload names the shard version and the
 // commit it was built from. The defaults come from the shard project the
 // author runs `wildshard upload` in: its package.json and its git HEAD.
+// J306 (SHARD-AUTHORING UP3) adds the versions it was built with:
+// sharddev's own, and engine's and shard-format's as the shard resolves
+// them, or as this sharddev does when the shard has none installed.
 
 const SHA = 'a'.repeat(40)
+const ROOT = new URL('../../../', import.meta.url)
+
+async function installed(name: string): Promise<string> {
+  const file = new URL(`node_modules/${name}/package.json`, ROOT)
+  const raw: unknown = JSON.parse(await readFile(file, 'utf8'))
+  assert.ok(typeof raw === 'object' && raw !== null && 'version' in raw)
+  assert.equal(typeof raw.version, 'string')
+  return String(raw.version)
+}
+
+/** What this sharddev carries: the fallback for a shard with no install. */
+async function carried(): Promise<
+  Readonly<{ sharddev: string; engine: string; shardFormat: string }>
+> {
+  return {
+    sharddev: await readVersion(),
+    engine: await installed('@wildshard/engine'),
+    shardFormat: await installed('@wildshard/format'),
+  }
+}
+
+/** Write node_modules/<name>/package.json under `dir`. */
+async function install(
+  dir: string,
+  name: string,
+  version: string,
+): Promise<void> {
+  const folder = path.join(dir, 'node_modules', ...name.split('/'))
+  await mkdir(folder, { recursive: true })
+  await writeFile(
+    path.join(folder, 'package.json'),
+    `${JSON.stringify({ name, version })}\n`,
+  )
+}
 
 function git(cwd: string, args: readonly string[]): string {
   return execFileSync('git', [...args], { cwd, encoding: 'utf8' }).trim()
@@ -58,6 +96,7 @@ test("defaults to the project's package.json version and HEAD", async (context: 
   assert.deepEqual(await resolveProvenance({ cwd: dir }), {
     version: '0.0.3',
     commit: head,
+    ...(await carried()),
   })
 })
 
@@ -69,6 +108,7 @@ test('finds the project from a folder inside it', async (context: TestContext): 
   assert.deepEqual(await resolveProvenance({ cwd: inner }), {
     version: '0.0.3',
     commit: head,
+    ...(await carried()),
   })
 })
 
@@ -77,7 +117,64 @@ test('flags override both, and need no git checkout', async (context: TestContex
 
   assert.deepEqual(
     await resolveProvenance({ cwd: dir, version: '1.2.3', commit: SHA }),
-    { version: '1.2.3', commit: SHA },
+    { version: '1.2.3', commit: SHA, ...(await carried()) },
+  )
+})
+
+test('the three versions match the installed packages (J306)', async (context: TestContext): Promise<void> => {
+  const dir = await scratch(context)
+  const { sharddev, engine, shardFormat } = await resolveProvenance({
+    cwd: dir,
+    version: '0.0.1',
+    commit: SHA,
+  })
+
+  assert.equal(sharddev, await readVersion())
+  assert.equal(engine, await installed('@wildshard/engine'))
+  assert.equal(shardFormat, await installed('@wildshard/format'))
+  assert.match(engine, /^\d+\.\d+\.\d+$/u)
+  assert.match(shardFormat, /^\d+\.\d+\.\d+$/u)
+})
+
+test("reads engine and shard-format from the shard's own install", async (context: TestContext): Promise<void> => {
+  const dir = await scratch(context)
+  await install(dir, '@wildshard/engine', '7.8.9')
+  await install(dir, '@wildshard/format', '4.5.6')
+  const inner = path.join(dir, 'out')
+  await mkdir(inner)
+
+  const provenance = await resolveProvenance({
+    cwd: inner,
+    version: '0.0.1',
+    commit: SHA,
+  })
+
+  assert.equal(provenance.engine, '7.8.9')
+  assert.equal(provenance.shardFormat, '4.5.6')
+  assert.equal(provenance.sharddev, await readVersion())
+})
+
+test('@wildshard/shard-format wins over the @wildshard/format alias', async (context: TestContext): Promise<void> => {
+  const dir = await scratch(context)
+  await install(dir, '@wildshard/format', '4.5.6')
+  await install(dir, '@wildshard/shard-format', '5.0.0')
+
+  const { shardFormat } = await resolveProvenance({
+    cwd: dir,
+    version: '0.0.1',
+    commit: SHA,
+  })
+
+  assert.equal(shardFormat, '5.0.0')
+})
+
+test('refuses an installed version the API would refuse', async (context: TestContext): Promise<void> => {
+  const dir = await scratch(context)
+  await install(dir, '@wildshard/engine', '0.1.0-rc.1')
+
+  await assert.rejects(
+    resolveProvenance({ cwd: dir, version: '0.0.1', commit: SHA }),
+    /@wildshard\/engine 0\.1\.0-rc\.1 .* is not X\.Y\.Z/u,
   )
 })
 

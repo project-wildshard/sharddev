@@ -1,18 +1,19 @@
 // oxlint-disable typescript/prefer-readonly-parameter-types -- a double's state is what it mutates
 import { createHash, generateKeyPairSync, verify } from 'node:crypto'
 import type { KeyObject } from 'node:crypto'
-import { once } from 'node:events'
 import { createServer } from 'node:http'
-import type { IncomingMessage, Server, ServerResponse } from 'node:http'
+import type { IncomingMessage, ServerResponse } from 'node:http'
 import { buffer } from 'node:stream/consumers'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
 import { literal, number, object, optional, parse, string } from 'valibot'
 
+import { close, listen, sendJson } from './http-double.ts'
 import {
   commitBodyOf,
   createdReply,
+  echoed,
   knownReply,
   listingOf,
   missingVersion,
@@ -25,7 +26,6 @@ import type { InferOutput } from 'valibot'
 // verification over the tarball's digest and a real Brotli decode, with
 // the presigned PUT on a second server, as R2 is.
 
-const JSON_TYPE = { 'content-type': 'application/json' }
 const SIGNATURE_HEADER = 'x-wildshard-signature'
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
 const TIME = '2026-11-05T00:00:00.000Z'
@@ -46,6 +46,8 @@ interface StoredObject {
 /** What the double saw, and how it should misbehave. */
 interface UploadServerState {
   readonly apiRequests: IncomingMessage[]
+  /** `GET /api/catalogue`'s shards: each slug's newest version (UP4). */
+  readonly catalogue: CatalogueShard[]
   readonly puts: StoredObject[]
   /** Revisions recorded, by hash. */
   readonly revisions: Map<string, Recorded>
@@ -61,6 +63,15 @@ interface UploadServerState {
   unlisted: boolean
   /** Answer every API call with Vercel's HTML, as SSO does. */
   sso: boolean
+  /** Echo the channel and the three versions, as UP2's API will. */
+  echo: boolean
+}
+
+/** A catalogue shard as the double serves it. */
+interface CatalogueShard {
+  readonly slug: string
+  readonly version: string
+  readonly heroHash?: string
 }
 
 interface UploadServer {
@@ -84,31 +95,6 @@ interface Exchange {
 interface Refusal {
   readonly status: number
   readonly error: string
-}
-
-async function listen(server: Server): Promise<string> {
-  server.listen(0, '127.0.0.1')
-  await once(server, 'listening')
-  const address = server.address()
-  if (address === null || typeof address === 'string') {
-    throw new Error('upload double: not listening on a TCP port')
-  }
-  return `http://127.0.0.1:${String(address.port)}`
-}
-
-async function close(server: Server): Promise<void> {
-  const closed = once(server, 'close')
-  server.closeAllConnections()
-  server.close()
-  await closed
-}
-
-function sendJson(
-  response: ServerResponse,
-  status: number,
-  body: unknown,
-): void {
-  response.writeHead(status, JSON_TYPE).end(JSON.stringify(body))
 }
 
 function signedBy(
@@ -185,9 +171,11 @@ function commitReply(
     return missingVersion()
   }
   const known = double.state.revisions.get(call.hash)
-  return known === undefined
-    ? freshReply(double, request, { hash: call.hash, version: body.version })
-    : knownReply(call.hash, known, body.version)
+  const reply =
+    known === undefined
+      ? freshReply(double, request, { hash: call.hash, version: body.version })
+      : knownReply(call.hash, known, body.version)
+  return double.state.echo ? echoed(reply, body) : reply
 }
 
 function ticket(double: Double, exchange: Exchange, body: string): void {
@@ -230,6 +218,8 @@ function route(double: Double, exchange: Exchange, body: string): void {
     sendJson(response, reply.status, reply.body)
   } else if (path === '/api/shardfiles/uploads') {
     ticket(double, exchange, body)
+  } else if (path === '/api/catalogue') {
+    sendJson(response, 200, { shards: double.state.catalogue })
   } else {
     sendJson(
       response,
@@ -263,6 +253,7 @@ async function answerPut(
 function newState(): UploadServerState {
   return {
     apiRequests: [],
+    catalogue: [],
     puts: [],
     revisions: new Map(),
     commits: [],
@@ -271,6 +262,7 @@ function newState(): UploadServerState {
     refuseStored: undefined,
     unlisted: false,
     sso: false,
+    echo: false,
   }
 }
 
@@ -297,4 +289,9 @@ async function openUploadServer(context: TestContext): Promise<UploadServer> {
   return { url, privateKey: der.toString('base64'), state }
 }
 
-export { type UploadServer, type UploadServerState, openUploadServer }
+export {
+  type CatalogueShard,
+  type UploadServer,
+  type UploadServerState,
+  openUploadServer,
+}

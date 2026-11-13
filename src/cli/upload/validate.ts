@@ -15,6 +15,14 @@ interface ValidShardfile {
   readonly name: string
   /** AUDIO AU5: the shard's own audio against format's rules, as of today. */
   readonly audio: AudioReport
+  /** The card's three image blob hashes, when the shard has a card (J306). */
+  readonly card: HeroCard | undefined
+}
+
+interface HeroCard {
+  readonly thumb: string
+  readonly portrait: string
+  readonly landscape: string
 }
 
 function sha256(bytes: Readonly<Uint8Array>): string {
@@ -51,12 +59,24 @@ async function validateShardfile(
   await prepareAssetDecoders()
   const product = productFiles(readTar(tarball))
   const valid = validateShardfileProduct(product, { hash: sha256 })
-  const { identity } = valid.shard
+  const { identity, presentation } = valid.shard
   return {
     slug: identity.slug,
     name: identity.name,
     audio: productAudioReport(valid, new Date()),
+    card: presentation?.card,
   }
 }
 
-export { type ValidShardfile, validateShardfile }
+/**
+ * The hero digest (SHARD-AUTHORING UP4, choice 4): SHA-256 of the three
+ * card images' blob hashes, as api-server takes it.
+ */
+function heroDigest(card: HeroCard): string {
+  const { thumb, portrait, landscape } = card
+  return createHash('sha256')
+    .update(`thumb:${thumb}\nportrait:${portrait}\nlandscape:${landscape}`)
+    .digest('hex')
+}
+
+export { type HeroCard, type ValidShardfile, heroDigest, validateShardfile }

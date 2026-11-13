@@ -1,6 +1,7 @@
 import { safeParse } from 'valibot'
 
 import {
+  CatalogueSchema,
   CommitAnswerSchema,
   DirectUploadTicketSchema,
   ErrorBodySchema,
@@ -10,6 +11,7 @@ import {
 import type { Provenance } from './provenance.ts'
 import type { SignedShardfile } from './signature.ts'
 import type {
+  CatalogueShard,
   CommitAnswer,
   DirectUploadTicket,
   ShardfileSummary,
@@ -118,6 +120,21 @@ async function findStored(
   )
 }
 
+/** The slug's entry in `GET /api/catalogue`, if it has one. */
+async function findCatalogued(
+  options: ApiOptions,
+  slug: string,
+): Promise<CatalogueShard | undefined> {
+  const path = '/api/catalogue'
+  const reply = await fetch(new URL(path, options.server), {
+    headers: apiHeaders(options),
+  })
+  const { shards } = await replyOf(path, reply, CatalogueSchema)
+  return shards.find(
+    (shard: Readonly<{ slug: string }>): boolean => shard.slug === slug,
+  )
+}
+
 async function requestTicket(
   options: ApiOptions,
   request: UploadRequest,
@@ -170,13 +187,25 @@ async function putObject(
   throw new Error(`the PUT to R2 failed: ${answer}`)
 }
 
-/** The commit: the bytes' encoding, and the shard version and commit (V1). */
+/** The channels an upload may ask for, by their wire names (J301). */
+type Channel = 'staging' | 'production'
+
+interface CommitBody extends Provenance {
+  readonly contentEncoding?: 'br' | undefined
+  readonly channel: Channel
+}
+
+/**
+ * The commit: the bytes' encoding, the shard version and commit (V1), the
+ * channel it is for (J301) and the versions it was built with (J306).
+ */
 async function commitUpload(
   options: ApiOptions,
   signed: SignedShardfile,
-  body: Provenance & { readonly contentEncoding?: 'br' | undefined },
+  body: CommitBody,
 ): Promise<CommitAnswer> {
-  const { contentEncoding, version, commit } = body
+  const { contentEncoding, version, commit, channel } = body
+  const { sharddev, engine, shardFormat } = body
   return await postSigned(
     options,
     {
@@ -186,6 +215,10 @@ async function commitUpload(
         ...(contentEncoding === undefined ? {} : { contentEncoding }),
         version,
         commit,
+        channel,
+        sharddev,
+        engine,
+        shardFormat,
       },
     },
     CommitAnswerSchema,
@@ -194,8 +227,10 @@ async function commitUpload(
 
 export {
   type ApiOptions,
+  type Channel,
   type UploadRequest,
   commitUpload,
+  findCatalogued,
   findStored,
   putObject,
   requestTicket,

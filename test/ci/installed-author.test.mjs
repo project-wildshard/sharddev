@@ -83,7 +83,7 @@ test('the outside author uploads its newly built tarball through the real CLI to
   // An asynchronous child leaves this process free to serve the real HTTP requests.
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
-  const child = spawn(process.execPath, [bin, 'upload', join(root, 'isle.tar'), '--server', server.url], {
+  const child = spawn(process.execPath, [bin, 'upload', join(root, 'isle.tar'), '--channel', 'staging', '--server', server.url], {
     cwd: app, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   context.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });

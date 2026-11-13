@@ -2,6 +2,7 @@ import {
   literal,
   object,
   optional,
+  picklist,
   pipe,
   regex,
   safeParse,
@@ -13,6 +14,8 @@ import type { InferOutput } from 'valibot'
 // The upload double's commit answers, as api-server's J275 commit gives them
 // (API-CLOUDFLARE AC6, AC16): the body must carry `version` and `commit`
 // (V1), and the answer adds `version`, `formatVersion` and `migrations`.
+// UP3 adds `channel` and the three versions; like today's API the double
+// drops them unless `echo` is on, as UP2's API will answer them.
 
 const SHARD = 'upload-test'
 const TIME = '2026-11-05T00:00:00.000Z'
@@ -21,15 +24,20 @@ const OK = 200
 const CREATED = 201
 const CONFLICT = 409
 const UNPROCESSABLE = 422
+const FIRST_FAILURE = 300
+const X_Y_Z = /^(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})$/u
+
+const VersionSchema = pipe(string(), regex(X_Y_Z))
 
 const CommitBodySchema = object({
   contentEncoding: optional(literal('br')),
   // The pattern api-server's channel-commit.ts uses.
-  version: pipe(
-    string(),
-    regex(/^(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})$/u),
-  ),
+  version: VersionSchema,
   commit: pipe(string(), regex(/^[\da-f]{40}$/u)),
+  channel: optional(picklist(['staging', 'production'])),
+  engine: optional(VersionSchema),
+  sharddev: optional(VersionSchema),
+  shardFormat: optional(VersionSchema),
 })
 
 type CommitBody = InferOutput<typeof CommitBodySchema>
@@ -106,6 +114,18 @@ function knownReply(hash: string, recorded: Recorded, version: string): Reply {
       }
 }
 
+/** A success with UP2's echo of the channel and the three versions. */
+function echoed(reply: Reply, body: CommitBody): Reply {
+  if (reply.status >= FIRST_FAILURE || typeof reply.body !== 'object') {
+    return reply
+  }
+  const { channel, engine, sharddev, shardFormat } = body
+  return {
+    status: reply.status,
+    body: { ...reply.body, channel, engine, sharddev, shardFormat },
+  }
+}
+
 /** `GET /api/shardfiles` over what the double recorded. */
 function listingOf(revisions: ReadonlyMap<string, Recorded>): unknown {
   return {
@@ -126,6 +146,7 @@ export {
   type Reply,
   commitBodyOf,
   createdReply,
+  echoed,
   knownReply,
   listingOf,
   missingVersion,

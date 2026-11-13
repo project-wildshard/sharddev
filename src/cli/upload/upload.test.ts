@@ -1,71 +1,26 @@
-// oxlint-disable typescript/prefer-readonly-parameter-types -- a run collects what the double saw
 import assert from 'node:assert/strict'
-import { mkdtemp, rm, writeFile } from 'node:fs/promises'
-import { tmpdir } from 'node:os'
-import path from 'node:path'
+import { createHash } from 'node:crypto'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
-import { makeShardfile, sha256 } from '../../test/helpers/shardfile.ts'
-import { openUploadServer } from '../../test/helpers/upload-server.ts'
-import { uploadShardfile } from './upload.ts'
-
-import type { UploadServer } from '../../test/helpers/upload-server.ts'
-import type { UploadOutcome } from './upload.ts'
+import { sha256 } from '../../test/helpers/shardfile.ts'
+import {
+  BUILT_WITH,
+  COMMIT,
+  TARBALL,
+  VERSION,
+  onlyPut,
+  open,
+  upload,
+} from '../../test/helpers/upload-run.ts'
+import { validateShardfile } from './validate.ts'
 
 // The whole client against a real HTTP double: real Brotli, real Ed25519,
 // the real validator. The bytes are the fixture product re-stamped.
+// upload-cli.test.ts drives the same double through the real CLI.
 
-const TARBALL = await makeShardfile({ slug: 'upload-test' })
 const BYPASS_HEADER = 'x-vercel-protection-bypass'
-const VERSION = '0.0.3'
-const COMMIT = 'c'.repeat(40)
-
-interface Run {
-  readonly server: UploadServer
-  readonly file: string
-  readonly lines: string[]
-}
-
-async function open(
-  context: TestContext,
-  tarball: Readonly<Uint8Array> = TARBALL,
-): Promise<Run> {
-  const directory = await mkdtemp(path.join(tmpdir(), 'sharddev-upload-'))
-  context.after(async (): Promise<void> => {
-    await rm(directory, { recursive: true })
-  })
-  const file = path.join(directory, 'shard.tar')
-  await writeFile(file, tarball)
-  return { server: await openUploadServer(context), file, lines: [] }
-}
-
-async function upload(
-  run: Run,
-  bypassSecret?: string,
-  version: string = VERSION,
-): Promise<UploadOutcome> {
-  return await uploadShardfile({
-    file: run.file,
-    server: run.server.url,
-    privateKey: run.server.privateKey,
-    level: 5,
-    version,
-    commit: COMMIT,
-    report: (line: string): void => {
-      run.lines.push(line)
-    },
-    ...(bypassSecret === undefined ? {} : { bypassSecret }),
-  })
-}
-
-function onlyPut(run: Run): UploadServer['state']['puts'][number] {
-  const [put, ...rest] = run.server.state.puts
-  assert.ok(put)
-  assert.equal(rest.length, 0)
-  return put
-}
 
 test('compresses, signs, uploads and prints the revision', async (context: TestContext): Promise<void> => {
   const run = await open(context)
@@ -93,7 +48,13 @@ test('sends the version and commit in the commit body (AC16, V1)', async (contex
   await upload(run)
 
   assert.deepEqual(run.server.state.commits, [
-    { contentEncoding: 'br', version: VERSION, commit: COMMIT },
+    {
+      contentEncoding: 'br',
+      version: VERSION,
+      commit: COMMIT,
+      channel: 'staging',
+      ...BUILT_WITH,
+    },
   ])
 })
 
@@ -137,7 +98,7 @@ test("sends Vercel's bypass to the API and never to R2", async (context: TestCon
   await upload(run, 'bypass')
 
   const { apiRequests } = run.server.state
-  assert.equal(apiRequests.length, 3)
+  assert.equal(apiRequests.length, 4)
   for (const request of apiRequests) {
     assert.equal(request.headers[BYPASS_HEADER], 'bypass')
   }
@@ -170,6 +131,8 @@ test('held bytes the listing misses still commit, and send nothing', async (cont
     contentEncoding: 'br',
     version: VERSION,
     commit: COMMIT,
+    channel: 'staging',
+    ...BUILT_WITH,
   })
   await assert.rejects(
     upload(run, undefined, '0.0.4'),
@@ -219,4 +182,91 @@ test('refuses an invalid shardfile before any request', async (context: TestCont
 
   await assert.rejects(upload(run), /tar: /u)
   assert.equal(run.server.state.apiRequests.length, 0)
+})
+
+test('reports the channel and the versions sent', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+
+  await upload(run)
+
+  assert.ok(
+    run.lines.includes(
+      'sent: channel staging, sharddev 0.2.2, engine 0.1.13, shardFormat 0.4.4',
+    ),
+    run.lines.join('\n'),
+  )
+  assert.match(
+    run.lines.at(-1) ?? '',
+    /^committed: upload-test 0\.0\.3 revision 1 for staging /u,
+  )
+})
+
+test('reads the channel and versions the API echoes (UP2)', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.echo = true
+
+  await upload(run)
+
+  assert.ok(
+    run.lines.includes(
+      'api: version 0.0.3, formatVersion 0.1, migrations [], channel staging, sharddev 0.2.2, engine 0.1.13, shardFormat 0.4.4',
+    ),
+    run.lines.join('\n'),
+  )
+})
+
+// UP3's hero pre-check (J306, UP4 choice 4): the digest of the three card
+// images' blob hashes, against the slug's newest catalogued version.
+
+async function heroDigest(): Promise<string> {
+  const { card } = await validateShardfile(TARBALL)
+  assert.ok(card)
+  return createHash('sha256')
+    .update(
+      `thumb:${card.thumb}\nportrait:${card.portrait}\nlandscape:${card.landscape}`,
+    )
+    .digest('hex')
+}
+
+test('an unchanged hero refuses before the PUT and names wildshard hero', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.catalogue.push({
+    slug: 'upload-test',
+    version: '0.0.2',
+    heroHash: await heroDigest(),
+  })
+
+  await assert.rejects(
+    upload(run),
+    /the hero is unchanged since upload-test 0\.0\.2: run wildshard hero/u,
+  )
+  assert.equal(run.server.state.puts.length, 0)
+  assert.equal(run.server.state.commits.length, 0)
+})
+
+test('a new hero, or none on record, passes the pre-check', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.catalogue.push(
+    { slug: 'upload-test', version: '0.0.2', heroHash: 'f'.repeat(64) },
+    { slug: 'other', version: '0.0.2', heroHash: await heroDigest() },
+  )
+
+  const outcome = await upload(run)
+
+  assert.equal(outcome.revision, 1)
+  onlyPut(run)
+})
+
+test('a retry of the catalogued version is not re-checked', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  await upload(run)
+  run.server.state.catalogue.push({
+    slug: 'upload-test',
+    version: VERSION,
+    heroHash: await heroDigest(),
+  })
+
+  const outcome = await upload(run)
+
+  assert.equal(outcome.alreadyStored, true)
 })

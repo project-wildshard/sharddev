@@ -13,6 +13,7 @@ import { uploadShardfile } from './upload/upload.ts'
 import { readVersion } from './version.ts'
 
 import type { CliArgs } from './args.ts'
+import type { Channel } from './upload/api.ts'
 import type { Provenance } from './upload/provenance.ts'
 import type { UploadOptions } from './upload/upload.ts'
 
@@ -49,13 +50,17 @@ Commands:
                        shard as current. WARNING: use it ONLY when those
                        images show the current content; a wrong stamp
                        hides a stale hero from the cut
-  upload <shardfile> [--server <url>] [--level <n>]
-         [--version <X.Y.Z>] [--commit <sha>]
+  upload <shardfile> --channel staging|prod [--server <url>]
+         [--level <n>] [--version <X.Y.Z>] [--commit <sha>]
                        Check a shardfile tarball, compress it (Brotli level
                        <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and upload it to
-                       api-server with its shard version (default: the
-                       shard project's package.json version) and commit
-                       (default: git HEAD of a clean tree). Prints the
+                       api-server for the channel it names (required; prod
+                       is production) with its shard version (default: the
+                       shard project's package.json version), commit
+                       (default: git HEAD of a clean tree) and the
+                       sharddev, engine and shard-format versions it was
+                       built with. Refuses a hero unchanged since the
+                       slug's newest version (run hero first). Prints the
                        API's version, formatVersion and migrations. Reads
                        WILDSHARD_API_URL when --server is absent,
                        WILDSHARD_CREATOR_PRIVATE_KEY, and
@@ -131,30 +136,55 @@ async function provenanceOf(args: CliArgs): Promise<Provenance | string> {
   }
 }
 
-/** Everything but the shard version and commit, or what is wrong. */
-function uploadSettings(
-  args: CliArgs,
-): Omit<UploadOptions, keyof Provenance> | string {
+/** `--channel`'s wire name (J301): `prod` is the channel `production`. */
+const CHANNELS: Readonly<Record<string, Channel>> = {
+  staging: 'staging',
+  prod: 'production',
+}
+
+/** The upload's channel by its wire name, if `--channel` names one. */
+function channelOf(raw: string | undefined): Channel | undefined {
+  return raw !== undefined && Object.hasOwn(CHANNELS, raw)
+    ? CHANNELS[raw]
+    : undefined
+}
+
+function channelRefusal(raw: string | undefined): string {
+  const given = raw === undefined ? '' : `, not --channel ${raw}`
+  return `upload needs --channel staging or --channel prod${given}`
+}
+
+type Connection = Omit<UploadOptions, keyof Provenance | 'file' | 'channel'>
+
+/** The level, server and key, or what is wrong. */
+function connectionOf(args: CliArgs): Connection | string {
   const level = parseLevel(args.level)
   const server = args.server ?? ENV['WILDSHARD_API_URL'] ?? ''
   const privateKey = ENV['WILDSHARD_CREATOR_PRIVATE_KEY'] ?? ''
-  if (args.operand === undefined) {
-    return 'upload needs a shardfile'
-  }
   if (level === undefined) {
     return `invalid --level ${String(args.level)}`
   }
   if (server === '' || privateKey === '') {
     return 'upload needs --server (or WILDSHARD_API_URL) and WILDSHARD_CREATOR_PRIVATE_KEY'
   }
-  return {
-    file: args.operand,
-    server,
-    privateKey,
-    level,
-    report: reportLine,
-    ...bypassOption(),
+  return { server, privateKey, level, report: reportLine, ...bypassOption() }
+}
+
+/** Everything but the provenance, or what is wrong. */
+function uploadSettings(
+  args: CliArgs,
+): Omit<UploadOptions, keyof Provenance> | string {
+  const channel = channelOf(args.channel)
+  if (args.operand === undefined) {
+    return 'upload needs a shardfile'
   }
+  if (channel === undefined) {
+    return channelRefusal(args.channel)
+  }
+  const connection = connectionOf(args)
+  return typeof connection === 'string'
+    ? connection
+    : { file: args.operand, channel, ...connection }
 }
 
 /** The upload's settings from flags and environment, or what is wrong. */

@@ -44,6 +44,16 @@ async function wildshard(
   return { code: closed[0], stdout: await stdout }
 }
 
+/** J301, J306: the channel, and the versions the installed copy resolves. */
+function assertBuiltWith(commit: unknown): void {
+  const xyz = /^\d+\.\d+\.\d+$/u
+  assert.ok(typeof commit === 'object' && commit !== null)
+  assert.equal(Reflect.get(commit, 'channel'), 'staging')
+  assert.match(String(Reflect.get(commit, 'sharddev')), xyz)
+  assert.match(String(Reflect.get(commit, 'engine')), xyz)
+  assert.match(String(Reflect.get(commit, 'shardFormat')), xyz)
+}
+
 test('an installed wildshard packs a real product and uploads it', async (context: TestContext): Promise<void> => {
   const server = await openUploadServer(context)
   const tar = path.join(dir, 'real.tar')
@@ -62,6 +72,8 @@ test('an installed wildshard packs a real product and uploads it', async (contex
       '1.0.0',
       '--commit',
       'a'.repeat(40),
+      '--channel',
+      'staging',
     ],
     key,
   )
@@ -72,6 +84,7 @@ test('an installed wildshard packs a real product and uploads it', async (contex
     [...server.state.revisions.values()],
     [{ revision: 1, version: '1.0.0' }],
   )
+  assertBuiltWith(server.state.commits[0])
 })
 
 test('an installed wildshard refuses a product a server would', async (): Promise<void> => {

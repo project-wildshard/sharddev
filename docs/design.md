@@ -59,14 +59,22 @@ unlisted. Both are rows in `docs/plans/`.
 
 ## Upload
 
-`sharddev upload <shardfile> [--server <url>] [--level <n>]` sends a
-built shardfile to `api-server`, whose `docs/design.md` owns the
-protocol. J96 puts the compression here; the server only checks and
-stores.
+`sharddev upload <shardfile> --channel staging|prod [--server <url>]
+[--level <n>]` sends a built shardfile to `api-server`, whose
+`docs/design.md` owns the protocol. J96 puts the compression here; the
+server only checks and stores. `--channel` has no default (J301): a
+missing or other value refuses before the file is read, and `prod` goes
+on the wire as `production`. The commit also names the sharddev, engine
+and shard-format versions the shard was built with (J306): engine's and
+shard-format's from the nearest `node_modules` at or above the shard
+project, else the copy this sharddev carries.
 
 1. **Check.** The tarball goes through format's
    `validateShardfileProduct`, as the server's commit does, so a bad
-   shardfile costs seconds, not a Brotli pass and an upload.
+   shardfile costs seconds, not a Brotli pass and an upload. Then the
+   hero pre-check: when `GET /api/catalogue` carries the slug's
+   `heroHash` (meta SHARD-AUTHORING UP4) and it equals this card's
+   digest, a new version refuses here and names `wildshard hero`.
 2. **Sign.** Ed25519 over the raw 32 bytes of the tarball's SHA-256
    (J69), with `WILDSHARD_CREATOR_PRIVATE_KEY` (base64 PKCS#8).
 3. **Already there?** `GET /api/shardfiles` lists stored hashes, so a

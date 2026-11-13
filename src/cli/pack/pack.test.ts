@@ -145,6 +145,10 @@ test('what pack writes, upload sends', async (context: TestContext): Promise<voi
     level: 5,
     version: '0.0.1',
     commit: 'c'.repeat(40),
+    channel: 'staging',
+    sharddev: '0.2.2',
+    engine: '0.1.13',
+    shardFormat: '0.4.4',
     report: (): void => undefined,
   })
 

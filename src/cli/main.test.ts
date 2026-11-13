@@ -24,6 +24,7 @@ function cli(
 }
 
 const PROVENANCE = ['--version', '0.0.1', '--commit', 'c'.repeat(40)]
+const CHANNEL = ['--channel', 'staging']
 
 describe('the sharddev CLI', (): void => {
   it('prints the package version for --version', async (): Promise<void> => {
@@ -72,15 +73,25 @@ describe('the upload command', (): void => {
     assert.match(run.stderr, /upload needs a shardfile/u)
   })
 
-  it('needs a server and a key to upload', (): void => {
+  it('needs --channel staging or prod (J301)', (): void => {
     const run = cli(['upload', 'shard.tar'])
+
+    assert.equal(run.status, 1)
+    assert.match(
+      run.stderr,
+      /upload needs --channel staging or --channel prod/u,
+    )
+  })
+
+  it('needs a server and a key to upload', (): void => {
+    const run = cli(['upload', 'shard.tar', ...CHANNEL])
 
     assert.equal(run.status, 1)
     assert.match(run.stderr, /WILDSHARD_CREATOR_PRIVATE_KEY/u)
   })
 
   it('refuses a level Brotli does not have', (): void => {
-    const run = cli(['upload', 'shard.tar', '--level', '12'])
+    const run = cli(['upload', 'shard.tar', '--level', '12', ...CHANNEL])
 
     assert.equal(run.status, 1)
     assert.match(run.stderr, /invalid --level 12/u)
@@ -93,6 +104,7 @@ describe('the upload command', (): void => {
       '--server',
       'http://127.0.0.1:9',
       ...PROVENANCE,
+      ...CHANNEL,
     ]
     const run = cli(args, { WILDSHARD_CREATOR_PRIVATE_KEY: 'unused' })
 
@@ -118,7 +130,7 @@ async function dirtyProject(): Promise<string> {
 
 describe("the upload's shard version and commit (AC16)", (): void => {
   const key = { WILDSHARD_CREATOR_PRIVATE_KEY: 'unused' }
-  const server = ['--server', 'http://127.0.0.1:9']
+  const server = ['--server', 'http://127.0.0.1:9', ...CHANNEL]
 
   it('refuses a dirty shard project before any request', async (): Promise<void> => {
     const dir = await dirtyProject()

@@ -1,5 +1,13 @@
 import { installFormatHook } from '@wildshard/format/formatHook'
-import { array, intersect, object, string, unknown } from 'valibot'
+import {
+  array,
+  intersect,
+  nullable,
+  object,
+  optional,
+  string,
+  unknown,
+} from 'valibot'
 
 import type { UploadResult } from '@wildshard/format/uploadWire'
 import type { GenericSchema } from 'valibot'
@@ -30,14 +38,26 @@ interface CommitAnswer extends UploadResult {
   readonly version: string
   readonly formatVersion: string
   readonly migrations: readonly unknown[]
+  /** UP2's echo of the channel and the versions; absent before it. */
+  readonly channel?: string | null | undefined
+  readonly engine?: string | null | undefined
+  readonly sharddev?: string | null | undefined
+  readonly shardFormat?: string | null | undefined
 }
 
 const MigrationsSchema = array(unknown())
+
+/** A string the API may leave out, or send as null. */
+const EchoSchema = optional(nullable(string()))
 
 const CommitFieldsSchema = object({
   version: string(),
   formatVersion: string(),
   migrations: MigrationsSchema,
+  channel: EchoSchema,
+  engine: EchoSchema,
+  sharddev: EchoSchema,
+  shardFormat: EchoSchema,
 })
 
 const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
@@ -45,8 +65,30 @@ const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
   CommitFieldsSchema,
 ])
 
+/**
+ * `GET /api/catalogue`, as far as the hero pre-check reads it: each slug's
+ * newest version and, once UP4 is live, its hero digest.
+ */
+interface CatalogueShard {
+  readonly slug: string
+  readonly version?: string | null | undefined
+  readonly heroHash?: string | null | undefined
+}
+
+const CatalogueShardSchema = object({
+  slug: string(),
+  version: EchoSchema,
+  heroHash: EchoSchema,
+})
+
+const CatalogueSchema: GenericSchema<{
+  readonly shards: readonly CatalogueShard[]
+}> = object({ shards: array(CatalogueShardSchema) })
+
 export {
+  type CatalogueShard,
   type CommitAnswer,
+  CatalogueSchema,
   CommitAnswerSchema,
   DirectUploadTicketSchema,
   ErrorBodySchema,
