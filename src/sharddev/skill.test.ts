@@ -54,8 +54,9 @@ describe('the wildshard skills', () => {
   it('marks what is not built yet as the guide does', () => {
     expect(skill).toMatch(/Not built yet \(SA15\)/u);
     expect(skill).toMatch(/not built yet \(SA36, SA37\)/u);
-    // J314 Q27 retired the verb `upgrade`; the pin move is `update --pins` (SA18), not built yet.
-    expect(skills.get('wildshard-upgrade')).toMatch(/`wildshard update --pins` is not built yet \(SA18\)/u);
+    // J314 Q27 retired the verb `upgrade`; the pin move is `update --pins` (SA18).
+    expect(skills.get('wildshard-upgrade')).toMatch(/`wildshard update --pins` does the move/u);
+    expect(skills.get('wildshard-upgrade')).not.toMatch(/not built yet/u);
   });
 
   it('ships in the package and is written by new, byte for byte, for every template', () => {

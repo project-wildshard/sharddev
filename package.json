@@ -13,6 +13,7 @@
   "files": [
     "GUIDE.md",
     "skills",
+    "codemods",
     "bin",
     "src",
     "!src/**/*.test.*",

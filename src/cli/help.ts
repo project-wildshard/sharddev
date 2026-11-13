@@ -24,14 +24,17 @@ const VERBS: Readonly<Record<string, string>> = {
                        blender copies the hand-written Blender template
                        (a shard file folder, no code). --empty writes a
                        bare shard source instead`,
-  update: `update [dir]
+  update: `update [dir] [--pins[=<version>]]
                        Rewrite GUIDE.md and the four wildshard skills in
                        .claude/skills/ from the installed sdk (dir: the
                        shard repo, default the current folder). Adds the
                        .agents/skills links, AGENTS.md and CLAUDE.md if
                        missing; touches nothing else, and leaves an
-                       AGENTS.md you changed (it says so). Run it after
-                       moving to a newer sdk. --pins is not built yet`,
+                       AGENTS.md you changed (it says so). --pins first
+                       moves the repo to a newer sdk (npm's latest, or
+                       --pins=<version>): moves the pins, runs pnpm
+                       install, applies the release's codemods, then
+                       runs the new sdk's update and check`,
   dev: `dev <source> [port]
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on

@@ -22,6 +22,7 @@ import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
 import { updateShardRepo } from './agentFiles';
+import { updatePins } from './updatePins';
 import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
@@ -82,11 +83,14 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     return;
   }
   if (command === 'update') {
-    // SA28 (J314 Q7, Q27): one verb; `update --pins` (SA18) will also move the pins, install and run the build.
-    const rest = args.slice(1);
-    if (rest.includes('--pins')) throw new Error('update --pins is not built yet (SA18): move the pins by hand (the wildshard-upgrade skill), then run wildshard update');
-    if (rest.length > 1 || rest.some(value => value.startsWith('-'))) throw new Error('usage: wildshard update [dir]');
-    for (const line of updateShardRepo(resolve(rest[0] ?? '.'))) console.info(line);
+    // SA28 (J314 Q7, Q27): one verb. SA18: `--pins[=<version>]` also moves the pins, installs, applies the release's
+    // codemods and runs check (updatePins.ts); with no version it takes npm's latest.
+    const rest = args.slice(1), pins = rest.filter(value => value === '--pins' || value.startsWith('--pins='));
+    const positional = rest.filter(value => !pins.includes(value)), version = pins[0]?.startsWith('--pins=') === true ? pins[0].slice('--pins='.length) : 'latest';
+    if (pins.length > 1 || version === '' || positional.length > 1 || positional.some(value => value.startsWith('-'))) throw new Error('usage: wildshard update [dir] [--pins[=<version>]]');
+    if (pins.length === 1 && /^\d+\.\d+\.\d+/u.test(positional[0] ?? '') && !existsSync(resolve(positional[0] ?? ''))) throw new Error(`usage: wildshard update [dir] [--pins[=<version>]]: name a version as --pins=${positional[0] ?? ''}`);
+    if (pins.length === 1) { await updatePins(resolve(positional[0] ?? '.'), version); return; }
+    for (const line of updateShardRepo(resolve(positional[0] ?? '.'))) console.info(line);
     return;
   }
   if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] (wildshard --help lists them all)');

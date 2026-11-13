@@ -10,38 +10,29 @@ blender` repo pins only the first two, as dev dependencies (`GUIDE.md#2-the-shar
 moves every pin together, then the shard source must build again on them. `GUIDE.md` at the repo root holds the
 facts; a pointer `GUIDE.md#<anchor>` is the guide heading with that anchor.
 
-**`wildshard update --pins` is not built yet (SA18).** It will move the pins, install, apply the release's code
-changes, rewrite the guide and skills, and run the build (`GUIDE.md#7-wildshard-update`). Until it is built, do the
-steps below by hand.
+`wildshard update --pins` does the move in one command (`GUIDE.md#7-wildshard-update`): it moves every pin to the
+release, runs `pnpm install`, applies the release's codemods, rewrites the guide and skills, and runs check.
 
 ## The steps, in order
 
 1. **Start clean.** Commit your own changes, then `wildshard check .` on the old pins; if it fails, fix that first.
    Done when `git status` is clean and check passes, so any later refusal is the upgrade's.
-2. **Read the new pins** from the newer sdk's own `package.json`: its `version` is the `@wildshard/sdk` pin, and its
-   `dependencies` hold the `@wildshard/engine`, `@wildshard/format` and `three` specs (engine and format are
-   `github:` specs, not numbers). Today the sdk runs from a sharddev checkout, not npm (the guide's opening "Running
-   `wildshard` today", `GUIDE.md#the-shard-authors-guide`). Done when you have each spec, copied verbatim.
-3. **Edit the pins** in this repo's `package.json` to those exact specs: no `^`, no `~`. Done when every pin matches.
-4. **Install:** `pnpm install`. A dependency's install script runs only if `pnpm-workspace.yaml` lists it
-   (`GUIDE.md#2-the-shard-source`). Done when install exits 0 and `pnpm-lock.yaml` changed.
-5. **Refresh the guide and skills** with the new sdk's CLI (point the `wildshard` alias at the newer checkout, or
-   `pnpm exec wildshard` after step 4): `wildshard update`. It rewrites `GUIDE.md` and the four skills in
-   `.claude/skills/`, adds any agent file the repo lacks, and keeps an `AGENTS.md` you changed
-   (`GUIDE.md#7-wildshard-update`). Then reread this skill: the new copy may differ. Done when update's first line
-   names the new sdk version and `git status` shows only those files and the step 3 and 4 files.
-6. **Build:** `wildshard check .` (`GUIDE.md#1-the-loop`). Done when `wildshard --version` prints the new sdk
-   version and the last line reads `check pass`.
-7. **Read each refusal.** It ends `[<rule>] fix: ... (GUIDE.md#<anchor>)`: read that heading under
-   `GUIDE.md#6-refusals-and-their-fixes`, in the guide update wrote in step 5, make the fix, and run check again. A
-   budget can tighten between releases (`GUIDE.md#3-budgets`); a lint rule can be new. Done at `check pass`.
-8. **Commit** the pins, the lock file, the guide, the skills, any agent file update added and your fixes together.
-   Done when `git status` is clean.
+2. **Move:** `pnpm exec wildshard update --pins` for npm's latest sdk, or `--pins=<version>` for one release. If the
+   installed CLI refuses the flag (an sdk older than `--pins`), run the newest once:
+   `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`. Done when it prints a line per pin it moved.
+3. **Read its last line.** `on @wildshard/sdk <version>, check pass` means the move is done: go to step 5. A line
+   ending `[update-pins] fix: ...` is a refusal: read `GUIDE.md#update-pins` in the guide now in the repo.
+4. **Fix each refusal check printed.** It ends `[<rule>] fix: ... (GUIDE.md#<anchor>)`: read that heading under
+   `GUIDE.md#6-refusals-and-their-fixes`, make the fix, and run `wildshard check .` again. A budget can tighten
+   between releases (`GUIDE.md#3-budgets`); a lint rule can be new. Done at `check pass`.
+5. **Reread this skill:** step 2 rewrote it, and the new copy may differ. Done when you have read the new copy.
+6. **Commit** `package.json`, `pnpm-lock.yaml`, the guide, the skills, any agent file update added, any codemod edit
+   and your fixes together. Done when `git status` is clean.
    A new sdk can change what the shard looks like, so before the next upload follow the `wildshard-goldens` skill.
 
 ## Rules
 
-- Move the pins together, never one alone: the sdk is built and tested against the others it names.
+- Move the pins together, never one alone: the sdk is built and tested against the others it names. `--pins` does.
 - Fix the shard source to the new rules; do not pin an older piece to dodge a refusal.
 - If check fails on a shard source you did not change and the refusal's fix does not apply, go back to the old pins
   and report the message.

@@ -102,7 +102,7 @@ function sdkVersion(root: string): string {
 }
 
 /** A shard repo is a folder whose package.json lists `@wildshard/sdk` (`new` writes it; a blender repo as a dev dependency). */
-function assertShardRepo(project: string): void {
+export function assertShardRepo(project: string): void {
   const file = resolve(project, 'package.json');
   let parsed: unknown;
   try { parsed = existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined; }

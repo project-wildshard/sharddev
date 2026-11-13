@@ -4,7 +4,7 @@ import { build } from 'vite';
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
 import { captureProductInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { basename, resolve } from 'node:path';
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
@@ -38,7 +38,13 @@ export function prepareWildshard() {
   // Resolver policy is executable compiler input too: a source-only cache hit
   // must not replay a bundle built before an externalization change.
   const policy = createHash('sha256').update(readFileSync(import.meta.filename)).digest('hex');
-  return authorBundleCached(root,[shardfileValidationRevision(root),policy],async()=>{
+  // SA18: which installed sdk is compiling is an input too. Receipts skip node_modules and paths outside the repo, and
+  // this file is byte-identical across releases, so without its root and version a repo that moved to a newer sdk with
+  // the same shard-format replayed the old sdk's bundle. (A sharddev checkout run from another folder is still keyed
+  // only by its path: edits to it outside that folder are not seen.)
+  const sdkRoot = realpathSync(resolve(import.meta.dirname, '..'));
+  const sdk = `${sdkRoot}@${JSON.parse(readFileSync(resolve(sdkRoot, 'package.json'), 'utf8')).version}`;
+  return authorBundleCached(root,[shardfileValidationRevision(root),policy,sdk],async()=>{
     const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()), 'import.meta.dirname': JSON.stringify(resolve(import.meta.dirname, '../src/sharddev')) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', resolveId(id) {
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
       if (id === 'sharp' || id === 'binaryen' || id === '@typescript/typescript6' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(authorRequire.resolve(id)).href, external: true };

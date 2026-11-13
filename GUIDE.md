@@ -53,7 +53,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | Verb | What it is for |
 |---|---|
 | `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` copies the hand-written Blender template (below); any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
-| `wildshard update [dir]` | Rewrite this guide and the four `wildshard` skills from the installed sdk, after you move to a newer one (section 7) |
+| `wildshard update [dir] [--pins[=<version>]]` | Rewrite this guide and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). **Not built yet** for an installed sdk (SA15) |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
@@ -345,8 +345,27 @@ that folder, or name it: `wildshard update my-shard`.
 
 #### update-pins
 
-`wildshard update --pins` (SA18) is not built yet. Move the pins by hand as the `wildshard-upgrade` skill says, then
-run `wildshard update` with no flag.
+`wildshard update --pins` stopped. The line above says why. If it stopped before its codemods were done, it has
+already put `package.json` and `pnpm-lock.yaml` back and installed the old sdk again (it says `back on
+@wildshard/sdk <old>`), so after the fix run `wildshard update --pins` again; `git diff` shows any edit a codemod made
+before it stopped.
+
+- `npm has no @wildshard/sdk@<version>`, `npm gave no version` or `pnpm view ... failed`: name a version npm lists
+  (`pnpm view @wildshard/sdk versions`), or check your network.
+- `moves forward only`: the repo is already on a newer sdk than the one you named. To go back, edit the pins in
+  `package.json` by hand and run `pnpm install`.
+- `names <manager> as its package manager`: `--pins` installs with pnpm; set `packageManager` to the
+  `pnpm@...` that `new` writes, or move the pins by hand as the `wildshard-upgrade` skill says.
+- `cannot tell which sdk ... is on`: pin `@wildshard/sdk` to a version, not `link:` or `file:`.
+- `pins @wildshard/sdk <a> but has <b> installed`: run `pnpm install` and `wildshard check .` on the pins you have,
+  then `--pins` again.
+- `pnpm install failed`, `pnpm installed ...` or `pins three ...`: the install did not give the versions the release
+  names. Read pnpm's output above it.
+- `codemod <version>.mjs failed`: the release's codemod could not change your shard source. Report the message with
+  the sdk versions; stay on the old pins until a fixed release.
+- `its wildshard update failed`: the pins moved; run `pnpm exec wildshard update`, then `wildshard check .`.
+- `check failed`: the pins moved and the install worked, but the shard source does not pass on the new sdk. Fix each
+  refusal check printed above it, then run `wildshard check .` again.
 
 #### update-refused
 
@@ -891,5 +910,23 @@ keep your own notes for agents in `AGENTS.md`, never in this guide or a skill: `
 prints `already up to date` or the files it wrote, and `git status` shows only `GUIDE.md`, `.claude/skills/` and any
 agent file it added.
 
-`wildshard update --pins` (SA18) is not built yet: it will also move the sdk, shard-format and `three` versions,
-install, apply the release's code changes and run the build.
+`wildshard update --pins` moves the repo to a newer sdk release first: npm's latest, or the one you name with
+`--pins=<version>` (`--pins=0.2.4`). In order, it:
+
+1. reads the release from npm (`pnpm view`) and refuses one older than the repo's sdk;
+2. moves every pin `package.json` lists to what that release names: `@wildshard/sdk` to the release,
+   `@wildshard/format`, `@wildshard/engine` and `three` to the exact specs it pins, and `engines.node` to the Node it
+   needs. It changes nothing else in the file and prints each move;
+3. runs `pnpm install`, and refuses if pnpm did not install that sdk and, when the repo lists `three`, that `three`;
+4. applies the release's codemods: each `codemods/<version>.mjs` the new sdk ships, for every version above the old
+   sdk and up to the new one, oldest first. A codemod edits your shard source for a change that would otherwise
+   break it, and prints what it changed;
+5. runs the new sdk's own `wildshard update`, which rewrites this guide and the skills as above;
+6. runs the new sdk's `wildshard check .`.
+
+If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and installs the old sdk again. Start from a
+clean `git status`: a codemod edits your files. Done when its last line reads `on @wildshard/sdk <version>, check
+pass`. Commit `package.json`, `pnpm-lock.yaml`, the
+guide, the skills and any codemod edit together. A refusal is `update-pins` (section 6). An sdk older than the one
+that built `--pins` refuses the flag; run the newest CLI once instead:
+`pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`.

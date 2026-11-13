@@ -149,7 +149,7 @@ describe('wildshard update and the agent files (SA28)', () => {
     expect(projectPerformancePolicy(resolve(project, 'src'), source, project)).toBe('warn');
   });
 
-  it('runs as `wildshard update [dir]` and refuses a folder that is not a shard repo, and --pins', async () => {
+  it('runs as `wildshard update [dir]` and refuses a folder that is not a shard repo', async () => {
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { empty: true });
     rmSync(resolve(project, 'GUIDE.md'));
@@ -161,7 +161,6 @@ describe('wildshard update and the agent files (SA28)', () => {
     expect(readFileSync(resolve(project, 'GUIDE.md'), 'utf8')).toBe(readFileSync(GUIDE_SOURCE, 'utf8'));
     cpSync(resolve(project, 'src'), resolve(scratch, 'loose'), { recursive: true });
     await expect(runCli(['update', resolve(scratch, 'loose')])).rejects.toThrow(/is not a shard repo[\s\S]*\[update-target\] fix: .*GUIDE\.md#update-target/u);
-    await expect(runCli(['update', project, '--pins'])).rejects.toThrow(/\[update-pins\] fix: .*GUIDE\.md#update-pins/u);
     await expect(runCli(['update', project, 'extra'])).rejects.toThrow(/usage: wildshard update \[dir\]/u);
     await expect(runCli(['update', '-x'])).rejects.toThrow(/usage: wildshard update \[dir\]/u);
     writeFileSync(resolve(project, 'package.json'), '{ not json');
