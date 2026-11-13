@@ -18,13 +18,15 @@ production) each one moves. The **hero** is the shard's card: three images (thum
 landscape) shown on SHARD SELECT. A **budget** is a limit on what the shard costs a player (section 3). A **refusal**
 is a command stopping with a rule id, a fix and a link into section 6.
 
-**Running `wildshard` today.** The real `@wildshard/sdk` is not on npm yet: the npm copy is a README-only placeholder
-(NPM-PUBLISH NP4 publishes the real one). Until then, run the CLI from a checkout of
-`github.com/project-wildshard/sharddev`, for example `alias wildshard='node /path/to/sharddev/bin/wildshard.mjs'`.
-This guide writes `wildshard <verb>`. `wildshard --help` lists every verb; `wildshard <verb> --help` prints one.
-`wildshard --version` prints the sdk, engine, shard-format and `three` versions. `new` writes a `package.json` that pins
-`@wildshard/sdk`, shard-format, engine and `three` exactly; once the sdk is on npm, `pnpm install` then
-`pnpm exec wildshard <verb>` runs the copy it pins. Add npm packages of your own with `pnpm add <name>`.
+**Running `wildshard` today.** Install the published SDK with `pnpm add @wildshard/sdk`, then run
+`pnpm exec wildshard <verb>`. The intended npm command is `npm install @wildshard/sdk`, but the current release
+fails with `EUNSUPPORTEDPROTOCOL`: npm prepares its git-hosted engine dependency and cannot read engine's `link:`
+devDependency. Use pnpm until NPM-PUBLISH NP7 publishes the dependency switch.
+This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
+`wildshard <verb> --help` prints one. `wildshard --version` prints the sdk, engine, shard-format and `three` versions.
+`new` writes a `package.json` that pins `@wildshard/sdk`, shard-format, engine and `three` exactly;
+run `pnpm install` in the new project, then `pnpm exec wildshard <verb>` to use the copy it pins.
+Add npm packages of your own with `pnpm add <name>`.
 
 ## 1. The loop
 

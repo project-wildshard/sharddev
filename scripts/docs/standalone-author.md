@@ -5,15 +5,25 @@ Use **Node 24 LTS**, npm 10 or newer and a POSIX shell (macOS/Linux or Windows W
 The reference generators are ordinary retained TypeScript. Blender is optional; Python,
 Herdr and the repository's bake scripts are not author prerequisites.
 
-## Install a matched release
+## Install from npm
 
-Until registry publication, a release consists of **three version-matched local tarballs**:
-SDK, format and commons. Get all three from one release; do not invent registry versions
-or install workspace source aliases. The SDK archive includes both compiled clients,
-its native worker, portable declarations, the CLI and the author reference sources.
-Format supplies the defining schemas; commons supplies build-time packs.
+For the current author workflow, run `pnpm add @wildshard/sdk` and
+`pnpm exec wildshard new my-shard`. The intended npm command is
+`npm install @wildshard/sdk`; it fails with `EUNSUPPORTEDPROTOCOL`
+until NPM-PUBLISH NP7 removes the SDK's git dependencies. Follow
+[the author guide](../../GUIDE.md) for project installation, checking
+and upload.
 
-From an empty directory called `author-outpost`, with the archives in `../release/`:
+The sections below describe the retained OS-F10 tarball proof for maintainers.
+Its bootstrap, commons package and archive-producing commands are historical
+proof inputs, rather than the current SDK install path.
+
+## Maintainer-only tarball bootstrap (OS-F10)
+
+The retained proof needs three version-matched local archives: SDK,
+format and commons. Get all three from the same historical release.
+From an empty `author-outpost` directory, with the archives in
+`../release/`:
 
 ```sh
 npm init -y
@@ -25,11 +35,11 @@ npm install --save-dev typescript@7.0.2 @types/node@24.13.6 @types/three@0.186.0
 node node_modules/@wildshard/sdk/dist/author-template/bootstrap.mjs .
 ```
 
-Archive filenames track the actual release version; the current development version is
-`0.0.0`. The overrides make internal SDK/format dependencies use those exact local
-archives, rather than an unrelated registry copy. Bootstrap preserves the installed
-dependencies and refuses to overwrite existing authored inputs. Do not use `--ignore-scripts`
-for installation: native build-tool dependencies need their normal platform setup.
+Use the actual archive versions. Bootstrap preserves installed
+dependencies and refuses to overwrite authored inputs. These commands
+require the historical archives with that bootstrap; the current SDK
+uses `wildshard new` instead. Keep installation scripts enabled for
+native build tools.
 
 ## Inspect, generate, build and play
 
@@ -123,7 +133,7 @@ After producing the matched archives, the retained milestone proof runs the cons
 The `format` archive comes from `pnpm pack` in the `project-wildshard/shard-format` clone, at the tag the SDK pins:
 
 ```sh
-node scripts/docs/proof-standalone.mjs release /tmp/fresh-author-proof
+node scripts/docs/proof-standalone.mjs release tmp/standalone-proof
 ```
 
 The destination must not exist. It installs actual archives, refuses checkout links, copies the retained

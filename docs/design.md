@@ -156,8 +156,11 @@ the whole-tarball one above.
 
 ## Dependencies
 
-- `engine`, by git tag (`github:project-wildshard/<repo>#vX.Y.Z`)
-- `shard-format` (`@wildshard/format`, the package `@wildshard/shard-format` under its old key until engine renames its imports, meta J308), by git tag (`github:project-wildshard/shard-format#v0.4.9`), locked with pnpm 10.26+
+- Shard authors install this package with `npm install @wildshard/sdk`.
+  `docs/dev.md` records the temporary pnpm fallback until NP7 ships.
+- `package.json` and the lockfile name the engine and format versions.
+  Format keeps the `@wildshard/format` import key until J308 completes.
+  NPM-PUBLISH NP7 moves the SDK's own dependency specs to npm.
 
 ## Boundaries the checks enforce
 

@@ -249,9 +249,13 @@ loader: `node --test test/ci/generation-cli.test.mjs`.
 - Every function has an explicit return type. `src/.oxlintrc.json` denies
   every category (D28); disable a rule only with a one-line reason beside it.
 - Pin dependencies exactly (`.npmrc` has `save-exact=true`).
-- Other Wildshard repos are git dependencies pinned by tag
-  (`github:project-wildshard/<repo>#vX.Y.Z`). They are private, so CI reads
-  them with the org GitHub App token.
+- Public Wildshard packages come from npm (meta J315). Use pnpm to
+  update this repo's `package.json` and `pnpm-lock.yaml`.
+- In a new author project, the npm command is
+  `npm install @wildshard/sdk`.
+  Until NPM-PUBLISH NP7 removes the SDK's git dependencies, npm
+  refuses with `EUNSUPPORTEDPROTOCOL`; use `pnpm add @wildshard/sdk`
+  and `pnpm exec wildshard` during that transition.
 - Tests use real things (git in temp dirs, real files and processes); never
   mock git. No LLM, `claude`, herdr or network in tests.
 
