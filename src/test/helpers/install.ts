@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 
 import { object, parse, record, string } from 'valibot'
 
-import { shardfileFiles } from './shardfile.ts'
+import { prepareFolder, shardfileFiles } from './shardfile.ts'
 
 // This package as an install lays it out: `pnpm pack`'s tarball, unpacked
 // under node_modules, beside only what it declares. pnpm doesn't do the
@@ -77,4 +77,17 @@ async function writeProduct(dir: string, name: string): Promise<string> {
   return folder
 }
 
-export { installWildshard, tempFolder, writeProduct }
+/**
+ * The product as `wildshard prepare` leaves it (sdk 0.3), from the fixture
+ * recording: upload refuses the draft `writeProduct` writes (J198).
+ */
+async function writePreparedProduct(
+  dir: string,
+  name: string,
+): Promise<string> {
+  const folder = await writeProduct(dir, name)
+  await prepareFolder(folder)
+  return folder
+}
+
+export { installWildshard, tempFolder, writePreparedProduct, writeProduct }

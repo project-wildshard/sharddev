@@ -11,6 +11,7 @@ import type { TestContext } from 'node:test'
 import {
   installWildshard,
   tempFolder,
+  writePreparedProduct,
   writeProduct,
 } from '../test/helpers/install.ts'
 import { openUploadServer } from '../test/helpers/upload-server.ts'
@@ -57,7 +58,8 @@ function assertBuiltWith(commit: unknown): void {
 test('an installed wildshard builds a real shard file and uploads it (SA3)', async (context: TestContext): Promise<void> => {
   const server = await openUploadServer(context)
   const tar = path.join(dir, 'real.tar')
-  const folder = await writeProduct(dir, 'real')
+  // J198: upload refuses the draft a bare build writes.
+  const folder = await writePreparedProduct(dir, 'real')
   const packed = await wildshard(['build', folder, tar])
   const key = {
     WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey,
