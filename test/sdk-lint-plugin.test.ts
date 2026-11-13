@@ -105,6 +105,27 @@ describe('wildshard-sdk/generator-imports in generators/ (denylist, J319)', () =
       .toBeNull();
   });
 
+  // Node resolves a relative specifier as a URL, so `./%2e%2e/` is `..` there (Vite refuses it unresolved), while
+  // path.resolve keeps `%2e%2e` as a folder name inside the shard. No author path needs one: refuse what the URL rewrites.
+  it('refuses paths a URL reads differently: percent-escapes, an encoded engine, backslashes, tabs, newlines', () => {
+    const data = '/repo/src/shards/meadow/data/a.ts';
+    for (const [filename, source] of [[generator, './%2e%2e/%2e%2e/other/generators/x'],
+      [generator, '../%2E./other/data/a.json'], [generator, './.%2e/%2E%2e/other/generators/x'],
+      [generator, '%2e%2e/%2e%2e/other/generators/x'], [data, './%2e%2e/%2e%2e/other/data/a.json'],
+      [generator, '..%2f..%2fother/generators/x'], [generator, './..%2F..%2Fother/generators/x'],
+      [generator, 'file:///repo/src/shards/meadow/..%2f..%2fother/generators/x.ts'],
+      [generator, '@wildshard/sdk%2fsrc/sharddev/immutable.ts'], [generator, '@wildshard/%65ngine'],
+      [generator, '@wildshard%2Fengine/host/immutable'], [generator, '@%77ildshard/engine?raw']] as const)
+      expect(refused(filename, source)).toMatch(/^generator-imports: .*percent-escape.*write the path plainly/u);
+    // The URL parser also reads `\\` as `/` and drops tabs and newlines; path.resolve keeps both.
+    for (const source of ['./..\\..\\other/generators/x', '..\\..\\other/generators/x', './.\t./.\t./other/generators/x',
+      './.\n./.\r./other/generators/x', './rows '])
+      expect(refused(generator, source)).toMatch(/^generator-imports: .*write the path plainly/u);
+    expect(refused(generator, 'file://host/repo/src/shards/meadow/data/a.json')).toMatch(/^generator-imports: .*file: URL/u);
+    for (const source of ['./rows?x=%2e', './rows/', '..', '.', '../data/', '@wildshard/sdk/scripts/x.mjs?worker&name=a%20b'])
+      expect(generatorImportViolation(generator, source), source).toBeNull();
+  });
+
   it('still requires a literal module path', () => {
     expect(refused(generator, '<computed>')).toMatch(/^generator-imports: .*literal module path/u);
   });

@@ -9,7 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { isBuiltin } from 'node:module';
 import { dirname, isAbsolute, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const RULE = 'generator-imports';
 // Not visible to a lint, left for later: `#` subpath imports and tsconfig `paths` aliases (they name no package), and
@@ -68,6 +68,15 @@ function cheat(source, local, required) {
   return null;
 }
 
+const plainly = (source) => `${RULE}: ${JSON.stringify(source)} names one file to Node (a URL) and another to Vite; `
+  + 'no percent-escape, backslash, tab, newline or edge space in an import path, write the path plainly';
+/** The file Node loads for relative `source` (a URL resolve), without a trailing slash; null when it cannot. */
+const nodePath = (filename, source) => {
+  try {
+    return fileURLToPath(new URL(source, pathToFileURL(resolve(filename)))).replaceAll('\\', '/').replace(/(?<=.)\/$/u, '');
+  } catch { return null; }
+};
+
 /** Why `source` may not be imported from `filename` under a shard's author folders, or null when it may. */
 export function generatorImportViolation(filename, rawSource, required = false) {
   // The last src/shards/ in the path names the shard, so a checkout under some other src/shards/ still matches.
@@ -79,10 +88,18 @@ export function generatorImportViolation(filename, rawSource, required = false) 
   // Node keeps a bare specifier's `?` in the subpath, so there the stripped path is only ever the stricter read.
   const postfix = rawSource.slice(1).search(/[?#]/u) + 1;
   const bare = postfix > 0 ? rawSource.slice(0, postfix) : rawSource;
-  const source = bare.startsWith('file:') ? fileURLToPath(bare) : bare;
+  // Node resolves a relative path as a URL (`./%2e%2e/` is `..`, `\\` is `/`, tabs and newlines drop out, `%2f` is
+  // refused) and Vite decodes nothing, while path.resolve keeps them all as folder names: the lint and build disagree.
+  if (/%[0-9a-f]{2}|[\\\t\n\r]/iu.test(bare)) return plainly(bare);
+  let source = bare;
+  if (bare.startsWith('file:')) {
+    try { source = fileURLToPath(bare); } catch { return `${RULE}: ${bare} is not a local file: URL; import a relative path`; }
+  }
   if (source === '<computed>') return `${RULE}: author imports require a literal module path; write the path as a string`;
   const root = path.slice(0, path.length - match[2].length);
   const local = source.startsWith('.') || isAbsolute(source) ? resolve(dirname(filename), source).replaceAll('\\', '/') : '';
+  // The catch-all for a rewrite not listed above: the path must name the same file as a URL (how Node loads it).
+  if (local !== '' && source.startsWith('.') && nodePath(filename, source) !== local) return plainly(bare);
   const denied = cheat(source, local, required);
   if (denied !== null) return denied;
   const own = local !== '' && local.startsWith(root);

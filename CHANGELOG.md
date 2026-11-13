@@ -29,6 +29,13 @@ the next version and date, commit and push it, then run repo-kit's
 - GUIDE.md and the refusal messages now say to export audio as AAC
   at 48 kHz in an `.m4a` file. The old advice offered WAV, which the
   audio check marks amber.
+- Fix: the `generator-imports` lint now accepts an exported sdk path
+  with a Vite query such as `?raw`; nalati's per-file override can be
+  dropped after upgrading.
+- Fix: the `generator-imports` lint now refuses an import path with a
+  percent-escape such as `%2e%2e` or `%2f`, a backslash, a tab or a
+  newline, which could reach another shard's files unnoticed. Write
+  the path plainly.
 
 ## v0.2.4 (2026-11-13)
 
