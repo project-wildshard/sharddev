@@ -72,13 +72,16 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   }
   if (command === 'check') {
     const rest = args.slice(1), json = rest.includes('--json'), positional = rest.filter(value => !value.startsWith('--'));
-    if (positional.length === 0 || positional.length > 2 || rest.some(value => value.startsWith('--') && value !== '--json') || rest.filter(value => value === '--json').length > 1) throw new Error('usage: wildshard check <source> [folder] [--json]');
+    // TS21: --output=<slug> checks one declared output of the folder (scripts/wildshard.mjs composes its manifest and, with
+    // no --output on a folder that declares outputs, checks each in turn).
+    const outputs = rest.filter(value => value.startsWith('--output=')), selected = outputs[0]?.slice('--output='.length);
+    if (positional.length === 0 || positional.length > 2 || rest.some(value => value.startsWith('--') && value !== '--json' && !value.startsWith('--output=')) || rest.filter(value => value === '--json').length > 1 || outputs.length > 1 || selected === '') throw new Error('usage: wildshard check <source> [folder] [--json] [--output=<slug>]');
     // --json: stdout carries the verdict document alone; everything the steps print goes to stderr.
     // (scripts/wildshard.mjs moves log and debug for the whole run; the steps here log with info and warn.)
     const saved = { info: console.info, warn: console.warn }, toError = console.error.bind(console);
     if (json) Object.assign(console, { info: toError, warn: toError });
     let result;
-    try { result = await checkProject(findShardSource(positional[0] ?? ''), positional[1], options); } finally { Object.assign(console, saved); }
+    try { result = await checkProject(findShardSource(positional[0] ?? ''), positional[1], selected === undefined ? options : { ...options, output: selected }); } finally { Object.assign(console, saved); }
     process.stdout.write(json ? `${JSON.stringify(result, null, 2)}\n` : `${checkLines(result).join('\n')}\n`);
     if (result.verdict === 'fail') process.exitCode = 1;
     return;

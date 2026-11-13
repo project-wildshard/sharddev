@@ -173,6 +173,9 @@ describe('a seeded set of bad shards through the real check (SA21)', () => {
     await expect(runCli(['new', taken])).rejects.toThrow(`[new-target] fix: ${REFUSAL_RULES.find(row => row.id === 'new-target')?.fix ?? ''} (${GUIDE_FILE}#new-target)`);
     await expect(runCli(['validate', resolve(scratch, 'nowhere', 'other.json')])).rejects.toThrow(`(${GUIDE_FILE}#usage)`);
     await expect(runCli(['build', taken, resolve(scratch, 'taken-out'), '--unknown-flag'])).rejects.toThrow('[usage] fix:');
+    // TS21: check takes one non-empty --output=<slug>.
+    await expect(runCli(['check', taken, '--output='])).rejects.toThrow('[usage] fix:');
+    await expect(runCli(['check', taken, '--output=a', '--output=b'])).rejects.toThrow('[usage] fix:');
     const product = resolve(scratch, 'not-a-product');
     mkdirSync(product);
     writeFileSync(resolve(product, 'shard.json'), '{}');

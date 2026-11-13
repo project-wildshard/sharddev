@@ -84,6 +84,27 @@ export async function runWildshard(args) {
     folder: output?.slug ?? folder, ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
     imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
+  // TS21: `check` on a folder that declares outputs (and no --output) checks each output with its own composed manifest,
+  // into <folder>/<slug> when a folder is named, and gives one verdict, as build-shards builds each output.
+  const declared = args[0] === 'check' && selected === undefined && project !== undefined && existsSync(resolve(project, 'shard.config.ts')) ? shardOutputs(root, folder) : null;
+  if (declared !== null) {
+    if (args.includes('--json')) throw new Error(`wildshard check: ${folder} declares ${declared.length} outputs; --json checks one: add --output=<slug>`);
+    const rest = args.slice(2), extra = rest.filter(arg => !arg.startsWith('--'));
+    if (extra.length > 1 || rest.some(arg => arg.startsWith('--'))) throw new Error('usage: wildshard check <source> [folder] [--json] [--output=<slug>]');
+    const [into] = extra, failed = [], before = process.exitCode;
+    for (const { slug } of declared) {
+      console.info(`== ${slug}`);
+      process.exitCode = undefined;
+      // A setup error (a missing manifest, a refused source) fails this output; the rest are still checked.
+      try { await runWildshard(['check', project, ...(into === undefined ? [] : [resolve(into, slug)]), `--output=${slug}`]); }
+      catch (error) { console.error(`${slug}: ${error instanceof Error ? error.message : String(error)}`); process.exitCode = 1; }
+      if (process.exitCode !== undefined && process.exitCode !== 0) failed.push(slug);
+    }
+    process.exitCode = before;
+    console.info(`check ${failed.length === 0 ? 'pass' : 'fail'}: ${declared.length} outputs${failed.length === 0 ? '' : `, failed: ${failed.join(', ')}`}`);
+    if (failed.length > 0) process.exitCode = 1;
+    return;
+  }
   const legacy = project === undefined ? undefined : decisionLegacyLines(root, folder);
   await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }), writeShardfile });
 }
