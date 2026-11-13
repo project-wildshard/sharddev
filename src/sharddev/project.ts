@@ -3,7 +3,7 @@ import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
 import { writeEmptyShardSource } from './newProject';
-import { shardFolderName, shardOutputRoot } from './shardSource';
+import { shardFolderName, shardOutputRoot, shardRepoRoot } from './shardSource';
 import { clientPage } from './clientPage';
 import { assertConfigBoundary } from './configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
@@ -322,7 +322,7 @@ async function withDiscovery(project: string, manifest: unknown, values: Discove
     if (!/^\.(?:jpe?g|png|webp|svg|hdr)$/u.test(extension)) return row;
     // `/src/shards/<folder>/x` names x in this shard source, whether it sits there or at a single-shard repo's src/ (SA17).
     const own = `src/shards/${shardFolderName(project)}/`;
-    const bytes = readFileSync(path.startsWith(own) ? resolve(project, path.slice(own.length)) : resolve(project, '../../..', path)), hash = hashAssetBytes(bytes), held = assets.has(hash);
+    const bytes = readFileSync(path.startsWith(own) ? resolve(project, path.slice(own.length)) : resolve(shardRepoRoot(project), path)), hash = hashAssetBytes(bytes), held = assets.has(hash);
     const url = `/shardfiles/${folder}/blobs/image/${hash}${extension}`;
     if (!held) mounts.set(url, bytes);
     art.set(url, bytes.length);

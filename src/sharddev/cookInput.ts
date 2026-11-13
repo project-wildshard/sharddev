@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author build reads the shard's folder and public/.
 import { resolve } from 'node:path';
 import * as v from 'valibot';
+import { shardRepoRoot } from './shardSource';
 import { AudioWaiverSchema, type AudioWaiver } from '@wildshard/format/audioWaiver';
 
 /** C0 (J137): what a product carries so it stands alone. The list is the shard's `mounts.json`, per output
@@ -32,7 +33,7 @@ export function readCookInput(project: string, slug: string): CookInput | undefi
   const json = (name: string): unknown => { const file = resolve(project, name); return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined; };
   const list = json('mounts.json'), fence = json('fence-reads.json'), packs = json('packs-set.json'), audioWaiver = readAudioWaiver(json('audio-waiver.json'), slug);
   const urls = list === undefined ? [] : v.parse(MountsSchema, list).outputs[slug] ?? [];
-  const publicRoot = resolve(project, '../../../public');
+  const publicRoot = resolve(shardRepoRoot(project), 'public');
   const mounts = urls.map(url => ({url, bytes: readFileSync(resolve(publicRoot, url.slice(1)))}));
   const set = packs === undefined ? undefined : v.parse(PacksSetSchema, packs).set;
   if (mounts.length === 0 && fence === undefined && set === undefined && audioWaiver === undefined) return undefined;

@@ -2,9 +2,10 @@
 // G508: normal generation job; reads only declared JSON, terrain and GLB data.
 import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { dirname, resolve, sep } from 'node:path';
+import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MapRaster } from '../src/sharddev/bake/mapRaster.ts';
+import { isRepoSource, shardFolderName } from '../src/sharddev/shardSource.ts';
 import { readMapGeometry, stylizeMap } from '@wildshard/engine/scripts/map-painter.mjs';
 import { MAP_METRES, mapPixelHash, mapSettingsPath, mapStampPath, mapShards, mapTilesHash } from '@wildshard/engine/scripts/map-hash.mjs';
 
@@ -19,7 +20,10 @@ export async function rasterDataMap(settings, data, { output, glbs, label = 'map
   const raster = new MapRaster(1000, settings, readMapGeometry);
   const { paintMapGeometry } = await import('../src/sharddev/bake/mapScenes.ts');
   const source = data.input;
-  await paintMapGeometry(raster, settings, { input: source, model: url => source(`../../../public${url}`), json: data.json, bytes: data.bytes }, { output, glbs, label });
+  // A model URL is a file under the repo's public/. SA44: a caller that knows the shard's place passes `model`; the
+  // default is `src/shards/<slug>/`'s, three folders below the repo root.
+  const model = data.model ?? (url => source(`../../../public${url}`));
+  await paintMapGeometry(raster, settings, { input: source, model, json: data.json, bytes: data.bytes }, { output, glbs, label });
   const own = output === undefined ? undefined : settings.outputs?.[output];
   const style = own?.style ?? settings.style;
   const pixels = stylizeMap(raster, style);
@@ -35,7 +39,9 @@ export async function rasterDataMap(settings, data, { output, glbs, label = 'map
 /** Every repository file by its path, as a shard's pure map producer reads its inputs. @param {string} root */
 export const repoSource = root => path => new Uint8Array(readFileSync(resolve(root, path)));
 export async function paintDataMap(root, slug, { output, glbs, sources } = {}) {
-  const dir = resolve(root, 'src/shards', slug), settings = json(mapSettingsPath(dir));
+  // SA44: a single-shard repo keeps its source at src/, one folder below the root, not src/shards/<slug>/.
+  const single = resolve(root, 'src'), dir = isRepoSource(single) && shardFolderName(single) === slug ? single : resolve(root, 'src/shards', slug);
+  const settings = json(mapSettingsPath(dir)), toPublic = relative(dir, resolve(root, 'public')).split(sep).join('/');
   const tilesHash = mapTilesHash(dir);
   const declared = settings.inputs.map(file => resolve(dir, file));
   const input = file => {
@@ -46,7 +52,7 @@ export async function paintDataMap(root, slug, { output, glbs, sources } = {}) {
   const source = file => sources?.get(file) ?? input(file);
   const readBytes = file => { const value = source(file); return value instanceof Uint8Array ? value : readFileSync(value); };
   const rows = file => JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(readBytes(file)));
-  const { raster, pixels } = await rasterDataMap(settings, { input: source, json: rows, bytes: readBytes }, { output, glbs, label: slug });
+  const { raster, pixels } = await rasterDataMap(settings, { input: source, model: url => source(`${toPublic}${url}`), json: rows, bytes: readBytes }, { output, glbs, label: slug });
   const own = output === undefined ? undefined : settings.outputs?.[output], style = own?.style ?? settings.style, painter = settings.painter;
   const product = output ?? slug, image = resolve(root, 'public/assets', product, 'map/top.webp');
   mkdirSync(dirname(image), { recursive: true });

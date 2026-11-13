@@ -17,7 +17,7 @@ import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync 
 import { basename, dirname, join, resolve } from 'node:path';
 import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
-import { findShardSource, shardFolderName } from '../src/sharddev/shardSource.ts';
+import { findShardSource, shardFolderName, shardRepoRoot } from '../src/sharddev/shardSource.ts';
 
 const SCALE = 2;
 const VIEWS = { portrait: { width: 402, height: 813 }, landscape: { width: 800, height: 450 }, thumb: { width: 320, height: 180 } };
@@ -35,8 +35,8 @@ function jpegSize(bytes) {
 }
 
 /** The name SHARD SELECT shows this shard under: its built product's, else the manifest's. */
-function servedName(shard) {
-  const product = resolve(shard, '../../../out', basename(shard), 'shard.json');
+export function servedName(shard) {
+  const product = resolve(shardRepoRoot(shard), 'out', shardFolderName(shard), 'shard.json');
   if (existsSync(product)) return JSON.parse(readFileSync(product, 'utf8')).identity.name;
   return String(JSON.parse(readFileSync(join(shard, 'manifest.json'), 'utf8')).name);
 }

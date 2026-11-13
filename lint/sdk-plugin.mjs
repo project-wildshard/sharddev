@@ -6,9 +6,9 @@
 // SHARD-AUTHORING SA38 (J319): generators are arbitrary Node code, so in `generators/` the rule is a denylist of
 // Wildshard cheats (the engine, sdk paths outside its exports, another shard's source, a second three); any npm
 // package, valibot and node:* pass. data/, quests/ and shard.config.ts keep the authoring allowlist, minus the engine.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { isBuiltin } from 'node:module';
-import { dirname, isAbsolute, resolve } from 'node:path';
+import { basename, dirname, isAbsolute, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const RULE = 'generator-imports';
@@ -77,10 +77,22 @@ const nodePath = (filename, source) => {
   } catch { return null; }
 };
 
+/**
+ * The shard source a file sits in, as [whole, slug-or-src, path within the shard], or null outside one. The nearest
+ * src/shards/<slug>/ above the file names the shard, so a checkout under some other src/shards/ still matches. SA44: a
+ * single-shard repo keeps its source at src/ (J317), marked by `src/shard.config.ts`; whichever is nearer wins.
+ */
+const shardFile = (path) => {
+  for (let at = dirname(path); dirname(at) !== at; at = dirname(at)) {
+    const nested = basename(dirname(at)) === 'shards' && basename(dirname(dirname(at))) === 'src';
+    if (nested || (basename(at) === 'src' && existsSync(resolve(at, 'shard.config.ts')))) return [path, nested ? basename(at) : 'src', path.slice(at.length + 1)];
+  }
+  return null;
+};
+
 /** Why `source` may not be imported from `filename` under a shard's author folders, or null when it may. */
 export function generatorImportViolation(filename, rawSource, required = false) {
-  // The last src/shards/ in the path names the shard, so a checkout under some other src/shards/ still matches.
-  const path = resolve(filename).replaceAll('\\', '/'), match = /^.*\/src\/shards\/([^/]+)\/(.+)$/u.exec(path);
+  const path = resolve(filename).replaceAll('\\', '/'), match = shardFile(path);
   if (match === null || !(/^(?:generators|data|quests)\//u.test(match[2]) || match[2] === 'shard.config.ts')) return null;
   if (typeof rawSource !== 'string') return null;
   // Vite resolves the path before the first `?` or `#` through the package exports and keeps the rest (`?raw`, `?url`,

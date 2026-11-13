@@ -33,6 +33,22 @@ export function isRepoSource(source: string): boolean {
   return basename(source) === 'src' && (existsSync(resolve(source, SHARD_CONFIG)) || isHandwrittenSource(source));
 }
 
+/**
+ * SA44: the repo a shard source sits in, where its `public/` and `out/` are. The two layouts name it: a single-shard
+ * repo's `src/` is one folder below it and a multi-shard repo's `src/shards/<slug>/` three. Any other source takes the
+ * nearest folder above it with a `package.json` or `.git`, else its own parent. Layout comes first, so a fixture under
+ * some repo's `tmp/` is its own repo, as it always was.
+ */
+export function shardRepoRoot(source: string): string {
+  const given = resolve(source), parent = dirname(given);
+  if (isRepoSource(given)) return parent;
+  if (basename(parent) === 'shards' && basename(dirname(parent)) === 'src') return dirname(dirname(parent));
+  for (let at = parent; ; at = dirname(at)) {
+    if (existsSync(resolve(at, 'package.json')) || existsSync(resolve(at, '.git'))) return at;
+    if (dirname(at) === at) return parent;
+  }
+}
+
 /** Where build output lands for a shard source: the repo root for `src/`, the source folder itself otherwise. */
 export function shardOutputRoot(source: string): string {
   return isRepoSource(source) ? dirname(source) : source;
