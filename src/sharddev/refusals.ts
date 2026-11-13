@@ -49,6 +49,10 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   // update (SA28)
   { id: 'update-target', anchor: 'update-target', steps: ['update'], match: /^update: .* is not a shard repo/u,
     fix: 'Run `wildshard update` in the repo `wildshard new` made, or name it: `wildshard update my-isle`.' },
+  { id: 'update-pins-no-git', anchor: 'update-pins-no-git', steps: ['update'], match: /^update --pins: .* is not in a git repo with its package\.json committed/u,
+    fix: 'Put the shard repo in git and commit it (`git init`, `git add .`, `git commit`), then run `wildshard update --pins` again.' },
+  { id: 'update-pins-dirty', anchor: 'update-pins-dirty', steps: ['update'], match: /^update --pins: .* has uncommitted changes/u,
+    fix: 'Commit or stash your changes, then run `wildshard update --pins` again.' },
   { id: 'update-pins', anchor: 'update-pins', steps: ['update'], match: /^update --pins: /u,
     fix: 'Read the line above and the GUIDE.md heading for its case, fix that, then run `wildshard update --pins` again.' },
   { id: 'update-refused', anchor: 'update-refused', steps: ['update'],

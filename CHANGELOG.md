@@ -17,6 +17,10 @@ the next version and date, commit and push it, then run repo-kit's
   they were (`git diff` shows any fix already made to your code). If
   `update` or `check` fails after that, you stay on the new versions:
   fix what it reports, then run `wildshard check .`.
+- `wildshard update --pins` now refuses to start unless your shard
+  repo is in git with every change committed (`update-pins-dirty`,
+  `update-pins-no-git`), so `git diff` afterwards shows only what the
+  upgrade changed. Commit or stash your work first.
 - Removed from the sdk, because no shard used them: `phasedBossFight`
   (`@wildshard/sdk/phasedBoss`), `speciesBrains`
   (`@wildshard/sdk/speciesBrains`), `ClipCtx`, `playClips` and

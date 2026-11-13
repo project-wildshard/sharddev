@@ -21,7 +21,8 @@ release, runs `pnpm install`, applies the release's codemods, rewrites the guide
    installed CLI refuses the flag (an sdk older than `--pins`), run the newest once:
    `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`. Done when it prints a line per pin it moved.
 3. **Read its last line.** `on @wildshard/sdk <version>, check pass` means the move is done: go to step 5. A line
-   ending `[update-pins] fix: ...` is a refusal: read `GUIDE.md#update-pins` in the guide now in the repo.
+   ending `[update-pins] fix: ...` is a refusal: read `GUIDE.md#update-pins` in the guide now in the repo;
+   `[update-pins-dirty]` (`GUIDE.md#update-pins-dirty`) means go back to step 1.
 4. **Fix each refusal check printed.** It ends `[<rule>] fix: ... (GUIDE.md#<anchor>)`: read that heading under
    `GUIDE.md#6-refusals-and-their-fixes`, make the fix, and run `wildshard check .` again. A budget can tighten
    between releases (`GUIDE.md#3-budgets`); a lint rule can be new. Done at `check pass`.

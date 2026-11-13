@@ -343,6 +343,19 @@ other name refuses before `new` writes anything. Leave the flag out or pass `--t
 `update` works on a shard repo: a folder whose `package.json` lists `@wildshard/sdk`, as `new` writes it. Run it in
 that folder, or name it: `wildshard update my-shard`.
 
+#### update-pins-no-git
+
+`wildshard update --pins` edits `package.json`, `pnpm-lock.yaml` and, through its codemods, your shard source, so it
+runs only in a git repo whose `package.json` is committed: `git diff` afterwards is how you see what it changed. It
+refused before it changed anything. Put the shard repo in git and commit it (`git init`, `git add .`, `git commit`),
+then run `wildshard update --pins` again.
+
+#### update-pins-dirty
+
+The shard repo has uncommitted or untracked changes (the refusal names the first few). `update --pins` refuses them so
+its edits never mix with yours. It refused before it changed anything. Commit or stash your changes (`git stash -u`),
+then run `wildshard update --pins` again. Ignored files, such as `node_modules/` and build output, do not count.
+
 #### update-pins
 
 `wildshard update --pins` stopped. The line above says why. If it stopped before its codemods were done, it has
@@ -356,6 +369,7 @@ before it stopped.
   `package.json` by hand and run `pnpm install`.
 - `names <manager> as its package manager`: `--pins` installs with pnpm; set `packageManager` to the
   `pnpm@...` that `new` writes, or move the pins by hand as the `wildshard-upgrade` skill says.
+- `git not found`: `--pins` reads `git status` before it starts; install git.
 - `cannot tell which sdk ... is on`: pin `@wildshard/sdk` to a version, not `link:` or `file:`.
 - `pins @wildshard/sdk <a> but has <b> installed`: run `pnpm install` and `wildshard check .` on the pins you have,
   then `--pins` again.
@@ -928,9 +942,9 @@ agent file it added.
 5. runs the new sdk's own `wildshard update`, which rewrites this guide and the skills as above;
 6. runs the new sdk's `wildshard check .`.
 
-If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and installs the old sdk again. Start from a
-clean `git status`: a codemod edits your files. Done when its last line reads `on @wildshard/sdk <version>, check
-pass`. Commit `package.json`, `pnpm-lock.yaml`, the
-guide, the skills and any codemod edit together. A refusal is `update-pins` (section 6). An sdk older than the one
+If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and installs the old sdk again. It refuses to
+start unless `git status` is clean (`update-pins-dirty`, `update-pins-no-git`): a codemod edits your files. Done when
+its last line reads `on @wildshard/sdk <version>, check pass`. Commit `package.json`, `pnpm-lock.yaml`, the guide,
+the skills and any codemod edit together. A refusal is `update-pins` (section 6). An sdk older than the one
 that built `--pins` refuses the flag; run the newest CLI once instead:
 `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`.

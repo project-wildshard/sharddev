@@ -1,8 +1,10 @@
+// oxlint-disable-next-line import/no-nodejs-modules -- Each scratch shard repo is a git repo, as `update --pins` needs.
+import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold shard repos, a fake installed sdk and fixture codemods.
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { writeShardRepo } from './newProject';
 import { CODEMODS_FOLDER, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from './updatePins';
 import { runCli } from './cli';
@@ -17,6 +19,11 @@ const pinsOf = (project: string): Record<string, string> => {
   const parsed = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
   return { ...parsed.dependencies, ...parsed.devDependencies };
 };
+/** Make `project` a git repo with everything in it committed: `update --pins` refuses anything else. */
+function commitRepo(project: string): void {
+  const git = (...args: string[]): void => { execFileSync('git', ['-c', 'user.name=test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', ...args], { cwd: project, stdio: 'ignore' }); };
+  git('init', '-q'); git('add', '.'); git('commit', '-q', '-m', 'new');
+}
 const writeJson = (file: string, value: unknown): void => { mkdirSync(resolve(file, '..'), { recursive: true }); writeFileSync(file, JSON.stringify(value)); };
 
 /** A codemod that appends its own name to `codemods.log` in the repo, so a test sees which ran and in what order. */
@@ -97,6 +104,7 @@ describe('wildshard update --pins (SA18)', () => {
   it('moves a new repo: pins, install, codemods, then the new sdk rewrites the guide and checks', async () => {
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { empty: true });
+    commitRepo(project);
     const before = pinsOf(project), runner = fakeRunner(project, NEXT, { codemods: ['0.0.1', '9.9.9'] });
     // The repo pins the sdk this checkout is (its version); the codemod at or below it is skipped.
     await updatePins(project, '9.9.9', runner);
@@ -112,6 +120,7 @@ describe('wildshard update --pins (SA18)', () => {
   it('refuses a downgrade, another package manager, a wrong install and a failed check, each as update-pins', async () => {
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { empty: true });
+    commitRepo(project);
     const now = pinsOf(project)['@wildshard/sdk'] ?? '', manifest = readFileSync(resolve(project, 'package.json'), 'utf8');
     await expect(updatePins(project, '0.0.0', fakeRunner(project, { version: '0.0.0', pins: {} }))).rejects.toThrow(new RegExp(`is on @wildshard/sdk ${now.replaceAll('.', '\\.')}, newer than 0\\.0\\.0; update --pins moves forward only`, 'u'));
     // Each failure before the codemods finish puts package.json back and installs the old sdk again.
@@ -138,6 +147,46 @@ describe('wildshard update --pins (SA18)', () => {
     await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/names npm@11\.0\.0 as its package manager[\s\S]*\[update-pins\] fix: .*GUIDE\.md#update-pins/u);
     writeFileSync(resolve(project, 'package.json'), JSON.stringify({ ...parsed, dependencies: { '@wildshard/sdk': 'link:../sdk' } }));
     await expect(runCli(['update', project, '--pins'])).rejects.toThrow(/cannot tell which sdk .* is on: pin @wildshard\/sdk to a version \(not link:\.\.\/sdk\)[\s\S]*\[update-pins\]/u);
+  });
+
+  it('refuses a dirty repo, or one not in git, before it views, writes or installs anything', async () => {
+    const project = resolve(scratch, 'my-shard');
+    writeShardRepo(project, 'my-shard', { empty: true });
+    const manifest = readFileSync(resolve(project, 'package.json'), 'utf8');
+    // Not in git: here the scratch folder sits in sharddev's ignored tmp/, so package.json is tracked by no repo; with a
+    // ceiling above it, git finds no repo at all. Both refuse as update-pins-no-git.
+    for (const ceiling of [undefined, scratch]) {
+      if (ceiling !== undefined) vi.stubEnv('GIT_CEILING_DIRECTORIES', ceiling);
+      const runner = fakeRunner(project, NEXT);
+      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^update --pins: .* is not in a git repo with its package\.json committed[\s\S]*\[update-pins-no-git\] fix: .*\(GUIDE\.md#update-pins-no-git\)$/u);
+      await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/is not in a git repo/u);
+      expect(runner.calls).toEqual([]);
+      vi.unstubAllEnvs();
+    }
+    commitRepo(project);
+    // An edited tracked file, then an untracked one: each refuses, and nothing is written.
+    for (const dirty of [() => { writeFileSync(resolve(project, 'README.md'), 'my notes\n'); }, () => { writeFileSync(resolve(project, 'notes.txt'), 'wip\n'); }]) {
+      execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project }); rmSync(resolve(project, 'notes.txt'), { force: true });
+      dirty();
+      const runner = fakeRunner(project, NEXT);
+      await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/^update --pins: .* has uncommitted changes/u);
+      expect(runner.calls).toEqual([]);
+      // An author who hides untracked files from git status is refused all the same.
+      vi.stubEnv('GIT_CONFIG_COUNT', '1'); vi.stubEnv('GIT_CONFIG_KEY_0', 'status.showUntrackedFiles'); vi.stubEnv('GIT_CONFIG_VALUE_0', 'no');
+      await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/has uncommitted changes/u);
+      vi.unstubAllEnvs();
+      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/has uncommitted changes[\s\S]*\[update-pins-dirty\] fix: Commit or stash your changes, then run `wildshard update --pins` again\. \(GUIDE\.md#update-pins-dirty\)$/u);
+      expect(readFileSync(resolve(project, 'package.json'), 'utf8')).toBe(manifest);
+    }
+    // No git on PATH: its own words, under the update-pins catch-all, not "put the repo in git".
+    vi.stubEnv('PATH', '');
+    await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^update --pins: git not found[\s\S]*\[update-pins\] fix:/u);
+    vi.unstubAllEnvs();
+    // Ignored files (node_modules, build output) are not dirt.
+    rmSync(resolve(project, 'notes.txt'), { force: true });
+    writeJson(resolve(project, 'node_modules/left-over/package.json'), {});
+    await updatePins(project, '9.9.9', fakeRunner(project, NEXT));
+    expect(pinsOf(project)['@wildshard/sdk']).toBe('9.9.9');
   });
 
   it('parses --pins and --pins=<version> as flags beside [dir]', async () => {

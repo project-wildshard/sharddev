@@ -12,7 +12,8 @@ import { assertShardRepo } from './agentFiles';
 
 // SHARD-AUTHORING SA18 (J314 Q7, Q27; J317 Q16): `wildshard update --pins[=<version>] [dir]`. Move the repo's pins to one
 // sdk release (the sdk, and the shard-format, engine and three specs that release pins), install with pnpm, apply the
-// release's codemods, rewrite GUIDE.md and the skills with the new sdk's own `update` (SA28), then run its `check`.
+// release's codemods, rewrite GUIDE.md and the skills with the new sdk's own `update` (SA28), then run its `check`. It
+// starts only from a committed git tree (assertCommitted), so the author can tell its edits from their own.
 
 /** The pins a shard repo may list; each moves to what the release names. `@wildshard/sdk` moves to the release itself. */
 export const PINNED = ['@wildshard/sdk', '@wildshard/engine', '@wildshard/format', 'three'] as const;
@@ -150,6 +151,28 @@ export async function applyCodemods(project: string, sdkRoot: string, from: stri
   return lines;
 }
 
+/** `update --pins` edits package.json, the lock file and (by its codemods) the shard source, so it needs a repo whose
+ * every change is committed: then `git diff` shows only what the move made. It refuses a repo git does not track
+ * (no repo, or package.json not committed, as in a folder another repo ignores) and one with uncommitted or untracked
+ * changes. Ignored files (node_modules, build output) are not dirt. There is no flag to skip this. */
+export function assertCommitted(project: string): void {
+  const git = (args: readonly string[]): string | undefined => {
+    try { return execFileSync('git', [...args], { cwd: project, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }); }
+    catch (error) {
+      if (isRecord(error) && error['code'] === 'ENOENT') throw new Error('update --pins: git not found: install git, then run update --pins again', { cause: error });
+      return undefined;
+    }
+  };
+  // Untracked files count whatever the author's status.showUntrackedFiles says.
+  const status = git(['ls-files', '--error-unmatch', '--', 'package.json']) === undefined ? undefined : git(['status', '--porcelain', '--untracked-files=normal', '--', '.']);
+  if (status === undefined) throw new Error(`update --pins: ${project} is not in a git repo with its package.json committed; update --pins edits your files, and git diff is how you see what it changed`);
+  const changed = status.split('\n').filter(line => line.trim() !== '');
+  if (changed.length > 0) {
+    const shown = changed.slice(0, 3).map(line => line.slice(3)).join(', ') + (changed.length > 3 ? ` and ${String(changed.length - 3)} more` : '');
+    throw new Error(`update --pins: ${project} has uncommitted changes (${shown}); commit or stash them first, so git diff shows only what update --pins changes`);
+  }
+}
+
 /** pnpm view: the release a spec names, with the specs it pins. */
 function pnpmView(spec: string, cwd: string): SdkRelease {
   let out: string;
@@ -183,6 +206,7 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
   const manager = stringAt(listed, 'packageManager');
   if (manager !== undefined && !manager.startsWith('pnpm@')) throw new Error(`update --pins: ${project} names ${manager} as its package manager; update --pins installs with pnpm`);
   const from = currentSdk(project, listed);
+  assertCommitted(project);
   const release = runner.view(spec, project);
   if (compareVersions(release.version, from) < 0) throw new Error(`update --pins: ${project} is on @wildshard/sdk ${from}, newer than ${release.version}; update --pins moves forward only`);
   runner.log(`wildshard update --pins: @wildshard/sdk ${from} -> ${release.version}`);
