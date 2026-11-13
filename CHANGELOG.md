@@ -7,39 +7,40 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
-## Unreleased
+## v0.2.5 (2026-11-13)
 
 - New: `wildshard update --pins` moves your shard repo to a newer sdk
-  in one step. It moves the versions of the sdk, engine, format and
-  three.js in `package.json`, installs them, applies the new sdk's
-  fixes to your code, then runs `update` and `check`. If the install
-  or a code fix fails, `package.json` and the lock file go back as
-  they were (`git diff` shows any fix already made to your code). If
-  `update` or `check` fails after that, you stay on the new versions:
-  fix what it reports, then run `wildshard check .`.
-- `wildshard update --pins` now refuses to start unless your shard
-  repo is in git with every change committed (`update-pins-dirty`,
-  `update-pins-no-git`), so `git diff` afterwards shows only what the
-  upgrade changed. Commit or stash your work first.
+  in one step: npm's latest, or the one you name with
+  `--pins=<version>`. It moves the sdk, engine, format, three.js and
+  Node versions in `package.json`, installs them, applies the new
+  sdk's fixes to your code, then runs `update` and `check`. Commit
+  your work first: it refuses a repo with uncommitted or untracked
+  changes (`update-pins-dirty`) or whose `package.json` is not
+  committed in git (`update-pins-no-git`), so `git diff` afterwards
+  shows only what the upgrade changed. If anything fails before the
+  code fixes are done, `package.json` and the lock file go back as
+  they were; if `update` or `check` fails after that, you stay on the
+  new versions: fix what it reports, then run `wildshard check .`.
 - Removed from the sdk, because no shard used them: `phasedBossFight`
   (`@wildshard/sdk/phasedBoss`), `speciesBrains`
   (`@wildshard/sdk/speciesBrains`), `ClipCtx`, `playClips` and
   `clipAnimate` (`@wildshard/sdk/species/clips`), `appendGeometry`
   (`@wildshard/sdk/kit/bakedGeometry`), and the types `PhasedBossPorts`,
   `PhasedBossFight`, `PhasedBossBody`, `PhasedBossState`,
-  `RoamingBossFight` and `SpeciesBrains`. The boss, species, brain
-  and clip row types you write data with are all still there. If
-  your shard imported one of the removed names, it no longer builds.
+  `RoamingBossFight` and `SpeciesBrains`. The sdk's `MeleeProfile`
+  no longer has the engine's runtime `pickup` field. The data row
+  types you write a shard with are all still there. If your shard
+  imported one of the removed names, it no longer builds.
 - GUIDE.md and the refusal messages now say to export audio as AAC
   at 48 kHz in an `.m4a` file. The old advice offered WAV, which the
   audio check marks amber.
-- Fix: the `generator-imports` lint now accepts an exported sdk path
-  with a Vite query such as `?raw`; nalati's per-file override can be
-  dropped after upgrading.
-- Fix: the `generator-imports` lint now refuses an import path with a
-  percent-escape such as `%2e%2e` or `%2f`, a backslash, a tab or a
-  newline, which could reach another shard's files unnoticed. Write
-  the path plainly.
+- Fixes to the `generator-imports` lint. It now accepts an exported
+  sdk path with a suffix such as `?raw`, so an override that turned
+  the rule off for such an import can be dropped after upgrading; an
+  engine path with a suffix, such as `@wildshard/engine?raw`, is now
+  refused. It also refuses an import path with a percent-escape such
+  as `%2e%2e` or `%2f`, a backslash, a tab or a newline, which could
+  reach another shard's files unnoticed: write the path plainly.
 
 ## v0.2.4 (2026-11-13)
 
