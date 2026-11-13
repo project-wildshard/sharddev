@@ -3,11 +3,11 @@ import { afterEach, expect, it } from 'vitest';
 import { mkdtempSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve fixture files inside the owned output directory.
 import { relative, resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { validateShardfileProduct, type ProductFiles } from '@wildshard/format/productValidation';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 
 // P1-F3: the format half of `validate` runs with only a file map and a SHA-256 port, and agrees with the author SDK's.

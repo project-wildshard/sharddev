@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { platformFileFamily, validatePlatformFile } from '@wildshard/format/platformFileFamilies';
 import { registeredJsonContract } from '@wildshard/format/registeredJson';
-import { nameBlob } from '@wildshard/sharddev/blobs';
-import { registeredJsonSchema } from '@wildshard/sharddev/formatJsonSchema';
+import { nameBlob } from '@wildshard/sdk/blobs';
+import { registeredJsonSchema } from '@wildshard/sdk/formatJsonSchema';
 
 const documents = [
   ['combat/roaming.json', 'roamingCombat#RoamingCombatSchema', 'src/game/combat/roamingSession.ts'],

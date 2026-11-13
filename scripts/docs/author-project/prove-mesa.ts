@@ -1,6 +1,6 @@
 import { starterSpearPack, spearLoadout } from './generators/spear';
-import { createCatalogue } from '@wildshard/sharddev/commons/catalogue';
-import { hashImmutableBytes, encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { createCatalogue } from '@wildshard/sdk/commons/catalogue';
+import { hashImmutableBytes, encodeCanonicalJson } from '@wildshard/sdk/immutable';
 import {
   proveMesaNative, proveSceneClient, proveEquippedItemClient,
   type AuthorProofPage, type MesaProofPlan,

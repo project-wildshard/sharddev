@@ -8,7 +8,7 @@ import { NATIVE_ASSEMBLY_DATA_SCHEMA, NATIVE_ASSEMBLY_FILE, NATIVE_ASSEMBLY_SCHE
 import { validatePlatformFile } from '@wildshard/format/platformFileFamilies';
 import { outputBlobKind } from '@wildshard/format/productValidation';
 import { parse } from 'valibot';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { nameBlobBytes } from './blobBytes';
 import { validateDefinedJson } from './sections';
 import { compileGltfSource } from './bake/gltfSource';

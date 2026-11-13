@@ -1,5 +1,5 @@
 import { BoxGeometry, Group, Mesh, MeshStandardMaterial } from 'three';
-import { clientSceneGlb, staticGlb } from '@wildshard/sharddev/bake/glb';
+import { clientSceneGlb, staticGlb } from '@wildshard/sdk/bake/glb';
 
 /** Export separately addressable tower/flame nodes without merging their geometry or changing material identity. */
 export function namedNodesExample() {

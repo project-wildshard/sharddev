@@ -184,7 +184,7 @@ export function sectionInventory(products:readonly Product[],catalogue:Readonly<
 }
 /** Read existing products only; missing declared outputs refuse rather than become empty rows. */
 export async function readSectionInventory(root:string=ROOT,productsRoot:string=resolve(root,'out')):Promise<Inventory>{
-  const {namedFormatJsonSchemas}=await import('@wildshard/sharddev/formatJsonSchema');
+  const {namedFormatJsonSchemas}=await import('@wildshard/sdk/formatJsonSchema');
   const {OUTPUT_SECTIONS}=await import('@wildshard/format/outputFields');
   const folders=readdirSync(resolve(root,'src/shards'),{withFileTypes:true})
     .filter(entry=>entry.isDirectory()&&!entry.name.endsWith('-legacy')&&existsSync(resolve(root,'src/shards',entry.name,'shard.config.ts'))).map(entry=>entry.name);

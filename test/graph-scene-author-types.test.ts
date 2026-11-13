@@ -3,10 +3,10 @@ import type { PostGraphLookRow } from '@wildshard/format/postGraphLook';
 import type { WorldSceneModels } from '@wildshard/format/worldSceneModels';
 import type { SpawnTables } from '@wildshard/format/spawnTables';
 import type { ExchangeRows } from '@wildshard/format/exchange';
-import type { AuthorGraph, AuthorGraphNode, AuthorGraphRef, AuthorGraphParam, AuthorPostGraphLook } from '@wildshard/sharddev/bake/materialGraph';
-import type { worldSceneModels } from '@wildshard/sharddev/worldScenes';
-import type { AuthorSpawnTables } from '@wildshard/sharddev/spawns';
-import type { AuthorExchangeRows } from '@wildshard/sharddev/rows';
+import type { AuthorGraph, AuthorGraphNode, AuthorGraphRef, AuthorGraphParam, AuthorPostGraphLook } from '@wildshard/sdk/bake/materialGraph';
+import type { worldSceneModels } from '@wildshard/sdk/worldScenes';
+import type { AuthorSpawnTables } from '@wildshard/sdk/spawns';
+import type { AuthorExchangeRows } from '@wildshard/sdk/rows';
 import { expectTypeOf, test } from 'vitest';
 
 test('the public author graph, scene, spawn and exchange types match format exactly', () => {

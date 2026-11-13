@@ -2,7 +2,7 @@
 import { inflateSync } from 'node:zlib';
 import { Box3, Euler, Matrix4, Quaternion, Vector3 } from 'three';
 import * as v from 'valibot';
-import { GeometryPack, packedRows } from '@wildshard/sharddev/kit/geometryPack';
+import { GeometryPack, packedRows } from '@wildshard/sdk/kit/geometryPack';
 import type { MapRaster } from './mapRaster';
 import type { Node } from '@gltf-transform/core';
 import { decodeTerrainTile } from '@wildshard/format/terrainTileBytes';

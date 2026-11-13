@@ -4,8 +4,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { runCli } from './cli';
-import { buildProject, newProject } from '@wildshard/sharddev/project';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { buildProject, newProject } from '@wildshard/sdk/project';
+import { encodeCanonicalJson } from './immutable';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
 
 test('CLI validates v2 output and refuses monolith disk inputs for validate and prove', async () => {

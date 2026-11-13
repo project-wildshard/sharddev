@@ -1,7 +1,7 @@
 import { expect, expectTypeOf, it } from 'vitest';
 import type { PlatformSectionName } from '@wildshard/format/sections';
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { assembleOutputShardfile, parseOutputIndex, type OutputPlatformSectionName } from '@wildshard/format/outputIndex';
 import { outputSectionPayloads, OUTPUT_SECTIONS } from '@wildshard/format/outputFields';
 

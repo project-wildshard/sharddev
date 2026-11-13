@@ -28,12 +28,12 @@ void test(
         join(
           process.cwd(),
           root,
-          'app/node_modules/@wildshard/sharddev/package.json',
+          'app/node_modules/@wildshard/sdk/package.json',
         ),
       )
       const { bindInteractionPlacements, readInteractionPlacements } =
         await import(
-          pathToFileURL(author.resolve('@wildshard/sharddev/interactions')).href
+          pathToFileURL(author.resolve('@wildshard/sdk/interactions')).href
         )
       const table = {
         external: ['met'],

@@ -1,9 +1,9 @@
 import { Scene, Group, Mesh, BoxGeometry, MeshStandardMaterial } from 'three';
-import { BoxCollider } from '@wildshard/sharddev/physics';
-import { PlayerStart } from '@wildshard/sharddev/spawns';
-import { Entry } from '@wildshard/sharddev/entries';
-import { readScene } from '@wildshard/sharddev/scene';
-import { restoreSceneGraph } from '@wildshard/sharddev/sceneGraph';
+import { BoxCollider } from '@wildshard/sdk/physics';
+import { PlayerStart } from '@wildshard/sdk/spawns';
+import { Entry } from '@wildshard/sdk/entries';
+import { readScene } from '@wildshard/sdk/scene';
+import { restoreSceneGraph } from '@wildshard/sdk/sceneGraph';
 
 /** Template 1's named floor, collision, player start and four midpoint entries. */
 export function sceneExample() {

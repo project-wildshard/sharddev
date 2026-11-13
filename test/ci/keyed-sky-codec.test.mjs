@@ -48,15 +48,15 @@ void test(
         join(
           process.cwd(),
           root,
-          'app/node_modules/@wildshard/sharddev/package.json',
+          'app/node_modules/@wildshard/sdk/package.json',
         ),
       )
       const { packGainKey, encodeGainKey } = await import(
-        pathToFileURL(author.resolve('@wildshard/sharddev/bake/keyedSky')).href
+        pathToFileURL(author.resolve('@wildshard/sdk/bake/keyedSky')).href
       )
       const native = await import(
         pathToFileURL(
-          author.resolve('@wildshard/sharddev/scripts/bake/keyed-sky.mjs'),
+          author.resolve('@wildshard/sdk/scripts/bake/keyed-sky.mjs'),
         ).href
       )
       const one = new Uint16Array([15360, 15360, 15360]),

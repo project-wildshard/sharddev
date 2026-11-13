@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { copyAssetBytes, hashAssetBytes, immutableAsset, verifyAssetBytes } from './assetHandle';
 import { ownAssetBytes } from './assetOwner';
 import { withAssetOwner } from './assetScope';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 it('carries a private snapshot through owned copies and refuses later mutation', () => {
   const source = new Uint8Array([3, 5, 7]), original = immutableAsset(source);

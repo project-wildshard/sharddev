@@ -1,5 +1,5 @@
 import { isJsonData } from '@wildshard/format/json';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 
 /**
  * A value the shard's standalone `runtime/` keeps its own copy of in `runtime/const.ts` (G449: whatever the runtime needs

@@ -10,7 +10,7 @@ import { dirname, join } from 'node:path';
 import process from 'node:process';
 import { readImagePixels } from './image';
 import { worldImageInfo } from './worldImage';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { parseKtx2 } from '../assets';
 import { cachedWorldTexture } from './worldTextureMemo';
 

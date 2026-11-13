@@ -10,7 +10,7 @@ import { validationRevision, validationSourceBytes } from '@wildshard/format/val
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { CLIENT_FEATURE_SIDES, unsidedKinds } from '@wildshard/format/featureSides';
 import { PAGE_ONLY_PROGRAM_HOSTS, SCRIPT_V1_VIEW_COMMANDS } from '@wildshard/format/scriptSides';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { hashAssetBytes } from './assetHandle';
 
 // Author-only facade: direct synchronous writers need the same readiness as the CLI.

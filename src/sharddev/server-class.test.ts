@@ -3,7 +3,7 @@ import { afterEach, expect, it } from 'vitest';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve fixture files inside the owned output directory.
 import { join, resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/sharddev/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { readOutputDownloadIndex } from '@wildshard/format/outputDownload';
 import { parseOutputIndex } from '@wildshard/format/outputIndex';
 import { resolveOutputDescriptor } from '@wildshard/engine/game/shardfile/outputDescriptor';
@@ -11,7 +11,7 @@ import { shardProductData } from '@wildshard/engine/game/shardfile/productData';
 import { copyOutputProducts } from '@wildshard/engine/scripts/app-build/outputProducts.mjs';
 import { nativeAssemblyFiles, serverBlob, type NativeAssemblyPlan } from './blobs';
 import { loadHeadlessProduct } from '@wildshard/engine/host/headlessProduct';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 import { prepareProjectOutput } from './projectOutput';
 import { nodeOutputDescriptorChecks } from '@wildshard/engine/game/shardfile/outputChecksNode';

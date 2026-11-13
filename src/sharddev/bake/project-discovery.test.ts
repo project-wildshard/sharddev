@@ -7,7 +7,7 @@ import * as v from 'valibot';
 import { emptyShardfile } from '@wildshard/engine/host/author';
 import { readProjectAssets } from '../project';
 import { writeOutputProduct } from '../outputProduct';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 
 test('generated discovery is admitted once and stored only in product metadata', async () => {
   mkdirSync('tmp', { recursive: true });

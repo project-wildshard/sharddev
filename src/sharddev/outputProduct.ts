@@ -17,7 +17,7 @@ import { validationRevision, validationSourceBytes } from '@wildshard/format/val
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { admitProduct, readmitted, rememberAdmitted } from './productOutput';
 import { performanceTargetIssues } from './reportCard';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { assetHandles, hashAssetBytes, immutableAsset, verifyAssetBytes, type ImmutableAsset } from './assetHandle';
 import { readBoundedFile } from './sourceReader';
 import { validateRuntimeImports } from './runtimeImports';

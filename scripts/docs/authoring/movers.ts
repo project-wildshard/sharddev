@@ -1,5 +1,5 @@
 import { Group, AnimationClip, VectorKeyframeTrack } from 'three';
-import { Mover } from '@wildshard/sharddev/movers';
+import { Mover } from '@wildshard/sdk/movers';
 
 /** Template-style moving door: two local positions and an explicit interaction trigger. */
 export function moversExample() {

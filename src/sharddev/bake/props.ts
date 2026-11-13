@@ -4,7 +4,7 @@ import { PropsSchema, type ShardProps } from '@wildshard/format/props';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import * as v from 'valibot';
 import { parseGlb, parseKtx2 } from '../assets';
-import { hashImmutableBytes as contentHash } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes as contentHash } from '../immutable';
 import { staticGlb, type GlbPrimitive } from './glb';
 import { compressGlb } from './glbCompression';
 import { tileGrid, tileGridTransform, type TileGrid } from './worldGeometry';

@@ -17,6 +17,7 @@ describe('wildshard-sdk/generator-imports', () => {
       '../../../../scripts/bake-output.mjs', '../../other/generators/x', '<computed>'])
       expect(generatorImportViolation(generator, source), source).not.toBeNull();
     expect(generatorImportViolation(generator, '@wildshard/sharddev/runtime/x')).toMatch(/trusted SDK runtime/u);
+    expect(generatorImportViolation(generator, '@wildshard/sdk/runtime/x')).toMatch(/trusted SDK runtime/u);
   });
 
   it('covers data, quests and shard.config.ts but not runtime or other trees', () => {

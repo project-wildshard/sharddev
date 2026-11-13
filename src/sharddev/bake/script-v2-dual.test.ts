@@ -3,7 +3,7 @@ import { compileDualScriptV2 } from '../test/compileDualScriptV2';
 import { compileScript } from './compileScript';
 import { admitScriptContract } from '@wildshard/format/scriptContract';
 import { admitScriptV2 } from '@wildshard/format/scriptAdmissionV2';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 
 const author = 'export function advance(value:f64):f64{return value+1;}', sources = { 'author.ts': author };
 const legacy = `import {advance} from './author';export function ws_abi():i32{return 1;}export function ws_io():i32{return 16384;}export function ws_init(lo:i32,hi:i32):void{}export function ws_handle():i32{store<f64>(16384,advance(7));return 0;}`;

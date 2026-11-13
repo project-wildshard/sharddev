@@ -10,7 +10,7 @@ import { dirname, resolve } from 'node:path';
 import process from 'node:process';
 import * as v from 'valibot';
 import { BASIS_INPUTS, BASIS_REVISION } from './basisToolInputs';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { readBoundedFile } from '../sourceReader';
 
 const digest = v.pipe(v.string(), v.regex(/^[a-f0-9]{64}$/u));

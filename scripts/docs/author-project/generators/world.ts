@@ -1,7 +1,7 @@
 import { Scene, Mesh, BufferGeometry, BoxGeometry, MeshStandardMaterial, type Object3D } from 'three';
-import { Entry } from '@wildshard/sharddev/entries';
-import { PlayerStart } from '@wildshard/sharddev/spawns';
-import { staticGlb } from '@wildshard/sharddev/bake/glb';
+import { Entry } from '@wildshard/sdk/entries';
+import { PlayerStart } from '@wildshard/sdk/spawns';
+import { staticGlb } from '@wildshard/sdk/bake/glb';
 
 /** A readable author graph: a level floor, an actual start and four ordinary midpoint entries. */
 export function buildWorld(): Scene {

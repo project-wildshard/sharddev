@@ -4,7 +4,7 @@ import { WebIO, type Accessor, type Document, type Mesh, type Node } from '@gltf
 import { ALL_EXTENSIONS, KHRMeshQuantization, type InstancedMesh } from '@gltf-transform/extensions';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { compressGlb } from './glbCompression';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { nameBlob, nameMeshoptBlob, type BlobOptions, type NamedBlob } from '../blobs';
 import { entryFootprints, obstructsEntry } from '@wildshard/format/entryGeometry';
 import type { ShardEntryways } from '@wildshard/format/entryways';

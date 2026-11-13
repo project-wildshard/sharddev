@@ -5,7 +5,7 @@ import {join} from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Concurrent publishers use unique temporary files, without locks or waits.
 import {randomBytes} from 'node:crypto';
 import * as v from 'valibot';
-import {hashImmutableBytes} from '@wildshard/engine/host/immutable';
+import {hashImmutableBytes} from '../immutable';
 
 const digest=v.pipe(v.string(),v.regex(/^[a-f0-9]{64}$/u));
 const headerBytes=144,magic='WSWTEX02';

@@ -1,7 +1,7 @@
-import type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sharddev/projectGeneration';
+import type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';
 import { parseShardfile } from '@wildshard/engine/host/shardfile';
-import { bakeProps } from '@wildshard/sharddev/bake/props';
-import { rasterGroundMap } from '@wildshard/sharddev/bake/groundMap';
+import { bakeProps } from '@wildshard/sdk/bake/props';
+import { rasterGroundMap } from '@wildshard/sdk/bake/groundMap';
 import { pastelTerrain } from './terrain';
 import { pastelProps } from './props';
 import { pastelProduct } from './product';

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { lowerMaterialGraphs } from './materialGraphFiles';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 
 const texture = 'a'.repeat(64);
 const graph = (colour: number): Record<string, unknown> => ({ version: 1, kind: 'material', nodes: { c: { op: 'constant', value: colour } },

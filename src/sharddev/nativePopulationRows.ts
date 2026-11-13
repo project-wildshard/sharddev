@@ -5,7 +5,7 @@ import { ForagerPopulationSchema, ForagerContinuation } from '@wildshard/format/
 import { PopulationFieldSchema } from '@wildshard/format/populationEnvironment';
 import { parseNativePopulationRows } from '@wildshard/format/populationRoster';
 import { nameBlob, type NamedBlob } from './blobs';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { namedJsonSchema, registeredJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 
 /** Admit complete native fauna/encounter/pose roster data with its original identity and resource checks. */

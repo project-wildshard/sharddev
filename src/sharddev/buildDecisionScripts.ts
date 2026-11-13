@@ -14,7 +14,7 @@ import { generateDecisionBindings } from './decisionScriptBindings';
 import { inspectDecisionSource, checkDecisionHandlers } from './decisionSource';
 import { nameBlob, type NamedBlob } from './blobs';
 import { readBoundedFile } from './sourceReader';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { hashAssetBytes } from './assetHandle';
 import { WS_CORE } from './as/ws';
 import { viewGameplayLine } from './productOutput';

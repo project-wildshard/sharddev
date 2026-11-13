@@ -6,7 +6,7 @@ import { prepareV2Observations } from '@wildshard/engine/script/observationsV2';
 import { ScriptModuleV2 } from '@wildshard/engine/script/moduleV2';
 import { compileSimV2 } from '../test/compileSimV2';
 import { DecisionHost,type DecisionScript } from '@wildshard/engine/script/decision';
-import { compileScript } from '@wildshard/sharddev/compileScript';
+import { compileScript } from '@wildshard/sdk/compileScript';
 
 const layout = layoutV2(1024,1,new Map([[1,1],[2,2],[3,2],[5,1],[21,2],[22,2]]));
 function at(kind: number): number { const region = layout.regions[kind-1];if (region === undefined) throw new Error('Missing RNG fixture bank');return layout.io+region.offset; }

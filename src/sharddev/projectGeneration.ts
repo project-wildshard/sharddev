@@ -10,7 +10,7 @@ import { channel } from 'node:diagnostics_channel';
 import process from 'node:process';
 import * as v from 'valibot';
 import { reportBuildCache } from './buildCacheMetrics';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { copyAssetBytes, hashAssetBytes } from './assetHandle';
 import { readBoundedFile } from './sourceReader';
 import { projectCompilerIdentity } from './projectCompilerIdentity';

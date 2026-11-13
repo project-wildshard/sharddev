@@ -54,7 +54,7 @@ function tempFolder(): string {
 function installWildshard(dir: string): string {
   const tarball = packInto(dir)
   const modules = path.join(dir, 'app/node_modules')
-  const unpacked = path.join(modules, '@wildshard/sharddev')
+  const unpacked = path.join(modules, '@wildshard/sdk')
   mkdirSync(unpacked, { recursive: true })
   shell('tar', ['-xzf', tarball, '-C', unpacked, '--strip-components', '1'])
   const raw = readFileSync(path.join(unpacked, 'package.json'), 'utf8')

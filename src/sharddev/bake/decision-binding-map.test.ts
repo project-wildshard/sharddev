@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { decisionBindingMap } from '@wildshard/sharddev/decisionBindingMap';
+import { decisionBindingMap } from '@wildshard/sdk/decisionBindingMap';
 import { parseDecisionScripts } from '@wildshard/format/decisionScripts';
 
 function script() {

@@ -19,7 +19,7 @@ import { completeL0Tiles } from './bake/tileGrid';
  * - **scatter**: every `InstancedMesh` (one model) and every `Scatter` (a multi-mesh model) as per-tile instance lists;
  * - **pieces**: every `BakedPiece`, its named `InstancedMesh` kinds folded into one instanced GLB (`bake/kinds`; one draw
  *   per kind, never multi-draw) with the collider rows it declares;
- * - **colliders**: the SDK `Collider` nodes (`@wildshard/sharddev/physics`), the props' collider rows and each piece's rows.
+ * - **colliders**: the SDK `Collider` nodes (`@wildshard/sdk/physics`), the props' collider rows and each piece's rows.
  *
  * The full-world tile inventory includes every L0 square. Vacant squares have
  * zero costs and no files; the sparse render/terrain payload sections stay sparse.

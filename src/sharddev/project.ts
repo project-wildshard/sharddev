@@ -19,7 +19,7 @@ import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { preflightShardfile } from '@wildshard/format/preflight';
 
 import { readBoundedFile } from './sourceReader';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { withAssetOwner } from './assetScope';
 import { hashAssetBytes } from './assetHandle';
 

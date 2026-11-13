@@ -1,4 +1,4 @@
-import { roadSocketMetrics } from '@wildshard/sharddev/entries';
+import { roadSocketMetrics } from '@wildshard/sdk/entries';
 import layout from '../data/layout.json' with { type: 'json' };
 import { cellGround } from './ground';
 import { pastelNoise } from './landscapeNoise';

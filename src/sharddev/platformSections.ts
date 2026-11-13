@@ -1,7 +1,7 @@
 import { isJsonData } from '@wildshard/format/json';
 import { PLATFORM_DATA_SECTIONS, parsePlatformDataSection, type PlatformDataSectionName } from '@wildshard/format/platformDataSections';
 import { parseWorldPhysics, type WorldPhysics } from '@wildshard/format/worldPhysics';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { ownAssetBytes } from './assetOwner';
 import { locatedError } from './authorError';
 import type { DefinedSectionEntry, EmittedSections } from './sections';

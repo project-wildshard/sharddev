@@ -1,7 +1,7 @@
 import { measureUv as packMeasureUv, type MeasureRole as FormatMeasureRole } from '@wildshard/format/materialFamilies';
 
 /**
- * `@wildshard/sharddev/measure` (SF56): the measure layer's first-UV packing for authored grey-box geometry. A generator
+ * `@wildshard/sdk/measure` (SF56): the measure layer's first-UV packing for authored grey-box geometry. A generator
  * writes these UVs onto a mesh so the dev-map look draws its grid and size labels; the plain look never reads them.
  */
 

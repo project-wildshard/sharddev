@@ -7,7 +7,7 @@ import {bakeWorldTexture} from './textureWasm';
 import {cachedWorldTexture} from './worldTextureMemo';
 import {writeImagePixels} from './image';
 import {parseKtx2} from '../assets';
-import {hashImmutableBytes} from '@wildshard/engine/host/immutable';
+import {hashImmutableBytes} from '../immutable';
 
 const owned:string[]=[];
 let image:Uint8Array=new Uint8Array(),reference:Uint8Array=new Uint8Array();

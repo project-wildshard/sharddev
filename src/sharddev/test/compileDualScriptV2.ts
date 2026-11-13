@@ -5,7 +5,7 @@ import { admitScriptContract } from '@wildshard/format/scriptContract';
 import { admitScriptV2,parseScriptArtifactV2,SCRIPT_V2_REVISIONS,type ScriptArtifactV2 } from '@wildshard/format/scriptAdmissionV2';
 import type { V2Lane } from '@wildshard/format/scriptFuelV2';
 import { inspectDecisionSource } from '../decisionSource';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { compileScript } from '../bake/compileScript';
 import { compileScriptV2 } from '../bake/compileScriptV2';
 

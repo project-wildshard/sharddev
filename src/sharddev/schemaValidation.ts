@@ -1,6 +1,6 @@
 import type Ajv from 'ajv';
 import { isJsonData, parseNamedJson } from '@wildshard/format/json';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 
 const DRAFT = 'http://json-schema.org/draft-07/schema#';
 

@@ -8,7 +8,7 @@ import { pathToFileURL } from 'node:url';
 // oxlint-disable-next-line import/no-nodejs-modules -- Read explicit producer arguments.
 import process from 'node:process';
 import { parseNavigation, readNavigation } from '@wildshard/format/navigation';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 
 const entry = process.argv.at(2), input = process.argv.at(3), output = process.argv.at(4), assets = process.argv.at(5);
 if (process.argv.length !== 6 || entry === undefined || input === undefined || output === undefined || assets === undefined) throw new Error('Navigation driver requires entry, source bytes, metadata and asset folder');

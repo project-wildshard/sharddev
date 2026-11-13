@@ -8,7 +8,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BoxGeometry, Group, Mesh, MeshStandardMaterial, Scene } from 'three';
 import { expect, test } from 'vitest';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { readScene } from './scene';
 import { synthProject } from './synth';
 

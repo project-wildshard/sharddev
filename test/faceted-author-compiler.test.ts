@@ -6,7 +6,7 @@ import { BoxGeometry, BufferAttribute, type BufferGeometry, Color, Matrix4, Plan
 import { LowPolyKit } from '@wildshard/engine/world/lowpolyKit';
 import { withoutHidden } from '@wildshard/engine/world/geometryKit';
 import { FacetedGeometryBuilder, cullFacetedParts, type FacetedGeometrySink } from '../src/sharddev/bake/facetedGeometry.ts';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 
 type Options = NonNullable<Parameters<FacetedGeometryBuilder['finish']>[0]>;
 function run(make: () => LowPolyKit | FacetedGeometryBuilder, options: Options) {

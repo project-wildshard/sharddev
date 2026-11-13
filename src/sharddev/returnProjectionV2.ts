@@ -11,7 +11,7 @@ import type { DecisionRegistries } from './decisionBindingMap';
 import { compileScriptV2 } from './bake/compileScriptV2';
 import { SCRIPT_V2_REVISIONS } from '@wildshard/format/scriptAdmissionV2';
 import { v2CoreSource } from './as/wsV2';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { decisionBindingsPath } from './decisionScriptBindings';
 
 export async function compileReturnProjectionV2(input:unknown,registries:DecisionRegistries,authored:ReadonlyMap<string,string>,options:DecisionBuildOptions & {readonly projectSource?:string;readonly outputCapacity?:number;readonly worldActions?:boolean;readonly additional?:{readonly fields:readonly string[];readonly signals:readonly string[];readonly channels:readonly string[]};readonly capture?:{readonly fields:readonly string[];readonly channels:readonly string[]};readonly groups?:{readonly rows:GroupStepRowsV2;readonly helpers:Readonly<Record<string,string>>}}):Promise<{

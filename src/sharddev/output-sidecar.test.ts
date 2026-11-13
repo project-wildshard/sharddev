@@ -16,7 +16,7 @@ test('CLI sidecars emit checked sections without entering browser config imports
   writeFileSync(resolve(path, 'shard.config.ts'), config);
   mkdirSync(resolve(path, 'generators'));
   writeFileSync(resolve(path, 'generators/output.ts'), `
-import {emitPlatformSections} from '@wildshard/sharddev/platformSections';
+import {emitPlatformSections} from '@wildshard/sdk/platformSections';
 export const output={platform:emitPlatformSections(new Map([['ui/strings',{answer:'42'}]]))};
 `);
   const loaded = await readProjectAssets(path);

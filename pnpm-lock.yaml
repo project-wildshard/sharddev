@@ -106,7 +106,7 @@ importers:
       '@types/node':
         specifier: 24.3.1
         version: 24.3.1
-      '@wildshard/sharddev':
+      '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
       esbuild:

@@ -1,8 +1,8 @@
 import { expect, it } from 'vitest';
 import { actorMoveRules, parseActorMoves } from '@wildshard/format/actorMoves';
 import { validateOutputSection } from '@wildshard/format/outputIndex';
-import { formatJsonSchemas } from '@wildshard/sharddev/formatJsonSchema';
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
+import { formatJsonSchemas } from '@wildshard/sdk/formatJsonSchema';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { ActorMoveRunner, diveSteering, orbitSteering, stalkSteering, takeoffSteering, type MoveBody, type MoveObservation, type MoveSteering } from '@wildshard/engine/ai/moves';
 import {onFault, type Fault} from '@wildshard/engine/core/faults';
 

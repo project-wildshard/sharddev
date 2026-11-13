@@ -234,7 +234,7 @@ export function maybePruneGenerationCache(root: string): void {
     writeFileSync(stamp, ''); return true;
   });
   if (!launch) return;
-  const entry = createRequire(resolve(import.meta.dirname, 'package.json')).resolve('@wildshard/sharddev/projectGeneration');
+  const entry = createRequire(resolve(import.meta.dirname, 'package.json')).resolve('@wildshard/sdk/projectGeneration');
   const worker = spawn(process.execPath, [resolve(dirname(entry), 'generationCache.ts'), '--prune-generation-cache', root], { detached: true, stdio: 'ignore' });
   worker.on('error', () => undefined); worker.unref();
 }

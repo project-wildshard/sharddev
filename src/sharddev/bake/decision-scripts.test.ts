@@ -3,8 +3,8 @@ import { actorDecisionRows, decisionScriptRules, parseDecisionScripts, scriptV1I
 import { SCRIPT_LIMITS } from '@wildshard/format/scriptLimits';
 import { validateOutputSection, type OutputPlatformSectionName } from '@wildshard/format/outputIndex';
 import type { PlatformSectionName } from '@wildshard/format/sections';
-import { formatJsonSchemas } from '@wildshard/sharddev/formatJsonSchema';
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
+import { formatJsonSchemas } from '@wildshard/sdk/formatJsonSchema';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 
 const modulePath = `blobs/wasm/${'a'.repeat(64)}.wasm`;
 const slot = { name: 'phase', type: 'i32', default: 0, min: 0, max: 2, scope: 'binding' };

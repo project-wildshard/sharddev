@@ -21,9 +21,9 @@ mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, 'map-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
 const bin = installWildshard(root), app = join(root, 'app'), source = join(app, 'map-isle');
-const author = createRequire(join(app, 'node_modules/@wildshard/sharddev/package.json'));
-const { rasterSceneMap } = await import(pathToFileURL(author.resolve('@wildshard/sharddev/bake/groundMap')).href);
-const { rasterDataMap } = await import(pathToFileURL(author.resolve('@wildshard/sharddev/scripts/bake-data-maps.mjs')).href);
+const author = createRequire(join(app, 'node_modules/@wildshard/sdk/package.json'));
+const { rasterSceneMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/bake/groundMap')).href);
+const { rasterDataMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/scripts/bake-data-maps.mjs')).href);
 const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
 function floorFixture() {
   const original = readFileSync('test/fixtures/shard-assets/triangle.glb');
@@ -56,8 +56,8 @@ function run(args, success = true) {
 }
 function config(missing = false, selected = settings, inputs = ['floor.glb']) {
   writeFileSync(join(source, 'shard.config.ts'), `
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { rasterSceneMap } from '@wildshard/sharddev/bake/groundMap';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { rasterSceneMap } from '@wildshard/sdk/bake/groundMap';
 export default async function generate(ctx) {
  const files = await ctx.cached({ id: 'floor', inputs: ${JSON.stringify(inputs)} }, inputs => inputs);
  const read = name => { const value = files.get(name); if (value === undefined) throw new Error('Undeclared map input ' + name); return value; };

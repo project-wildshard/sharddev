@@ -1,7 +1,7 @@
 import { CylinderGeometry, ConeGeometry, MeshStandardMaterial } from 'three';
-import { staticGlb } from '@wildshard/sharddev/bake/glb';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
-import type { BuiltCommons, CommonsPack } from '@wildshard/sharddev/commons';
+import { staticGlb } from '@wildshard/sdk/bake/glb';
+import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/sdk/immutable';
+import type { BuiltCommons, CommonsPack } from '@wildshard/sdk/commons';
 import { parseItems, type ShardItems } from '@wildshard/format/items';
 
 // The SF86 Mesa fixture's own spear (G355): no real shard uses it, so it lives with the author project, not in

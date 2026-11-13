@@ -1,6 +1,6 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Author admission compares complete byte ranges with Node's native byte comparator.
 import { Buffer } from 'node:buffer';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 /** A private owned snapshot and its computed SHA-256. Only copies leave the handle. */
 export interface ImmutableAsset {

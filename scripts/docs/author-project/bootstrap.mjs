@@ -17,7 +17,7 @@ export function bootstrapAuthor(project) {
   const root = resolve(project), manifest = resolve(root, 'package.json');
   const input = readRecord(manifest);
   const dependencies = { ...record(input.dependencies ?? {}), ...record(input.devDependencies ?? {}) };
-  for (const name of ['@wildshard/sharddev', '@wildshard/format', '@wildshard/commons', 'three'])
+  for (const name of ['@wildshard/sdk', '@wildshard/format', '@wildshard/commons', 'three'])
     if (typeof dependencies[name] !== 'string') throw new Error(`Install ${name} before bootstrapping`);
   for (const name of files) if (existsSync(resolve(root, name))) throw new Error(`Refusing to replace existing author input: ${name}`);
   const template = readRecord(resolve(import.meta.dirname, 'package.json'));

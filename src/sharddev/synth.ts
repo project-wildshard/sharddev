@@ -23,7 +23,7 @@ export function synthScene(scene: Object3D, project: string, slug: string): Synt
  * Only the scene reader's supported features enter JSON; missing scenes refuse instead of synthesizing a fake world. */
 export async function synthProject(project: string): Promise<SynthResult> {
   const root = realpathSync(project), entry = confined(root, 'shard.config.ts');
-  const three = import.meta.resolve('three'), reader = fileURLToPath(import.meta.resolve('@wildshard/sharddev/scene'));
+  const three = import.meta.resolve('three'), reader = fileURLToPath(import.meta.resolve('@wildshard/sdk/scene'));
   // Reader and SDK declarations must share one module graph, not just the same three.js constructors.
   const virtual = resolve(root, '.wildshard-synth-entry.ts');
   const wrapper = `import * as input from ${JSON.stringify(entry)};
@@ -36,7 +36,7 @@ export default { scene: readScene(input.scene), slug: input.identity.slug };`;
     plugins: [{ name: 'author-scene-three-identity', enforce: 'pre', resolveId(id, importer) {
       if (id === virtual) return virtual;
       const author = importer?.startsWith(root + sep) === true && !importer.startsWith(resolve(root, 'node_modules') + sep);
-      if (author && (/^@wildshard\/(?:game|engine)\//u.test(id) || id.startsWith('@wildshard/sharddev/runtime/'))) throw new Error('Scene synth cannot import trusted runtime');
+      if (author && (/^@wildshard\/(?:game|engine)\//u.test(id) || /^@wildshard\/(?:sdk|sharddev)\/runtime\//u.test(id))) throw new Error('Scene synth cannot import trusted runtime');
       return id === 'three' ? { id: three, external: true } : null;
     }, load(id) {
       if (id === virtual) return wrapper;

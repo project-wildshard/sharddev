@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 import { assetCost, type AssetCost } from './assets';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { ownAssetBytes } from './assetOwner';
 import { SHARDFILE_ADMISSION_LIMITS as limits } from './admission';
 import type { CommonsCosts } from './commonsCosts';

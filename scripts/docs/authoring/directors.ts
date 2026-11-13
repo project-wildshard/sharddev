@@ -1,7 +1,7 @@
-import { Director } from '@wildshard/sharddev/director';
-import { generateDirectorAbi } from '@wildshard/sharddev/directorAbi';
+import { Director } from '@wildshard/sdk/director';
+import { generateDirectorAbi } from '@wildshard/sdk/directorAbi';
 import { Scene } from 'three';
-import { readScene } from '@wildshard/sharddev/scene';
+import { readScene } from '@wildshard/sdk/scene';
 
 /** The actual Template 1 door/wave declaration, with the host-provided flags. */
 export function directorsExample() {

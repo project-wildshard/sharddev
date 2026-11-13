@@ -9,7 +9,7 @@ import { dirname, extname, relative, resolve, sep } from 'node:path';
 import sharp from 'sharp';
 import * as v from 'valibot';
 import { compilerPackageInputs } from '../projectCompilerIdentity';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { readBoundedFile } from '../sourceReader';
 import { readImagePixels, writeImagePixels } from './image';
 import { bakeColourTexture } from './texture';

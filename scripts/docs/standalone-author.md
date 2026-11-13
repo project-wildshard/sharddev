@@ -22,7 +22,7 @@ npm pkg set 'overrides.@wildshard/sdk=$@wildshard/sdk'
 npm pkg set 'overrides.@wildshard/format=$@wildshard/format'
 npm install ../release/wildshard-sdk-0.0.0.tgz ../release/wildshard-format-0.0.0.tgz ../release/wildshard-commons-0.0.0.tgz three@0.186.0
 npm install --save-dev typescript@7.0.2 @types/node@24.13.6 @types/three@0.186.0 rolldown@1.2.13
-node node_modules/@wildshard/sharddev/dist/author-template/bootstrap.mjs .
+node node_modules/@wildshard/sdk/dist/author-template/bootstrap.mjs .
 ```
 
 Archive filenames track the actual release version; the current development version is

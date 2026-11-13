@@ -1,5 +1,5 @@
 import ts from '@typescript/typescript6';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 /** Bind each cached callback to its lexical source dependencies after bundling.
  * The checker resolves bindings, so an unrelated imported constant/function is

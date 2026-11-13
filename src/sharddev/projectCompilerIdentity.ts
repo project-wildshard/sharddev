@@ -6,7 +6,7 @@ import { createRequire } from 'node:module';
 import { dirname, resolve, relative } from 'node:path';
 import { build } from 'vite';
 import * as v from 'valibot';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { readBoundedFile } from './sourceReader';
 
 const Package = v.object({ name: v.string(), version: v.string(), dependencies: v.optional(v.record(v.string(), v.string()), {}) });
@@ -39,9 +39,9 @@ export function rawAssemblyScriptCompilerIdentity(): Promise<string> {
 async function capture(role: 'project' | 'raw-assemblyscript', bundle: typeof build): Promise<string> {
   // The CLI defines the SDK directory when executing its bundle as a data URL.
   const require = createRequire(resolve(import.meta.dirname, 'package.json'));
-  const compiler = require.resolve('@wildshard/sharddev/compileScript');
-  const decisions = require.resolve('@wildshard/sharddev/buildDecisionScripts');
-  const v2 = require.resolve('@wildshard/sharddev/compileScriptV2');
+  const compiler = require.resolve('@wildshard/sdk/compileScript');
+  const decisions = require.resolve('@wildshard/sdk/buildDecisionScripts');
+  const v2 = require.resolve('@wildshard/sdk/compileScriptV2');
   const built = await bundle({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
     lib: { entry: role === 'project' ? [compiler, decisions, v2] : [compiler, v2], formats: ['es'] },
     rolldownOptions: { external: [/^node:/u, ...external] } } });

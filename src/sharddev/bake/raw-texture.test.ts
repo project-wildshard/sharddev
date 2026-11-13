@@ -7,7 +7,7 @@ import { zstdDecompressSync } from 'node:zlib';
 import { bakeRawColourPixels } from './rawTexture';
 import { bakeRawColourTexture } from './texture';
 import { writeImagePixels } from './image';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { assertConfigBoundary } from '../configBoundary';
 
 const original = [

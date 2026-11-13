@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import { Scope } from '@wildshard/engine/app/scope';
 import { parseDecisionScripts } from '@wildshard/format/decisionScripts';
-import { captureDecisionSources, compileDecisionScripts, decisionLineCeiling } from '@wildshard/sharddev/buildDecisionScripts';
-import { inspectDecisionSource } from '@wildshard/sharddev/decisionSource';
-import { generateDecisionBindings } from '@wildshard/sharddev/decisionScriptBindings';
+import { captureDecisionSources, compileDecisionScripts, decisionLineCeiling } from '@wildshard/sdk/buildDecisionScripts';
+import { inspectDecisionSource } from '@wildshard/sdk/decisionSource';
+import { generateDecisionBindings } from '@wildshard/sdk/decisionScriptBindings';
 import { DecisionHost, type DecisionScript } from '@wildshard/engine/script/decision';
 import { createScriptScenario } from '../test/scriptScenario';
 

@@ -3,7 +3,7 @@ import { templateHeightAt } from './landscape';
 import { templateScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
 import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, mushroomCaps, rimFlames, wardenTell, type TemplatePart } from './world';
-import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
+import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
 
 /** LF1-5: the GLB material names `props.materials` binds (product.ts): the measure stone every merged shape draws in, and the
  *  red mushroom caps' emissive surface. */

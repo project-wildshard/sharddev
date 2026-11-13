@@ -1,5 +1,5 @@
 import { encodeMeshCollision, MESH_COLLISION_LIMITS } from '@wildshard/format/meshCollisionBytes';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import type { NormalizedWorld, WorldPanel, WorldPrimitive } from './world';
 
 type Point = readonly [number, number, number];

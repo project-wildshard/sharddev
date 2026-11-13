@@ -3,7 +3,7 @@ import { pastelHeightAt } from './landscape';
 import { pastelScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
 import { buildPastelWorld, jumpCoursePads, lanternModel, measureBox, type PastelPart } from './world';
-import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
+import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
 
 /**
  * The pastel plain's props bake source (SF59 / G169): the template's generators, captured before merging, with the

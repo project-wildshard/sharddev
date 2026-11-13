@@ -1,5 +1,5 @@
 /** Repository compatibility wrapper for the SDK's pinned portable compiler. */
-import { compileScript as compile, instrumentScript as instrument } from '@wildshard/sharddev/compileScript';
+import { compileScript as compile, instrumentScript as instrument } from '@wildshard/sdk/compileScript';
 
 /** @param {Uint8Array} bytes */
 export function instrumentScript(bytes) { return instrument(bytes); }

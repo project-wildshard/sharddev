@@ -1,12 +1,12 @@
 import { templateProduct } from './product';
 import { templateTerrain } from './terrain';
 import { templatePropRows } from './props';
-import type { ProjectGenerationContext, GeneratedProject } from '@wildshard/sharddev/projectGeneration';
+import type { ProjectGenerationContext, GeneratedProject } from '@wildshard/sdk/projectGeneration';
 import { parseShardfile } from '@wildshard/engine/host/shardfile';
 import { templateBehaviour } from './behaviour';
 import { templateBoss, TEMPLATE_BOSS_INPUTS } from './boss';
 import { templateOutput } from './productOutput';
-import { rasterGroundMap } from '@wildshard/sharddev/bake/groundMap';
+import { rasterGroundMap } from '@wildshard/sdk/bake/groundMap';
 import mapSettings from '../data/map.json' with { type: 'json' };
 
 // Edit the build-time declaration to author this project's data.

@@ -5,7 +5,7 @@ import { validateTerrainAssets } from '@wildshard/format/product';
 import { TerrainSchema, type ShardTerrain } from '@wildshard/format/terrain';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import * as v from 'valibot';
-import { hashImmutableBytes as contentHash } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes as contentHash } from '../immutable';
 import { parseBakedTerrain, type BakedGrid } from '@wildshard/format/bakedTerrainBytes';
 import { bakedSamplers, type BakedTerrainSamplers } from '@wildshard/format/bakedTerrainSampling';
 import { ScalarLatticeSchema, decodeScalarStorage } from '@wildshard/format/scalarChannel';

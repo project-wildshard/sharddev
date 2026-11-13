@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { admitScript } from '@wildshard/format/scriptAdmission';
-import { compileScript } from '@wildshard/sharddev/compileScript';
+import { compileScript } from '@wildshard/sdk/compileScript';
 import { scriptSource } from '../test/scriptSource';
 
 const source = (body = 'return 0;', extra = '') => `${extra}

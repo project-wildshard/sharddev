@@ -1,5 +1,5 @@
-import { readRigRest, readRigMotion } from '@wildshard/sharddev/bake/rig';
-import { readImagePixels, writeImagePixels } from '@wildshard/sharddev/bake/image';
+import { readRigRest, readRigMotion } from '@wildshard/sdk/bake/rig';
+import { readImagePixels, writeImagePixels } from '@wildshard/sdk/bake/image';
 
 /** Read a retained authored figure/arm GLB without a page, GPU or live animation service. */
 export async function readersExample(glb: Uint8Array, animationGlb = glb) {

@@ -14,7 +14,7 @@ import type { Shardfile } from '@wildshard/format/shardSchema';
 import { placeholderGeometry, placeholderLeanDrop, type PlaceholderGrid, type PlaceholderLook, type PlaceholderLookRuntime, type PlaceholderPart } from '@wildshard/engine/game/plugin/placeholderGeometry';
 import { assetCost } from '@wildshard/format/product';
 import { parseGlb } from '../assets';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { staticGlb } from './glb';
 import { bakeFarImpostor } from './farImpostor';
 import { nearGroundReducer, nearPlaceholderParts, type NearPlaceholderOptions, type NearPlaceholderReport, type NearPrototype } from './nearPlaceholder';

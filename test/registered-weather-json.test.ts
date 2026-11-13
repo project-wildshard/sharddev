@@ -2,8 +2,8 @@ import * as v from 'valibot';
 import {expect,test} from 'vitest';
 import {ForestWeatherSchema} from '@wildshard/format/forestWeather';
 import {registeredJsonContract,validateRegisteredJson} from '@wildshard/format/registeredJson';
-import {registeredJsonSchema,namedJsonSchema} from '@wildshard/sharddev/formatJsonSchema';
-import {nameBlob} from '@wildshard/sharddev/blobs';
+import {registeredJsonSchema,namedJsonSchema} from '@wildshard/sdk/formatJsonSchema';
+import {nameBlob} from '@wildshard/sdk/blobs';
 
 const name='world/forest-weather.json';
 const raw={files:{program:'world/weather.json'},mode:'setting',debug:'weather',heldPhase:0,system:{id:'weather',after:[],before:[]}};

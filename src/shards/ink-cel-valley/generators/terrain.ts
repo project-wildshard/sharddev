@@ -1,5 +1,5 @@
-import { createTerrainField } from '@wildshard/sharddev/bake/nativeTerrainField';
-import { bakeTerrain, type BakedTerrain } from '@wildshard/sharddev/bake/terrain';
+import { createTerrainField } from '@wildshard/sdk/bake/nativeTerrainField';
+import { bakeTerrain, type BakedTerrain } from '@wildshard/sdk/bake/terrain';
 import { Color } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 import { cellGround } from './cell';

@@ -2,7 +2,7 @@ import { parse, object, array, string, unknown } from 'valibot';
 import { PickupCatalogueSchema, SpecimenBookSchema, type PickupCatalogueRows, type SpecimenBookRows, type SpecimenModelMetadataRows } from '@wildshard/format/specimenCatalogue';
 import pickupRows from '@wildshard/engine/game/data/pickupCatalogue' with { type: 'json' };
 import { namedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from '../immutable';
 import { nameBlob, type NamedBlob, type BlobOptions } from '../blobs';
 
 /** Admit fresh shared pickup metadata for an offline recipe, without installing runtime models or loading geometry. */

@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Published paths stay under the author project.
 import { dirname, resolve, sep } from 'node:path';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import type { SceneDescription } from './scene';
 import type { SynthResult } from './bake';
 

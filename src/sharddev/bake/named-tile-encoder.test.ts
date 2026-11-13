@@ -1,7 +1,7 @@
 import { BufferAttribute, BufferGeometry, Group, Matrix4, Mesh, MeshStandardMaterial } from 'three';
 import { expect, test } from 'vitest';
 import { glbBuffers, prepareGlbBuffers } from '@wildshard/format/glbBuffers';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { parseGlb } from '../assets';
 import { bakeProps } from './props';
 import { compressGlb } from './glbCompression';

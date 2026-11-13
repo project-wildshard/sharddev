@@ -1,6 +1,6 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Deterministic native compression is build-only.
 import { constants, deflateSync, inflateSync, zstdCompressSync } from 'node:zlib';
-import { encodePortableBytes } from '@wildshard/sharddev/bake/portableBytes';
+import { encodePortableBytes } from '@wildshard/sdk/bake/portableBytes';
 
 /** Encode bounded owned build results with the pinned codecs; never installs a runtime service.
  * Deflate keeps its portable default; native explicitly preserves Node zlib bytes under a native cache key. */

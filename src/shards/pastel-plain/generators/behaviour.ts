@@ -1,5 +1,5 @@
-import type { ProjectGenerationContext } from '@wildshard/sharddev/projectGeneration';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import type { ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';
+import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 
 export type PastelBehaviour = Record<'door' | 'items' | 'idle', { hash: string; compressed: number }>;
 export const PASTEL_BEHAVIOUR_INPUTS = ['behaviour/door.as', 'behaviour/items.as', 'behaviour/idle.as'] as const;

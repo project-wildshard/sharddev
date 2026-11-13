@@ -1,7 +1,7 @@
 import { MeshStandardMaterial, type BufferGeometry } from 'three';
 import type { Shardfile } from '@wildshard/engine/host/shardfile';
 import { parseKtx2 } from '../assets';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import type { WorldMaterial, WorldTexture } from './world';
 import type { GlbPrimitive } from './glb';
 import type { GraphIr } from '@wildshard/format/materialGraph';

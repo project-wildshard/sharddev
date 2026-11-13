@@ -1,6 +1,6 @@
 import * as v from 'valibot';
 import { EntryReadUrlSchema, parseEntryReadSet, type EntryRead, type EntryReadSet, type RegionEntryReads } from '@wildshard/format/entryReads';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 /** Build-owned entry addresses. A crawl runs the same native entry read adapter
  * for each tier, not a second runtime or an authored callback at prefetch time. */

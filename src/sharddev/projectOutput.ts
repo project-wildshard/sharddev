@@ -10,7 +10,7 @@ import { OutputIndexSchema, type OutputFile } from '@wildshard/format/outputInde
 import { ShardNaturalSchema } from '@wildshard/format/shardSections';
 import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
 import { readNamedBlob, emitNamedBlobs, nameBlob, type NamedBlob, type ServerBlob } from './blobs';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { copyAssetBytes, hashAssetBytes } from './assetHandle';
 import { defineMirror, type RuntimeMirror } from './runtimeMirrors';
 import type { EmittedSections } from './sections';

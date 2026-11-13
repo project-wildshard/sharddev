@@ -29,11 +29,11 @@ function run(args, success = true) {
 
 function config(threshold = 0.5, margin = 0.25) {
   writeFileSync(join(source, 'shard.config.ts'), `
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { bakeNavigation } from '@wildshard/sharddev/bake/navigation';
-import { declareNavigation } from '@wildshard/sharddev/bake/navigationAsset';
-import { encodePortableBytes } from '@wildshard/sharddev/bake/portableBytes';
-import { navmeshGroundExclusion } from '@wildshard/sharddev/scripts/bake/navmeshGround.ts';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { bakeNavigation } from '@wildshard/sdk/bake/navigation';
+import { declareNavigation } from '@wildshard/sdk/bake/navigationAsset';
+import { encodePortableBytes } from '@wildshard/sdk/bake/portableBytes';
+import { navmeshGroundExclusion } from '@wildshard/sdk/scripts/bake/navmeshGround.ts';
 import { ScalarLatticeBindings } from '@wildshard/engine/world/scalarChannel';
 export default async function generate(ctx) {
  const files = await ctx.cached({ id: 'wet', inputs: [] }, () => new Map([

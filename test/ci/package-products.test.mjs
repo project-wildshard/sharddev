@@ -10,7 +10,7 @@ import { test } from 'node:test';
 
 const { readTar } = await import('@wildshard/format/tar');
 const { manifestFolders, shardProducts } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
-const sdk = dirname(createRequire(import.meta.url).resolve('@wildshard/sharddev/package.json'));
+const sdk = dirname(createRequire(import.meta.url).resolve('@wildshard/sdk/package.json'));
 const bin = resolve(sdk, 'bin/wildshard.mjs');
 const expected = shardProducts(process.cwd(), manifestFolders(process.cwd()));
 assert.ok(expected.length, 'This checkout must declare its products');

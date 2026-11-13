@@ -3,7 +3,7 @@ import { DecisionHost, type DecisionHostOptions, type DecisionScript, type Decis
 import { DecisionModule, prepareDecisionMemories } from '@wildshard/engine/script/decisionModule';
 import { Scope } from '@wildshard/engine/app/scope';
 import { pageScope } from '@wildshard/engine/app/resources';
-import { compileScript } from '@wildshard/sharddev/compileScript';
+import { compileScript } from '@wildshard/sdk/compileScript';
 import { scriptV1Layout } from '@wildshard/format/scriptAbiV1';
 import { createScriptScenario } from '../test/scriptScenario';
 

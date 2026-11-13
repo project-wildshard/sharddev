@@ -1,4 +1,4 @@
-import { rasterSceneMap, type SceneMapBytes } from '@wildshard/sharddev/bake/groundMap';
+import { rasterSceneMap, type SceneMapBytes } from '@wildshard/sdk/bake/groundMap';
 import settings from '../data/map.json' with { type: 'json' };
 
 /** The painter's reads of the baked world's files only (no file system, no public directory). */

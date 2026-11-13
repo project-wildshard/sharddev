@@ -1,9 +1,9 @@
 import { Group, type Matrix4, Mesh, MeshStandardMaterial, type Object3D } from 'three';
 import { inkField } from './terrain';
-import { Rng } from '@wildshard/sharddev/random';
+import { Rng } from '@wildshard/sdk/random';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
 import { buildInkWorld, jumpCoursePads, lanternModel, measureBox, type InkPart } from './world';
-import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
+import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
 
 /**
  * The ink valley's props bake source (SF59 / G169): the template's generators, captured before merging, on the valley

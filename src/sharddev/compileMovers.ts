@@ -1,6 +1,6 @@
 import { compileScript } from './bake/compileScript';
 import { moverProgram } from './moverPrograms';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { MOVER_DRIVER_MODULES } from '@wildshard/format/moverMotion';
 
 /** Compile and meter a fixed row driver; refuse any accidental change to its admitted continuation ABI. */

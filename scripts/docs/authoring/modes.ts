@@ -1,6 +1,6 @@
 import { Scene, Vector3 } from 'three';
-import { Zipline, Updraft, Mount, Grapple } from '@wildshard/sharddev/modes';
-import { readScene } from '@wildshard/sharddev/scene';
+import { Zipline, Updraft, Mount, Grapple } from '@wildshard/sdk/modes';
+import { readScene } from '@wildshard/sdk/scene';
 import { parseModes } from '@wildshard/format/modes';
 
 /** Template-sized demonstration of all four control declarations; it grants no mount or anchors. */

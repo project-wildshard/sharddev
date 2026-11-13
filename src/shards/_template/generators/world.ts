@@ -1,6 +1,6 @@
-import { BoxCollider } from '@wildshard/sharddev/physics';
-import type { PropsBakeSource } from '@wildshard/sharddev/bake/props';
-import { measureUv, type MeasureRole } from '@wildshard/sharddev/measure';
+import { BoxCollider } from '@wildshard/sdk/physics';
+import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
+import { measureUv, type MeasureRole } from '@wildshard/sdk/measure';
 import { BoxGeometry, BufferGeometry, CircleGeometry, CylinderGeometry, Float32BufferAttribute, Group, IcosahedronGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, PointLight, Vector3, type Object3D } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 

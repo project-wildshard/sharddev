@@ -1,6 +1,6 @@
 import Ajv from 'ajv';
 import { expect, it, vi } from 'vitest';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { validateDefinedSchema, type SchemaValidator } from './schemaValidation';
 
 // CI6: a schema compiles once per exact text; every later call still validates the value and refuses with the same text.

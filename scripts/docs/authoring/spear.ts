@@ -1,7 +1,7 @@
 import { starterSpearPack, spearLoadout } from '../author-project/generators/spear';
-import { createCatalogue, catalogueRef } from '@wildshard/sharddev/commons/catalogue';
-import { commonsRequirements, type BuiltCommons } from '@wildshard/sharddev/commons';
-import { emptyShardfile } from '@wildshard/sharddev/author';
+import { createCatalogue, catalogueRef } from '@wildshard/sdk/commons/catalogue';
+import { commonsRequirements, type BuiltCommons } from '@wildshard/sdk/commons';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
 
 /** An equipped commons spear: its retained generator, exact asset/contact closure and ordinary author client. */

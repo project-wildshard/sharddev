@@ -8,7 +8,7 @@ import { homedir } from 'node:os';
 import { resolve } from 'node:path';
 import { reportBuildCache } from '../buildCacheMetrics';
 import { projectCompilerIdentity, rawAssemblyScriptCompilerIdentity } from '../projectCompilerIdentity';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { readBoundedFile } from '../sourceReader';
 import type { AssemblyScriptMemo } from './assemblyscriptMemoPort';
 

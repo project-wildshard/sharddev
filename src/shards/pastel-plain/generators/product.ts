@@ -1,11 +1,11 @@
-import { emptyShardfile } from '@wildshard/sharddev/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
-import { parseRows } from '@wildshard/sharddev/rows';
-import { parsePlumbing } from '@wildshard/sharddev/plumbing';
-import { parseLedgerRules } from '@wildshard/sharddev/ledger';
-import { parseAudioData } from '@wildshard/sharddev/audio';
-import { parseQuestData } from '@wildshard/sharddev/quests';
-import { parseClientScripts } from '@wildshard/sharddev/clientScripts';
+import { parseRows } from '@wildshard/sdk/rows';
+import { parsePlumbing } from '@wildshard/sdk/plumbing';
+import { parseLedgerRules } from '@wildshard/sdk/ledger';
+import { parseAudioData } from '@wildshard/sdk/audio';
+import { parseQuestData } from '@wildshard/sdk/quests';
+import { parseClientScripts } from '@wildshard/sdk/clientScripts';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
 import rows from '../data/rows.json' with { type: 'json' };
 import plumbing from '../data/plumbing.json' with { type: 'json' };
@@ -23,7 +23,7 @@ import skins from '../data/skins.json' with { type: 'json' };
 import ITEMS from '../data/items.json' with { type: 'json' };
 import look from '../data/look.json' with { type: 'json' };
 import rock from '../data/rock.graph.json' with { type: 'json' };
-import type { BakedProps } from '@wildshard/sharddev/bake/props';
+import type { BakedProps } from '@wildshard/sdk/bake/props';
 import type { pastelTerrain } from './terrain';
 import type { PastelBehaviour } from './behaviour';
 

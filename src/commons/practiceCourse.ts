@@ -2,7 +2,7 @@
 import { readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Encode compiled immutable program bytes in the existing JSON envelope.
 import { Buffer } from 'node:buffer';
-import { compileDecisionScripts } from '@wildshard/sharddev/buildDecisionScripts';
+import { compileDecisionScripts } from '@wildshard/sdk/buildDecisionScripts';
 import type { DecisionScriptRow } from '@wildshard/format/decisionScripts';
 import { courseProgramInputs } from './courseProgram';
 

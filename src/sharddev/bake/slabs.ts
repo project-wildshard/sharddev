@@ -10,7 +10,7 @@ import { parseWorldSceneWeld, type WorldSceneWeld, type WorldSceneWeldNode } fro
 import type { WorldScenesSection } from '@wildshard/format/worldScenes';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { prepareGlbBuffers } from '@wildshard/format/glbBuffers';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { staticGlb, type GlbPrimitive } from './glb';
 import { compressGlb } from './glbCompression';
 import { parseGlb } from '../assets';

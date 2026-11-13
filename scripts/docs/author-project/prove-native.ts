@@ -2,9 +2,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseShardfile } from '@wildshard/engine/host/shardfile';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 import { validateSimulation } from '@wildshard/engine/host/headless';
-import { createCatalogue } from '@wildshard/sharddev/commons/catalogue';
+import { createCatalogue } from '@wildshard/sdk/commons/catalogue';
 import { starterSpearPack } from './generators/spear';
 
 const product = resolve(process.argv[2] ?? 'dist');

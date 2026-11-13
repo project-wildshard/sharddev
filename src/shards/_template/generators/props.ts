@@ -1,4 +1,4 @@
-import { bakeProps, type BakedProps } from '@wildshard/sharddev/bake/props';
+import { bakeProps, type BakedProps } from '@wildshard/sdk/bake/props';
 import { templateProps } from './templatePropsSource';
 
 /** The original authored meshes and scatter baked in memory, without publishing intermediate files. */

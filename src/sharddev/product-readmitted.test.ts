@@ -3,7 +3,7 @@ import { afterEach, expect, it } from 'vitest';
 import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture paths stay inside the owned directory.
 import { resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/sharddev/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { admitProduct, readmitted } from './productOutput';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 

@@ -1,7 +1,7 @@
 import { Format, NodeIO, type Accessor, type JSONDocument } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { MeshoptDecoder } from 'meshoptimizer';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 
 /** Decode Meshopt into plain accessor buffers and externalize original embedded WebP/PNG/JPEG bytes.
  * This is build-time glTF source, not an admitted product: the caller must declare and admit its texture files.

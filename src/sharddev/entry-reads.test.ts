@@ -1,6 +1,6 @@
 import { expect, test, vi } from 'vitest';
 import { crawlEntryReadSet, entryDemandUrls, type EntryCrawlPorts } from './entryReads';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 test('entry crawling records demand order across out-of-order completion without changing repeated reads', async () => {
   const requested: string[] = [], first = new Uint8Array([7, 8]), second = new Uint8Array([9]);

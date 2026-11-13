@@ -37,7 +37,7 @@ function inventory(directory,prefix=''){
 
 test('the installed author builds a real walking quest and warms its compiler',{timeout:120_000},()=>{
  cli(['new',source,'walking-isle','--empty']);
- writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sharddev/author';
+ writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sdk/author';
  const world=emptyShardfile({slug:'walking-isle',name:'Walking isle',author:'Outside author',seed:1,revision:1});
  export default {...world,quests:{flags:['walk.arrived','walk.complete'],quests:[{id:'walk.quest',title:'Reach the marker',track:false,
   completeFlag:'walk.complete',steps:[{id:'marker',objective:'Walk to the marker',done:{all:['walk.arrived']}}],onComplete:{fact:'walk.quest',coins:1}}],

@@ -1,4 +1,4 @@
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 
 /** Data-only result of the explicit host factory, never an admission certificate. */
 export interface OwnedAsset { readonly bytes: Uint8Array; readonly hash: string }

@@ -1,5 +1,5 @@
 {
-  "name": "@wildshard/sharddev",
+  "name": "@wildshard/sdk",
   "version": "0.2.2",
   "description": "The author's toolbox: the `wildshard` CLI that bakes shard source into a shardfile, the author SDK, the local dev server (engine client against engine server), the explorers, arena and drafts tool.",
   "license": "UNLICENSED",
@@ -101,7 +101,7 @@
   "devDependencies": {
     "@playwright/test": "1.65.0",
     "@types/node": "24.3.1",
-    "@wildshard/sharddev": "link:.",
+    "@wildshard/sdk": "link:.",
     "esbuild": "0.28.2",
     "oxfmt": "0.74.0",
     "oxlint": "1.89.0",
@@ -200,6 +200,7 @@
   "exports": {
     "./package.json": "./package.json",
     "./entryReads": "./src/sharddev/entryReads.ts",
+    "./immutable": "./src/sharddev/immutable.ts",
     "./bake/tileEncoder": "./src/sharddev/bake/tileEncoder.ts",
     "./bake/wholePartition": "./src/sharddev/bake/wholePartition.ts",
     "./bake/basisGlb": "./src/sharddev/bake/basisGlb.ts",

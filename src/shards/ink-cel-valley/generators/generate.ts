@@ -1,4 +1,4 @@
-import type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sharddev/projectGeneration';
+import type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';
 import { parseShardfile } from '@wildshard/engine/host/shardfile';
 import { inkProduct } from './product';
 import { inkMapPixels } from './mapProgram';

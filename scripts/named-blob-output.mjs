@@ -1,7 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
-import { nameBlobBytes } from '@wildshard/sharddev/blobBytes';
-import { validateNamedJson } from '@wildshard/sharddev/schemaValidation';
+import { nameBlobBytes } from '@wildshard/sdk/blobBytes';
+import { validateNamedJson } from '@wildshard/sdk/schemaValidation';
 import { byteWriter } from '@wildshard/engine/scripts/bake-output.mjs';
 
 const requireSchema = createRequire(new URL('../src/sharddev/package.json', import.meta.url));

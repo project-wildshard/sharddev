@@ -7,7 +7,7 @@ import { mkdirSync, mkdtempSync, writeFileSync, symlinkSync, rmSync } from 'node
 import { resolve } from 'node:path';
 import { nameBlob, emitNamedBlobs, readNamedBlob } from './blobs';
 import { nameBlobBytes } from './blobBytes';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { compileGltfSource } from './bake/gltfSource';
 import { parseGlb } from './assets';
 import { NodeIO } from '@gltf-transform/core';

@@ -3,9 +3,9 @@ import { afterEach, expect, it } from 'vitest';
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync, symlinkSync, existsSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve fixture files inside the owned output directory.
 import { resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { runtimePackageAllowed, validateRuntimeImports } from './runtimeImports';
 import { writeOutputProduct, validateOutputProduct } from './outputProduct';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
@@ -61,7 +61,7 @@ it('refuses canonical but schema-invalid section bytes with updated hash and siz
 
 it('allows only installed public runtime packages and copied TypeScript targets',()=>{
  for(const name of ['three','three/webgpu','valibot','@wildshard/engine/app/scope','@wildshard/engine/game/plugin/headless','@wildshard/engine/host/headlessRuntime'])expect(runtimePackageAllowed(name),name).toBe(true);
- for(const name of ['node:fs','@wildshard/sharddev/commons/trees','@wildshard/engine/not-public','three/package.json','@wildshard/sharddev/bake?raw'])expect(runtimePackageAllowed(name),name).toBe(false);
+ for(const name of ['node:fs','@wildshard/sdk/commons/trees','@wildshard/engine/not-public','three/package.json','@wildshard/sdk/bake?raw'])expect(runtimePackageAllowed(name),name).toBe(false);
  const directory=output();mkdirSync(resolve(directory,'runtime'));writeFileSync(resolve(directory,'runtime/other.ts'),'export const x=1;');
  expect(()=>validateRuntimeImports(directory,'runtime/index.ts',"import {x} from './other'; import type {Scope} from '@wildshard/engine/app/scope';")).not.toThrow();
  expect(()=>validateRuntimeImports(directory,'runtime/index.ts',"import x from '../data/x';")).toThrow();

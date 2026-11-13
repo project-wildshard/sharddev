@@ -3,15 +3,15 @@ import { afterAll, beforeAll, expect, test } from 'vitest';
 import { mkdirSync, mkdtempSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep all fixture bytes under the repository scratch root.
 import { resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { compileDecisionScripts } from '@wildshard/sharddev/buildDecisionScripts';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { compileDecisionScripts } from '@wildshard/sdk/buildDecisionScripts';
 import { buildDecisionRegistries } from '@wildshard/format/decisionBindings';
 import { readCreatureStrikes } from '@wildshard/format/creatures';
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
-import { mergeProjectBlobs } from '@wildshard/sharddev/projectOutput';
-import { writeOutputProduct } from '@wildshard/sharddev/outputProduct';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
+import { mergeProjectBlobs } from '@wildshard/sdk/projectOutput';
+import { writeOutputProduct } from '@wildshard/sdk/outputProduct';
 import { scenario } from '../test/scriptScenario';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 
 let root = '', modulePath = '', moduleBytes: Uint8Array = new Uint8Array();
 beforeAll(async () => {

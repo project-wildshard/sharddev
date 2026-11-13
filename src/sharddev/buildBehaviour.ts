@@ -7,7 +7,7 @@ import { Buffer } from 'node:buffer';
 import * as v from 'valibot';
 import { compileScript } from './bake/compileScript';
 import { generateDirectorAbi } from './directorAbi';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from './immutable';
 import { readBoundedFile } from './sourceReader';
 
 const relativePath = v.pipe(v.string(), v.maxLength(512), v.check(path => path.split('/').every(part => /^[A-Za-z0-9_-][A-Za-z0-9_.-]*$/u.test(part)), 'project-relative path'));

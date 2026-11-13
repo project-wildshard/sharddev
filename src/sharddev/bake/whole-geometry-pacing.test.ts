@@ -12,7 +12,7 @@ import { assembleWholeGeometryViews, fetchLaneBake, readWholeGeometry, unshuffle
 import { provideRuntimeProduct } from '@wildshard/engine/game/shardfile/runtimeProduct';
 import { emptyShardfile } from '@wildshard/engine/host/author';
 import { staticGlb } from './glb';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 
 const owners: Scope[] = [], geometries: BufferGeometry[] = [], materials: MeshBasicMaterial[] = [];
 const nativeFetch = globalThis.fetch, nativeDecoder = globalThis.DecompressionStream;

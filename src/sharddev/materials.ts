@@ -9,7 +9,7 @@ import { validateGraph, type GraphBudget, type GraphIr, type GraphLiteral, type 
 import type { MaterialEntry } from '@wildshard/format/materials';
 
 /**
- * `@wildshard/sharddev/materials` (DS1.4): the authoring materials a generator puts on its three.js meshes, and the TSL → graph
+ * `@wildshard/sdk/materials` (DS1.4): the authoring materials a generator puts on its three.js meshes, and the TSL → graph
  * compiler. Each class is an ordinary three.js material (so a generator previews in any three.js renderer) that also
  * knows the shardfile catalogue entry it bakes to (`toMaterialEntry()`); `readScene` writes that entry into the scene
  * description, so a material never becomes shader code (G306).

@@ -11,7 +11,7 @@ import { emptyShardfile } from '@wildshard/engine/host/author';
 import { parseGlb } from './assets';
 import { staticGlb } from './bake/glb';
 import { compressGlb } from './bake/glbCompression';
-import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 
 test('a fresh author process admits compressed bytes immediately after importing the direct writer', async () => {
   mkdirSync('tmp', { recursive: true });

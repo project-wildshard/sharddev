@@ -3,10 +3,10 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture paths are confined to their owned tmp root.
 import { resolve } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
-import { emptyShardfile } from '@wildshard/sharddev/author';
-import { buildProject } from '@wildshard/sharddev/project';
-import { proveRuntimeData } from '@wildshard/sharddev/outputRuntime';
-import { validateOutputProduct } from '@wildshard/sharddev/outputProduct';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { buildProject } from '@wildshard/sdk/project';
+import { proveRuntimeData } from '@wildshard/sdk/outputRuntime';
+import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { parseOutputIndex } from '@wildshard/format/outputIndex';
 
 const owned: string[] = [];

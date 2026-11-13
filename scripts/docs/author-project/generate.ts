@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { compileBehaviourModule } from '@wildshard/sharddev/buildBehaviour';
-import { generateScriptModule } from '@wildshard/sharddev/directorAbi';
+import { compileBehaviourModule } from '@wildshard/sdk/buildBehaviour';
+import { generateScriptModule } from '@wildshard/sdk/directorAbi';
 import { buildWorld, disposeWorld, worldBytes } from './generators/world.ts';
 
 const idle = generateScriptModule({ version: 1, sharedOwner: 'host', playerKey: 'actorId', shared: [], player: [] }, '');

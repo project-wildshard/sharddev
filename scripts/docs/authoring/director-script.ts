@@ -1,5 +1,5 @@
-import { compileBehaviourModule } from '@wildshard/sharddev/buildBehaviour';
-import { generateDirectorAbi, generateScriptModule } from '@wildshard/sharddev/directorAbi';
+import { compileBehaviourModule } from '@wildshard/sdk/buildBehaviour';
+import { generateDirectorAbi, generateScriptModule } from '@wildshard/sdk/directorAbi';
 import { directorsExample } from './directors';
 
 /** Compile an actual boolean accessor over Template 1's declared input ABI, without inventing a handler. */

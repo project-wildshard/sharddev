@@ -1,9 +1,9 @@
 import { Color, SRGBColorSpace } from 'three';
 import { dot, mix, normalView, normalWorld, positionViewDirection, positionWorld, saturate, smoothstep, vec3 } from 'three/tsl';
-import { GraphMaterial, PainterlyMaterial, graph, graphInputs, noise, param } from '@wildshard/sharddev/materials';
+import { GraphMaterial, PainterlyMaterial, graph, graphInputs, noise, param } from '@wildshard/sdk/materials';
 
 /**
- * The pastel alien plain's materials authored with `@wildshard/sharddev/materials` (DS1.4): `ground` is a `PainterlyMaterial`
+ * The pastel alien plain's materials authored with `@wildshard/sdk/materials` (DS1.4): `ground` is a `PainterlyMaterial`
  * in lilac written as the painterly graph preset, and `rock` is the lit pastel graph written in TSL and compiled by
  * `graph()`. They are the source of `data/look.json`'s `ground` and `data/rock.graph.json`;
  * `test/sdk-materials-parity.test.ts` holds them equal (same nodes, params and stages).

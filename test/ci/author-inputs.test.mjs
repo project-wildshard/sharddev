@@ -30,8 +30,8 @@ function cli(args,success=true){
  assert.ifError(run.error);if(success)assert.equal(run.status,0,`${run.stdout}\n${run.stderr}`);else assert.notEqual(run.status,0);return run;
 }
 async function build(name,flags=[]){const output=join(app,name);cli(['build',source,output,'--product-only',...flags]);return loadHeadlessProduct(output);}
-function config(body){writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sharddev/author';
- import {nameBlob} from '@wildshard/sharddev/blobs';
+function config(body){writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sdk/author';
+ import {nameBlob} from '@wildshard/sdk/blobs';
  import {registeredJsonSchema} from '@wildshard/engine/host/formatJsonSchema';
  export async function generate(ctx){const shard=emptyShardfile(${JSON.stringify(identity)});${body}}
  export default generate;`);}

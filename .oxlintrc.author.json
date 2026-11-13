@@ -5,7 +5,7 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "oxc", "import", "promise"],
   // Wildshard's own rules (lint/wildshard-plugin.js): wildshard/no-url-switch, on for src/ in `overrides` below.
-  "jsPlugins": ["./node_modules/@wildshard/engine/lint/wildshard-plugin.js", "./lint/sdk-plugin.mjs"],
+  "jsPlugins": ["./lint/engine-plugin.mjs", "./lint/sdk-plugin.mjs"],
   "options": {
     "typeAware": false, // typescript/no-floating-promises, no-unsafe-*, prefer-nullish-coalescing, ... via oxlint-tsgolint (TS 7)
     "denyWarnings": true,

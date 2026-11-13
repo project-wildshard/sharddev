@@ -66,7 +66,7 @@ test('installed validation refuses a missing product', { timeout: 9_500 }, () =>
   run(['validate', join(app, 'missing')], false);
 });
 test('author and engine share the format schema and Three instance without a test dedupe', { timeout: 9_500 }, async () => {
-  const author = createRequire(join(app, 'node_modules/@wildshard/sharddev/package.json'));
+  const author = createRequire(join(app, 'node_modules/@wildshard/sdk/package.json'));
   const engine = createRequire(author.resolve('@wildshard/engine/package.json'));
   const a = await import(pathToFileURL(author.resolve('@wildshard/format/shardSchema')).href);
   const b = await import(pathToFileURL(engine.resolve('@wildshard/format/shardSchema')).href);

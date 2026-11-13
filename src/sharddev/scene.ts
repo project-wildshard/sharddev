@@ -43,7 +43,7 @@ export interface SceneMaterial {
     side: Side;
     vertexColors: boolean;
     parameters: Record<string, number | boolean | number[]>;
-    /** The catalogue entry an SDK material (`@wildshard/sharddev/materials`) bakes to: a family, a graph preset or a graph. */
+    /** The catalogue entry an SDK material (`@wildshard/sdk/materials`) bakes to: a family, a graph preset or a graph. */
     entry?: MaterialEntry;
 }
 /** A graph node uses unique author names as identity; repeated display names receive deterministic traversal IDs. */

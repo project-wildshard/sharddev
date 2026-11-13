@@ -2,7 +2,7 @@ import { WebIO, type Accessor, type Material, type Primitive, type Texture, type
 import { Matrix3, Matrix4, Vector3 } from 'three';
 import { CELL_ABOVE, CELL_BELOW, CHUNK_HALF } from '@wildshard/format/contentBounds';
 import { parseWorldSource } from '../worldSource';
-import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
+import { hashImmutableBytes } from '../immutable';
 import { preflightWorldGlb } from './worldGlb';
 import { worldImageInfo } from './worldImage';
 

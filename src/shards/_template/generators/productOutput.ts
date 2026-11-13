@@ -1,5 +1,5 @@
-import { emitPlatformSections } from '@wildshard/sharddev/platformSections';
-import type { ProjectOutput } from '@wildshard/sharddev/projectOutput';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
+import type { ProjectOutput } from '@wildshard/sdk/projectOutput';
 import decision from '../data/bossDecision.json' with { type: 'json' };
 import moves from '../data/moves.json' with { type: 'json' };
 

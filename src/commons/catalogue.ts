@@ -1,4 +1,4 @@
-import { buildCommons, type BuiltCommons, type CommonsPack, type CommonsEntry } from '@wildshard/sharddev/commons';
+import { buildCommons, type BuiltCommons, type CommonsPack, type CommonsEntry } from '@wildshard/sdk/commons';
 
 /** Build a versioned catalogue using only the SDK's author-tool contract. Nothing installs on import. */
 export function createCatalogue(packs: readonly CommonsPack[]): BuiltCommons { return buildCommons(packs); }

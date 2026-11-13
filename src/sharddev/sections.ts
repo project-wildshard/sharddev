@@ -1,7 +1,7 @@
 import * as v from 'valibot';
 import Ajv from 'ajv';
 import { registeredJsonContract, validateRegisteredJson } from '@wildshard/format/registeredJson';
-import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
+import { encodeCanonicalJson } from './immutable';
 import { registeredJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { validateNamedJson } from './schemaValidation';
 

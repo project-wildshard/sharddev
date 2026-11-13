@@ -25,7 +25,7 @@ import { brotliCompressSync, gzipSync } from 'node:zlib';
 import { visitAuthoredWorld } from './bake/worldHost.mjs';
 import { prepareNativeScalarBlocks } from './bake/nativeWorld.mjs';
 import { installBakeEnvironment } from './bake/environment.mjs';
-import { bakeNavigation } from '@wildshard/sharddev/bake/navigation';
+import { bakeNavigation } from '@wildshard/sdk/bake/navigation';
 import { navmeshGroundExclusion } from './bake/navmeshGround.ts';
 
 const ROOT = resolve(import.meta.dirname, '..');

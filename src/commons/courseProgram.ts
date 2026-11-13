@@ -1,5 +1,5 @@
 import { parseDecisionScripts, type DecisionScriptRow } from '@wildshard/format/decisionScripts';
-import type { DecisionRegistries } from '@wildshard/sharddev/decisionBindingMap';
+import type { DecisionRegistries } from '@wildshard/sdk/decisionBindingMap';
 
 /** The shared course's original aliases, handles, fixed page and author ceiling. */
 export interface CourseProgramInputs {

@@ -1,5 +1,6 @@
 // The SDK's own authoring lint rules, loaded beside engine's plugin by `.oxlintrc.author.json` (here as
-// `./lint/sdk-plugin.mjs`, in a shard repo from `node_modules/@wildshard/sharddev/lint/sdk-plugin.mjs`).
+// `./lint/sdk-plugin.mjs`, in a shard repo from `node_modules/@wildshard/sdk/lint/sdk-plugin.mjs`, or the old
+// `@wildshard/sharddev` folder until SHARD-COMPAT SA7b).
 // SHARD-AUTHORING SA6: `generator-imports` moved here from engine's plugin so the rule an author runs comes with the SDK
 // pin, not the engine pin.
 import { isBuiltin } from 'node:module';
@@ -17,7 +18,7 @@ export function generatorImportViolation(filename, source) {
   // Test runners and Node fixture tools never become producer imports.
   if (path.endsWith('.test.ts') && source !== '<computed>' && !source.startsWith('.')
     && !isAbsolute(source) && !source.startsWith('@wildshard/')) return null;
-  if (/^@wildshard\/sharddev\/runtime(?:\/|$)/u.test(source)) return 'trusted SDK runtime code is not an authoring import';
+  if (/^@wildshard\/(?:sdk|sharddev)\/runtime(?:\/|$)/u.test(source)) return 'trusted SDK runtime code is not an authoring import';
   if (AUTHOR_PACKAGE.test(source) || (source !== '<computed>' && isBuiltin(source))) return null;
   const local = source.startsWith('.') ? resolve(dirname(filename), source).replaceAll('\\', '/') : '';
   if (local.startsWith(path.slice(0, path.length - match[2].length))) return null;
