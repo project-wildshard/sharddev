@@ -163,6 +163,11 @@ describe('wildshard update and the agent files (SA28)', () => {
     await expect(runCli(['update', resolve(scratch, 'loose')])).rejects.toThrow(/is not a shard repo[\s\S]*\[update-target\] fix: .*GUIDE\.md#update-target/u);
     await expect(runCli(['update', project, 'extra'])).rejects.toThrow(/usage: wildshard update \[dir\]/u);
     await expect(runCli(['update', '-x'])).rejects.toThrow(/usage: wildshard update \[dir\]/u);
+    // The org's shard repos list the sdk as @wildshard/sharddev (a GitHub pin, or NP8's npm:@wildshard/sdk alias): a shard repo too.
+    for (const spec of ['github:project-wildshard/sharddev#ab4bbda4134eaacd99dff4086043ad2c84735386', 'npm:@wildshard/sdk@0.2.5']) {
+      writeFileSync(resolve(project, 'package.json'), JSON.stringify({ name: 'my-shard', dependencies: { '@wildshard/sharddev': spec } }));
+      await expect(runCli(['update', project])).resolves.toBeUndefined();
+    }
     writeFileSync(resolve(project, 'package.json'), '{ not json');
     await expect(runCli(['update', project])).rejects.toThrow(/package\.json is not valid JSON[\s\S]*\[update-target\]/u);
   });

@@ -10,16 +10,23 @@ blender` repo pins only the first two, as dev dependencies (`GUIDE.md#2-the-shar
 moves every pin together, then the shard source must build again on them. `GUIDE.md` at the repo root holds the
 facts; a pointer `GUIDE.md#<anchor>` is the guide heading with that anchor.
 
+Run the newest CLI once to move, whatever sdk the repo is on now:
+
+```sh
+pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins
+```
+
 `wildshard update --pins` does the move in one command (`GUIDE.md#7-wildshard-update`): it moves every pin to the
-release, runs `pnpm install`, applies the release's codemods, rewrites the guide and skills, and runs check.
+release, runs `pnpm install`, applies the release's codemods, rewrites the guide and skills, and runs check. An
+installed 0.2.4 or older refuses the flag, and 0.2.5 refuses a repo that lists the sdk as `@wildshard/sharddev` or by
+a GitHub pin, so start from the line above.
 
 ## The steps, in order
 
 1. **Start clean.** Commit your own changes, then `wildshard check .` on the old pins; if it fails, fix that first.
    Done when `git status` is clean and check passes, so any later refusal is the upgrade's.
-2. **Move:** `pnpm exec wildshard update --pins` for npm's latest sdk, or `--pins=<version>` for one release. If the
-   installed CLI refuses the flag (an sdk older than `--pins`), run the newest once:
-   `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`. Done when it prints a line per pin it moved.
+2. **Move:** `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins` for npm's latest sdk, or
+   `--pins=<version>` in place of `--pins` for one release. Done when it prints a line per pin it moved.
 3. **Read its last line.** `on @wildshard/sdk <version>, check pass` means the move is done: go to step 5. A line
    ending `[update-pins] fix: ...` is a refusal: read `GUIDE.md#update-pins` in the guide now in the repo;
    `[update-pins-dirty]` (`GUIDE.md#update-pins-dirty`) means go back to step 1.

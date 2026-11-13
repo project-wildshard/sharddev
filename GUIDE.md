@@ -340,8 +340,8 @@ other name refuses before `new` writes anything. Leave the flag out or pass `--t
 
 #### update-target
 
-`update` works on a shard repo: a folder whose `package.json` lists `@wildshard/sdk`, as `new` writes it. Run it in
-that folder, or name it: `wildshard update my-shard`.
+`update` works on a shard repo: a folder whose `package.json` lists `@wildshard/sdk`, as `new` writes it, or
+`@wildshard/sharddev`. Run it in that folder, or name it: `wildshard update my-shard`.
 
 #### update-pins-no-git
 
@@ -928,13 +928,26 @@ keep your own notes for agents in `AGENTS.md`, never in this guide or a skill: `
 prints `already up to date` or the files it wrote, and `git status` shows only `GUIDE.md`, `.claude/skills/` and any
 agent file it added.
 
+To move to a newer sdk, run the newest CLI once, whatever sdk the repo is on now:
+
+```sh
+pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins
+```
+
+An older installed CLI cannot do the move: 0.2.4 and earlier refuse the flag, and 0.2.5 refuses a repo that lists
+the sdk as `@wildshard/sharddev` or by a GitHub pin. Once the repo is on the newest sdk, `pnpm exec wildshard
+update --pins` works too.
+
 `wildshard update --pins` moves the repo to a newer sdk release first: npm's latest, or the one you name with
-`--pins=<version>` (`--pins=0.2.4`). In order, it:
+`--pins=<version>` (`--pins=0.2.5`). In order, it:
 
 1. reads the release from npm (`pnpm view`) and refuses one older than the repo's sdk;
-2. moves every pin `package.json` lists to what that release names: `@wildshard/sdk` to the release,
-   `@wildshard/format`, `@wildshard/engine` and `three` to the exact specs it pins, and `engines.node` to the Node it
-   needs. It changes nothing else in the file and prints each move;
+2. moves every pin `package.json` lists to what that release names: the sdk to the release, `@wildshard/format`,
+   `@wildshard/engine` and `three` to the exact specs it pins, each `pnpm.overrides` entry for one of those packages
+   with it, and `engines.node` to the Node it needs. The sdk keeps the name and form the repo lists it with:
+   `@wildshard/sdk` or `@wildshard/sharddev`; an exact version, an `npm:@wildshard/sdk@<version>` alias, or a GitHub
+   pin, which moves to the commit the release's `v<version>` tag names (or to that tag, if it named a tag). It changes
+   nothing else in the file and prints each move;
 3. runs `pnpm install`, and refuses if pnpm did not install that sdk and, when the repo lists `three`, that `three`;
 4. applies the release's codemods: each `codemods/<version>.mjs` the new sdk ships, for every version above the old
    sdk and up to the new one, oldest first. A codemod edits your shard source for a change that would otherwise
@@ -945,6 +958,4 @@ agent file it added.
 If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and installs the old sdk again. It refuses to
 start unless `git status` is clean (`update-pins-dirty`, `update-pins-no-git`): a codemod edits your files. Done when
 its last line reads `on @wildshard/sdk <version>, check pass`. Commit `package.json`, `pnpm-lock.yaml`, the guide,
-the skills and any codemod edit together. A refusal is `update-pins` (section 6). An sdk older than the one
-that built `--pins` refuses the flag; run the newest CLI once instead:
-`pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`.
+the skills and any codemod edit together. A refusal is `update-pins` (section 6).

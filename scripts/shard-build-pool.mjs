@@ -30,7 +30,7 @@ export async function runShardBuildPool(items, work, prepare) {
 export function runShardBuild(args, signal, cacheReport) {
   return new Promise((resolve, reject) => {
     const child = spawn(process.execPath, ['--import', fileURLToPath(import.meta.resolve('@wildshard/engine/scripts/shardfile-inputs.mjs')), resolvePath(import.meta.dirname, 'wildshard.mjs'), ...args], {
-      cwd: process.cwd(), env: {...process.env,WILDSHARD_WORLD_TEXTURE_CACHE:process.env.WILDSHARD_WORLD_TEXTURE_CACHE??resolvePath(shardfileCacheRoot(),'.world-textures-v1')}, signal, stdio: ['ignore', 'inherit', 'pipe'],
+      cwd: process.cwd(), env: {...process.env,...(cacheReport===undefined?{}:{WILDSHARD_CACHE_REPORT:'1'}),WILDSHARD_WORLD_TEXTURE_CACHE:process.env.WILDSHARD_WORLD_TEXTURE_CACHE??resolvePath(shardfileCacheRoot(),'.world-textures-v1')}, signal, stdio: ['ignore', 'inherit', 'pipe'],
     });
     // Forward all diagnostics, retaining only a bounded tail for the pool's error.
     let stderrTail = '';

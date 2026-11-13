@@ -101,7 +101,8 @@ function sdkVersion(root: string): string {
   return typeof parsed === 'object' && parsed !== null && 'version' in parsed && typeof parsed.version === 'string' ? parsed.version : 'unknown';
 }
 
-/** A shard repo is a folder whose package.json lists `@wildshard/sdk` (`new` writes it; a blender repo as a dev dependency). */
+/** A shard repo is a folder whose package.json lists `@wildshard/sdk` (`new` writes it; a blender repo as a dev dependency)
+ * or `@wildshard/sharddev`, the name the org's shard repos list it under (a GitHub pin, or an `npm:@wildshard/sdk` alias). */
 export function assertShardRepo(project: string): void {
   const file = resolve(project, 'package.json');
   let parsed: unknown;
@@ -109,7 +110,7 @@ export function assertShardRepo(project: string): void {
   catch (error) { throw new Error(`update: ${project} is not a shard repo: its package.json is not valid JSON (${error instanceof Error ? error.message : String(error)})`, { cause: error }); }
   const fields: unknown[] = typeof parsed === 'object' && parsed !== null
     ? [Reflect.get(parsed, 'dependencies'), Reflect.get(parsed, 'devDependencies')] : [];
-  if (!fields.some(field => typeof field === 'object' && field !== null && Object.hasOwn(field, '@wildshard/sdk'))) throw new Error(`update: ${project} is not a shard repo: its package.json does not list @wildshard/sdk (or it has none)`);
+  if (!fields.some(field => typeof field === 'object' && field !== null && (Object.hasOwn(field, '@wildshard/sdk') || Object.hasOwn(field, '@wildshard/sharddev')))) throw new Error(`update: ${project} is not a shard repo: its package.json does not list @wildshard/sdk or @wildshard/sharddev (or it has none)`);
 }
 
 /** `wildshard update [dir]`: sync the agent files of the shard repo at `project`, and say what changed, one line each. */

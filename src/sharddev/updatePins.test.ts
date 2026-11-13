@@ -1,12 +1,12 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Each scratch shard repo is a git repo, as `update --pins` needs.
 import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold shard repos, a fake installed sdk and fixture codemods.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { writeShardRepo } from './newProject';
-import { CODEMODS_FOLDER, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from './updatePins';
+import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from './updatePins';
 import { runCli } from './cli';
 
 // SHARD-AUTHORING SA18 (J314 Q27, J317 Q16): `wildshard update --pins` moves the pins, installs, applies the release's
@@ -32,22 +32,37 @@ import { resolve } from 'node:path';
 export default ({ project, from, to }) => { appendFileSync(resolve(project, 'codemods.log'), \`\${import.meta.url.split('/').at(-1)} \${from}->\${to}\\n\`); return ['logged']; };
 `;
 
+/** The release a spec installs: an exact version, an `npm:@wildshard/sdk@<v>` alias, or a GitHub pin at a `v<version>` tag
+ * or at the commit `tags` names. */
+function versionOf(spec: string, tags: ReadonlyMap<string, string>): string {
+  const alias = /^npm:@wildshard\/sdk@(.+)$/u.exec(spec)?.[1], ref = /#(.+)$/u.exec(spec)?.[1];
+  if (alias !== undefined) return alias;
+  if (ref === undefined) return spec;
+  if (ref.startsWith('v')) return ref.slice(1);
+  return [...tags].find(([, commit]) => commit === ref)?.[0].slice(1) ?? `commit-${ref}`;
+}
+
 /** A fake pnpm: `view` answers `release`; `pnpm install` installs what package.json pins (or `installs` and `three`
- * for the new sdk), and lays the fixture `codemods` into the new sdk. */
-function fakeRunner(project: string, release: SdkRelease, options: { installs?: string; three?: string; codemods?: readonly string[]; failCheck?: boolean; codemodSource?: string } = {}): PinsRunner & { calls: string[]; lines: string[] } {
-  const calls: string[] = [], lines: string[] = [];
+ * for the new sdk) under the name the repo lists the sdk as, and lays the fixture `codemods` into the new sdk. `tags`
+ * stands in for `git ls-remote --tags` on the sdk's GitHub repo. */
+function fakeRunner(project: string, release: SdkRelease, options: { installs?: string; three?: string; codemods?: readonly string[]; failCheck?: boolean; codemodSource?: string; tags?: ReadonlyMap<string, string>; agentFiles?: boolean } = {}): PinsRunner & { calls: string[]; lines: string[] } {
+  const calls: string[] = [], lines: string[] = [], tags = options.tags ?? new Map<string, string>();
   return {
     calls, lines,
     view: spec => { calls.push(`view ${spec}`); return release; },
+    tags: repo => { calls.push(`tags ${repo}`); return tags; },
     log: line => { lines.push(line); },
     run: (command, args) => {
       const verb = command === 'pnpm' ? `pnpm ${args.join(' ')}` : `sdk ${args.slice(1).join(' ')}`;
       calls.push(verb);
       if (verb === 'pnpm install') {
-        const sdk = resolve(project, 'node_modules/@wildshard/sdk'), pins = pinsOf(project), moving = pins['@wildshard/sdk'] === release.version;
+        const pins = pinsOf(project), name = SDK_NAMES.find(sdkName => pins[sdkName] !== undefined) ?? '@wildshard/sdk';
+        const sdk = resolve(project, 'node_modules', name), wanted = versionOf(pins[name] ?? '', tags), moving = wanted === release.version;
         rmSync(resolve(project, 'node_modules'), { recursive: true, force: true });
-        writeJson(resolve(sdk, 'package.json'), { name: '@wildshard/sdk', version: moving ? options.installs ?? release.version : pins['@wildshard/sdk'] });
+        writeJson(resolve(sdk, 'package.json'), { name: '@wildshard/sdk', version: moving ? options.installs ?? release.version : wanted });
         if (pins.three !== undefined) writeJson(resolve(project, 'node_modules/three/package.json'), { name: 'three', version: moving ? options.three ?? pins.three : pins.three });
+        // The new sdk's own GUIDE.md and skills, for a test where this CLI writes them from it.
+        if (moving && options.agentFiles === true) for (const file of ['GUIDE.md', 'skills']) cpSync(resolve(ROOT, file), resolve(sdk, file), { recursive: true });
         if (moving) for (const version of options.codemods ?? []) { mkdirSync(resolve(sdk, CODEMODS_FOLDER), { recursive: true }); writeFileSync(resolve(sdk, CODEMODS_FOLDER, `${version}.mjs`), options.codemodSource ?? LOGGING_CODEMOD); }
       }
       if (verb === 'sdk check .' && options.failCheck === true) throw new Error('check fail');
@@ -85,6 +100,91 @@ describe('wildshard update --pins (SA18)', () => {
     const engines = movePins(tabbed, { ...NEXT, node: '>=26.0.0' });
     expect(engines.text).toBe(`{\n\t"engines": {\n\t\t"node": ">=26.0.0"\n\t},\n\t"dependencies": {\n\t\t"@wildshard/sdk": "9.9.9"\n\t}\n}\n`);
     expect(engines.moves.map(move => move.name)).toEqual(['@wildshard/sdk', 'engines.node']);
+  });
+
+  it('moves the sdk listed as @wildshard/sharddev, an npm alias or exact version, and keeps its name and form', () => {
+    for (const [from, to] of [['npm:@wildshard/sdk@0.2.4', 'npm:@wildshard/sdk@9.9.9'], ['0.2.4', '9.9.9']] as const) {
+      const moved = movePins(JSON.stringify({ dependencies: { '@wildshard/sharddev': from, '@wildshard/format': 'x' } }), NEXT);
+      expect(JSON.parse(moved.text)).toEqual({ dependencies: { '@wildshard/sharddev': to, '@wildshard/format': NEXT.pins['@wildshard/format'] } });
+      expect(moved.moves[0]).toEqual({ name: '@wildshard/sharddev', field: 'dependencies', from, to });
+    }
+    // A GitHub pin moves to the spec `updatePins` resolved for it (the release tag's commit).
+    const github = movePins(JSON.stringify({ dependencies: { '@wildshard/sharddev': 'github:project-wildshard/sharddev#aaa' } }), NEXT, 'github:project-wildshard/sharddev#bbb');
+    expect(JSON.parse(github.text)).toEqual({ dependencies: { '@wildshard/sharddev': 'github:project-wildshard/sharddev#bbb' } });
+  });
+
+  it('moves pnpm.overrides for the packages it moves, in the form they are written, and leaves the rest', () => {
+    const format = 'github:project-wildshard/shard-format#629b9442dd9ec2298be041b322664af41c00dcd8';
+    const text = `${JSON.stringify({ dependencies: { '@wildshard/format': format, '@wildshard/sdk': '0.2.4' }, pnpm: { ignoredOptionalDependencies: ['a'], overrides: {
+      '@wildshard/format': format, 'some-tool>@wildshard/format': format, binaryen: 'npm:@pre-bundled/binaryen@132.0.0-patch-1', 'three@<1': '0.186.0', 'three@>=0.180': '0.186.0' } } }, null, 2)}\n`;
+    const { text: after, moves } = movePins(text, NEXT);
+    expect(JSON.parse(after)).toEqual({ dependencies: { '@wildshard/format': NEXT.pins['@wildshard/format'], '@wildshard/sdk': '9.9.9' }, pnpm: { ignoredOptionalDependencies: ['a'], overrides: {
+      '@wildshard/format': NEXT.pins['@wildshard/format'], 'some-tool>@wildshard/format': NEXT.pins['@wildshard/format'], binaryen: 'npm:@pre-bundled/binaryen@132.0.0-patch-1', 'three@<1': '0.190.0', 'three@>=0.180': '0.190.0' } } });
+    expect(moves.filter(move => move.field === 'pnpm.overrides').map(move => move.name)).toEqual(['@wildshard/format', 'some-tool>@wildshard/format', 'three@<1', 'three@>=0.180']);
+    expect(movePins(after, NEXT).moves).toEqual([]);
+    // An sdk override in a form it cannot move (a link, a $ reference, a GitHub pin with nothing resolved) is left and said.
+    const sdkOverrides = { '@wildshard/sharddev': 'link:../sharddev', '@wildshard/sdk': '$@wildshard/sdk', 'x>@wildshard/sharddev': 'github:project-wildshard/sharddev#aaa' };
+    const left = movePins(JSON.stringify({ dependencies: { '@wildshard/sdk': '0.2.4' }, pnpm: { overrides: sdkOverrides } }), NEXT);
+    expect((JSON.parse(left.text) as { pnpm: unknown }).pnpm).toEqual({ overrides: sdkOverrides });
+    expect(left.moves.filter(move => move.field === 'pnpm.overrides')).toEqual(Object.entries(sdkOverrides).map(([name, from]) => ({ name, field: 'pnpm.overrides', from, to: undefined })));
+  });
+
+  it('moves a GitHub commit pin of @wildshard/sharddev to the release tag\'s commit, with format in deps and overrides', async () => {
+    const project = resolve(scratch, 'my-shard');
+    writeShardRepo(project, 'my-shard', { empty: true });
+    const parsed = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies: Record<string, string> } & Record<string, unknown>;
+    const old = 'a'.repeat(40), next = 'b'.repeat(40), between = 'c'.repeat(40), format = 'github:project-wildshard/shard-format#629b9442dd9ec2298be041b322664af41c00dcd8';
+    const rest = Object.fromEntries(Object.entries(parsed.dependencies).filter(([name]) => name !== '@wildshard/sdk'));
+    const manifest = { ...parsed, dependencies: { ...rest, '@wildshard/format': format, '@wildshard/sharddev': `github:project-wildshard/sharddev#${old}` }, pnpm: { overrides: { '@wildshard/format': format } } };
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify(manifest, null, 2)}\n`);
+    commitRepo(project);
+    const tags = new Map([['v0.2.4', old], ['v9.9.9', next], ['v-not-a-version', between]]);
+    const runner = fakeRunner(project, NEXT, { tags, codemods: ['0.2.5', '9.9.9'] });
+    await updatePins(project, '9.9.9', runner);
+    const after = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies: Record<string, string>; pnpm: { overrides: Record<string, string> } };
+    expect(after.dependencies['@wildshard/sharddev']).toBe(`github:project-wildshard/sharddev#${next}`);
+    expect(after.dependencies['@wildshard/sdk']).toBeUndefined();
+    expect(after.dependencies['@wildshard/format']).toBe(NEXT.pins['@wildshard/format']);
+    expect(after.pnpm.overrides['@wildshard/format']).toBe(NEXT.pins['@wildshard/format']);
+    // The old pin is v0.2.4's commit, so both codemods above it run; the tags are read once.
+    expect(readFileSync(resolve(project, 'codemods.log'), 'utf8')).toBe('0.2.5.mjs 0.2.4->9.9.9\n9.9.9.mjs 0.2.4->9.9.9\n');
+    expect(runner.calls.slice(0, 3)).toEqual(['tags project-wildshard/sharddev', 'view 9.9.9', 'pnpm install']);
+    expect(runner.lines[0]).toBe('wildshard update --pins: @wildshard/sharddev 0.2.4 -> 9.9.9');
+    expect(runner.lines.join('\n')).toMatch(/kept as a GitHub commit pin: the v9\.9\.9 tag's commit/u);
+    expect(runner.lines.join('\n')).toContain(`pnpm.overrides @wildshard/format ${format} -> ${NEXT.pins['@wildshard/format'] ?? ''}`);
+    expect(runner.lines.at(-1)).toBe('wildshard update --pins: on @wildshard/sdk 9.9.9, check pass');
+
+    // A commit no release tag names: the installed sdk says which it is; with none installed, it refuses.
+    execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project }); rmSync(resolve(project, 'codemods.log'), { force: true });
+    const loose = { ...manifest, dependencies: { ...manifest.dependencies, '@wildshard/sharddev': `github:project-wildshard/sharddev#${between.slice(0, 7)}` } };
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify(loose, null, 2)}\n`);
+    execFileSync('git', ['-c', 'user.name=test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', 'commit', '-qam', 'loose'], { cwd: project });
+    rmSync(resolve(project, 'node_modules'), { recursive: true, force: true });
+    await expect(updatePins(project, '9.9.9', fakeRunner(project, NEXT, { tags }))).rejects.toThrow(/cannot tell which sdk .* is on: @wildshard\/sharddev github:project-wildshard\/sharddev#ccccccc is no release tag's commit and no sdk is installed: run pnpm install/u);
+    writeJson(resolve(project, 'node_modules/@wildshard/sharddev/package.json'), { name: '@wildshard/sdk', version: '0.2.5' });
+    const installed = fakeRunner(project, NEXT, { tags });
+    await updatePins(project, '9.9.9', installed);
+    expect(installed.lines[0]).toBe('wildshard update --pins: @wildshard/sharddev 0.2.5 -> 9.9.9');
+    // The release must be tagged: a commit pin has nowhere to move otherwise.
+    execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project });
+    writeJson(resolve(project, 'node_modules/@wildshard/sharddev/package.json'), { name: '@wildshard/sdk', version: '0.2.5' });
+    await expect(updatePins(project, '9.9.9', fakeRunner(project, NEXT, { tags: new Map([['v0.2.4', old]]) }))).rejects.toThrow(/project-wildshard\/sharddev has no tag v9\.9\.9/u);
+  });
+
+  it('writes the guide and skills itself for a sharddev-named repo moving to an sdk whose update does not know that name', async () => {
+    const project = resolve(scratch, 'my-shard');
+    writeShardRepo(project, 'my-shard', { empty: true });
+    const parsed = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies: Record<string, string> } & Record<string, unknown>;
+    const rest = Object.fromEntries(Object.entries(parsed.dependencies).filter(([name]) => name !== '@wildshard/sdk'));
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify({ ...parsed, dependencies: { ...rest, '@wildshard/sharddev': 'npm:@wildshard/sdk@0.2.4' } }, null, 2)}\n`);
+    rmSync(resolve(project, 'GUIDE.md'));
+    commitRepo(project);
+    const runner = fakeRunner(project, { ...NEXT, version: '0.2.5' }, { agentFiles: true });
+    await updatePins(project, '0.2.5', runner);
+    // No `sdk update` subprocess: this CLI wrote 0.2.5's guide; the new sdk's check still runs.
+    expect(runner.calls.filter(call => call.startsWith('sdk '))).toEqual(['sdk check .']);
+    expect(runner.lines).toContain('  added GUIDE.md');
+    expect(readFileSync(resolve(project, 'GUIDE.md'), 'utf8')).toBe(readFileSync(resolve(ROOT, 'GUIDE.md'), 'utf8'));
   });
 
   it('picks the codemods above the old sdk and up to the new one, oldest first, and runs them in that order', async () => {
@@ -146,7 +246,7 @@ describe('wildshard update --pins (SA18)', () => {
     writeFileSync(resolve(project, 'package.json'), JSON.stringify({ ...parsed, packageManager: 'npm@11.0.0' }));
     await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/names npm@11\.0\.0 as its package manager[\s\S]*\[update-pins\] fix: .*GUIDE\.md#update-pins/u);
     writeFileSync(resolve(project, 'package.json'), JSON.stringify({ ...parsed, dependencies: { '@wildshard/sdk': 'link:../sdk' } }));
-    await expect(runCli(['update', project, '--pins'])).rejects.toThrow(/cannot tell which sdk .* is on: pin @wildshard\/sdk to a version \(not link:\.\.\/sdk\)[\s\S]*\[update-pins\]/u);
+    await expect(runCli(['update', project, '--pins'])).rejects.toThrow(/cannot tell which sdk .* is on: pin @wildshard\/sdk to a version, an npm:@wildshard\/sdk@<version> alias or a github: commit \(not link:\.\.\/sdk\)[\s\S]*\[update-pins\]/u);
   });
 
   it('refuses a dirty repo, or one not in git, before it views, writes or installs anything', async () => {

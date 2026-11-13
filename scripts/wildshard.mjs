@@ -107,5 +107,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
     complete=true;
   }
   catch (error) { console.error(error instanceof Error ? error.message : String(error)); process.exitCode = 1; }
-  finally {stop();console.error(`\n${formatBuildCacheReport(counters.snapshot(complete))}`);}
+  // The counters line is for the build pool, which sets WILDSHARD_CACHE_REPORT=1 for the children whose report it reads,
+  // and for debugging a build's cache; an author's run, refusals included, does not print it.
+  finally {stop();if(process.env.WILDSHARD_CACHE_REPORT==='1')console.error(`\n${formatBuildCacheReport(counters.snapshot(complete))}`);}
 }

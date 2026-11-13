@@ -195,7 +195,7 @@ export async function buildShardfiles(root,options={}) {
   const counters=createBuildCacheCounters(),stop=observeBuildCache(counters);
   let complete=false;
   try {const result=await buildShardfilesWork(root,options,counters);complete=true;return result;}
-  finally {stop();console.info(formatBuildCacheReport(counters.snapshot(complete)));}
+  finally {stop();if(process.env.WILDSHARD_CACHE_REPORT==='1')console.info(formatBuildCacheReport(counters.snapshot(complete)));}
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {

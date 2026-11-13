@@ -8,15 +8,21 @@ import { basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // oxlint-disable-next-line import/no-nodejs-modules -- The new sdk's CLI runs under this same Node.
 import process from 'node:process';
-import { assertShardRepo } from './agentFiles';
+import { assertShardRepo, updateShardRepo } from './agentFiles';
 
 // SHARD-AUTHORING SA18 (J314 Q7, Q27; J317 Q16): `wildshard update --pins[=<version>] [dir]`. Move the repo's pins to one
 // sdk release (the sdk, and the shard-format, engine and three specs that release pins), install with pnpm, apply the
 // release's codemods, rewrite GUIDE.md and the skills with the new sdk's own `update` (SA28), then run its `check`. It
 // starts only from a committed git tree (assertCommitted), so the author can tell its edits from their own.
 
-/** The pins a shard repo may list; each moves to what the release names. `@wildshard/sdk` moves to the release itself. */
-export const PINNED = ['@wildshard/sdk', '@wildshard/engine', '@wildshard/format', 'three'] as const;
+/** The names a shard repo lists the sdk under. `new` writes `@wildshard/sdk`; the org's shard repos list it as
+ * `@wildshard/sharddev`, which their source imports, as a GitHub pin or NPM-PUBLISH NP8's `npm:@wildshard/sdk@<v>`
+ * alias. The move keeps the name the repo has. */
+export const SDK_NAMES = ['@wildshard/sdk', '@wildshard/sharddev'] as const;
+/** The pins a shard repo may list; each moves to what the release names. The sdk moves to the release itself. */
+export const PINNED = [...SDK_NAMES, '@wildshard/engine', '@wildshard/format', 'three'] as const;
+const isSdkName = (name: string): boolean => (SDK_NAMES as readonly string[]).includes(name);
+const isPinned = (name: string): boolean => (PINNED as readonly string[]).includes(name);
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies'] as const;
 
 /** One sdk release, as the registry describes it: its version, the exact specs it pins (dependencies win over peers)
@@ -27,6 +33,8 @@ export interface SdkRelease { readonly version: string; readonly pins: Readonly<
 export interface PinsRunner {
   /** The release `@wildshard/sdk@<spec>` names (`latest`, or a version). */
   readonly view: (spec: string, cwd: string) => SdkRelease;
+  /** The tags of the GitHub repo `owner/name`, each to the commit it names (`git ls-remote --tags`). */
+  readonly tags: (repo: string, cwd: string) => ReadonlyMap<string, string>;
   /** Run a command in `cwd` with its output shown; throw when it exits non-zero. */
   readonly run: (command: string, args: readonly string[], cwd: string) => void;
   readonly log: (line: string) => void;
@@ -67,27 +75,49 @@ const readJson = (file: string): Json => {
 };
 const stringAt = (record: Json, key: string): string | undefined => typeof record[key] === 'string' ? record[key] : undefined;
 
-/** One pin `movePins` changed (or left: the release no longer pins a package the repo lists). */
+/** One pin `movePins` changed (or left: the release no longer pins a package the repo lists). An override's name is
+ * its key in `pnpm.overrides`. */
 export interface PinMove { readonly name: string; readonly field: string; readonly from: string; readonly to: string | undefined }
 
+const SDK_ALIAS = /^npm:@wildshard\/sdk@(.+)$/u;
+const GITHUB_PIN = /^github:([\w.-]+\/[\w.-]+)#(.+)$/u;
+/** The package a `pnpm.overrides` key overrides: the last `parent>` step, without its `@<range>` selector (which may
+ * hold a `>` of its own, as in `three@>=0.180`). */
+const overriddenPackage = (key: string): string => (key.split(/>(?=[@A-Za-z])/u).at(-1) ?? key).replace(/(?<=.)@[^@/]*$/u, '');
+
 /** The repo's package.json text with every listed pin moved to `release`; each pin keeps its field (a blender repo's
- * sdk stays a dev dependency). `engines.node` moves too, when the repo lists it, since `new` writes it and `.npmrc`
- * makes it strict. Nothing else in the file changes, and its indent is kept. */
-export function movePins(text: string, release: SdkRelease): { readonly text: string; readonly moves: readonly PinMove[] } {
+ * sdk stays a dev dependency) and the sdk keeps its name and form: an exact version moves to the release, an
+ * `npm:@wildshard/sdk@<v>` alias to the release's alias, and a GitHub pin to `sdkSpec`, which `updatePins` resolves
+ * (the release tag's commit); any other form (`link:`, a `$` reference, a GitHub pin with no `sdkSpec`) is left, and
+ * reported as a move to nothing. `pnpm.overrides` of a moved package move with it, whatever their key's form, since an
+ * override wins over the pin. `engines.node` moves too, when the repo lists it, since `new` writes it and `.npmrc` makes
+ * it strict. Nothing else in the file changes, and its indent is kept. */
+export function movePins(text: string, release: SdkRelease, sdkSpec?: string): { readonly text: string; readonly moves: readonly PinMove[] } {
   const parsed: unknown = JSON.parse(text);
   if (!isRecord(parsed)) throw new Error('update --pins: package.json is not a JSON object');
   const moves: PinMove[] = [];
+  const target = (name: string, from: string): string | undefined => {
+    if (!isSdkName(name)) return release.pins[name];
+    if (SDK_ALIAS.test(from)) return `npm:@wildshard/sdk@${release.version}`;
+    if (GITHUB_PIN.test(from)) return sdkSpec;
+    return SEMVER.test(from) ? release.version : undefined;
+  };
+  const move = (record: Json, key: string, name: string, field: string): void => {
+    const from = stringAt(record, key);
+    if (from === undefined) return;
+    const to = target(name, from);
+    if (to === from) return;
+    moves.push({ name: key, field, from, to });
+    if (to !== undefined) record[key] = to;
+  };
   for (const field of DEPENDENCY_FIELDS) {
     const listed = parsed[field];
-    if (!isRecord(listed)) continue;
-    for (const name of PINNED) {
-      const from = stringAt(listed, name);
-      if (from === undefined) continue;
-      const to = name === '@wildshard/sdk' ? release.version : release.pins[name];
-      if (to === from) continue;
-      moves.push({ name, field, from, to });
-      if (to !== undefined) listed[name] = to;
-    }
+    if (isRecord(listed)) for (const name of PINNED) move(listed, name, name, field);
+  }
+  const pnpm = parsed['pnpm'], overrides = isRecord(pnpm) ? pnpm['overrides'] : undefined;
+  if (isRecord(overrides)) for (const key of Object.keys(overrides)) {
+    const name = overriddenPackage(key);
+    if (isPinned(name)) move(overrides, key, name, 'pnpm.overrides');
   }
   const engines = parsed['engines'], node = isRecord(engines) ? stringAt(engines, 'node') : undefined;
   if (isRecord(engines) && node !== undefined && release.node !== undefined && node !== release.node) {
@@ -95,7 +125,7 @@ export function movePins(text: string, release: SdkRelease): { readonly text: st
     engines['node'] = release.node;
   }
   const indent = /^\{\r?\n([ \t]+)"/u.exec(text)?.[1] ?? 2;
-  return { text: moves.some(move => move.to !== undefined) ? `${JSON.stringify(parsed, null, indent)}\n` : text, moves };
+  return { text: moves.some(moved => moved.to !== undefined) ? `${JSON.stringify(parsed, null, indent)}\n` : text, moves };
 }
 
 /** Whether package.json lists `three` itself (a `--template sdk` repo does; a blender one does not). */
@@ -107,14 +137,49 @@ function installedVersion(project: string, name: string): string | undefined {
   return existsSync(file) ? stringAt(readJson(file), 'version') : undefined;
 }
 
-/** The sdk version the repo is on now: its exact `@wildshard/sdk` pin, which must match what is installed. */
-function currentSdk(project: string, listed: Json): string {
-  const pin = DEPENDENCY_FIELDS.map(field => listed[field]).map(pins => isRecord(pins) ? stringAt(pins, '@wildshard/sdk') : undefined)
-    .find(found => found !== undefined);
-  if (pin === undefined || !SEMVER.test(pin)) throw new Error(`update --pins: cannot tell which sdk ${project} is on: pin @wildshard/sdk to a version (not ${pin ?? 'nothing'})`);
-  const installed = installedVersion(project, '@wildshard/sdk');
-  if (installed !== undefined && installed !== pin) throw new Error(`update --pins: ${project} pins @wildshard/sdk ${pin} but has ${installed} installed: run pnpm install, then wildshard check ., then update --pins again`);
-  return pin;
+/** The sdk dependency a repo lists: its name, its spec, and the GitHub repo and ref when it is a GitHub pin. */
+interface SdkPin { readonly name: string; readonly spec: string; readonly github?: { readonly repo: string; readonly ref: string } }
+
+/** The repo's sdk pin: an exact version, an `npm:@wildshard/sdk@<version>` alias, or a GitHub pin (`github:<owner>/<repo>#<ref>`,
+ * at a commit or a tag), under either name. Anything else (`link:`, a range) names no one release. */
+function sdkPin(project: string, listed: Json): SdkPin {
+  for (const field of DEPENDENCY_FIELDS) for (const name of SDK_NAMES) {
+    const pins = listed[field], spec = isRecord(pins) ? stringAt(pins, name) : undefined;
+    if (spec === undefined) continue;
+    const alias = SDK_ALIAS.exec(spec)?.[1], github = GITHUB_PIN.exec(spec);
+    if (SEMVER.test(spec) || (alias !== undefined && SEMVER.test(alias))) return { name, spec };
+    if (github !== null) return { name, spec, github: { repo: github[1] ?? '', ref: github[2] ?? '' } };
+    throw new Error(`update --pins: cannot tell which sdk ${project} is on: pin ${name} to a version, an npm:@wildshard/sdk@<version> alias or a github: commit (not ${spec})`);
+  }
+  throw new Error(`update --pins: cannot tell which sdk ${project} is on: its package.json lists no ${SDK_NAMES.join(' or ')}`);
+}
+
+/** The release a `v<version>` tag names, newest first when one commit has several. */
+function taggedVersion(tags: ReadonlyMap<string, string>, ref: string): string | undefined {
+  if (/^v\d/u.test(ref)) return SEMVER.test(ref.slice(1)) ? ref.slice(1) : undefined;
+  if (!/^[0-9a-f]{7,40}$/u.test(ref)) return undefined;
+  return [...tags].filter(([tag, commit]) => commit.startsWith(ref) && /^v\d/u.test(tag) && SEMVER.test(tag.slice(1)))
+    .map(([tag]) => tag.slice(1)).sort(compareVersions).at(-1);
+}
+
+/** The sdk version the repo is on now. A version or alias pin says it, and must match what is installed; a GitHub pin
+ * says it by its tag, or by the release tag at its commit; a commit no release tag names is whatever is installed. */
+function currentSdk(project: string, pin: SdkPin, tags: () => ReadonlyMap<string, string>): string {
+  const pinned = pin.github === undefined ? SDK_ALIAS.exec(pin.spec)?.[1] ?? pin.spec : taggedVersion(tags(), pin.github.ref);
+  const installed = installedVersion(project, pin.name);
+  if (pinned !== undefined && installed !== undefined && installed !== pinned) throw new Error(`update --pins: ${project} pins ${pin.name} ${pinned} but has ${installed} installed: run pnpm install, then wildshard check ., then update --pins again`);
+  const from = pinned ?? installed;
+  if (from === undefined) throw new Error(`update --pins: cannot tell which sdk ${project} is on: ${pin.name} ${pin.spec} is no release tag's commit and no sdk is installed: run pnpm install, then update --pins again`);
+  return from;
+}
+
+/** Where a GitHub sdk pin moves for `version`: a tag pin to that release's tag, a commit pin to the commit the release's
+ * `v<version>` tag names, so the repo's pin style stays as it was. */
+function githubTarget(pin: SdkPin & { readonly github: NonNullable<SdkPin['github']> }, version: string, tags: ReadonlyMap<string, string>): { readonly spec: string; readonly why: string } {
+  const tag = `v${version}`, commit = tags.get(tag);
+  if (commit === undefined) throw new Error(`update --pins: ${pin.github.repo} has no tag ${tag}, so ${pin.name} ${pin.spec} has no release commit to move to; pin ${pin.name} to npm:@wildshard/sdk@${version} instead`);
+  if (/^v\d/u.test(pin.github.ref)) return { spec: `github:${pin.github.repo}#${tag}`, why: `kept as a GitHub tag pin: ${tag}` };
+  return { spec: `github:${pin.github.repo}#${commit}`, why: `kept as a GitHub commit pin: the ${tag} tag's commit` };
 }
 
 /** A release's codemods: `codemods/<version>.mjs` in the installed sdk, each default-exporting
@@ -173,6 +238,25 @@ export function assertCommitted(project: string): void {
   }
 }
 
+/** git ls-remote: a GitHub repo's tags, each to its commit (an annotated tag's peeled `^{}` line wins). */
+function gitTags(repo: string, cwd: string): ReadonlyMap<string, string> {
+  let out: string;
+  // GIT_TERMINAL_PROMPT=0: a private or misspelt repo fails instead of asking for a username on the terminal.
+  try { out = execFileSync('git', ['ls-remote', '--tags', `https://github.com/${repo}.git`], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, GIT_TERMINAL_PROMPT: '0' } }); }
+  catch (error) { throw new Error(`update --pins: git ls-remote --tags on github.com/${repo} failed: ${error instanceof Error ? error.message.split('\n')[0] ?? '' : String(error)}`, { cause: error }); }
+  const tags = new Map<string, string>();
+  for (const [commit, ref] of out.split('\n').map(line => line.split('\t'))) {
+    const tag = ref?.replace(/^refs\/tags\//u, '');
+    if (commit === undefined || tag === undefined || tag === ref) continue;
+    if (tag.endsWith('^{}')) tags.set(tag.slice(0, -3), commit);
+    else if (!tags.has(tag)) tags.set(tag, commit);
+  }
+  return tags;
+}
+
+/** The newest sdk whose `wildshard update` refuses a repo that lists it as `@wildshard/sharddev`. */
+const LAST_UPDATE_WITHOUT_SHARDDEV = '0.2.5';
+
 /** pnpm view: the release a spec names, with the specs it pins. */
 function pnpmView(spec: string, cwd: string): SdkRelease {
   let out: string;
@@ -197,7 +281,7 @@ function runInherited(command: string, args: readonly string[], cwd: string): vo
   execFileSync(command, args, { cwd, stdio: 'inherit' });
 }
 
-export const PNPM_RUNNER: PinsRunner = { view: pnpmView, run: runInherited, log: line => { console.info(line); } };
+export const PNPM_RUNNER: PinsRunner = { view: pnpmView, tags: gitTags, run: runInherited, log: line => { console.info(line); } };
 
 /** `wildshard update --pins[=<version>] [dir]`: move the repo at `project` to the sdk release `spec` names. */
 export async function updatePins(project: string, spec = 'latest', runner: PinsRunner = PNPM_RUNNER): Promise<void> {
@@ -205,20 +289,33 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
   const packageFile = resolve(project, 'package.json'), listed = readJson(packageFile);
   const manager = stringAt(listed, 'packageManager');
   if (manager !== undefined && !manager.startsWith('pnpm@')) throw new Error(`update --pins: ${project} names ${manager} as its package manager; update --pins installs with pnpm`);
-  const from = currentSdk(project, listed);
+  const pin = sdkPin(project, listed);
   assertCommitted(project);
+  let tagsRead: ReadonlyMap<string, string> | undefined;
+  const tags = (): ReadonlyMap<string, string> => {
+    tagsRead ??= runner.tags(pin.github?.repo ?? '', project);
+    return tagsRead;
+  };
+  const from = currentSdk(project, pin, tags);
   const release = runner.view(spec, project);
-  if (compareVersions(release.version, from) < 0) throw new Error(`update --pins: ${project} is on @wildshard/sdk ${from}, newer than ${release.version}; update --pins moves forward only`);
-  runner.log(`wildshard update --pins: @wildshard/sdk ${from} -> ${release.version}`);
+  if (compareVersions(release.version, from) < 0) throw new Error(`update --pins: ${project} is on ${pin.name} ${from}, newer than ${release.version}; update --pins moves forward only`);
+  const github = pin.github === undefined || release.version === from ? undefined : githubTarget({ ...pin, github: pin.github }, release.version, tags());
+  // A GitHub pin that is not moving stays as it is, and so does an sdk-named GitHub override.
+  const sdkSpec = github?.spec ?? (pin.github === undefined ? undefined : pin.spec);
+  runner.log(`wildshard update --pins: ${pin.name} ${from} -> ${release.version}`);
 
   // 1. Move the pins. Until the codemods are done, a failure puts package.json and the lock file back and installs the
   // old sdk again, so a second run starts from the same sdk and applies every codemod.
   const lockFile = resolve(project, 'pnpm-lock.yaml'), oldText = readFileSync(packageFile, 'utf8');
   const oldLock = existsSync(lockFile) ? readFileSync(lockFile) : undefined;
-  const moved = movePins(oldText, release);
-  for (const move of moved.moves) runner.log(move.to === undefined
-    ? `  left ${move.name} ${move.from}: sdk ${release.version} no longer pins it`
-    : `  ${move.name} ${move.from} -> ${move.to}`);
+  const moved = movePins(oldText, release, sdkSpec);
+  for (const move of moved.moves) {
+    const what = move.field === 'pnpm.overrides' ? `pnpm.overrides ${move.name}` : move.name;
+    const left = isSdkName(move.field === 'pnpm.overrides' ? overriddenPackage(move.name) : move.name)
+      ? 'update --pins cannot move this form of the sdk pin; move it by hand' : `sdk ${release.version} no longer pins it`;
+    runner.log(move.to === undefined ? `  left ${what} ${move.from}: ${left}` : `  ${what} ${move.from} -> ${move.to}`);
+    if (move.name === pin.name && move.field !== 'pnpm.overrides' && github !== undefined) runner.log(`    ${github.why}`);
+  }
   if (moved.moves.length === 0) runner.log('  pins already match');
   writeFileSync(packageFile, moved.text);
   let sdkRoot: string;
@@ -226,28 +323,35 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
     // 2. Install, then confirm pnpm installed what the pins say.
     try { runner.run('pnpm', ['install'], project); }
     catch (error) { throw new Error(`update --pins: pnpm install failed on @wildshard/sdk ${release.version}`, { cause: error }); }
-    const installed = installedVersion(project, '@wildshard/sdk');
-    if (installed !== release.version) throw new Error(`update --pins: pnpm installed @wildshard/sdk ${installed ?? 'nothing'}, not ${release.version}`);
+    const installed = installedVersion(project, pin.name);
+    if (installed !== release.version) throw new Error(`update --pins: pnpm installed ${pin.name} ${installed ?? 'nothing'}, not ${release.version}`);
     // A repo that lists three (not a blender one) must get the exact three the release pins.
     const threePin = release.pins['three'], three = installedVersion(project, 'three');
     if (threePin !== undefined && SEMVER.test(threePin) && listsThree(listed) && three !== threePin) throw new Error(`update --pins: sdk ${release.version} pins three ${threePin}, but ${three ?? 'none'} is installed`);
-    sdkRoot = realpathSync(resolve(project, 'node_modules/@wildshard/sdk'));
+    sdkRoot = realpathSync(resolve(project, 'node_modules', pin.name));
     // 3. The release's codemods, read from the installed sdk.
     const codemods = await applyCodemods(project, sdkRoot, from, release.version);
     runner.log(codemods.length === 0 ? `  no codemods between ${from} and ${release.version}` : codemods.join('\n'));
   } catch (error) {
     writeFileSync(packageFile, oldText);
     if (oldLock !== undefined) writeFileSync(lockFile, oldLock);
-    let back = `package.json and pnpm-lock.yaml are back on @wildshard/sdk ${from}`;
+    let back = `package.json and pnpm-lock.yaml are back on ${pin.name} ${from}`;
     try { runner.run('pnpm', ['install'], project); } catch { back += ', but pnpm install failed: run it again'; }
     const message = error instanceof Error ? error.message : String(error);
     throw new Error(`${message}\n  ${back}; a codemod may have edited src/ before it failed: git diff shows it`, { cause: error });
   }
 
-  // 4. GUIDE.md and the skills, by the new sdk's own `update` (SA28); 5. its `check`.
+  // 4. GUIDE.md and the skills, by the new sdk's own `update` (SA28); 5. its `check`. An sdk up to 0.2.5 has an `update`
+  // that refuses a repo listing it as @wildshard/sharddev, so for those this CLI syncs that sdk's guide and skills itself.
   const cli = resolve(sdkRoot, 'bin/wildshard.mjs');
-  try { runner.run(process.execPath, [cli, 'update', project], project); }
-  catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but its wildshard update failed: run pnpm exec wildshard update`, { cause: error }); }
+  if (pin.name === '@wildshard/sdk' || compareVersions(release.version, LAST_UPDATE_WITHOUT_SHARDDEV) > 0) {
+    try { runner.run(process.execPath, [cli, 'update', project], project); }
+    catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but its wildshard update failed: run pnpm exec wildshard update`, { cause: error }); }
+  } else {
+    runner.log(`  sdk ${release.version}'s own update does not know ${pin.name}, so this CLI writes its GUIDE.md and skills`);
+    try { for (const line of updateShardRepo(project, sdkRoot)) runner.log(line); }
+    catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but writing its GUIDE.md and skills failed (${error instanceof Error ? error.message : String(error)}): run pnpm --package=@wildshard/sdk@latest dlx wildshard update`, { cause: error }); }
+  }
   try { runner.run(process.execPath, [cli, 'check', '.'], project); }
   catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but check failed: fix each refusal above, then run wildshard check .`, { cause: error }); }
   runner.log(`wildshard update --pins: on @wildshard/sdk ${release.version}, check pass`);
