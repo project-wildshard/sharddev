@@ -25,7 +25,7 @@ import { updateShardRepo } from './agentFiles';
 import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
-import { refusalHint, refusalNote, type RefusalStep } from './refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from './refusals';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {
@@ -191,7 +191,7 @@ function authorRefusal(command: string | undefined, error: unknown): unknown {
   const located = locatedError(error);
   const message = located instanceof Error ? located.message : String(located);
   const step = error instanceof ShardfileRefusalError ? 'shardfile' : command !== undefined && Object.hasOwn(STEPS, command) ? STEPS[command] : undefined;
-  const hint = refusalHint(refusalNote(step ?? 'build', message));
+  const hint = refusalHint(refusalNote(step ?? 'build', message, { code: refusalCode(error) }));
   return new Error(`${message}\n  ${hint}`, { cause: error });
 }
 /** Run the author CLI; returns only after validation/build completes. */

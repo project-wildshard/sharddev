@@ -85,9 +85,16 @@ deprecated alias), and `upload` before a byte is sent)
 prints the refusing code's own words, then one line:
 `[<rule>] fix: <fix> (GUIDE.md#<anchor>)` (meta SHARD-AUTHORING SA21,
 J317). The one table is `src/sharddev/refusals.ts`: each row has a stable
-id, its `GUIDE.md` anchor, the fix, the steps it applies to and the
-message pattern it names. A message takes the first row whose pattern
-matches, else its step's one catch-all row, so nothing goes unnamed. Wildshard's lint rules are rows by their config name
+id, its `GUIDE.md` anchor, the fix, the steps it applies to, the
+shard-format codes it names and the message pattern it names.
+Shard-format's refusals carry a stable code (meta SA41: a validator's
+`error.code`, `PerformanceIssue.code`, `AudioFinding.code`; shard-format
+`docs/VALIDATION-CODES.md`); a coded refusal takes the row that lists its
+code, from any step, and `refusalCode` reads it through a wrapping
+`cause`. Words are the fallback for refusals with no code: a message
+takes the first row whose pattern matches, else its step's one catch-all
+row (no pattern, no codes), so nothing goes unnamed. `refusals.test.ts`
+fails when shard-format has a code no row names. Wildshard's lint rules are rows by their config name
 (`wildshard/no-raw-save`, anchor `lint-no-raw-save`); any other lint rule
 keeps oxlint's code and help, under the `lint-rules` anchor.
 `REFUSAL_ANCHORS` lists every anchor `GUIDE.md` (SA13) needs a heading

@@ -311,7 +311,8 @@ Every refusal prints the refusing code's own words, then one line:
 `wildshard check . --json` carries the same `rule`, `fix` and `guide` on each refusal. The headings below are those
 links, one per rule. The printed `fix` is the short answer; each heading adds why. Shard-format's own refusals also
 carry a stable code, listed in
-[`docs/VALIDATION-CODES.md`](https://github.com/project-wildshard/shard-format/blob/main/docs/VALIDATION-CODES.md).
+[`docs/VALIDATION-CODES.md`](https://github.com/project-wildshard/shard-format/blob/main/docs/VALIDATION-CODES.md);
+the rule is chosen by that code, and each heading below that one names lists its codes.
 
 ### Any command
 
@@ -417,31 +418,38 @@ the limit.
 
 #### budget-unmeasured
 
-A cost could not be measured: too few headless ticks for scripts, or native gameplay that needs a browser run.
+A cost could not be measured: too few headless ticks for scripts, or native gameplay that needs a browser run. Codes
+`perf-native-view-unmeasured`, `perf-native-resident-unmeasured`, `perf-script-sample-invalid`,
+`perf-script-samples-missing`.
 
 #### budget-download
 
 Too many bytes to download, before play (critical) or in all (library). Shrink or drop assets, or load them later.
+Codes `perf-library-download-budget`, `perf-critical-download-budget`, `perf-library-download`,
+`perf-critical-download`, `perf-tile-download`, `perf-far-download`.
 
 #### budget-draws
 
-Too many draw calls in a view. Merge meshes that share a material, or show fewer objects from that view.
+Too many draw calls in a view. Merge meshes that share a material, or show fewer objects from that view. Codes
+`perf-tile-draws`, `perf-far-draws`.
 
 #### budget-triangles
 
-Too many triangles in a view. Use lower-detail meshes or fewer props there.
+Too many triangles in a view. Use lower-detail meshes or fewer props there. Codes `perf-tile-triangles`,
+`perf-far-triangles`.
 
 #### budget-memory
 
-A memory total is over its line. Smaller or fewer textures and meshes. Memory reports only, for now.
+A memory total is over its line. Smaller or fewer textures and meshes. Memory reports only, for now. Codes
+`perf-memory-target`, `perf-playing-memory`, `perf-loading-memory`.
 
 #### budget-script-cpu
 
-Behaviour scripts take too long per tick. Spread work over ticks, or run it on events.
+Behaviour scripts take too long per tick. Spread work over ticks, or run it on events. Code `perf-script-cpu`.
 
 #### budget-script-fuel
 
-Behaviour scripts run too many instructions per tick. Shorten the hottest loops.
+Behaviour scripts run too many instructions per tick. Shorten the hottest loops. Code `perf-script-fuel`.
 
 #### budget-over
 
@@ -450,6 +458,7 @@ A budget not named above is over its limit. The message names it; `wildshard che
 #### budget-refused
 
 Build or validate refused the whole report card. Run `wildshard check .`: its report step names each budget over.
+Codes `declared-costs`, `performance-targets` (shard-format checking the costs the shard file declares).
 
 ### The shard file and the hero
 
@@ -473,6 +482,42 @@ Capture a new hero, build, prepare and upload again.
 
 The audio rules found a red problem: a recording that will not play, runs too long, or a shard over 10 MB of its own
 audio. Fix each red finding, or add a dated waiver in `audio-waiver.json`. Shard-format `docs/audio.md` explains each.
+Code `audio-refused`. Build prints every finding with one of the rules below under it; only upload refuses a red one.
+
+#### audio-unreadable
+
+Red. The recording does not read as AAC-LC at 48 kHz, mono or stereo. Export it again in that form. Code
+`audio-unreadable`.
+
+#### audio-container
+
+Red. The recording's bytes are FLAC, AIFF, Ogg, MP3, WebM, CAF or no container the game knows; it still counts toward
+the audio budget. Export it again as AAC (in an mp4 file) or as WAV. Code `audio-container`.
+
+#### audio-encoding
+
+Amber. The recording plays, but it is PCM WAV, AAC at a sample rate other than 48 kHz, or AAC outside the strict
+playback index. Encode it as AAC-LC at 48 kHz. Codes `audio-wav`, `audio-sample-rate`, `audio-strict-index`.
+
+#### audio-duration
+
+Red. The recording runs longer than the maximum the message gives. Cut it, or split it in two. Code `audio-duration`.
+
+#### audio-bitrate
+
+Amber. The recording's bitrate is over the cap for its role (music or sound effect) and channels. Encode it lower.
+Code `audio-bitrate`.
+
+#### audio-budget
+
+The shard's own audio is over the amber line (amber), over the red line (red), or over the red line with a dated
+waiver that holds (amber). Cut, shorten or re-encode recordings, or add a waiver in `audio-waiver.json`. Codes
+`audio-budget-amber`, `audio-budget-red`, `audio-budget-waived`.
+
+#### audio-waiver
+
+Amber. `audio-waiver.json` names another shard, has expired, or covers fewer bytes than the shard holds, so it does
+not hold; the budget finding after it says what that leaves. Code `audio-waiver-invalid`.
 
 #### shardfile-draft
 
@@ -490,7 +535,45 @@ There is no built folder to write a shard file from. Run `wildshard check .` (or
 
 #### shardfile-invalid
 
-The shard file breaks a format check. Upload the shard file `prepare` and `build <folder>` wrote, unedited.
+The shard file breaks a format check: it is not a tarball shard-format can read. Upload the shard file `prepare` and
+`build <folder>` wrote, unedited. Code `archive-invalid`.
+
+#### shardfile-index
+
+`shard.json` is missing, too large, not canonical JSON, or does not fit the index schema. Build again so it is written
+for you; a hand-written shard file's `shard.json` must parse and fit. Code `index-invalid`.
+
+#### shardfile-files
+
+The files in the folder differ from the ones `shard.json` lists: one is missing, changed or a link, one is not listed,
+a pack lacks a member, or the sections differ from the source hash. Something edited the built folder: build again.
+Codes `file-mismatch`, `unlisted-file`, `source-hash`, `pack-invalid`.
+
+#### shardfile-section
+
+A section, or the whole shard file the sections make, does not fit its schema. The message gives the path;
+`wildshard schema shardfile <pointer>` prints the expected shape. Codes `section-invalid`, `shard-schema`.
+
+#### shardfile-assets
+
+An asset's bytes do not match what the shard file declares (its kind, extension, schema, size or costs), or fail
+the asset checks, or a mount or runtime file is wrong. Export the named asset again and build. Codes `blob-invalid`,
+`server-file-invalid`, `ktx2-costs`, `asset-admission`, `cook-invalid`, `runtime-files`.
+
+#### shardfile-scripts
+
+A behaviour script runs on a side (client or server) its declaration does not allow, or the script rows are
+invalid. Fix the declaration or move the script, then build again. Codes `script-side`, `script-admission`.
+
+#### shardfile-targets
+
+The world targets name an item or quest the shard does not declare. Declare it, or take it out. Code `world-targets`.
+
+#### shardfile-stream
+
+Upload's streaming check refused: a file, pack or the placed assets are over the streaming cap, or the stored file
+changed while it was read. Shrink what the message names; if it changed mid-read, upload again. Codes `stream-cap`,
+`stream-miss`, `stream-changed`.
 
 #### shardfile-refused
 

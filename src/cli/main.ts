@@ -211,8 +211,7 @@ async function runUpload(args: CliArgs): Promise<number> {
     await uploadShardfile(options)
     return EXIT_OK
   } catch (error: unknown) {
-    const reason = error instanceof Error ? error.message : String(error)
-    refuse('upload', 'upload failed: ', reason)
+    refuse('upload', 'upload failed: ', error)
     return EXIT_FAILED
   }
 }

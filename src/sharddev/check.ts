@@ -3,7 +3,7 @@
 // SA21: every refusal carries a rule id, a one-line fix and a GUIDE.md link, from refusals.ts.
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { authorErrorText } from './authorError';
-import { refusalHint, refusalNote, type RefusalStep } from './refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from './refusals';
 
 /** The five steps, in the order they run. */
 export type CheckStepName = 'lint' | 'build' | 'validate' | 'prove' | 'report';
@@ -19,8 +19,9 @@ export interface CheckRefusal {
   readonly guide: string;
   readonly file?: string;
 }
-/** A refusal as a step reports it: a lint diagnostic brings oxlint's code and help; refusals.ts fills in the rest. */
-export interface StepRefusal { readonly message: string; readonly lint?: { readonly code: string | null; readonly help: string | null }; readonly file?: string; readonly as?: RefusalStep }
+/** A refusal as a step reports it: a lint diagnostic brings oxlint's code and help, a shard-format refusal its stable
+ *  code (SA41); refusals.ts fills in the rest. */
+export interface StepRefusal { readonly message: string; readonly lint?: { readonly code: string | null; readonly help: string | null }; readonly code?: string | undefined; readonly file?: string; readonly as?: RefusalStep }
 /** A warning: the same fields as a refusal, but it does not fail the verdict (an unprepared draft, J198). */
 export type CheckWarning = CheckRefusal;
 /** One step's result and wall-clock duration in milliseconds. */
@@ -53,15 +54,15 @@ const NEEDS_BUILD = new Set<CheckStepName>(['validate', 'prove', 'report']);
 
 async function outcomeOf(work: () => Promise<StepOutcome>): Promise<StepOutcome> {
   try { return await work(); }
-  catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error) }] }; }
+  catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), code: refusalCode(error) }] }; }
 }
 
 /** Run every step in order, timing each, and give the verdict. `output` is read after the build; `now` is for tests. */
 export async function runCheck(project: string, output: () => string | null, steps: CheckSteps, now: () => number = diagnosticNow): Promise<CheckResult> {
   const started = now(), rows: CheckStep[] = [], refusals: CheckRefusal[] = [], warnings: CheckWarning[] = [];
-  const named = (step: CheckStepName, { message, lint, file, as }: StepRefusal): CheckRefusal => {
+  const named = (step: CheckStepName, { message, lint, code, file, as }: StepRefusal): CheckRefusal => {
     // SA3: build's shard file step names its rules by its own step (a format refusal is not a source one).
-    const { rule, fix, guide } = refusalNote(as ?? step, message, lint);
+    const { rule, fix, guide } = refusalNote(as ?? step, message, { lint, code });
     return { step, rule, message, fix, guide, ...(file === undefined ? {} : { file }) };
   };
   let built = true;

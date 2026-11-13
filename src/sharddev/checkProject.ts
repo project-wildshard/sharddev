@@ -19,6 +19,7 @@ import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
+import { refusalCode } from './refusals';
 import { DRAFT_SDK, draftMessage } from './draft';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
@@ -96,7 +97,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       let file: string | undefined;
       // The draft warning goes in the verdict (below), so the writer leaves it out.
       try { file = await options.writeShardfile?.(output, project, { draftWarning: false }); }
-      catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), as: 'shardfile' }] }; }
+      catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), code: refusalCode(error), as: 'shardfile' }] }; }
       const warnings = isDraft(output) ? [{ message: draftMessage(shard.identity.slug), as: 'shardfile' as const }] : [];
       return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}`, warnings };
     },
@@ -120,7 +121,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       const warnings = card.issues.length - refused.length;
       const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}`;
       return await Promise.resolve({ status: card.pass ? 'pass' : 'fail', note,
-        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}` })) });
+        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}`, code: issue.code })) });
     },
   });
 }

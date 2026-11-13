@@ -3,21 +3,32 @@
 // local checks) names a stable rule id, a one-line fix and a
 // GUIDE.md section. This file is the one table. GUIDE.md (SA13) writes one heading per anchor below, so
 // `GUIDE.md#<anchor>` lands on it; refusals.test.ts fails a row with no fix or anchor and a wildshard lint rule with no
-// row. Rule ids are stable: rename one only together with its GUIDE.md heading. A message takes the first row (in table
-// order) for its step whose pattern matches, else its step's catch-all (the row with no pattern), wherever that sits.
+// row. Rule ids are stable: rename one only together with its GUIDE.md heading.
+//
+// SA41: shard-format's refusals carry a stable code (its `issue-codes.ts`, docs/VALIDATION-CODES.md): a validator's
+// `error.code`, `PerformanceIssue.code`, `AudioFinding.code`. A coded refusal takes the row that lists its code, from any
+// step; every one of shard-format's codes has a row (refusals.test.ts fails a new code with none). Words are the fallback
+// for refusals with no code (sharddev's own, and shard-format's admitted-with-warning lines): a message takes the first
+// row (in table order) for its step whose pattern matches, else its step's catch-all (the row with neither pattern nor
+// codes), wherever that sits.
 //
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
+import type { IssueCode } from '@wildshard/format/issue-codes';
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
 export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'update' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
-/** One rule: its id, its GUIDE.md anchor, the fix, and the refusal messages it names (none: the step's catch-all). */
+/** One rule: its id, its GUIDE.md anchor, the fix, the shard-format codes it names (from any step) and the refusal
+ *  messages it names in `steps` (neither: the step's catch-all). */
 export interface RefusalRule {
   readonly id: string;
   readonly anchor: string;
   readonly fix: string;
   readonly steps: readonly RefusalStep[] | 'any';
+  readonly codes?: readonly IssueCode[];
   readonly match?: RegExp;
 }
+/** What a refusal carries besides its words: oxlint's code and help, or shard-format's issue code. */
+export interface RefusalSource { readonly lint?: { readonly code: string | null; readonly help: string | null } | undefined; readonly code?: string | undefined }
 /** What a printed refusal carries besides its message. `guide` is `GUIDE.md#<anchor>`. */
 export interface RefusalNote { readonly rule: string; readonly fix: string; readonly guide: string }
 
@@ -69,24 +80,27 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Fix the proof tape (proof.json) where the message says; its shape is the author proof plan.' },
   { id: 'proof-failed', anchor: 'proof-failed', steps: ['prove'],
     fix: 'Walk the quest in `wildshard dev`, then fix the data or the tape step that did not happen.' },
-  // the report card (budgets, J303); a metric is shard-format's name for it
-  { id: 'budget-unmeasured', anchor: 'budget-unmeasured', steps: ['report'], match: /measurement required|missing execution samples|^invalid measured/u,
+  // the report card (budgets, J303): shard-format's PerformanceIssue codes
+  { id: 'budget-unmeasured', anchor: 'budget-unmeasured', steps: 'any',
+    codes: ['perf-native-view-unmeasured', 'perf-native-resident-unmeasured', 'perf-script-sample-invalid', 'perf-script-samples-missing'],
     fix: 'Run the shard long enough to measure: `wildshard check` measures it headlessly; native gameplay needs a browser proof.' },
-  { id: 'budget-download', anchor: 'budget-download', steps: ['report'], match: /download (?:budget )?bytes/u,
+  { id: 'budget-download', anchor: 'budget-download', steps: 'any',
+    codes: ['perf-library-download-budget', 'perf-critical-download-budget', 'perf-library-download', 'perf-critical-download', 'perf-tile-download', 'perf-far-download'],
     fix: 'Shrink or drop assets on the named download tier, or move them to a later tier.' },
-  { id: 'budget-draws', anchor: 'budget-draws', steps: ['report'], match: /\bdraws\b/u,
+  { id: 'budget-draws', anchor: 'budget-draws', steps: 'any', codes: ['perf-tile-draws', 'perf-far-draws'],
     fix: 'Merge meshes that share a material, or cut objects from the named view.' },
-  { id: 'budget-triangles', anchor: 'budget-triangles', steps: ['report'], match: /\btriangles\b/u,
+  { id: 'budget-triangles', anchor: 'budget-triangles', steps: 'any', codes: ['perf-tile-triangles', 'perf-far-triangles'],
     fix: 'Lower the mesh detail (LODs, fewer props) in the named view.' },
-  { id: 'budget-memory', anchor: 'budget-memory', steps: ['report'], match: /resident target|loading total bytes|playing total bytes/u,
+  { id: 'budget-memory', anchor: 'budget-memory', steps: 'any', codes: ['perf-memory-target', 'perf-playing-memory', 'perf-loading-memory'],
     fix: 'Cut texture size or count and mesh bytes until the named total fits.' },
-  { id: 'budget-script-cpu', anchor: 'budget-script-cpu', steps: ['report'], match: /^script CPU/u,
+  { id: 'budget-script-cpu', anchor: 'budget-script-cpu', steps: 'any', codes: ['perf-script-cpu'],
     fix: 'Do less work per tick in behaviour scripts: spread it over ticks or run it on events.' },
-  { id: 'budget-script-fuel', anchor: 'budget-script-fuel', steps: ['report'], match: /^script fuel/u,
+  { id: 'budget-script-fuel', anchor: 'budget-script-fuel', steps: 'any', codes: ['perf-script-fuel'],
     fix: 'Shorten the hottest behaviour script loops; fuel counts instructions per tick.' },
   { id: 'budget-over', anchor: 'budget-over', steps: ['report'],
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
-  { id: 'budget-refused', anchor: 'budget-refused', steps: ['build', 'validate'], match: /Performance report refused/u,
+  // `Performance report refused` is sharddev's own words (cli.ts); the two codes are shard-format's preflight of the same.
+  { id: 'budget-refused', anchor: 'budget-refused', steps: ['build', 'validate'], codes: ['declared-costs', 'performance-targets'], match: /Performance report refused/u,
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
   // the shard file build writes (SA3; `pack` is its deprecated alias) and upload, before a byte is sent. `shardfile-draft` is
   // a warning from build and check and a refusal from upload (draft.ts).
@@ -96,16 +110,48 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Build again after the hero capture: `wildshard build` writes a shard file that carries it.' },
   { id: 'hero-unchanged', anchor: 'hero-unchanged', steps: ['upload'], match: /the hero is unchanged since/u,
     fix: 'Capture a new hero (`wildshard hero`), then build and upload again.' },
-  { id: 'audio-refused', anchor: 'audio-refused', steps: ['pack', 'upload'], match: /^Audio rules \(AU5\) refuse/u,
+  // the audio rules (AU5): `audio-refused` is upload's refusal of a red report; the rest are its findings, which build
+  // prints with their rows (red or amber, a build never refuses on them)
+  { id: 'audio-refused', anchor: 'audio-refused', steps: 'any', codes: ['audio-refused'],
     fix: 'Fix each red audio finding listed, or waive it in the shard\'s audio-waiver.json.' },
+  { id: 'audio-unreadable', anchor: 'audio-unreadable', steps: 'any', codes: ['audio-unreadable'],
+    fix: 'Export the recording again as AAC-LC 48 kHz, mono or stereo: this one does not read as that.' },
+  { id: 'audio-container', anchor: 'audio-container', steps: 'any', codes: ['audio-container'],
+    fix: 'Export the recording again as AAC (in mp4) or WAV: its bytes are FLAC, AIFF, Ogg, MP3, WebM, CAF or unknown.' },
+  { id: 'audio-encoding', anchor: 'audio-encoding', steps: 'any', codes: ['audio-strict-index', 'audio-wav', 'audio-sample-rate'],
+    fix: 'Encode the recording as AAC-LC at 48 kHz; it plays as it is, but ships larger or less safely.' },
+  { id: 'audio-duration', anchor: 'audio-duration', steps: 'any', codes: ['audio-duration'],
+    fix: 'Cut the recording under the maximum length the message gives, or split it in two.' },
+  { id: 'audio-bitrate', anchor: 'audio-bitrate', steps: 'any', codes: ['audio-bitrate'],
+    fix: 'Encode the recording at a lower bitrate: the message gives the cap for its role and channels.' },
+  { id: 'audio-budget', anchor: 'audio-budget', steps: 'any', codes: ['audio-budget-amber', 'audio-budget-red', 'audio-budget-waived'],
+    fix: 'Cut, shorten or re-encode recordings until the shard\'s own audio fits, or add a dated audio-waiver.json.' },
+  { id: 'audio-waiver', anchor: 'audio-waiver', steps: 'any', codes: ['audio-waiver-invalid'],
+    fix: 'Fix audio-waiver.json: this shard\'s slug, a date not yet past, and at least the bytes its audio holds.' },
   { id: 'shardfile-draft', anchor: 'shardfile-draft', steps: ['shardfile', 'upload'], match: /is an unprepared draft \(sdk 0\.2\)/u,
     fix: 'Run `wildshard prepare <folder> --base <url>`, then `wildshard build <folder>`; a shard repo\'s `pack:shards` does both (WILDSHARD_PREPARATION_URL).' },
   { id: 'shardfile-link', anchor: 'shardfile-link', steps: ['shardfile', 'pack'], match: /not a regular file|link is refused/u,
     fix: 'Replace links in the shard file folder with real files, then build again.' },
   { id: 'shardfile-folder-missing', anchor: 'shardfile-folder-missing', steps: ['shardfile', 'pack'], match: /(?:build|pack) needs a shard file folder|ENOENT/u,
     fix: 'Build the shard source: `wildshard build <source>` writes public/shardfiles/<slug>.shardfile.' },
-  { id: 'shardfile-invalid', anchor: 'shardfile-invalid', steps: ['shardfile', 'pack', 'upload'], match: /^no \S+ in the shard ?file|is larger than \d+ bytes|Invalid [a-z]+: /u,
+  // shard-format's validator refusals (SA41's validate and stream codes), from validate, the shard file step or upload
+  { id: 'shardfile-invalid', anchor: 'shardfile-invalid', steps: 'any', codes: ['archive-invalid'],
     fix: 'Upload the shard file `wildshard build` wrote, unedited: the format checks refuse this one.' },
+  { id: 'shardfile-index', anchor: 'shardfile-index', steps: 'any', codes: ['index-invalid'],
+    fix: 'Build again so shard.json is written for you; a hand-written shard.json must parse and fit the index schema.' },
+  { id: 'shardfile-files', anchor: 'shardfile-files', steps: 'any', codes: ['file-mismatch', 'unlisted-file', 'source-hash', 'pack-invalid'],
+    fix: 'Build again: the folder\'s files differ from the ones shard.json lists, so never edit a built folder by hand.' },
+  { id: 'shardfile-section', anchor: 'shardfile-section', steps: 'any', codes: ['section-invalid', 'shard-schema'],
+    fix: 'Give the field at the path shown the value it expects; `wildshard schema shardfile <pointer>` prints its shape.' },
+  { id: 'shardfile-assets', anchor: 'shardfile-assets', steps: 'any',
+    codes: ['blob-invalid', 'server-file-invalid', 'ktx2-costs', 'asset-admission', 'cook-invalid', 'runtime-files'],
+    fix: 'Export the asset the message names again and build: its bytes do not match what the shard file declares.' },
+  { id: 'shardfile-scripts', anchor: 'shardfile-scripts', steps: 'any', codes: ['script-side', 'script-admission'],
+    fix: 'Run each behaviour script only on the side its declaration allows, then build again.' },
+  { id: 'shardfile-targets', anchor: 'shardfile-targets', steps: 'any', codes: ['world-targets'],
+    fix: 'Declare the item or quest the message names, or take it out of the world targets.' },
+  { id: 'shardfile-stream', anchor: 'shardfile-stream', steps: 'any', codes: ['stream-cap', 'stream-miss', 'stream-changed'],
+    fix: 'Shrink the file or pack the message names under the streaming cap; if the file changed mid-read, upload again.' },
   { id: 'shardfile-refused', anchor: 'shardfile-refused', steps: ['shardfile', 'pack'],
     fix: 'Build the shard source again with `wildshard build`: it writes and checks the shard file.' },
   { id: 'upload-shardfile-missing', anchor: 'upload-shardfile-missing', steps: ['upload'], match: /upload needs a shard ?file|ENOENT/u,
@@ -222,15 +268,32 @@ export function lintRuleId(code: string): string {
   return match === null ? code : `${match[1] ?? ''}/${match[2] ?? ''}`;
 }
 
-/** The rule, fix and guide link for a refusal message from `step`. A known lint rule's code wins over the message. */
-export function refusalNote(step: RefusalStep, message: string, lint?: { readonly code: string | null; readonly help: string | null }): RefusalNote {
+/** shard-format's codes, each to the row that names it. */
+const RULE_BY_CODE: ReadonlyMap<string, RefusalRule> = new Map(REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row] as const)));
+
+/** The shard-format code a refusal carries (SA41): on the error or, when sharddev wrapped it, on a cause beneath it. */
+export function refusalCode(error: unknown): string | undefined {
+  for (let at = error, depth = 0; typeof at === 'object' && at !== null && depth < 8; depth += 1) {
+    const code: unknown = 'code' in at ? at.code : undefined;
+    if (typeof code === 'string' && RULE_BY_CODE.has(code)) return code;
+    at = 'cause' in at ? at.cause : undefined;
+  }
+  return undefined;
+}
+
+/** The rule, fix and guide link for a refusal message from `step`. A known lint rule's code wins over the message, and
+ *  so does a shard-format code (SA41); the message's words are the fallback. */
+export function refusalNote(step: RefusalStep, message: string, source: RefusalSource = {}): RefusalNote {
+  const { lint, code } = source;
   if (lint?.code !== undefined && lint.code !== null) {
     const id = lintRuleId(lint.code), known = LINT_BY_ID.get(id);
     const help = lint.help?.split('\n')[0]?.trim() ?? '';
     return known === undefined ? note(LINT_OTHER, id, help === '' ? LINT_OTHER.fix : help) : note(known);
   }
+  const coded = code === undefined ? undefined : RULE_BY_CODE.get(code);
+  if (coded !== undefined) return note(coded);
   const rule = REFUSAL_RULES.find(row => appliesTo(row, step) && row.match?.test(message) === true)
-    ?? REFUSAL_RULES.find(row => appliesTo(row, step) && row.match === undefined);
+    ?? REFUSAL_RULES.find(row => appliesTo(row, step) && row.match === undefined && row.codes === undefined);
   if (rule === undefined) throw new Error(`no refusal rule for step ${step}`);
   return note(rule);
 }

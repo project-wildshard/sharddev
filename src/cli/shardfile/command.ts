@@ -32,8 +32,7 @@ async function runShardfile(
     })
     return EXIT_OK
   } catch (error: unknown) {
-    const reason = error instanceof Error ? error.message : String(error)
-    refuse(STEP, `${step} failed: `, reason)
+    refuse(STEP, `${step} failed: `, error)
     return EXIT_FAILED
   }
 }

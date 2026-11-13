@@ -168,6 +168,11 @@ test('build prints a red shard as AMBER with the numbers and still writes it', a
     text,
     /^AMBER audio budget: loud-test holds 11\.00 MB of its own audio, over the 10\.00 MB red line \(red: api-server refuses this at upload\)$/mu,
   )
+  // SA41: each finding's code names its rule, fix and GUIDE.md link.
+  assert.match(
+    text,
+    /red line \(red: api-server refuses this at upload\)\n {2}\[audio-budget\] fix: .+ \(GUIDE\.md#audio-budget\)$/mu,
+  )
   assert.match(text, /^shard file: /mu)
   assert.equal(outcome.hash, sha256(await readFile(out)))
 })

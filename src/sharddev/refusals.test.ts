@@ -5,7 +5,9 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve only owned fixture paths.
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { GUIDE_FILE, LINT_OTHER, LINT_RULES, REFUSAL_ANCHORS, REFUSAL_RULES, lintRuleId, refusalNote, type RefusalStep } from './refusals';
+import { issueCodeRows, issueError } from '@wildshard/format/issue-codes';
+import { readTar } from '@wildshard/format/tar';
+import { GUIDE_FILE, LINT_OTHER, LINT_RULES, REFUSAL_ANCHORS, REFUSAL_RULES, lintRuleId, refusalCode, refusalNote, type RefusalStep } from './refusals';
 import { checkLines, lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import { checkProject } from './checkProject';
 import { newProject } from './project';
@@ -28,7 +30,7 @@ describe('the refusal table (SA21)', () => {
 
   it('gives every step one catch-all, so no refusal goes without a rule', () => {
     for (const step of STEPS) {
-      expect(REFUSAL_RULES.filter(row => row.match === undefined && row.steps !== 'any' && row.steps.includes(step)), step).toHaveLength(1);
+      expect(REFUSAL_RULES.filter(row => row.match === undefined && row.codes === undefined && row.steps !== 'any' && row.steps.includes(step)), step).toHaveLength(1);
       const rule = refusalNote(step, 'something nobody has seen yet').rule;
       expect(REFUSAL_RULES.find(row => row.id === rule)?.match, `${step}: ${rule}`).toBeUndefined();
     }
@@ -58,23 +60,56 @@ describe('the refusal table (SA21)', () => {
     expect(result.refusals[1]?.fix).toBe('Consider removing this declaration.');
   });
 
-  it('names each report-card metric shard-format refuses', () => {
+  it('names each report-card metric shard-format refuses, by its code', () => {
     const metrics: Readonly<Record<string, string>> = {
-      'critical download bytes': 'budget-download', 'library download budget bytes': 'budget-download', 'far draws': 'budget-draws',
-      'near triangles': 'budget-triangles', 'worst playing total bytes': 'budget-memory', 'script CPU p95 us/tick': 'budget-script-cpu',
-      'script fuel/tick': 'budget-script-fuel', 'missing execution samples': 'budget-unmeasured', 'native resident measurement required': 'budget-unmeasured',
-      'invalid measured fuel.max': 'budget-unmeasured', 'invalid measured scripts.p95Micros': 'budget-unmeasured',
+      'perf-critical-download': 'budget-download', 'perf-library-download-budget': 'budget-download', 'perf-far-draws': 'budget-draws',
+      'perf-tile-triangles': 'budget-triangles', 'perf-playing-memory': 'budget-memory', 'perf-script-cpu': 'budget-script-cpu',
+      'perf-script-fuel': 'budget-script-fuel', 'perf-script-samples-missing': 'budget-unmeasured', 'perf-native-resident-unmeasured': 'budget-unmeasured',
+      'perf-script-sample-invalid': 'budget-unmeasured',
     };
-    for (const [metric, rule] of Object.entries(metrics)) expect(refusalNote('report', `${metric}: 9 over 1`).rule, metric).toBe(rule);
-    // `build` and `validate` refuse the whole card in one line, after the rows that come before the report's.
+    // The code names the rule; the metric's words do not (`far draws` words a draws row, the code a download one here).
+    for (const [code, rule] of Object.entries(metrics)) expect(refusalNote('report', 'far draws: 9 over 1', { code }).rule, code).toBe(rule);
+    // Words with no code are the report step's catch-all: no row reads shard-format's metric words any more.
+    expect(refusalNote('report', 'script CPU p95 us/tick: 9 over 1').rule).toBe('budget-over');
+    // `build` and `validate` refuse the whole card in one line, in sharddev's own words (no code).
     for (const step of ['build', 'validate'] as const) expect(refusalNote(step, 'Performance report refused this shard').rule).toBe('budget-refused');
+  });
+
+  // SA41: shard-format gives every issue a stable code; each one must name a rule, so a code added upstream with no row
+  // here fails this test (and GUIDE.md's anchor test covers the row's heading).
+  it('names every shard-format issue code, from every step, by exactly one row', () => {
+    const codes = issueCodeRows().map(row => row.code);
+    expect(codes.length).toBeGreaterThanOrEqual(53);
+    expect(codes).toContain('audio-container');
+    const named = REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row.id] as const));
+    const unmapped = codes.filter(code => !named.some(([listed]) => listed === code));
+    expect(unmapped, 'shard-format codes no row in refusals.ts names').toEqual([]);
+    expect(named.map(([code]) => code).filter(code => !codes.includes(code)), 'rows naming a code shard-format does not have').toEqual([]);
+    expect(new Set(named.map(([code]) => code)).size, 'a code named by two rows').toBe(named.length);
+    for (const code of codes) {
+      const rule = named.find(([listed]) => listed === code)?.[1];
+      for (const step of STEPS) expect(refusalNote(step, 'words no row matches', { code }).rule, `${step} ${code}`).toBe(rule);
+      expect(REFUSAL_ANCHORS, code).toContain(REFUSAL_RULES.find(row => row.id === rule)?.anchor);
+    }
+  });
+
+  it('reads the code off shard-format\'s real refusals, through a cause sharddev wrapped them in', () => {
+    let refused: unknown;
+    try { readTar(new Uint8Array(100)); } catch (error) { refused = error; }
+    expect(refusalCode(refused)).toBe('archive-invalid');
+    expect(refusalCode(new Error('shard file step failed', { cause: refused }))).toBe('archive-invalid');
+    expect(refusalNote('upload', 'tar: whatever words', { code: refusalCode(refused) }).rule).toBe('shardfile-invalid');
+    // A host's code (Node's ENOENT) is not shard-format's: the words still name the rule.
+    expect(refusalCode(Object.assign(new Error('ENOENT: no such file'), { code: 'ENOENT' }))).toBeUndefined();
+    expect(refusalCode('not an error')).toBeUndefined();
   });
 
   // src/cli's tests run pack and upload's refusals through the real CLI (main.test.ts, hero.test.ts, upload.test.ts).
   it('names the refusals whose words come from elsewhere', () => {
     expect(refusalNote('upload', 'upload needs --channel staging or --channel prod, not --channel live').rule).toBe('upload-channel');
-    // shard-format's audio rules (AU5) word this one; pack-audio.test.ts holds the real refusal.
-    expect(refusalNote('upload', 'Audio rules (AU5) refuse loud-test: loud-test holds 11.00 MB of its own audio').rule).toBe('audio-refused');
+    // shard-format's audio rules (AU5) refuse with a code; shardfile-audio.test.ts holds the real refusal.
+    const audio = issueError('audio-refused', 'Audio rules (AU5) refuse loud-test: loud-test holds 11.00 MB of its own audio');
+    expect(refusalNote('upload', audio.message, { code: refusalCode(audio) }).rule).toBe('audio-refused');
     expect(refusalNote('validate', 'Build failed with 1 error: Cannot resolve entry module x/shard.config.ts.').rule).toBe('source-file-missing');
   });
 });
@@ -141,7 +176,8 @@ describe('a seeded set of bad shards through the real check (SA21)', () => {
     const product = resolve(scratch, 'not-a-product');
     mkdirSync(product);
     writeFileSync(resolve(product, 'shard.json'), '{}');
-    await expect(runCli(['validate', product])).rejects.toThrow(`(${GUIDE_FILE}#validate-refused)`);
+    // shard-format refuses `{}` as an index with its code (SA41), which names the rule.
+    await expect(runCli(['validate', product])).rejects.toThrow(`(${GUIDE_FILE}#shardfile-index)`);
     await expect(runCli(['prove', taken, resolve(scratch, 'absent-proof.json')])).rejects.toThrow(/^absent-proof\.json: ENOENT[^\n]*\n {2}\[source-file-missing\] fix: /u);
   });
 });
@@ -154,8 +190,8 @@ describe('the shard file build writes (SA3)', () => {
     expect(refusalNote('shardfile', 'the shard file folder out/dunes does not carry the captured hero (thumb)').rule).toBe('hero-not-in-product');
     expect(refusalNote('shardfile', 'not a regular file: out/dunes/link.json').rule).toBe('shardfile-link');
     expect(refusalNote('shardfile', "ENOENT: no such file or directory, scandir 'out/dunes'").rule).toBe('shardfile-folder-missing');
-    expect(refusalNote('shardfile', 'no shard.json in the shardfile').rule).toBe('shardfile-invalid');
-    expect(refusalNote('shardfile', 'Invalid shardfile: bad index').rule).toBe('shardfile-invalid');
+    expect(refusalNote('shardfile', 'no shard.json in the shardfile', { code: 'index-invalid' }).rule).toBe('shardfile-index');
+    expect(refusalNote('shardfile', 'Invalid shardfile: bad index', { code: 'shard-schema' }).rule).toBe('shardfile-section');
     expect(refusalNote('pack', 'pack needs a shard file folder').rule).toBe('shardfile-folder-missing');
   });
 
