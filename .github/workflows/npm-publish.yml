@@ -1,8 +1,9 @@
 # NPM-PUBLISH (meta docs/plans/NPM-PUBLISH-PLAN.md; Jake 2026-11-12: "publish stuff to npm so it can be installed
-# without git links"). A vX.Y.Z release tag publishes @wildshard/sharddev to npm by trusted publishing (OIDC): no
-# token is stored anywhere, and npm attaches the provenance itself. npm adds a trusted publisher only to a package
-# that already exists, so the first version is published by hand (plan row NP4); until then this job skips with a
-# notice.
+# without git links"). A vX.Y.Z release tag publishes @wildshard/sdk (this repo's package name since SHARD-AUTHORING
+# SA7a, J317) to npm by trusted publishing (OIDC): no token is stored anywhere, and npm attaches the provenance itself.
+# npm adds a trusted publisher only to a package that already exists; Jake published the README-only 0.0.0 placeholder
+# and trusted this repo and workflow (NP5). The job reads the name from package.json, so it skips with a notice only if
+# that name is not on npm.
 name: npm-publish
 
 on:
@@ -57,7 +58,7 @@ jobs:
           name=$(node -p 'require("./package.json").name')
           version=$(node -p 'require("./package.json").version')
           if ! npm view "$name" version >/dev/null 2>&1; then
-            echo "::notice::$name is not on npm yet: its first version is published by hand (NPM-PUBLISH NP4), then trusted publishing takes over."
+            echo "::notice::$name is not on npm yet: npm trusts a publisher only on a package that exists, so publish a placeholder and run npm trust first (NPM-PUBLISH NP5)."
             exit 0
           fi
           if npm view "$name@$version" version >/dev/null 2>&1; then
