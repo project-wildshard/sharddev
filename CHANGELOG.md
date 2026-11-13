@@ -7,6 +7,15 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.8 (2026-11-13)
+
+- Fix: a shard kept at a repo's `src/` (one shard per repo) builds
+  again when its `mounts.json` names files under `public/`. The
+  build, `wildshard hero` and the map baker now find the repo root
+  from either layout, not only from `src/shards/<slug>/`.
+- Fix: the `generator-imports` lint rule now checks a shard at `src/`
+  as well as one at `src/shards/<slug>/`.
+
 ## v0.2.7 (2026-11-13)
 
 - New: `wildshard dev .` works from an npm install. Its first run
