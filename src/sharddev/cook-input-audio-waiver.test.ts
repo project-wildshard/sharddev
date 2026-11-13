@@ -33,3 +33,8 @@ it('refuses a waiver with no date', () => {
   const project = shard({ 'audio-waiver.json': { version: 1, waivers: [{ ...row, until: 'soon' }] } });
   expect(() => readCookInput(project, 'pine-hollow')).toThrow();
 });
+
+it('refuses two waivers for one shard', () => {
+  const project = shard({ 'audio-waiver.json': { version: 1, waivers: [row, row] } });
+  expect(() => readCookInput(project, 'pine-hollow')).toThrow(/one audio waiver per shard/u);
+});

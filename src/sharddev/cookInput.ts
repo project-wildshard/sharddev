@@ -19,7 +19,7 @@ const MountsSchema = v.strictObject({version: v.literal(1), outputs: v.record(v.
 const FenceReadsSchema = v.strictObject({version: v.literal(1), files: v.array(v.string())});
 const PacksSetSchema = v.strictObject({version: v.literal(1), set: v.literal('fence')});
 /** AUDIO AU5: a dated waiver per output slug for a shard over the audio budget's red line (meta AUDIO-PLAN). */
-const AudioWaiversSchema = v.strictObject({version: v.literal(1), waivers: v.array(AudioWaiverSchema)});
+const AudioWaiversSchema = v.strictObject({version: v.literal(1), waivers: v.pipe(v.array(AudioWaiverSchema), v.check(rows => new Set(rows.map(row => row.shard)).size === rows.length, 'one audio waiver per shard'))});
 
 /** The waiver row naming `slug` in the shard source's `audio-waiver.json`, if any. */
 function readAudioWaiver(file: unknown, slug: string): AudioWaiver | undefined {

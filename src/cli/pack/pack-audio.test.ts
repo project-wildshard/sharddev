@@ -27,7 +27,8 @@ interface Mount {
 
 const SLUG = 'loud-test'
 const MB = 1_000_000
-const RATE = 8000
+const RATE = 48_000
+const FRAME = 4
 const LOUD = [
   { url: '/assets/music/loud/a.wav', bytes: 6 * MB },
   { url: '/assets/sfx/loud/b.wav', bytes: 5 * MB },
@@ -40,8 +41,8 @@ const TAGS = [
 ] as const
 const HALVES = [
   [20, 1],
-  [22, 1],
-  [32, 2],
+  [22, 2],
+  [32, FRAME],
   [34, 16],
 ] as const
 
@@ -51,12 +52,12 @@ function words(bytes: number): readonly (readonly [number, number])[] {
     [4, bytes - 8],
     [16, 16],
     [24, RATE],
-    [28, RATE * 2],
+    [28, RATE * FRAME],
     [40, bytes - 44],
   ]
 }
 
-/** A mono 16-bit 8 kHz PCM WAV of `bytes` bytes. */
+/** A stereo 16-bit 48 kHz PCM WAV of `bytes` bytes (31 s for 6 MB). */
 function wav(bytes: number): Uint8Array {
   const file = Buffer.alloc(bytes)
   for (const [text, at] of TAGS) {
@@ -182,6 +183,6 @@ test('upload refuses the red shard before it sends a byte', async (context: Test
       commit: 'c'.repeat(40),
       report: (): void => undefined,
     }),
-    /Audio rules \(AU5\) refuse loud-test/u,
+    /Audio rules \(AU5\) refuse loud-test: loud-test holds 11\.00 MB of its own audio, over the 10\.00 MB red line$/u,
   )
 })
