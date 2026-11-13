@@ -9,7 +9,8 @@ import { brotliDecompressSync } from 'node:zlib'
 
 import { literal, number, object, optional, parse, string } from 'valibot'
 
-import { answerAccount, newAccounts, signedBy } from './auth-double.ts'
+import { newAccounts, signedBy } from './auth-double.ts'
+import { answerKeyed, newDeletions } from './delete-double.ts'
 import { close, listen, sendJson } from './http-double.ts'
 import {
   commitBodyOf,
@@ -21,13 +22,15 @@ import {
 } from './upload-commit.ts'
 
 import type { Accounts } from './auth-double.ts'
+import type { Deletions } from './delete-double.ts'
 import type { Recorded, Reply } from './upload-commit.ts'
 import type { InferOutput } from 'valibot'
 
 // An api-server stand-in for `sharddev upload`: real sockets, real Ed25519
 // verification over the tarball's digest and a real Brotli decode, with
 // the presigned PUT on a second server, as R2 is. The signature and the
-// account key (meta SHARD-DELETE DEL6) are auth-double.ts's.
+// account key (meta SHARD-DELETE DEL6) are auth-double.ts's, DEL10's
+// delete calls delete-double.ts's.
 
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
 const TIME = '2026-11-05T00:00:00.000Z'
@@ -68,6 +71,7 @@ interface UploadServerState {
   /** Echo the channel and the three versions, as UP2's API will. */
   echo: boolean
   readonly accounts: Accounts
+  readonly deletions: Deletions
 }
 
 /** A catalogue shard as the double serves it. */
@@ -226,7 +230,7 @@ async function answerApi(double: Double, exchange: Exchange): Promise<void> {
   const { state } = double
   state.apiRequests.push(exchange.request)
   const text = body.toString('utf8')
-  if (state.sso || !answerAccount(state.accounts, exchange, text)) {
+  if (state.sso || !answerKeyed(state, exchange, text)) {
     route(double, exchange, text)
   }
 }
@@ -260,6 +264,7 @@ function newState(): UploadServerState {
     sso: false,
     echo: false,
     accounts: newAccounts(),
+    deletions: newDeletions(),
   }
 }
 

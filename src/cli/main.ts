@@ -4,6 +4,7 @@ import { serve } from '../server/serve.ts'
 import {
   apiKeyOf,
   runAccount,
+  runDelete,
   runWhoami,
   uploadKeyRefusal,
 } from './account/command.ts'
@@ -246,6 +247,13 @@ const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
     await runAccount(args, serverOf(args)),
   whoami: async (): Promise<number> =>
     await runWhoami(ENV['WILDSHARD_API_KEY']),
+  // Meta SHARD-DELETE DEL10: the owner deletes with the same key.
+  delete: async (args: CliArgs): Promise<number> =>
+    await runDelete({
+      args,
+      server: serverOf(args),
+      fromEnv: ENV['WILDSHARD_API_KEY'],
+    }),
 }
 
 async function runCommand(args: CliArgs): Promise<number> {

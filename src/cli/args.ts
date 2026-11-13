@@ -20,6 +20,8 @@ interface CliArgs {
   readonly port: string | undefined
   readonly server: string | undefined
   readonly version: boolean
+  /** `delete`: skip the typed slug, for scripts (meta SHARD-DELETE DEL10). */
+  readonly yes: boolean
 }
 
 const FIRST = 0
@@ -33,6 +35,7 @@ const OPTIONS = {
   out: { type: 'string' },
   port: { type: 'string' },
   server: { type: 'string' },
+  yes: { type: 'boolean', default: false },
 } as const
 
 /**
@@ -83,6 +86,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     port: values.port,
     server: values.server,
     version: version === true,
+    yes: values.yes,
   }
 }
 
