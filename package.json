@@ -252,6 +252,7 @@
     "./bake/keyedSky": "./src/sharddev/bake/keyedSky.ts",
     "./bake/coarseCopy": "./src/sharddev/bake/coarseCopy.ts",
     "./bake/glbCompression": "./src/sharddev/bake/glbCompression.ts",
+    "./bake/generatorGlb": "./src/sharddev/bake/generatorGlb.ts",
     "./bake/compactGlb": "./src/sharddev/bake/compactGlb.ts",
     "./bake/nearPlaceholder": "./src/sharddev/bake/nearPlaceholder.ts",
     "./bake/placeholders": "./src/sharddev/bake/placeholders.ts",

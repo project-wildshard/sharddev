@@ -16,3 +16,12 @@ Meta SHARD-AUTHORING SA6 (J170, J317).
   shard repo pays its hits to zero by hand. Engine's own
   `wildshard/generator-imports` is no longer switched on here; it can be
   deleted from engine once no shard repo config names it.
+
+## The generator GLB codec (opus-sa6b)
+
+- Open Plots' `tiledPlot.mjs` was the last generator over the rule: it
+  imported gltf-transform and meshoptimizer to read its landmark GLBs and
+  write its world. `src/sharddev/bake/generatorGlb.ts`
+  (`@wildshard/sdk/bake/generatorGlb`) now does that: `newGlbDocument`,
+  `readGlb` (every extension, meshopt decoded) and `writeGlb` (written as
+  it stands, the same bytes the generator wrote before).
