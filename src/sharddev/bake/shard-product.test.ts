@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { absentShardProduct, createShardProduct, ProductError, type ShardProduct, type ShardProductInput } from '@wildshard/engine/game/shardfile/shardProduct';
 
 const shardfile = emptyShardfile({ slug: 'p2a-fixture', name: 'P2a fixture', author: 'Wildshard', revision: 3, seed: 1 });

@@ -1,6 +1,6 @@
 import { compileBehaviourModule } from '@wildshard/sdk/buildBehaviour';
 import { emptyShardfile } from '@wildshard/sdk/author';
-import { parseShardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile } from '@wildshard/format/shardSchema';
 
 /** Data-only goats flee through the guarded-herd owner; a hawk dives through the native flight/contact owner. */
 export function creaturesExample() {

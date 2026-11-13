@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { formatJsonSchemas, namedFormatJsonSchemas } from '@wildshard/engine/host/formatJsonSchema';
+import { formatJsonSchemas, namedFormatJsonSchemas } from '@wildshard/sdk/formatJsonSchema';
 
 /** Build the migrated format documents into an ignored authoring-output folder, never into committed source.
  * @param {string} root

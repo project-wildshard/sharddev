@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from './author';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
 
 test('the public worker never reads a caller-selected module option', async () => {

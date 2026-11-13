@@ -3,7 +3,7 @@ import { CoverCompositionSchema } from '@wildshard/format/streamedCover';
 import { CreatureInstallSchema, PackedCreatureLooksSchema } from '@wildshard/format/speciesLooks';
 import { QuestPageCompositionSchema } from '@wildshard/format/questPageComposition';
 import { ChapterWakeSchema } from '@wildshard/format/chapterDirector';
-import { namedFormatJsonSchema, namedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { namedFormatJsonSchema, namedJsonSchema } from './formatJsonSchema';
 
 const contracts = [
   ['streamedCover.CoverComposition', CoverCompositionSchema],

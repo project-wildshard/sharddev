@@ -1,6 +1,7 @@
 // A species row and its declared brain, as the SDK defines them (SHARD-AUTHORING SA12). The row is gameplay data and the
 // brain one platform archetype with its shard-format data; `test/sdk-engine-types.test.ts` keeps both equal to the engine's
-// (game/plugin/brain), so a drift in either fails the test.
+// (game/plugin/brain), so a drift in either fails the test. The engine admits them (game/plugin/brain
+// `admitSpeciesProgram`; SA26 took that runtime call off the SDK).
 import type * as v from 'valibot';
 import type { BorrowedDecision } from '@wildshard/format/decisionScripts';
 import type { ScriptSpeciesSchema } from '@wildshard/format/speciesScripts';
@@ -8,9 +9,6 @@ import type { CreatureBodyRecipe } from '@wildshard/format/creatures';
 import type { GrazerSchema, ChallengeGrazerSchema } from '@wildshard/format/grazers';
 import type { DiverSchema, PatrolDiverSchema } from '@wildshard/format/flyers';
 import type { StalkerSchema, GuardianPatternsSchema, SkirmisherSchema, GuardianSchema, PerchHunterSchema } from '@wildshard/format/brains';
-import { admitSpeciesProgram, type SpeciesBrains } from '@wildshard/engine/game/plugin/brain';
-
-import type { StrikeData } from './species';
 
 /**
  * A species row's declared brain (SHARD-PLATFORM SF27): `{ archetype, data }`, one platform archetype and its data. A
@@ -101,14 +99,4 @@ export interface BrainedSpecies {
   lockable?: boolean;
   readonly brain?: SpeciesBrain;
   readonly body?: CreatureBodyRecipe;
-}
-
-/**
- * Admit a shard's species catalogue and its strike rows (SF27): each strike passes the SDK's strict strike schema, each
- * declared brain its archetype's schema, and every strike a brain names resolves, before any row or policy is built; a
- * `script` brain's module comes in `modules` (a plain row: its SHA-256 → the base64 its bake wrote) and is admitted on its own
- * ScriptHost. The admitted catalogue is the engine's runtime (game/plugin/brain `SpeciesBrains`), not author data.
- */
-export function speciesBrains(species: readonly BrainedSpecies[], strikes: readonly StrikeData[], modules: Readonly<Record<string, string>> = {}): SpeciesBrains {
-  return admitSpeciesProgram({ species, strikes, modules });
 }

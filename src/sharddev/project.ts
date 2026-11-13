@@ -14,7 +14,7 @@ import { resolve, sep } from 'node:path';
 import process from 'node:process';
 import { build } from 'vite';
 import ts from '@typescript/typescript6';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { preflightAssetGraph, offlineMemoryAdmission, prepareAssetDecoders } from "@wildshard/format/product";
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { preflightShardfile } from '@wildshard/format/preflight';

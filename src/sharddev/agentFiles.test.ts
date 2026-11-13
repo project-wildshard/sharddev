@@ -5,7 +5,7 @@ import { relative, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AGENTS_FILE, AGENTS_TEXT, CLAUDE_FILE, CLAUDE_TEXT, GUIDE_SOURCE, SDK_ROOT, SKILLS, skillFile, skillLink, skillLinkTarget, skillSource, syncAgentFiles, updateShardRepo } from './agentFiles';
 import { projectPerformancePolicy } from './performancePolicy';
-import type { Shardfile } from '@wildshard/engine/host/shardfile';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 import { writeShardRepo } from './newProject';
 import { runCli } from './cli';
 

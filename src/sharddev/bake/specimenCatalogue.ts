@@ -1,7 +1,7 @@
 import { parse, object, array, string, unknown } from 'valibot';
 import { PickupCatalogueSchema, SpecimenBookSchema, type PickupCatalogueRows, type SpecimenBookRows, type SpecimenModelMetadataRows } from '@wildshard/format/specimenCatalogue';
 import pickupRows from '@wildshard/engine/game/data/pickupCatalogue' with { type: 'json' };
-import { namedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { namedJsonSchema } from '../formatJsonSchema';
 import { encodeCanonicalJson } from '../immutable';
 import { nameBlob, type NamedBlob, type BlobOptions } from '../blobs';
 

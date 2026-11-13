@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { parseShardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile } from '@wildshard/format/shardSchema';
 import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 import { validateSimulation } from '@wildshard/engine/host/headless';
 import { createCatalogue } from '@wildshard/sdk/commons/catalogue';

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
 import { SkinPoseLayerSchema } from '@wildshard/format/skinLayers';
-import { formatJsonSchema, formatJsonSchemas } from '@wildshard/engine/host/formatJsonSchema';
+import { formatJsonSchema, formatJsonSchemas } from './formatJsonSchema';
 
 test('one-pass skin tables export the original bounded numeric array grammar', () => {
   for (const target of ['draft-07', 'draft-2020-12'] as const) {

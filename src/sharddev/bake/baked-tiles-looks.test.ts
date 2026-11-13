@@ -6,7 +6,7 @@ import { parseClientPlan } from '@wildshard/format/clientPlan';
 import type { ShardContext } from '@wildshard/engine/game/shard/context';
 import { Scope } from '@wildshard/engine/app/scope';
 import { ToonLook } from '@wildshard/engine/render/families/toon';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { createShardProduct } from '@wildshard/engine/game/shardfile/shardProduct';
 import * as lookCompiler from '@wildshard/engine/game/shardfile/runtimeProduct';
 import { lendLooks, lentLook, setLentTexture, type LentLooks } from '@wildshard/engine/game/shardfile/lentLooks';

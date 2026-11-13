@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { playLibrarySteps } from '@wildshard/format/admissionControl';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import type { OutputIndex } from '@wildshard/format/outputIndex';
 
 const cold = '1'.repeat(64), tile = '2'.repeat(64), shared = '3'.repeat(64), dependent = '4'.repeat(64);

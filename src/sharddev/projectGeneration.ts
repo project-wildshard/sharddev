@@ -30,7 +30,7 @@ import { memoAssemblyScript } from './bake/assemblyscriptMemo';
 import { meshoptNoLargerMemo } from './bake/meshoptChoiceMemo';
 import { projectInputFiles } from './projectInputFiles';
 import { generationCache, maybePruneGenerationCache } from './generationCache.ts';
-import type { Shardfile } from '@wildshard/engine/host/shardfile';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { ProjectOutput } from './projectOutput';
 import type { DiscoveryInput } from '@wildshard/format/discoveryValues';
 

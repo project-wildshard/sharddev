@@ -1,8 +1,6 @@
 // A phased boss fight's rows, as the SDK defines them (SHARD-AUTHORING SA12): the fixed-arena row (SF27) and the roaming
-// row, both data. The engine runs them (game/plugin/bossPhase); `test/sdk-engine-types.test.ts` keeps each row type equal to
-// the engine's, so a drift in either fails the test.
-import { phasedBossFight as platformFight, type PhasedBossBody as PlatformBody, type PhasedBossFight as PlatformFight, type PhasedBossPorts as PlatformPorts,
-  type RoamingBossBody as MobileBody, type RoamingBossPorts as MobilePorts, type RoamingBossFight as MobileFight } from '@wildshard/engine/game/plugin/bossPhase';
+// row, both data. The engine runs them (game/plugin/bossPhase `phasedBossFight`; SA26 took that runtime call off the SDK);
+// `test/sdk-engine-types.test.ts` keeps each row type equal to the engine's, so a drift in either fails the test.
 
 /** A declared view call as data: the view's name and its numeric arguments (`['arena.shaft', 0, 0.38]`). */
 export type BossViewCall = readonly [string, ...number[]];
@@ -211,18 +209,4 @@ export interface RoamingBossRow<K extends string, A extends string, Q extends st
   readonly adds: { readonly kinds: readonly K[]; readonly radius: number; readonly far: number; readonly near: number; readonly fast: number; readonly slow: number; readonly turn: number; readonly chargeRange: number; readonly rate: number; readonly tell: number; readonly trauma: number; readonly leashPad: number };
   readonly hazards: { readonly count: number; readonly angleStart: number; readonly angleStep: number; readonly angleOffset: number; readonly radius: number; readonly radiusStep: number; readonly fallSeconds: number; readonly every: number; readonly damage: number; readonly strike: string; readonly fromPhase: number };
   readonly sounds: { readonly intro: Q; readonly roar: Q; readonly burst: Q; readonly add: Q; readonly charge: Q };
-}
-
-/**
- * A phased boss fight from its row (SF27): a declared state machine of modes with timed beats, strike rows, invulnerability
- * windows, adds and arena hazards, view-free; the shard binds the named views and lends its arena. The ports, bodies and
- * fight it returns are the engine's runtime types (game/plugin/bossPhase), not author data.
- */
-export function phasedBossFight<B extends MobileBody,L,R,K extends string,A extends string,Q extends string>(row: RoamingBossRow<K,A,Q>,ports: MobilePorts<B,L,R,K,A,Q>): MobileFight<B,L,R>;
-/** Run the fixed-arena phase, combo and hazard policy. */
-export function phasedBossFight<B extends PlatformBody>(row: PhasedBossRow, ports: PlatformPorts<B>): PlatformFight<B>;
-export function phasedBossFight<B extends PlatformBody,C extends MobileBody,L,R,K extends string,A extends string,Q extends string>(row: PhasedBossRow|RoamingBossRow<K,A,Q>,ports: PlatformPorts<B>|MobilePorts<C,L,R,K,A,Q>): PlatformFight<B>|MobileFight<C,L,R> {
-  if('kind' in row && 'random' in ports)return platformFight(row,ports);
-  if('kind' in row || 'random' in ports)throw new Error('Phased boss row/host policy mismatch');
-  return platformFight(row,ports);
 }

@@ -30,7 +30,7 @@ it('refuses missing targets, unsafe handles and duplicate real or alias identiti
 
 it('builds identical compiler and sim handles from real catalogue rows, never aliases or spawn order', async () => {
   const { buildDecisionRegistries, DECISION_PLAYER_HANDLE } = await import('@wildshard/format/decisionBindings');
-  const { emptyShardfile } = await import('@wildshard/engine/host/author');
+  const { emptyShardfile } = await import('../author');
   const source = emptyShardfile({ slug: 'binding-test', name: 'Binding', author: 'Test', seed: 2, revision: 1 });
   const spawn = (id: string) => ({ id, species: 'animal', variant: 'animal', brain: null, strike: null, seed: 1, scale: 1, at: [0, 0, 0] as [number, number, number], yaw: 0 });
   source.creatures.spawns = [spawn('actor.last'), spawn('actor.first')];
@@ -53,7 +53,7 @@ it('builds identical compiler and sim handles from real catalogue rows, never al
 
 it('uses actual runtime spawn identities in the same namespace and refuses a second owner', async () => {
   const { buildDecisionRegistries } = await import('@wildshard/format/decisionBindings');
-  const { emptyShardfile } = await import('@wildshard/engine/host/author');
+  const { emptyShardfile } = await import('../author');
   const source = emptyShardfile({ slug: 'binding-test', name: 'Binding', author: 'Test', seed: 2, revision: 1 });
   const actor = { id: 'actor.retained', kind: 'animal', look: 'animal', at: [0, 0] as [number, number], yaw: 0 };
   const runtime = { kind: 'client-plan' as const, cost: { webContentMB: 500, glMB: 100, engineBaseMB: 300, rev: 'abcdef1234', device: 'Fixture', evidence: 'progress/memory/fixture.json' },
@@ -68,7 +68,7 @@ it('uses actual runtime spawn identities in the same namespace and refuses a sec
 it('binds verified native strike identities without narrowing their geometry', async () => {
   const { readCreatureStrikes } = await import('@wildshard/format/creatures');
   const { buildDecisionRegistries } = await import('@wildshard/format/decisionBindings');
-  const { emptyShardfile } = await import('@wildshard/engine/host/author');
+  const { emptyShardfile } = await import('../author');
   const source = emptyShardfile({ slug: 'binding-test', name: 'Binding', author: 'Test', seed: 2, revision: 1 });
   const strike = { id: 'actor.wave', shape: { kind: 'lane', length: 26, width: 6 }, windup: 1.5,
     active: 0.6, recover: 1.4, cooldown: 3.5, range: 30, damage: 12, tags: ['actor.wave'],

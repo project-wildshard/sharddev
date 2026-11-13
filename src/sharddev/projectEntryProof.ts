@@ -7,7 +7,7 @@ import { Physics } from '@wildshard/engine/physics/Physics';
 import { addBakedPieces } from '@wildshard/engine/game/plugin/simulation';
 import { proveEntryways } from '@wildshard/engine/game/bake/entryways';
 import { readBoundedFile } from './sourceReader';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 
 /** Actual static capsule walks and transfers, never a caller-supplied receipt. */
 export interface StaticPortalEntryProof { readonly lanes: number; readonly steps: number; readonly portalTransfers: number }

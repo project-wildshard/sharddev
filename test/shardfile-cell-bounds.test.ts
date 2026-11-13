@@ -5,7 +5,7 @@ import { validateOutputSection } from '@wildshard/format/outputIndex';
 import { CellBoundsSchema } from '@wildshard/format/shardSections';
 import * as v from 'valibot';
 import { BoxGeometry, MeshBasicMaterial } from 'three';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { staticGlb } from '../src/sharddev/bake/glb';
 import { validatePropDrawBounds } from '@wildshard/format/product';
 

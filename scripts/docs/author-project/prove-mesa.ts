@@ -5,7 +5,7 @@ import {
   proveMesaNative, proveSceneClient, proveEquippedItemClient,
   type AuthorProofPage, type MesaProofPlan,
 } from '@wildshard/engine/host/headless';
-import type { Shardfile } from '@wildshard/engine/host/shardfile';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 
 /** Every Mesa gate is mandatory; declarations, placeholders and a pre-lit beacon cannot pass. */
 export async function proveMesaOutpost(

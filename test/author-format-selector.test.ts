@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import * as v from 'valibot';
-import { authorFormatSchema, namedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { authorFormatSchema, namedJsonSchema } from '@wildshard/sdk/formatJsonSchema';
 import { ContractBoardPageSchema } from '@wildshard/format/contracts';
 import { QuestPageTalksSchema } from '@wildshard/format/npcs';
 import { BodySlotsSchema } from '@wildshard/format/bodySlots';

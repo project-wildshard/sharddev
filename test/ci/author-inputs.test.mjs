@@ -32,7 +32,7 @@ function cli(args,success=true){
 async function build(name,flags=[]){const output=join(app,name);cli(['build',source,output,'--product-only',...flags]);return loadHeadlessProduct(output);}
 function config(body){writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sdk/author';
  import {nameBlob} from '@wildshard/sdk/blobs';
- import {registeredJsonSchema} from '@wildshard/engine/host/formatJsonSchema';
+ import {registeredJsonSchema} from '@wildshard/sdk/formatJsonSchema';
  export async function generate(ctx){const shard=emptyShardfile(${JSON.stringify(identity)});${body}}
  export default generate;`);}
 const token=`const files=await ctx.cached({id:'token',inputs:['assets/token.bin']},inputs=>new Map([['token.bin',inputs.get('assets/token.bin')]]));

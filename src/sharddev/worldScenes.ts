@@ -2,7 +2,7 @@ import { parseWorldScenePage } from '@wildshard/format/worldScenePages';
 import { SceneModelSourceSchema, SceneBakeSourceSchema } from '@wildshard/format/sceneSources';
 import type { BakedPlacementPlan } from '@wildshard/format/bakedTiles';
 import { isJsonData } from '@wildshard/format/json';
-import { namedJsonSchema, registeredJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { namedJsonSchema, registeredJsonSchema } from './formatJsonSchema';
 import type { RegisteredScenePageJsonName, RegisteredPlacementPageJsonName } from '@wildshard/format/registeredJson';
 import { parseWorldScene, parseWorldSceneBindings, parsePrivateScene, type WorldSceneRecipe } from '@wildshard/format/clientChannels';
 import { CaveInteriorSchema, type CaveInteriorRows } from '@wildshard/format/caveInterior';

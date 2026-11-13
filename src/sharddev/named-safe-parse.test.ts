@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import * as v from 'valibot';
-import { defineNamedRows } from '@wildshard/engine/host/formatJsonSchema';
+import { defineNamedRows } from './formatJsonSchema';
 
 test('paired non-throwing admission retains native defaults, output ownership and full issues', () => {
   const named = defineNamedRows({ kind: 'object', mode: 'strip', entries: {

@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { build } from 'vite';
 import { BoxGeometry, MeshStandardMaterial } from 'three';
 import { expect, test } from 'vitest';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from './author';
 import { parseGlb } from './assets';
 import { staticGlb } from './bake/glb';
 import { compressGlb } from './bake/glbCompression';

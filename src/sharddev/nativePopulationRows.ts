@@ -6,7 +6,7 @@ import { PopulationFieldSchema } from '@wildshard/format/populationEnvironment';
 import { parseNativePopulationRows } from '@wildshard/format/populationRoster';
 import { nameBlob, type NamedBlob } from './blobs';
 import { encodeCanonicalJson } from './immutable';
-import { namedJsonSchema, registeredJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { namedJsonSchema, registeredJsonSchema } from './formatJsonSchema';
 
 /** Admit complete native fauna/encounter/pose roster data with its original identity and resource checks. */
 export function parseNativePopulationRoster(input: unknown): ReturnType<typeof parseNativePopulationRows> { return parseNativePopulationRows(input); }

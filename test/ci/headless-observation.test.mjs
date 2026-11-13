@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
 import { pathToFileURL } from 'node:url';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
 import { OBSERVATION_TICKS } from '@wildshard/engine/host/headlessObservation';
 import { TickWorkerHost } from '@wildshard/engine/host/tickWorkerHost';

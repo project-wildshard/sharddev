@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
 import { ACCENT_IDS, AccentSchema, ROAD_ACCENT, type AccentId } from '@wildshard/format/accent';
-import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { formatJsonSchema } from './formatJsonSchema';
 
 test('the concrete public accent pipeline retains its exact palette bridge', () => {
   expect(AccentSchema.pipe[2].type).toBe('custom');

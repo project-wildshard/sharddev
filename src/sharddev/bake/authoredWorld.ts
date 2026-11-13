@@ -3,7 +3,7 @@ import * as v from 'valibot';
 import { isJsonData } from '@wildshard/format/json';
 import { FAMILY_IDS, PbrMaterialSchema } from '@wildshard/format/materialFamilies';
 import { MaterialsSchema, materialGraphIr } from '@wildshard/format/materials';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { normalizeWorldGlb, type NormalizedWorld, type WorldPrimitive } from './world';
 import { parseWorldSource } from '../worldSource';
 import { bakeWorldTexture } from './textureWasm';

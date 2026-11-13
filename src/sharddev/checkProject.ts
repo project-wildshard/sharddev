@@ -10,7 +10,7 @@ import { basename, dirname, resolve } from 'node:path';
 import * as v from 'valibot';
 import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
 import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
-import type { Shardfile } from '@wildshard/engine/host/shardfile';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 import { buildProject } from './project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { handwrittenIdentity, settleHandwritten } from './handwritten';

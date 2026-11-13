@@ -7,7 +7,7 @@ import { NumericPoseSchema } from '@wildshard/format/clientChannels';
 import { ReturnProgramSchema } from '@wildshard/format/namedJsonContracts';
 import { MixedPopulationSchema } from '@wildshard/format/mixedPopulation';
 import { PopulationKeeperRowsSchema } from '@wildshard/format/populationKeeper';
-import { composeNamedJsonSchema, namedJsonSchema, namedFormatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { composeNamedJsonSchema, namedJsonSchema, namedFormatJsonSchema } from './formatJsonSchema';
 
 const number = v.number(), text = v.string();
 const module = v.strictObject({ module: text, bytes: text,

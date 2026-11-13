@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { BoxGeometry, MeshBasicMaterial } from 'three';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { staticGlb } from '../src/sharddev/bake/glb';
 import { PropExtent, validatePropDrawBounds, visitGlbTriangles } from '@wildshard/format/product';
 

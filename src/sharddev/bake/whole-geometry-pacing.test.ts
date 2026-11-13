@@ -10,7 +10,7 @@ import * as pacing from '@wildshard/engine/core/framePacing';
 import * as workSlices from '@wildshard/engine/core/workSlice';
 import { assembleWholeGeometryViews, fetchLaneBake, readWholeGeometry, unshuffleLanes } from '@wildshard/engine/game/plugin/geometry';
 import { provideRuntimeProduct } from '@wildshard/engine/game/shardfile/runtimeProduct';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { staticGlb } from './glb';
 import { hashImmutableBytes } from '../immutable';
 

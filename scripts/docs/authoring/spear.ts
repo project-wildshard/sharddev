@@ -2,7 +2,7 @@ import { starterSpearPack, spearLoadout } from '../author-project/generators/spe
 import { createCatalogue, catalogueRef } from '@wildshard/sdk/commons/catalogue';
 import { commonsRequirements, type BuiltCommons } from '@wildshard/sdk/commons';
 import { emptyShardfile } from '@wildshard/sdk/author';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 
 /** An equipped commons spear: its retained generator, exact asset/contact closure and ordinary author client. */
 export function spearExample(slug = 'spear-outpost'): { source: Shardfile; built: BuiltCommons; model: ReturnType<typeof catalogueRef>; contacts: ReturnType<typeof catalogueRef> } {

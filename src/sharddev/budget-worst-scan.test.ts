@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { nearbyContentCost, worstContentCost, worstContentCostSteps } from '@wildshard/format/budget';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from './author';
 import { textureLibrarySource } from '@wildshard/format/deviceMemoryCost';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 

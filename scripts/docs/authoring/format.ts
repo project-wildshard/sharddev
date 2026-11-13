@@ -1,7 +1,7 @@
 import { Director } from '@wildshard/sdk/director';
 import { DirectorStagesSchema, parseDirectorStages } from '@wildshard/format/directorStages';
 import { formatJsonSchema, schemaAt, schemaDeclaration } from '@wildshard/sdk/formatJsonSchema';
-import { ShardfileSchema } from '@wildshard/engine/host/shardfile';
+import { ShardfileSchema } from '@wildshard/format/shardSchema';
 
 /** A structural editor schema plus the defining admission verdict for Template 1's first stage. */
 export function formatExample() {

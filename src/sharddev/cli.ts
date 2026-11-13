@@ -3,7 +3,7 @@ import { basename, dirname, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
 import { buildProject, readProjectAssets, validateProject } from './project';
-import { ShardfileSchema, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
 import { proveAuthorSimulation, measureSimulation, validateSimulation } from '@wildshard/engine/host/headless';
 import { performanceReport, performanceReportLines, type PerformanceObservations } from './reportCard';
@@ -15,7 +15,7 @@ import { assetOverdraw } from './assets';
 import process from 'node:process';
 import { buildBehaviourProject } from './buildBehaviour';
 import { synthProject } from './synth';
-import { formatJsonSchemas, schemaAt, schemaDeclaration } from '@wildshard/engine/host/formatJsonSchema';
+import { formatJsonSchemas, schemaAt, schemaDeclaration } from './formatJsonSchema';
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
 import { locatedError } from './authorError';

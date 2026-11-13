@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { parseMovers } from '@wildshard/format/movers';
 import { parseShardfile, shardfileRules } from '@wildshard/format/shardSchema';
 

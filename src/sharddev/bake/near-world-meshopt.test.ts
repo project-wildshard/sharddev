@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { NodeIO } from '@gltf-transform/core';
 import { Float32BufferAttribute, MeshStandardMaterial, PlaneGeometry } from 'three';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { staticGlb } from './glb';
 import { compressGlb } from './glbCompression';
 import { WorldBakeRows } from './worldRows';

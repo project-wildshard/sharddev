@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from '../author';
 import { readProjectAssets } from '../project';
 import { writeOutputProduct } from '../outputProduct';
 import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';

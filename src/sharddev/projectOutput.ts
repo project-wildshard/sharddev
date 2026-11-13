@@ -8,7 +8,7 @@ import * as v from 'valibot';
 import { ScriptContractSchema, decisionModuleContracts, type ScriptContractInput, type ScriptContract } from '@wildshard/format/scriptContract';
 import { OutputIndexSchema, type OutputFile } from '@wildshard/format/outputIndex';
 import { ShardNaturalSchema } from '@wildshard/format/shardSections';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { readNamedBlob, emitNamedBlobs, nameBlob, type NamedBlob, type ServerBlob } from './blobs';
 import { encodeCanonicalJson } from './immutable';
 import { copyAssetBytes, hashAssetBytes } from './assetHandle';

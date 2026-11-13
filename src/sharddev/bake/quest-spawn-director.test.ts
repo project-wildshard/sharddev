@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { parseQuestSpawnPage, parseQuestLeadPage, QuestSpawnPageSchema, QuestLeadPageSchema } from '@wildshard/format/questSteps';
-import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { formatJsonSchema } from '../formatJsonSchema';
 
 // G565: spawn conditions live in the script (AS); the page rows keep only the effects a raised flag publishes once
 const rows = { quest: 'reed-watch', script: 'marsh.watch', channel: 2, limit: { phone: 2, desktop: 5 },

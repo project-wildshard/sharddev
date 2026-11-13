@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
 import { nativeColliderRecordSchema } from '@wildshard/format/nativePhysics';
-import { nativeColliderSourceRows } from '@wildshard/engine/host/formatJsonSchema';
+import { nativeColliderSourceRows } from './formatJsonSchema';
 import { parseSectionValue } from './sections';
 
 const outcome = (run: () => unknown): unknown => { try { return run(); } catch (error: unknown) { return error instanceof Error ? error.message : error; } };

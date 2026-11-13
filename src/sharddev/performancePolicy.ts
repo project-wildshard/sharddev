@@ -2,7 +2,7 @@
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author identities and symlink spellings do not confer checkout provenance.
 import { resolve } from 'node:path';
-import type { Shardfile } from '@wildshard/engine/host/shardfile';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 
 const legacy = new Set(['driftwood-isle', 'pine-hollow', 'nalati-grasslands', 'far-reach', 'sunscar-dunes', 'nine-dragon-stack']);
 /** A first-party shard repo is `project-wildshard/shard-*`, its package `@wildshard/shard-*`. SA28: `wildshard new` writes

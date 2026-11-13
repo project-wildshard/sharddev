@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { resolve } from 'node:path';
 import { build } from 'vite';
-import { emptyShardfile } from '@wildshard/engine/host/author';
+import { emptyShardfile } from './author';
 import { readProjectAssets } from './project';
 
 const directories: string[] = [];

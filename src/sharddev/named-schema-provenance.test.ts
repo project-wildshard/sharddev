@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
-import { namedJsonSchema, namedFormatJsonSchemas } from '@wildshard/engine/host/formatJsonSchema';
+import { namedJsonSchema, namedFormatJsonSchemas } from './formatJsonSchema';
 import { WorldSceneSchema } from '@wildshard/format/clientChannels';
 
 test('provenance is granted only to an exact defining format object, without changing default wire schemas', () => {

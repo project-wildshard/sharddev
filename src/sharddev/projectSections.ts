@@ -1,7 +1,7 @@
 import { isJsonData } from '@wildshard/format/json';
 import { parseOutputSection } from '@wildshard/format/outputIndex';
 import { SHARDFILE_ADMISSION_LIMITS } from '@wildshard/format/admissionLimits';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { encodeCanonicalJson } from './immutable';
 
 /** CLI-only root-mapped section declarations. Existing nonempty fields cannot be overridden. */

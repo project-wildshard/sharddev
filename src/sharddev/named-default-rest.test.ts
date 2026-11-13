@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import * as v from 'valibot';
-import { defineNamedRows, namedJsonSchema, type NamedRowInput } from '@wildshard/engine/host/formatJsonSchema';
+import { defineNamedRows, namedJsonSchema, type NamedRowInput } from './formatJsonSchema';
 
 const description = { kind: 'object', mode: 'strip', entries: {
   anchors: { kind: 'optional', default: { riders: [] }, item: { kind: 'object', mode: 'strip', entries: {

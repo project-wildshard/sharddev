@@ -1,6 +1,6 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import * as v from 'valibot';
-import { defineNamedRows, namedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
+import { defineNamedRows, namedJsonSchema } from './formatJsonSchema';
 
 const number = { kind: 'number', finite: true, integer: true, min: -1, max: 8 } as const;
 const text = { kind: 'string', min: 1, max: 8, startsWith: 'a' } as const;
