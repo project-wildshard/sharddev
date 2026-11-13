@@ -18,7 +18,7 @@ The scaffold, plus the two commands that get a built product to the server:
 - `src/web/`: the Preact web app, with its own `tsconfig.json` (DOM lib).
 - `src/tools/build-web.ts`: esbuild into `src/dist/web` (`--dev` watches and serves).
 - `src/e2e/`: Playwright smoke test (CI).
-- `src/scripts/`: repo tooling (asks, md-wrap), plain JS.
+- `kit/scripts/`: repo tooling (asks, md-wrap, lint), plain JS (J329).
 
 ## The shard file
 
