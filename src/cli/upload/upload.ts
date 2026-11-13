@@ -10,7 +10,7 @@ import {
 } from './api.ts'
 import { storedForm } from './compress.ts'
 import { signTarball } from './signature.ts'
-import { heroDigest, validateShardfile } from './validate.ts'
+import { validateShardfile } from './validate.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
 import type { StoredForm } from './compress.ts'
@@ -195,10 +195,10 @@ async function validated(
   options: Readonly<UploadOptions>,
   tarball: Readonly<Uint8Array>,
 ): Promise<Validated> {
-  const { slug, name, audio, card } = await validateShardfile(tarball)
+  const { slug, name, audio, heroHash } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
   await assertAudio(audio)
-  return { slug, hero: card === undefined ? undefined : heroDigest(card) }
+  return { slug, hero: heroHash }
 }
 
 /**

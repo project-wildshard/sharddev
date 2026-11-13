@@ -2,6 +2,9 @@ import { createHash } from 'node:crypto'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { heroHashOf } from './hero.ts'
+
+import type { HeroCard } from './hero.ts'
 import type { AudioReport } from '@wildshard/format/audioRules'
 import type { ProductFiles } from '@wildshard/format/productValidation'
 
@@ -15,14 +18,10 @@ interface ValidShardfile {
   readonly name: string
   /** AUDIO AU5: the shard's own audio against format's rules, as of today. */
   readonly audio: AudioReport
-  /** The card's three image blob hashes, when the shard has a card (J306). */
+  /** `presentation.card`'s three image blob hashes, when it has one (J306). */
   readonly card: HeroCard | undefined
-}
-
-interface HeroCard {
-  readonly thumb: string
-  readonly portrait: string
-  readonly landscape: string
+  /** The hero digest api-server's UP4 takes (`hero.ts`); undefined with no card. */
+  readonly heroHash: string | undefined
 }
 
 function sha256(bytes: Readonly<Uint8Array>): string {
@@ -65,18 +64,8 @@ async function validateShardfile(
     name: identity.name,
     audio: productAudioReport(valid, new Date()),
     card: presentation?.card,
+    heroHash: heroHashOf(valid.shard),
   }
 }
 
-/**
- * The hero digest (SHARD-AUTHORING UP4, choice 4): SHA-256 of the three
- * card images' blob hashes, as api-server takes it.
- */
-function heroDigest(card: HeroCard): string {
-  const { thumb, portrait, landscape } = card
-  return createHash('sha256')
-    .update(`thumb:${thumb}\nportrait:${portrait}\nlandscape:${landscape}`)
-    .digest('hex')
-}
-
-export { type HeroCard, type ValidShardfile, heroDigest, validateShardfile }
+export { type ValidShardfile, validateShardfile }
