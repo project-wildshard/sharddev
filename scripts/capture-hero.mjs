@@ -4,15 +4,16 @@
 // content it shows. `wildshard build` refuses a cut whose stamp no longer matches the content (src/cli/hero/hero.ts).
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the templates."
 //
-// Serve the candidate first (engine: `scripts/serve-build.sh --shard <slug>`), and run this from the shard project
-// root. Headless Chromium on the real GPU (Metal), never a visible window. The view is `hero.json`'s `camera`
+// Serve the candidate first: `wildshard dev .` (SA17; its page enters the shard by `?skipintro`), or an engine build
+// (engine: `scripts/serve-build.sh --shard <slug>`), and run this from the shard project root. A new project's
+// generated `data:` card gets files of its own: `card/<slot>.jpg`, and manifest.json names them after the capture. Headless Chromium on the real GPU (Metal), never a visible window. The view is `hero.json`'s `camera`
 // ({ pos: [x,y,z], look: [x,y,z], fov, center }, engine scripts/hero-shots.mjs's view shape) when the shard declares
 // one, else the player's own spawn view. Sizes: thumb 640x360, portrait 804x1626, landscape 1600x900.
 //
 // `wildshard hero <shard-dir> --stamp-existing` captures nothing: it stamps the hero files already there as showing
 // the content now. It exists for a shard repo that gains this check with curated heroes and no stamp. WARNING: use it
 // only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
-import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
@@ -40,11 +41,35 @@ function servedName(shard) {
   return String(JSON.parse(readFileSync(join(shard, 'manifest.json'), 'utf8')).name);
 }
 
-/** Enter the shard the way a player does: SHARD SELECT, its card, ENTER WORLD (hidden shards are Developer cards). */
+/** The served root, so the URL `wildshard dev` prints (`…/?skipintro`) works as `--base` as well as a bare origin. */
+function servedRoot(base) {
+  const url = new URL(base);
+  url.search = ''; url.hash = '';
+  return url.href.replace(/\/+$/u, '');
+}
+
+/** True when `base` is a `wildshard dev` server: it answers its reload poll, `/__wildshard_dev_revision`. */
+async function isDevServer(base) {
+  try {
+    const response = await fetch(`${base.replace(/\/+$/u, '')}/__wildshard_dev_revision`, { cache: 'no-store' });
+    return response.ok && typeof (await response.json()).revision === 'number';
+  } catch { return false; }
+}
+
+/** Enter the shard the way a player does: SHARD SELECT, its card, ENTER WORLD (hidden shards are Developer cards).
+ * A `wildshard dev` page serves this shard alone and enters it by `?skipintro`; its SHARD SELECT lists engine's. */
 async function enter(page, base, name, log) {
-  const url = `${base.replace(/\/+$/u, '')}/?mute=1&sw=0&tier=desktop&nolock=1&perf=0`;
-  log(`hero: loading ${url}, card "${name}"`);
+  const dev = await isDevServer(base);
+  const url = `${base.replace(/\/+$/u, '')}/?${dev ? 'skipintro&' : ''}mute=1&sw=0&tier=desktop&nolock=1&perf=0`;
+  log(dev ? `hero: loading ${url} (wildshard dev)` : `hero: loading ${url}, card "${name}"`);
   await page.goto(url, { waitUntil: 'load' });
+  if (!dev) await selectCard(page, base, name);
+  await page.waitForFunction(() => Boolean(window.__wildshard?.world?.hud?.entered && window.__wildshard?.world?.game) && document.querySelector('.ws-load') === null,
+    undefined, { timeout: 240000, polling: 500 });
+  if (await page.evaluate(() => window.__wildshard.world.hud.paused)) await page.keyboard.press('Escape');
+}
+
+async function selectCard(page, base, name) {
   await page.locator('.ws-main-select').click({ timeout: 120000 });
   await page.locator('.ws-menu-card').first().waitFor({ timeout: 60000 });
   const names = await page.evaluate(() => [...document.querySelectorAll('.ws-menu-card')].map(card => card.querySelector('b')?.textContent?.trim() ?? ''));
@@ -53,18 +78,17 @@ async function enter(page, base, name, log) {
   await page.evaluate(index => document.querySelector(`.ws-menu-dots i[data-i="${index}"]`)?.click(), at);
   await sleep(1000);
   await page.locator('.ws-menu-play').click();
-  await page.waitForFunction(() => Boolean(window.__wildshard?.world?.hud?.entered && window.__wildshard?.world?.game) && document.querySelector('.ws-load') === null,
-    undefined, { timeout: 240000, polling: 500 });
-  if (await page.evaluate(() => window.__wildshard.world.hud.paused)) await page.keyboard.press('Escape');
 }
 
-export async function captureHero(shard, base, { name = servedName(shard), log = console.info } = {}) {
+export async function captureHero(shard, given, { name = servedName(shard), log = console.info } = {}) {
+  const base = servedRoot(given);
   // Loaded here, so --stamp-existing needs no browser or engine to resolve.
   const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([
     import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
-  const files = await heroSlotFiles(shard);
+  // A slot with no file (new's generated `data:` card) is captured to card/<slot>.jpg and named in manifest.json after.
+  const files = { ...(await heroSlotFiles(shard)) };
   const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined);
-  if (missing.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${missing.join(', card.')} must name a file in the shard folder (e.g. /src/shards/${shardFolderName(shard)}/card/${missing[0]}.jpg), not a data: url`);
+  for (const slot of missing) files[slot] = join(shard, 'card', `${slot}.jpg`);
   const stampFile = join(shard, 'hero.json');
   const camera = existsSync(stampFile) ? JSON.parse(readFileSync(stampFile, 'utf8')).camera : undefined;
   const errors = [], shots = {};
@@ -110,10 +134,23 @@ export async function captureHero(shard, base, { name = servedName(shard), log =
   } finally { await browser.close(); }
   if (errors.length > 0) throw new Error(`page errors during capture, nothing written: ${errors.slice(0, 3).join(' | ')}`);
   // Write every file, then the stamp, so a failed capture leaves the old hero and its old stamp.
+  if (missing.length > 0) mkdirSync(join(shard, 'card'), { recursive: true });
   for (const [slot, bytes] of Object.entries(shots)) {
     const partial = `${files[slot]}.partial`;
     try { writeFileSync(partial, bytes); renameSync(partial, files[slot]); } finally { rmSync(partial, { force: true }); }
     log(`hero: wrote ${files[slot]}`);
+  }
+  if (missing.length > 0) {
+    const named = Object.fromEntries(missing.map(slot => [slot, `/src/shards/${shardFolderName(shard)}/card/${slot}.jpg`]));
+    // new writes the card twice, manifest.json and the reference world's data/card.json, and build refuses a pair that
+    // differs; so the slots move in both. Each file keeps its own layout (new writes them on one line).
+    for (const file of ['manifest.json', join('data', 'card.json')].map(name => join(shard, name)).filter(existsSync)) {
+      const text = readFileSync(file, 'utf8'), json = JSON.parse(text);
+      if (file.endsWith('card.json') && missing.some(slot => json.card?.[slot] !== undefined && !String(json.card[slot]).startsWith('data:'))) continue;
+      json.card = { ...json.card, ...named };
+      writeFileSync(file, `${/^\{\s*\n/u.test(text) ? JSON.stringify(json, null, 2) : JSON.stringify(json)}\n`);
+      log(`hero: ${file} card.${missing.join(', card.')} now name card/*.jpg`);
+    }
   }
   return await writeHeroStamp(shard, { base, ...(camera === undefined ? {} : { camera }) });
 }
@@ -122,7 +159,7 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import
   const [dir, flag, base] = process.argv.slice(2);
   const adopt = flag === '--stamp-existing' && base === undefined;
   if (dir === undefined || (!adopt && (flag !== '--base' || base === undefined))) {
-    console.error('usage: wildshard hero <source> --base <served-build-url>  (serve the candidate first: engine scripts/serve-build.sh --shard <slug>)');
+    console.error('usage: wildshard hero <source> --base <served-build-url>  (serve the candidate first: `wildshard dev .` prints its URL)');
     console.error('       wildshard hero <source> --stamp-existing  WARNING: no capture; stamps the hero images already there as current.');
     console.error('       Use it ONLY when you have looked at those images and they show the current content; a wrong stamp hides a stale hero.');
     process.exit(2);

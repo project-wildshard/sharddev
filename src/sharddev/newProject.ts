@@ -137,11 +137,9 @@ proof tape (\`wildshard-goldens\`) and move to a newer sdk
 
 \`\`\`sh
 pnpm install
+pnpm exec wildshard dev .
 pnpm exec wildshard check .
 \`\`\`
-
-Until \`@wildshard/sdk\` is on npm, \`pnpm install\` cannot fetch it: run the CLI
-from a sharddev checkout instead (\`GUIDE.md\`, "Running \`wildshard\` today").
 
 ${layout}
 - \`public/shardfiles/\` is build output. Never edit or commit it.

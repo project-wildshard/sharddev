@@ -4,6 +4,7 @@ import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
 import { writeEmptyShardSource } from './newProject';
 import { shardOutputRoot } from './shardSource';
+import { clientPage } from './clientPage';
 import { assertConfigBoundary } from './configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI verifies and writes local build products.
@@ -291,8 +292,8 @@ export async function buildProject(project: string, output?: string, options: { 
   if (client !== undefined) {
     cpSync(client, destination, { recursive: true });
     const json = canonicalJson(descriptor).replaceAll('<', String.raw`\u003c`);
-    const html = readFileSync(resolve(destination, 'index.html'), 'utf8').replace('</head>', `<script id="ws-shardfile" type="application/json">${json}</script></head>`);
-    writeFileSync(resolve(destination, 'index.html'), html);
+    const recorded = existsSync(resolve(destination, 'programs', `${shard.identity.slug}.json`));
+    writeFileSync(resolve(destination, 'index.html'), clientPage(readFileSync(resolve(destination, 'index.html'), 'utf8'), json, shard.identity.slug, recorded));
   }
   return shard;
 }
