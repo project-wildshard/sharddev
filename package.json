@@ -12,6 +12,7 @@
   },
   "files": [
     "GUIDE.md",
+    "docs/api/EXPORT-TIERS.md",
     "skills",
     "codemods",
     "bin",
