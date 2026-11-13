@@ -83,7 +83,7 @@
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
     "@wildshard/engine": "github:project-wildshard/engine#867f3b968429d8b90ae33b363dae3f15f16f6b84",
-    "@wildshard/format": "github:project-wildshard/shard-format#v0.4.8",
+    "@wildshard/format": "github:project-wildshard/shard-format#v0.4.9",
     "ajv": "6.15.0",
     "assemblyscript": "0.28.20",
     "binaryen": "132.0.0",
@@ -197,7 +197,7 @@
     "overrides": {
       "binaryen": "npm:@pre-bundled/binaryen@132.0.0-patch-1",
       "assemblyscript>binaryen": "npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1",
-      "@wildshard/format": "github:project-wildshard/shard-format#v0.4.8"
+      "@wildshard/format": "github:project-wildshard/shard-format#v0.4.9"
     }
   },
   "exports": {
