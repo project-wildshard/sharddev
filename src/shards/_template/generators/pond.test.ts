@@ -13,12 +13,18 @@ const RES = 257, SIZE = 500, D = SIZE / (RES - 1);
 const SWIM_OUT = 1.05, MAX_CLIMB_DEG = 40;
 const heightAt = templateHeightAt();
 const lattice = (i: number): number => -SIZE / 2 + i * D;
+/** The ground as the engine reads it: the 257² lattice's samples, blended across the cell. */
+function baked(x: number, z: number): number {
+  const fx = (x + SIZE / 2) / D, fz = (z + SIZE / 2) / D, ix = Math.floor(fx), iz = Math.floor(fz), tx = fx - ix, tz = fz - iz;
+  const at = (i: number, k: number): number => heightAt(lattice(i), lattice(k));
+  return (at(ix, iz) * (1 - tx) + at(ix + 1, iz) * tx) * (1 - tz) + (at(ix, iz + 1) * (1 - tx) + at(ix + 1, iz + 1) * tx) * tz;
+}
 
 test('the water\'s edge is shallow enough to stand up on, all the way round', () => {
   for (let deg = 0; deg < 360; deg += 5) {
     const a = (deg * Math.PI) / 180, x = POND.x + Math.cos(a) * 4.9, z = POND.z + Math.sin(a) * 4.9;
     expect(poolMask(x, z)).toBe(true);
-    expect({ deg, depth: -heightAt(x, z) < SWIM_OUT }).toEqual({ deg, depth: true });
+    expect({ deg, depth: -baked(x, z) < SWIM_OUT }).toEqual({ deg, depth: true });
   }
   expect(heightAt(POND.x, POND.z)).toBe(POND.bed); // still deep enough to swim at the heart
 });
