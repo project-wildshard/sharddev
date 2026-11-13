@@ -44,6 +44,11 @@ Commands:
                        Capture the shard's hero (thumb, portrait, landscape)
                        in headless Chromium from a served build of this
                        candidate, and stamp hero.json with its content
+  hero <shard-dir> --stamp-existing
+                       No capture: stamp the hero images already in the
+                       shard as current. WARNING: use it ONLY when those
+                       images show the current content; a wrong stamp
+                       hides a stale hero from the cut
   upload <shardfile> [--server <url>] [--level <n>]
          [--version <X.Y.Z>] [--commit <sha>]
                        Check a shardfile tarball, compress it (Brotli level

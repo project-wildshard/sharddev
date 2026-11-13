@@ -1,5 +1,13 @@
 import assert from 'node:assert/strict'
-import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { spawnSync } from 'node:child_process'
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { test } from 'node:test'
@@ -7,6 +15,7 @@ import type { TestContext } from 'node:test'
 
 import { shardfileFiles } from '../../test/helpers/shardfile.ts'
 import { packProduct } from '../pack/pack.ts'
+import { stampExistingHero } from './adopt.ts'
 import { heroState, writeHeroStamp } from './stamp.ts'
 
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the
@@ -198,4 +207,78 @@ test('a generated card has no captured hero to go stale; a product with no sourc
       line.startsWith('hero: no source shard'),
     ),
   )
+})
+
+// A shard repo that bumps its sharddev pin gets this check with curated heroes
+// and no stamp, and recapturing from the spawn view would replace good art
+// with a plain shot. `--stamp-existing` adopts the files on disk, no capture.
+const BIN = path.resolve(import.meta.dirname, '../../../bin/wildshard.mjs')
+
+async function stampedField(shard: string, key: string): Promise<unknown> {
+  const stamp: unknown = JSON.parse(
+    await readFile(path.join(shard, 'hero.json'), 'utf8'),
+  )
+  return typeof stamp === 'object' && stamp !== null
+    ? Object.entries(stamp).find(
+        ([name]: readonly [string, unknown]): boolean => name === key,
+      )?.[1]
+    : undefined
+}
+
+function stampExisting(shard: string): string {
+  const run = spawnSync(
+    process.execPath,
+    [BIN, 'hero', shard, '--stamp-existing'],
+    { encoding: 'utf8' },
+  )
+  assert.equal(run.status, 0, run.stderr)
+  return run.stdout
+}
+
+/** The stamp-existing run left the files alone, stamped them and kept the camera. */
+async function assertAdopted(
+  shard: string,
+  camera: unknown,
+  thumb: Readonly<Uint8Array>,
+): Promise<void> {
+  assert.deepEqual(await readFile(path.join(shard, 'card', 'thumb.jpg')), thumb)
+  assert.equal(await stateOf(shard), 'fresh')
+  assert.match(String(await stampedField(shard, 'base')), /stamp-existing/u)
+  assert.deepEqual(await stampedField(shard, 'camera'), camera)
+}
+
+test('stamp-existing adopts the hero on disk with no capture, keeps a declared camera, and lets the cut through', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  const camera = { pos: [1, 2, 3], look: [0, 0, 0], fov: 50 }
+  await writeFile(
+    path.join(space.shard, 'hero.json'),
+    JSON.stringify({ camera }),
+  )
+  const thumb = await readFile(path.join(space.shard, 'card', 'thumb.jpg'))
+  assert.equal(await stateOf(space.shard), 'unstamped')
+  assert.match(stampExisting(space.shard), /stamped .*hero\.json/u)
+  await assertAdopted(space.shard, camera, thumb)
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean => line.startsWith('hero: current')),
+  )
+})
+
+test('stamp-existing refuses a generated card or a card file that is not there', async (context: TestContext): Promise<void> => {
+  const generated = await project(context, {
+    thumb: SVG,
+    portrait: SVG,
+    landscape: SVG,
+  })
+  await assert.rejects(
+    stampExistingHero(generated.shard),
+    /no hero files to stamp/u,
+  )
+  const missing = await project(context)
+  await rm(path.join(missing.shard, 'card', 'portrait.jpg'))
+  await assert.rejects(
+    stampExistingHero(missing.shard),
+    /card\.portrait \(card\/portrait\.jpg\) not there/u,
+  )
+  assert.equal(await stateOf(missing.shard), 'unstamped')
 })

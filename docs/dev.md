@@ -72,6 +72,13 @@ shoots the view `hero.json`'s `camera` declares (engine
 three files the manifest's card names, and re-stamps `hero.json`. Hero
 files, the stamp, tests and generated files are not content.
 
+`pnpm exec wildshard hero src/shards/<name> --stamp-existing` captures
+nothing: it stamps the hero files already there as current, keeping a
+declared `camera`. It is for a shard repo that gains this check with
+curated heroes and no stamp. **Use it only when you have looked at those
+images and they show the current content**: a wrong stamp hides a stale
+hero until the next content change.
+
 ## J198 preparation
 
 After building a candidate, serve that exact product in an engine preview.

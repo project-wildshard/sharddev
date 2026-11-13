@@ -54,11 +54,13 @@ async function assertProductCarries(
   }
 }
 
-/** Why a hero that is neither fresh nor generated stops the cut. */
-function refusal(name: string, hero: HeroState): string {
+/** Why a hero that is neither fresh nor generated stops the cut, and the fix. */
+function refusal(shard: string, hero: HeroState): string {
+  const name = path.basename(shard)
+  const capture = `serve this candidate in an engine build, then capture it: ${captureCommand(shard)}`
   return hero.state === 'unstamped'
-    ? `the hero of ${name} has no ${STAMP} stamp, so nothing says it shows this content`
-    : `the hero of ${name} is older than its content, or its files are not the ones stamped (captured ${hero.captured ?? UNKNOWN_TIME})`
+    ? `the hero of ${name} has no ${STAMP} stamp, so nothing says it shows this content; ${capture}; or, only if the images already there show this content, stamp them with no capture: ${CAPTURE} src/shards/${name} --stamp-existing`
+    : `the hero of ${name} is older than its content, or its files are not the ones stamped (captured ${hero.captured ?? UNKNOWN_TIME}); ${capture}`
 }
 
 /**
@@ -86,9 +88,7 @@ async function assertHeroCurrent(
       `hero: generated card, no captured hero; capture one: ${captureCommand(shard)}`,
     )
   } else {
-    throw new Error(
-      `${refusal(path.basename(shard), hero)}; serve this candidate in an engine build, then capture it: ${captureCommand(shard)}`,
-    )
+    throw new Error(refusal(shard, hero))
   }
 }
 

@@ -279,6 +279,7 @@ async function writeHeroStamp(
 export {
   type HeroState,
   type HeroStamp,
+  MANIFEST,
   STAMP,
   NONE,
   UNKNOWN_TIME,
@@ -287,6 +288,7 @@ export {
   heroFiles,
   heroSlotFiles,
   heroState,
+  isMissing,
   readJson,
   writeHeroStamp,
 }

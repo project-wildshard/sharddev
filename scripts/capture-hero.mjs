@@ -8,12 +8,17 @@
 // root. Headless Chromium on the real GPU (Metal), never a visible window. The view is `hero.json`'s `camera`
 // ({ pos: [x,y,z], look: [x,y,z], fov, center }, engine scripts/hero-shots.mjs's view shape) when the shard declares
 // one, else the player's own spawn view. Sizes: thumb 640x360, portrait 804x1626, landscape 1600x900.
+//
+// `wildshard hero <shard-dir> --stamp-existing` captures nothing: it stamps the hero files already there as showing
+// the content now. It exists for a shard repo that gains this check with curated heroes and no stamp. WARNING: use it
+// only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
 import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { chromium } from 'playwright';
 import { NAME_ASKED, saveFixture } from '@wildshard/engine/scripts/debug-settings.mjs';
 import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
+import { stampExistingHero } from '../src/cli/hero/adopt.ts';
 
 const SCALE = 2;
 const VIEWS = { portrait: { width: 402, height: 813 }, landscape: { width: 800, height: 450 }, thumb: { width: 320, height: 180 } };
@@ -114,12 +119,16 @@ export async function captureHero(shard, base, { name = servedName(shard), log =
 
 if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import.meta.filename)) {
   const [dir, flag, base] = process.argv.slice(2);
-  if (dir === undefined || flag !== '--base' || base === undefined) {
+  const adopt = flag === '--stamp-existing' && base === undefined;
+  if (dir === undefined || (!adopt && (flag !== '--base' || base === undefined))) {
     console.error('usage: wildshard hero <shard-dir> --base <served-build-url>  (serve the candidate first: engine scripts/serve-build.sh --shard <slug>)');
+    console.error('       wildshard hero <shard-dir> --stamp-existing  WARNING: no capture; stamps the hero images already there as current.');
+    console.error('       Use it ONLY when you have looked at those images and they show the current content; a wrong stamp hides a stale hero.');
     process.exit(2);
   }
   const shard = resolve(dir);
   if (!existsSync(join(shard, 'manifest.json'))) throw new Error(`${shard}: no manifest.json`);
-  const stamp = await captureHero(shard, base);
+  if (adopt) console.warn('hero: --stamp-existing: NO capture. Stamping the images already there as showing this content. Only right if they do.');
+  const stamp = adopt ? await stampExistingHero(shard) : await captureHero(shard, base);
   console.info(`hero: stamped ${join(dirname(shard), basename(shard), 'hero.json')} (content ${stamp.content.slice(0, 12)})`);
 }
