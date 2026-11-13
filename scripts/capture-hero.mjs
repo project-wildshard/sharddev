@@ -14,9 +14,6 @@
 // only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
 import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { chromium } from 'playwright';
-import { NAME_ASKED, saveFixture } from '@wildshard/engine/scripts/debug-settings.mjs';
-import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
 
@@ -61,6 +58,9 @@ async function enter(page, base, name, log) {
 }
 
 export async function captureHero(shard, base, { name = servedName(shard), log = console.info } = {}) {
+  // Loaded here, so --stamp-existing needs no browser or engine to resolve.
+  const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([
+    import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
   const files = await heroSlotFiles(shard);
   const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined);
   if (missing.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${missing.join(', card.')} must name a file in the shard folder (e.g. /src/shards/${basename(shard)}/card/${missing[0]}.jpg), not a data: url`);
@@ -129,6 +129,7 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import
   const shard = resolve(dir);
   if (!existsSync(join(shard, 'manifest.json'))) throw new Error(`${shard}: no manifest.json`);
   if (adopt) console.warn('hero: --stamp-existing: NO capture. Stamping the images already there as showing this content. Only right if they do.');
-  const stamp = adopt ? await stampExistingHero(shard) : await captureHero(shard, base);
-  console.info(`hero: stamped ${join(dirname(shard), basename(shard), 'hero.json')} (content ${stamp.content.slice(0, 12)})`);
+  const stamp = adopt ? await stampExistingHero(shard) : { written: true, ...(await captureHero(shard, base)) };
+  const file = join(dirname(shard), basename(shard), 'hero.json');
+  console.info(stamp.written ? `hero: stamped ${file} (content ${stamp.content.slice(0, 12)})` : `hero: ${file} is already current; nothing stamped`);
 }

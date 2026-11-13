@@ -284,6 +284,7 @@ export {
   NONE,
   UNKNOWN_TIME,
   cardHashes,
+  field,
   heroContentHash,
   heroFiles,
   heroSlotFiles,

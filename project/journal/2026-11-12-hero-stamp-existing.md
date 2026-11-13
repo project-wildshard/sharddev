@@ -14,3 +14,9 @@ generated card or a missing file, and its help says loudly that it is
 only right when the images show the current content. The unstamped
 refusal names it as the second option; the stale refusal does not,
 since there the content has moved past the picture.
+
+Review (one `claude -p`) found the stale hole: the first cut stamped a
+shard whose stamp named other content, so the stale refusal could be
+waved through. It now refuses that, leaves a current stamp alone, refuses
+a `hero.json` that does not parse (it may hold a camera), and loads
+Playwright and the engine only for a real capture.

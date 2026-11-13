@@ -2,6 +2,7 @@ import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import {
+  MANIFEST,
   NONE,
   STAMP,
   UNKNOWN_TIME,
@@ -17,11 +18,15 @@ import type { HeroState } from './stamp.ts'
 // images for the templates."
 
 const CAPTURE = 'pnpm exec wildshard hero'
-const MANIFEST = 'manifest.json'
 
 /** The capture command a refusal names, run from the shard project root. */
 function captureCommand(shard: string): string {
   return `${CAPTURE} src/shards/${path.basename(shard)} --base <served-build-url>`
+}
+
+/** The no-capture stamp, for hero files that already show this content. */
+function stampExistingCommand(shard: string): string {
+  return `${CAPTURE} src/shards/${path.basename(shard)} --stamp-existing`
 }
 
 /** The source shard folder of a product built at `<root>/out/<name>`. */
@@ -58,9 +63,14 @@ async function assertProductCarries(
 function refusal(shard: string, hero: HeroState): string {
   const name = path.basename(shard)
   const capture = `serve this candidate in an engine build, then capture it: ${captureCommand(shard)}`
-  return hero.state === 'unstamped'
-    ? `the hero of ${name} has no ${STAMP} stamp, so nothing says it shows this content; ${capture}; or, only if the images already there show this content, stamp them with no capture: ${CAPTURE} src/shards/${name} --stamp-existing`
-    : `the hero of ${name} is older than its content, or its files are not the ones stamped (captured ${hero.captured ?? UNKNOWN_TIME}); ${capture}`
+  const adopt = `; or, only if the images already there show this content, stamp them with no capture: ${stampExistingCommand(shard)}`
+  if (hero.state === 'unstamped') {
+    return `the hero of ${name} has no ${STAMP} stamp, so nothing says it shows this content; ${capture}${adopt}`
+  }
+  const captured = hero.captured ?? UNKNOWN_TIME
+  return hero.stamped === hero.content
+    ? `the hero files of ${name} are not the ones stamped (captured ${captured}), though the content is unchanged; ${capture}${adopt}`
+    : `the hero of ${name} is older than its content (captured ${captured}); ${capture}`
 }
 
 /**
