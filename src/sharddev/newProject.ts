@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import { encodeCanonicalJson } from './immutable';
 import { authorCard } from './authorManifest';
 import { writeHandwrittenSource } from './handwritten';
+import { syncAgentFiles } from './agentFiles';
 
 /**
  * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
@@ -28,29 +29,6 @@ allowBuilds: {}
 /** Write the project's pnpm install-script allowlist. */
 function writeInstallScriptPolicy(project: string): void {
   writeFileSync(resolve(project, 'pnpm-workspace.yaml'), INSTALL_SCRIPT_POLICY);
-}
-
-/** SA13 (J314): the author's manual at the package root, shipped by `files`; `new` copies it into every project. */
-export const GUIDE_SOURCE: string = resolve(import.meta.dirname, '../../GUIDE.md');
-
-/** SA14, SA27 (J314 Q6): the core `wildshard` skill and its three siblings, at the package's `skills/`, shipped by `files`. */
-export const SKILLS = ['wildshard', 'wildshard-mockup-to-model', 'wildshard-goldens', 'wildshard-upgrade'] as const;
-export type SkillName = (typeof SKILLS)[number];
-/** A skill's file in the installed sdk. */
-export const skillSource = (name: SkillName): string => resolve(import.meta.dirname, `../../skills/${name}/SKILL.md`);
-/** Where a project keeps a skill: Claude Code lists project skills from `.claude/skills/<name>/SKILL.md`. */
-export const skillFile = (name: SkillName): string => `.claude/skills/${name}/SKILL.md`;
-/** The core `wildshard` skill (SA14). */
-export const SKILL_SOURCE: string = skillSource('wildshard');
-export const SKILL_FILE: string = skillFile('wildshard');
-
-/** Copy the installed sdk's GUIDE.md and the four `wildshard` skills into the project, byte for byte. */
-function writeGuide(project: string): void {
-  cpSync(GUIDE_SOURCE, resolve(project, 'GUIDE.md'));
-  for (const name of SKILLS) {
-    mkdirSync(resolve(project, `.claude/skills/${name}`), { recursive: true });
-    cpSync(skillSource(name), resolve(project, skillFile(name)));
-  }
 }
 
 /** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is shard-format's
@@ -170,7 +148,8 @@ ${layout}
 `;
 }
 
-/** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, guide and skill. */
+/** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, and the agent files
+ * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
 function writeRepoFiles(project: string, slug: string, template: TemplateName, empty: boolean): void {
   writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template));
   // A hand-written repo holds no TypeScript to check.
@@ -179,7 +158,7 @@ function writeRepoFiles(project: string, slug: string, template: TemplateName, e
   writeFileSync(resolve(project, '.npmrc'), NPMRC);
   writeFileSync(resolve(project, 'README.md'), repoReadme(slug, template, empty));
   writeInstallScriptPolicy(project);
-  writeGuide(project);
+  syncAgentFiles(project);
 }
 
 /** Copy the shipped teaching world into `source`; generation and gameplay remain authored there. */

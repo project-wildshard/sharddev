@@ -21,6 +21,7 @@ import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduc
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
+import { updateShardRepo } from './agentFiles';
 import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
@@ -78,6 +79,14 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     try { result = await checkProject(findShardSource(positional[0] ?? ''), positional[1], options); } finally { Object.assign(console, saved); }
     process.stdout.write(json ? `${JSON.stringify(result, null, 2)}\n` : `${checkLines(result).join('\n')}\n`);
     if (result.verdict === 'fail') process.exitCode = 1;
+    return;
+  }
+  if (command === 'update') {
+    // SA28 (J314 Q7, Q27): one verb; `update --pins` (SA18) will also move the pins, install and run the build.
+    const rest = args.slice(1);
+    if (rest.includes('--pins')) throw new Error('update --pins is not built yet (SA18): move the pins by hand (the wildshard-upgrade skill), then run wildshard update');
+    if (rest.length > 1 || rest.some(value => value.startsWith('-'))) throw new Error('usage: wildshard update [dir]');
+    for (const line of updateShardRepo(resolve(rest[0] ?? '.'))) console.info(line);
     return;
   }
   if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] (wildshard --help lists them all)');
@@ -176,7 +185,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   throw new Error('unknown wildshard command');
 }
 /** The step a verb's refusal comes from (SA21): `dev` and `synth` build. */
-const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', validate: 'validate', prove: 'prove' };
+const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', update: 'update', validate: 'validate', prove: 'prove' };
 /** The refusal with its rule, fix and GUIDE.md link on a second line; the first line stays the refusing code's words. */
 function authorRefusal(command: string | undefined, error: unknown): unknown {
   const located = locatedError(error);

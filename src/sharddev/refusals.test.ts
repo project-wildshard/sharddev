@@ -13,7 +13,7 @@ import { runCli } from './cli';
 import { draftMessage } from './draft';
 
 const ALL = [...REFUSAL_RULES, ...LINT_RULES, LINT_OTHER];
-const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'shardfile', 'pack', 'upload', 'account', 'delete'];
+const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'update', 'shardfile', 'pack', 'upload', 'account', 'delete'];
 
 describe('the refusal table (SA21)', () => {
   it('gives every rule id a one-line fix and a GUIDE.md anchor, each unique', () => {

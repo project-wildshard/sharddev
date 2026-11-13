@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import '../src/sharddev/bake/format-hook.mjs';
 
-const AUTHOR = new Set(['new', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'schema', '--prepare-compiler']);
+const AUTHOR = new Set(['new', 'update', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
 // SA2: `wildshard <verb> --help` and `wildshard help [verb]` print help (src/cli/help.ts) before any verb runs.
 const verbHelp = command === 'help' || (command !== undefined && !command.startsWith('-') && process.argv.slice(3).some(arg => arg === '--help' || arg === '-h'));

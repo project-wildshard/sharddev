@@ -5,7 +5,8 @@ import { spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { GUIDE_SOURCE, writeNewProject, writeReferenceProject } from './newProject';
+import { writeNewProject, writeReferenceProject } from './newProject';
+import { GUIDE_SOURCE } from './agentFiles';
 import { GUIDE_FILE, REFUSAL_ANCHORS } from './refusals';
 
 // SHARD-AUTHORING SA13 (J314, J317): GUIDE.md is the author's manual, shipped in the package and copied by `new`.

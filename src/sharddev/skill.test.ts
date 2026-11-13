@@ -3,7 +3,8 @@ import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { GUIDE_SOURCE, SKILL_FILE, SKILL_SOURCE, SKILLS, skillFile, skillSource, writeNewProject, writeReferenceProject, writeShardRepo } from './newProject';
+import { writeNewProject, writeReferenceProject, writeShardRepo } from './newProject';
+import { GUIDE_SOURCE, SKILL_FILE, SKILL_SOURCE, SKILLS, skillFile, skillSource } from './agentFiles';
 
 // SHARD-AUTHORING SA14, SA27 (J314 Q6): the core `wildshard` skill is the loop's order, one pointer into GUIDE.md per
 // step; its three siblings are as short and point into GUIDE.md the same way.

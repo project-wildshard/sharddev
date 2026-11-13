@@ -34,7 +34,7 @@ repo's one `src/shards/<slug>/`).
 
 | # | Step | Command | Today |
 |---|---|---|---|
-| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide and the four `wildshard` skills |
+| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide, the four `wildshard` skills and the agent files (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`) |
 | 2 | Walk it | `wildshard dev .` | **Not built yet (SA15).** See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works only with an engine checkout: it needs your shard in a served engine build. See "The hero" below |
@@ -53,6 +53,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | Verb | What it is for |
 |---|---|
 | `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` copies the hand-written Blender template (below); any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
+| `wildshard update [dir]` | Rewrite this guide and the four `wildshard` skills from the installed sdk, after you move to a newer one (section 7) |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). **Not built yet** for an installed sdk (SA15) |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
@@ -179,7 +180,9 @@ At the repo root, around `src/`:
 | `tsconfig.json`, `.npmrc`, `.gitignore` | TypeScript settings for `src/`; exact versions for `pnpm add`; what git leaves out (build output, `node_modules/`) | No |
 | `README.md`, `GUIDE.md` | This repo's README, and this guide | No |
 | `pnpm-workspace.yaml` | pnpm's install-script allowlist (SA39): a dependency's install script runs only if listed | No |
-| `.claude/skills/wildshard*/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide; and its siblings (SA27): `wildshard-mockup-to-model` (a picture to a model), `wildshard-goldens` (refresh the hero and proof tape), `wildshard-upgrade` (move to a newer sdk) | No |
+| `.claude/skills/wildshard*/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide; and its siblings (SA27): `wildshard-mockup-to-model` (a picture to a model), `wildshard-goldens` (refresh the hero and proof tape), `wildshard-upgrade` (move to a newer sdk). `wildshard update` rewrites them: never edit them | No |
+| `.agents/skills/wildshard*` | Links to the four `.claude/skills/` folders, so Codex lists the same skills | No |
+| `AGENTS.md`, `CLAUDE.md` | For agents: read this guide first; the skills are in `.claude/skills/`. `CLAUDE.md` is `@AGENTS.md`, so Claude Code reads the same file. Yours to change: `update` keeps your edits | No |
 | `public/shardfiles/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
 
 **Two files to change together.** `src/manifest.json` and `src/data/card.json` hold the same card: `new` writes
@@ -331,6 +334,22 @@ other name refuses before `new` writes anything. Leave the flag out or pass `--t
 #### new-refused
 
 `new` could not copy the reference world shipped with the sdk. Reinstall the sdk.
+
+### Update
+
+#### update-target
+
+`update` works on a shard repo: a folder whose `package.json` lists `@wildshard/sdk`, as `new` writes it. Run it in
+that folder, or name it: `wildshard update my-shard`.
+
+#### update-pins
+
+`wildshard update --pins` (SA18) is not built yet. Move the pins by hand as the `wildshard-upgrade` skill says, then
+run `wildshard update` with no flag.
+
+#### update-refused
+
+`update` could not copy this guide or a skill from the installed sdk. Reinstall the sdk (`pnpm install`).
 
 ### Build
 
@@ -780,11 +799,14 @@ Code the headless simulation imports must not render.
 
 ## 7. `wildshard update`
 
-**Not built yet (SA28).** `new` writes the four `wildshard` skills (SA14, SA27) but no `AGENTS.md` yet (SA28). `wildshard update` will rewrite this guide and the four `wildshard` skills in `.claude/skills/` from the
-installed sdk, and touch nothing else; it will leave an `AGENTS.md` you changed and say so. `wildshard update --pins` (SA18, after the sdk is on npm)
-will also move the sdk, shard-format and `three` versions, install, apply the release's code changes and run the
-build.
+`wildshard update` (or `wildshard update <dir>`) rewrites this guide and the four `wildshard` skills in
+`.claude/skills/` from the installed sdk, and prints each file it wrote. Run it after you move to a newer sdk; the
+`wildshard-upgrade` skill walks the whole move. It touches nothing else: your shard source, `package.json`, README and
+every other file stay as they are. It adds the `.agents/skills/` links, `AGENTS.md` and `CLAUDE.md` only if one is
+missing, and it leaves an `AGENTS.md` or `CLAUDE.md` you changed and says so (`left AGENTS.md: you changed it`). So
+keep your own notes for agents in `AGENTS.md`, never in this guide or a skill: `update` rewrites those. Done when it
+prints `already up to date` or the files it wrote, and `git status` shows only `GUIDE.md`, `.claude/skills/` and any
+agent file it added.
 
-Until then: after you move to a newer sdk, copy `GUIDE.md` from the sdk (the sharddev checkout's root, or
-`node_modules/@wildshard/sdk/GUIDE.md` once installed from npm) over this one, and each of the sdk's
-`skills/wildshard*/SKILL.md` over `.claude/skills/<same name>/SKILL.md`. The `wildshard-upgrade` skill walks it.
+`wildshard update --pins` (SA18) is not built yet: it will also move the sdk, shard-format and `three` versions,
+install, apply the release's code changes and run the build.

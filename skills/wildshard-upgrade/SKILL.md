@@ -25,17 +25,18 @@ steps below by hand.
 3. **Edit the pins** in this repo's `package.json` to those exact specs: no `^`, no `~`. Done when every pin matches.
 4. **Install:** `pnpm install`. A dependency's install script runs only if `pnpm-workspace.yaml` lists it
    (`GUIDE.md#2-the-shard-source`). Done when install exits 0 and `pnpm-lock.yaml` changed.
-5. **Refresh the guide and skills.** Copy the sdk's `GUIDE.md` over this repo's, and each of the sdk's
-   `skills/wildshard*/SKILL.md` to `.claude/skills/<same name>/SKILL.md`, adding any this repo lacks
-   (`GUIDE.md#7-wildshard-update`). Then reread this skill: the new copy may differ. Done when `git diff` shows only
-   those files and the step 3 and 4 files.
-6. **Build** with the new sdk's CLI (point the `wildshard` alias at the newer checkout): `wildshard check .`
-   (`GUIDE.md#1-the-loop`). Done when `wildshard --version` prints the new sdk version and the last line reads
-   `check pass`.
+5. **Refresh the guide and skills** with the new sdk's CLI (point the `wildshard` alias at the newer checkout, or
+   `pnpm exec wildshard` after step 4): `wildshard update`. It rewrites `GUIDE.md` and the four skills in
+   `.claude/skills/`, adds any agent file the repo lacks, and keeps an `AGENTS.md` you changed
+   (`GUIDE.md#7-wildshard-update`). Then reread this skill: the new copy may differ. Done when update's first line
+   names the new sdk version and `git status` shows only those files and the step 3 and 4 files.
+6. **Build:** `wildshard check .` (`GUIDE.md#1-the-loop`). Done when `wildshard --version` prints the new sdk
+   version and the last line reads `check pass`.
 7. **Read each refusal.** It ends `[<rule>] fix: ... (GUIDE.md#<anchor>)`: read that heading under
-   `GUIDE.md#6-refusals-and-their-fixes`, in the guide you copied in step 5, make the fix, and run check again. A
+   `GUIDE.md#6-refusals-and-their-fixes`, in the guide update wrote in step 5, make the fix, and run check again. A
    budget can tighten between releases (`GUIDE.md#3-budgets`); a lint rule can be new. Done at `check pass`.
-8. **Commit** the pins, the lock file, the guide, the skills and your fixes together. Done when `git status` is clean.
+8. **Commit** the pins, the lock file, the guide, the skills, any agent file update added and your fixes together.
+   Done when `git status` is clean.
    A new sdk can change what the shard looks like, so before the next upload follow the `wildshard-goldens` skill.
 
 ## Rules

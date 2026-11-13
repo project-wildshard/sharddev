@@ -9,7 +9,7 @@
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
-export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
+export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'update' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
 /** One rule: its id, its GUIDE.md anchor, the fix, and the refusal messages it names (none: the step's catch-all). */
 export interface RefusalRule {
   readonly id: string;
@@ -35,6 +35,13 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Leave out --template, or pass `--template sdk` (the reference world) or `--template blender` (the hand-written Blender template).' },
   { id: 'new-refused', anchor: 'new-refused', steps: ['new'],
     fix: 'Reinstall @wildshard/sdk (`pnpm install`); `new` copies the reference world shipped with it.' },
+  // update (SA28)
+  { id: 'update-target', anchor: 'update-target', steps: ['update'], match: /^update: .* is not a shard repo/u,
+    fix: 'Run `wildshard update` in the repo `wildshard new` made, or name it: `wildshard update my-isle`.' },
+  { id: 'update-pins', anchor: 'update-pins', steps: ['update'], match: /^update --pins is not built yet/u,
+    fix: 'Move the pins by hand as the wildshard-upgrade skill says, then run `wildshard update` alone.' },
+  { id: 'update-refused', anchor: 'update-refused', steps: ['update'],
+    fix: 'Reinstall @wildshard/sdk (`pnpm install`); `update` copies GUIDE.md and the skills shipped with it.' },
   // build
   { id: 'source-file-missing', anchor: 'source-file-missing', steps: ['build', 'validate', 'prove'], match: /ENOENT: no such file or directory|Cannot resolve entry module/u,
     fix: 'Check the path shown: the shard source or shard file folder, or a file it names, is not there.' },
