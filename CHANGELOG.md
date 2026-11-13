@@ -7,6 +7,19 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.7 (2026-11-13)
+
+- New: `wildshard dev .` works from an npm install. Its first run
+  fetches engine's dev client once (about 300 MB) into
+  `~/.cache/wildshard/dev-client/`; the page reloads when you save.
+  Ctrl-C stops it and frees the port.
+- New: `wildshard hero . --base <url>` captures your hero from the URL
+  `wildshard dev` prints, so you need no engine checkout for it. A new
+  shard's generated card becomes `card/thumb.jpg`, `card/portrait.jpg`
+  and `card/landscape.jpg`.
+- Fix: the `dev` page no longer logs a 404 for `programs/<slug>.json`.
+- `check` now checks each output a shard declares.
+
 ## v0.2.6 (2026-11-13)
 
 - Fix: `wildshard update --pins` now works on the shard repos that
