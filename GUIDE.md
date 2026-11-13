@@ -70,7 +70,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard synth <source>` | Run `shard.config.ts`'s scene exports and write the scene as data |
 | `wildshard schema [list\|shardfile\|<root>] [pointer]` | Print the JSON Schema of the shard file, or of one section or field |
 | `wildshard serve` | The sharddev web app on localhost (tools for this repo, not for your shard) |
-| `wildshard build-shards` | Build every shard source under a repo's `src/shards/` (repos holding several shards) |
+| `wildshard build-shards` | Build every shard source in the repo: its `src/` (a single-shard repo) and each `src/shards/<folder>/` (repos holding several shards) |
 | `wildshard pack <folder>` | Old name for `wildshard build <folder>`; use `build` |
 
 ### Walking your shard

@@ -14,7 +14,7 @@ import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { productInputKey, productToolchainKey, matchingProductInputKey, publishProductInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { quietCli } from '@wildshard/engine/scripts/quiet-cli.mjs';
-import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
 import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
@@ -45,7 +45,6 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   const outputRoot = resolve(root, 'out');
   // Discard the retired discovery artifact left by older builds.
   rmSync(resolve(outputRoot, 'catalog.json'), { force: true });
-  const projects = resolve(root, 'src/shards');
   let count = 0;
   const stale = [], runtimeReport = [];
   // A folder may emit many products. Its shared source closure and prerequisite
@@ -60,7 +59,9 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     if (issues === undefined) { issues = runtimeCopyIssues(root, project); runtimeChecks.set(project, issues); }
     return issues;
   };
-  const folders = readdirSync(projects, { withFileTypes: true }).filter(entry => entry.isDirectory() && existsSync(resolve(projects, entry.name, 'shard.config.ts'))).map(entry => entry.name).sort((a, b) => a.localeCompare(b));
+  // SA42 (SA16's rule): a single-shard repo's source is `src/` (its folder named by its slug), a multi-shard repo's is
+  // `src/shards/<folder>/`. The engine's shard-outputs owns the layout, so every product helper below agrees with it.
+  const folders = shardSourceFolders(root, ['shard.config.ts']).sort((a, b) => a.localeCompare(b));
   // SF88g: a folder with declared outputs (scripts/shard-outputs.mjs) builds one product per output, each to out/<slug>
   const products = folders.flatMap(folder => (shardOutputs(root, folder) ?? [{ slug: folder }]).map(row => ({ name: row.slug, folder, output: row.slug === folder ? undefined : row.slug })));
   const built = products.map(row => row.name).sort((a, b) => a.localeCompare(b));
@@ -72,7 +73,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   }
   for (const slug of scope ?? only ?? []) if (!built.includes(slug)) throw new Error(`wildshard build: --shard=${slug} is not an output this repo builds (${built.join(', ')})`);
   const bound = (only === undefined || strict ? [] : products).filter(({ folder, output }) => {
-    const manifest = resolve(projects, folder, 'manifest.json');
+    const manifest = resolve(shardSourceDir(root, folder), 'manifest.json');
     if (!existsSync(manifest)) return false;
     const row = output === undefined ? undefined : shardOutputs(root, folder)?.find(entry => entry.slug === output);
     return usesProgramDiscovery(row === undefined ? JSON.parse(readFileSync(manifest, 'utf8')) : outputManifest(root, folder, row));
@@ -98,7 +99,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   await runShardBuildPool(ordered, async ({ name, folder, output }, signal) => {
     if (scope !== undefined && !scope.includes(name)) return;
     const buildOne = args => build === runWildshard ? runShardBuild(args, signal, report=>{counters.merge(report);}) : build(args);
-    const project = resolve(projects, folder);
+    const project = shardSourceDir(root, folder);
     try {
     const started = performance.now();
     const map = productMapInput(project, output), expected = map?.tilesHash ?? null;
