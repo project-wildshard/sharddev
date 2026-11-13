@@ -163,7 +163,7 @@ async function upload(context, server, file) {
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
   const child = spawn(process.execPath, [bin, 'upload', file, '--channel', 'staging', '--server', server.url], {
-    cwd: app, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }, stdio: ['ignore', 'pipe', 'pipe'],
+    cwd: app, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey, WILDSHARD_API_KEY: server.apiKey }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   context.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });
   let output = ''; child.stdout.on('data', bytes => { output += bytes; }); child.stderr.on('data', bytes => { output += bytes; });
