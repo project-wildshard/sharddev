@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
+import { assertAudio } from '../audio/audio.ts'
 import { commitUpload, findStored, putObject, requestTicket } from './api.ts'
 import { storedForm } from './compress.ts'
 import { signTarball } from './signature.ts'
@@ -150,12 +151,21 @@ async function commit(
   }
 }
 
+/** Format's check, then AU5's audio rules: a red refuses before any byte is sent. */
+async function validated(
+  options: Readonly<UploadOptions>,
+  tarball: Readonly<Uint8Array>,
+): Promise<void> {
+  const { slug, name, audio } = await validateShardfile(tarball)
+  options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
+  await assertAudio(audio)
+}
+
 /** Check, compress, sign, upload and commit; the upload that holds the bytes. */
 async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
   const tarball = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length)
-  const { slug, name } = await validateShardfile(tarball)
-  options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
+  await validated(options, tarball)
   const signed = signTarball(options.privateKey, tarball)
   const encoding = (await held(options, signed, tarball.length))
     ? undefined

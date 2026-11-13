@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { audioLines } from '../audio/audio.ts'
 import { assertHeroCurrent } from '../hero/hero.ts'
 import { validateShardfile } from '../upload/validate.ts'
 
@@ -128,8 +129,13 @@ async function checkedTarball(
 ): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
   await assertHeroCurrent(options.dir, options.report)
   const { tarball, fileCount } = await tarOf(options.dir)
-  const { slug, name } = await validateShardfile(tarball)
+  const { slug, name, audio } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
+  // AUDIO AU5: pack prints the audio rules as AMBER and still packs; only
+  // api-server's admission refuses a red.
+  for (const line of await audioLines(audio)) {
+    options.report(line)
+  }
   reportOverCap(options, tarball.length)
   return { tarball, slug }
 }

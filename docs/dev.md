@@ -97,7 +97,7 @@ all resulting bytes, then updates an existing receipt index digest without
 inventing a new validator or cost. `wildshard pack` remains the final tar
 validation boundary. A failed capture leaves the candidate draft untouched.
 
-This source pins format `0786a04b8f824578d4346e735ccc2a6c56c2a094`.
+This source pins format `82bfee4748873b03a8f9be5dafab34f745cb265b` (v0.4.3).
 Preparation binds the product, complete mounts and engine renderer digest.
 The served document stamp must agree with its version metadata throughout
 capture. A page build ID remains provenance, separate from this renderer

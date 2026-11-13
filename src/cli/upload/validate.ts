@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import type { AudioReport } from '@wildshard/format/audioRules'
 import type { ProductFiles } from '@wildshard/format/productValidation'
 
 // The same check api-server runs on commit, run first on the author's
@@ -12,6 +13,8 @@ import type { ProductFiles } from '@wildshard/format/productValidation'
 interface ValidShardfile {
   readonly slug: string
   readonly name: string
+  /** AUDIO AU5: the shard's own audio against format's rules, as of today. */
+  readonly audio: AudioReport
 }
 
 function sha256(bytes: Readonly<Uint8Array>): string {
@@ -43,11 +46,17 @@ async function validateShardfile(
   const { prepareAssetDecoders } = await import('@wildshard/format/product')
   const { validateShardfileProduct } =
     await import('@wildshard/format/productValidation')
+  const { productAudioReport } = await import('@wildshard/format/productAudio')
   const { readTar } = await import('@wildshard/format/tar')
   await prepareAssetDecoders()
   const product = productFiles(readTar(tarball))
-  const { identity } = validateShardfileProduct(product, { hash: sha256 }).shard
-  return { slug: identity.slug, name: identity.name }
+  const valid = validateShardfileProduct(product, { hash: sha256 })
+  const { identity } = valid.shard
+  return {
+    slug: identity.slug,
+    name: identity.name,
+    audio: productAudioReport(valid, new Date()),
+  }
 }
 
 export { type ValidShardfile, validateShardfile }
