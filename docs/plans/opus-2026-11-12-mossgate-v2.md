@@ -2,10 +2,13 @@
 
 > Written by: Claude (opus-mossgate-plan)
 
-> **State:** in progress, 2026-11-12: the rebuild is approved (J311), so
-> every row below builds without review. Six design calls (D1 to D6) wait
-> on Jake's board; rows that need one say so and take the recommendation
-> if Jake says "approve Mossgate". Nothing built yet.
+> **State:** in progress, 2026-11-12, **low priority**: approved with
+> every board recommendation (J312, Jake ~23:12 Cancún: "approved go
+> ahead whenever, its not a priority right, we already have the
+> overnight priority to unlock showcase shard"). Build rows queue behind
+> meta `docs/plans/multi-repo/OVERNIGHT-2026-11-12.md` (stability first,
+> then the Showcase / Template 3 kitchen sink unlock); a lane takes MG1
+> only when that list has no free row. Nothing built yet.
 
 Board: <https://claude.ai/artifact/4SY6QDNHx9NiLhdZTKnLEY>. Local copy:
 `~/.cache/wildshard/plan-artifacts/mossgate-redesign/`. Pointer row:
@@ -33,7 +36,7 @@ row 50.
 Jake, 2026-11-12 ~23:25 Cancún, after playing Mossgate on preview:
 "Template shard is mostly graphical trash btw", "Every other shard is
 better", "Re-design and re-implement mossgate from scratch, empty slate,
-redo it completely cleanroom, first principles." Recorded as J311 in
+redo it completely cleanroom, first principles." Recorded as J312 in
 meta `docs/plans/multi-repo/MULTI-REPO-PLAN.md`.
 
 What is wrong today, measured on the rev 3 captures
@@ -52,7 +55,7 @@ What is wrong today, measured on the rev 3 captures
 
 The 2026-11-11 rules that produced this ("simple art", "grid floors",
 "size labels", "feel like a developer test level"; meta TEMPLATE-E2E
-"The look") are replaced for Mossgate by J311. Brasscap Mesa (Template
+"The look") are replaced for Mossgate by J312. Brasscap Mesa (Template
 2) is untouched.
 
 ## What Mossgate is for
@@ -71,7 +74,7 @@ The 2026-11-11 rules that produced this ("simple art", "grid floors",
 README reaches any mechanic's file in one step; the phone holds 30 fps
 with room to spare.
 
-## The design (recommended answers to D1 to D6)
+## The design (D1 to D6, settled by J312)
 
 - **Look (D1, D2):** stylised low-poly toon at Driftwood's level, with
   its own palette and hour: early morning, low gold sun from the east,
@@ -132,7 +135,8 @@ Mode: J290 mode 2. Branch `plan/mossgate-v2` in
 mossgate-v2`), landed with `WS_LANE_NAME=<lane> node scripts/land.mjs`
 at milestones L1, L2, L3 only, or once a day. Graphical rows are Opus
 only (lane-model-routing); rows marked Codex may go to Codex.
-Every row is auto-approved (J311) unless it names a D it waits on.
+Every row is approved (J312); D1 to D6 are settled, so no row waits on
+Jake. Low priority: see State.
 
 | Row | Work | Done when |
 |---|---|---|
@@ -184,21 +188,23 @@ and SD-14 run in sharddev `ci`.
 
 ## Sync
 
-- Meta MULTI-REPO-PLAN section 2: J311 (this rebuild).
+- Meta MULTI-REPO-PLAN section 2: J312 (this rebuild).
 - Meta STATE.md: none until MG19 changes what is live.
 - Meta TEMPLATE-E2E-PLAN: a pointer line to this plan.
 - Meta docs/README.md: none, no new theme.
 - AGENTS.md: none.
 
-## Open decisions for Jake
+## Decisions (settled, J312)
 
-On the board. "approve Mossgate" takes every recommendation.
+Jake took every board recommendation on 2026-11-12 ~23:12 Cancún.
 
-| D | Question | Recommended | Blocks |
+| D | Question | Settled | Rows |
 |---|---|---|---|
 | D1 | Art style | Stylised low-poly toon, Driftwood's level | MG4 to MG8 |
 | D2 | Hour and palette | Early morning, mist, moss greens, cream stone | MG4 |
 | D3 | Where the teaching marks go | Dev overlay, Developer only | MG15 |
 | D4 | How the art is made | Blender script kit plus TS placement | MG5, MG6 |
-| D5 | Where it ships first | Staging, then prod at your word | MG19 |
-| D6 | The dev districts | Remove; hover course becomes a ring road | MG1's district step, MG13 |
+| D5 | Where it ships first | Staging, then prod at Jake's word | MG19 |
+| D6 | The dev districts | Remove; hover course becomes a ring road | MG1, MG13 |
+
+No open decisions.

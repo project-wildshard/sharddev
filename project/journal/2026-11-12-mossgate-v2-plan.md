@@ -7,4 +7,4 @@
   `plan/mossgate-v2`, landed at 3 milestones. Board with today's shots
   beside Driftwood, Pine and Nalati, two concept mockups, the layout
   and six calls: https://claude.ai/artifact/4SY6QDNHx9NiLhdZTKnLEY
-- Nothing built. Meta records the rebuild as J311.
+- Nothing built. Meta records the rebuild and its approval as J312.
