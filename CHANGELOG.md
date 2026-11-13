@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.9 (2026-11-13)
+
+- Change: the sdk installs engine 0.1.17 and the shard format 0.4.9
+  from npm, not from GitHub, so `npm install @wildshard/sdk` works
+  with npm alone and needs no git. A new shard repo pins both from
+  npm too.
+- Engine moves from 0.1.16 to 0.1.17.
+
 ## v0.2.8 (2026-11-13)
 
 - Fix: a shard kept at a repo's `src/` (one shard per repo) builds
