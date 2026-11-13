@@ -204,3 +204,37 @@ test('the newly built outside-author product boots and accepts real worker input
     assert.equal(commit.tick, 1);
   } finally { await runtime.dispose(); }
 });
+// SD-2 (HOW-WE-BUILD, SHARD-AUTHORING SA15): the installed `wildshard dev` fetches engine's devserver client once (here from a
+// loopback stand-in for the engine release) and serves the author's shard inside it, also where a release serves it.
+test('the installed dev command fetches the devserver client and serves the shard in it', { timeout: 60_000 }, async context => {
+  const { spawn, execFileSync } = await import('node:child_process');
+  const { createServer } = await import('node:http');
+  const client = join(root, 'dev-client');
+  mkdirSync(client, { recursive: true });
+  writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
+  writeFileSync(join(client, 'build-flags.json'), JSON.stringify({ devserver: true }));
+  const archive = join(root, 'devserver-client.tar.gz');
+  execFileSync('tar', ['-czf', archive, '-C', client, '.']);
+  let reads = 0;
+  const release = createServer((_request, response) => { reads++; response.end(readFileSync(archive)); });
+  await new Promise(done => { release.listen(0, '127.0.0.1', done); });
+  context.after(() => { release.close(); });
+  const url = `http://127.0.0.1:${release.address().port}/devserver-client.tar.gz`;
+  const dev = spawn(process.execPath, [bin, 'dev', source], { cwd: app, env: { ...process.env, WILDSHARD_DEV_CLIENT_URL: url,
+    WILDSHARD_DEV_CLIENT_CACHE: join(root, 'dev-client-cache'), WILDSHARD_GEN_CACHE: join(root, 'generation-dev'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') } });
+  context.after(() => { dev.kill(); });
+  let output = '';
+  const page = await new Promise((done, fail) => {
+    dev.stdout.on('data', chunk => { output += chunk; const found = /wildshard dev: (http:\/\/\S+)/u.exec(output); if (found) done(found[1]); });
+    dev.stderr.on('data', chunk => { output += chunk; });
+    dev.once('exit', code => { fail(new Error(`wildshard dev exited ${code}: ${output}`)); });
+  });
+  assert.match(page, /\?skipintro$/u);
+  assert.match(output, /fetching engine's dev client/u);
+  const html = await (await fetch(page)).text();
+  assert.match(html, /<script id="ws-shardfile" type="application\/json">/u);
+  assert.match(html, /__wildshard_dev_revision/u);
+  const descriptor = await fetch(new URL('/shardfiles/outside-isle/shard.json', page));
+  assert.equal(descriptor.status, 200);
+  assert.equal(reads, 1);
+});

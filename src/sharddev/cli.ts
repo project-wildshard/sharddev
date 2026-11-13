@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs';
 import { buildProject, readProjectAssets, validateProject } from './project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
+import { devClient } from './devClient';
 import { proveAuthorSimulation, measureSimulation, validateSimulation } from '@wildshard/engine/host/headless';
 import { performanceReport, performanceReportLines, type PerformanceObservations } from './reportCard';
 import { projectPerformancePolicy } from './performancePolicy';
@@ -123,9 +124,10 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   if (command === 'dev') {
     const port = output === undefined ? 0 : Number(output);
     if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('dev port must be 0..65535');
-    const server = await devProject(resolve(input), { port, ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }) });
+    const server = await devProject(resolve(input), { port, client: await devClient(), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }) });
     const close = (): void => { void server.close(); }; process.once('SIGINT', close); process.once('SIGTERM', close);
-    console.info(`wildshard dev: ${server.url}`); return;
+    // SA15: `?skipintro` walks straight into the shard; the bare page sits on the game's title over it
+    console.info(`wildshard dev: ${server.url}?skipintro`); return;
   }
   if (command === 'build') {
     if (output === '--behaviour-only' && (buildFlag === undefined || buildFlag === '--check')) {

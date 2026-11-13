@@ -40,21 +40,21 @@ export interface DevProject { url: string; close: () => Promise<void> }
 /** Only the author command chooses DEVSERVER; requests, cookies and URL switches cannot enable it. */
 export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string } = {}): Promise<DevProject> {
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-dev-')));
-  let revision = 0, error: string | null = null, current = '', previous = '', stopped = false;
+  let revision = 0, error: string | null = null, current = '', previous = '', stopped = false, shardRoot = '';
   const scope = new Scope('sdk.dev');
   let debounce: Scope | undefined, work = Promise.resolve();
   const rebuild = async (): Promise<void> => {
     if (stopped) return;
     const target = join(scratch, `build-${revision + 1}`);
     try {
-      await buildProject(source, target, { devserver: true, ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.client === undefined ? {} : { client: options.client }) });
+      const built = await buildProject(source, target, { devserver: true, ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.client === undefined ? {} : { client: options.client }) });
       const page = join(target, 'index.html');
       if (!existsSync(page)) throw new Error('wildshard dev requires the SDK devserver client; build/pack the SDK first');
       const flags: unknown = JSON.parse(readFileSync(join(target, 'build-flags.json'), 'utf8'));
       if (typeof flags !== 'object' || flags === null || !('devserver' in flags) || flags.devserver !== true) throw new Error('wildshard dev requires a client compiled in devserver mode');
       writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', `${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
       if (previous !== '') rmSync(previous, { recursive: true, force: true });
-      previous = current; current = target; revision++; error = null;
+      previous = current; current = target; shardRoot = `/shardfiles/${built.identity.slug}/`; revision++; error = null;
     } catch (cause) {
       rmSync(target, { recursive: true, force: true }); error = cause instanceof Error ? cause.message : String(cause);
       if (current === '') throw cause;
@@ -70,7 +70,10 @@ export async function devProject(project: string, options: { decisionLegacyLines
         response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ revision, error })); return;
       }
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
-      const local = path === '/' ? 'index.html' : path.slice(1);
+      // SD-2: the page's in-page server reads the shard where a release serves it, `/shardfiles/<slug>/`; here that is
+      // the product's own root.
+      const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
+      const local = served === '/' ? 'index.html' : served.slice(1);
       const file = [current, previous].filter((dir) => dir !== '').map((dir) => ({ dir, file: resolve(dir, local) }))
         .find(({ dir, file: candidate }) => candidate.startsWith(`${dir}${sep}`) && existsSync(candidate) && statSync(candidate).isFile() && realpathSync(candidate).startsWith(`${dir}${sep}`));
       if (file === undefined) { response.writeHead(404); response.end(); return; }

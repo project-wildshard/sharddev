@@ -76,8 +76,10 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 ### Walking your shard
 
 `wildshard dev .` is how you will walk a shard on your machine: it serves the shard on localhost and reloads the page
-when you save. It is **not built yet (SA15)**: today it stops with "wildshard dev requires the SDK devserver client",
-also from a sharddev checkout. Engine has to publish the dev client first (HOW-WE-BUILD ENG-16, then SD-2).
+when you save. It is **not built yet (SA15)**: `dev` fetches engine's dev client once, from the engine release at
+this sdk's engine pin, into `~/.cache/wildshard/dev-client/`, and today's pin has none, so it stops with "engine release
+… has no devserver-client.tar.gz". Engine publishes it on every release from now on (HOW-WE-BUILD ENG-16); `dev`
+works once an sdk pins one of those (SD-2). Then open the URL it prints (it ends in `?skipintro`).
 
 Until then there are two ways to walk a shard, and neither works from this folder alone:
 
