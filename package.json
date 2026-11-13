@@ -11,6 +11,7 @@
     "access": "public"
   },
   "files": [
+    "GUIDE.md",
     "bin",
     "src",
     "!src/**/*.test.*",
