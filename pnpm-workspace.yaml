@@ -5,16 +5,6 @@ packages:
 enableGlobalVirtualStore: true
 confirmModulesPurge: false
 packageExtensions:
-  '@wildshard/engine':
-    dependencies:
-      '@typescript/typescript6': '6.0.2'
-      vite: '8.3.0'
-      sharp: '0.35.5'
-    peerDependencies:
-      '@types/three': '*'
-    peerDependenciesMeta:
-      '@types/three':
-        optional: true
   'postprocessing':
     peerDependencies:
       '@types/three': '*'

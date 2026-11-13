@@ -7,9 +7,9 @@ settings:
 overrides:
   binaryen: npm:@pre-bundled/binaryen@132.0.0-patch-1
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
-  '@wildshard/format': github:project-wildshard/shard-format#v0.4.9
+  '@wildshard/format': npm:@wildshard/shard-format@0.4.9
 
-packageExtensionsChecksum: sha256-UMHVVyHOzVelgV8/9fZPvtXKgauAhjToM3aacthJxQw=
+packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 
 importers:
 
@@ -46,11 +46,11 @@ importers:
         specifier: 1.8.0
         version: 1.8.0(valibot@1.5.0(typescript@7.0.2))
       '@wildshard/engine':
-        specifier: github:project-wildshard/engine#d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3
-        version: https://codeload.github.com/project-wildshard/engine/tar.gz/d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.17
+        version: 0.1.17(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
-        specifier: github:project-wildshard/shard-format#v0.4.9
-        version: '@wildshard/shard-format@https://codeload.github.com/project-wildshard/shard-format/tar.gz/8c506e15b03635237c1962bbd380f66db9985b47(typescript@7.0.2)'
+        specifier: npm:@wildshard/shard-format@0.4.9
+        version: '@wildshard/shard-format@0.4.9(typescript@7.0.2)'
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -631,9 +631,8 @@ packages:
   '@vitest/spy@5.0.1':
     resolution: {integrity: sha512-rbto/mF/SGERxEgYOek7Xm6B9b+y+mVoo+f4b2LymYO8zM1b7uB5nHuhVMTP2hxdzgxvGiZYGxGIaMvL5y180Q==}
 
-  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3':
-    resolution: {gitHosted: true, integrity: sha512-3u6fXBBb5jS2DZ2iXxcJrnJwgpy2A2ROARt/b1QaYpAyPiEUozI/OAtpKaomyYPXWBcyb/oyfg5QvrOJ/pDYgQ==, tarball: https://codeload.github.com/project-wildshard/engine/tar.gz/d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3}
-    version: 0.1.16
+  '@wildshard/engine@0.1.17':
+    resolution: {integrity: sha512-V1VxV+Oxjxk0SAK2qGG3QIQFLDskI43cDfdUaXq0crFZknTeGOQTFB3k6SWj4TES9DRjAm8kjHkaZn8YQyFwog==}
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
@@ -647,9 +646,8 @@ packages:
       sharp:
         optional: true
 
-  '@wildshard/shard-format@https://codeload.github.com/project-wildshard/shard-format/tar.gz/8c506e15b03635237c1962bbd380f66db9985b47':
-    resolution: {gitHosted: true, tarball: https://codeload.github.com/project-wildshard/shard-format/tar.gz/8c506e15b03635237c1962bbd380f66db9985b47}
-    version: 0.4.9
+  '@wildshard/shard-format@0.4.9':
+    resolution: {integrity: sha512-HbNtrUnsBQHq+q0y95b298kf4w3sQQ1YefzlUbeEOGcXQIB7ww9O6YwQAz4xkRXwaoP5eYDOWBw3J3fSLh2euQ==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -1705,7 +1703,7 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wildshard/engine@https://codeload.github.com/project-wildshard/engine/tar.gz/d10f30e3ddec11dc14c11692a86d7eb1dd86a3c3(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
+  '@wildshard/engine@0.1.17(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.5(hono@4.13.13)
@@ -1713,7 +1711,7 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
-      '@wildshard/format': '@wildshard/shard-format@https://codeload.github.com/project-wildshard/shard-format/tar.gz/8c506e15b03635237c1962bbd380f66db9985b47(typescript@7.0.2)'
+      '@wildshard/format': '@wildshard/shard-format@0.4.9(typescript@7.0.2)'
       '@wildshard/wire': 0.1.0(typescript@7.0.2)
       ajv: 6.15.0
       fflate: 0.8.3
@@ -1737,7 +1735,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@wildshard/shard-format@https://codeload.github.com/project-wildshard/shard-format/tar.gz/8c506e15b03635237c1962bbd380f66db9985b47(typescript@7.0.2)':
+  '@wildshard/shard-format@0.4.9(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)
