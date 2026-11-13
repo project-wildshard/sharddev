@@ -245,8 +245,8 @@ const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
   // Meta SHARD-DELETE DEL6: the account key upload sends.
   account: async (args: CliArgs): Promise<number> =>
     await runAccount(args, serverOf(args)),
-  whoami: async (): Promise<number> =>
-    await runWhoami(ENV['WILDSHARD_API_KEY']),
+  whoami: async (args: CliArgs): Promise<number> =>
+    await runWhoami(ENV['WILDSHARD_API_KEY'], serverOf(args)),
   // Meta SHARD-DELETE DEL10: the owner deletes with the same key.
   delete: async (args: CliArgs): Promise<number> =>
     await runDelete({

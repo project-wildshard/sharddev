@@ -79,9 +79,13 @@ const VERBS: Readonly<Record<string, string>> = {
                        a lost key needs an operator reset. A saved key is
                        never replaced without --force. Reads
                        WILDSHARD_API_URL when --server is absent`,
-  whoami: `whoami               Print where upload's account key comes from
+  whoami: `whoami [--server <url>]
+                       Print where upload's account key comes from
                        (WILDSHARD_API_KEY, else the key file) and its
-                       first characters, never the whole key`,
+                       first characters, never the whole key, then the
+                       key's account: its email and how many slugs it
+                       owns. Reads WILDSHARD_API_URL when --server is
+                       absent`,
   delete: `delete <slug> [--yes] [--server <url>]
                        Delete your shard: it leaves the catalogue, every
                        channel and the grid at once. Prints what it would

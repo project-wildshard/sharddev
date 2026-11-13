@@ -1,4 +1,4 @@
-import { object, safeParse, string } from 'valibot'
+import { number, object, safeParse, string } from 'valibot'
 
 import {
   draftKeyFile,
@@ -15,14 +15,27 @@ import type { ApiKey } from './key.ts'
 // J309, J310). The account is api-server's `POST /api/accounts {email}`: a
 // 201 answers `{email, key}`, the only time the key is shown, and an email
 // with an account is a 409 whose key stays as it was. No mail is sent and
-// the email is not proof of anything before DEL13. api-server has no route
-// that names a key's account, so whoami reads the key locally only.
+// the email is not proof of anything before DEL13. whoami names the key's
+// source and first characters, then asks `GET /api/accounts/me` (api-server
+// v0.12.0) for its account's email and slug count; an older API's 404 keeps
+// the local lines only.
 
+const OK = 200
 const CREATED = 201
+const UNAUTHORIZED = 401
 const CONFLICT = 409
+const NOT_FOUND = 404
+const NONE = 0
+const ONE = 1
+const ME_TIMEOUT_MS = 15_000
 
 const AccountSchema = object({ email: string(), key: string() })
 const ErrorSchema = object({ error: string() })
+const MeSchema = object({
+  email: string(),
+  slugs: number(),
+  deletedSlugs: number(),
+})
 
 interface AccountOptions {
   /** The api-server origin. */
@@ -109,19 +122,78 @@ async function makeAccount(options: AccountOptions): Promise<void> {
   )
 }
 
-/** What whoami prints: the key's source and first characters. */
-async function whoami(
-  fromEnv: string | undefined,
-  file: string = keyFile(),
-): Promise<readonly string[]> {
+/** The account line: its email and the slugs it owns. */
+function accountLine(body: unknown, status: number): string {
+  const parsed = safeParse(MeSchema, body)
+  if (status !== OK || !parsed.success) {
+    throw new Error(
+      `/api/accounts/me answered ${String(status)}: ${reasonOf(body)}`,
+    )
+  }
+  const { email, slugs, deletedSlugs } = parsed.output
+  const deleted =
+    deletedSlugs > NONE ? ` (and ${String(deletedSlugs)} deleted)` : ''
+  const noun = slugs === ONE ? 'slug' : 'slugs'
+  return `account ${email} owns ${String(slugs)} ${noun}${deleted}`
+}
+
+/** One `GET /api/accounts/me`: the account line, or the older API's line. */
+async function accountOfKey(server: string, key: string): Promise<string> {
+  const refusal = keyTransport(server)
+  if (refusal !== undefined) {
+    throw new Error(refusal)
+  }
+  const reply = await fetch(new URL('/api/accounts/me', server), {
+    headers: { authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(ME_TIMEOUT_MS),
+  })
+  const body = jsonOf(await reply.text())
+  if (reply.status === NOT_FOUND) {
+    return `${server} has no /api/accounts/me (not api-server, or older than v0.12.0), so the email is not shown`
+  }
+  if (reply.status === UNAUTHORIZED) {
+    throw new Error(
+      `${server} does not know this key (401): run wildshard account <email> on this server, or check WILDSHARD_API_KEY`,
+    )
+  }
+  return accountLine(body, reply.status)
+}
+
+/** What whoami needs: the key's sources, the server and where lines go. */
+interface WhoamiOptions {
+  /** WILDSHARD_API_KEY. */
+  readonly fromEnv: string | undefined
+  /** `--server`, else WILDSHARD_API_URL, else empty. */
+  readonly server: string
+  readonly report: (line: string) => void
+  /** The key file; the default is under the user's home. */
+  readonly file?: string
+}
+
+/**
+ * `wildshard whoami`: report the key's source and first characters, then its account's
+ * email and slug count from `server` (no server: say so). The key line is
+ * reported before the request, so a failed request still shows it.
+ */
+async function whoami(options: WhoamiOptions): Promise<void> {
+  const { fromEnv, server, report } = options
+  const file = options.file ?? keyFile()
   const found: ApiKey | undefined = await readApiKey(fromEnv, file)
   if (found === undefined) {
     throw new Error(`no account key in WILDSHARD_API_KEY or ${file}`)
   }
-  return [
-    `key ${maskKey(found.key)} from ${found.source}`,
-    "the API has no route that names a key's account yet, so the email is not shown",
-  ]
+  report(`key ${maskKey(found.key)} from ${found.source}`)
+  report(
+    server === ''
+      ? 'no server (pass --server <url> or set WILDSHARD_API_URL), so the email is not shown'
+      : await accountOfKey(server, found.key),
+  )
 }
 
-export { type AccountOptions, createAccount, makeAccount, whoami }
+export {
+  type AccountOptions,
+  type WhoamiOptions,
+  createAccount,
+  makeAccount,
+  whoami,
+}

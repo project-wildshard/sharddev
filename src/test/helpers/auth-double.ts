@@ -11,7 +11,10 @@ import { sendJson } from './http-double.ts'
 // account key (meta SHARD-DELETE DEL4, DEL5, DEL6). `POST /api/accounts`
 // answers a `wsk_` key once per email (any case), then 409; the ticket and
 // the commit need `Authorization: Bearer <key>`, else 401, as api-server
-// answers since DEL5.
+// answers since DEL5. `GET /api/accounts/me` names a key's account (api-server
+// v0.12.0): the double's own key answers `me`, a key `POST /api/accounts`
+// made answers its email and no slugs, any other key 401; `me` undefined is
+// an older API with no such route (404).
 
 const SIGNATURE_HEADER = 'x-wildshard-signature'
 const KEY_BYTES = 16
@@ -20,12 +23,21 @@ const TICKET = '/api/shardfiles/uploads'
 
 const AccountRequestSchema = object({ email: string() })
 
+/** What `GET /api/accounts/me` answers for the double's own key. */
+interface Me {
+  readonly email: string
+  readonly slugs: number
+  readonly deletedSlugs: number
+}
+
 /** The double's accounts. */
 interface Accounts {
   /** The key the ticket and the commit take. */
   readonly apiKey: string
   /** The accounts `POST /api/accounts` made: lower-cased email to key. */
   readonly byEmail: Map<string, string>
+  /** The own key's account; undefined: an API older than the route (404). */
+  me: Me | undefined
 }
 
 interface Exchange {
@@ -38,7 +50,11 @@ function newApiKey(): string {
 }
 
 function newAccounts(): Accounts {
-  return { apiKey: newApiKey(), byEmail: new Map() }
+  return {
+    apiKey: newApiKey(),
+    byEmail: new Map(),
+    me: { email: 'owner@example.com', slugs: 2, deletedSlugs: 1 },
+  }
 }
 
 /** Whether the request carries the creator signature over `hash`. */
@@ -71,9 +87,52 @@ function makeAccount(
   sendJson(exchange.response, 201, { email: known, key })
 }
 
+const NO_SLUGS = 0
+
+/** The account `header`'s key belongs to, or undefined. */
+function meOf(accounts: Accounts, header: string): Me | undefined {
+  if (header === `Bearer ${accounts.apiKey}`) {
+    return accounts.me
+  }
+  const made = [...accounts.byEmail].find(
+    ([, key]: readonly [string, string]): boolean => header === `Bearer ${key}`,
+  )
+  return made && { email: made[0], slugs: NO_SLUGS, deletedSlugs: NO_SLUGS }
+}
+
+/** `GET /api/accounts/me`: the key's account, 401, or 404 for an older API. */
+function answerMe(accounts: Accounts, exchange: Exchange): void {
+  const { request, response } = exchange
+  const me = meOf(accounts, request.headers.authorization ?? '')
+  if (accounts.me === undefined) {
+    sendJson(response, 404, { error: 'not found' })
+  } else if (me === undefined) {
+    sendJson(response, 401, { error: 'unknown API key' })
+  } else {
+    sendJson(response, 200, {
+      id: 'acct_0123456789abcdef0123456789abcdef',
+      createdAt: '2026-11-13T00:00:00.000Z',
+      ...me,
+    })
+  }
+}
+
 function needsKey(path: string): boolean {
   return path === TICKET || COMMIT.test(path)
 }
+
+const ACCOUNT_ROUTES: ReadonlyMap<
+  string,
+  (accounts: Accounts, exchange: Exchange, body: string) => void
+> = new Map([
+  ['/api/accounts', makeAccount],
+  [
+    '/api/accounts/me',
+    (accounts: Accounts, exchange: Exchange): void => {
+      answerMe(accounts, exchange)
+    },
+  ],
+])
 
 /** Answer an account call or a keyless upload call; false: not answered. */
 function answerAccount(
@@ -83,8 +142,9 @@ function answerAccount(
 ): boolean {
   const { request, response } = exchange
   const path = request.url ?? ''
-  if (path === '/api/accounts') {
-    makeAccount(accounts, exchange, body)
+  const own = ACCOUNT_ROUTES.get(path)
+  if (own !== undefined) {
+    own(accounts, exchange, body)
     return true
   }
   if (

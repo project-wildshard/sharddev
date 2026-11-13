@@ -11,7 +11,8 @@ import type { CliRun } from '../../test/helpers/cli-run.ts'
 
 // Meta SHARD-DELETE DEL6: `wildshard account <email>` makes the account
 // (DEL4's one call) and keeps its key in ~/.config/wildshard/sharddev-key,
-// mode 600; `wildshard whoami` says which key upload would send. Through
+// mode 600; `wildshard whoami` says which key upload would send and, from
+// `GET /api/accounts/me`, its account's email and slug count. Through
 // the real CLI against the double, each run with a scratch HOME.
 
 const EMAIL = 'author@example.com'
@@ -117,7 +118,7 @@ test('account without an email or a server refuses before any request', async (c
   )
 })
 
-test('whoami names where the key comes from and shows only its start', async (context: TestContext): Promise<void> => {
+test('whoami with no server names where the key comes from and shows only its start', async (context: TestContext): Promise<void> => {
   const key = `wsk_${'a1'.repeat(32)}`
   const home = await scratchHome(context, key)
 
@@ -132,9 +133,67 @@ test('whoami names where the key comes from and shows only its start', async (co
     fromFile.stdout,
     new RegExp(`^key wsk_a1a1… from ${keyFileIn(home)}$`, 'mu'),
   )
-  assert.match(fromFile.stdout, /no route that names a key's account/u)
+  assert.match(fromFile.stdout, /^no server \(pass --server <url>/mu)
   assert.ok(!fromFile.stdout.includes(key))
   assert.match(fromEnv.stdout, /^key wsk_b2b2… from WILDSHARD_API_KEY$/mu)
+})
+
+test('whoami asks the API and prints the email and the slugs the key owns', async (context: TestContext): Promise<void> => {
+  const server = await openUploadServer(context)
+  const { apiKey } = server.state.accounts
+  const home = await scratchHome(context)
+  await account(server, home, [EMAIL])
+
+  const own = await runCli(['whoami', '--server', server.url], {
+    HOME: home,
+    WILDSHARD_API_KEY: apiKey,
+  })
+  const made = await runCli(['whoami'], {
+    HOME: home,
+    WILDSHARD_API_URL: server.url,
+  })
+
+  assert.deepEqual(
+    [own.status, made.status, `${own.stdout}${own.stderr}`.includes(apiKey)],
+    [0, 0, false],
+  )
+  assert.match(
+    own.stdout,
+    /^key wsk_\S{4}… from WILDSHARD_API_KEY\naccount owner@example\.com owns 2 slugs \(and 1 deleted\)$/mu,
+  )
+  assert.match(made.stdout, /^account author@example\.com owns 0 slugs$/mu)
+})
+
+test('whoami against an older API without the route keeps the key line', async (context: TestContext): Promise<void> => {
+  const server = await openUploadServer(context)
+  server.state.accounts.me = undefined
+
+  const result = await runCli(['whoami', '--server', server.url], {
+    HOME: await scratchHome(context),
+    WILDSHARD_API_KEY: server.state.accounts.apiKey,
+  })
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /^key wsk_\S{4}… from WILDSHARD_API_KEY$/mu)
+  assert.match(
+    result.stdout,
+    /has no \/api\/accounts\/me \(not api-server, or older than v0\.12\.0\)/u,
+  )
+})
+
+test('whoami with a key the API does not know is refused, never echoing it', async (context: TestContext): Promise<void> => {
+  const server = await openUploadServer(context)
+  const stranger = 'wsk_c3c3c3c3c3c3c3c3'
+
+  const result = await runCli(['whoami', '--server', server.url], {
+    HOME: await scratchHome(context),
+    WILDSHARD_API_KEY: stranger,
+  })
+
+  assert.equal(result.status, 3, result.stderr)
+  assert.match(result.stdout, /^key wsk_c3c3… from WILDSHARD_API_KEY$/mu)
+  assert.match(result.stderr, /does not know this key \(401\)/u)
+  assert.ok(!`${result.stdout}${result.stderr}`.includes(stranger))
 })
 
 test('whoami with no key names wildshard account', async (context: TestContext): Promise<void> => {

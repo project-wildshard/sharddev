@@ -58,7 +58,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
 | `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |
-| `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file) and show its first characters |
+| `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file), show its first characters, and print its account's email and how many slugs it owns (`--server` or `WILDSHARD_API_URL`) |
 | `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> --base <url>` | Record the built folder in phone WebKit against an exact engine preview, which turns a draft into the uploadable form (see "Uploading") |
@@ -127,7 +127,7 @@ before every upload:
    `~/.config/wildshard/sharddev-key` (only you can read it) and the API never shows it again, so keep that file. An
    email that has an account already is refused (`account-exists`); a lost key needs an operator reset by the
    Wildshard team. In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
-   upload will send. Done when `wildshard whoami` prints `key wsk_…`.
+   upload will send and whose it is. Done when `wildshard whoami` prints `key wsk_…` and `account <your email>`.
 6. **Upload,** with a version `X.Y.Z` higher than the last one uploaded (`0.0.1` the first time). Upload reads
    `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--version`:
 

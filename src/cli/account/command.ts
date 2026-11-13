@@ -56,12 +56,13 @@ async function runAccount(args: CliArgs, server: string): Promise<number> {
   }
 }
 
-/** `wildshard whoami`: the key upload would send, masked. */
-async function runWhoami(fromEnv: string | undefined): Promise<number> {
+/** `wildshard whoami`: the key upload would send, masked, and its account. */
+async function runWhoami(
+  fromEnv: string | undefined,
+  server: string,
+): Promise<number> {
   try {
-    for (const line of await whoami(fromEnv)) {
-      reportLine(line)
-    }
+    await whoami({ fromEnv, server, report: reportLine })
     return EXIT_OK
   } catch (error: unknown) {
     refuse('account', '', messageOf(error))
