@@ -35,6 +35,7 @@ import { packProjectMap, generatedProjectMap, type ProjectMap } from './projectM
 import { projectPlaceholders } from './bake/placeholders';
 import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from './cookInput';
+import { audioEncodeLine, encodeMountAudio, readStereoMarks } from './audioEncode';
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest } from './authorManifest';
 import { discoveryDocument, discoveryUrl } from './discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from './outputProduct';
@@ -278,7 +279,7 @@ export async function buildProject(project: string, output?: string, options: { 
   let descriptor: ReturnType<typeof writeOutputProduct>;
   try {
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
-    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard), loaded.output.discovery, readCookInput(project, shard.identity.slug), assets);
+    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard), loaded.output.discovery, await encodedCookInput(project, shard.identity.slug), assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     phase('product-write');
     if (runtime !== undefined) proveRuntimeData(destination, descriptor, loaded.mirrors);
@@ -294,6 +295,14 @@ export async function buildProject(project: string, output?: string, options: { 
     writeFileSync(resolve(destination, 'index.html'), html);
   }
   return shard;
+}
+/** AUDIO AU7: the cook input with its source recordings encoded to AU5's targets, and the before and after MB printed. */
+async function encodedCookInput(project: string, slug: string): Promise<CookInput | undefined> {
+  const input = readCookInput(project, slug);
+  if (input === undefined) return undefined;
+  const { mounts, stats, encoder } = await encodeMountAudio(input.mounts, { stereo: readStereoMarks(project) });
+  if (stats.files > 0) console.info(audioEncodeLine(slug, stats, encoder));
+  return { ...input, mounts };
 }
 /** C3: a manifest's bindings go with the product, so a page needs nothing compiled to enter it: the packed level manifest, an
  *  output's composed one, which packs no images of its own, or for an author with neither, the plain one their shard implies. */
