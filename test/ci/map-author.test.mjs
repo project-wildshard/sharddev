@@ -20,7 +20,7 @@ const parent = process.env.WS_PROOF_SCRATCH ?? tmpdir();
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, 'map-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
-const bin = installWildshard(root), app = join(root, 'app'), source = join(app, 'map-isle');
+const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'map-isle'), source = join(repo, 'src');
 const author = createRequire(join(app, 'node_modules/@wildshard/sdk/package.json'));
 const { rasterSceneMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/bake/groundMap')).href);
 const { rasterDataMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/scripts/bake-data-maps.mjs')).href);
@@ -70,7 +70,7 @@ export default async function generate(ctx) {
 }
 let baseline;
 test('the installed author owns its source inputs', cap, () => {
-  run(['new', source, 'map-isle', '--empty']);
+  run(['new', repo, 'map-isle', '--empty']);
   rmSync(join(source, 'generators/output.ts'));
   writeFileSync(join(source, 'floor.glb'), floor);
   config();

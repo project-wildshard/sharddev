@@ -13,11 +13,11 @@ test('a new reference project points at its own shard file, never the template',
   try {
     writeReferenceProject(project, 'my-shard');
     for (const file of ['manifest.json', 'data/card.json']) {
-      const text = readFileSync(resolve(project, file), 'utf8');
+      const text = readFileSync(resolve(project, 'src', file), 'utf8');
       expect((JSON.parse(text) as { shardfile: string }).shardfile).toBe('/shardfiles/my-shard/shard.json');
       expect(text).not.toContain('_template');
     }
     // The checkout's own built Template output is never copied into a new project.
-    expect(existsSync(resolve(project, 'public/shardfiles'))).toBe(false);
+    expect(existsSync(resolve(project, 'src/public/shardfiles'))).toBe(false);
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });

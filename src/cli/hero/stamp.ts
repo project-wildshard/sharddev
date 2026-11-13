@@ -2,6 +2,8 @@ import { createHash, randomUUID } from 'node:crypto'
 import { readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
+import { shardFolderName } from '../../sharddev/shardSource.ts'
+
 // A shard's hero (its SHARD SELECT card: thumb, portrait and landscape) is a
 // picture of its world, so it goes stale when the world changes (Jake,
 // 2026-11-12 17:14 Cancún: "you have to update the hero images for the
@@ -123,7 +125,8 @@ function cardFile(shard: string, url: string): string | undefined {
   if (url.startsWith('data:') || url.includes('://')) {
     return undefined
   }
-  const prefix = `/src/shards/${path.basename(shard)}/`
+  // A src/ shard source (J317) is named by its manifest slug, as the build's image root is (scripts/wildshard.mjs).
+  const prefix = `/src/shards/${shardFolderName(shard)}/`
   const relative = url.startsWith(prefix) ? url.slice(prefix.length) : url
   const file = path.resolve(shard, relative.replace(/^\/+/u, ''))
   return file.startsWith(`${path.resolve(shard)}${path.sep}`) ? file : undefined

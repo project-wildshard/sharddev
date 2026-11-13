@@ -9,7 +9,7 @@ import { authorCard } from './authorManifest';
  * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
  * pnpm 10 runs none by default. `allowBuilds` is the list our pinned pnpm 10.34.9 reads and `pnpm approve-builds` writes;
  * pnpm 10.21 ignores it and so runs none at all. Nothing a new shard installs needs a script today: the list starts empty.
- * The pnpm pin itself belongs in the `package.json` SA16 writes. Proved by hand (SA39 receipt): an unlisted postinstall
+ * The pnpm pin itself is in the `package.json` SA16 writes. Proved by hand (SA39 receipt): an unlisted postinstall
  * never ran and `pnpm ignored-builds` named it; `esbuild: true` let esbuild's run.
  */
 export const INSTALL_SCRIPT_POLICY = `packages:
@@ -44,73 +44,166 @@ function writeGuide(project: string): void {
   cpSync(SKILL_SOURCE, resolve(project, SKILL_FILE));
 }
 
-/** Copy the shipped teaching world; generation and gameplay remain authored there. */
-export function writeReferenceProject(project: string, slug: string): void {
+/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is Brasscap Mesa. */
+export const TEMPLATES = ['sdk', 'blender'] as const;
+export type TemplateName = (typeof TEMPLATES)[number];
+/** The template `new` makes with no flag. */
+export const DEFAULT_TEMPLATE: TemplateName = 'sdk';
+/** J317: a repo with one shard keeps its shard source at `src/`. */
+export const SHARD_SOURCE_FOLDER = 'src';
+
+/** The template named by `--template`, or a refusal that names both, thrown before anything is written. */
+export function templateNamed(name: string): TemplateName {
+  const found = TEMPLATES.find(template => template === name);
+  if (found === undefined) throw new Error(`new: unknown template ${name}: use --template sdk or --template blender`);
+  return found;
+}
+
+function assertTarget(project: string, slug: string): void {
   if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(slug) || existsSync(project)) throw new Error('new requires a fresh directory and kebab-case slug');
+}
+
+/** The installed sdk's own package.json: its version and the exact specs it pins for engine, shard-format and three. */
+const SDK_PACKAGE: string = resolve(import.meta.dirname, '../../package.json');
+interface SdkPackage { readonly version: string; readonly node: string; readonly dependencies: Readonly<Record<string, string>> }
+function sdkPackage(): SdkPackage {
+  const parsed: unknown = JSON.parse(readFileSync(SDK_PACKAGE, 'utf8'));
+  if (typeof parsed !== 'object' || parsed === null || !('version' in parsed) || typeof parsed.version !== 'string'
+    || !('dependencies' in parsed) || typeof parsed.dependencies !== 'object' || parsed.dependencies === null) throw new Error('new: the installed @wildshard/sdk has no package.json version');
+  const dependencies: Record<string, string> = {};
+  for (const [name, spec] of Object.entries(parsed.dependencies)) if (typeof spec === 'string') dependencies[name] = spec;
+  const node = 'engines' in parsed && typeof parsed.engines === 'object' && parsed.engines !== null && 'node' in parsed.engines && typeof parsed.engines.node === 'string' ? parsed.engines.node : undefined;
+  if (node === undefined) throw new Error('new: the installed @wildshard/sdk names no Node engine');
+  return { version: parsed.version, node, dependencies };
+}
+/** What a shard repo lists besides the sdk (grill Q12, Q13): shard-format, `three` (sdk's peer), and engine until
+ * SHARD-COMPAT's engine zero. Each is pinned exactly as the installed sdk pins it, so the repo installs one copy. */
+export const REPO_DEPENDENCIES = ['@wildshard/engine', '@wildshard/format', 'three'] as const;
+
+/** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
+export function repoPackageJson(slug: string): string {
+  const sdk = sdkPackage(), dependencies: Record<string, string> = { '@wildshard/sdk': sdk.version };
+  for (const name of REPO_DEPENDENCIES) {
+    const spec = sdk.dependencies[name];
+    if (spec === undefined) throw new Error(`new: the installed @wildshard/sdk does not pin ${name}`);
+    dependencies[name] = spec;
+  }
+  const sorted = Object.fromEntries(Object.entries(dependencies).sort(([a], [b]) => a.localeCompare(b)));
+  // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
+  return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
+    engines: { node: sdk.node }, scripts: { check: 'wildshard check .' }, dependencies: sorted }, null, 2)}\n`;
+}
+
+const TSCONFIG = `${JSON.stringify({
+  // The author build bundles src/ (extensionless relative imports), as sharddev's own tsconfig does.
+  compilerOptions: { target: 'esnext', module: 'esnext', moduleResolution: 'bundler', strict: true, noEmit: true, skipLibCheck: true,
+    resolveJsonModule: true, allowImportingTsExtensions: true },
+  include: ['src/**/*.ts'],
+}, null, 2)}\n`;
+const GITIGNORE = `node_modules/
+# Build output: the built folder and <slug>.shardfile. Never commit it.
+public/shardfiles/
+public/assets/*/map/
+tmp/
+.DS_Store
+`;
+// Exact versions for every package an author adds, and refuse a Node older than the sdk's.
+const NPMRC = `save-exact=true
+engine-strict=true
+`;
+
+function repoReadme(slug: string, template: TemplateName, empty: boolean): string {
+  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)' : 'Brasscap Mesa, built from Blender models';
+  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
+  return `# ${slug}
+
+A Wildshard **shard source**, started by \`wildshard new\` from ${world}.
+\`wildshard check .\` builds it into one **shard file**, and \`wildshard upload\`
+sends that file to a channel.
+
+Start with \`GUIDE.md\`, the author's manual: section 1 is the loop (new, dev,
+check, hero, upload), section 2 this layout. The \`wildshard\` skill in
+\`.claude/skills/\` gives an agent the same loop.
+
+\`\`\`sh
+pnpm install
+pnpm exec wildshard check .
+\`\`\`
+
+Until \`@wildshard/sdk\` is on npm, \`pnpm install\` cannot fetch it: run the CLI
+from a sharddev checkout instead (\`GUIDE.md\`, "Running \`wildshard\` today").
+
+- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
+- \`package.json\` pins \`@wildshard/sdk\`, shard-format, engine and \`three\`
+  exactly; its \`version\` is the version \`wildshard upload\` sends.
+- \`public/shardfiles/\` is build output. Never edit or commit it.
+`;
+}
+
+/** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, guide and skill. */
+function writeRepoFiles(project: string, slug: string, template: TemplateName, empty: boolean): void {
+  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug));
+  writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
+  writeFileSync(resolve(project, '.gitignore'), GITIGNORE);
+  writeFileSync(resolve(project, '.npmrc'), NPMRC);
+  writeFileSync(resolve(project, 'README.md'), repoReadme(slug, template, empty));
+  writeInstallScriptPolicy(project);
+  writeGuide(project);
+}
+
+/** Copy the shipped teaching world into `source`; generation and gameplay remain authored there. */
+function writeReferenceSource(source: string, slug: string): void {
   // The trusted CLI bundle defines dirname as its installed source directory.
   const template = resolve(import.meta.dirname, '../shards/_template');
-  cpSync(template, project, { recursive: true, errorOnExist: true, force: false,
-    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) && source !== resolve(template, 'card') && source !== resolve(template, 'hero.json')
-      // A checkout's built Template output (gitignored) is Template's, never the new project's.
-      && source !== resolve(template, 'public/shardfiles') });
-  const card: unknown = JSON.parse(readFileSync(resolve(project, 'manifest.json'), 'utf8'));
+  cpSync(template, source, { recursive: true, errorOnExist: true, force: false,
+    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(template, 'card') && from !== resolve(template, 'hero.json')
+      // The template's README is sharddev's own notes; the repo gets a README of its own (SA16).
+      && from !== resolve(template, 'README.md')
+      // A checkout's built Template output (gitignored, under public/) is Template's; build output goes to the repo root.
+      && from !== resolve(template, 'public') });
+  const card: unknown = JSON.parse(readFileSync(resolve(source, 'manifest.json'), 'utf8'));
   if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project manifest is missing');
   // The template's card is Mossgate's own in-engine hero (template/card/): a new project wears a generated card until its
   // author captures one, never another shard's art.
   const art = authorCard(slug, 1);
   // UP5 (2026-11-13): the boot loads `shardfile`; Template's path booted a file this project never builds and hung.
   const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental', card: { thumb: art, portrait: art, landscape: art }, shardfile: `/shardfiles/${slug}/shard.json` }).replaceAll('/assets/_template/', `/assets/${slug}/`);
-  writeFileSync(resolve(project, 'manifest.json'), manifest);
-  writeFileSync(resolve(project, 'data/card.json'), manifest);
-  writeFileSync(resolve(project, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
-  writeFileSync(resolve(project, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
-  writeInstallScriptPolicy(project);
-  writeGuide(project);
+  writeFileSync(resolve(source, 'manifest.json'), manifest);
+  writeFileSync(resolve(source, 'data/card.json'), manifest);
+  writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
+  writeFileSync(resolve(source, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
 }
 
-/** Write the runtime-free reference layout. An existing directory is never changed. */
-export function writeNewProject(project: string, slug: string): void {
-  if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(slug) || existsSync(project)) throw new Error('new requires a fresh directory and kebab-case slug');
-  for (const folder of ['generators', 'data', 'behaviour', 'assets']) mkdirSync(resolve(project, folder), { recursive: true });
+/** Write the runtime-free bare shard source (`new --empty`) into `source`. */
+function writeEmptySource(source: string, slug: string): void {
+  for (const folder of ['generators', 'data', 'behaviour', 'assets']) mkdirSync(resolve(source, folder), { recursive: true });
   const identity = encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 1 }).trim();
-  writeFileSync(resolve(project, 'data/card.ts'), `/** Build-time identity; add authored level metadata here as the world grows. */\nexport const IDENTITY = ${identity};\n`);
-  writeFileSync(resolve(project, 'data/world.ts'), `import { emptyShardfile } from '@wildshard/sdk/author';\nimport { IDENTITY } from './card';\n\n/** Build-only declaration; the CLI emits its platform sections as JSON. */\nexport const WORLD = emptyShardfile(IDENTITY);\n`);
-  writeFileSync(resolve(project, 'generators/product.ts'), `import { WORLD } from '../data/world';\n\n// oxlint-disable-next-line import/no-default-export -- The documented build entry imports this declaration.\nexport default WORLD;\n`);
-  writeFileSync(resolve(project, 'generators/output.ts'), `import type { ProjectOutput } from '@wildshard/sdk/projectOutput';\n\n/** Build-only named blobs and platform sections, read automatically by the CLI. */\nexport const output = {} satisfies ProjectOutput;\n`);
-  writeInstallScriptPolicy(project);
-  writeGuide(project);
-  writeFileSync(resolve(project, 'shard.config.ts'), `import product from './generators/product';\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
-  writeFileSync(resolve(project, 'README.md'), `# ${slug}
-
-Build with \`wildshard build <project> <output> --shardfile-only\`, then
-\`wildshard validate <output>\`. The output is a v2 index, schema-checked JSON
-sections and hash-named blobs, and the build writes the shard file you upload,
-\`<slug>.shardfile\`, beside it. In this repository use \`out/<slug>/\`.
-
-- \`shard.config.ts\` is the build entry; \`generators/product.ts\` assembles
-  the declaration from data rows.
-- \`data/\` is build-time TypeScript: identity/card, layouts, quests, rows and
-  schemas. It never ships as executable code.
-- \`generators/\` produces immutable assets and section data at build time.
-- \`generators/output.ts\` declares registered named blobs and platform
-  sections. The CLI reads its \`output\` export automatically.
-- \`behaviour/\` holds AssemblyScript sources; \`assets/\` holds source assets.
-
-This project has no runtime TypeScript. Use admitted platform rows and WASM
-behaviour; executable build logic belongs in \`generators/\`. Keep the
-\`shard.config.ts\` entry declaration-only. Check authored JSON at its source
-intake; keep standalone product interfaces in plain committed files. Read
-the shipped data contract in SHARDFILE.md.
-
-For a complete playable reference, see \`src/shards/_template/\` in the
-Wildshard repository: terrain and props are generated from data, its map is
-painted from those same products, and \`behaviour/boss.as\` makes encounter
-decisions through ABI v1 at at most 10 Hz. Its headless example is
-\`test/scripts/_template-boss.test.ts\`; it loads published Wasm bytes and
-checks phase changes, timers, stop/restart and logical save continuation.
-
-After each content slice, build and validate. Keep decoded/GPU/wire costs
-truthful, respect the reported graph/script budgets, and add playable content
-before publishing. The empty declaration is a starting point, not a finished world.
-`);
+  writeFileSync(resolve(source, 'data/card.ts'), `/** Build-time identity; add authored level metadata here as the world grows. */\nexport const IDENTITY = ${identity};\n`);
+  writeFileSync(resolve(source, 'data/world.ts'), `import { emptyShardfile } from '@wildshard/sdk/author';\nimport { IDENTITY } from './card';\n\n/** Build-only declaration; the CLI emits its platform sections as JSON. */\nexport const WORLD = emptyShardfile(IDENTITY);\n`);
+  writeFileSync(resolve(source, 'generators/product.ts'), `import { WORLD } from '../data/world';\n\n// oxlint-disable-next-line import/no-default-export -- The documented build entry imports this declaration.\nexport default WORLD;\n`);
+  writeFileSync(resolve(source, 'generators/output.ts'), `import type { ProjectOutput } from '@wildshard/sdk/projectOutput';\n\n/** Build-only named blobs and platform sections, read automatically by the CLI. */\nexport const output = {} satisfies ProjectOutput;\n`);
+  writeFileSync(resolve(source, 'shard.config.ts'), `import product from './generators/product';\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
 }
+
+/** The bare shard source alone at `source`, with no repo around it (sdk API; tests build it in place). */
+export function writeEmptyShardSource(source: string, slug: string): void {
+  assertTarget(source, slug);
+  writeEmptySource(source, slug);
+}
+
+/** `wildshard new <dir> [slug] [--template sdk|blender] [--empty]`: a whole single-shard repo, its shard source at `src/`. */
+export function writeShardRepo(project: string, slug: string, options: { readonly template?: TemplateName; readonly empty?: boolean } = {}): void {
+  const template = options.template ?? DEFAULT_TEMPLATE;
+  assertTarget(project, slug);
+  if (template === 'blender') throw new Error('new: --template blender is not built yet (SHARD-AUTHORING SA16): Brasscap Mesa ships only as a built shard file, not a shard source; use --template sdk');
+  mkdirSync(project, { recursive: true });
+  const source = resolve(project, SHARD_SOURCE_FOLDER);
+  if (options.empty === true) writeEmptySource(source, slug); else writeReferenceSource(source, slug);
+  writeRepoFiles(project, slug, template, options.empty === true);
+}
+
+/** `new <dir>`: the reference world as a whole repo. */
+export function writeReferenceProject(project: string, slug: string): void { writeShardRepo(project, slug); }
+
+/** `new <dir> --empty`: the bare shard source as a whole repo. */
+export function writeNewProject(project: string, slug: string): void { writeShardRepo(project, slug, { empty: true }); }

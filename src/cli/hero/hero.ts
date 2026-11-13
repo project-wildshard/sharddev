@@ -19,14 +19,21 @@ import type { HeroState } from './stamp.ts'
 
 const CAPTURE = 'pnpm exec wildshard hero'
 
+/** The shard source as the author names it: `src` in a single-shard repo (J317), else `src/shards/<name>`. */
+function sourceOperand(shard: string): string {
+  return path.basename(shard) === 'src'
+    ? 'src'
+    : `src/shards/${path.basename(shard)}`
+}
+
 /** The capture command a refusal names, run from the shard project root. */
 function captureCommand(shard: string): string {
-  return `${CAPTURE} src/shards/${path.basename(shard)} --base <served-build-url>`
+  return `${CAPTURE} ${sourceOperand(shard)} --base <served-build-url>`
 }
 
 /** The no-capture stamp, for hero files that already show this content. */
 function stampExistingCommand(shard: string): string {
-  return `${CAPTURE} src/shards/${path.basename(shard)} --stamp-existing`
+  return `${CAPTURE} ${sourceOperand(shard)} --stamp-existing`
 }
 
 /** The source shard folder of a product built at `<root>/out/<name>`. */

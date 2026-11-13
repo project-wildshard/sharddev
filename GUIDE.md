@@ -22,18 +22,19 @@ is a command stopping with a rule id, a fix and a link into section 6.
 (NPM-PUBLISH NP4 publishes the real one). Until then, run the CLI from a checkout of
 `github.com/project-wildshard/sharddev`, for example `alias wildshard='node /path/to/sharddev/bin/wildshard.mjs'`.
 This guide writes `wildshard <verb>`. `wildshard --help` lists every verb; `wildshard <verb> --help` prints one.
-`wildshard --version` prints the sdk, engine, shard-format and `three` versions. The CLI supplies `@wildshard/sdk` to
-your build itself, so a project needs no `package.json` until it adds npm packages of its own (`pnpm init`, then
-`pnpm add <name>`); `new` does not write one yet (SA16).
+`wildshard --version` prints the sdk, engine, shard-format and `three` versions. `new` writes a `package.json` that pins
+`@wildshard/sdk`, shard-format, engine and `three` exactly; once the sdk is on npm, `pnpm install` then
+`pnpm exec wildshard <verb>` runs the copy it pins. Add npm packages of your own with `pnpm add <name>`.
 
 ## 1. The loop
 
 The loop is: `new`, `dev`, `check`, `hero`, `upload --channel staging`, then `upload --channel prod`, then share the
-link. Run each command from the project folder; `.` is the shard source in a project `new` made.
+link. Run each command from the project folder. `.` names the project: commands find its shard source at `src/` (or a
+repo's one `src/shards/<slug>/`).
 
 | # | Step | Command | Today |
 |---|---|---|---|
-| 1 | Start | `wildshard new my-shard` | Works. Copies the reference world (Template 1, Mossgate) into `my-shard/` and writes this guide and the `wildshard` skill |
+| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide and the `wildshard` skill |
 | 2 | Walk it | `wildshard dev .` | **Not built yet (SA15).** See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works only with an engine checkout: it needs your shard in a served engine build. See "The hero" below |
@@ -51,7 +52,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 
 | Verb | What it is for |
 |---|---|
-| `wildshard new <dir> [slug] [--empty]` | Start a project in a folder that does not exist yet. `--empty` writes a bare shard source instead of the reference world. Give no slug, or the folder's own name: a slug unlike the folder name makes a project that build refuses (`project-folder-slug`). `--template sdk\|blender` is **not built yet (SA16)** |
+| `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` (Brasscap Mesa) is **not built yet (SA16)**; any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). **Not built yet** for an installed sdk (SA15) |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
@@ -108,8 +109,8 @@ before every upload:
 1. **Hero.** A new version needs a new hero (J306). After your last change to the world, capture one
    (`wildshard hero . --base <url>`, "The hero" above). Done when `hero.json` and the three card images are rewritten.
 2. **Commit.** Upload names the commit the bytes came from and refuses uncommitted changes to tracked files. The first
-   time: `git init`, add `public/shardfiles/` to `.gitignore` (`new` does not write a `.gitignore` or `package.json`
-   yet, SA16), then commit. Every time: commit everything, the hero included. Done when `git status` is clean.
+   time: `git init`, then commit (the `.gitignore` `new` wrote keeps `public/shardfiles/` and `node_modules/` out).
+   Every time: commit everything, the hero included. Done when `git status` is clean.
 3. **Check.** `wildshard check .` builds the shard file. It is a **draft** (`sdk: "0.2"`): check prints a
    `shardfile-draft` warning, and upload and the API refuse a draft. Done at `check pass`.
 4. **Prepare.** `wildshard prepare public/shardfiles/<slug> --base <url>`, with the URL of an exact engine preview made
@@ -127,7 +128,7 @@ before every upload:
    Wildshard team. In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
    upload will send. Done when `wildshard whoami` prints `key wsk_…`.
 6. **Upload,** with a version `X.Y.Z` higher than the last one uploaded (`0.0.1` the first time). Upload reads
-   `version` from the shard source's `package.json`; with no `package.json`, pass `--version`:
+   `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--version`:
 
 ```sh
 wildshard upload public/shardfiles/my-shard.shardfile --channel staging --version 0.0.1
@@ -138,7 +139,7 @@ version and what moved. Uploading the same bytes again sends nothing.
 
 ## 2. The shard source
 
-A project made by `wildshard new` is one shard source at the folder's root:
+A project made by `wildshard new` is a repo with one shard source at `src/`. Inside `src/`:
 
 | Path | What it is | Ships in the shard file? |
 |---|---|---|
@@ -152,24 +153,32 @@ A project made by `wildshard new` is one shard source at the folder's root:
 | `hero.json` | The hero stamp (`wildshard hero` writes it) | No |
 | `proof.json` | Optional: a proof tape `check` plays with `prove` | No |
 | `audio-waiver.json` | Optional: a dated waiver for the audio budget | Into the shard file's admission data |
+
+At the repo root, around `src/`:
+
+| Path | What it is | Ships in the shard file? |
+|---|---|---|
+| `package.json` | Pins `@wildshard/sdk`, shard-format, engine and `three` exactly, and pnpm 10.34.9 (`packageManager`); its `version` is what upload sends | No |
+| `tsconfig.json`, `.npmrc`, `.gitignore` | TypeScript settings for `src/`; exact versions for `pnpm add`; what git leaves out (build output, `node_modules/`) | No |
+| `README.md`, `GUIDE.md` | This repo's README, and this guide | No |
 | `pnpm-workspace.yaml` | pnpm's install-script allowlist (SA39): a dependency's install script runs only if listed | No |
 | `.claude/skills/wildshard/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide | No |
 | `public/shardfiles/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
 
-**Two files to read with care.** `README.md` is the reference world's own notes, copied from sharddev's
-`src/shards/_template/`: its paths point into the sharddev repo, not into your project, so trust this guide where they
-differ (SA16 gives `new` its own README). `manifest.json` and `data/card.json` hold the same card: `new` writes both,
-build refuses a shard whose two copies differ, and hero capture reads `manifest.json`, so change both together.
+**Two files to change together.** `src/manifest.json` and `src/data/card.json` hold the same card: `new` writes
+both, build refuses a shard whose two copies differ, and hero capture reads `manifest.json`, so change both together.
 
 Blender files (`.blend`), mockups and other working files never ship: keep them in a folder of your own, such as
 `blender/`, and export what the shard needs into `assets/`. A shard never ships runtime TypeScript: everything that
 runs in the game is data, or Wasm compiled from `behaviour/`. `shard.config.ts` and `generators/` run only at build
 time; lint refuses runtime code there (section 6).
 
-**Repo layout (J317).** A repo with one shard will keep its shard source at `src/` (`src/shard.config.ts`,
-`src/data/`, ...); a repo with several keeps `src/shards/<slug>/`. **Not built yet:** `new` writes the shard source
-at the folder's root (SA16 moves it to `src/`; SA24 moves the existing shard repos). Commands take the shard source's
-path, so `.` today, `src` later.
+**Repo layout (J317).** A repo with one shard keeps its shard source at `src/` (`src/shard.config.ts`,
+`src/data/`, ...); a repo with several keeps `src/shards/<slug>/`. Commands take the repo (`.`) and find the shard
+source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo with several, name the shard source
+(`src/shards/<slug>`). The slug is `manifest.json`'s, whatever the repo folder is called. A `src/` source builds
+into the repo's `public/shardfiles/`; a `src/shards/<slug>/` source into its own folder's. SA24 moves the existing
+single-shard repos to `src/`.
 
 **What a shard may declare.** The runtime contract lists every section, `client/plan` kind, named file, script rule,
 budget and limit a shard file may carry, and what validation refuses:
@@ -272,6 +281,11 @@ A verb got arguments or flags it does not take. `wildshard <verb> --help` prints
 
 `new` needs a folder that does not exist yet and a kebab-case slug (`my-shard`, not `My Shard`). It never writes into
 an existing folder.
+
+#### new-template
+
+`--template` names `sdk` (the reference world, the default) or `blender` (Brasscap Mesa, **not built yet, SA16**). Any
+other name refuses before `new` writes anything. Leave the flag out or pass `--template sdk`.
 
 #### new-refused
 

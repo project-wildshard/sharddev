@@ -16,7 +16,7 @@ const parent=process.env.WS_PROOF_SCRATCH??tmpdir();
 mkdirSync(parent,{recursive:true});
 const root=mkdtempSync(join(parent,'new-reference-'));
 after(()=>rmSync(root,{recursive:true,force:true}));
-const bin=installWildshard(root), app=join(root,'app'), source=join(app,'first-island'), output=join(app,'product');
+const bin=installWildshard(root), app=join(root,'app'), repo=join(app,'first-island'), source=join(repo,'src'), output=join(app,'product');
 let referenceDoor;
 const doorSegments=[
  {id:'distant-door',ticks:1,commands:[{kind:'interact',id:'template.door.use'}]},
@@ -35,8 +35,8 @@ function cli(args, success=true) {
  else assert.notEqual(done.status,0,'Existing author work must not be overwritten');
 }
 test('default new builds an independently named playable reference', {timeout:120_000},()=>{
- cli(['new',source,'first-island']);
- cli(['new',source,'first-island'],false);
+ cli(['new',repo,'first-island']);
+ cli(['new',repo,'first-island'],false);
  cli(['build',source,output,'--product-only']);
 });
 // SA4: the loop's check step gives the default new project a passing verdict.

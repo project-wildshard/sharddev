@@ -16,7 +16,7 @@ import {installWildshard} from '../../src/test/helpers/install.ts';
 const parent=process.env.WS_PROOF_SCRATCH??tmpdir();mkdirSync(parent,{recursive:true});
 const root=mkdtempSync(join(parent,'offline-author-'));
 after(()=>rmSync(root,{recursive:true,force:true}));
-const bin=installWildshard(root),app=join(root,'app'),source=join(app,'walking-isle');
+const bin=installWildshard(root),app=join(root,'app'),repo=join(app,'walking-isle'),source=join(repo,'src');
 const cache={WILDSHARD_GEN_CACHE:join(root,'generation'),WILDSHARD_SHARDFILE_CACHE:join(root,'compiler')};
 function processRun(args,isolated=false){
  let command=process.execPath,arguments_=args;
@@ -36,7 +36,7 @@ function inventory(directory,prefix=''){
 }
 
 test('the installed author builds a real walking quest and warms its compiler',{timeout:120_000},()=>{
- cli(['new',source,'walking-isle','--empty']);
+ cli(['new',repo,'walking-isle','--empty']);
  writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sdk/author';
  const world=emptyShardfile({slug:'walking-isle',name:'Walking isle',author:'Outside author',seed:1,revision:1});
  export default {...world,quests:{flags:['walk.arrived','walk.complete'],quests:[{id:'walk.quest',title:'Reach the marker',track:false,

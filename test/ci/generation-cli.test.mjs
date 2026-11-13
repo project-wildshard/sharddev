@@ -23,7 +23,7 @@ test(
         },
       )
       assert.equal(child.status, 0, child.stderr)
-      assert.ok(existsSync(resolve(output, 'shard.config.ts')))
+      assert.ok(existsSync(resolve(output, 'src/shard.config.ts')))
     } finally {
       rmSync(root, { recursive: true, force: true })
     }

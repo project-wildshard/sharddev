@@ -12,6 +12,7 @@ import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
 import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
 import type { Shardfile } from '@wildshard/engine/host/shardfile';
 import { buildProject } from './project';
+import { shardOutputRoot } from './shardSource';
 import { validateOutputProduct } from './outputProduct';
 import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
@@ -77,7 +78,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       const shard = await buildProject(project, output, { outputFormat: 2, client: null, placeholders: true, admit,
         ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }),
         ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
-      output ??= resolve(project, 'public/shardfiles', shard.identity.slug);
+      output ??= resolve(shardOutputRoot(project), 'public/shardfiles', shard.identity.slug);
       let file: string | undefined;
       // The draft warning goes in the verdict (below), so the writer leaves it out.
       try { file = await options.writeShardfile?.(output, project, { draftWarning: false }); }

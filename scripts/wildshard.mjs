@@ -14,6 +14,10 @@ import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
 import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-lines.mjs';
 import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { findShardSource, shardFolderName } from '../src/sharddev/shardSource.ts';
+
+/** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
+const SOURCE_VERBS = new Set(['check', 'synth', 'build', 'dev', 'validate', 'prove']);
 
 let runner;
 /** SA3 (J170): `build` and `check` end by writing the folder's shard file, the step `pack` was. It stays out of the author
@@ -61,16 +65,20 @@ export async function runWildshard(args) {
     return cli.runCli;
   })();
   const root = projectRoot();
+  // SA16 (J317): a repo path names its shard source at src/ (one shard) or its one src/shards/<slug>/ (several).
+  if (SOURCE_VERBS.has(args[0] ?? '') && args[1] !== undefined && !args[1].startsWith('--')) args = [args[0], findShardSource(args[1]), ...args.slice(2)];
   const project = args[1] === undefined ? undefined : resolve(args[1]);
+  // The folder build checks the manifest slug against: a src/ source takes its manifest's slug (new <dir> <slug>).
+  const folder = project === undefined ? '' : shardFolderName(project);
   // SF88g: `--output=<slug>` builds one declared output of the folder, under its own slug and composed manifest
   const selected = args.find(arg => arg.startsWith('--output='))?.slice(9);
-  const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, basename(project))?.find(row => row.slug === selected);
+  const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, folder)?.find(row => row.slug === selected);
   if (selected !== undefined && output === undefined) throw new Error(`wildshard: ${basename(project ?? '')} declares no output ${selected}`);
   const manifest = project === undefined || !['build', 'check', 'validate', 'prove'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
-    folder: output?.slug ?? basename(project), ...(output !== undefined ? { composed: outputManifest(root, basename(project), output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
-    imageRoots: [{ prefix: `/src/shards/${basename(project)}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
+    folder: output?.slug ?? folder, ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
+    imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
-  const legacy = project === undefined ? undefined : decisionLegacyLines(root, basename(project));
+  const legacy = project === undefined ? undefined : decisionLegacyLines(root, folder);
   await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }), writeShardfile });
 }
 

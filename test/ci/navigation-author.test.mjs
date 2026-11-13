@@ -16,7 +16,7 @@ const parent = process.env.WS_PROOF_SCRATCH ?? tmpdir();
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, 'navigation-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
-const bin = installWildshard(root), app = join(root, 'app'), source = join(app, 'marsh-road');
+const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'marsh-road'), source = join(repo, 'src');
 
 function run(args, success = true) {
   const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 8000,
@@ -72,7 +72,7 @@ async function navigation(directory) {
 }
 
 test('the installed author creates its real navigation project', { timeout: 9500 }, () => {
-  run(['new', source, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts')); config();
+  run(['new', repo, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts')); config();
 });
 
 test('an installed author builds a real wetland road with dry queries', { timeout: 9500 }, async () => {

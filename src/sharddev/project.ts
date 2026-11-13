@@ -2,7 +2,8 @@ import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
-import { writeNewProject } from './newProject';
+import { writeEmptyShardSource } from './newProject';
+import { shardOutputRoot } from './shardSource';
 import { assertConfigBoundary } from './configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI verifies and writes local build products.
@@ -267,7 +268,7 @@ export async function buildProject(project: string, output?: string, options: { 
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
   await options.admit?.(shard, assets, projectPerformancePolicy(project, shard), outputPlatformPayloads(loaded.output.platform));
   phase('simulation-admission');
-  const destination = output ?? resolve(project, 'public/shardfiles', shard.identity.slug);
+  const destination = output ?? resolve(shardOutputRoot(project), 'public/shardfiles', shard.identity.slug);
   const clientPlan = shard.runtime !== null;
   if (options.copyRuntime === true || clientPlan) {
     const root = realpathSync(project), target = resolve(destination);
@@ -323,4 +324,5 @@ async function withDiscovery(project: string, manifest: unknown, values: Discove
     {url: discoveryUrl(folder), bytes: new TextEncoder().encode(`${packed.slice(0, -1)},"art":${JSON.stringify(Object.fromEntries(art))}}`)}]};
 }
 /** Create the runtime-free source layout without replacing existing work. */
-export function newProject(project: string, slug: string): void { writeNewProject(project, slug); }
+/** A bare shard source at `project` (`wildshard new --empty` writes the same one at a new repo's `src/`). */
+export function newProject(project: string, slug: string): void { writeEmptyShardSource(project, slug); }

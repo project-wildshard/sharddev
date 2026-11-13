@@ -20,7 +20,7 @@ const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDe
 const parent=process.env.WS_PROOF_SCRATCH??tmpdir();mkdirSync(parent,{recursive:true});
 const root=mkdtempSync(join(parent,'author-inputs-'));
 after(()=>rmSync(root,{recursive:true,force:true}));
-const bin=installWildshard(root),app=join(root,'app'),source=join(app,'input-isle');
+const bin=installWildshard(root),app=join(root,'app'),repo=join(app,'input-isle'),source=join(repo,'src');
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const identity={slug:'input-isle',name:'Input isle',author:'Outside author',seed:1,revision:1};
 let manifest;
@@ -40,7 +40,7 @@ const token=`const files=await ctx.cached({id:'token',inputs:['assets/token.bin'
  return {shard,output:{namedFiles:[blob.file],assets:new Map([[blob.file.hash,blob.bytes]])}};`;
 
 test('an outside author creates its input project',{timeout:45_000},()=>{
- cli(['new',source,'input-isle','--empty']);
+ cli(['new',repo,'input-isle','--empty']);
 });
 test('the author builds its initial product',{timeout:45_000},async()=>{
  await build('base');

@@ -31,6 +31,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   // new
   { id: 'new-target', anchor: 'new-target', steps: ['new'], match: /new requires a fresh directory and kebab-case slug/u,
     fix: 'Name a folder that does not exist yet and a kebab-case slug: `wildshard new my-isle`.' },
+  { id: 'new-template', anchor: 'new-template', steps: ['new'], match: /^new: unknown template |^new: --template blender is not built yet/u,
+    fix: 'Leave out --template, or pass `--template sdk`, the one template built today.' },
   { id: 'new-refused', anchor: 'new-refused', steps: ['new'],
     fix: 'Reinstall @wildshard/sdk (`pnpm install`); `new` copies the reference world shipped with it.' },
   // build

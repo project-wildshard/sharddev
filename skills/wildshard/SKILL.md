@@ -1,6 +1,6 @@
 ---
 name: wildshard
-description: The loop's order for a Wildshard shard repo (a folder with shard.config.ts and GUIDE.md, made by `wildshard new`), one GUIDE.md pointer per step. Use before any `wildshard` command or edit to its shard source - changing data, generators, behaviour scripts, assets or card; walking or checking it; fixing a refusal; capturing the hero; uploading to staging or production; sharing it.
+description: The loop's order for a Wildshard shard repo (a repo with src/shard.config.ts and GUIDE.md, made by `wildshard new`), one GUIDE.md pointer per step. Use before any `wildshard` command or edit to its shard source - changing data, generators, behaviour scripts, assets or card; walking or checking it; fixing a refusal; capturing the hero; uploading to staging or production; sharing it.
 ---
 
 # wildshard

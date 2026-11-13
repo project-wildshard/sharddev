@@ -16,7 +16,7 @@ const parent = process.env.WS_PROOF_SCRATCH ?? tmpdir();
 mkdirSync(parent, { recursive: true });
 const root = mkdtempSync(join(parent, 'installed-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
-const bin = installWildshard(root), app = join(root, 'app'), source = join(app, 'isle');
+const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'isle'), source = join(repo, 'src');
 let cache = 0;
 function run(args, success = true, environment = {}) {
   const done = spawnSync(process.execPath, [bin, ...args], {
@@ -49,8 +49,8 @@ test('the installed bin prints each verb\'s help in the glossary\'s words', { ti
   assert.match(run(['upload', '--help']).stdout, /shard file/u);
 });
 test('a packed CLI scaffolds outside its checkout and refuses overwriting it', { timeout: 9_500 }, () => {
-  run(['new', source, 'outside-isle', '--empty']);
-  run(['new', source, 'outside-isle', '--empty'], false);
+  run(['new', repo, 'outside-isle', '--empty']);
+  run(['new', repo, 'outside-isle', '--empty'], false);
 });
 // SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
 const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');

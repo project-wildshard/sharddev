@@ -12,9 +12,9 @@ test('a new reference project wears a generated card, not the template hero', ()
   try {
     writeReferenceProject(project, 'my-shard');
     for (const file of ['manifest.json', 'data/card.json']) {
-      const { card } = JSON.parse(readFileSync(resolve(project, file), 'utf8')) as { card: Record<string, string> };
+      const { card } = JSON.parse(readFileSync(resolve(project, 'src', file), 'utf8')) as { card: Record<string, string> };
       for (const url of Object.values(card)) expect(url.startsWith('data:image/svg+xml,')).toBe(true);
     }
-    expect(existsSync(resolve(project, 'card'))).toBe(false);
+    expect(existsSync(resolve(project, 'src/card'))).toBe(false);
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });

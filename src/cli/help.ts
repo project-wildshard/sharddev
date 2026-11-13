@@ -16,11 +16,13 @@ const PACK_ALIAS = `pack <folder> [--out <file>]
 
 /** Each verb's entry: its usage lines, then what it does, indented. */
 const VERBS: Readonly<Record<string, string>> = {
-  new: `new <dir> [slug] [--empty]
+  new: `new <dir> [slug] [--template sdk|blender] [--empty]
                        Start a shard repo in <dir>, a folder that does not
-                       exist yet, holding a shard source copied from the
-                       reference world (slug: the folder's name unless
-                       given). --empty writes a bare shard source instead`,
+                       exist yet, with its shard source at src/ (slug: the
+                       folder's name unless given). --template sdk (the
+                       default) copies the reference world; --template
+                       blender is not built yet. --empty writes a bare
+                       shard source instead`,
   dev: `dev <source> [port]
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on

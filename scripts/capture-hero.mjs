@@ -16,6 +16,7 @@ import { existsSync, readFileSync, renameSync, rmSync, writeFileSync } from 'nod
 import { basename, dirname, join, resolve } from 'node:path';
 import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
+import { findShardSource, shardFolderName } from '../src/sharddev/shardSource.ts';
 
 const SCALE = 2;
 const VIEWS = { portrait: { width: 402, height: 813 }, landscape: { width: 800, height: 450 }, thumb: { width: 320, height: 180 } };
@@ -63,7 +64,7 @@ export async function captureHero(shard, base, { name = servedName(shard), log =
     import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
   const files = await heroSlotFiles(shard);
   const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined);
-  if (missing.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${missing.join(', card.')} must name a file in the shard folder (e.g. /src/shards/${basename(shard)}/card/${missing[0]}.jpg), not a data: url`);
+  if (missing.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${missing.join(', card.')} must name a file in the shard folder (e.g. /src/shards/${shardFolderName(shard)}/card/${missing[0]}.jpg), not a data: url`);
   const stampFile = join(shard, 'hero.json');
   const camera = existsSync(stampFile) ? JSON.parse(readFileSync(stampFile, 'utf8')).camera : undefined;
   const errors = [], shots = {};
@@ -126,7 +127,8 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import
     console.error('       Use it ONLY when you have looked at those images and they show the current content; a wrong stamp hides a stale hero.');
     process.exit(2);
   }
-  const shard = resolve(dir);
+  // SA16 (J317): a repo path names its shard source at src/ or its one src/shards/<slug>/, as the other verbs do.
+  const shard = findShardSource(dir);
   if (!existsSync(join(shard, 'manifest.json'))) throw new Error(`${shard}: no manifest.json`);
   if (adopt) console.warn('hero: --stamp-existing: NO capture. Stamping the images already there as showing this content. Only right if they do.');
   const stamp = adopt ? await stampExistingHero(shard) : { written: true, ...(await captureHero(shard, base)) };

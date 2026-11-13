@@ -2,7 +2,7 @@
 import { basename, dirname, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
-import { buildProject, newProject, readProjectAssets, validateProject } from './project';
+import { buildProject, readProjectAssets, validateProject } from './project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/engine/host/shardfile';
 import { devProject } from './dev';
 import { proveAuthorSimulation, measureSimulation, validateSimulation } from '@wildshard/engine/host/headless';
@@ -20,7 +20,8 @@ import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
-import { writeReferenceProject } from './newProject';
+import { templateNamed, writeShardRepo } from './newProject';
+import { findShardSource, shardOutputRoot } from './shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
 import { refusalHint, refusalNote, type RefusalStep } from './refusals';
@@ -46,8 +47,12 @@ async function writeShardfileOf(options: CliOptions, folder: string, source: str
   try { await options.writeShardfile?.(folder, source); }
   catch (error) { throw new ShardfileRefusalError(error instanceof Error ? error.message : String(error), { cause: error }); }
 }
+/** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
+const SOURCE_VERBS: ReadonlySet<string> = new Set(['check', 'synth', 'build', 'dev', 'validate', 'prove']);
 interface CliOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: ShardfileWriter }
-async function runCommand(args: readonly string[], options: CliOptions): Promise<void> {
+async function runCommand(given: readonly string[], options: CliOptions): Promise<void> {
+  // SA16 (J317): a verb given a repo finds its shard source at `src/` or its one `src/shards/<slug>/`.
+  const args = SOURCE_VERBS.has(given[0] ?? '') && given[1] !== undefined && !given[1].startsWith('--') ? [given[0] ?? '', findShardSource(given[1]), ...given.slice(2)] : given;
   const [command, input, output, buildFlag] = args;
   if (command === 'schema') {
     if (buildFlag !== undefined) throw new Error('usage: wildshard schema [list|shardfile|root] [JSON-pointer]');
@@ -70,7 +75,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     const saved = { info: console.info, warn: console.warn }, toError = console.error.bind(console);
     if (json) Object.assign(console, { info: toError, warn: toError });
     let result;
-    try { result = await checkProject(positional[0] ?? '', positional[1], options); } finally { Object.assign(console, saved); }
+    try { result = await checkProject(findShardSource(positional[0] ?? ''), positional[1], options); } finally { Object.assign(console, saved); }
     process.stdout.write(json ? `${JSON.stringify(result, null, 2)}\n` : `${checkLines(result).join('\n')}\n`);
     if (result.verdict === 'fail') process.exitCode = 1;
     return;
@@ -82,11 +87,22 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     console.info(`synthesized ${result.path} (${result.hash})`); return;
   }
   if (command === 'new') {
-    const newArguments = args.slice(2), names = newArguments.filter(value => !value.startsWith('--'));
-    if (names.length > 1 || newArguments.some(value => value.startsWith('--') && value !== '--empty') || newArguments.filter(value => value === '--empty').length > 1) throw new Error('usage: wildshard new <dir> [slug] [--empty]');
+    // SA16: `--template <name>` (or `--template=<name>`) picks the template; a flag only, never a prompt; default sdk.
+    const newArguments = args.slice(2), names: string[] = [], templates: string[] = [];
+    let empty = 0, unknown = false;
+    for (let index = 0; index < newArguments.length; index += 1) {
+      const value = newArguments[index] ?? '';
+      if (value === '--empty') empty += 1;
+      else if (value === '--template') { const name = newArguments[index + 1]; if (name === undefined || name.startsWith('--')) unknown = true; else templates.push(name); index += 1; }
+      else if (value.startsWith('--template=')) templates.push(value.slice('--template='.length));
+      else if (value.startsWith('--')) unknown = true;
+      else names.push(value);
+    }
+    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk|blender] [--empty]');
+    // An unknown template refuses here, before anything is written.
+    const template = templateNamed(templates[0] ?? 'sdk');
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
-    if (newArguments.includes('--empty')) newProject(resolve(input), slug);
-    else writeReferenceProject(resolve(input), slug);
+    writeShardRepo(resolve(input), slug, { template, empty: empty === 1 });
     return;
   }
   if (command === 'dev') {
@@ -112,7 +128,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     if (flags.filter(flag => flag.startsWith('--output=')).length > 1 || flags.length !== new Set(flags).size || flags.filter(flag => flag.startsWith('--map=')).length > 1 || flags.filter(flag => flag.startsWith('--map-tiles-hash=')).length > 1 || flags.filter(flag => flag.startsWith('--generated-map-tiles-hash=')).length > 1 || mapSourceHash !== undefined && mapPath !== undefined || ((mapPath === undefined) !== (tilesHash === undefined))) throw new Error('unknown or incomplete build map flag');
     const map = mapPath === undefined || tilesHash === undefined ? undefined : { bytes: readBoundedFile(resolve(mapPath), STILL_IMAGE_LIMITS.bytes), tilesHash };
     const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: admitBuild }); console.info(`built ${shard.identity.slug} v${shard.version}`);
-    if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(input, 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
+    if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(shardOutputRoot(resolve(input)), 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
     return;
   }
   if (command === 'prove') {
