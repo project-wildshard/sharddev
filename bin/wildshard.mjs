@@ -15,6 +15,10 @@ if (AUTHOR.has(command)) {
   const script = resolve(import.meta.dirname, '../scripts/prepare-product.mjs');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
+} else if (command === 'hero') {
+  const script = resolve(import.meta.dirname, '../scripts/capture-hero.mjs');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
 } else if (command === 'build-shards') {
   const script = resolve(import.meta.dirname, '../scripts/build-shardfiles.mjs');
   process.argv.splice(1, 2, script);

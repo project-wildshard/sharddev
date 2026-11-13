@@ -52,6 +52,26 @@ laws against those artifacts. It does not select an ABI2 product, change
 the wire or replace the shipping compiler. The content repo owns the
 fixture and its explicit CI-only, sub-ten-second runner.
 
+## Hero freshness
+
+A shard's hero (its SHARD SELECT card: thumb 640x360, portrait 804x1626,
+landscape 1600x900) is a picture of its world. `src/shards/<name>/hero.json`
+records the hash of the shard's content when the hero was captured, and
+`wildshard pack` refuses a product whose source now hashes differently, or
+whose card names image files with no stamp. A generated `data:` card and a
+product with no `src/shards/<name>` source pass with a note.
+
+Rendering needs a real GPU and a served build of the exact candidate, so it
+is a separate command, not a pack step. Serve the candidate in an engine
+build (`scripts/serve-build.sh --shard <slug>`), then, from the shard
+project root, run
+`pnpm exec wildshard hero src/shards/<name> --base <served-build-url>`.
+It enters the shard through SHARD SELECT in headless Chromium (Metal),
+shoots the view `hero.json`'s `camera` declares (engine
+`scripts/hero-shots.mjs`'s view shape) or else the spawn view, writes the
+three files the manifest's card names, and re-stamps `hero.json`. Hero
+files, the stamp, tests and generated files are not content.
+
 ## J198 preparation
 
 After building a candidate, serve that exact product in an engine preview.

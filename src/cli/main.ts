@@ -37,7 +37,13 @@ Commands:
                        required cook lists and validate the prepared output
   pack <product> [--out <file>]
                        Tar a built product folder into a shardfile and check
-                       it as api-server will. Writes <slug>.tar by default
+                       it as api-server will. Writes <slug>.tar by default.
+                       Refuses a shard whose captured hero is older than its
+                       content (src/shards/<name>/hero.json)
+  hero <shard-dir> --base <served-build-url>
+                       Capture the shard's hero (thumb, portrait, landscape)
+                       in headless Chromium from a served build of this
+                       candidate, and stamp hero.json with its content
   upload <shardfile> [--server <url>] [--level <n>]
          [--version <X.Y.Z>] [--commit <sha>]
                        Check a shardfile tarball, compress it (Brotli level

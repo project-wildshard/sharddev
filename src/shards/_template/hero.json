@@ -1,0 +1,10 @@
+{
+  "content": "6e15367377e66c650376172ba45f8787ac9ba9b0340f5aadbb40ec1ca542446b",
+  "captured": "2026-11-12T22:39:00.000Z",
+  "base": "opus-hero hand capture from engine served Template rev 2 (meta QA-FEEDBACK 2026-11-12 row 29); stamped by opus-herocap after a wildshard hero run on 127.0.0.1:4400 matched this content",
+  "card": {
+    "card/thumb.jpg": "45403418079fdd33d3473f3a3f99ae4e480f005bb076cf23563a5b729769e473",
+    "card/portrait.jpg": "72d07243d0617403cf9ab1daa0bc54ab310ce6855675f112f739127572994648",
+    "card/landscape.jpg": "ea36bb67047ce0ce9d4fdaffdcf1e2b153eaf1256c4a765abb098ccd735042d2"
+  }
+}

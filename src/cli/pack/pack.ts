@@ -4,6 +4,7 @@ import path from 'node:path'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { assertHeroCurrent } from '../hero/hero.ts'
 import { validateShardfile } from '../upload/validate.ts'
 
 // `wildshard pack` (C0, J137): a built product folder becomes the one tarball
@@ -121,13 +122,22 @@ async function writeAtomically(
   }
 }
 
-/** Tar the product, check the tarball, then write it; a refusal writes none. */
-async function packProduct(options: PackOptions): Promise<PackOutcome> {
+/** Check the hero is as new as the content, tar the product, check the tarball. */
+async function checkedTarball(
+  options: PackOptions,
+): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
+  await assertHeroCurrent(options.dir, options.report)
   const { tarball, fileCount } = await tarOf(options.dir)
-  const bytes = tarball.length
   const { slug, name } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
-  reportOverCap(options, bytes)
+  reportOverCap(options, tarball.length)
+  return { tarball, slug }
+}
+
+/** Check the product, then write its tarball; a refusal writes none. */
+async function packProduct(options: PackOptions): Promise<PackOutcome> {
+  const { tarball, slug } = await checkedTarball(options)
+  const bytes = tarball.length
   const file = options.out ?? `${slug}.tar`
   const hash = sha256(tarball)
   await writeAtomically(file, tarball)

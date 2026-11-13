@@ -11,7 +11,7 @@ export function writeReferenceProject(project: string, slug: string): void {
   // The trusted CLI bundle defines dirname as its installed source directory.
   const template = resolve(import.meta.dirname, '../shards/_template');
   cpSync(template, project, { recursive: true, errorOnExist: true, force: false,
-    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) && source !== resolve(template, 'card') });
+    filter: source => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(source) && source !== resolve(template, 'card') && source !== resolve(template, 'hero.json') });
   const card: unknown = JSON.parse(readFileSync(resolve(project, 'manifest.json'), 'utf8'));
   if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project manifest is missing');
   // The template's card is Mossgate's own in-engine hero (template/card/): a new project wears a generated card until its
