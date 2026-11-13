@@ -5,6 +5,30 @@ import { resolve } from 'node:path';
 import { encodeCanonicalJson } from './immutable';
 import { authorCard } from './authorManifest';
 
+/**
+ * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
+ * pnpm 10 runs none by default. `allowBuilds` is the list our pinned pnpm 10.34.9 reads and `pnpm approve-builds` writes;
+ * pnpm 10.21 ignores it and so runs none at all. Nothing a new shard installs needs a script today: the list starts empty.
+ * The pnpm pin itself belongs in the `package.json` SA16 writes. Proved by hand (SA39 receipt): an unlisted postinstall
+ * never ran and `pnpm ignored-builds` named it; `esbuild: true` let esbuild's run.
+ */
+export const INSTALL_SCRIPT_POLICY = `packages:
+  - .
+
+# Install scripts (SA39): a dependency runs its preinstall, install or postinstall
+# script only when it is listed \`true\` below. Wildshard's own packages need none.
+# pnpm skips any other package's script and names it after \`pnpm install\`; allow
+# one with \`pnpm approve-builds\` (or \`name: true\` here) only if you trust it.
+# pnpm 10.34 or later reads this list; pnpm 10.0 to 10.33 runs no script at all;
+# pnpm 9, npm and yarn run every script, so install with pnpm 10.34 or later.
+allowBuilds: {}
+`;
+
+/** Write the project's pnpm install-script allowlist. */
+function writeInstallScriptPolicy(project: string): void {
+  writeFileSync(resolve(project, 'pnpm-workspace.yaml'), INSTALL_SCRIPT_POLICY);
+}
+
 /** Copy the shipped teaching world; generation and gameplay remain authored there. */
 export function writeReferenceProject(project: string, slug: string): void {
   if (!/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/u.test(slug) || existsSync(project)) throw new Error('new requires a fresh directory and kebab-case slug');
@@ -22,6 +46,7 @@ export function writeReferenceProject(project: string, slug: string): void {
   writeFileSync(resolve(project, 'data/card.json'), manifest);
   writeFileSync(resolve(project, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
   writeFileSync(resolve(project, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
+  writeInstallScriptPolicy(project);
 }
 
 /** Write the runtime-free reference layout. An existing directory is never changed. */
@@ -33,6 +58,7 @@ export function writeNewProject(project: string, slug: string): void {
   writeFileSync(resolve(project, 'data/world.ts'), `import { emptyShardfile } from '@wildshard/sdk/author';\nimport { IDENTITY } from './card';\n\n/** Build-only declaration; the CLI emits its platform sections as JSON. */\nexport const WORLD = emptyShardfile(IDENTITY);\n`);
   writeFileSync(resolve(project, 'generators/product.ts'), `import { WORLD } from '../data/world';\n\n// oxlint-disable-next-line import/no-default-export -- The documented build entry imports this declaration.\nexport default WORLD;\n`);
   writeFileSync(resolve(project, 'generators/output.ts'), `import type { ProjectOutput } from '@wildshard/sdk/projectOutput';\n\n/** Build-only named blobs and platform sections, read automatically by the CLI. */\nexport const output = {} satisfies ProjectOutput;\n`);
+  writeInstallScriptPolicy(project);
   writeFileSync(resolve(project, 'shard.config.ts'), `import product from './generators/product';\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
   writeFileSync(resolve(project, 'README.md'), `# ${slug}
 
