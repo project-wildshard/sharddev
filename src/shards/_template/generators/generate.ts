@@ -2,7 +2,7 @@ import { templateProduct } from './product';
 import { templateTerrain } from './terrain';
 import { templatePropRows } from './props';
 import type { ProjectGenerationContext, GeneratedProject } from '@wildshard/sdk/projectGeneration';
-import { parseShardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile } from '@wildshard/format/shardSchema';
 import { templateBehaviour } from './behaviour';
 import { templateBoss, TEMPLATE_BOSS_INPUTS } from './boss';
 import { templateOutput } from './productOutput';

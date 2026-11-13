@@ -194,7 +194,7 @@
       "rules": {
         // G8: generated JSON imports are at zero; keep the existing rule hard.
         "wildshard/no-generated-json-import": "error",
-        // SA6 (J170, J317): the SDK's rule (lint/sdk-plugin.mjs); format and node:* are allowed, every hit paid to zero
+        // SA6/SA38 (J170, J317, J319): the SDK rule (lint/sdk-plugin.mjs); generators deny only Wildshard cheats
         "wildshard-sdk/generator-imports": "error",
         "wildshard/no-url-switch": "error", "wildshard/no-inline-ui-string": "error", "wildshard/no-authored-html": "error",
         // E362 AG16: zero stays zero in editors and the ordinary lint gate too.

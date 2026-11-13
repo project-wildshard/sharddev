@@ -25,3 +25,21 @@ Meta SHARD-AUTHORING SA6 (J170, J317).
   (`@wildshard/sdk/bake/generatorGlb`) now does that: `newGlbDocument`,
   `readGlb` (every extension, meshopt decoded) and `writeGlb` (written as
   it stands, the same bytes the generator wrote before).
+
+## Generators get a denylist (opus-gendeny)
+
+Meta SHARD-AUTHORING SA38 (J319: "generators … are arbitrary node.js
+code … only validate and lint that they don't cheat").
+
+- In `generators/` the rule now refuses only the cheats: `@wildshard/engine`
+  (host too), sdk subpaths outside `package.json` `exports`, another
+  shard's source (path, `file:` URL or `@wildshard/shard-*` package), and a
+  second `three` (`three/src`, `three/build`, `require('three')`).
+  Everything else passes. `data/`, `quests/`, `shard.config.ts` keep the
+  allowlist, minus `engine/host`.
+- Shard repos stay on their pin: their generators import
+  `@wildshard/engine/host/immutable` and `/shardfile`, which the new rule
+  refuses; they move to `@wildshard/sdk/immutable` and
+  `@wildshard/format/shardSchema` with the pin bump.
+- Not visible to a lint, left for later: `#` imports, tsconfig `paths`,
+  `createRequire`, an aliased `three`, `three/webgpu`.

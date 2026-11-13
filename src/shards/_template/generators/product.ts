@@ -1,6 +1,6 @@
 import TEMPLATE_DIRECTORS from '../data/director.json' with { type: 'json' };
 import { emptyShardfile } from '@wildshard/sdk/author';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import type { templateTerrain } from './terrain';
 import type { TemplateBehaviour } from './behaviour';
 import type { BakedProps } from '@wildshard/sdk/bake/props';

@@ -1,5 +1,5 @@
 import { emptyShardfile } from '@wildshard/sdk/author';
-import { parseShardfile, type Shardfile } from '@wildshard/engine/host/shardfile';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { parseRows } from '@wildshard/sdk/rows';
 import { parsePlumbing } from '@wildshard/sdk/plumbing';
 import { parseLedgerRules } from '@wildshard/sdk/ledger';
