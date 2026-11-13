@@ -7,19 +7,23 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
-## Unreleased
+## v0.2.6 (2026-11-13)
 
 - Fix: `wildshard update --pins` now works on the shard repos that
-  list the sdk as `@wildshard/sharddev`, whether by a GitHub commit
-  pin or an `npm:@wildshard/sdk@<version>` alias. It keeps that name
-  and form: a GitHub commit pin moves to the commit of the release's
-  `v<version>` tag. `wildshard update` takes those repos too.
+  list the sdk as `@wildshard/sharddev`, by a GitHub commit or tag pin
+  or an `npm:@wildshard/sdk@<version>` alias. It keeps the repo's sdk
+  name and pin style: a commit pin moves to the commit the release's
+  `v<version>` tag names, a tag pin moves to the new tag. If that
+  release has no tag on GitHub, it refuses and tells you to pin
+  `npm:@wildshard/sdk@<version>` instead. `wildshard update` takes
+  those repos too.
 - Fix: `update --pins` now also moves the `pnpm.overrides` entries
-  for the packages it moves (shard-format in every shard repo), so
-  the old format no longer stays installed.
-- The long `wildshard cache counters` line no longer ends every run;
-  set `WILDSHARD_CACHE_REPORT=1` to see it.
-- To upgrade from any sdk, run the newest CLI once:
+  for the packages it moves (such as `@wildshard/format`), so the old
+  version no longer stays installed.
+- Fix: the long `wildshard cache counters` line no longer ends every
+  `wildshard` command; set `WILDSHARD_CACHE_REPORT=1` to see it.
+- To upgrade from sdk 0.2.4 or later, commit your work, then run the
+  newest CLI once (older CLIs cannot do this move themselves):
   `pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins`.
   GUIDE.md and the `wildshard-upgrade` skill now start there.
 
