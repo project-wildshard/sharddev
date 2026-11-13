@@ -5,7 +5,7 @@
   "$schema": "./node_modules/oxlint/configuration_schema.json",
   "plugins": ["typescript", "unicorn", "oxc", "import", "promise"],
   // Wildshard's own rules (lint/wildshard-plugin.js): wildshard/no-url-switch, on for src/ in `overrides` below.
-  "jsPlugins": ["./node_modules/@wildshard/engine/lint/wildshard-plugin.js"],
+  "jsPlugins": ["./node_modules/@wildshard/engine/lint/wildshard-plugin.js", "./lint/sdk-plugin.mjs"],
   "options": {
     "typeAware": false, // typescript/no-floating-promises, no-unsafe-*, prefer-nullish-coalescing, ... via oxlint-tsgolint (TS 7)
     "denyWarnings": true,
@@ -183,7 +183,6 @@
         "wildshard/shard-sandbox": ["error", {"ratchet": true}],
         "wildshard/shard-game-imports": ["error", {"ratchet": true}],
         "wildshard/shard-game-plugins": ["error", {"ratchet": true}],
-        "wildshard/generator-imports": ["error", {"ratchet": true}],
         "wildshard/shard-engine-imports": ["error", {"ratchet": true}],
         "wildshard/sdk-no-facade": ["error", {"ratchet": true}]
       }
@@ -195,6 +194,8 @@
       "rules": {
         // G8: generated JSON imports are at zero; keep the existing rule hard.
         "wildshard/no-generated-json-import": "error",
+        // SA6 (J170, J317): the SDK's rule (lint/sdk-plugin.mjs); format and node:* are allowed, every hit paid to zero
+        "wildshard-sdk/generator-imports": "error",
         "wildshard/no-url-switch": "error", "wildshard/no-inline-ui-string": "error", "wildshard/no-authored-html": "error",
         // E362 AG16: zero stays zero in editors and the ordinary lint gate too.
         "wildshard/no-shard-branch": "error",
