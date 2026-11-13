@@ -33,16 +33,24 @@ function writeInstallScriptPolicy(project: string): void {
 /** SA13 (J314): the author's manual at the package root, shipped by `files`; `new` copies it into every project. */
 export const GUIDE_SOURCE: string = resolve(import.meta.dirname, '../../GUIDE.md');
 
-/** SA14 (J314): the `wildshard` skill at the package's `skills/`, shipped by `files`; `new` copies it for Claude Code. */
-export const SKILL_SOURCE: string = resolve(import.meta.dirname, '../../skills/wildshard/SKILL.md');
-/** Where a project keeps the skill: Claude Code lists project skills from `.claude/skills/<name>/SKILL.md`. */
-export const SKILL_FILE = '.claude/skills/wildshard/SKILL.md';
+/** SA14, SA27 (J314 Q6): the core `wildshard` skill and its three siblings, at the package's `skills/`, shipped by `files`. */
+export const SKILLS = ['wildshard', 'wildshard-mockup-to-model', 'wildshard-goldens', 'wildshard-upgrade'] as const;
+export type SkillName = (typeof SKILLS)[number];
+/** A skill's file in the installed sdk. */
+export const skillSource = (name: SkillName): string => resolve(import.meta.dirname, `../../skills/${name}/SKILL.md`);
+/** Where a project keeps a skill: Claude Code lists project skills from `.claude/skills/<name>/SKILL.md`. */
+export const skillFile = (name: SkillName): string => `.claude/skills/${name}/SKILL.md`;
+/** The core `wildshard` skill (SA14). */
+export const SKILL_SOURCE: string = skillSource('wildshard');
+export const SKILL_FILE: string = skillFile('wildshard');
 
-/** Copy the installed sdk's GUIDE.md and `wildshard` skill into the project, byte for byte. */
+/** Copy the installed sdk's GUIDE.md and the four `wildshard` skills into the project, byte for byte. */
 function writeGuide(project: string): void {
   cpSync(GUIDE_SOURCE, resolve(project, 'GUIDE.md'));
-  mkdirSync(resolve(project, '.claude/skills/wildshard'), { recursive: true });
-  cpSync(SKILL_SOURCE, resolve(project, SKILL_FILE));
+  for (const name of SKILLS) {
+    mkdirSync(resolve(project, `.claude/skills/${name}`), { recursive: true });
+    cpSync(skillSource(name), resolve(project, skillFile(name)));
+  }
 }
 
 /** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is shard-format's
@@ -144,7 +152,10 @@ sends that file to a channel.
 
 Start with \`GUIDE.md\`, the author's manual: section 1 is the loop (new, dev,
 check, hero, upload), section 2 this layout. The \`wildshard\` skill in
-\`.claude/skills/\` gives an agent the same loop.
+\`.claude/skills/\` gives an agent the same loop; its siblings there make a
+model from a picture (\`wildshard-mockup-to-model\`), refresh the hero and
+proof tape (\`wildshard-goldens\`) and move to a newer sdk
+(\`wildshard-upgrade\`).
 
 \`\`\`sh
 pnpm install

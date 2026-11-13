@@ -34,7 +34,7 @@ repo's one `src/shards/<slug>/`).
 
 | # | Step | Command | Today |
 |---|---|---|---|
-| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide and the `wildshard` skill |
+| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide and the four `wildshard` skills |
 | 2 | Walk it | `wildshard dev .` | **Not built yet (SA15).** See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works only with an engine checkout: it needs your shard in a served engine build. See "The hero" below |
@@ -179,7 +179,7 @@ At the repo root, around `src/`:
 | `tsconfig.json`, `.npmrc`, `.gitignore` | TypeScript settings for `src/`; exact versions for `pnpm add`; what git leaves out (build output, `node_modules/`) | No |
 | `README.md`, `GUIDE.md` | This repo's README, and this guide | No |
 | `pnpm-workspace.yaml` | pnpm's install-script allowlist (SA39): a dependency's install script runs only if listed | No |
-| `.claude/skills/wildshard/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide | No |
+| `.claude/skills/wildshard*/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide; and its siblings (SA27): `wildshard-mockup-to-model` (a picture to a model), `wildshard-goldens` (refresh the hero and proof tape), `wildshard-upgrade` (move to a newer sdk) | No |
 | `public/shardfiles/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
 
 **Two files to change together.** `src/manifest.json` and `src/data/card.json` hold the same card: `new` writes
@@ -780,12 +780,11 @@ Code the headless simulation imports must not render.
 
 ## 7. `wildshard update`
 
-**Not built yet (SA28).** `new` writes the `wildshard` skill (SA14) but no `AGENTS.md` and no sibling skills yet (SA27,
-SA28). `wildshard update` will rewrite this guide and the four `wildshard` skills in `.claude/skills/` from the
+**Not built yet (SA28).** `new` writes the four `wildshard` skills (SA14, SA27) but no `AGENTS.md` yet (SA28). `wildshard update` will rewrite this guide and the four `wildshard` skills in `.claude/skills/` from the
 installed sdk, and touch nothing else; it will leave an `AGENTS.md` you changed and say so. `wildshard update --pins` (SA18, after the sdk is on npm)
 will also move the sdk, shard-format and `three` versions, install, apply the release's code changes and run the
 build.
 
 Until then: after you move to a newer sdk, copy `GUIDE.md` from the sdk (the sharddev checkout's root, or
-`node_modules/@wildshard/sdk/GUIDE.md` once installed from npm) over this one, and the sdk's
-`skills/wildshard/SKILL.md` over `.claude/skills/wildshard/SKILL.md`.
+`node_modules/@wildshard/sdk/GUIDE.md` once installed from npm) over this one, and each of the sdk's
+`skills/wildshard*/SKILL.md` over `.claude/skills/<same name>/SKILL.md`. The `wildshard-upgrade` skill walks it.

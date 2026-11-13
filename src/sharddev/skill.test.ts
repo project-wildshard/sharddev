@@ -1,50 +1,74 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Read the shipped skill and guide, and scaffold projects into a scratch folder.
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
+// oxlint-disable-next-line import/no-nodejs-modules -- Read the shipped skills and guide, and scaffold projects into a scratch folder.
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { GUIDE_SOURCE, SKILL_FILE, SKILL_SOURCE, writeNewProject, writeReferenceProject } from './newProject';
+import { GUIDE_SOURCE, SKILL_FILE, SKILL_SOURCE, SKILLS, skillFile, skillSource, writeNewProject, writeReferenceProject, writeShardRepo } from './newProject';
 
-// SHARD-AUTHORING SA14 (J314): the `wildshard` skill is the loop's order, one pointer into GUIDE.md per step.
+// SHARD-AUTHORING SA14, SA27 (J314 Q6): the core `wildshard` skill is the loop's order, one pointer into GUIDE.md per
+// step; its three siblings are as short and point into GUIDE.md the same way.
 const ROOT = resolve(import.meta.dirname, '../..');
 const skill = readFileSync(SKILL_SOURCE, 'utf8');
 const guide = readFileSync(GUIDE_SOURCE, 'utf8');
+const skills = new Map(SKILLS.map(name => [name, readFileSync(skillSource(name), 'utf8')]));
 
 /** GitHub's anchor for a heading: lower case, punctuation dropped, spaces to hyphens (as guide.test.ts). */
 const slug = (heading: string): string => heading.toLowerCase().replaceAll(/[^\w\s-]/gu, '').trim().replaceAll(/\s/gu, '-');
 const anchors = new Set([...guide.matchAll(/^#{1,6} (.+)$/gmu)].map(match => slug(match[1] ?? '')));
-/** Every concrete `GUIDE.md#anchor` the skill names; `<anchor>` placeholders are not pointers. */
-const pointers = [...skill.matchAll(/GUIDE\.md#([a-z0-9-]+)/gu)].map(match => match[1] ?? '');
+/** Every concrete `GUIDE.md#anchor` a skill names; `<anchor>` placeholders are not pointers. */
+const pointersOf = (text: string): string[] => [...text.matchAll(/GUIDE\.md#([a-z0-9-]+)/gu)].map(match => match[1] ?? '');
+const pointers = pointersOf(skill);
 
-describe('the wildshard skill', () => {
-  it('is a Claude Code skill named wildshard, under 80 lines', () => {
-    expect(skill).toMatch(/^---\nname: wildshard\ndescription: .*shard repo.*\n---\n/u);
-    expect(skill.split('\n').length).toBeLessThan(80);
+describe('the wildshard skills', () => {
+  it('ships exactly the four skills in skills/', () => {
+    expect(readdirSync(resolve(ROOT, 'skills')).toSorted()).toEqual([...SKILLS].toSorted());
   });
 
-  it('points every loop step into a GUIDE.md heading that exists', () => {
+  it.each(SKILLS)('%s is a Claude Code skill of that name, under 80 lines', name => {
+    const text = skills.get(name) ?? '';
+    expect(text).toMatch(new RegExp(`^---\\nname: ${name}\\ndescription: .*\\n---\\n`, 'u'));
+    expect(text.split('\n').length).toBeLessThan(80);
+  });
+
+  it.each(SKILLS)('%s points only at GUIDE.md headings that exist', name => {
+    const named = pointersOf(skills.get(name) ?? '');
+    expect(named.length).toBeGreaterThanOrEqual(5);
+    expect(named.filter(anchor => !anchors.has(anchor)), `${name} pointers with no GUIDE.md heading`).toEqual([]);
+  });
+
+  it.each(SKILLS)('%s keeps to the glossary', name => {
+    const text = skills.get(name) ?? '';
+    expect(text).not.toMatch(/\bproducts?\b|\bcook|\bpublish/iu);
+    expect(text).toMatch(/shard source/u);
+  });
+
+  it('wildshard: every loop step points into GUIDE.md, in order', () => {
     expect(pointers.length).toBeGreaterThanOrEqual(8);
-    expect(pointers.filter(anchor => !anchors.has(anchor)), 'skill pointers with no GUIDE.md heading').toEqual([]);
     const steps = skill.split(/^## The loop, in order$/mu)[1]?.split(/^## /mu)[0] ?? '';
     const loop = [...steps.matchAll(/^\d+\. \*\*(.+?)\*\*:(.*(?:\n {3}.*)*)/gmu)];
     expect(loop.map(step => step[1])).toEqual(['new', 'dev', 'check', 'hero', 'prepare', 'upload --channel staging', 'upload --channel prod', 'share']);
     for (const step of loop) expect(step[2], `step ${step[1] ?? ''} has no GUIDE.md pointer`).toMatch(/GUIDE\.md#[a-z0-9-]+/u);
   });
 
-  it('keeps to the glossary and marks what is not built yet as the guide does', () => {
-    expect(skill).not.toMatch(/\bproducts?\b|\bcook|\bpublish/iu);
+  it('marks what is not built yet as the guide does', () => {
     expect(skill).toMatch(/Not built yet \(SA15\)/u);
     expect(skill).toMatch(/not built yet \(SA36, SA37\)/u);
+    // J314 Q27 retired the verb `upgrade`; the pin move is `update --pins` (SA18), not built yet.
+    expect(skills.get('wildshard-upgrade')).toMatch(/`wildshard update --pins` is not built yet \(SA18\)/u);
   });
 
-  it('ships in the package and is written by new, byte for byte', () => {
+  it('ships in the package and is written by new, byte for byte, for every template', () => {
     const files = (JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')) as { files: string[] }).files;
     expect(files).toContain('skills');
     const scratch = mkdtempSync(resolve(ROOT, 'tmp', 'skill-new-'));
     try {
       writeReferenceProject(resolve(scratch, 'my-shard'), 'my-shard');
       writeNewProject(resolve(scratch, 'bare-shard'), 'bare-shard');
-      for (const project of ['my-shard', 'bare-shard']) expect(readFileSync(resolve(scratch, project, SKILL_FILE), 'utf8')).toBe(skill);
+      writeShardRepo(resolve(scratch, 'clay-hall'), 'clay-hall', { template: 'blender' });
+      for (const project of ['my-shard', 'bare-shard', 'clay-hall']) {
+        expect(readFileSync(resolve(scratch, project, SKILL_FILE), 'utf8')).toBe(skill);
+        for (const name of SKILLS) expect(readFileSync(resolve(scratch, project, skillFile(name)), 'utf8'), `${project} ${name}`).toBe(skills.get(name));
+      }
     } finally { rmSync(scratch, { recursive: true, force: true }); }
   });
 });
