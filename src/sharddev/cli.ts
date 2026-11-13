@@ -128,7 +128,19 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     const port = output === undefined ? 0 : Number(output);
     if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('dev port must be 0..65535');
     const server = await devProject(resolve(input), { port, client: await devClient(), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }) });
-    const close = (): void => { void server.close(); }; process.once('SIGINT', close); process.once('SIGTERM', close);
+    // SD-6: a signal handler replaces Node's default exit, so the handler ends the process itself: free the port and the
+    // build products, then exit 0 (exit drops the watchers and any rebuild still running). A second signal exits at once.
+    let stopping = false;
+    const stop = async (): Promise<void> => {
+      // oxlint-disable-next-line unicorn/no-process-exit -- a second Ctrl-C ends `dev` without waiting for the first.
+      if (stopping) process.exit(0);
+      stopping = true;
+      try { await server.close({ exiting: true }); } catch (error) { console.error(`wildshard dev: ${error instanceof Error ? error.message : String(error)}`); }
+      // oxlint-disable-next-line unicorn/no-process-exit -- the signal handler replaced Node's default exit; ending is its job.
+      process.exit(0);
+    };
+    const onSignal = (): void => { void stop(); };
+    process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
     // SA15: `?skipintro` walks straight into the shard; the bare page sits on the game's title over it
     console.info(`wildshard dev: ${server.url}?skipintro`); return;
   }

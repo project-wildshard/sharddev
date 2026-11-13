@@ -76,7 +76,8 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 ### Walking your shard
 
 `wildshard dev .` walks the shard on your machine: it serves the shard on localhost and reloads the page when you
-save (section 4). Open the URL it prints; it ends in `?skipintro`, which walks straight into your shard.
+save (section 4). Open the URL it prints; it ends in `?skipintro`, which walks straight into your shard. Ctrl-C stops
+it and frees the port.
 
 The first run fetches engine's dev client once, from the engine release at this sdk's engine pin, into
 `~/.cache/wildshard/dev-client/` (about 300 MB; `$WILDSHARD_DEV_CLIENT_CACHE` moves it). Later runs, and every project

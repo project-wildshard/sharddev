@@ -35,8 +35,10 @@ export function projectSourceStamp(source: string): string {
   }
   return rows.sort().join('\n');
 }
-/** A rebuilt static author client. Closing it releases its watcher, socket and private build products. */
-export interface DevProject { url: string; close: () => Promise<void> }
+/** A rebuilt static author client. Closing it releases its socket, private build products and watchers; `exiting` neither
+ *  waits for a running rebuild nor closes the watchers, which the process's exit drops (SD-6: closing a recursive watch
+ *  on macOS blocks the event loop for seconds). */
+export interface DevProject { url: string; close: (options?: { exiting?: boolean }) => Promise<void> }
 /** Only the author command chooses DEVSERVER; requests, cookies and URL switches cannot enable it. */
 export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string } = {}): Promise<DevProject> {
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-dev-')));
@@ -86,6 +88,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
   } catch (cause) { rmSync(scratch, { recursive: true, force: true }); throw cause; }
   let observed = projectSourceStamp(source);
   const reconcile = (): void => {
+    if (stopped) return;
     const next = projectSourceStamp(source);
     if (next === observed) return;
     observed = next;
@@ -105,12 +108,15 @@ export async function devProject(project: string, options: { decisionLegacyLines
   // Capture before returning the ready server; polling covers native-event gaps without rebuilding unchanged input.
   scope.interval(250, reconcile);
   const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No author server address');
-  return { url: `http://127.0.0.1:${address.port}/`, close: async () => {
+  return { url: `http://127.0.0.1:${address.port}/`, close: async (closing = {}) => {
     if (stopped) return;
-    stopped = true; for (const watcher of watchers) watcher.close(); scope.dispose();
-    await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
-    // A build already running owns its directory until its promise finishes.
-    await work;
-    rmSync(scratch, { recursive: true, force: true });
+    // The port goes first: closing the watchers can block for seconds (SD-6), and `wildshard dev` frees it within 2 s.
+    stopped = true; scope.dispose();
+    try {
+      await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
+      // A build already running owns its directory until its promise finishes; on the way out it is dropped with it.
+      if (closing.exiting !== true) await work;
+      rmSync(scratch, { recursive: true, force: true });
+    } finally { if (closing.exiting !== true) for (const watcher of watchers) watcher.close(); }
   } };
 }
