@@ -16,3 +16,6 @@
     `entryPrograms[slug] = false`, which engine reads as "none published".
 - Still owed for SA17: `prepare` needs an engine preparation preview, so an
   upload still needs an engine checkout; and npm's 0.2.6 has no `dev`.
+- After `hero`, `dev` failed every rebuild: the discovery images resolved
+  `/src/shards/<slug>/card/*.jpg` three folders up, which is wrong for a
+  single-shard `src/`. They now resolve inside the shard source.
