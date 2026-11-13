@@ -13,6 +13,9 @@ import { join, resolve } from 'node:path';
 
 /** The release asset engine's `scripts/devserver-client.mjs` writes. */
 export const DEV_CLIENT_ASSET = 'devserver-client.tar.gz';
+/** SA43: the preparation client, `scripts/devserver-client.mjs --kind preparation`: engine's production build made with
+ *  `WILDSHARD_PREPARATION_ONLY=1`, which `wildshard prepare` serves with the author's draft inline. */
+export const PREPARATION_CLIENT_ASSET = 'preparation-client.tar.gz';
 const RELEASES = 'https://github.com/project-wildshard/engine/releases/download';
 
 /** The engine release that holds the client for this package's engine pin: a commit pin (a green main build) is its
@@ -22,7 +25,7 @@ export function devClientTag(pin: string): string {
   if (commit !== undefined) return `server-staging-${commit}`;
   const version = /^[~^]?(\d+\.\d+\.\d+)$/u.exec(pin)?.[1];
   if (version !== undefined) return `v${version}`;
-  throw new Error(`wildshard dev: the engine pin ${pin} names no release (a 40-character commit or an exact version)`);
+  throw new Error(`wildshard: the engine pin ${pin} names no release (a 40-character commit or an exact version)`);
 }
 
 /** This package's engine pin, from its own package.json. */
@@ -57,25 +60,59 @@ export function devClient(): Promise<string> {
   return packed === undefined ? fetchDevClient() : Promise.resolve(packed);
 }
 
+/** SA43: a preparation client is a production build (DEVSERVER off) whose version document says preparation-only. */
+function assertPreparation(folder: string): void {
+  if (!existsSync(join(folder, 'index.html'))) throw new Error(`wildshard prepare: the preparation client has no index.html (${folder})`);
+  const read = (name: string): unknown => existsSync(join(folder, name)) ? JSON.parse(readFileSync(join(folder, name), 'utf8')) : null;
+  const flags = read('build-flags.json'), version = read('version.json');
+  if (typeof flags !== 'object' || flags === null || !('devserver' in flags) || flags.devserver !== false
+    || typeof version !== 'object' || version === null || !('preparationOnly' in version) || version.preparationOnly !== true) {
+    throw new Error('wildshard prepare: the preparation client is not a preparation-only production build');
+  }
+}
+
+/** The client `wildshard prepare` serves: `$WILDSHARD_PREPARATION_CLIENT` (a folder, such as an engine checkout's
+ *  `devserver-client.mjs --kind preparation --keep <folder>`), else engine's release at this package's pin. */
+export function preparationClient(): Promise<string> {
+  const named = process.env['WILDSHARD_PREPARATION_CLIENT'];
+  if (named !== undefined && named !== '') { const folder = resolve(named); assertPreparation(folder); return Promise.resolve(folder); }
+  return fetchPreparationClient();
+}
+
+/** The unpacked preparation client for `pin`, fetched on first use beside the dev client (`<tag>-preparation`). `url`
+ *  replaces the GitHub download (`$WILDSHARD_PREPARATION_CLIENT_URL`). */
+export function fetchPreparationClient(options: { pin?: string; cache?: string; url?: string } = {}): Promise<string> {
+  return fetchClient({ ...options, url: options.url ?? process.env['WILDSHARD_PREPARATION_CLIENT_URL'] }, {
+    asset: PREPARATION_CLIENT_ASSET, suffix: '-preparation', verb: 'prepare', label: 'preparation client', check: assertPreparation });
+}
+
 /** The unpacked client folder for `pin`, fetched on first use. `url` replaces the GitHub download (tests, mirrors:
  *  `$WILDSHARD_DEV_CLIENT_URL`). A failed or refused download keeps nothing. */
-export async function fetchDevClient(options: { pin?: string; cache?: string; url?: string } = {}): Promise<string> {
-  const tag = devClientTag(options.pin ?? enginePin()), cache = options.cache ?? devClientCache(), folder = join(cache, tag);
+export function fetchDevClient(options: { pin?: string; cache?: string; url?: string } = {}): Promise<string> {
+  return fetchClient({ ...options, url: options.url ?? process.env['WILDSHARD_DEV_CLIENT_URL'] }, {
+    asset: DEV_CLIENT_ASSET, suffix: '', verb: 'dev', label: 'dev client', check: assertDevserver });
+}
+
+interface ClientAsset { asset: string; suffix: string; verb: string; label: string; check: (folder: string) => void }
+async function fetchClient(options: { pin?: string; cache?: string; url?: string | undefined }, kind: ClientAsset): Promise<string> {
+  const tag = devClientTag(options.pin ?? enginePin()), cache = options.cache ?? devClientCache(), folder = join(cache, `${tag}${kind.suffix}`);
   if (existsSync(join(folder, 'index.html'))) return folder;
-  const url = options.url ?? process.env['WILDSHARD_DEV_CLIENT_URL'] ?? `${RELEASES}/${tag}/${DEV_CLIENT_ASSET}`;
-  console.info(`wildshard dev: fetching engine's dev client (${tag}) once, into ${cache}`);
+  const url = options.url ?? `${RELEASES}/${tag}/${kind.asset}`;
+  // prepare prints its result as JSON on stdout, so its progress goes to stderr
+  const progress = kind.verb === 'prepare' ? console.error : console.info;
+  progress(`wildshard ${kind.verb}: fetching engine's ${kind.label} (${tag}) once, into ${cache}`);
   const response = await fetch(url);
-  if (!response.ok) throw new Error(`wildshard dev: engine release ${tag} has no ${DEV_CLIENT_ASSET} (${url}: ${String(response.status)})`);
+  if (!response.ok) throw new Error(`wildshard ${kind.verb}: engine release ${tag} has no ${kind.asset} (${url}: ${String(response.status)})`);
   const bytes = Buffer.from(await response.arrayBuffer());
   mkdirSync(cache, { recursive: true });
-  const part = join(cache, `${tag}.part-${String(process.pid)}`), archive = `${part}.tar.gz`;
+  const part = join(cache, `${tag}${kind.suffix}.part-${String(process.pid)}`), archive = `${part}.tar.gz`;
   rmSync(part, { recursive: true, force: true }); mkdirSync(part);
   try {
     writeFileSync(archive, bytes);
     execFileSync('tar', ['-xzf', archive, '-C', part]);
-    assertDevserver(part);
+    kind.check(part);
     if (!existsSync(join(folder, 'index.html'))) { rmSync(folder, { recursive: true, force: true }); renameSync(part, folder); }
   } finally { rmSync(part, { recursive: true, force: true }); rmSync(archive, { force: true }); }
-  console.info(`wildshard dev: engine's dev client ${tag}, ${(bytes.length / 1e6).toFixed(1)} MB`);
+  progress(`wildshard ${kind.verb}: engine's ${kind.label} ${tag}, ${(bytes.length / 1e6).toFixed(1)} MB`);
   return folder;
 }

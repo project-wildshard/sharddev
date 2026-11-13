@@ -133,7 +133,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'audio-waiver', anchor: 'audio-waiver', steps: 'any', codes: ['audio-waiver-invalid'],
     fix: 'Fix audio-waiver.json: this shard\'s slug, a date not yet past, and at least the bytes its audio holds.' },
   { id: 'shardfile-draft', anchor: 'shardfile-draft', steps: ['shardfile', 'upload'], match: /is an unprepared draft \(sdk 0\.2\)/u,
-    fix: 'Run `wildshard prepare <folder> --base <url>`, then `wildshard build <folder>`; a shard repo\'s `pack:shards` does both (WILDSHARD_PREPARATION_URL).' },
+    fix: 'Run `wildshard prepare <folder>`, then `wildshard build <folder>`; a shard repo\'s `pack:shards` does both (WILDSHARD_PREPARATION_URL).' },
   { id: 'shardfile-link', anchor: 'shardfile-link', steps: ['shardfile', 'pack'], match: /not a regular file|link is refused/u,
     fix: 'Replace links in the shard file folder with real files, then build again.' },
   { id: 'shardfile-folder-missing', anchor: 'shardfile-folder-missing', steps: ['shardfile', 'pack'], match: /(?:build|pack) needs a shard file folder|ENOENT/u,

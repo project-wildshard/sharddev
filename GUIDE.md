@@ -40,7 +40,7 @@ repo's one `src/shards/<slug>/`).
 | 2 | Walk it | `wildshard dev .` | Works. The first run fetches engine's dev client once. See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
-| 5 | Prepare | `wildshard prepare public/shardfiles/my-shard --base <url>`, then `wildshard build public/shardfiles/my-shard` | Works only with an engine checkout. See "Uploading" below |
+| 5 | Prepare | `wildshard prepare public/shardfiles/my-shard`, then `wildshard build public/shardfiles/my-shard` | The first run fetches engine's preparation client once. See "Uploading" below |
 | 6 | Upload to staging | `wildshard upload public/shardfiles/my-shard.shardfile --channel staging --version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
 | 7 | Upload to production | the same with `--channel prod` and a higher version | The same. Try staging first |
 | 8 | Share | `https://staging.wildshard.io/slug/my-shard` | **Not built yet (SA36, SA37).** See section 5 |
@@ -64,7 +64,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file), show its first characters, and print its account's email and how many slugs it owns (`--server` or `WILDSHARD_API_URL`) |
 | `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
-| `wildshard prepare <folder> --base <url>` | Record the built folder in phone WebKit against an exact engine preview, which turns a draft into the uploadable form (see "Uploading") |
+| `wildshard prepare <folder> [--base <url>]` | Record the built folder in phone WebKit against engine's preparation client (or the exact engine preview `--base` names), which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
 | `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened |
 | `wildshard synth <source>` | Run `shard.config.ts`'s scene exports and write the scene as data |
@@ -116,11 +116,11 @@ before every upload:
    Every time: commit everything, the hero included. Done when `git status` is clean.
 3. **Check.** `wildshard check .` builds the shard file. It is a **draft** (`sdk: "0.2"`): check prints a
    `shardfile-draft` warning, and upload and the API refuse a draft. Done at `check pass`.
-4. **Prepare.** `wildshard prepare public/shardfiles/<slug> --base <url>`, with the URL of an exact engine preview made
-   for preparation, turns the draft into the uploadable form (`sdk: "0.3"`). Then `wildshard build
-   public/shardfiles/<slug>` writes the prepared shard file. That preview comes from an engine checkout today, so an
-   author outside the Wildshard team cannot prepare yet: the steps are not written down for authors (HOW-WE-BUILD F5);
-   ask the Wildshard team.
+4. **Prepare.** `wildshard prepare public/shardfiles/<slug>` records the draft in phone WebKit and turns it into the
+   uploadable form (`sdk: "0.3"`). It serves engine's preparation client around the draft itself, fetched once from
+   engine's release at the SDK's engine pin (about 310 MB, kept in `~/.cache/wildshard/dev-client`), so no engine
+   checkout is needed. Then `wildshard build public/shardfiles/<slug>` writes the prepared shard file. Done when
+   prepare prints `{"slug":…,"programs":…}` and build prints the shard file line.
 5. **Keys.** Set `WILDSHARD_API_URL=https://api.wildshard.io` (or pass `--server`) and
    `WILDSHARD_CREATOR_PRIVATE_KEY`, the base64 creator key upload signs with. There is one Wildshard creator key and
    no per-author creator keys yet: ask the Wildshard team for it, and never commit it. Upload also sends your

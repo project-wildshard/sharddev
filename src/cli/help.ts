@@ -139,13 +139,15 @@ const VERBS: Readonly<Record<string, string>> = {
                        Build only the shard source's native behaviour
                        outputs; --check refuses stale ones and writes
                        nothing`,
-  prepare: `prepare <folder> --base <exact-preview-url>
+  prepare: `prepare <folder> [--base <exact-preview-url>]
                        Record the shard file folder in phone WebKit against
-                       an exact engine preview and write its author
+                       engine's preparation client and write its author
                        preparation (the fence, the fence policy and the
                        recorded programs): the draft becomes sdk 0.3, the
                        only kind upload sends. Then write its shard file
-                       with build <folder>`,
+                       with build <folder>. The client is fetched once from
+                       engine's release at this package's pin; --base
+                       records against an exact engine preview instead`,
   validate: `validate <source | folder | shard.json>
                        Validate a shard source, or a built shard file
                        folder with shard-format's checks, and run it

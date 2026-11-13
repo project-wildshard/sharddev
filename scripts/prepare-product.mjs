@@ -2,7 +2,7 @@
 // J198: prepare an already built candidate using actual phone WebKit links.
 // Draft sdk 0.2 output is not relabelled until this exact product enters.
 import {createHash} from 'node:crypto';
-import {spawnSync} from 'node:child_process';
+import {spawn} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,mkdtempSync,rmSync,readdirSync,statSync,lstatSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join,resolve,dirname} from 'node:path';
@@ -80,7 +80,20 @@ export async function finishPreparation(dir,recording,originalHeader){
   return {slug:index.identity.slug,fence:fence.length,programs:programs.programs.length,renderer,document:programs.build};
 }
 
-export async function prepareProduct(dir,base){
+/** SA43: with no --base, serve engine's preparation client (fetched at this package's engine pin) around the candidate. */
+async function ownPreview(dir){
+  const {preparationClient}=await import('../src/sharddev/devClient.ts');
+  const {clientPage}=await import('../src/sharddev/clientPage.ts');
+  const {preparationPreview}=await import('./preparation-preview.mjs');
+  return preparationPreview(await preparationClient(),dir,{clientPage});
+}
+
+export async function prepareProduct(dir,base,inline=false){
+  if(base===undefined){
+    const preview=await ownPreview(dir);
+    console.error(`wildshard prepare: serving engine's preparation client at ${preview.url}`);
+    try{return await prepareProduct(dir,preview.url,true);}finally{await preview.close();}
+  }
   const header=readFileSync(join(dir,'shard.json')),index=parseOutputIndex(JSON.parse(header));
   const scratch=mkdtempSync(join(tmpdir(),'wildshard-prepare-'));
   try{
@@ -88,7 +101,12 @@ export async function prepareProduct(dir,base){
     const script=fileURLToPath(new URL('./bake-entry-programs.mjs',import.meta.url));
     // Like the existing recorder, the operator runs this command through the
     // engine browser-lane wrapper. Do not acquire a second nested browser slot.
-    const run=spawnSync(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,index.identity.slug],{stdio:'inherit',timeout:300000});
+    // Not spawnSync: with no --base this process serves the preview the recorder reads (SA43).
+    const run=await new Promise(done=>{
+      const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,...(inline?['--inline']:[]),index.identity.slug],{stdio:'inherit',timeout:300000});
+      child.once('error',error=>{done({error,status:null});});
+      child.once('exit',status=>{done({error:undefined,status});});
+    });
     if(run.error!==undefined||run.status!==0)throw new Error('Phone WebKit preparation did not pass; candidate left as a draft');
     return await finishPreparation(dir,json(scratch,'recording.json'),header);
   }finally{rmSync(scratch,{recursive:true,force:true});}
@@ -96,6 +114,6 @@ export async function prepareProduct(dir,base){
 
 if(process.argv[1]!==undefined&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const [dir,flag,base]=process.argv.slice(2);
-  if(dir===undefined||flag!=='--base'||base===undefined)throw new Error('usage: wildshard prepare <folder> --base <exact-preview-url>');
+  if(dir===undefined||(flag!==undefined&&(flag!=='--base'||base===undefined)))throw new Error('usage: wildshard prepare <folder> [--base <exact-preview-url>]');
   console.log(JSON.stringify(await prepareProduct(resolve(dir),base)));
 }

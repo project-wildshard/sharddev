@@ -131,7 +131,7 @@ test('an unprepared draft refuses with its rule and makes no request', async (co
   )
   assert.match(
     result.stderr,
-    /^ {2}\[shardfile-draft\] fix: Run `wildshard prepare <folder> --base <url>`, then `wildshard build <folder>`.*\(GUIDE\.md#shardfile-draft\)$/mu,
+    /^ {2}\[shardfile-draft\] fix: Run `wildshard prepare <folder>`, then `wildshard build <folder>`.*\(GUIDE\.md#shardfile-draft\)$/mu,
   )
   assert.equal(run.server.state.apiRequests.length, 0)
   assert.deepEqual(run.server.state.puts, [])

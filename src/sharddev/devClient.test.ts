@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { join, resolve } from 'node:path';
-import { DEV_CLIENT_ASSET, devClientTag, fetchDevClient } from './devClient';
+import { DEV_CLIENT_ASSET, devClientTag, fetchDevClient, fetchPreparationClient } from './devClient';
 
 // SD-2 (HOW-WE-BUILD, SHARD-AUTHORING SA15): an installed `wildshard dev` fetches engine's devserver client at its pin.
 const directories: string[] = [];
@@ -16,11 +16,12 @@ function scratch(): string {
   mkdirSync('tmp', { recursive: true });
   const root = mkdtempSync(resolve('tmp', 'dev-client-')); directories.push(root); return root;
 }
-function archive(root: string, flags: unknown): string {
+function archive(root: string, flags: unknown, version?: unknown): string {
   const client = join(root, 'client');
   mkdirSync(client, { recursive: true });
   writeFileSync(join(client, 'index.html'), '<html><head></head><body></body></html>');
   writeFileSync(join(client, 'build-flags.json'), JSON.stringify(flags));
+  if (version !== undefined) writeFileSync(join(client, 'version.json'), JSON.stringify(version));
   const file = join(root, DEV_CLIENT_ASSET);
   execFileSync('tar', ['-czf', file, '-C', client, '.']);
   return file;
@@ -74,4 +75,21 @@ test('a missing release names the tag and the asset', async () => {
     await expect(fetchDevClient({ pin: '0.1.17', cache: join(root, 'cache'), url: `http://127.0.0.1:${String(address.port)}/x` }))
       .rejects.toThrow(/v0\.1\.17.*devserver-client\.tar\.gz.*404/u);
   } finally { await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); }); }
+});
+
+// SA43: `wildshard prepare` with no --base fetches engine's preparation client the same way, beside the dev client.
+test('the preparation client is a preparation-only production build, kept beside the dev client', async () => {
+  const root = scratch(), release = await serve(archive(root, { devserver: false }, { preparationOnly: true }));
+  try {
+    const cache = join(root, 'cache'), folder = await fetchPreparationClient({ pin: '0.1.17', cache, url: release.url });
+    expect(folder).toBe(join(cache, 'v0.1.17-preparation'));
+    expect(await fetchPreparationClient({ pin: '0.1.17', cache, url: release.url })).toBe(folder);
+    expect(release.reads).toHaveLength(1);
+  } finally { await release.close(); }
+  for (const [flags, version] of [[{ devserver: true }, { preparationOnly: true }], [{ devserver: false }, { preparationOnly: false }]] as const) {
+    const other = scratch(), refused = await serve(archive(other, flags, version));
+    try {
+      await expect(fetchPreparationClient({ pin: '0.1.17', cache: join(other, 'cache'), url: refused.url })).rejects.toThrow(/preparation-only production build/u);
+    } finally { await refused.close(); }
+  }
 });

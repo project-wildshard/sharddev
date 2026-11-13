@@ -5,6 +5,9 @@
 // Shaders step asks for it. A stale list costs only wasted links: re-bake after a shader or material change.
 //   node scripts/bake-entry-programs.mjs --base <served build URL> [--check] <slug>...
 //   --check: write nothing; print how many of the build's entry programs the committed list already holds.
+//   --inline (SA43): the page carries the candidate inline (`wildshard prepare`'s own preview of engine's preparation
+//   client); it enters at `?skipintro` as `wildshard dev` does, with the page's service worker off (`sw=0`), so every read
+//   reaches the recorder from the network.
 // Run through scripts/browser-lane.sh.
 import {webkit,devices} from 'playwright';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
@@ -14,7 +17,7 @@ import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/cata
 import {preparationSaveSeed} from './preparation-seed.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
-const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), slugs=args.filter(arg=>!arg.startsWith('--'));
+const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), slugs=args.filter(arg=>!arg.startsWith('--'));
 if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs --base <url> [--check] <slug>...');
 
 /** Every program linked between the tap and control, in link order (the page's own WebGL2 calls, read in place). */
@@ -58,26 +61,31 @@ async function record(browser,slug){
         for(const file of manifest.files??[])if(typeof file.hash==='string')hashes.add(file.hash);
       }));
     });
-    await page.goto(base,{waitUntil:'load'});
-    await page.locator('.ws-main-select').click();
-    const names=await page.locator('.ws-menu-card b').allTextContents();
-    const matches=title===null?[]:names.flatMap((name,index)=>name.toLowerCase().includes(title.toLowerCase())?[index]:[]);
-    if(matches.length>1)throw new Error(`Candidate card ambiguous: ${title}`);
-    if(title!==null&&matches.length===0){
-      // Grid-only products have no standalone picker card. Exercise the
-      // existing one-shot arrival contract, as the full-catalogue boot proof.
-      await context.addInitScript(({epoch,slug,title})=>{
-        if(new URL(location.href).searchParams.get('chunk')!==slug)return;
-        const prefix=epoch===0?'wildshard.save.v2.':`wildshard.save.v2@${epoch}.`;
-        const data=JSON.stringify({slug,name:title,mode:'enter',at:Date.now()});
-        sessionStorage.setItem(`${prefix}session`,JSON.stringify({keys:{titleArrival:{v:1,data},'travel.handoff':{v:1,data:{v:1,from:null,to:slug,mode:'enter',arrive:null,carry:[],at:Date.now()}}}}));
-      },{epoch,slug,title});
-      const arrival=new URL(base);arrival.searchParams.set('chunk',slug);
-      await page.goto(arrival.href,{waitUntil:'load'});
+    if(inline){
+      const entry=new URL(base);entry.searchParams.set('skipintro','');entry.searchParams.set('sw','0');
+      await page.goto(entry.href,{waitUntil:'load'});
     }else{
-      await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
-      // ENTER WORLD opens a fresh document and a fresh measured link list.
-      await page.locator('.ws-menu-play').click();
+      await page.goto(base,{waitUntil:'load'});
+      await page.locator('.ws-main-select').click();
+      const names=await page.locator('.ws-menu-card b').allTextContents();
+      const matches=title===null?[]:names.flatMap((name,index)=>name.toLowerCase().includes(title.toLowerCase())?[index]:[]);
+      if(matches.length>1)throw new Error(`Candidate card ambiguous: ${title}`);
+      if(title!==null&&matches.length===0){
+        // Grid-only products have no standalone picker card. Exercise the
+        // existing one-shot arrival contract, as the full-catalogue boot proof.
+        await context.addInitScript(({epoch,slug,title})=>{
+          if(new URL(location.href).searchParams.get('chunk')!==slug)return;
+          const prefix=epoch===0?'wildshard.save.v2.':`wildshard.save.v2@${epoch}.`;
+          const data=JSON.stringify({slug,name:title,mode:'enter',at:Date.now()});
+          sessionStorage.setItem(`${prefix}session`,JSON.stringify({keys:{titleArrival:{v:1,data},'travel.handoff':{v:1,data:{v:1,from:null,to:slug,mode:'enter',arrive:null,carry:[],at:Date.now()}}}}));
+        },{epoch,slug,title});
+        const arrival=new URL(base);arrival.searchParams.set('chunk',slug);
+        await page.goto(arrival.href,{waitUntil:'load'});
+      }else{
+        await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
+        // ENTER WORLD opens a fresh document and a fresh measured link list.
+        await page.locator('.ws-menu-play').click();
+      }
     }
     await page.waitForFunction(()=>window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load'),undefined,{timeout:240000});
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
