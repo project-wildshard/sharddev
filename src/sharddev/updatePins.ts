@@ -20,7 +20,7 @@ import { assertShardRepo, updateShardRepo } from './agentFiles';
  * alias. The move keeps the name the repo has. */
 export const SDK_NAMES = ['@wildshard/sdk', '@wildshard/sharddev'] as const;
 /** The pins a shard repo may list; each moves to what the release names. The sdk moves to the release itself. */
-export const PINNED = [...SDK_NAMES, '@wildshard/engine', '@wildshard/format', 'three'] as const;
+export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/engine', '@wildshard/format', 'three'] as const;
 const isSdkName = (name: string): boolean => (SDK_NAMES as readonly string[]).includes(name);
 const isPinned = (name: string): boolean => (PINNED as readonly string[]).includes(name);
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies'] as const;
