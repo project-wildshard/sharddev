@@ -39,6 +39,14 @@ test('default new builds an independently named playable reference', {timeout:12
  cli(['new',source,'first-island'],false);
  cli(['build',source,output,'--product-only']);
 });
+// SA4: the loop's check step gives the default new project a passing verdict.
+test('check --json passes the default new project', {timeout:120_000},()=>{
+ const done=spawnSync(process.execPath,[bin,'check',source,join(root,'checked'),'--json'],{cwd:app,encoding:'utf8',timeout:90_000,
+  env:{...process.env,WILDSHARD_GEN_CACHE:join(root,'generation'),WILDSHARD_SHARDFILE_CACHE:join(root,'compiler')}});
+ assert.ifError(done.error);
+ assert.equal(done.status,0,`${done.stdout}\n${done.stderr}`);
+ assert.equal(JSON.parse(done.stdout).verdict,'pass');
+});
 test('the new author opens and crosses the real door, then resumes', {timeout:60_000},async()=>{
  const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
  const {HeadlessSimulation}=await import('@wildshard/engine/host/headless');

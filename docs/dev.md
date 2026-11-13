@@ -52,6 +52,31 @@ laws against those artifacts. It does not select an ABI2 product, change
 the wire or replace the shipping compiler. The content repo owns the
 fixture and its explicit CI-only, sub-ten-second runner.
 
+## wildshard check
+
+`wildshard check <project> [output] [--json]` is the author loop's third
+step (meta SHARD-AUTHORING SA4, J317: new, dev, check, hero, upload). It
+runs, in order: `lint` (the SDK's `.oxlintrc.author.json`; skipped when
+oxlint is not installed with the sdk), `build` (product only, to `output`
+or `<project>/public/shardfiles/<slug>`), `validate` (the built product's
+format checks), `prove` (only when the project has a `proof.json` author
+tape) and `report` (the report card, measured during the build). A failed
+build skips the three steps after it; any failed step fails the verdict
+and exits 1. `--json` prints only this document on stdout (logs go to
+stderr):
+
+```json
+{ "version": 1, "verdict": "pass", "project": "/abs/isle", "output": "/abs/out", "ms": 2400,
+  "steps": [{ "name": "lint", "status": "skip", "ms": 199, "note": "why it skipped" }],
+  "refusals": [{ "step": "lint", "rule": "eslint(no-unused-vars)", "message": "...", "fix": "...", "file": "a.ts:2:7" }] }
+```
+
+`status` is `pass`, `fail` or `skip`; `rule`, `fix` and `file` are present
+when the refusing tool names them (SA21 adds rule ids and `GUIDE.md` links
+for every refusal). The code is `src/sharddev/check.ts` (shape, verdict)
+and `checkProject.ts` (the real steps). `wildshard --version` prints the
+sdk, engine, shard-format and `three` versions, one per line.
+
 ## Hero freshness
 
 A shard's hero (its SHARD SELECT card: thumb 640x360, portrait 804x1626,

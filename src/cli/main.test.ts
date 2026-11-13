@@ -27,11 +27,19 @@ const PROVENANCE = ['--version', '0.0.1', '--commit', 'c'.repeat(40)]
 const CHANNEL = ['--channel', 'staging']
 
 describe('the sharddev CLI', (): void => {
-  it('prints the package version for --version', async (): Promise<void> => {
+  it('prints the sdk, engine, format and three chain for --version', async (): Promise<void> => {
     const run = cli(['--version'])
 
     assert.equal(run.status, 0)
-    assert.equal(run.stdout.trim(), await readVersion())
+    const lines = run.stdout.trim().split('\n')
+    assert.equal(lines[0], `@wildshard/sdk ${await readVersion()}`)
+    assert.deepEqual(
+      lines.map((line: string): string | undefined => line.split(' ')[0]),
+      ['@wildshard/sdk', '@wildshard/engine', '@wildshard/format', 'three'],
+    )
+    for (const line of lines) {
+      assert.match(line, /^\S+ \d+\.\d+\.\d+/u)
+    }
   })
 
   it('prints usage for --help and exits 0', (): void => {
@@ -148,7 +156,10 @@ describe("the upload's shard version and commit (AC16)", (): void => {
     const run = cli(['--version', 'upload', 'shard.tar'])
 
     assert.equal(run.status, 0)
-    assert.equal(run.stdout.trim(), await readVersion())
+    assert.equal(
+      run.stdout.split('\n')[0],
+      `@wildshard/sdk ${await readVersion()}`,
+    )
   })
 
   it('takes --version as the shard version after upload', (): void => {

@@ -10,7 +10,7 @@ import {
 } from './upload/compress.ts'
 import { resolveProvenance } from './upload/provenance.ts'
 import { uploadShardfile } from './upload/upload.ts'
-import { readVersion } from './version.ts'
+import { readVersion, readVersionChain } from './version.ts'
 
 import type { CliArgs } from './args.ts'
 import type { Channel } from './upload/api.ts'
@@ -32,6 +32,13 @@ const MAX_PORT = 65_535
 const USAGE = `Usage: sharddev <command> [options]
 
 Commands:
+  check <project> [output] [--json]
+                       Lint, build, validate, prove (with the project's
+                       proof.json) and read the report card, then give one
+                       verdict. --json prints only the verdict document:
+                       { version, verdict, project, output, ms, steps:
+                       [{ name, status, ms, note? }], refusals: [{ step,
+                       rule, message, fix, file? }] }. Exits 1 on fail
   serve [--port <n>]   Start the sharddev server on localhost
   prepare <product> --base <exact-preview-url>
                        Record the exact candidate in phone WebKit, compute
@@ -67,7 +74,8 @@ Commands:
                        VERCEL_AUTOMATION_BYPASS_SECRET for a protected preview
 
 Options:
-  --version            Print the version (after upload: the shard version)
+  --version            Print the sdk, engine, shard-format and three
+                       versions (after upload: the shard version)
   --help               Print this help
 
 Also installed as \`wildshard\`.
@@ -235,7 +243,8 @@ async function runPack(args: CliArgs): Promise<number> {
 }
 
 async function printVersion(): Promise<number> {
-  process.stdout.write(`${await readVersion()}\n`)
+  const chain = await readVersionChain()
+  process.stdout.write(`${chain.join('\n')}\n`)
   return EXIT_OK
 }
 

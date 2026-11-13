@@ -23,6 +23,8 @@ import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduc
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { writeReferenceProject } from './newProject';
+import { checkProject } from './checkProject';
+import { checkLines } from './check';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {
@@ -52,7 +54,20 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
       ? `/properties${output}` : output;
     console.info(JSON.stringify(schemaAt(document, pointer), null, 2)); return;
   }
-  if (input === undefined) throw new Error('usage: wildshard new <project> | synth <project> | build <project> [output] [--product-only] [--no-placeholders] [--output=<slug>] | build <project> --behaviour-only | validate <project|shard.json> | dev <project> [port]');
+  if (command === 'check') {
+    const rest = args.slice(1), json = rest.includes('--json'), positional = rest.filter(value => !value.startsWith('--'));
+    if (positional.length === 0 || positional.length > 2 || rest.some(value => value.startsWith('--') && value !== '--json') || rest.filter(value => value === '--json').length > 1) throw new Error('usage: wildshard check <project> [output] [--json]');
+    // --json: stdout carries the verdict document alone; everything the steps print goes to stderr.
+    // (scripts/wildshard.mjs moves log and debug for the whole run; the steps here log with info and warn.)
+    const saved = { info: console.info, warn: console.warn }, toError = console.error.bind(console);
+    if (json) Object.assign(console, { info: toError, warn: toError });
+    let result;
+    try { result = await checkProject(positional[0] ?? '', positional[1], options); } finally { Object.assign(console, saved); }
+    process.stdout.write(json ? `${JSON.stringify(result, null, 2)}\n` : `${checkLines(result).join('\n')}\n`);
+    if (result.verdict === 'fail') process.exitCode = 1;
+    return;
+  }
+  if (input === undefined) throw new Error('usage: wildshard new <project> | check <project> [output] [--json] | synth <project> | build <project> [output] [--product-only] [--no-placeholders] [--output=<slug>] | build <project> --behaviour-only | validate <project|shard.json> | dev <project> [port]');
   if (command === 'synth') {
     if (output !== undefined) throw new Error('usage: wildshard synth <project>');
     const result = await synthProject(resolve(input));

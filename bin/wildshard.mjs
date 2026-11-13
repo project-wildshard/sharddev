@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import '../src/sharddev/bake/format-hook.mjs';
 
-const AUTHOR = new Set(['new', 'synth', 'build', 'validate', 'prove', 'dev', 'schema', '--prepare-compiler']);
+const AUTHOR = new Set(['new', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'schema', '--prepare-compiler']);
 const [command] = process.argv.slice(2);
 if (AUTHOR.has(command)) {
   const script = resolve(import.meta.dirname, '../scripts/wildshard.mjs');

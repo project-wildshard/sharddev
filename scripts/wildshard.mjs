@@ -60,7 +60,7 @@ export async function runWildshard(args) {
   const selected = args.find(arg => arg.startsWith('--output='))?.slice(9);
   const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, basename(project))?.find(row => row.slug === selected);
   if (selected !== undefined && output === undefined) throw new Error(`wildshard: ${basename(project ?? '')} declares no output ${selected}`);
-  const manifest = project === undefined || !['build', 'validate', 'prove'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
+  const manifest = project === undefined || !['build', 'check', 'validate', 'prove'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
     folder: output?.slug ?? basename(project), ...(output !== undefined ? { composed: outputManifest(root, basename(project), output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
     imageRoots: [{ prefix: `/src/shards/${basename(project)}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
@@ -72,7 +72,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   const counters=createBuildCacheCounters(),stop=observeBuildCache(counters);
   let complete=false;
   try {
-    const args=process.argv.slice(2);
+    let args=process.argv.slice(2);
+    // SA4: `check` takes its flags anywhere; with --json, stdout is the verdict document alone, so every log goes to stderr.
+    if(args[0]==='check'){
+      const rest=args.slice(1);
+      args=['check',...rest.filter(arg=>!arg.startsWith('--')),...rest.filter(arg=>arg.startsWith('--'))];
+      if(args.includes('--json'))for(const level of ['info','log','warn','debug'])console[level]=console.error.bind(console);
+    }
     if(args[0]==='--prepare-compiler') {
       if(args.length!==1)throw new Error('Compiler preparation accepts no product arguments');
       const started=performance.now(),compiler=await prepareWildshard();

@@ -56,6 +56,29 @@ test('moving the authored source does not change the shipped bytes', { timeout: 
 test('installed validation accepts the outside author output', { timeout: 9_500 }, () => {
   run(['validate', join(app, 'first')]);
 });
+// SA4: the loop's third step is one verb with one verdict; --json keeps stdout to the verdict document alone.
+test('installed check --json gives a verdict on the new author project', { timeout: 9_500 }, () => {
+  const done = run(['check', source, join(app, 'checked'), '--json']);
+  const result = JSON.parse(done.stdout);
+  assert.equal(result.verdict, 'pass', done.stdout);
+  assert.deepEqual(result.steps.map(step => step.name), ['lint', 'build', 'validate', 'prove', 'report']);
+  for (const step of result.steps) assert.ok(Number.isInteger(step.ms));
+  // Lint skips until the sdk ships oxlint and its author config (SA8); prove skips with no proof.json.
+  assert.deepEqual(result.steps.map(step => step.status), ['skip', 'pass', 'pass', 'skip', 'pass']);
+  assert.deepEqual(result.refusals, []);
+});
+test('installed check --json fails a missing project with its refusal', { timeout: 9_500 }, () => {
+  // Flags go anywhere: --json before the project still prints the document alone.
+  const result = JSON.parse(run(['check', '--json', join(app, 'missing-source')], false).stdout);
+  assert.equal(result.verdict, 'fail');
+  assert.deepEqual(result.steps.map(step => step.status).slice(1), ['fail', 'skip', 'skip', 'skip']);
+  assert.equal(result.refusals[0].step, 'build');
+  assert.equal(result.output, null);
+});
+test('installed --version names the sdk, engine, shard-format and three chain', { timeout: 9_500 }, () => {
+  const names = run(['--version']).stdout.trim().split('\n').map(line => line.split(' ')[0]);
+  assert.deepEqual(names, ['@wildshard/sdk', '@wildshard/engine', '@wildshard/format', 'three']);
+});
 test('installed packing admits the outside author output', { timeout: 9_500 }, () => {
   run(['pack', join(app, 'first'), '--out', join(root, 'isle.tar')]);
 });
