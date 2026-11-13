@@ -1,5 +1,14 @@
 import { createHash } from 'node:crypto'
-import { readFile, readdir } from 'node:fs/promises'
+import type { Dirent } from 'node:fs'
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  readdir,
+  rm,
+  writeFile,
+} from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -10,7 +19,8 @@ import { makeTar } from './tar.ts'
 // Test shardfiles: Template 2 as the format pin ships it, re-stamped with a
 // slug, name and seed, its source hash recomputed with format's own functions
 // so the real validator admits it. `seed` varies the bytes (and so the hash)
-// of a revision.
+// of a revision. `shardfileFiles` is a draft (sdk 0.2), as `wildshard build`
+// writes it; `makeShardfile` is prepared (sdk 0.3), as upload sends it (J198).
 
 const TEMPLATE_2 = fileURLToPath(
   new URL(
@@ -25,6 +35,8 @@ interface ShardfileOptions {
   readonly slug: string
   readonly name?: string
   readonly seed?: number
+  /** `makeShardfile` only: the draft as built, which upload refuses. */
+  readonly draft?: boolean
 }
 
 interface ProductEntry {
@@ -109,8 +121,91 @@ async function shardfileFiles(
   return files
 }
 
-async function makeShardfile(options: ShardfileOptions): Promise<Uint8Array> {
-  return makeTar(await shardfileFiles(options))
+// J198 for tests: a built folder as `wildshard prepare` leaves it (sdk 0.3,
+// a version 3 cook), from a fixture recording instead of phone WebKit, the
+// same recording src/ci/cook-preparation.test.ts uses. Upload refuses a
+// draft (sdk 0.2), so every fixture an upload sends is prepared first.
+const RECORDING = {
+  renderer: '1'.repeat(64),
+  reads: [],
+  programs: {
+    version: 2,
+    build: 'wire-fixture-only',
+    lines: ['void main() {}'],
+    shaders: [[0]],
+    programs: [[0, 0]],
+  },
 }
 
-export { type ShardfileOptions, sha256, shardfileFiles, makeShardfile }
+/** Prepare the built folder `dir` in place. */
+async function prepareFolder(dir: string): Promise<void> {
+  installFormatHook()
+  const { finishPreparation } =
+    await import('../../../scripts/prepare-product.mjs')
+  const header = await readFile(path.join(dir, INDEX))
+  await finishPreparation(
+    dir,
+    { ...RECORDING, headerHash: sha256(header) },
+    header,
+  )
+}
+
+/** Every file in the folder `dir`, by `/`-separated path. */
+async function folderFiles(dir: string): Promise<Map<string, Uint8Array>> {
+  const entries = await readdir(dir, { recursive: true, withFileTypes: true })
+  const names = entries
+    .filter((entry: Readonly<Dirent>): boolean => entry.isFile())
+    .map((entry: Readonly<Dirent>): string =>
+      path
+        .relative(dir, path.join(entry.parentPath, entry.name))
+        .split(path.sep)
+        .join('/'),
+    )
+  const pairs = await Promise.all(
+    names.map(async (name: string): Promise<readonly [string, Uint8Array]> => [
+      name,
+      new Uint8Array(await readFile(path.join(dir, name))),
+    ]),
+  )
+  return new Map(pairs)
+}
+
+/** `files` (a draft folder's) as they are once prepared. */
+async function preparedFiles(
+  files: ProductFiles,
+): Promise<Map<string, Uint8Array>> {
+  const dir = await mkdtemp(path.join(tmpdir(), 'sharddev-prepared-'))
+  try {
+    await Promise.all(
+      [...files].map(
+        async ([name, bytes]: readonly [
+          string,
+          Readonly<Uint8Array> | string,
+        ]): Promise<void> => {
+          const file = path.join(dir, name)
+          await mkdir(path.dirname(file), { recursive: true })
+          await writeFile(file, bytes)
+        },
+      ),
+    )
+    await prepareFolder(dir)
+    return await folderFiles(dir)
+  } finally {
+    await rm(dir, { recursive: true, force: true })
+  }
+}
+
+async function makeShardfile(options: ShardfileOptions): Promise<Uint8Array> {
+  const files = await shardfileFiles(options)
+  return makeTar(options.draft === true ? files : await preparedFiles(files))
+}
+
+export {
+  type ShardfileOptions,
+  folderFiles,
+  makeShardfile,
+  prepareFolder,
+  preparedFiles,
+  sha256,
+  shardfileFiles,
+}

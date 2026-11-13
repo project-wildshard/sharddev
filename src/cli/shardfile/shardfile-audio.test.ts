@@ -7,7 +7,11 @@ import type { TestContext } from 'node:test'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
-import { sha256, shardfileFiles } from '../../test/helpers/shardfile.ts'
+import {
+  prepareFolder,
+  sha256,
+  shardfileFiles,
+} from '../../test/helpers/shardfile.ts'
 import { openUploadServer } from '../../test/helpers/upload-server.ts'
 import { uploadShardfile } from '../upload/upload.ts'
 import { writeShardfile } from './shardfile.ts'
@@ -171,6 +175,8 @@ test('build prints a red shard as AMBER with the numbers and still writes it', a
 test('upload refuses the red shard before it sends a byte', async (context: TestContext): Promise<void> => {
   const product = await loudProduct(context)
   const out = path.join(path.dirname(product), 'loud.tar')
+  // Prepared (J198): a draft refuses before the audio rules are read.
+  await prepareFolder(product)
   await writeShardfile({ dir: product, out, report: (): void => undefined })
   const server = await openUploadServer(context)
   await assert.rejects(

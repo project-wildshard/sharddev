@@ -17,6 +17,7 @@ import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
+import { DRAFT_SDK, draftMessage } from './draft';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -48,8 +49,14 @@ function lintProject(project: string): StepOutcome {
   return lintOutcome(`${done.stdout}${done.stdout.trim() === '' ? done.stderr : ''}`, done.status);
 }
 
+/** J198: a built folder whose index says sdk 0.2 is a draft; upload refuses it until `wildshard prepare` runs. */
+function isDraft(folder: string): boolean {
+  const index: unknown = JSON.parse(readFileSync(resolve(folder, 'shard.json'), 'utf8'));
+  return typeof index === 'object' && index !== null && 'sdk' in index && index.sdk === DRAFT_SDK;
+}
+
 interface Admitted { readonly shard: Shardfile; readonly observed: PerformanceObservations; readonly policy: 'warn' | 'refuse' }
-export interface CheckOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string) => Promise<string> }
+export interface CheckOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string> }
 
 /** Lint, build (no client; the shard file too, SA3), validate the built folder, prove its tape and read its report card. */
 export async function checkProject(projectPath: string, outputPath: string | undefined, options: CheckOptions = {}): Promise<CheckResult> {
@@ -72,9 +79,11 @@ export async function checkProject(projectPath: string, outputPath: string | und
         ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
       output ??= resolve(project, 'public/shardfiles', shard.identity.slug);
       let file: string | undefined;
-      try { file = await options.writeShardfile?.(output, project); }
+      // The draft warning goes in the verdict (below), so the writer leaves it out.
+      try { file = await options.writeShardfile?.(output, project, { draftWarning: false }); }
       catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), as: 'shardfile' }] }; }
-      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}` };
+      const warnings = isDraft(output) ? [{ message: draftMessage(shard.identity.slug), as: 'shardfile' as const }] : [];
+      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}`, warnings };
     },
     validate: async (): Promise<StepOutcome> => {
       const checked = validateOutputProduct(built());

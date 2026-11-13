@@ -8,6 +8,7 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
+import { makeShardfile } from '../../test/helpers/shardfile.ts'
 import { COMMIT, VERSION, open } from '../../test/helpers/upload-run.ts'
 import { readVersion } from '../version.ts'
 
@@ -109,4 +110,28 @@ test('any other --channel refuses and makes no request', async (context: TestCon
     assert.match(result.stderr, /--channel staging.*--channel prod/u)
   }
   assert.equal(run.server.state.apiRequests.length, 0)
+})
+
+// QA 11-13 row 2 (J198, J259): a draft as `wildshard build` writes it (sdk
+// 0.2) refuses before any request, with its rule, fix and guide; api-server
+// would answer it 422 only after the whole file was sent.
+test('an unprepared draft refuses with its rule and makes no request', async (context: TestContext): Promise<void> => {
+  const run = await open(
+    context,
+    await makeShardfile({ slug: 'upload-test', draft: true }),
+  )
+
+  const result = await cli(run, [...PROVENANCE, '--channel', 'staging'])
+
+  assert.equal(result.status, 3, result.stderr)
+  assert.match(
+    result.stderr,
+    /^sharddev: upload failed: upload-test is an unprepared draft \(sdk 0\.2\)/mu,
+  )
+  assert.match(
+    result.stderr,
+    /^ {2}\[shardfile-draft\] fix: Run `wildshard prepare <folder> --base <url>`, then `wildshard build <folder>`.*\(GUIDE\.md#shardfile-draft\)$/mu,
+  )
+  assert.equal(run.server.state.apiRequests.length, 0)
+  assert.deepEqual(run.server.state.puts, [])
 })

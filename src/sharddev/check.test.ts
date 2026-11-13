@@ -11,7 +11,7 @@ describe('wildshard check (SA4)', () => {
     expect(result.verdict).toBe('pass');
     expect(result.steps.map(step => [step.name, step.status])).toEqual([['lint', 'pass'], ['build', 'pass'], ['validate', 'pass'], ['prove', 'skip'], ['report', 'pass']]);
     expect(result.steps.every(step => step.ms === 10)).toBe(true);
-    expect(result).toMatchObject({ version: 1, project: '/p', output: '/p/out', refusals: [] });
+    expect(result).toMatchObject({ version: 1, project: '/p', output: '/p/out', refusals: [], warnings: [] });
   });
 
   it('turns a thrown step into a fail with its words, and skips what needs the build', async () => {
@@ -30,6 +30,17 @@ describe('wildshard check (SA4)', () => {
     expect(result.steps.map(step => step.status)).toEqual(['fail', 'pass', 'pass', 'pass', 'pass']);
     expect(checkLines(result)).toEqual(expect.arrayContaining(['  lint: b is unused', '    [eslint/no-unused-vars] fix: Remove it. (GUIDE.md#lint-rules)']));
     expect(checkLines(result).at(-1)).toMatch(/^check fail in /u);
+  });
+
+  it('carries a step\'s warnings, named like refusals, without failing the verdict (J198)', async () => {
+    const message = 'isle is an unprepared draft (sdk 0.2): api-server refuses a draft at commit, so prepare its folder and build it again before upload';
+    const build = async (): Promise<StepOutcome> => await Promise.resolve({ status: 'pass', warnings: [{ message, as: 'shardfile' }] });
+    const result = await runCheck('/p', () => '/o', steps({ build }), clock());
+    expect(result.verdict).toBe('pass');
+    expect(result.refusals).toEqual([]);
+    expect(result.warnings).toEqual([{ step: 'build', rule: 'shardfile-draft', message, fix: expect.stringMatching(/^Run `wildshard prepare /u), guide: 'GUIDE.md#shardfile-draft' }]);
+    expect(checkLines(result)).toEqual(expect.arrayContaining([`  build: warning: ${message}`, expect.stringMatching(/^ {4}\[shardfile-draft\] fix: .*\(GUIDE\.md#shardfile-draft\)$/u)]));
+    expect(checkLines(result).at(-1)).toMatch(/^check pass in /u);
   });
 
   it('reads oxlint JSON into refusals with code, help and place', () => {

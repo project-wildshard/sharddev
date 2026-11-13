@@ -21,9 +21,12 @@ export interface CheckRefusal {
 }
 /** A refusal as a step reports it: a lint diagnostic brings oxlint's code and help; refusals.ts fills in the rest. */
 export interface StepRefusal { readonly message: string; readonly lint?: { readonly code: string | null; readonly help: string | null }; readonly file?: string; readonly as?: RefusalStep }
+/** A warning: the same fields as a refusal, but it does not fail the verdict (an unprepared draft, J198). */
+export type CheckWarning = CheckRefusal;
 /** One step's result and wall-clock duration in milliseconds. */
 export interface CheckStep { readonly name: CheckStepName; readonly status: CheckStatus; readonly ms: number; readonly note?: string }
-/** The `--json` document (version 1). `verdict` is `fail` when any step failed; `output` is the built product folder, null when the build failed. */
+/** The `--json` document (version 1). `verdict` is `fail` when any step failed; `output` is the built product folder, null when the build failed.
+ * `warnings` never fail the verdict. */
 export interface CheckResult {
   readonly version: 1;
   readonly verdict: 'pass' | 'fail';
@@ -32,6 +35,7 @@ export interface CheckResult {
   readonly ms: number;
   readonly steps: readonly CheckStep[];
   readonly refusals: readonly CheckRefusal[];
+  readonly warnings: readonly CheckWarning[];
 }
 
 /** What a step reports; a thrown error is a `fail` with the error's words as its one refusal. */
@@ -39,6 +43,7 @@ export interface StepOutcome {
   readonly status: CheckStatus;
   readonly note?: string;
   readonly refusals?: readonly StepRefusal[];
+  readonly warnings?: readonly StepRefusal[];
 }
 /** The steps' work; validate, prove and report need a built product, so they skip when build fails. */
 export type CheckSteps = Readonly<Record<CheckStepName, () => Promise<StepOutcome>>>;
@@ -53,7 +58,12 @@ async function outcomeOf(work: () => Promise<StepOutcome>): Promise<StepOutcome>
 
 /** Run every step in order, timing each, and give the verdict. `output` is read after the build; `now` is for tests. */
 export async function runCheck(project: string, output: () => string | null, steps: CheckSteps, now: () => number = diagnosticNow): Promise<CheckResult> {
-  const started = now(), rows: CheckStep[] = [], refusals: CheckRefusal[] = [];
+  const started = now(), rows: CheckStep[] = [], refusals: CheckRefusal[] = [], warnings: CheckWarning[] = [];
+  const named = (step: CheckStepName, { message, lint, file, as }: StepRefusal): CheckRefusal => {
+    // SA3: build's shard file step names its rules by its own step (a format refusal is not a source one).
+    const { rule, fix, guide } = refusalNote(as ?? step, message, lint);
+    return { step, rule, message, fix, guide, ...(file === undefined ? {} : { file }) };
+  };
   let built = true;
   for (const name of ORDER) {
     const begun = now();
@@ -61,14 +71,11 @@ export async function runCheck(project: string, output: () => string | null, ste
     if (name === 'build' && outcome.status !== 'pass') built = false;
     const ms = Math.round(now() - begun);
     rows.push({ name, status: outcome.status, ms, ...(outcome.note === undefined ? {} : { note: outcome.note }) });
-    for (const { message, lint, file, as } of outcome.refusals ?? []) {
-      // SA3: build's shard file step names its rules by its own step (a format refusal is not a source one).
-      const { rule, fix, guide } = refusalNote(as ?? name, message, lint);
-      refusals.push({ step: name, rule, message, fix, guide, ...(file === undefined ? {} : { file }) });
-    }
+    for (const refusal of outcome.refusals ?? []) refusals.push(named(name, refusal));
+    for (const warning of outcome.warnings ?? []) warnings.push(named(name, warning));
   }
   const verdict = rows.some(row => row.status === 'fail') ? 'fail' : 'pass';
-  return { version: 1, verdict, project, output: built ? output() : null, ms: Math.round(now() - started), steps: rows, refusals };
+  return { version: 1, verdict, project, output: built ? output() : null, ms: Math.round(now() - started), steps: rows, refusals, warnings };
 }
 
 interface LintLabel { readonly span?: { readonly line?: number; readonly column?: number } }
@@ -96,11 +103,14 @@ export function lintOutcome(stdout: string, exitCode: number | null): StepOutcom
 }
 
 const SECONDS = 1000;
-/** The plain-text form: one line per step, each refusal with its rule, fix and guide link, then the verdict. */
+/** The plain-text form: one line per step, each refusal and warning with its rule, fix and guide link, then the verdict. */
 export function checkLines(result: CheckResult): string[] {
   const lines = result.steps.map(step => `${step.name.padEnd(8)} ${step.status} (${(step.ms / SECONDS).toFixed(1)} s)${step.note === undefined ? '' : `: ${step.note}`}`);
   for (const refusal of result.refusals) {
     lines.push(`  ${refusal.step}${refusal.file === undefined ? '' : ` ${refusal.file}`}: ${refusal.message}`, `    ${refusalHint(refusal)}`);
+  }
+  for (const warning of result.warnings) {
+    lines.push(`  ${warning.step}: warning: ${warning.message}`, `    ${refusalHint(warning)}`);
   }
   lines.push(`check ${result.verdict} in ${(result.ms / SECONDS).toFixed(1)} s`);
   return lines;

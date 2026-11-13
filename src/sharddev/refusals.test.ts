@@ -10,6 +10,7 @@ import { checkLines, lintOutcome, runCheck, type CheckResult, type StepOutcome }
 import { checkProject } from './checkProject';
 import { newProject } from './project';
 import { runCli } from './cli';
+import { draftMessage } from './draft';
 
 const ALL = [...REFUSAL_RULES, ...LINT_RULES, LINT_OTHER];
 const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'shardfile', 'pack', 'upload'];
@@ -124,6 +125,14 @@ describe('a seeded set of bad shards through the real check (SA21)', () => {
     expectNamed(await check(seeded('proof', project => { writeFileSync(resolve(project, 'proof.json'), '{ "steps": 3 }'); })), ['proof-tape-invalid']);
   });
 
+  it('passes a fresh project with one warning: its shard file is an unprepared draft (J198)', async () => {
+    const result = await check(seeded('draft', () => undefined));
+    expect(result.refusals.filter(row => row.step !== 'lint')).toEqual([]);
+    expect(result.steps.find(step => step.name === 'build')?.status).toBe('pass');
+    expect(result.warnings).toEqual([{ step: 'build', rule: 'shardfile-draft', message: draftMessage('isle'), fix: REFUSAL_RULES.find(row => row.id === 'shardfile-draft')?.fix, guide: `${GUIDE_FILE}#shardfile-draft` }]);
+    expect(checkLines(result)).toEqual(expect.arrayContaining([`  build: warning: ${draftMessage('isle')}`, expect.stringMatching(/^ {4}\[shardfile-draft\] fix: /u)]));
+  });
+
   it('prints the rule, fix and guide under the refusal of every other author verb', async () => {
     const taken = seeded('taken', () => undefined);
     await expect(runCli(['new', taken])).rejects.toThrow(`[new-target] fix: ${REFUSAL_RULES.find(row => row.id === 'new-target')?.fix ?? ''} (${GUIDE_FILE}#new-target)`);
@@ -148,6 +157,14 @@ describe('the shard file build writes (SA3)', () => {
     expect(refusalNote('shardfile', 'no shard.json in the shardfile').rule).toBe('shardfile-invalid');
     expect(refusalNote('shardfile', 'Invalid shardfile: bad index').rule).toBe('shardfile-invalid');
     expect(refusalNote('pack', 'pack needs a shard file folder').rule).toBe('shardfile-folder-missing');
+  });
+
+  // QA 11-13 row 2 (J198, J259): one rule for a draft, a warning from build and check, a refusal from upload.
+  it('names an unprepared draft shardfile-draft, in build\'s warning and upload\'s refusal', () => {
+    const message = draftMessage('dunes');
+    expect(message).toMatch(/^dunes is an unprepared draft \(sdk 0\.2\): /u);
+    for (const step of ['shardfile', 'upload'] as const) expect(refusalNote(step, message)).toEqual({ rule: 'shardfile-draft', guide: `${GUIDE_FILE}#shardfile-draft`, fix: REFUSAL_RULES.find(row => row.id === 'shardfile-draft')?.fix });
+    expect(REFUSAL_RULES.find(row => row.id === 'shardfile-draft')?.fix).toMatch(/wildshard prepare .*wildshard build <folder>.*WILDSHARD_PREPARATION_URL/u);
   });
 
 });

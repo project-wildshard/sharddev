@@ -44,8 +44,11 @@ test('a packed CLI scaffolds outside its checkout and refuses overwriting it', {
 // SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
 const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
 let built;
+// J198: what build writes is a draft (sdk 0.2); it warns, names the rule and still writes the shard file.
+const DRAFT = /^warning: outside-isle is an unprepared draft \(sdk 0\.2\): .*\n {2}\[shardfile-draft\] fix: Run `wildshard prepare /mu;
 test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
-  run(['build', source, join(app, 'first'), '--shardfile-only']);
+  const done = run(['build', source, join(app, 'first'), '--shardfile-only']);
+  assert.match(done.stdout, DRAFT);
   built = sha(shardfile);
 });
 test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 9_500 }, () => {
@@ -86,9 +89,17 @@ test('installed check --json gives a verdict on the new author project', { timeo
   // Lint skips until the sdk ships oxlint and its author config (SA8); prove skips with no proof.json.
   assert.deepEqual(result.steps.map(step => step.status), ['skip', 'pass', 'pass', 'skip', 'pass']);
   assert.deepEqual(result.refusals, []);
+  // J198: the draft is a warning in the document, never a refusal.
+  assert.deepEqual(result.warnings.map(row => [row.step, row.rule, row.guide]), [['build', 'shardfile-draft', 'GUIDE.md#shardfile-draft']]);
   // SA3: check's build writes the shard file too, and its note names it.
   assert.match(result.steps[1].note, /outside-isle\.shardfile$/u);
   assert.equal(sha(shardfile), built);
+});
+test('installed check prints the draft warning once, in its verdict', { timeout: 9_500 }, () => {
+  const done = run(['check', source, join(app, 'checked')]);
+  assert.equal(`${done.stdout}${done.stderr}`.match(/unprepared draft/gu)?.length, 1, done.stdout);
+  assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(sdk 0\.2\)/mu);
+  assert.match(done.stdout, /^check pass in /mu);
 });
 test('installed check --json fails a missing project with its refusal', { timeout: 9_500 }, () => {
   // Flags go anywhere: --json before the project still prints the document alone.
@@ -124,22 +135,47 @@ test('author and engine share the format schema and Three instance without a tes
   assert.equal(a.ShardfileSchema, b.ShardfileSchema);
   assert.equal(author('three').Vector3, engine('three').Vector3);
 });
-test('the outside author uploads its newly built tarball through the real CLI to the local service double', { timeout: 9_500 }, async context => {
-  const server = await openUploadServer(context);
-  // A real author's app has a package.json and a git HEAD; upload sends both (AC16).
-  writeFileSync(join(app, 'package.json'), '{ "name": "outside-author", "version": "1.0.0", "private": true }\n');
-  const git = args => assert.equal(spawnSync('git', ['-c', 'user.name=Outside Author', '-c', 'user.email=author@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: app, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
-  git(['init', '-q']); git(['add', 'package.json']); git(['commit', '-q', '--no-verify', '-m', 'outside author']);
+/** `wildshard prepare`'s last step on `folder` with a fixture recording (as src/ci/cook-preparation.test.ts), no WebKit. */
+function prepare(folder) {
+  const sdk = join(bin, '../..'), header = readFileSync(join(folder, 'shard.json')), recording = join(root, 'recording.json');
+  writeFileSync(recording, JSON.stringify({ headerHash: createHash('sha256').update(header).digest('hex'), renderer: '1'.repeat(64), reads: [],
+    programs: { version: 2, build: 'wire-fixture-only', lines: ['void main() {}'], shaders: [[0]], programs: [[0, 0]] } }));
+  const finish = `import {readFileSync} from 'node:fs';
+import {finishPreparation} from ${JSON.stringify(join(sdk, 'scripts/prepare-product.mjs'))};
+const [dir,file]=process.argv.slice(1);
+await finishPreparation(dir,JSON.parse(readFileSync(file,'utf8')),readFileSync(dir+'/shard.json'));`;
+  const done = spawnSync(process.execPath, ['--import', join(sdk, 'src/sharddev/bake/format-hook.mjs'), '--input-type=module', '-e', finish, folder, recording], { encoding: 'utf8' });
+  assert.equal(done.status, 0, done.stderr);
+}
+async function upload(context, server, file) {
   // An asynchronous child leaves this process free to serve the real HTTP requests.
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
-  const child = spawn(process.execPath, [bin, 'upload', join(root, 'isle.tar'), '--channel', 'staging', '--server', server.url], {
+  const child = spawn(process.execPath, [bin, 'upload', file, '--channel', 'staging', '--server', server.url], {
     cwd: app, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   context.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });
   let output = ''; child.stdout.on('data', bytes => { output += bytes; }); child.stderr.on('data', bytes => { output += bytes; });
   const [code] = await once(child, 'close');
-  assert.equal(code, 0, output);
+  return { code, output };
+}
+test('the outside author uploads its newly built and prepared tarball through the real CLI to the local service double', { timeout: 9_500 }, async context => {
+  const server = await openUploadServer(context);
+  // A real author's app has a package.json and a git HEAD; upload sends both (AC16).
+  writeFileSync(join(app, 'package.json'), '{ "name": "outside-author", "version": "1.0.0", "private": true }\n');
+  const git = args => assert.equal(spawnSync('git', ['-c', 'user.name=Outside Author', '-c', 'user.email=author@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: app, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
+  git(['init', '-q']); git(['add', 'package.json']); git(['commit', '-q', '--no-verify', '-m', 'outside author']);
+  // J198, J259: the draft refuses before any request; api-server would answer it 422 after the whole file.
+  const draft = await upload(context, server, join(root, 'isle.tar'));
+  assert.notEqual(draft.code, 0, draft.output);
+  assert.match(draft.output, /outside-isle is an unprepared draft \(sdk 0\.2\)[^\n]*\n {2}\[shardfile-draft\] fix: /u);
+  assert.equal(server.state.apiRequests.length, 0);
+  // Prepared, then written again by build <folder>, it uploads as before.
+  cpSync(join(app, 'first'), join(app, 'prepared'), { recursive: true });
+  prepare(join(app, 'prepared'));
+  assert.doesNotMatch(run(['build', join(app, 'prepared'), join(root, 'prepared.tar')]).stdout, /draft/u);
+  const prepared = await upload(context, server, join(root, 'prepared.tar'));
+  assert.equal(prepared.code, 0, prepared.output);
   assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version: '1.0.0' }]);
 });
 test('the newly built outside-author product boots and accepts real worker input', { timeout: 9_500 }, async () => {

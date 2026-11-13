@@ -4,6 +4,8 @@ import path from 'node:path'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { DRAFT_SDK, draftMessage } from '../../sharddev/draft.ts'
+import { refusalHint, refusalNote } from '../../sharddev/refusals.ts'
 import { audioLines } from '../audio/audio.ts'
 import { assertHeroCurrent } from '../hero/hero.ts'
 import { validateShardfile } from '../upload/validate.ts'
@@ -12,8 +14,9 @@ import { validateShardfile } from '../upload/validate.ts'
 // turns the shard file folder it built into the one tarball `api-server`
 // takes, so a shard file stands alone. It writes ustar through format's
 // `writeTar` and runs format's validator on the tarball itself, the check the
-// server runs at commit: what this writes, the server admits. `wildshard pack`
-// is the deprecated alias of this step.
+// server runs at commit: what this writes, the server admits once it is
+// prepared. A fresh build is a draft (sdk 0.2) that the server refuses, so
+// this warns about one (J198). `wildshard pack` is the deprecated alias.
 //
 // The same folder writes the same bytes, so the same hash, and a re-upload
 // sends nothing.
@@ -43,6 +46,8 @@ interface ShardfileOptions {
   readonly source?: string
   /** Receives one line per step. */
   readonly report: (line: string) => void
+  /** False: the caller reports a draft itself (`check`, in its verdict). */
+  readonly draftWarning?: boolean
 }
 
 interface Tarball {
@@ -113,6 +118,22 @@ function reportOverCap(options: ShardfileOptions, bytes: number): void {
   }
 }
 
+/**
+ * J198: a fresh build is a draft (sdk 0.2) that upload and api-server refuse;
+ * build still writes it, as `wildshard prepare` works on the folder.
+ */
+function reportDraft(
+  options: ShardfileOptions,
+  slug: string,
+  sdk: string,
+): void {
+  if (sdk === DRAFT_SDK && options.draftWarning !== false) {
+    const message = draftMessage(slug)
+    options.report(`warning: ${message}`)
+    options.report(`  ${refusalHint(refusalNote('shardfile', message))}`)
+  }
+}
+
 /** Never leaves half a tarball under the final name. */
 async function writeAtomically(
   file: string,
@@ -133,8 +154,9 @@ async function checkedTarball(
 ): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
   await assertHeroCurrent(options.dir, options.report, options.source)
   const { tarball, fileCount } = await tarOf(options.dir)
-  const { slug, name, audio } = await validateShardfile(tarball)
+  const { slug, name, audio, sdk } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
+  reportDraft(options, slug, sdk)
   // AUDIO AU5: build prints the audio rules as AMBER and still writes the
   // shard file; only upload and api-server's admission refuse a red.
   for (const line of await audioLines(audio)) {

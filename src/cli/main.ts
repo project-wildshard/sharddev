@@ -39,20 +39,26 @@ Commands:
                        verdict. --json prints only the verdict document:
                        { version, verdict, project, output, ms, steps:
                        [{ name, status, ms, note? }], refusals: [{ step,
-                       rule, message, fix, guide, file? }] }. Every
-                       refusal names its rule, a fix and its GUIDE.md
-                       section. Exits 1 on fail
+                       rule, message, fix, guide, file? }], warnings: [the
+                       same] }. Every refusal names its rule, a fix and its
+                       GUIDE.md section. A warning (an unprepared draft)
+                       does not fail the verdict. Exits 1 on fail
   serve [--port <n>]   Start the sharddev server on localhost
   prepare <product> --base <exact-preview-url>
                        Record the exact candidate in phone WebKit, compute
-                       required cook lists and validate the prepared output
+                       required cook lists and validate the prepared output:
+                       the draft becomes sdk 0.3, the only kind upload
+                       sends. Then write its shard file with build <folder>
   build <project> [folder] [--shardfile-only | --folder-only]
                        Build the shard file folder (default
                        <project>/public/shardfiles/<slug>), then write the
-                       shard file <slug>.shardfile beside it and check it as
-                       api-server will: refuses a shard whose captured hero
-                       is older than its content (src/shards/<name>/hero.json)
-                       and prints the audio rules. --shardfile-only skips the
+                       shard file <slug>.shardfile beside it and run
+                       format's checks on it: refuses a shard whose captured
+                       hero is older than its content
+                       (src/shards/<name>/hero.json) and prints the audio
+                       rules. What it writes is a draft (sdk 0.2): it warns
+                       that api-server and upload refuse a draft until
+                       prepare makes it sdk 0.3. --shardfile-only skips the
                        client; --folder-only (old name --product-only)
                        also skips the shard file
   build <folder> [file]
@@ -72,8 +78,10 @@ Commands:
                        hides a stale hero from the cut
   upload <shard file> --channel staging|prod [--server <url>]
          [--level <n>] [--version <X.Y.Z>] [--commit <sha>]
-                       Check a shard file, compress it (Brotli level
-                       <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and upload it to
+                       Check a shard file (an unprepared draft, sdk 0.2,
+                       refuses before anything is sent), compress it
+                       (Brotli level <n>, default ${String(DEFAULT_BROTLI_LEVEL)}), sign it and
+                       upload it to
                        api-server for the channel it names (required; prod
                        is production) with its shard version (default: the
                        shard project's package.json version), commit

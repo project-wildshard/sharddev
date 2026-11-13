@@ -22,6 +22,8 @@ interface ValidShardfile {
   readonly card: HeroCard | undefined
   /** The hero digest api-server's UP4 takes (`hero.ts`); undefined with no card. */
   readonly heroHash: string | undefined
+  /** `0.2`: a draft as `wildshard build` writes it; `0.3`: prepared (J198). */
+  readonly sdk: '0.2' | '0.3'
 }
 
 function sha256(bytes: Readonly<Uint8Array>): string {
@@ -60,6 +62,7 @@ async function validateShardfile(
   const valid = validateShardfileProduct(product, { hash: sha256 })
   const { identity, presentation } = valid.shard
   return {
+    sdk: valid.index.sdk,
     slug: identity.slug,
     name: identity.name,
     audio: productAudioReport(valid, new Date()),

@@ -1,6 +1,4 @@
 import assert from 'node:assert/strict'
-import type { Dirent } from 'node:fs'
-import { readFile, readdir } from 'node:fs/promises'
 import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
@@ -8,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { folderFiles, preparedFiles } from '../../test/helpers/shardfile.ts'
 import { open, upload } from '../../test/helpers/upload-run.ts'
 import { heroHashOf } from './hero.ts'
 import { validateShardfile } from './validate.ts'
@@ -33,33 +32,27 @@ const API_DIGEST = {
     'bd9c8e0df149c367a9421e2dbf9f8c1856118c490b6261501572b2ab2e109d1d',
 }
 
-/** A product folder as one tarball, as `wildshard build` writes it (no `blobs/pack/`). */
-async function tarOf(root: string): Promise<Uint8Array> {
+/**
+ * A product folder as one tarball, as `wildshard build` writes it (no
+ * `blobs/pack/`); `prepared` as `wildshard prepare` leaves it, for upload.
+ */
+async function tarOf(root: string, prepared = false): Promise<Uint8Array> {
   installFormatHook()
   const { writeTar } = await import('@wildshard/format/tar')
-  const entries = await readdir(root, { recursive: true, withFileTypes: true })
-  const names = entries
-    .filter((entry: Readonly<Dirent>): boolean => entry.isFile())
-    .map((entry: Readonly<Dirent>): string => {
-      const file = path.join(entry.parentPath, entry.name)
-      return path.relative(root, file).split(path.sep).join('/')
-    })
-    .filter((name: string): boolean => !name.startsWith('blobs/pack/'))
-  const pairs = await Promise.all(
-    names.map(async (name: string): Promise<readonly [string, Uint8Array]> => {
-      const bytes = await readFile(path.join(root, name))
-      return [name, new Uint8Array(bytes)]
-    }),
-  )
-  const files = new Map(pairs)
-  return writeTar(files)
+  const files = await folderFiles(root)
+  for (const name of files.keys()) {
+    if (name.startsWith('blobs/pack/')) {
+      files.delete(name)
+    }
+  }
+  return writeTar(prepared ? await preparedFiles(files) : files)
 }
 
 /** A `_template`-shaped shard: its tarball, slug and the API's digest. */
 async function templateShaped(): Promise<
   Readonly<{ tarball: Uint8Array; slug: string; heroHash: string }>
 > {
-  const tarball = await tarOf(path.join(CORPUS, 'brasscap-mesa'))
+  const tarball = await tarOf(path.join(CORPUS, 'brasscap-mesa'), true)
   const { slug } = await validateShardfile(tarball)
   return { tarball, slug, heroHash: API_DIGEST.brasscapMesa }
 }

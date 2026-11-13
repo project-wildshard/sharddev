@@ -128,6 +128,17 @@ hero until the next content change.
 
 ## J198 preparation
 
+Build, prepare, upload, in that order. `wildshard build` (and `check`)
+writes a **draft**: its `shard.json` says `sdk: "0.2"` with a mounts-only
+cook, by design. Only `wildshard prepare <folder> --base <url>` turns it
+into `sdk: "0.3"` with a version 3 cook; then `wildshard build <folder>`
+writes the prepared shard file. api-server refuses a draft at commit (422,
+"no author preparation (sdk 0.2)", J259), so build and check print a
+`shardfile-draft` warning (`check --json` lists it under `warnings`) and
+`wildshard upload` refuses a draft before anything is sent. A repo's
+`pack:shards` does prepare and build in one go when
+`WILDSHARD_PREPARATION_URL` is set.
+
 After building a candidate, serve that exact product in an engine preview.
 Run `wildshard prepare <product-dir> --base <exact-preview-url>` through
 engine `scripts/browser-lane.sh`. The command owns a fresh, muted iPhone

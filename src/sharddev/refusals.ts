@@ -79,7 +79,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
   { id: 'budget-refused', anchor: 'budget-refused', steps: ['build', 'validate'], match: /Performance report refused/u,
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
-  // the shard file build writes (SA3; `pack` is its deprecated alias) and upload, before a byte is sent
+  // the shard file build writes (SA3; `pack` is its deprecated alias) and upload, before a byte is sent. `shardfile-draft` is
+  // a warning from build and check and a refusal from upload (draft.ts).
   { id: 'hero-stale', anchor: 'hero-stale', steps: ['shardfile', 'pack', 'upload'], match: /the hero (?:of .* is older than its content|of .* has no .* stamp)|the hero files of .* are not the ones stamped/u,
     fix: 'Capture the hero again from a served build: `wildshard hero src/shards/<name> --base <url>`.' },
   { id: 'hero-not-in-product', anchor: 'hero-not-in-product', steps: ['shardfile', 'pack', 'upload'], match: /does not carry the captured hero/u,
@@ -88,6 +89,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Capture a new hero (`wildshard hero`), then build and upload again.' },
   { id: 'audio-refused', anchor: 'audio-refused', steps: ['pack', 'upload'], match: /^Audio rules \(AU5\) refuse/u,
     fix: 'Fix each red audio finding listed, or waive it in the shard\'s audio-waiver.json.' },
+  { id: 'shardfile-draft', anchor: 'shardfile-draft', steps: ['shardfile', 'upload'], match: /is an unprepared draft \(sdk 0\.2\)/u,
+    fix: 'Run `wildshard prepare <folder> --base <url>`, then `wildshard build <folder>`; a shard repo\'s pack:shards does both (WILDSHARD_PREPARATION_URL).' },
   { id: 'shardfile-link', anchor: 'shardfile-link', steps: ['shardfile', 'pack'], match: /not a regular file|link is refused/u,
     fix: 'Replace links in the shard file folder with real files, then build again.' },
   { id: 'shardfile-folder-missing', anchor: 'shardfile-folder-missing', steps: ['shardfile', 'pack'], match: /(?:build|pack) needs a shard file folder|ENOENT/u,

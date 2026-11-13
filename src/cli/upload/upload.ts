@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 
+import { DRAFT_SDK, draftMessage } from '../../sharddev/draft.ts'
 import { assertAudio } from '../audio/audio.ts'
 import {
   commitUpload,
@@ -26,6 +27,8 @@ import type { CommitAnswer } from './wire.ts'
 // SHARD-AUTHORING UP3 adds the channel the upload is for (J301) and the
 // versions it was built with (J306), and refuses a hero unchanged since the
 // slug's newest catalogued version before any byte moves, as UP4's API will.
+// An unprepared draft (sdk 0.2) refuses here too, before any request: the
+// API answers it 422 at commit (J259), after the whole file was sent.
 
 const MS_PER_SECOND = 1000
 const BYTES_PER_MB = 1_000_000
@@ -190,13 +193,19 @@ interface Validated {
   readonly hero: string | undefined
 }
 
-/** Format's check, then AU5's audio rules: a red refuses before any byte is sent. */
+/**
+ * Format's check, then the draft check (J198) and AU5's audio rules: a draft
+ * or a red refuses before any byte is sent.
+ */
 async function validated(
   options: Readonly<UploadOptions>,
   tarball: Readonly<Uint8Array>,
 ): Promise<Validated> {
-  const { slug, name, audio, heroHash } = await validateShardfile(tarball)
+  const { slug, name, audio, heroHash, sdk } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
+  if (sdk === DRAFT_SDK) {
+    throw new Error(draftMessage(slug))
+  }
   await assertAudio(audio)
   return { slug, hero: heroHash }
 }

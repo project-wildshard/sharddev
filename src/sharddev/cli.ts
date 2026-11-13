@@ -38,8 +38,8 @@ async function admitBuild(shard: Shardfile, assets: ReadonlyMap<string, Uint8Arr
   printReport(shard, await measureSimulation(shard, assets, undefined, sections), policy);
 }
 /** SA3: writes a built folder's shard file (hero check against `source`, format and audio checks) and returns its path;
- * scripts/wildshard.mjs gives it. */
-export type ShardfileWriter = (folder: string, source: string) => Promise<string>;
+ * scripts/wildshard.mjs gives it. `draftWarning: false` leaves the draft warning (J198) to the caller. */
+export type ShardfileWriter = (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string>;
 /** A refusal from the shard file step, named by its own rules (SA3), not build's source rules. */
 class ShardfileRefusalError extends Error { override readonly name = 'ShardfileRefusalError'; }
 async function writeShardfileOf(options: CliOptions, folder: string, source: string): Promise<void> {

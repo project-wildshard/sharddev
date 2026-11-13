@@ -18,9 +18,9 @@ import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-ou
 let runner;
 /** SA3 (J170): `build` and `check` end by writing the folder's shard file, the step `pack` was. It stays out of the author
  * bundle: the same module serves `wildshard build <folder>` and the deprecated `pack` (src/cli/main.ts). */
-async function writeShardfile(dir, source) {
+async function writeShardfile(dir, source, options = {}) {
   const { writeShardfile: write } = await import('../src/cli/shardfile/shardfile.ts');
-  return (await write({ dir, source, report: line => console.info(line) })).file;
+  return (await write({ dir, source, report: line => console.info(line), ...options })).file;
 }
 // The bundle's import.meta.dirname stays src/sdk: headless.ts finds bake/headlessWorker.ts beside it, and src/sdk keeps the
 // author tools' dependency links until the host leaves at P3 (P1-F4).

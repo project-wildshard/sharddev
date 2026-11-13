@@ -14,7 +14,11 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { sha256, shardfileFiles } from '../../test/helpers/shardfile.ts'
+import {
+  prepareFolder,
+  sha256,
+  shardfileFiles,
+} from '../../test/helpers/shardfile.ts'
 import { openUploadServer } from '../../test/helpers/upload-server.ts'
 import { uploadShardfile } from '../upload/upload.ts'
 import { writeShardfile } from './shardfile.ts'
@@ -57,12 +61,36 @@ async function workspace(context: TestContext): Promise<Workspace> {
 async function pack(
   space: Workspace,
   out = space.out,
+  report: (line: string) => void = (): void => undefined,
 ): Promise<ShardfileOutcome> {
-  return await writeShardfile({
-    dir: space.product,
-    out,
-    report: (): void => undefined,
-  })
+  return await writeShardfile({ dir: space.product, out, report })
+}
+
+async function uploadTo(
+  context: TestContext,
+  file: string,
+): Promise<
+  Readonly<{
+    send: () => ReturnType<typeof uploadShardfile>
+    requests: () => number
+  }>
+> {
+  const server = await openUploadServer(context)
+  const send = async (): ReturnType<typeof uploadShardfile> =>
+    await uploadShardfile({
+      file,
+      server: server.url,
+      privateKey: server.privateKey,
+      level: 5,
+      version: '0.0.1',
+      commit: 'c'.repeat(40),
+      channel: 'staging',
+      sharddev: '0.2.2',
+      engine: '0.1.13',
+      shardFormat: '0.4.4',
+      report: (): void => undefined,
+    })
+  return { send, requests: (): number => server.state.apiRequests.length }
 }
 
 test('packs a product the system tar reads back', async (context: TestContext): Promise<void> => {
@@ -134,25 +162,41 @@ test('names the shard file <slug>.shardfile beside its folder by default (SA3)',
   assert.match(lines.join('\n'), /^shard file: .*upload-test\.shardfile, /mu)
 })
 
-test('what build writes, upload sends', async (context: TestContext): Promise<void> => {
+test('what build writes once prepared, upload sends', async (context: TestContext): Promise<void> => {
   const space = await workspace(context)
-  const packed = await pack(space)
-  const server = await openUploadServer(context)
-  const outcome = await uploadShardfile({
-    file: packed.file,
-    server: server.url,
-    privateKey: server.privateKey,
-    level: 5,
-    version: '0.0.1',
-    commit: 'c'.repeat(40),
-    channel: 'staging',
-    sharddev: '0.2.2',
-    engine: '0.1.13',
-    shardFormat: '0.4.4',
-    report: (): void => undefined,
+  await prepareFolder(space.product)
+  const lines: string[] = []
+  const packed = await pack(space, space.out, (line: string): void => {
+    lines.push(line)
   })
+  const upload = await uploadTo(context, packed.file)
+  const outcome = await upload.send()
 
+  assert.doesNotMatch(lines.join('\n'), /draft/u)
   assert.equal(outcome.hash, packed.hash)
   assert.equal(outcome.shard, SLUG)
   assert.equal(outcome.alreadyStored, false)
+})
+
+// QA 11-13 row 2 (J198, J259): a fresh build is a draft, sdk 0.2, which
+// api-server answers 422 at commit. Build warns and still writes it; upload
+// refuses it before the first request.
+test('build warns on a draft and still writes it; upload refuses it unsent', async (context: TestContext): Promise<void> => {
+  const space = await workspace(context)
+  const lines: string[] = []
+  const packed = await pack(space, space.out, (line: string): void => {
+    lines.push(line)
+  })
+  const upload = await uploadTo(context, packed.file)
+
+  assert.match(
+    lines.join('\n'),
+    /^warning: upload-test is an unprepared draft \(sdk 0\.2\): api-server refuses a draft at commit, so prepare its folder and build it again before upload\n {2}\[shardfile-draft\] fix: Run `wildshard prepare .*\(GUIDE\.md#shardfile-draft\)$/mu,
+  )
+  assert.equal(packed.hash, sha256(await readFile(space.out)))
+  await assert.rejects(
+    upload.send(),
+    /upload-test is an unprepared draft \(sdk 0\.2\)/u,
+  )
+  assert.equal(upload.requests(), 0)
 })
