@@ -15,7 +15,7 @@ import { close, listen, sendJson } from './http-double.ts'
 import {
   commitBodyOf,
   createdReply,
-  echoed,
+  dressed,
   knownReply,
   listingOf,
   missingVersion,
@@ -23,14 +23,13 @@ import {
 
 import type { Accounts } from './auth-double.ts'
 import type { Deletions } from './delete-double.ts'
-import type { Recorded, Reply } from './upload-commit.ts'
+import type { CatalogueShard, Grid, Recorded, Reply } from './upload-commit.ts'
 import type { InferOutput } from 'valibot'
 
-// An api-server stand-in for `sharddev upload`: real sockets, real Ed25519
-// verification over the tarball's digest and a real Brotli decode, with
-// the presigned PUT on a second server, as R2 is. The signature and the
-// account key (meta SHARD-DELETE DEL6) are auth-double.ts's, DEL10's
-// delete calls delete-double.ts's.
+// An api-server stand-in for `sharddev upload`: real sockets, Ed25519 over
+// the tarball's digest, a real Brotli decode, the presigned PUT on a second
+// server as R2 is. Signature, account key (SHARD-DELETE DEL6): auth-double;
+// DEL10's delete calls: delete-double; commit answers: upload-commit.ts.
 
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
 const TIME = '2026-11-05T00:00:00.000Z'
@@ -70,15 +69,10 @@ interface UploadServerState {
   sso: boolean
   /** Echo the channel and the three versions, as UP2's API will. */
   echo: boolean
+  /** The API's SA30 grid step: `off`, as live today, answers no `placement`. */
+  grid: Grid
   readonly accounts: Accounts
   readonly deletions: Deletions
-}
-
-/** A catalogue shard as the double serves it. */
-interface CatalogueShard {
-  readonly slug: string
-  readonly version: string
-  readonly heroHash?: string
 }
 
 interface UploadServer {
@@ -171,7 +165,7 @@ function commitReply(
     known === undefined
       ? freshReply(double, request, { hash: call.hash, version: body.version })
       : knownReply(call.hash, known, body.version)
-  return double.state.echo ? echoed(reply, body) : reply
+  return dressed(reply, body, double.state)
 }
 
 function ticket(double: Double, exchange: Exchange, body: string): void {
@@ -263,6 +257,7 @@ function newState(): UploadServerState {
     unlisted: false,
     sso: false,
     echo: false,
+    grid: 'off',
     accounts: newAccounts(),
     deletions: newDeletions(),
   }
@@ -292,9 +287,4 @@ async function openUploadServer(context: TestContext): Promise<UploadServer> {
   return { url, privateKey: der.toString('base64'), apiKey, state }
 }
 
-export {
-  type CatalogueShard,
-  type UploadServer,
-  type UploadServerState,
-  openUploadServer,
-}
+export { type UploadServer, type UploadServerState, openUploadServer }

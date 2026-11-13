@@ -1,4 +1,5 @@
 import {
+  boolean,
   literal,
   object,
   optional,
@@ -16,6 +17,7 @@ import type { InferOutput } from 'valibot'
 // (V1), and the answer adds `version`, `formatVersion` and `migrations`.
 // UP3 adds `channel` and the three versions; like today's API the double
 // drops them unless `echo` is on, as UP2's API will answer them.
+// SA32: `grid` plays api-server's SA30 grid step, in its own words.
 
 const SHARD = 'upload-test'
 const TIME = '2026-11-05T00:00:00.000Z'
@@ -38,9 +40,17 @@ const CommitBodySchema = object({
   engine: optional(VersionSchema),
   sharddev: optional(VersionSchema),
   shardFormat: optional(VersionSchema),
+  place: optional(boolean()),
 })
 
 type CommitBody = InferOutput<typeof CommitBodySchema>
+
+/** A catalogue shard as the double serves it. */
+interface CatalogueShard {
+  readonly slug: string
+  readonly version: string
+  readonly heroHash?: string
+}
 
 /** One upload the double recorded. */
 interface Recorded {
@@ -126,6 +136,69 @@ function echoed(reply: Reply, body: CommitBody): Reply {
   }
 }
 
+/**
+ * The API's SA30 grid step: `off` while its `GRID_AUTOPLACE` is; `failed`
+ * and `garbled` misbehave; `revived` answers a DEL7 revival, which takes
+ * no cell.
+ */
+type Grid = 'off' | 'free' | 'full' | 'taken' | 'failed' | 'garbled' | 'revived'
+
+const PLACED_CELL = [0, 3]
+const ANSWERS: Readonly<Partial<Record<Grid, unknown>>> = {
+  full: { placed: false, reason: 'grid full, not placed' },
+  failed: {
+    placed: false,
+    reason: 'not placed: the grid step failed; commit again to retry',
+  },
+  garbled: { placed: 'maybe', cell: 'none' },
+}
+
+/** SA30's `placement` for a commit, in the API's own words. */
+function placementOf(grid: Grid, body: CommitBody): unknown {
+  if (body.place === false) {
+    return { placed: false, reason: 'not placed (place: false)' }
+  }
+  const fixed = ANSWERS[grid]
+  if (fixed !== undefined) {
+    return fixed
+  }
+  const channels =
+    body.channel === 'production'
+      ? ['preview', 'staging', 'production']
+      : ['preview', 'staging']
+  return {
+    placed: true,
+    cell: PLACED_CELL,
+    channels: grid === 'taken' ? channels.slice(0, 1) : channels,
+  }
+}
+
+/** A success with SA30's `placement`, unless the grid step is off. */
+function placed(reply: Reply, body: CommitBody, grid: Grid): Reply {
+  if (
+    grid === 'off' ||
+    reply.status >= FIRST_FAILURE ||
+    typeof reply.body !== 'object'
+  ) {
+    return reply
+  }
+  const extra =
+    grid === 'revived'
+      ? { revived: true }
+      : { placement: placementOf(grid, body) }
+  return { status: reply.status, body: { ...reply.body, ...extra } }
+}
+
+/** A success as the double's API answers it: SA30's grid step, UP2's echo. */
+function dressed(
+  reply: Reply,
+  body: CommitBody,
+  api: Readonly<{ grid: Grid; echo: boolean }>,
+): Reply {
+  const answered = placed(reply, body, api.grid)
+  return api.echo ? echoed(answered, body) : answered
+}
+
 /** `GET /api/shardfiles` over what the double recorded. */
 function listingOf(revisions: ReadonlyMap<string, Recorded>): unknown {
   return {
@@ -142,11 +215,13 @@ function listingOf(revisions: ReadonlyMap<string, Recorded>): unknown {
 }
 
 export {
+  type CatalogueShard,
+  type Grid,
   type Recorded,
   type Reply,
   commitBodyOf,
   createdReply,
-  echoed,
+  dressed,
   knownReply,
   listingOf,
   missingVersion,

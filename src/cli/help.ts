@@ -50,7 +50,7 @@ const VERBS: Readonly<Record<string, string>> = {
                        those images show the current content; a wrong
                        stamp hides a stale hero from the cut`,
   upload: `upload <file> --channel staging|prod [--server <url>]
-         [--level <n>] [--version <X.Y.Z>] [--commit <sha>]
+         [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place]
                        Check a shard file (an unprepared draft, sdk 0.2,
                        is refused before anything is sent), compress it
                        (Brotli level <n>, default ${LEVEL}), sign it with the
@@ -63,7 +63,18 @@ const VERBS: Readonly<Record<string, string>> = {
                        tree) and the sdk, engine and shard-format releases
                        it was built with. Refuses a hero unchanged since
                        the shard's newest upload (run hero first). Prints
-                       the API's version, format version and migrations.
+                       the API's version, format version and migrations,
+                       then the grid: the shard's cell ("placed at (0,3)
+                       on preview, staging"), "grid full, not placed",
+                       "not placed (--no-place)", or "no new cell" while
+                       the API's placement is off or past the shard's
+                       first upload; then the /slug/<slug> link on each
+                       channel the upload moved (that page is not built
+                       yet). --no-place takes no grid cell, for a proof
+                       upload. Only a shard's first upload takes a cell,
+                       so one uploaded with --no-place never gets one; on
+                       a later upload --no-place leaves the grid as it
+                       was, so a prod upload adds no production cell.
                        Sends your account key (WILDSHARD_API_KEY, else
                        the file wildshard account saved; with neither it
                        refuses before anything is sent). Reads

@@ -116,7 +116,10 @@ function channelRefusal(raw: string | undefined): string {
   return `upload needs --channel staging or --channel prod${given}`
 }
 
-type Connection = Omit<UploadOptions, keyof Provenance | 'file' | 'channel'>
+type Connection = Omit<
+  UploadOptions,
+  keyof Provenance | 'file' | 'channel' | 'place'
+>
 
 /** `--server`, else WILDSHARD_API_URL, else empty. */
 function serverOf(args: CliArgs): string {
@@ -179,7 +182,7 @@ function uploadSettings(
   const connection = connectionOf(args, apiKey)
   return typeof connection === 'string'
     ? connection
-    : { file: args.operand, channel, ...connection }
+    : { file: args.operand, channel, place: !args.noPlace, ...connection }
 }
 
 /** The upload's settings from flags and environment, or what is wrong. */

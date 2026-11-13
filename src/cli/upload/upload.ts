@@ -10,6 +10,7 @@ import {
   requestTicket,
 } from './api.ts'
 import { storedForm } from './compress.ts'
+import { placementLines } from './placement.ts'
 import { signTarball } from './signature.ts'
 import { validateShardfile } from './validate.ts'
 
@@ -29,6 +30,8 @@ import type { CommitAnswer } from './wire.ts'
 // slug's newest catalogued version before any byte moves, as UP4's API will.
 // An unprepared draft (sdk 0.2) refuses here too, before any request: the
 // API answers it 422 at commit (J259), after the whole file was sent.
+// SA32 sends `place: false` for `--no-place` and prints the API's grid
+// answer and each moved channel's `/slug/<slug>` link (placement.ts).
 
 const MS_PER_SECOND = 1000
 const BYTES_PER_MB = 1_000_000
@@ -41,6 +44,8 @@ interface UploadOptions extends ApiOptions, Provenance {
   readonly file: string
   /** The channel the upload is for, by its wire name (J301). */
   readonly channel: Channel
+  /** False for `--no-place` (SA32): the commit sends `place: false`. */
+  readonly place?: boolean
   /** Base64 PKCS#8: WILDSHARD_CREATOR_PRIVATE_KEY. */
   readonly privateKey: string
   /** Brotli quality. */
@@ -51,6 +56,8 @@ interface UploadOptions extends ApiOptions, Provenance {
 
 /** The upload that holds the bytes, as the API answered its commit. */
 interface UploadOutcome {
+  /** The grid line and the links, printed after the commit line (SA32). */
+  readonly gridReport: readonly string[]
   readonly hash: string
   readonly shard: string
   readonly revision: number
@@ -155,7 +162,9 @@ async function commit(
   contentEncoding: Encoding,
 ): Promise<UploadOutcome> {
   const { channel, sharddev, engine, shardFormat } = options
+  const place = options.place !== false
   const answer = await commitUpload(options, signed, {
+    place,
     contentEncoding,
     version: options.version,
     commit: options.commit,
@@ -176,6 +185,7 @@ async function commit(
     `api: version ${version}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}${echoOf(answer)}`,
   )
   return {
+    gridReport: placementLines(answer, { channel, place }),
     hash,
     shard,
     revision,
@@ -231,6 +241,17 @@ async function checkHero(
   }
 }
 
+/** The commit's line, then the grid line and the links (SA32). */
+function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
+  const verb = outcome.alreadyStored ? 'already stored' : 'committed'
+  options.report(
+    `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`,
+  )
+  for (const line of outcome.gridReport) {
+    options.report(line)
+  }
+}
+
 /** Check, compress, sign, upload and commit; the upload that holds the bytes. */
 async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
@@ -241,10 +262,7 @@ async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
     ? undefined
     : await deliver(options, tarball, signed)
   const outcome = await commit(options, signed, encoding)
-  const verb = outcome.alreadyStored ? 'already stored' : 'committed'
-  options.report(
-    `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`,
-  )
+  reportCommitted(options, outcome)
   return outcome
 }
 

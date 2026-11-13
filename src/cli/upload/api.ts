@@ -198,18 +198,21 @@ type Channel = 'staging' | 'production'
 interface CommitBody extends Provenance {
   readonly contentEncoding?: 'br' | undefined
   readonly channel: Channel
+  /** False sends `place: false` (SA32's `--no-place`): no grid cell. */
+  readonly place: boolean
 }
 
 /**
  * The commit: the bytes' encoding, the shard version and commit (V1), the
- * channel it is for (J301) and the versions it was built with (J306).
+ * channel it is for (J301), the versions it was built with (J306) and,
+ * for `--no-place`, `place: false` (SA32; the API places by default).
  */
 async function commitUpload(
   options: ApiOptions,
   signed: SignedShardfile,
   body: CommitBody,
 ): Promise<CommitAnswer> {
-  const { contentEncoding, version, commit, channel } = body
+  const { contentEncoding, version, commit, channel, place } = body
   const { sharddev, engine, shardFormat } = body
   return await postSigned(
     options,
@@ -224,6 +227,7 @@ async function commitUpload(
         sharddev,
         engine,
         shardFormat,
+        ...(place ? {} : { place: false }),
       },
     },
     CommitAnswerSchema,

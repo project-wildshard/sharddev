@@ -136,3 +136,20 @@ test('an unprepared draft refuses with its rule and makes no request', async (co
   assert.equal(run.server.state.apiRequests.length, 0)
   assert.deepEqual(run.server.state.puts, [])
 })
+
+test('--no-place reaches the commit as place: false (SA32)', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+
+  const result = await cli(run, [
+    ...PROVENANCE,
+    '--channel',
+    'staging',
+    '--no-place',
+  ])
+
+  assert.equal(result.status, 0, result.stderr)
+  const [body] = run.server.state.commits
+  assert.ok(typeof body === 'object' && body !== null && 'place' in body)
+  assert.equal(body.place, false)
+  assert.match(result.stdout, /^not placed \(--no-place\)$/mu)
+})

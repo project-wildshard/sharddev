@@ -268,13 +268,28 @@ and then to prod: production needs a new version, and a new version needs a new 
 and only the Wildshard team places a shard on it. An uploaded shard with no cell is recorded on its channels, but no
 player can reach it there yet.
 
+**What upload says about the grid (SA32).** After the `committed:` line, upload prints one grid line, then the
+`/slug/<slug>` link on each channel it moved:
+
+| Grid line | Means |
+|---|---|
+| `placed at (0,3) on preview, staging` | The shard's cell, and the channels whose grid has it |
+| `grid full, not placed` | Every cell is taken; the upload still counts, and the Wildshard team is told |
+| `not placed (--no-place)` | You passed `--no-place` on the shard's first upload |
+| `grid left as it was (--no-place)` | You passed `--no-place` on a later upload: a cell the shard has stays, and is not added to a new channel |
+| `not placed: the grid step failed; run the same upload again to retry` | The upload counts; the same `wildshard upload` again places it |
+| `no new cell: grid placement is off on the API, or this is not the shard's first upload` | Today's answer: the API does not place yet (below); or the shard had an upload before and no cell |
+
+`wildshard upload --no-place` uploads without taking a cell, for a proof upload you will delete. Only a shard's
+first upload can take a cell, so a shard uploaded with `--no-place` never gets one from a later upload. The links
+point at the share page, which is not built yet (below), and each says `(page not built yet)`.
+
 **Not built yet:**
 
 - **The 7×7 grid that fills itself (J314; SA29 to SA35).** A brand-new slug's first upload will get the nearest free
   cell in the outer ring, and that cell is the slug's for life, on every channel it reaches: a staging upload places
-  it on preview and staging, and a later prod upload puts it at the same cell on production.
-- **`wildshard upload --no-place` (SA32):** upload without taking a cell. Upload will also print the cell it got, or
-  "grid full, not placed".
+  it on preview and staging, and a later prod upload puts it at the same cell on production. The API side is built
+  but switched off until the MMO server and the play page can show a new cell; upload already prints its answer.
 - **The share link (SA36, SA37):** `https://staging.wildshard.io/slug/<slug>` (and the same path on preview and
   production) will show your shard's name and hero with a Play button that spawns you at its cell, and unfurl with
   the hero when pasted into a chat. A shard with no cell shows its card with Play off: "not on the grid yet".

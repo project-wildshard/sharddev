@@ -2,11 +2,15 @@ import { installFormatHook } from '@wildshard/format/formatHook'
 import {
   array,
   intersect,
+  literal,
   nullable,
+  number,
   object,
   optional,
   string,
+  tuple,
   unknown,
+  variant,
 } from 'valibot'
 
 import type { UploadResult } from '@wildshard/format/uploadWire'
@@ -29,6 +33,34 @@ const {
 } = wire
 
 /**
+ * SA30's `placement` (meta SHARD-AUTHORING, J314): the cell a new shard
+ * got and the channels whose grid now has it, or why it got none. Absent
+ * while api-server's `GRID_AUTOPLACE` is off, and for a shard not new.
+ */
+type Placement =
+  | Readonly<{
+      placed: true
+      cell: readonly [number, number]
+      channels: readonly string[]
+    }>
+  | Readonly<{ placed: false; reason: string }>
+
+const CellSchema = tuple([number(), number()])
+
+const PlacedSchema = object({
+  placed: literal(true),
+  cell: CellSchema,
+  channels: array(string()),
+})
+
+const NotPlacedSchema = object({ placed: literal(false), reason: string() })
+
+const PlacementSchema: GenericSchema<Placement> = variant('placed', [
+  PlacedSchema,
+  NotPlacedSchema,
+])
+
+/**
  * The J275 commit's answer (API-CLOUDFLARE AC6, AC16): format's
  * `UploadResult` plus the shard version, the API's format version and the
  * migrations that ran. Format's wire predates them, so sharddev reads the
@@ -43,6 +75,14 @@ interface CommitAnswer extends UploadResult {
   readonly engine?: string | null | undefined
   readonly sharddev?: string | null | undefined
   readonly shardFormat?: string | null | undefined
+  /**
+   * SA30's grid step, read by placement.ts against `PlacementSchema`: the
+   * commit is recorded by now, so a shape the CLI can't read never fails
+   * the upload. Absent while placement is off.
+   */
+  readonly placement?: unknown
+  /** DEL7: true when the commit brought a deleted shard back (preview only). */
+  readonly revived?: unknown
 }
 
 const MigrationsSchema = array(unknown())
@@ -58,6 +98,8 @@ const CommitFieldsSchema = object({
   engine: EchoSchema,
   sharddev: EchoSchema,
   shardFormat: EchoSchema,
+  placement: optional(unknown()),
+  revived: optional(unknown()),
 })
 
 const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
@@ -88,7 +130,9 @@ const CatalogueSchema: GenericSchema<{
 export {
   type CatalogueShard,
   type CommitAnswer,
+  type Placement,
   CatalogueSchema,
+  PlacementSchema,
   CommitAnswerSchema,
   DirectUploadTicketSchema,
   ErrorBodySchema,

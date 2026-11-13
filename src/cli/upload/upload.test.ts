@@ -22,6 +22,8 @@ import { validateShardfile } from './validate.ts'
 // upload-cli.test.ts drives the same double through the real CLI.
 
 const BYPASS_HEADER = 'x-vercel-protection-bypass'
+// The grid line and the two links a staging upload prints last (SA32).
+const AFTER_COMMIT = 4
 
 test('compresses, signs, uploads and prints the revision', async (context: TestContext): Promise<void> => {
   const run = await open(context)
@@ -36,9 +38,14 @@ test('compresses, signs, uploads and prints the revision', async (context: TestC
     version: VERSION,
     formatVersion: '0.1',
     migrations: [],
+    gridReport: [
+      "no new cell: grid placement is off on the API, or this is not the shard's first upload",
+      'preview: https://preview.wildshard.io/slug/upload-test (page not built yet)',
+      'staging: https://staging.wildshard.io/slug/upload-test (page not built yet)',
+    ],
   })
   assert.match(
-    run.lines.at(-1) ?? '',
+    run.lines.at(-AFTER_COMMIT) ?? '',
     /^committed: upload-test 0\.0\.3 catalogue number 1 /u,
   )
 })
@@ -116,7 +123,10 @@ test('sends nothing when the bytes are already stored', async (context: TestCont
   assert.equal(outcome.revision, 1)
   assert.equal(outcome.version, VERSION)
   onlyPut(run)
-  assert.match(run.lines.at(-1) ?? '', /^already stored: upload-test 0\.0\.3 /u)
+  assert.match(
+    run.lines.at(-AFTER_COMMIT) ?? '',
+    /^already stored: upload-test 0\.0\.3 /u,
+  )
 })
 
 test('held bytes the listing misses still commit, and send nothing', async (context: TestContext): Promise<void> => {
@@ -197,7 +207,7 @@ test('reports the channel and the versions sent', async (context: TestContext): 
     run.lines.join('\n'),
   )
   assert.match(
-    run.lines.at(-1) ?? '',
+    run.lines.at(-AFTER_COMMIT) ?? '',
     /^committed: upload-test 0\.0\.3 catalogue number 1 for staging /u,
   )
 })
