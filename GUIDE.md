@@ -505,18 +505,22 @@ Code `audio-refused`. Build prints every finding with one of the rules below und
 
 #### audio-unreadable
 
-Red. The recording does not read as AAC-LC at 48 kHz, mono or stereo. Export it again in that form. Code
-`audio-unreadable`.
+Red. The recording does not read as AAC-LC at 48 kHz, mono or stereo. Export it again as AAC-LC at 48 kHz in an
+`.m4a` file. Code `audio-unreadable`.
 
 #### audio-container
 
 Red. The recording's bytes are FLAC, AIFF, Ogg, MP3, WebM, CAF or no container the game knows; it still counts toward
-the audio budget. Export it again as AAC (in an mp4 file) or as WAV. Code `audio-container`.
+the audio budget. Export it again as AAC-LC at 48 kHz in an `.m4a` file, not as WAV: a WAV file is `audio-wav`, amber.
+With ffmpeg on your PATH, `build` re-encodes a `.wav`, `.flac`, `.aif` or `.aiff` file under `/assets/music/` or
+`/assets/sfx/` to that form itself, so you see this rule for MP3, Ogg, WebM or CAF, for a file outside those folders or
+named otherwise, or when ffmpeg is missing. Code `audio-container`.
 
 #### audio-encoding
 
 Amber. The recording plays, but it is PCM WAV, AAC at a sample rate other than 48 kHz, or AAC outside the strict
-playback index. Encode it as AAC-LC at 48 kHz. Codes `audio-wav`, `audio-sample-rate`, `audio-strict-index`.
+playback index. Encode it again with ffmpeg as AAC-LC at 48 kHz in an `.m4a` file, or let `build` do it (it needs
+ffmpeg on your PATH). Codes `audio-wav`, `audio-sample-rate`, `audio-strict-index`.
 
 #### audio-duration
 

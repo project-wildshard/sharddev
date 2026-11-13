@@ -2,8 +2,33 @@
 
 Every release has a section here before it is tagged: one to five
 bullets in plain language, for shard authors and Jake, never commit
-subjects. Add the next version's section at the top, commit and push
-it, then release with repo-kit's `release.sh`.
+subjects. Notes for work that has landed but not shipped wait under
+"Unreleased" at the top. To release, rename that heading by hand to
+the next version and date, commit and push it, then run repo-kit's
+`release.sh` (it does not read or edit this file).
+
+## Unreleased
+
+- New: `wildshard update --pins` moves your shard repo to a newer sdk
+  in one step. It moves the versions of the sdk, engine, format and
+  three.js in `package.json`, installs them, applies the new sdk's
+  fixes to your code, then runs `update` and `check`. If the install
+  or a code fix fails, `package.json` and the lock file go back as
+  they were (`git diff` shows any fix already made to your code). If
+  `update` or `check` fails after that, you stay on the new versions:
+  fix what it reports, then run `wildshard check .`.
+- Removed from the sdk, because no shard used them: `phasedBossFight`
+  (`@wildshard/sdk/phasedBoss`), `speciesBrains`
+  (`@wildshard/sdk/speciesBrains`), `ClipCtx`, `playClips` and
+  `clipAnimate` (`@wildshard/sdk/species/clips`), `appendGeometry`
+  (`@wildshard/sdk/kit/bakedGeometry`), and the types `PhasedBossPorts`,
+  `PhasedBossFight`, `PhasedBossBody`, `PhasedBossState`,
+  `RoamingBossFight` and `SpeciesBrains`. The boss, species, brain
+  and clip row types you write data with are all still there. If
+  your shard imported one of the removed names, it no longer builds.
+- GUIDE.md and the refusal messages now say to export audio as AAC
+  at 48 kHz in an `.m4a` file. The old advice offered WAV, which the
+  audio check marks amber.
 
 ## v0.2.4 (2026-11-13)
 
