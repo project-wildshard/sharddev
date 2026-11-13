@@ -7,6 +7,15 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.10 (2026-11-13)
+
+- Fix: a recording the build re-encodes now gets a new name, the
+  hash of the bytes it serves (`island-calm-05125ed8.m4a` becomes
+  `island-calm-3d097258.m4a`), so a returning player never keeps
+  the old file from a year-long cache. The shard's own sfx.json and
+  music.json follow the new names, and the build refuses a product
+  that still names an old one.
+
 ## v0.2.9 (2026-11-13)
 
 - Change: the sdk installs engine 0.1.17 and the shard format 0.4.9
