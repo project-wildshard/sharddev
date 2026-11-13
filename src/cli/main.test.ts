@@ -121,6 +121,46 @@ describe('the upload command', (): void => {
   })
 })
 
+// SA21: every pack and upload refusal names its rule, a fix and its
+// GUIDE.md section on the line after its reason.
+const REFUSALS: readonly (readonly [readonly string[], string])[] = [
+  [['pack'], 'pack-product-missing'],
+  [['pack', 'no-such-folder'], 'pack-product-missing'],
+  [['upload'], 'upload-shardfile-missing'],
+  [['upload', 'shard.tar'], 'upload-channel'],
+  [['upload', 'shard.tar', ...CHANNEL], 'upload-credentials'],
+  [['upload', 'shard.tar', '--level', '12', ...CHANNEL], 'upload-level'],
+]
+
+/** The refusal's second line: `[rule] fix: ... (GUIDE.md#rule)`. */
+function assertRule(stderr: string, rule: string): void {
+  const hint = String.raw`\n  \[${rule}\] fix: .+\. \(GUIDE\.md#${rule}\)\n`
+  assert.match(stderr, new RegExp(hint, 'u'))
+}
+
+describe('pack and upload refusals (SA21)', (): void => {
+  it('name their rule, a fix and a GUIDE.md section', (): void => {
+    for (const [args, rule] of REFUSALS) {
+      assertRule(cli(args).stderr, rule)
+    }
+    const upload = ['upload', '/nonexistent.tar', '--server', 'http://x']
+    const run = cli([...upload, ...PROVENANCE, ...CHANNEL], {
+      WILDSHARD_CREATOR_PRIVATE_KEY: 'unused',
+    })
+    assertRule(run.stderr, 'upload-shardfile-missing')
+    const commit = [
+      ...upload,
+      ...CHANNEL,
+      '--version',
+      '0.0.1',
+      '--commit',
+      'abc',
+    ]
+    const unsure = cli(commit, { WILDSHARD_CREATOR_PRIVATE_KEY: 'unused' })
+    assertRule(unsure.stderr, 'upload-commit')
+  })
+})
+
 /** A committed project at 0.0.1 with an uncommitted edit to package.json. */
 async function dirtyProject(): Promise<string> {
   const dir = await mkdtemp(path.join(tmpdir(), 'sharddev-dirty-'))
@@ -147,6 +187,7 @@ describe("the upload's shard version and commit (AC16)", (): void => {
 
       assert.equal(run.status, 1)
       assert.match(run.stderr, /uncommitted changes/u)
+      assertRule(run.stderr, 'upload-uncommitted')
     } finally {
       await rm(dir, { recursive: true })
     }
@@ -169,5 +210,6 @@ describe("the upload's shard version and commit (AC16)", (): void => {
 
     assert.equal(run.status, 1)
     assert.match(run.stderr, /--version v1 is not X\.Y\.Z/u)
+    assertRule(run.stderr, 'upload-version')
   })
 })

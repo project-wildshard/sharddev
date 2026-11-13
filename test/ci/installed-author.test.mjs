@@ -73,6 +73,10 @@ test('installed check --json fails a missing project with its refusal', { timeou
   assert.equal(result.verdict, 'fail');
   assert.deepEqual(result.steps.map(step => step.status).slice(1), ['fail', 'skip', 'skip', 'skip']);
   assert.equal(result.refusals[0].step, 'build');
+  // SA21: the refusal names its rule, a fix and its GUIDE.md section.
+  assert.equal(result.refusals[0].rule, 'source-file-missing');
+  assert.equal(result.refusals[0].guide, 'GUIDE.md#source-file-missing');
+  assert.match(result.refusals[0].fix, /^\S.+\.$/u);
   assert.equal(result.output, null);
 });
 test('installed --version names the sdk, engine, shard-format and three chain', { timeout: 9_500 }, () => {

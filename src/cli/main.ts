@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { serve } from '../server/serve.ts'
+import { refusalHint, refusalNote } from '../sharddev/refusals.ts'
 import { parseCliArgs } from './args.ts'
 import { packProduct } from './pack/pack.ts'
 import {
@@ -12,6 +13,7 @@ import { resolveProvenance } from './upload/provenance.ts'
 import { uploadShardfile } from './upload/upload.ts'
 import { readVersion, readVersionChain } from './version.ts'
 
+import type { RefusalStep } from '../sharddev/refusals.ts'
 import type { CliArgs } from './args.ts'
 import type { Channel } from './upload/api.ts'
 import type { Provenance } from './upload/provenance.ts'
@@ -38,7 +40,9 @@ Commands:
                        verdict. --json prints only the verdict document:
                        { version, verdict, project, output, ms, steps:
                        [{ name, status, ms, note? }], refusals: [{ step,
-                       rule, message, fix, file? }] }. Exits 1 on fail
+                       rule, message, fix, guide, file? }] }. Every
+                       refusal names its rule, a fix and its GUIDE.md
+                       section. Exits 1 on fail
   serve [--port <n>]   Start the sharddev server on localhost
   prepare <product> --base <exact-preview-url>
                        Record the exact candidate in phone WebKit, compute
@@ -109,6 +113,12 @@ function parseLevel(raw: string | undefined): number | undefined {
 
 function reportLine(line: string): void {
   process.stdout.write(`${line}\n`)
+}
+
+/** A refusal on stderr, then its rule, fix and GUIDE.md link (SA21). */
+function refuse(step: RefusalStep, prefix: string, reason: string): void {
+  const hint = refusalHint(refusalNote(step, reason))
+  process.stderr.write(`sharddev: ${prefix}${reason}\n  ${hint}\n`)
 }
 
 async function runServe(rawPort: string | undefined): Promise<number> {
@@ -210,7 +220,7 @@ async function uploadOptions(args: CliArgs): Promise<UploadOptions | string> {
 async function runUpload(args: CliArgs): Promise<number> {
   const options = await uploadOptions(args)
   if (typeof options === 'string') {
-    process.stderr.write(`sharddev: ${options}\n`)
+    refuse('upload', '', options)
     return EXIT_USAGE
   }
   try {
@@ -218,14 +228,14 @@ async function runUpload(args: CliArgs): Promise<number> {
     return EXIT_OK
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : String(error)
-    process.stderr.write(`sharddev: upload failed: ${reason}\n`)
+    refuse('upload', 'upload failed: ', reason)
     return EXIT_FAILED
   }
 }
 
 async function runPack(args: CliArgs): Promise<number> {
   if (args.operand === undefined) {
-    process.stderr.write('sharddev: pack needs a product folder\n')
+    refuse('pack', '', 'pack needs a product folder')
     return EXIT_USAGE
   }
   try {
@@ -237,7 +247,7 @@ async function runPack(args: CliArgs): Promise<number> {
     return EXIT_OK
   } catch (error: unknown) {
     const reason = error instanceof Error ? error.message : String(error)
-    process.stderr.write(`sharddev: pack failed: ${reason}\n`)
+    refuse('pack', 'pack failed: ', reason)
     return EXIT_FAILED
   }
 }

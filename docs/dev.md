@@ -68,13 +68,33 @@ stderr):
 ```json
 { "version": 1, "verdict": "pass", "project": "/abs/isle", "output": "/abs/out", "ms": 2400,
   "steps": [{ "name": "lint", "status": "skip", "ms": 199, "note": "why it skipped" }],
-  "refusals": [{ "step": "lint", "rule": "eslint(no-unused-vars)", "message": "...", "fix": "...", "file": "a.ts:2:7" }] }
+  "refusals": [{ "step": "lint", "rule": "eslint/no-unused-vars", "message": "...", "fix": "...",
+    "guide": "GUIDE.md#lint-rules", "file": "a.ts:2:7" }] }
 ```
 
-`status` is `pass`, `fail` or `skip`; `rule`, `fix` and `file` are present
-when the refusing tool names them (SA21 adds rule ids and `GUIDE.md` links
-for every refusal). The code is `src/sharddev/check.ts` (shape, verdict)
-and `checkProject.ts` (the real steps). `wildshard --version` prints the
+`status` is `pass`, `fail` or `skip`. Every refusal has a `rule` id, a
+one-line `fix` and a `guide` link (`GUIDE.md#<anchor>`); `file` is present
+when the refusing tool names one. The code is `src/sharddev/check.ts`
+(shape, verdict) and `checkProject.ts` (the real steps).
+
+## Refusals: rule, fix, guide
+
+Every refusal an author can hit (`check`'s five steps, `build`,
+`validate`, `prove`, `new`, and `pack` and `upload` before a byte is sent)
+prints the refusing code's own words, then one line:
+`[<rule>] fix: <fix> (GUIDE.md#<anchor>)` (meta SHARD-AUTHORING SA21,
+J317). The one table is `src/sharddev/refusals.ts`: each row has a stable
+id, its `GUIDE.md` anchor, the fix, the steps it applies to and the
+message pattern it names. A message takes the first row whose pattern
+matches, else its step's one catch-all row, so nothing goes unnamed. Wildshard's lint rules are rows by their config name
+(`wildshard/no-raw-save`, anchor `lint-no-raw-save`); any other lint rule
+keeps oxlint's code and help, under the `lint-rules` anchor.
+`REFUSAL_ANCHORS` lists every anchor `GUIDE.md` (SA13) needs a heading
+for. `refusals.test.ts` fails a row with no fix or anchor, a wildshard
+rule in `.oxlintrc.author.json` with no row, and a seeded bad shard whose
+refusal does not print all three. Messages stay as written (shard-format's
+too): a row matches a message, it never rewrites it. A new refusal adds a
+row, most specific first. `wildshard --version` prints the
 sdk, engine, shard-format and `three` versions, one per line.
 
 ## Hero freshness

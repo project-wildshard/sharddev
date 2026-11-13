@@ -6,7 +6,7 @@ import { existsSync, readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Find oxlint the way this installed package resolves it.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the project, its output and the SDK's lint config.
-import { dirname, resolve } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import * as v from 'valibot';
 import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
 import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
@@ -16,9 +16,15 @@ import { validateOutputProduct } from './outputProduct';
 import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
+import { authorErrorText } from './authorError';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
+/** The author proof tape at `path`; its refusal names the file first, so it reads as the tape's (SA21). */
+export function readProofTape(path: string): v.InferOutput<typeof AuthorProofPlanSchema> {
+  try { return v.parse(AuthorProofPlanSchema, JSON.parse(readFileSync(path, 'utf8'))); }
+  catch (error) { throw new Error(`${basename(path)}: ${authorErrorText(error)}`, { cause: error }); }
+}
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 // The bundled CLI defines import.meta.dirname as the package's src/sharddev, so the package root is two up.
 const SDK_ROOT = resolve(import.meta.dirname, '../..');
@@ -38,7 +44,7 @@ function lintProject(project: string): StepOutcome {
   if (bin === undefined || !existsSync(LINT_CONFIG)) return { status: 'skip', note: 'the author lint (oxlint and .oxlintrc.author.json) is not installed with this @wildshard/sdk' };
   // The jsPlugins resolve engine from the working directory: run from the SDK root, as `pnpm lint:author` does.
   const done = spawnSync(bin, ['-c', LINT_CONFIG, '--format', 'json', project], { cwd: SDK_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
-  if (done.error !== undefined) return { status: 'fail', refusals: [{ rule: null, message: `oxlint did not run: ${done.error.message}`, fix: null }] };
+  if (done.error !== undefined) return { status: 'fail', refusals: [{ message: `oxlint did not run: ${done.error.message}` }] };
   return lintOutcome(`${done.stdout}${done.stdout.trim() === '' ? done.stderr : ''}`, done.status);
 }
 
@@ -76,7 +82,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       if (!existsSync(tape)) return { status: 'skip', note: `no ${PROOF_FILE}: add an author proof tape to prove the shard's quests` };
       const { shard, assets } = validateOutputProduct(built());
       if (shard.runtime !== null) return { status: 'skip', note: 'native gameplay: the author proof needs data-only gameplay' };
-      const plan = v.parse(AuthorProofPlanSchema, JSON.parse(readFileSync(tape, 'utf8')));
+      const plan = readProofTape(tape);
       const report = await proveAuthorSimulation(shard, assets, plan);
       return { status: 'pass', note: `${report.ticks} ticks, ${report.ledger.facts.length} facts filed` };
     },
@@ -87,7 +93,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       const warnings = card.issues.length - refused.length;
       const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}`;
       return await Promise.resolve({ status: card.pass ? 'pass' : 'fail', note,
-        refusals: refused.map(issue => ({ rule: 'report-card', message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}`, fix: null })) });
+        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}` })) });
     },
   });
 }

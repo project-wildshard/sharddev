@@ -4,6 +4,7 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
+import { refusalNote } from '../../sharddev/refusals.ts'
 import { sha256 } from '../../test/helpers/shardfile.ts'
 import {
   BUILT_WITH,
@@ -236,10 +237,15 @@ test('an unchanged hero refuses before the PUT and names wildshard hero', async 
     heroHash: await heroDigest(),
   })
 
-  await assert.rejects(
-    upload(run),
-    /the hero is unchanged since upload-test 0\.0\.2: run wildshard hero/u,
-  )
+  await assert.rejects(upload(run), (error: unknown): boolean => {
+    assert.ok(error instanceof Error)
+    assert.match(
+      error.message,
+      /the hero is unchanged since upload-test 0\.0\.2: run wildshard hero/u,
+    )
+    assert.equal(refusalNote('upload', error.message).rule, 'hero-unchanged')
+    return true
+  })
   assert.equal(run.server.state.puts.length, 0)
   assert.equal(run.server.state.commits.length, 0)
 })

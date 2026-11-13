@@ -4,6 +4,7 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
+import { refusalNote } from '../../sharddev/refusals.ts'
 import {
   BASE,
   SVG,
@@ -23,6 +24,7 @@ const RECAPTURED =
 function namesTheCapture(error: unknown): boolean {
   assert.ok(error instanceof Error)
   assert.match(error.message, /hero of hero-test is older than its content/u)
+  assert.equal(refusalNote('pack', error.message).rule, 'hero-stale')
   assert.match(
     error.message,
     /pnpm exec wildshard hero src\/shards\/hero-test --base <served-build-url>/u,
@@ -60,7 +62,12 @@ test('a fresh capture after a content change lets the cut through', async (conte
 test('a captured hero with no stamp is refused: nothing says how old it is', async (context: TestContext): Promise<void> => {
   const space = await project(context)
   assert.equal(await stateOf(space.shard), 'unstamped')
-  await assert.rejects(cut(space), /no hero\.json stamp.*--stamp-existing/u)
+  await assert.rejects(cut(space), (error: unknown): boolean => {
+    assert.ok(error instanceof Error)
+    assert.match(error.message, /no hero\.json stamp.*--stamp-existing/u)
+    assert.equal(refusalNote('pack', error.message).rule, 'hero-stale')
+    return true
+  })
 })
 
 test('tests and prose are not content; a hand-swapped hero file is not the one stamped', async (context: TestContext): Promise<void> => {
@@ -78,10 +85,15 @@ test('a product built before the capture does not carry the new hero and is refu
   await writeFile(path.join(space.shard, 'card', 'portrait.jpg'), 'new shot')
   await writeHeroStamp(space.shard, { base: BASE })
   assert.equal(await stateOf(space.shard), 'fresh')
-  await assert.rejects(
-    cut(space),
-    /does not carry the captured hero \(card\/portrait\.jpg\)/u,
-  )
+  await assert.rejects(cut(space), (error: unknown): boolean => {
+    assert.ok(error instanceof Error)
+    assert.match(
+      error.message,
+      /does not carry the captured hero \(card\/portrait\.jpg\)/u,
+    )
+    assert.equal(refusalNote('pack', error.message).rule, 'hero-not-in-product')
+    return true
+  })
 })
 
 test('a generated card has no captured hero to go stale; a product with no source is not checked', async (context: TestContext): Promise<void> => {

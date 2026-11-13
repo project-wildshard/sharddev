@@ -1,9 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI accepts filesystem project/output paths.
 import { basename, dirname, resolve } from 'node:path';
-// oxlint-disable-next-line import/no-nodejs-modules -- The author proof tape is an explicit local input file.
-import { existsSync, readFileSync } from 'node:fs';
-import * as v from 'valibot';
-import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
+// oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
+import { existsSync } from 'node:fs';
 import { buildProject, newProject, readProjectAssets, validateProject } from './project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/engine/host/shardfile';
 import { devProject } from './dev';
@@ -23,8 +21,9 @@ import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduc
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { writeReferenceProject } from './newProject';
-import { checkProject } from './checkProject';
+import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
+import { refusalHint, refusalNote, type RefusalStep } from './refusals';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {
@@ -107,7 +106,7 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
     const { shard, assets } = built
       ? validateOutputProduct(resolve(input.endsWith('.json') ? dirname(input) : input))
       : await readProjectAssets(resolve(input), undefined, options.manifest, options);
-    const plan = v.parse(AuthorProofPlanSchema, JSON.parse(readFileSync(resolve(output), 'utf8')));
+    const plan = readProofTape(resolve(output));
     console.info(JSON.stringify(await proveAuthorSimulation(shard, assets, plan), null, 2)); return;
   }
   if (command === 'validate') {
@@ -142,7 +141,17 @@ async function runCommand(args: readonly string[], options: CliOptions): Promise
   }
   throw new Error('unknown wildshard command');
 }
+/** The step a verb's refusal comes from (SA21): `dev` and `synth` build. */
+const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', validate: 'validate', prove: 'prove' };
+/** The refusal with its rule, fix and GUIDE.md link on a second line; the first line stays the refusing code's words. */
+function authorRefusal(command: string | undefined, error: unknown): unknown {
+  const located = locatedError(error);
+  const message = located instanceof Error ? located.message : String(located);
+  const step = command !== undefined && Object.hasOwn(STEPS, command) ? STEPS[command] : undefined;
+  const hint = refusalHint(refusalNote(step ?? 'build', message));
+  return new Error(`${message}\n  ${hint}`, { cause: error });
+}
 /** Run the author CLI; returns only after validation/build completes. */
 export async function runCli(args: readonly string[], options: CliOptions = {}): Promise<void> {
-  try { await runCommand(args, options); } catch (error) { throw locatedError(error); }
+  try { await runCommand(args, options); } catch (error) { throw authorRefusal(args[0], error); }
 }
