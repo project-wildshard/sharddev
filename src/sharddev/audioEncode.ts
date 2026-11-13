@@ -19,8 +19,11 @@ import { AUDIO_RULES, audioReport } from '@wildshard/format/audioRules';
 // for its role and channels (format's AUDIO_RULES). AudioToolbox `aac_at` on macOS, ffmpeg's `aac` elsewhere. Sound
 // effects go mono unless the shard source marks them stereo (`audio-stereo.json`); music keeps its channels. An AAC
 // file that already passes AU5's per-file check at the right channel count ships as it is, so no file is encoded
-// twice. Every recording keeps its URL (a `.wav` mount serves AAC bytes), because the shard's rows, fence list and
-// code name that URL. Encoded bytes are cached by source hash, role, channel mark, AU5's rules, this encoder's code
+// twice. A recording keeps its folder, stem and extension (a `.wav` mount serves AAC bytes). AU21: a recording whose
+// name carries a content hash (`island-calm-05125ed8.m4a`, the sha1 of its bytes) and whose bytes the encode changed
+// takes the hash of the bytes it now serves, because the engine and its service worker treat that name as immutable
+// for a year; every JSON mount that names it (its folder's sfx.json or music.json by file name, any JSON by URL) is
+// rewritten to match. A name without a hash keeps its URL: the engine versions it by its served bytes (`?v=`). Encoded bytes are cached by source hash, role, channel mark, AU5's rules, this encoder's code
 // and the host encoder's identity (ffmpeg version, encoder, platform, and the macOS release for AudioToolbox), so a
 // rebuild encodes nothing and a different encoder never reads another's bytes. AudioToolbox's stereo floor is 64
 // kbps, so a stereo sound effect (48 kbps) takes ffmpeg's `aac` on every host. The 180 s rule is AU5's report's to
@@ -41,6 +44,8 @@ export interface AudioEncodeStats {
   readonly cached: number;
   readonly kept: number;
   readonly unencoded: number;
+  /** AU21: recordings whose content-hashed name now names their encoded bytes. */
+  readonly renamed: number;
   readonly before: number;
   readonly after: number;
 }
@@ -71,6 +76,34 @@ async function run(file: string, args: readonly string[]): Promise<string> {
   }
 }
 const sha = (bytes: string | Uint8Array): string => createHash('sha256').update(bytes).digest('hex');
+/** The content-hash shape the engine's service worker trusts as immutable (`sw.js` CONTENT, wider than `contentNamed.ts`). */
+const HASHED_NAME = /-(?<hash>[a-f0-9]{8,64})(?<ext>\.[a-z0-9]+)$|\/(?<full>[a-f0-9]{64})(?<fullExt>\.[a-z0-9]+)$/u;
+
+/**
+ * AU21: the URL that names these bytes. A name carrying a content hash takes the same-length hash of `bytes` (sha1 up to
+ * 40 hex digits, the audio convention, else sha256); any other name is returned as it is.
+ */
+export function contentHashedUrl(url: string, bytes: Uint8Array): string {
+  const match = HASHED_NAME.exec(url), groups = match?.groups;
+  if (match === null || groups === undefined) return url;
+  const old = groups['hash'] ?? groups['full'] ?? '', digest = old.length <= 40 ? createHash('sha1').update(bytes).digest('hex') : sha(bytes);
+  const head = url.slice(0, match.index);
+  return groups['full'] === undefined ? `${head}-${digest.slice(0, old.length)}${groups['ext'] ?? ''}` : `${head}/${digest}${groups['fullExt'] ?? ''}`;
+}
+
+const folderOf = (url: string): string => url.slice(0, url.lastIndexOf('/') + 1);
+const quoted = (text: string): string => JSON.stringify(text);
+/** AU21: a JSON mount with every renamed recording it names rewritten: by URL anywhere, by file name in its own folder. */
+function renameReferences(mount: Mount, renamed: ReadonlyMap<string, string>): Mount {
+  if (!mount.url.endsWith('.json') || renamed.size === 0) return mount;
+  const before = new TextDecoder().decode(mount.bytes);
+  let text = before;
+  for (const [from, to] of renamed) {
+    text = text.replaceAll(quoted(from), quoted(to));
+    if (folderOf(from) === folderOf(mount.url)) text = text.replaceAll(quoted(from.slice(folderOf(from).length)), quoted(to.slice(folderOf(to).length)));
+  }
+  return text === before ? mount : { url: mount.url, bytes: new TextEncoder().encode(text) };
+}
 
 /** Whether a mount URL is a source recording the build encodes. */
 export function isSourceRecordingUrl(url: string): boolean { return SOURCE.test(url); }
@@ -169,11 +202,15 @@ async function encode(encoder: AudioEncoder, root: string, url: string, bytes: U
 /** The encode steps' own code: a change to its arguments or rate ladder is a new cache key without a schema bump. */
 const IMPLEMENTATION = sha(`${encode.toString()}\0${missedTargets.toString()}`);
 
-/** Re-encode a shard's source recordings among its mounts, each at its own URL; every other mount passes through untouched. */
-export async function encodeMountAudio(mounts: readonly Mount[], options: AudioEncodeOptions = {}): Promise<{ readonly mounts: Mount[]; readonly stats: AudioEncodeStats; readonly encoder: AudioEncoder | null }> {
+/**
+ * Re-encode a shard's source recordings among its mounts. A recording whose content-hashed name no longer names its bytes
+ * is renamed to the hash of the bytes it serves (AU21), and the JSON mounts that name it follow; every other mount passes
+ * through untouched. `renamed` maps each old URL to its new one.
+ */
+export async function encodeMountAudio(mounts: readonly Mount[], options: AudioEncodeOptions = {}): Promise<{ readonly mounts: Mount[]; readonly stats: AudioEncodeStats; readonly encoder: AudioEncoder | null; readonly renamed: ReadonlyMap<string, string> }> {
   const sources = mounts.filter(mount => isSourceRecordingUrl(mount.url));
-  const stats = { files: sources.length, encoded: 0, cached: 0, kept: 0, unencoded: 0, before: 0, after: 0 };
-  if (sources.length === 0) return { mounts: [...mounts], stats, encoder: null };
+  const stats = { files: sources.length, encoded: 0, cached: 0, kept: 0, unencoded: 0, renamed: 0, before: 0, after: 0 };
+  if (sources.length === 0) return { mounts: [...mounts], stats, encoder: null, renamed: new Map() };
   const encoder = options.encoder === undefined ? await findAudioEncoder() : options.encoder;
   const root = options.cacheRoot ?? process.env['WILDSHARD_AUDIO_CACHE'] ?? resolve(homedir(), '.cache/wildshard/gen/audio-encode/1');
   if (encoder !== null) try { mkdirSync(root, { recursive: true }); } catch { /* The cache is optional; encode still runs. */ }
@@ -200,12 +237,28 @@ export async function encodeMountAudio(mounts: readonly Mount[], options: AudioE
     try { for (let next = queue.shift(); next !== undefined; next = queue.shift()) await one(next); }
     catch (error) { queue.length = 0; throw error; }
   }));
-  return { mounts: mounts.map(mount => { const bytes = out.get(mount.url); return bytes === undefined ? mount : { url: mount.url, bytes }; }), stats, encoder };
+  // AU21: same URL, other bytes is a stale year in a returning player's caches. A hashed name follows its served bytes.
+  const renamed = new Map<string, string>();
+  for (const { url, bytes } of sources) {
+    const result = out.get(url);
+    if (result === undefined || result === bytes || sha(result) === sha(bytes)) continue;
+    const next = contentHashedUrl(url, result);
+    if (next !== url) renamed.set(url, next);
+  }
+  const taken = new Map(mounts.map(mount => [mount.url, mount.url]));
+  for (const [from, to] of renamed) {
+    const owner = taken.get(to);
+    if (owner !== undefined) throw new Error(`audio: ${from} encodes to ${to}, which ${owner} already names`);
+    taken.set(to, from);
+  }
+  stats.renamed = renamed.size;
+  const encoded = mounts.map(mount => { const bytes = out.get(mount.url); return bytes === undefined ? mount : { url: renamed.get(mount.url) ?? mount.url, bytes }; });
+  return { mounts: encoded.map(mount => renameReferences(mount, renamed)), stats, encoder, renamed };
 }
 
 /** The build's audio line: before and after MB, and what each recording took. */
 export function audioEncodeLine(slug: string, stats: AudioEncodeStats, encoder: AudioEncoder | null): string {
   const mb = (bytes: number): string => `${(bytes / MB).toFixed(2)} MB`;
-  const how = [`${stats.encoded} encoded`, `${stats.cached} from cache`, `${stats.kept} already at target`, ...stats.unencoded > 0 ? [`${stats.unencoded} not encoded: no ffmpeg on PATH`] : []];
+  const how = [`${stats.encoded} encoded`, `${stats.cached} from cache`, `${stats.kept} already at target`, ...stats.unencoded > 0 ? [`${stats.unencoded} not encoded: no ffmpeg on PATH`] : [], ...stats.renamed > 0 ? [`${stats.renamed} renamed to their bytes' hash`] : []];
   return `audio: ${slug} ${stats.files} recordings, ${mb(stats.before)} before, ${mb(stats.after)} after (${how.join(', ')}${encoder === null ? '' : `; ${encoder.codec}`})`;
 }

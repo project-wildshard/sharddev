@@ -8,9 +8,9 @@ import { clientPage } from './clientPage';
 import { assertConfigBoundary } from './configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI verifies and writes local build products.
-import { cpSync, existsSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, readdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve source assets inside the author project.
-import { resolve, sep } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Build phase diagnostics belong only to the CI compiler process.
 import process from 'node:process';
 import { build } from 'vite';
@@ -280,8 +280,10 @@ export async function buildProject(project: string, output?: string, options: { 
   let descriptor: ReturnType<typeof writeOutputProduct>;
   try {
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
-    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard), loaded.output.discovery, await encodedCookInput(project, shard.identity.slug), assets);
+    const encoded = await encodedCookInput(project, shard.identity.slug);
+    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard), loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
+    assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');
     if (runtime !== undefined) proveRuntimeData(destination, descriptor, loaded.mirrors);
     phase('runtime-proof');
@@ -298,12 +300,26 @@ export async function buildProject(project: string, output?: string, options: { 
   return shard;
 }
 /** AUDIO AU7: the cook input with its source recordings encoded to AU5's targets, and the before and after MB printed. */
-async function encodedCookInput(project: string, slug: string): Promise<CookInput | undefined> {
+async function encodedCookInput(project: string, slug: string): Promise<{ readonly input: CookInput; readonly renamed: ReadonlyMap<string, string> } | undefined> {
   const input = readCookInput(project, slug);
   if (input === undefined) return undefined;
-  const { mounts, stats, encoder } = await encodeMountAudio(input.mounts, { stereo: readStereoMarks(project) });
+  const { mounts, stats, encoder, renamed } = await encodeMountAudio(input.mounts, { stereo: readStereoMarks(project) });
   if (stats.files > 0) console.info(audioEncodeLine(slug, stats, encoder));
-  return { ...input, mounts };
+  // AU21: a name the shard's own JSON does not hold (the engine's piano music.json names its island and pine slots) moves
+  // with the next engine pin of this product.
+  for (const [from, to] of renamed) console.info(`audio: ${from} is served as ${to.slice(to.lastIndexOf('/') + 1)} (its encoded bytes' hash)`);
+  return { input: { ...input, mounts }, renamed };
+}
+/** AU21: the written product names no recording by the name the encode retired (its sections, code or a JSON mount the
+ *  rewrite missed), so nothing reads a URL the product no longer serves. The recordings themselves are not read. */
+export function assertNoRenamedAudioNames(destination: string, renamed: ReadonlyMap<string, string>): void {
+  if (renamed.size === 0) return;
+  const names = [...renamed.keys()].map(url => ({ url, name: Buffer.from(url.slice(url.lastIndexOf('/') + 1)) }));
+  for (const entry of readdirSync(destination, { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile() || /\.(?:m4a|wav|flac|aiff?)$/u.test(entry.name)) continue;
+    const file = join(entry.parentPath, entry.name), bytes = readFileSync(file), stale = names.find(({ name }) => bytes.includes(name));
+    if (stale !== undefined) throw new Error(`audio: ${file.slice(destination.length + 1)} names ${stale.url}, which the build serves as ${renamed.get(stale.url) ?? ''} (AU21)`);
+  }
 }
 /** C3: a manifest's bindings go with the product, so a page needs nothing compiled to enter it: the packed level manifest, an
  *  output's composed one, which packs no images of its own, or for an author with neither, the plain one their shard implies. */
