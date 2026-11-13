@@ -1,11 +1,13 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold new repos into a scratch folder.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold new repos into a scratch folder.
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { runCli } from './cli';
 import { newProject } from './project';
 import { findShardSource, shardFolderName, shardOutputRoot } from './shardSource';
+import { checkProject } from './checkProject';
+import { validateOutputProduct } from './outputProduct';
 
 // SA16 (J314, J317): `wildshard new <dir> [--template sdk|blender]` writes a whole single-shard repo, its shard source at
 // `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written.
@@ -51,10 +53,38 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(existsSync(repo)).toBe(false);
   });
 
-  it('blender is named but not built yet, and writes nothing', async () => {
+  it('--template blender: the hand-written blender-template at src/, renamed, settled, and checked', async () => {
     const repo = resolve(scratch, 'blender');
-    await expect(runCli(['new', repo, '--template', 'blender'])).rejects.toThrow(/blender is not built yet/u);
-    expect(existsSync(repo)).toBe(false);
+    await runCli(['new', repo, 'clay-hall', '--template', 'blender']);
+    // The source's real entry is its index: a shard file folder held by hand, no shard.config.ts and no TypeScript.
+    expect(existsSync(resolve(repo, 'src/shard.json'))).toBe(true);
+    expect(existsSync(resolve(repo, 'src/shard.config.ts'))).toBe(false);
+    expect(existsSync(resolve(repo, 'src/shards'))).toBe(false);
+    expect(existsSync(resolve(repo, 'tsconfig.json'))).toBe(false);
+    for (const file of ['package.json', '.gitignore', '.npmrc', 'README.md', 'pnpm-workspace.yaml', 'GUIDE.md', '.claude/skills/wildshard/SKILL.md']) expect(existsSync(resolve(repo, file)), file).toBe(true);
+    const manifest = JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { name: string; dependencies?: unknown; devDependencies: Record<string, string> };
+    expect(manifest.name).toBe('clay-hall');
+    // J314: no sdk at runtime and no three.js; the CLI and shard-format only, pinned exactly as the sdk pins format.
+    expect(manifest.dependencies).toBeUndefined();
+    expect(manifest.devDependencies).toEqual({ '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version });
+    expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('hand-written');
+    // Renamed everywhere a person holds JSON: no blender-template slug, path or name is left outside the baked blobs.
+    expect(existsSync(resolve(repo, 'src/mounts/shardfiles/clay-hall/discovery.json'))).toBe(true);
+    for (const file of ['shard.json', 'cook.json', 'sections/ui/level.json', 'mounts/shardfiles/clay-hall/discovery.json']) expect(readFileSync(resolve(repo, 'src', file), 'utf8'), file).not.toMatch(/blender-template|Blender Template/u);
+    expect(findShardSource(repo)).toBe(resolve(repo, 'src'));
+    expect(shardFolderName(resolve(repo, 'src'))).toBe('clay-hall');
+    // Settled from the start: format admits the folder as it stands.
+    expect(validateOutputProduct(resolve(repo, 'src')).shard.identity.slug).toBe('clay-hall');
+    // check settles the source into the repo's built folder and passes; an edited section is settled again, not refused.
+    const level = resolve(repo, 'src/sections/ui/level.json');
+    writeFileSync(level, readFileSync(level, 'utf8').replace('"blurb":"Cross the high bridge', '"blurb":"Cross the long bridge'));
+    const result = await checkProject(findShardSource(repo), undefined);
+    expect(result.steps.map(step => [step.name, step.status])).toEqual([['lint', 'skip'], ['build', 'pass'], ['validate', 'pass'], ['prove', 'skip'], ['report', 'pass']]);
+    expect(readdirSync(resolve(repo, 'public/shardfiles/clay-hall'))).toContain('shard.json');
+    // build has nothing to build there and says so; check refuses a hand-written folder outside a repo's src/.
+    await expect(runCli(['build', repo])).rejects.toThrow(/hand-written shard file .*run wildshard check/u);
+    const loose = await checkProject(resolve(repo, 'public/shardfiles/clay-hall'), undefined);
+    expect(loose.verdict).toBe('fail');
   });
 });
 

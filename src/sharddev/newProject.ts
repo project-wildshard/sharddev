@@ -1,9 +1,10 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffolding owns only a fresh author directory.
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
 import { resolve } from 'node:path';
 import { encodeCanonicalJson } from './immutable';
 import { authorCard } from './authorManifest';
+import { writeHandwrittenSource } from './handwritten';
 
 /**
  * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
@@ -44,7 +45,8 @@ function writeGuide(project: string): void {
   cpSync(SKILL_SOURCE, resolve(project, SKILL_FILE));
 }
 
-/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is Brasscap Mesa. */
+/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is shard-format's
+ * hand-written `blender-template` (`corpus/handwritten`): a shard file folder held by hand, no sdk at runtime, no three. */
 export const TEMPLATES = ['sdk', 'blender'] as const;
 export type TemplateName = (typeof TEMPLATES)[number];
 /** The template `new` makes with no flag. */
@@ -80,10 +82,14 @@ function sdkPackage(): SdkPackage {
  * SHARD-COMPAT's engine zero. Each is pinned exactly as the installed sdk pins it, so the repo installs one copy. */
 export const REPO_DEPENDENCIES = ['@wildshard/engine', '@wildshard/format', 'three'] as const;
 
+/** What a hand-written repo lists (J314): no code imports anything, so only the CLI (`@wildshard/sdk`, for `wildshard
+ * check` and `upload`) and shard-format (`shard-format pack` and `validate`), as dev dependencies; no engine, no three. */
+export const HANDWRITTEN_DEPENDENCIES = ['@wildshard/format'] as const;
+
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
-export function repoPackageJson(slug: string): string {
+export function repoPackageJson(slug: string, template: TemplateName = DEFAULT_TEMPLATE): string {
   const sdk = sdkPackage(), dependencies: Record<string, string> = { '@wildshard/sdk': sdk.version };
-  for (const name of REPO_DEPENDENCIES) {
+  for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
     const spec = sdk.dependencies[name];
     if (spec === undefined) throw new Error(`new: the installed @wildshard/sdk does not pin ${name}`);
     dependencies[name] = spec;
@@ -91,7 +97,7 @@ export function repoPackageJson(slug: string): string {
   const sorted = Object.fromEntries(Object.entries(dependencies).sort(([a], [b]) => a.localeCompare(b)));
   // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
   return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
-    engines: { node: sdk.node }, scripts: { check: 'wildshard check .' }, dependencies: sorted }, null, 2)}\n`;
+    engines: { node: sdk.node }, scripts: { check: 'wildshard check .' }, [template === 'blender' ? 'devDependencies' : 'dependencies']: sorted }, null, 2)}\n`;
 }
 
 const TSCONFIG = `${JSON.stringify({
@@ -112,9 +118,24 @@ const NPMRC = `save-exact=true
 engine-strict=true
 `;
 
+const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a shard file folder.
+  \`shard.json\` is its index, \`sections/\` the JSON you edit, \`blobs/\` the
+  baked files (Blender models, textures, scripts) named by their hash, and
+  \`mounts/\` what the boot reads first. \`wildshard check .\`
+  runs \`shard-format pack\`, which settles every hash and size the sections
+  measure, and validates the whole folder. A changed blob is a new file under
+  its new hash, with every row that names it updated.
+- \`package.json\` pins \`@wildshard/sdk\` (the CLI) and shard-format exactly;
+  nothing here imports code, so no engine and no three.js. Its \`version\` is
+  the version \`wildshard upload\` sends.`;
+
 function repoReadme(slug: string, template: TemplateName, empty: boolean): string {
-  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)' : 'Brasscap Mesa, built from Blender models';
+  const handwritten = template === 'blender' && !empty;
+  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)' : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
+  const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
+- \`package.json\` pins \`@wildshard/sdk\`, shard-format, engine and \`three\`
+  exactly; its \`version\` is the version \`wildshard upload\` sends.`;
   return `# ${slug}
 
 A Wildshard **shard source**, started by \`wildshard new\` from ${world}.
@@ -133,17 +154,16 @@ pnpm exec wildshard check .
 Until \`@wildshard/sdk\` is on npm, \`pnpm install\` cannot fetch it: run the CLI
 from a sharddev checkout instead (\`GUIDE.md\`, "Running \`wildshard\` today").
 
-- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
-- \`package.json\` pins \`@wildshard/sdk\`, shard-format, engine and \`three\`
-  exactly; its \`version\` is the version \`wildshard upload\` sends.
+${layout}
 - \`public/shardfiles/\` is build output. Never edit or commit it.
 `;
 }
 
 /** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, guide and skill. */
 function writeRepoFiles(project: string, slug: string, template: TemplateName, empty: boolean): void {
-  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug));
-  writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
+  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template));
+  // A hand-written repo holds no TypeScript to check.
+  if (template !== 'blender' || empty) writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
   writeFileSync(resolve(project, '.gitignore'), GITIGNORE);
   writeFileSync(resolve(project, '.npmrc'), NPMRC);
   writeFileSync(resolve(project, 'README.md'), repoReadme(slug, template, empty));
@@ -195,11 +215,18 @@ export function writeEmptyShardSource(source: string, slug: string): void {
 export function writeShardRepo(project: string, slug: string, options: { readonly template?: TemplateName; readonly empty?: boolean } = {}): void {
   const template = options.template ?? DEFAULT_TEMPLATE;
   assertTarget(project, slug);
-  if (template === 'blender') throw new Error('new: --template blender is not built yet (SHARD-AUTHORING SA16): Brasscap Mesa ships only as a built shard file, not a shard source; use --template sdk');
   mkdirSync(project, { recursive: true });
   const source = resolve(project, SHARD_SOURCE_FOLDER);
-  if (options.empty === true) writeEmptySource(source, slug); else writeReferenceSource(source, slug);
-  writeRepoFiles(project, slug, template, options.empty === true);
+  try {
+    if (options.empty === true) writeEmptySource(source, slug);
+    else if (template === 'blender') writeHandwrittenSource(source, slug);
+    else writeReferenceSource(source, slug);
+    writeRepoFiles(project, slug, template, options.empty === true);
+  } catch (error) {
+    // A refused `new` leaves no half-written repo, so running it again names the real cause, not `new-target`.
+    rmSync(project, { recursive: true, force: true });
+    throw error;
+  }
 }
 
 /** `new <dir>`: the reference world as a whole repo. */

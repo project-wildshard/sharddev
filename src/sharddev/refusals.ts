@@ -9,7 +9,7 @@
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
-export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload' | 'account';
+export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
 /** One rule: its id, its GUIDE.md anchor, the fix, and the refusal messages it names (none: the step's catch-all). */
 export interface RefusalRule {
   readonly id: string;
@@ -31,8 +31,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   // new
   { id: 'new-target', anchor: 'new-target', steps: ['new'], match: /new requires a fresh directory and kebab-case slug/u,
     fix: 'Name a folder that does not exist yet and a kebab-case slug: `wildshard new my-isle`.' },
-  { id: 'new-template', anchor: 'new-template', steps: ['new'], match: /^new: unknown template |^new: --template blender is not built yet/u,
-    fix: 'Leave out --template, or pass `--template sdk`, the one template built today.' },
+  { id: 'new-template', anchor: 'new-template', steps: ['new'], match: /^new: unknown template /u,
+    fix: 'Leave out --template, or pass `--template sdk` (the reference world) or `--template blender` (the hand-written Blender template).' },
   { id: 'new-refused', anchor: 'new-refused', steps: ['new'],
     fix: 'Reinstall @wildshard/sdk (`pnpm install`); `new` copies the reference world shipped with it.' },
   // build
@@ -108,7 +108,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'upload-credentials', anchor: 'upload-credentials', steps: ['upload'], match: /upload needs --server/u,
     fix: 'Set WILDSHARD_API_URL (or pass --server) and WILDSHARD_CREATOR_PRIVATE_KEY in your shell.' },
   // the account key (meta SHARD-DELETE DEL6): upload sends it on the ticket and the commit; account and whoami
-  { id: 'account-key-missing', anchor: 'account-key-missing', steps: ['upload', 'account'], match: /needs an account key|^no account key/u,
+  { id: 'account-key-missing', anchor: 'account-key-missing', steps: ['upload', 'account', 'delete'], match: /needs an account key|^no account key/u,
     fix: 'Run `wildshard account <email>` once, or set WILDSHARD_API_KEY to your account key.' },
   { id: 'account-exists', anchor: 'account-exists', steps: ['account'], match: /already has an account/u,
     fix: 'Use the key you saved for this email; a lost key needs an operator reset by the Wildshard team.' },
@@ -116,6 +116,19 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Keep the key you have, or pass `--force` to replace the file; the old key keeps working.' },
   { id: 'account-refused', anchor: 'account-refused', steps: ['account'],
     fix: 'Read the reason: a bad email is 400, and 429 means wait a minute and try again.' },
+  // delete (meta SHARD-DELETE DEL10): start, the typed slug, finalize; account-key-missing above covers no key
+  { id: 'delete-not-confirmed', anchor: 'delete-not-confirmed', steps: ['delete'], match: /not confirmed: you typed/u,
+    fix: 'Nothing was deleted. Run `wildshard delete <slug>` again and type the slug exactly, or pass `--yes`.' },
+  { id: 'delete-expired', anchor: 'delete-expired', steps: ['delete'], match: /waits for this confirm token/u,
+    fix: 'Nothing was deleted: run `wildshard delete <slug>` again and confirm within 10 minutes.' },
+  { id: 'delete-not-owner', anchor: 'delete-not-owner', steps: ['delete'], match: /belongs to another account|only the admin token can delete|(?:start|finalize) answered 401:/u,
+    fix: 'Delete with the account key that first uploaded the shard; `wildshard whoami` shows which key you send.' },
+  { id: 'delete-unknown', anchor: 'delete-unknown', steps: ['delete'], match: /(?:start|finalize) answered 40[04]:/u,
+    fix: 'Check the slug: the API has no shard by that name (the catalogue lists every live one).' },
+  { id: 'delete-placed', anchor: 'delete-placed', steps: ['delete'], match: /the grid places it/u,
+    fix: 'A grid cell places the shard: ask the Wildshard team to move it off the grid, then delete again.' },
+  { id: 'delete-refused', anchor: 'delete-refused', steps: ['delete'],
+    fix: 'Read the reason: the API answered with what it wants, or the server is not https.' },
   { id: 'upload-level', anchor: 'upload-level', steps: ['upload'], match: /^invalid --level/u,
     fix: 'Pass `--level` 0 to 11, or leave it out for the default.' },
   { id: 'upload-version', anchor: 'upload-version', steps: ['upload'], match: /pass --version X\.Y\.Z|^--version \S+ is not X\.Y\.Z/u,

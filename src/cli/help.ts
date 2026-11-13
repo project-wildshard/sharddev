@@ -21,8 +21,9 @@ const VERBS: Readonly<Record<string, string>> = {
                        exist yet, with its shard source at src/ (slug: the
                        folder's name unless given). --template sdk (the
                        default) copies the reference world; --template
-                       blender is not built yet. --empty writes a bare
-                       shard source instead`,
+                       blender copies the hand-written Blender template
+                       (a shard file folder, no code). --empty writes a
+                       bare shard source instead`,
   dev: `dev <source> [port]
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on
@@ -81,6 +82,17 @@ const VERBS: Readonly<Record<string, string>> = {
   whoami: `whoami               Print where upload's account key comes from
                        (WILDSHARD_API_KEY, else the key file) and its
                        first characters, never the whole key`,
+  delete: `delete <slug> [--yes] [--server <url>]
+                       Delete your shard: it leaves the catalogue, every
+                       channel and the grid at once. Prints what it would
+                       delete (its versions, the channels pointing at it,
+                       and whether a signed release still plays it until
+                       its next release), then asks you to type the slug;
+                       anything else deletes nothing. The confirmation
+                       lasts 10 minutes. --yes skips typing, for scripts.
+                       Sends your account key, as upload does; only the
+                       key that uploaded the shard deletes it. Reads
+                       WILDSHARD_API_URL when --server is absent`,
   build: `build <source> [folder] [--shardfile-only | --folder-only]
         [--no-placeholders] [--output=<slug>]
                        Build the shard source: bake it into a shard file

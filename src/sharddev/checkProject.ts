@@ -12,7 +12,8 @@ import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
 import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
 import type { Shardfile } from '@wildshard/engine/host/shardfile';
 import { buildProject } from './project';
-import { shardOutputRoot } from './shardSource';
+import { isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
+import { handwrittenIdentity, settleHandwritten } from './handwritten';
 import { validateOutputProduct } from './outputProduct';
 import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
@@ -68,14 +69,27 @@ export async function checkProject(projectPath: string, outputPath: string | und
     const observed = shard.runtime === null ? await measureSimulation(shard, assets, undefined, sections) : unmeasured;
     admitted = { shard, observed, policy };
   };
+  // SA16 (J314): a hand-written source (`--template blender`) has nothing to build: format's pack settles it into the
+  // built folder, which is then admitted as a built shard is.
+  const handwritten = isHandwrittenSource(project);
+  const settleInto = async (source: string): Promise<Shardfile> => {
+    // Its build output goes beside src/, never inside the folder pack reads (or a built folder named as a source).
+    if (!isRepoSource(source)) throw new Error(`${source}: a hand-written shard file builds only from a repo's src/: run wildshard check on the repo`);
+    output ??= resolve(shardOutputRoot(source), 'public/shardfiles', handwrittenIdentity(source).slug);
+    settleHandwritten(source, output);
+    const checked = validateOutputProduct(output);
+    await admit(checked.shard, checked.assets, checked.shard.runtime === null ? 'refuse' : 'warn', checked.sections);
+    return checked.shard;
+  };
   const built = (): string => {
     if (output === undefined) throw new Error('no built shard file folder');
     return output;
   };
   return await runCheck(project, (): string | null => output ?? null, {
-    lint: async (): Promise<StepOutcome> => await Promise.resolve(lintProject(project)),
+    lint: async (): Promise<StepOutcome> => await Promise.resolve(handwritten
+      ? { status: 'skip', note: 'a hand-written shard file: no code to lint' } : lintProject(project)),
     build: async (): Promise<StepOutcome> => {
-      const shard = await buildProject(project, output, { outputFormat: 2, client: null, placeholders: true, admit,
+      const shard = handwritten ? await settleInto(project) : await buildProject(project, output, { outputFormat: 2, client: null, placeholders: true, admit,
         ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }),
         ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
       output ??= resolve(shardOutputRoot(project), 'public/shardfiles', shard.identity.slug);

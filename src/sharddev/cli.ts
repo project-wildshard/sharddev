@@ -21,7 +21,7 @@ import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduc
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
-import { findShardSource, shardOutputRoot } from './shardSource';
+import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
 import { refusalHint, refusalNote, type RefusalStep } from './refusals';
@@ -81,6 +81,8 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     return;
   }
   if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] (wildshard --help lists them all)');
+  // SA16 (J314): a hand-written src/ (--template blender) has no shard.config.ts to build, synth or serve; check settles it.
+  if ((command === 'build' || command === 'synth' || command === 'dev') && isRepoSource(resolve(input)) && isHandwrittenSource(resolve(input))) throw new Error(`${command}: ${input} is a hand-written shard file (--template blender): run wildshard check on the repo, which settles and builds it`);
   if (command === 'synth') {
     if (output !== undefined) throw new Error('usage: wildshard synth <source>');
     const result = await synthProject(resolve(input));

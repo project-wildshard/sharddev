@@ -52,13 +52,14 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 
 | Verb | What it is for |
 |---|---|
-| `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` (Brasscap Mesa) is **not built yet (SA16)**; any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
+| `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` copies the hand-written Blender template (below); any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). **Not built yet** for an installed sdk (SA15) |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
 | `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |
 | `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file) and show its first characters |
+| `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> --base <url>` | Record the built folder in phone WebKit against an exact engine preview, which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
@@ -137,6 +138,22 @@ wildshard upload public/shardfiles/my-shard.shardfile --channel staging --versio
 Upload checks the shard file as the API will, checks the hero, signs, compresses and sends it, then prints the
 version and what moved. Uploading the same bytes again sends nothing.
 
+### Deleting a shard
+
+`wildshard delete my-shard` deletes a shard you uploaded, with the same account key: only the key that first uploaded
+a slug can delete it. It makes two calls to the API, with you in between:
+
+1. **Start.** It prints what the delete touches: the shard's versions, the channels pointing at it, the grid cells
+   placing it, and a plain line saying whether a signed release still plays it. A shard a live release plays can still be deleted: that release
+   keeps its copy until its next release.
+2. **Type the slug.** Type `my-shard` and press Enter. Anything else deletes nothing (`delete-not-confirmed`). You
+   have 10 minutes; after that the confirmation lapses and you start again (`delete-expired`).
+3. **Finalize.** The shard leaves the catalogue, every channel and the grid at once. Its downloads stop after the
+   daily prune, once no signed release names it.
+
+In a script, `wildshard delete my-shard --yes` skips the typing. A deleted slug stays yours: uploading a new version
+of it with your key brings it back, on preview only. Done when the last line starts `deleted my-shard at`.
+
 ## 2. The shard source
 
 A project made by `wildshard new` is a repo with one shard source at `src/`. Inside `src/`:
@@ -179,6 +196,15 @@ source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo wit
 (`src/shards/<slug>`). The slug is `manifest.json`'s, whatever the repo folder is called. A `src/` source builds
 into the repo's `public/shardfiles/`; a `src/shards/<slug>/` source into its own folder's. SA24 moves the existing
 single-shard repos to `src/`.
+
+**The hand-written template (`--template blender`).** shard-format's `blender-template`: no sdk at runtime, no
+three.js, no `shard.config.ts`. Its `src/` is a shard file folder held by hand: `shard.json` (the index),
+`sections/` (the JSON you edit), `blobs/` (baked files, Blender models among them, each named by its SHA-256),
+`mounts/` (what the boot reads first, with its receipt) and `validation.json`. `check` lint skips it (no code); its
+build runs shard-format's `shard-format pack`, which settles every hash and size the sections measure and validates
+the whole folder, then writes the built folder and shard file as any build does. A changed blob is a new file under
+its new hash, with every row that names it changed to match. `package.json` lists only `@wildshard/sdk` (the CLI) and
+shard-format, as dev dependencies; there is no `tsconfig.json`.
 
 **What a shard may declare.** The runtime contract lists every section, `client/plan` kind, named file, script rule,
 budget and limit a shard file may carry, and what validation refuses:
@@ -284,8 +310,8 @@ an existing folder.
 
 #### new-template
 
-`--template` names `sdk` (the reference world, the default) or `blender` (Brasscap Mesa, **not built yet, SA16**). Any
-other name refuses before `new` writes anything. Leave the flag out or pass `--template sdk`.
+`--template` names `sdk` (the reference world, the default) or `blender` (the hand-written Blender template). Any
+other name refuses before `new` writes anything. Leave the flag out or pass `--template sdk` or `--template blender`.
 
 #### new-refused
 
@@ -502,6 +528,42 @@ the key to an account you made. Keep it, or pass `--force` to replace the file; 
 
 The API refused the account for another reason: a malformed email is 400, and more than five tries a minute is 429
 (wait a minute).
+
+### Delete
+
+`wildshard delete <slug>` ("Deleting a shard"). No account key refuses before anything is sent
+(`account-key-missing`, above).
+
+#### delete-not-confirmed
+
+You typed something other than the slug, or nothing, so the delete was not finalized and nothing changed. Run it
+again and type the slug exactly; in a script, pass `--yes`.
+
+#### delete-expired
+
+The confirmation from the start call was spent, or its 10 minutes passed, so finalize changed nothing. Run
+`wildshard delete <slug>` again and type the slug within 10 minutes.
+
+#### delete-not-owner
+
+The key you sent does not own this shard: only the account whose key first uploaded a slug can delete it (the
+Wildshard team can delete any shard). `wildshard whoami` shows which key you send. A 401 means the API does not know
+the key at all.
+
+#### delete-unknown
+
+The API has no shard by that slug (404), or the slug is not a valid one (400). Check its spelling against the
+catalogue.
+
+#### delete-placed
+
+The API refused because a grid cell places the shard: an API that can't yet free a grid cell on delete answers
+this. Ask the Wildshard team to move the shard off the grid, then delete again.
+
+#### delete-refused
+
+The API refused for another reason, or `--server` is not https (the key goes only to https or localhost). The
+message says which.
 
 ### Lint
 
