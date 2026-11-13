@@ -140,21 +140,48 @@ function oneDraw(geometry: ReturnType<typeof placeholderGeometry>, name: string)
   return staticGlb([{ geometry, material: new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }), castShadow: false }], name);
 }
 
-/**
- * Bake one far proxy (a single-draw GLB) and its impostor (G539: the camera-facing tile atlas the far tier draws past the
- * proxy's band, `bakeFarImpostor`), refused over any §3.2 far cap. Only one of the two draws at a time; both are resident.
- */
-export async function bakeFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[] = []): Promise<{ manifest: FarManifest; bytes: Uint8Array; impostor: Uint8Array }> {
+type FarRow = NonNullable<Shardfile['far']>;
+/** The §3.2 far caps a far row is admitted under (`CONTENT_CAPS.far`). */
+export interface FarCaps { readonly resident: number; readonly compressed: number; readonly triangles: number; readonly draws: number }
+/** Whether a far row fits every §3.2 far cap. */
+function farWithinCaps(far: FarRow, caps: FarCaps = CONTENT_CAPS.far): boolean {
+  return far.decoded + far.gpu <= caps.resident && far.compressed <= caps.compressed && far.triangles <= caps.triangles && far.draws <= caps.draws;
+}
+/** The far GLB, its impostor, and the far row with the impostor (`far`) and without it (`meshOnly`). */
+async function farRows(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[]) {
   const geometry = placeholderGeometry(grid, look, parts);
   const bytes = oneDraw(geometry, 'far-proxy'), file = fileRow(bytes);
   geometry.computeBoundingBox(); const box = geometry.boundingBox; if (box === null) throw new Error('Missing far bounds');
   const baked = await bakeFarImpostor(geometry, look.family);
   // Admit the defining image envelope, including decode workspace and RGBA fallback; runtime packing stays RGBA 5551.
   const impostorFile: PlaceholderFile = { hash: hashImmutableBytes(baked.png), kind: 'image', compressed: baked.png.length, ...assetCost('image', baked.png), dependencies: [], critical: false };
-  const far: NonNullable<Shardfile['far']> = { bounds: { min: box.min.toArray(), max: box.max.toArray() }, files: [file.hash, impostorFile.hash], impostor: { file: impostorFile.hash, ...baked.row },
-    compressed: file.compressed + impostorFile.compressed, decoded: file.decoded + impostorFile.decoded, gpu: file.gpu + impostorFile.gpu, triangles: file.triangles, draws: file.draws };
-  if (far.decoded + far.gpu > CONTENT_CAPS.far.resident || far.compressed > CONTENT_CAPS.far.compressed || far.triangles > CONTENT_CAPS.far.triangles || far.draws > CONTENT_CAPS.far.draws) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(far)}`);
-  return { manifest: { far, file, impostorFile, look: { family: look.family, haze: look.haze, ...(look.grade === undefined ? {} : { grade: look.grade }), ...(look.band === undefined ? {} : { band: look.band }) } }, bytes, impostor: baked.png };
+  const meshOnly: FarRow = { bounds: { min: box.min.toArray(), max: box.max.toArray() }, files: [file.hash], compressed: file.compressed, decoded: file.decoded, gpu: file.gpu, triangles: file.triangles, draws: file.draws };
+  const far: FarRow = { ...meshOnly, files: [file.hash, impostorFile.hash], impostor: { file: impostorFile.hash, ...baked.row },
+    compressed: file.compressed + impostorFile.compressed, decoded: file.decoded + impostorFile.decoded, gpu: file.gpu + impostorFile.gpu };
+  return { far, meshOnly, file, impostorFile, bytes, impostor: baked.png, look: { family: look.family, haze: look.haze, ...(look.grade === undefined ? {} : { grade: look.grade }), ...(look.band === undefined ? {} : { band: look.band }) } };
+}
+
+/**
+ * Bake one far proxy (a single-draw GLB) and its impostor (G539: the camera-facing tile atlas the far tier draws past the
+ * proxy's band, `bakeFarImpostor`), refused over any §3.2 far cap. Only one of the two draws at a time; both are resident.
+ */
+export async function bakeFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[] = []): Promise<{ manifest: FarManifest; bytes: Uint8Array; impostor: Uint8Array }> {
+  const { far, file, impostorFile, bytes, impostor, look: runtime } = await farRows(grid, look, parts);
+  if (!farWithinCaps(far)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(far)}`);
+  return { manifest: { far, file, impostorFile, look: runtime }, bytes, impostor };
+}
+
+/**
+ * `wildshard build`'s generic far proxy for a shard that ships none: the far bake with its impostor, or the GLB alone
+ * (the proxy then draws at every distance) when the pair would breach a §3.2 far cap, as an authored far's impostor is
+ * dropped (`authoredFarImpostor`); refused only when the GLB alone breaches one. `impostor` is null when dropped.
+ */
+export async function projectFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, caps: FarCaps = CONTENT_CAPS.far): Promise<{ far: FarRow; file: PlaceholderFile; bytes: Uint8Array; impostor: { file: PlaceholderFile; bytes: Uint8Array } | null }> {
+  const rows = await farRows(grid, look, []);
+  if (farWithinCaps(rows.far, caps)) return { far: rows.far, file: rows.file, bytes: rows.bytes, impostor: { file: rows.impostorFile, bytes: rows.impostor } };
+  if (!farWithinCaps(rows.meshOnly, caps)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(rows.meshOnly)}`);
+  console.warn(`far impostor dropped: the proxy and its impostor are ${rows.far.decoded + rows.far.gpu} B resident (cap ${caps.resident}), ${rows.far.compressed} B compressed (cap ${caps.compressed}); the far proxy draws at every distance`);
+  return { far: rows.meshOnly, file: rows.file, bytes: rows.bytes, impostor: null };
 }
 
 /** A baked `terrain.bin` (the WSTR lattice) as a placeholder grid. */
@@ -504,7 +531,7 @@ async function authoredFarImpostor(shard: Shardfile, assets: Map<string, Uint8Ar
   const baked = await bakeFarImpostor(geometry, 'pbr');
   const file: PlaceholderFile = { hash: hashImmutableBytes(baked.png), kind: 'image', compressed: baked.png.length, ...assetCost('image', baked.png), dependencies: [], critical: false };
   const next = { ...far, files: [...far.files, file.hash], impostor: { file: file.hash, ...baked.row }, compressed: far.compressed + file.compressed, decoded: far.decoded + file.decoded, gpu: far.gpu + file.gpu };
-  if (next.decoded + next.gpu > CONTENT_CAPS.far.resident || next.compressed > CONTENT_CAPS.far.compressed) return shard;
+  if (!farWithinCaps(next)) return shard;
   assets.set(file.hash, baked.png);
   return { ...shard, files: [...shard.files, file], far: next };
 }
@@ -567,9 +594,9 @@ export async function projectPlaceholders(project: Shardfile, assets: Map<string
   const grid = colliderGrid(collider), look = shardfileLook(shard), files = [...shard.files];
   let far = shard.far, near = shard.near;
   if (far === null) {
-    const baked = await bakeFarPlaceholder(grid, look);
-    far = baked.manifest.far; files.push(baked.manifest.file, baked.manifest.impostorFile);
-    assets.set(baked.manifest.file.hash, baked.bytes); assets.set(baked.manifest.impostorFile.hash, baked.impostor);
+    const baked = await projectFarPlaceholder(grid, look);
+    far = baked.far; files.push(baked.file); assets.set(baked.file.hash, baked.bytes);
+    if (baked.impostor !== null) { files.push(baked.impostor.file); assets.set(baked.impostor.file.hash, baked.impostor.bytes); }
   }
   if (near === undefined) {
     const baked = await bakeNearPlaceholder({ grid, look, prototypes: await shardfileWorld(shard, assets), residentBytes: Math.min(NEAR_BAKE.residentBytes, NEAR_PLACEHOLDER_LIMITS.contentBytes) });
