@@ -13,8 +13,9 @@ import type { Accounts } from './auth-double.ts'
 // the upload double answers them: the owner's key (the double's one account
 // key) starts a delete of a slug it knows and gets a confirm token;
 // finalize spends that token once. Another `wsk_` key is 403, no key 401,
-// an unknown slug 404, a grid-placed slug 409, and a wrong, used or
-// expired token 409 with api-server's own words.
+// an unknown slug 404, and a wrong, used or expired token 409 with
+// api-server's own words. A grid-placed slug deletes like any other and
+// finalize frees its cell (api-server SA31, v0.11.0).
 
 const DELETE =
   /^\/api\/shards\/(?<slug>[^/]+)\/delete(?<finalize>\/finalize)?$/u
@@ -26,7 +27,7 @@ const FinalizeSchema = object({ confirm: string() })
 interface Deletions {
   /** Slugs the owner may delete. */
   readonly shards: Set<string>
-  /** Slugs a grid cell places: both calls answer 409. */
+  /** Slugs a grid cell places (staging [2, 3]): finalize frees the cell. */
   readonly placed: Set<string>
   /** The confirm token each slug's newest start answered. */
   readonly tokens: Map<string, string>
@@ -84,7 +85,9 @@ function callerRefusal(
     : { status: 401, error: 'bad admin token' }
 }
 
-function summaryOf(deletions: Deletions): unknown {
+const PLACED_CELL = [2, 3]
+
+function summaryOf(deletions: Deletions, slug: string): unknown {
   return {
     deleted: false,
     versions: [
@@ -95,7 +98,9 @@ function summaryOf(deletions: Deletions): unknown {
       { channel: 'preview', hash: 'b'.repeat(64) },
       { channel: 'staging', hash: 'b'.repeat(64) },
     ],
-    grid: [],
+    grid: deletions.placed.has(slug)
+      ? [{ channel: 'staging', cells: [PLACED_CELL] }]
+      : [],
     releases: { staging: false, production: false },
     note: deletions.note,
   }
@@ -113,7 +118,7 @@ function start(
     slug,
     confirm,
     expiresAt: TIME,
-    summary: summaryOf(deletions),
+    summary: summaryOf(deletions, slug),
   })
 }
 
@@ -144,7 +149,10 @@ function finalize(
     deleted: true,
     deletedAt: TIME,
     channels: ['preview', 'staging'],
+    cells: deletions.placed.has(slug) ? ['staging'] : [],
     placements: [],
+    // oxlint-disable-next-line unicorn/no-null -- api-server answers null when the slug held no cell
+    freed: deletions.placed.has(slug) ? PLACED_CELL : null,
     notified: false,
   })
 }
@@ -163,10 +171,6 @@ function routeDelete(
     sendJson(response, refused.status, { error: refused.error })
   } else if (!deletions.shards.has(slug)) {
     sendJson(response, 404, { error: `no shard ${slug}` })
-  } else if (deletions.placed.has(slug)) {
-    sendJson(response, 409, {
-      error: 'the grid places it (staging [2, 3]): PUT a grid without it first',
-    })
   } else if (call.finalize) {
     finalize(deletions, { slug, body }, response)
   } else {

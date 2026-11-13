@@ -125,8 +125,6 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Delete with the account key that first uploaded the shard; `wildshard whoami` shows which key you send.' },
   { id: 'delete-unknown', anchor: 'delete-unknown', steps: ['delete'], match: /(?:start|finalize) answered 40[04]:/u,
     fix: 'Check the slug: the API has no shard by that name (the catalogue lists every live one).' },
-  { id: 'delete-placed', anchor: 'delete-placed', steps: ['delete'], match: /the grid places it/u,
-    fix: 'A grid cell places the shard: ask the Wildshard team to move it off the grid, then delete again.' },
   { id: 'delete-refused', anchor: 'delete-refused', steps: ['delete'],
     fix: 'Read the reason: the API answered with what it wants, or the server is not https.' },
   { id: 'upload-level', anchor: 'upload-level', steps: ['upload'], match: /^invalid --level/u,

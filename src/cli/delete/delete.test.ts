@@ -54,6 +54,10 @@ function assertDeleted(stdout: string): void {
   assert.match(stdout, /^live on staging until its next release/mu)
   assert.match(stdout, /type my-shard to delete it/u)
   assert.match(stdout, /^grid cells placing it: none$/mu)
+  assert.match(
+    stdout,
+    /; grid cells dropped on: none; grid cell freed: none$/mu,
+  )
   assert.match(stdout, /\ndeleted my-shard at [^\n]*\n$/u)
 }
 
@@ -137,21 +141,33 @@ test("another account's key is refused at start, and nothing is asked", async (c
   assert.deepEqual(server.state.deletions.finalizeCalls, [])
 })
 
-test('an unknown slug and a grid-placed slug name their rules', async (context: TestContext): Promise<void> => {
+test('an unknown slug names its rule and finalizes nothing', async (context: TestContext): Promise<void> => {
   const server = await ownedServer(context)
-  server.state.deletions.shards.add('placed')
-  server.state.deletions.placed.add('placed')
 
   const unknown = await deleteRun(server, context, { args: ['nope', '--yes'] })
-  const placed = await deleteRun(server, context, { args: ['placed', '--yes'] })
 
-  assert.deepEqual([unknown.status, placed.status], [3, 3])
+  assert.equal(unknown.status, 3, unknown.stderr)
   assert.match(
     unknown.stderr,
     /start answered 404: no shard nope\n {2}\[delete-unknown\]/u,
   )
-  assert.match(placed.stderr, /the grid places it.*\n {2}\[delete-placed\]/u)
   assert.deepEqual(server.state.deletions.finalizeCalls, [])
+})
+
+test('a grid-placed slug deletes and frees its cell', async (context: TestContext): Promise<void> => {
+  const server = await ownedServer(context)
+  server.state.deletions.shards.add('placed')
+  server.state.deletions.placed.add('placed')
+
+  const placed = await deleteRun(server, context, { args: ['placed', '--yes'] })
+
+  assert.equal(placed.status, 0, placed.stderr)
+  assert.match(placed.stdout, /^grid cells placing it: staging \[2, 3\]$/mu)
+  assert.match(
+    placed.stdout,
+    /; grid cells dropped on: staging; grid cell freed: \[2, 3\]$/mu,
+  )
+  assert.deepEqual(server.state.deletions.finalized, ['placed'])
 })
 
 test('no slug, no server or no key refuses before any request', async (context: TestContext): Promise<void> => {

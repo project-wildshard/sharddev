@@ -1,11 +1,13 @@
 import {
   array,
   boolean,
+  nullable,
   number,
   object,
   optional,
   safeParse,
   string,
+  tuple,
 } from 'valibot'
 
 // `wildshard delete <slug>` (meta SHARD-DELETE DEL10, J307, J310): the
@@ -27,6 +29,7 @@ const ErrorSchema = object({ error: string() })
 const VersionSchema = object({ version: string(), hash: string() })
 const PointerSchema = object({ channel: string() })
 const CellSchema = array(number())
+const FreedSchema = tuple([number(), number()])
 const PlacedSchema = object({ channel: string(), cells: array(CellSchema) })
 
 const SummarySchema = object({
@@ -51,6 +54,8 @@ const FinalizeSchema = object({
   placements: ChannelsSchema,
   /** The channels whose grid cells named the slug (api-server SA31). */
   cells: optional(ChannelsSchema),
+  /** The slug's own grid cell, freed for the next new slug; null: it held none (SA31). */
+  freed: optional(nullable(FreedSchema)),
 })
 
 /** What finalize did, as the API answers it. */
@@ -59,6 +64,7 @@ type Finalized = Readonly<{
   channels: readonly string[]
   placements: readonly string[]
   cells?: readonly string[] | undefined
+  freed?: readonly [number, number] | null | undefined
 }>
 
 type Started = Readonly<{
@@ -179,8 +185,12 @@ function doneLines(slug: string, done: Finalized): readonly string[] {
     done.cells === undefined
       ? ''
       : `; grid cells dropped on: ${listed(done.cells)}`
+  const freed =
+    done.freed === undefined
+      ? ''
+      : `; grid cell freed: ${done.freed === null ? 'none' : `[${done.freed.join(', ')}]`}`
   return [
-    `pointers dropped on: ${listed(done.channels)}; solo placements dropped on: ${listed(done.placements)}${cells}`,
+    `pointers dropped on: ${listed(done.channels)}; solo placements dropped on: ${listed(done.placements)}${cells}${freed}`,
     `deleted ${slug} at ${done.deletedAt}: hidden from the catalogue and every grid`,
   ]
 }

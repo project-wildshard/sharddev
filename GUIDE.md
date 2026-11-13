@@ -148,8 +148,8 @@ a slug can delete it. It makes two calls to the API, with you in between:
    keeps its copy until its next release.
 2. **Type the slug.** Type `my-shard` and press Enter. Anything else deletes nothing (`delete-not-confirmed`). You
    have 10 minutes; after that the confirmation lapses and you start again (`delete-expired`).
-3. **Finalize.** The shard leaves the catalogue, every channel and the grid at once. Its downloads stop after the
-   daily prune, once no signed release names it.
+3. **Finalize.** The shard leaves the catalogue, every channel and the grid at once, and its grid cell is freed
+   for the next new shard. Its downloads stop after the daily prune, once no signed release names it.
 
 In a script, `wildshard delete my-shard --yes` skips the typing. A deleted slug stays yours: uploading a new version
 of it with your key brings it back, on preview only. Done when the last line starts `deleted my-shard at`.
@@ -554,11 +554,6 @@ the key at all.
 
 The API has no shard by that slug (404), or the slug is not a valid one (400). Check its spelling against the
 catalogue.
-
-#### delete-placed
-
-The API refused because a grid cell places the shard: an API that can't yet free a grid cell on delete answers
-this. Ask the Wildshard team to move the shard off the grid, then delete again.
 
 #### delete-refused
 
