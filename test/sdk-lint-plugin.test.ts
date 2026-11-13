@@ -82,6 +82,29 @@ describe('wildshard-sdk/generator-imports in generators/ (denylist, J319)', () =
     expect(generatorImportViolation(generator, 'left-pad', true)).toBeNull();
   });
 
+  // Vite resolves the path before its first `?` or `#` through the package exports and keeps the rest as a postfix
+  // (`?raw`, `?url`, `?worker&inline`), so the rule judges that path: nalati's kokparProgram.ts and nine-dragon's
+  // practiceProgram.ts import the exported course.as `?raw`.
+  it('reads an import by its path before a Vite ?query or #hash', () => {
+    for (const source of ['@wildshard/sharddev/commons/scripts/course.as?raw', '@wildshard/sdk/commons/scripts/course.as?raw',
+      '@wildshard/sdk/scripts/x.glsl?url', '@wildshard/sdk/scripts/x.mjs?worker&inline', '@wildshard/sdk/immutable#x',
+      './shader.glsl?raw', 'three/addons/x.js?url'])
+      expect(generatorImportViolation(generator, source), source).toBeNull();
+    for (const source of ['@wildshard/sdk/commons/scripts/nope.as?raw', '@wildshard/sharddev/bake/nope?url',
+      '@wildshard/sdk?raw', '@wildshard/sdk/src/commons/scripts/course.as?raw'])
+      expect(refused(generator, source)).toMatch(/^generator-imports: .*exports/u);
+    expect(refused(generator, '@wildshard/sdk/runtime/x?raw')).toMatch(/trusted SDK runtime/u);
+    expect(refused(generator, '@wildshard/engine?raw')).toMatch(/@wildshard\/engine/u);
+    expect(refused(generator, '@wildshard/engine#x')).toMatch(/@wildshard\/engine/u);
+    expect(refused(generator, 'three/src/Three.js?raw')).toMatch(/second copy of three/u);
+    expect(refused(generator, '@wildshard/shard-dunes?raw')).toMatch(/another shard/u);
+    expect(refused(generator, '../../other/generators/x.glsl?raw')).toMatch(/another shard/u);
+    expect(refused('/repo/src/shards/meadow/data/a.ts', 'meshoptimizer?raw')).toMatch(/only three/u);
+    expect(refused('/repo/src/shards/meadow/data/a.ts', '#x?raw')).toMatch(/only three/u);
+    expect(generatorImportViolation('/repo/src/shards/meadow/data/a.ts', '@wildshard/sdk/commons/scripts/course.as?raw'))
+      .toBeNull();
+  });
+
   it('still requires a literal module path', () => {
     expect(refused(generator, '<computed>')).toMatch(/^generator-imports: .*literal module path/u);
   });

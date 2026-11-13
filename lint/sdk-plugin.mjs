@@ -74,7 +74,12 @@ export function generatorImportViolation(filename, rawSource, required = false) 
   const path = resolve(filename).replaceAll('\\', '/'), match = /^.*\/src\/shards\/([^/]+)\/(.+)$/u.exec(path);
   if (match === null || !(/^(?:generators|data|quests)\//u.test(match[2]) || match[2] === 'shard.config.ts')) return null;
   if (typeof rawSource !== 'string') return null;
-  const source = rawSource.startsWith('file:') ? fileURLToPath(rawSource) : rawSource;
+  // Vite resolves the path before the first `?` or `#` through the package exports and keeps the rest (`?raw`, `?url`,
+  // `?worker&inline`) as a postfix, as engine's import rules read it; a leading `#` is a subpath import, not a postfix.
+  // Node keeps a bare specifier's `?` in the subpath, so there the stripped path is only ever the stricter read.
+  const postfix = rawSource.slice(1).search(/[?#]/u) + 1;
+  const bare = postfix > 0 ? rawSource.slice(0, postfix) : rawSource;
+  const source = bare.startsWith('file:') ? fileURLToPath(bare) : bare;
   if (source === '<computed>') return `${RULE}: author imports require a literal module path; write the path as a string`;
   const root = path.slice(0, path.length - match[2].length);
   const local = source.startsWith('.') || isAbsolute(source) ? resolve(dirname(filename), source).replaceAll('\\', '/') : '';
