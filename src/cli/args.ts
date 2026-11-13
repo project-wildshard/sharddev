@@ -13,6 +13,8 @@ interface CliArgs {
   /** The second operand: `build <folder> [file]`'s shard file (SA3). */
   readonly target: string | undefined
   readonly help: boolean
+  /** `account`: replace a key file that is there already. */
+  readonly force: boolean
   readonly level: string | undefined
   readonly out: string | undefined
   readonly port: string | undefined
@@ -25,6 +27,7 @@ const FIRST = 0
 const OPTIONS = {
   channel: { type: 'string' },
   commit: { type: 'string' },
+  force: { type: 'boolean', default: false },
   help: { type: 'boolean', default: false },
   level: { type: 'string' },
   out: { type: 'string' },
@@ -74,6 +77,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     commit: values.commit,
     shardVersion: typeof version === 'string' ? version : undefined,
     help: values.help,
+    force: values.force,
     level: values.level,
     out: values.out,
     port: values.port,

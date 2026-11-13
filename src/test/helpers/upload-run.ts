@@ -49,6 +49,7 @@ async function upload(
   return await uploadShardfile({
     file: run.file,
     server: run.server.url,
+    apiKey: run.server.apiKey,
     privateKey: run.server.privateKey,
     level: 5,
     version,

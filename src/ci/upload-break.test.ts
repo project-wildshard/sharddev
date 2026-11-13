@@ -28,6 +28,7 @@ test('stored bytes the server now refuses fail the upload', async (context: Test
     await uploadShardfile({
       file,
       server: server.url,
+      apiKey: server.apiKey,
       privateKey: server.privateKey,
       level: 5,
       version: '0.0.1',

@@ -18,7 +18,8 @@ function cli(
 ): SpawnSyncReturns<string> {
   return spawnSync(process.execPath, [MAIN, ...args], {
     encoding: 'utf8',
-    env: { PATH: process.env['PATH'], ...env },
+    // A key, so no test reads the real ~/.config/wildshard/sharddev-key (DEL6).
+    env: { PATH: process.env['PATH'], WILDSHARD_API_KEY: 'wsk_unused', ...env },
     ...(cwd === undefined ? {} : { cwd }),
   })
 }
@@ -162,7 +163,7 @@ describe('pack and upload refusals (SA21)', (): void => {
     for (const [args, rule] of REFUSALS) {
       assertRule(cli(args).stderr, rule)
     }
-    const upload = ['upload', '/nonexistent.tar', '--server', 'http://x']
+    const upload = ['upload', '/nonexistent.tar', '--server', 'https://x']
     const run = cli([...upload, ...PROVENANCE, ...CHANNEL], {
       WILDSHARD_CREATOR_PRIVATE_KEY: 'unused',
     })

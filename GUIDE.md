@@ -56,6 +56,8 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
+| `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |
+| `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file) and show its first characters |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> --base <url>` | Record the built folder in phone WebKit against an exact engine preview, which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
@@ -117,7 +119,13 @@ before every upload:
    ask the Wildshard team.
 5. **Keys.** Set `WILDSHARD_API_URL=https://api.wildshard.io` (or pass `--server`) and
    `WILDSHARD_CREATOR_PRIVATE_KEY`, the base64 creator key upload signs with. There is one Wildshard creator key and
-   no per-author keys yet: ask the Wildshard team for it, and never commit it.
+   no per-author creator keys yet: ask the Wildshard team for it, and never commit it. Upload also sends your
+   **account key**, which says whose shard it is: the first upload of a slug makes it yours, and nobody else's key can
+   upload to it. Make the account once with `wildshard account you@example.com`: it saves the key to
+   `~/.config/wildshard/sharddev-key` (only you can read it) and the API never shows it again, so keep that file. An
+   email that has an account already is refused (`account-exists`); a lost key needs an operator reset by the
+   Wildshard team. In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
+   upload will send. Done when `wildshard whoami` prints `key wsk_…`.
 6. **Upload,** with a version `X.Y.Z` higher than the last one uploaded (`0.0.1` the first time). Upload reads
    `version` from the shard source's `package.json`; with no `package.json`, pass `--version`:
 
@@ -454,6 +462,31 @@ Upload could not find the sdk, engine or shard-format version to send. Install t
 
 The API refused, or a check no rule above names. The message says what it wants: a format refusal means check and
 prepare again; a server refusal (409 or 422) names the field, the version or the hero.
+
+### Account
+
+The account key upload sends ("Uploading", step 5), `wildshard account` and `wildshard whoami`.
+
+#### account-key-missing
+
+Upload found no account key: `WILDSHARD_API_KEY` is unset and `~/.config/wildshard/sharddev-key` is not there. It
+refuses before anything is sent, because the API refuses an upload with no key. Run `wildshard account <email>` once,
+or set `WILDSHARD_API_KEY`.
+
+#### account-exists
+
+That email has an account already, and the API shows a key only once, when the account is made. Use the key you
+saved for it. A lost key stays lost until the Wildshard team resets it.
+
+#### account-key-file
+
+`~/.config/wildshard/sharddev-key` already holds a key, and `account` never overwrites one by accident: you would lose
+the key to an account you made. Keep it, or pass `--force` to replace the file; the old key keeps working.
+
+#### account-refused
+
+The API refused the account for another reason: a malformed email is 400, and more than five tries a minute is 429
+(wait a minute).
 
 ### Lint
 

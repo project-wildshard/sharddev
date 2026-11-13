@@ -9,7 +9,7 @@
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
-export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload';
+export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'shardfile' | 'pack' | 'upload' | 'account';
 /** One rule: its id, its GUIDE.md anchor, the fix, and the refusal messages it names (none: the step's catch-all). */
 export interface RefusalRule {
   readonly id: string;
@@ -105,6 +105,15 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Add `--channel staging` (try it there first) or `--channel prod`.' },
   { id: 'upload-credentials', anchor: 'upload-credentials', steps: ['upload'], match: /upload needs --server/u,
     fix: 'Set WILDSHARD_API_URL (or pass --server) and WILDSHARD_CREATOR_PRIVATE_KEY in your shell.' },
+  // the account key (meta SHARD-DELETE DEL6): upload sends it on the ticket and the commit; account and whoami
+  { id: 'account-key-missing', anchor: 'account-key-missing', steps: ['upload', 'account'], match: /needs an account key|^no account key/u,
+    fix: 'Run `wildshard account <email>` once, or set WILDSHARD_API_KEY to your account key.' },
+  { id: 'account-exists', anchor: 'account-exists', steps: ['account'], match: /already has an account/u,
+    fix: 'Use the key you saved for this email; a lost key needs an operator reset by the Wildshard team.' },
+  { id: 'account-key-file', anchor: 'account-key-file', steps: ['account'], match: /already holds a key/u,
+    fix: 'Keep the key you have, or pass `--force` to replace the file; the old key keeps working.' },
+  { id: 'account-refused', anchor: 'account-refused', steps: ['account'],
+    fix: 'Read the reason: a bad email is 400, and 429 means wait a minute and try again.' },
   { id: 'upload-level', anchor: 'upload-level', steps: ['upload'], match: /^invalid --level/u,
     fix: 'Pass `--level` 0 to 11, or leave it out for the default.' },
   { id: 'upload-version', anchor: 'upload-version', steps: ['upload'], match: /pass --version X\.Y\.Z|^--version \S+ is not X\.Y\.Z/u,

@@ -115,6 +115,20 @@ jobs:
       - if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: pnpm test:hooks
       - run: pnpm test:ci
+      # Meta SHARD-DELETE DEL6: the operator's account key, for uploads from
+      # CI. The repo secret WILDSHARD_API_KEY is set by hand (Jake); until it
+      # is, this step only notes it is missing. whoami prints the key's first
+      # characters, never the whole key.
+      - name: The account key reaches the CLI
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          WILDSHARD_API_KEY: ${{ secrets.WILDSHARD_API_KEY }}
+        run: |
+          if [ -z "$WILDSHARD_API_KEY" ]; then
+            echo '::notice::No WILDSHARD_API_KEY secret yet (meta SHARD-DELETE DEL6)'
+          else
+            node bin/wildshard.mjs whoami
+          fi
       - name: Name the commits this verdict covers
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         continue-on-error: true

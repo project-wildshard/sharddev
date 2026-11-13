@@ -59,7 +59,10 @@ test('an installed wildshard builds a real shard file and uploads it (SA3)', asy
   const tar = path.join(dir, 'real.tar')
   const folder = await writeProduct(dir, 'real')
   const packed = await wildshard(['build', folder, tar])
-  const key = { WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey }
+  const key = {
+    WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey,
+    WILDSHARD_API_KEY: server.apiKey,
+  }
   // Explicit provenance (AC16): this bin runs from no shard project, so the
   // package.json and git HEAD defaults would read whatever the cwd holds.
   const uploaded = await wildshard(

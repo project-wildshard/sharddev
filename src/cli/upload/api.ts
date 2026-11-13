@@ -20,7 +20,9 @@ import type { BaseIssue, BaseSchema, InferOutput } from 'valibot'
 
 // The large-file protocol of api-server (its docs/design.md, V7): ticket,
 // PUT to R2, commit. Vercel's protection sits in front of the API calls only:
-// the PUT goes straight to R2, so the bypass header never goes with it.
+// the PUT goes straight to R2, so the bypass header never goes with it. The
+// ticket and the commit carry the account key too (meta SHARD-DELETE DEL5,
+// DEL6); the public reads and the PUT never do.
 
 const SIGNATURE_HEADER = 'x-wildshard-signature'
 const BYPASS_HEADER = 'x-vercel-protection-bypass'
@@ -33,6 +35,8 @@ const BYPASS_HINT =
 interface ApiOptions {
   /** The api-server origin. */
   readonly server: string
+  /** The account's `wsk_` key, sent on the ticket and the commit. */
+  readonly apiKey: string
   /** Vercel's automation bypass, for a protected deployment. */
   readonly bypassSecret?: string
 }
@@ -98,6 +102,7 @@ async function postSigned<Schema extends AnySchema>(
     headers: {
       ...apiHeaders(options),
       'content-type': 'application/json',
+      authorization: `Bearer ${options.apiKey}`,
       [SIGNATURE_HEADER]: call.signature,
     },
     body: JSON.stringify(call.body),

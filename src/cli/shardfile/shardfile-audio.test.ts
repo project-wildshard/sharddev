@@ -183,6 +183,7 @@ test('upload refuses the red shard before it sends a byte', async (context: Test
     uploadShardfile({
       file: out,
       server: server.url,
+      apiKey: server.apiKey,
       privateKey: server.privateKey,
       level: 5,
       version: '0.0.1',

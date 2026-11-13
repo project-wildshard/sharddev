@@ -1,5 +1,5 @@
 // oxlint-disable typescript/prefer-readonly-parameter-types -- a double's state is what it mutates
-import { createHash, generateKeyPairSync, verify } from 'node:crypto'
+import { createHash, generateKeyPairSync } from 'node:crypto'
 import type { KeyObject } from 'node:crypto'
 import { createServer } from 'node:http'
 import type { IncomingMessage, ServerResponse } from 'node:http'
@@ -9,6 +9,7 @@ import { brotliDecompressSync } from 'node:zlib'
 
 import { literal, number, object, optional, parse, string } from 'valibot'
 
+import { answerAccount, newAccounts, signedBy } from './auth-double.ts'
 import { close, listen, sendJson } from './http-double.ts'
 import {
   commitBodyOf,
@@ -19,14 +20,15 @@ import {
   missingVersion,
 } from './upload-commit.ts'
 
+import type { Accounts } from './auth-double.ts'
 import type { Recorded, Reply } from './upload-commit.ts'
 import type { InferOutput } from 'valibot'
 
 // An api-server stand-in for `sharddev upload`: real sockets, real Ed25519
 // verification over the tarball's digest and a real Brotli decode, with
-// the presigned PUT on a second server, as R2 is.
+// the presigned PUT on a second server, as R2 is. The signature and the
+// account key (meta SHARD-DELETE DEL6) are auth-double.ts's.
 
-const SIGNATURE_HEADER = 'x-wildshard-signature'
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
 const TIME = '2026-11-05T00:00:00.000Z'
 
@@ -65,6 +67,7 @@ interface UploadServerState {
   sso: boolean
   /** Echo the channel and the three versions, as UP2's API will. */
   echo: boolean
+  readonly accounts: Accounts
 }
 
 /** A catalogue shard as the double serves it. */
@@ -78,6 +81,8 @@ interface UploadServer {
   readonly url: string
   /** Base64 PKCS#8, as WILDSHARD_CREATOR_PRIVATE_KEY holds it. */
   readonly privateKey: string
+  /** The account key the ticket and the commit take (DEL5). */
+  readonly apiKey: string
   readonly state: UploadServerState
 }
 
@@ -95,19 +100,6 @@ interface Exchange {
 interface Refusal {
   readonly status: number
   readonly error: string
-}
-
-function signedBy(
-  key: KeyObject,
-  hash: string,
-  request: IncomingMessage,
-): boolean {
-  const header = request.headers[SIGNATURE_HEADER]
-  const digest = Buffer.from(hash, 'hex')
-  return (
-    typeof header === 'string' &&
-    verify(undefined, digest, key, Buffer.from(header, 'base64'))
-  )
 }
 
 function tarballOf(stored: StoredObject): Buffer {
@@ -231,8 +223,12 @@ function route(double: Double, exchange: Exchange, body: string): void {
 
 async function answerApi(double: Double, exchange: Exchange): Promise<void> {
   const body = await buffer(exchange.request)
-  double.state.apiRequests.push(exchange.request)
-  route(double, exchange, body.toString('utf8'))
+  const { state } = double
+  state.apiRequests.push(exchange.request)
+  const text = body.toString('utf8')
+  if (state.sso || !answerAccount(state.accounts, exchange, text)) {
+    route(double, exchange, text)
+  }
 }
 
 async function answerPut(
@@ -263,6 +259,7 @@ function newState(): UploadServerState {
     unlisted: false,
     sso: false,
     echo: false,
+    accounts: newAccounts(),
   }
 }
 
@@ -286,7 +283,8 @@ async function openUploadServer(context: TestContext): Promise<UploadServer> {
     await Promise.all([close(api), close(r2)])
   })
   const der = privateKey.export({ format: 'der', type: 'pkcs8' })
-  return { url, privateKey: der.toString('base64'), state }
+  const { apiKey } = state.accounts
+  return { url, privateKey: der.toString('base64'), apiKey, state }
 }
 
 export {

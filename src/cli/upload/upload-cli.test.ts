@@ -35,6 +35,7 @@ async function cli(run: Run, args: readonly string[]): Promise<CliRun> {
       env: {
         PATH: process.env['PATH'],
         WILDSHARD_CREATOR_PRIVATE_KEY: run.server.privateKey,
+        WILDSHARD_API_KEY: run.server.apiKey,
       },
       stdio: ['ignore', 'pipe', 'pipe'],
     },

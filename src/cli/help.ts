@@ -61,10 +61,24 @@ const VERBS: Readonly<Record<string, string>> = {
                        it was built with. Refuses a hero unchanged since
                        the shard's newest upload (run hero first). Prints
                        the API's version, format version and migrations.
-                       Reads WILDSHARD_API_URL when --server is absent,
+                       Sends your account key (WILDSHARD_API_KEY, else
+                       the file wildshard account saved; with neither it
+                       refuses before anything is sent). Reads
+                       WILDSHARD_API_URL when --server is absent,
                        WILDSHARD_CREATOR_PRIVATE_KEY, and
                        VERCEL_AUTOMATION_BYPASS_SECRET for a protected
                        preview`,
+  account: `account <email> [--server <url>] [--force]
+                       Make your Wildshard account (no mail is sent) and
+                       save its key to ~/.config/wildshard/sharddev-key
+                       (mode 600) for upload to send. The API shows a key
+                       once: an email that has an account is refused, and
+                       a lost key needs an operator reset. A saved key is
+                       never replaced without --force. Reads
+                       WILDSHARD_API_URL when --server is absent`,
+  whoami: `whoami               Print where upload's account key comes from
+                       (WILDSHARD_API_KEY, else the key file) and its
+                       first characters, never the whole key`,
   build: `build <source> [folder] [--shardfile-only | --folder-only]
         [--no-placeholders] [--output=<slug>]
                        Build the shard source: bake it into a shard file

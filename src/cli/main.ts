@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 
 import { serve } from '../server/serve.ts'
+import {
+  apiKeyOf,
+  runAccount,
+  runWhoami,
+  uploadKeyRefusal,
+} from './account/command.ts'
 import { parseCliArgs } from './args.ts'
 import { USAGE, verbHelp } from './help.ts'
 import { refuse, reportLine } from './report.ts'
@@ -15,7 +21,6 @@ import { uploadShardfile } from './upload/upload.ts'
 import { readVersion, readVersionChain } from './version.ts'
 
 import type { CliArgs } from './args.ts'
-import type { Channel } from './upload/api.ts'
 import type { Provenance } from './upload/provenance.ts'
 import type { UploadOptions } from './upload/upload.ts'
 
@@ -91,6 +96,8 @@ async function provenanceOf(args: CliArgs): Promise<Provenance | string> {
 }
 
 /** `--channel`'s wire name (J301): `prod` is the channel `production`. */
+type Channel = UploadOptions['channel']
+
 const CHANNELS: Readonly<Record<string, Channel>> = {
   staging: 'staging',
   prod: 'production',
@@ -110,23 +117,56 @@ function channelRefusal(raw: string | undefined): string {
 
 type Connection = Omit<UploadOptions, keyof Provenance | 'file' | 'channel'>
 
-/** The level, server and key, or what is wrong. */
-function connectionOf(args: CliArgs): Connection | string {
+/** `--server`, else WILDSHARD_API_URL, else empty. */
+function serverOf(args: CliArgs): string {
+  return args.server ?? ENV['WILDSHARD_API_URL'] ?? ''
+}
+
+/** What stops upload before any request: the server, or either key. */
+function credentialsRefusal(
+  server: string,
+  privateKey: string,
+  apiKey: string | undefined,
+): string | undefined {
+  if (server === '' || privateKey === '') {
+    return 'upload needs --server (or WILDSHARD_API_URL) and WILDSHARD_CREATOR_PRIVATE_KEY'
+  }
+  return uploadKeyRefusal(server, apiKey)
+}
+
+/**
+ * The level, server and keys, or what is wrong. No account key refuses
+ * here, before any request (meta SHARD-DELETE DEL6): api-server answers a
+ * keyless ticket 401 since DEL5.
+ */
+function connectionOf(
+  args: CliArgs,
+  apiKey: string | undefined,
+): Connection | string {
   const level = parseLevel(args.level)
-  const server = args.server ?? ENV['WILDSHARD_API_URL'] ?? ''
+  const server = serverOf(args)
   const privateKey = ENV['WILDSHARD_CREATOR_PRIVATE_KEY'] ?? ''
   if (level === undefined) {
     return `invalid --level ${String(args.level)}`
   }
-  if (server === '' || privateKey === '') {
-    return 'upload needs --server (or WILDSHARD_API_URL) and WILDSHARD_CREATOR_PRIVATE_KEY'
+  const refusal = credentialsRefusal(server, privateKey, apiKey)
+  if (refusal !== undefined || apiKey === undefined) {
+    return refusal ?? ''
   }
-  return { server, privateKey, level, report: reportLine, ...bypassOption() }
+  return {
+    server,
+    apiKey,
+    privateKey,
+    level,
+    report: reportLine,
+    ...bypassOption(),
+  }
 }
 
 /** Everything but the provenance, or what is wrong. */
 function uploadSettings(
   args: CliArgs,
+  apiKey: string | undefined,
 ): Omit<UploadOptions, keyof Provenance> | string {
   const channel = channelOf(args.channel)
   if (args.operand === undefined) {
@@ -135,7 +175,7 @@ function uploadSettings(
   if (channel === undefined) {
     return channelRefusal(args.channel)
   }
-  const connection = connectionOf(args)
+  const connection = connectionOf(args, apiKey)
   return typeof connection === 'string'
     ? connection
     : { file: args.operand, channel, ...connection }
@@ -143,7 +183,11 @@ function uploadSettings(
 
 /** The upload's settings from flags and environment, or what is wrong. */
 async function uploadOptions(args: CliArgs): Promise<UploadOptions | string> {
-  const settings = uploadSettings(args)
+  const apiKey = await apiKeyOf(ENV['WILDSHARD_API_KEY'])
+  if (apiKey instanceof Error) {
+    return apiKey.message
+  }
+  const settings = uploadSettings(args, apiKey)
   if (typeof settings === 'string') {
     return settings
   }
@@ -197,6 +241,11 @@ const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
   pack: async (args: CliArgs): Promise<number> =>
     await runPack(args.operand, args.out ?? args.target),
   upload: runUpload,
+  // Meta SHARD-DELETE DEL6: the account key upload sends.
+  account: async (args: CliArgs): Promise<number> =>
+    await runAccount(args, serverOf(args)),
+  whoami: async (): Promise<number> =>
+    await runWhoami(ENV['WILDSHARD_API_KEY']),
 }
 
 async function runCommand(args: CliArgs): Promise<number> {

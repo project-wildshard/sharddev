@@ -80,6 +80,7 @@ async function uploadTo(
     await uploadShardfile({
       file,
       server: server.url,
+      apiKey: server.apiKey,
       privateKey: server.privateKey,
       level: 5,
       version: '0.0.1',
