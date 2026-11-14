@@ -49,6 +49,15 @@ describe('three is a peer pinned exact (SA8)', () => {
       .toBe(`[three-version] three 0.185.0 is installed, but ${PACKAGE.name} ${PACKAGE.version} needs three ${PIN} exactly. fix: pnpm add three@${PIN} --save-exact (GUIDE.md#three-version)`);
   });
 
+  it('refuses an engine that loads another three', () => {
+    const { root, sdk } = project(PIN);
+    const engine = join(root, 'node_modules/@wildshard/engine');
+    mkdirSync(join(engine, 'node_modules/three'), { recursive: true });
+    writeFileSync(join(engine, 'package.json'), JSON.stringify({ name: '@wildshard/engine', version: '0.0.0' }));
+    writeFileSync(join(engine, 'node_modules/three/package.json'), JSON.stringify({ name: 'three', version: '0.185.0' }));
+    expect(threeRefusal(pathToFileURL(join(sdk, 'package.json')))).toMatch(/^\[three-version\] @wildshard\/engine loads three 0\.185\.0, but /u);
+  });
+
   it('every CLI entry point refuses a wrong three before it loads anything else', () => {
     const { root, sdk } = project('0.185.0');
     const entries = [...new Set(Object.values(PACKAGE.bin))];
@@ -59,6 +68,8 @@ describe('three is a peer pinned exact (SA8)', () => {
       expect(run.status, entry).toBe(1);
       expect(run.stderr, entry).toContain(`three 0.185.0 is installed, but ${PACKAGE.name} ${PACKAGE.version} needs three ${PIN} exactly`);
     }
+    const version = spawnSync(process.execPath, [join(sdk, entries[0] ?? ''), '--version'], { cwd: root, encoding: 'utf8' });
+    expect(version.stderr).not.toContain('[three-version]');
     const help = spawnSync(process.execPath, [join(sdk, entries[0] ?? ''), 'check', '--help'], { cwd: root, encoding: 'utf8' });
     expect(help.stderr).not.toContain('[three-version]');
     expect(help.stderr).toContain('past the three gate');

@@ -13,7 +13,7 @@ import { validateOutputProduct } from './outputProduct';
 // `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written.
 describe('wildshard new writes a shard repo (SA16)', () => {
   let scratch = '';
-  const sdk = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; dependencies: Record<string, string> };
+  const sdk = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; dependencies: Record<string, string>; peerDependencies: Record<string, string> };
   beforeAll(() => { mkdirSync('tmp', { recursive: true }); scratch = mkdtempSync(resolve('tmp', 'new-repo-')); });
   afterAll(() => { rmSync(scratch, { recursive: true, force: true }); });
 
@@ -27,7 +27,7 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     const manifest = JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { name: string; packageManager: string; dependencies: Record<string, string>; devDependencies?: unknown };
     expect(manifest.name).toBe('my-shard');
     expect(manifest.packageManager).toBe('pnpm@10.34.9');
-    expect(manifest.dependencies).toEqual({ '@wildshard/engine': sdk.dependencies['@wildshard/engine'], '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.dependencies['three'] });
+    expect(manifest.dependencies).toEqual({ '@wildshard/engine': sdk.dependencies['@wildshard/engine'], '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
     expect(manifest.devDependencies).toBeUndefined();
     expect(Object.keys(manifest.dependencies)).not.toContain('@wildshard/sharddev');
     // Exact pins: no range operator on any of them.

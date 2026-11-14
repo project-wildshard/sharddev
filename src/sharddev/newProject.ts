@@ -60,9 +60,9 @@ function sdkPackage(): SdkPackage {
     || !('dependencies' in parsed) || typeof parsed.dependencies !== 'object' || parsed.dependencies === null) throw new Error('new: the installed @wildshard/sdk has no package.json version');
   const dependencies: Record<string, string> = {};
   for (const [name, spec] of Object.entries(parsed.dependencies)) if (typeof spec === 'string') dependencies[name] = spec;
-  // SA8: `three` is the sdk's peer, pinned exact; a repo lists it at that pin like the others.
+  // SA8: `three` is the sdk's peer, pinned exact; a repo lists it at that pin like the others (dependencies win, as in updatePins).
   const peers: unknown = 'peerDependencies' in parsed ? parsed.peerDependencies : undefined;
-  if (typeof peers === 'object' && peers !== null) for (const [name, spec] of Object.entries(peers)) if (typeof spec === 'string') dependencies[name] = spec;
+  if (typeof peers === 'object' && peers !== null) for (const [name, spec] of Object.entries(peers)) if (typeof spec === 'string') dependencies[name] ??= spec;
   const node = 'engines' in parsed && typeof parsed.engines === 'object' && parsed.engines !== null && 'node' in parsed.engines && typeof parsed.engines.node === 'string' ? parsed.engines.node : undefined;
   if (node === undefined) throw new Error('new: the installed @wildshard/sdk names no Node engine');
   return { version: parsed.version, node, dependencies };

@@ -1,8 +1,10 @@
-// SA8: the first import of bin/wildshard.mjs. It refuses a run whose `three` is not the sdk's pin (threePin.mjs), except help.
+// SA8: the first import of bin/wildshard.mjs. It refuses a run whose `three` is not the sdk's pin (threePin.mjs), except help and --version.
 import { threeRefusal } from './threePin.mjs';
 
-const HELP = new Set(['help', '--help', '-h']);
-if (!process.argv.slice(2).some(arg => HELP.has(arg))) {
+// Help and --version print without it: the refusal sends authors to --version for the pinned chain.
+const args = process.argv.slice(2);
+const passes = args[0] === 'help' || args[0] === '--version' || args.some(arg => arg === '--help' || arg === '-h');
+if (!passes) {
   const refusal = threeRefusal(new URL('../../package.json', import.meta.url));
   if (refusal !== undefined) {
     process.stderr.write(`wildshard: ${refusal}\n`);
