@@ -128,7 +128,7 @@ function instanceGroups(key: string, draw: SceneDraw, scene: ShardScene): Map<st
     if (!(world.determinant() > 0) || !isTrs(world)) return null;
     worlds.push(world);
   }
-  const tints = instances.colours, peak = tints === null ? 1 : Math.max(1, ...tints);
+  const tints = instances.colours; let peak = 1; if (tints !== null) for (const tint of tints) peak = Math.max(peak, tint);
   const count = geometry.position.length / 3, uv = new Float32Array(count * 2), colour = new Float32Array(count * 3);
   for (let at = 0; at < count; at++) {
     uv[at * 2] = (geometry.uv?.[at * 2] ?? 0) * material.repeat[0] + material.offset[0];
@@ -441,6 +441,12 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
         const glbMaterial = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); glbMaterial.name = glbNames.get(key) ?? key;
         primitives.push({ geometry, material: glbMaterial, castShadow: entry.card ? false : casts.get(key) ?? true,
           ...(entry.card ? { customAttributes: { _CORNER: 'corner' } } : swaying ? { customAttributes: { _SWAY: 'sway' } } : {}) });
+        // a card draws past its seats by its corners and its rise: the tile's drawn box holds that reach
+        if (entry.card) {
+          geometry.computeBoundingBox(); let reach = 0; for (const c of chunk.corner) reach = Math.max(reach, Math.abs(c));
+          const motion = entry.motion; if (motion?.kind === 'rise') reach += motion.height + motion.spread; else if (motion?.kind === 'drift') reach += motion.radius;
+          if (geometry.boundingBox !== null) drawn.union(geometry.boundingBox.clone().expandByScalar(reach));
+        }
       }
       const file = material.map === null ? undefined : textureFiles.get(material.map); if (file !== undefined) dependencies.add(file.hash);
     }
