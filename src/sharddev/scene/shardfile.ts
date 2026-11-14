@@ -307,8 +307,9 @@ export function compileShardfile(scene: ShardScene, ctx: ProjectGenerationContex
   const { shard, assets, report } = sceneShardfile(scene, options);
   for (const [hash, bytes] of assets) if (ctx.asset(bytes) !== hash) throw new Error('scene: an asset hash differs from the product store');
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
-  const over = report.tiles.filter((t) => t.triangles > 40_000 || t.draws > 8);
-  if (over.length > 0) console.info(`scene: ${over.length} tiles are over the phone tile caps (J338; AP9 turns this into a per-part table): ${over.map((t) => `${t.tile} ${t.triangles} tris ${t.draws} draws`).join(', ')}`);
+  // AP8: draws are a view's budget now (the engine draws a material once across tiles; format VIEW_DRAWS), not a tile's
+  const over = report.tiles.filter((t) => t.triangles > 40_000);
+  if (over.length > 0) console.info(`scene: ${over.length} tiles are over the phone tile triangle cap (J338; AP9 turns this into a per-part table): ${over.map((t) => `${t.tile} ${t.triangles} tris ${t.draws} draws`).join(', ')}`);
   return Promise.resolve({ shard, output: {} });
 }
 
