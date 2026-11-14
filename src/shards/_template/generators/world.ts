@@ -603,7 +603,8 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
 /**
  * The moss bridge (MH-3): five stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
  * `raised` stands their moss-capped tops 0.1 m over the water, with colliders, for brazier B's field to show; `sunk` is the
- * same pillars, a little thinner and 1.4 m under, with no collider, so before B the walk ends in the water.
+ * same pillars, a little thinner, as wet slabs awash at the surface (M4.10, the cleanroom's look) with no collider, so before
+ * B the walk ends in the water.
  */
 /** The raised bridge stones' top over the water, and the sunk slabs' wet stone. */
 const STONE_TOP = 0.3, WET_STONE = 0x5a524a;

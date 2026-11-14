@@ -69,7 +69,7 @@
       "range": 4,
       "damage": 20,
       "tags": [
-        "creature.greyBlob"
+        "creature.barrowWarden"
       ],
       "weight": 3,
       "speed": 0
