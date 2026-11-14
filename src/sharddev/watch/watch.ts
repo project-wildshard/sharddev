@@ -22,7 +22,7 @@ import * as liveLower from '../scene/lower';
 import * as liveShard from '../scene/shard';
 import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
-import { lampRows, sceneLook, waterRows } from '../scene/shardfile';
+import { lampRows, sceneGroundBytes, sceneLook, waterRows } from '../scene/shardfile';
 import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchState } from './protocol';
 import { acceptSocket, type WatchSocket } from './socket';
 
@@ -37,7 +37,7 @@ import { acceptSocket, type WatchSocket } from './socket';
  *   push    one `WatchState` on the WebSocket; the page script fetches the changed parts, and only the geometry and
  *           rasters it lacks, and drives engine's dev hook
  *
- * A sky, fog, sun colour or ambient edit goes live (the look's day keys). A ground, spawn, grade or sun direction edit
+ * A sky, fog, sun colour or ambient edit goes live (the look's day keys); a ground edit too (AP18: `setGround`). A spawn, grade or sun direction edit
  * can't in M1 (AP17's fast path): it rebuilds the shell and the page reloads, as `dev` does. `wildshard dev` is unchanged.
  */
 export interface WatchProject { url: string; close: () => Promise<void> }
@@ -111,7 +111,7 @@ const shellKey = (scene: ShardScene): string => {
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
   // engine's live look keeps its fog kind: linear against exponential needs a new shell
   return hashOf((hash) => hash.json({ look, grade: fixedGrade, day: day === undefined ? null : { minutes: day.minutes, start: day.start },
-    linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.hash ?? null, spawn: scene.spawn, identity: scene.identity }));
+    linearFog: scene.look.fog?.kind === 'linear', spawn: scene.spawn, identity: scene.identity }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
@@ -137,10 +137,11 @@ export async function watchProject(project: string, options: { port?: number; cl
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-watch-'))), log = options.log ?? ((line: string): void => { console.info(line); });
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
   let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
-  const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>();
+  let ground: WatchState['ground'] = { hash: '', shell: '' };
+  const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>(), grounds = new Map<string, Uint8Array>();
   const clients = new Set<WatchSocket>(), scope = new Scope('sdk.watch');
   let seenAt = 0, observed = projectSourceStamp(source), work = Promise.resolve(), pending = false, stampMs = 0;
-  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, error, seenAt, sentAt: Date.now() } satisfies WatchState);
+  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, error, seenAt, sentAt: Date.now() } satisfies WatchState);
   const announce = (): void => { const message = state(); for (const client of clients) client.send(message); };
 
   const buildShell = async (): Promise<void> => {
@@ -170,6 +171,13 @@ export async function watchProject(project: string, options: { port?: number; cl
       else try { await buildShell(); } catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
       shellHash = key; reshell = false;
     }
+    // AP18: the ground goes live (`setGround`); the shell keeps the one it was built with
+    const groundHash = scene.ground?.hash ?? 'flat';
+    if (!grounds.has(groundHash)) {
+      if (grounds.size > 8) grounds.clear();
+      grounds.set(groundHash, sceneGroundBytes(scene));
+    }
+    const groundChanged = ground.hash !== '' && groundHash !== ground.hash;
     const changed = scene.parts.filter((part) => parts.find((live) => live.name === part.name)?.hash !== part.hash).map((part) => part.name);
     for (const part of scene.parts) {
       if (encodedParts.has(part.hash)) continue;
@@ -179,13 +187,13 @@ export async function watchProject(project: string, options: { port?: number; cl
     }
     const next = scene.parts.map((part) => ({ name: part.name, hash: part.hash }));
     const live = liveLook(scene), lookHash = hashOf((hash) => hash.json(live));
-    const same = !reshelled && error === null && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
+    const same = !reshelled && error === null && !groundChanged && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
     error = null;
     if (same) return;
     const lookChanged = look.hash !== '' && lookHash !== look.hash;
-    parts = next; look = { hash: lookHash, ...live }; revision++;
+    parts = next; look = { hash: lookHash, ...live }; ground = { hash: groundHash, shell: reshelled ? groundHash : ground.shell }; revision++;
     announce();
-    const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : []];
+    const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : [], ...groundChanged && !reshelled ? ['the ground'] : []];
     log(`wildshard watch: revision ${revision}, ${what.length === 0 ? (reshelled ? 'a new shell' : 'parts removed') : what.join(' and ')} in ${Math.round(diagnosticNow() - started)} ms ${timing}`);
   };
 
@@ -243,7 +251,7 @@ export async function watchProject(project: string, options: { port?: number; cl
       if (path.startsWith(DEV_SCENE_PATH)) {
         const rest = path.slice(DEV_SCENE_PATH.length), [kind = '', name = ''] = rest.split(/\/(.*)/su);
         const hash = kind === 'part' ? parts.find((part) => part.name === name)?.hash : undefined;
-        const body = kind === 'part' ? (hash === undefined ? undefined : encodedParts.get(hash)) : kind === 'geometry' ? geometries.get(name) : kind === 'texture' ? textures.get(name) : undefined;
+        const body = kind === 'part' ? (hash === undefined ? undefined : encodedParts.get(hash)) : kind === 'geometry' ? geometries.get(name) : kind === 'texture' ? textures.get(name) : kind === 'ground' ? grounds.get(name) : undefined;
         if (body === undefined) { response.writeHead(404); response.end(); return; }
         response.setHeader('Content-Type', kind === 'part' ? 'application/json' : 'application/octet-stream');
         response.end(body); return;

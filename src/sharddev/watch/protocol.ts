@@ -10,6 +10,8 @@ import type { SceneGeometry, ScenePart, ShardScene } from '../scene/description'
  *   GET /__wildshard_scene/part/<name>     one `WatchPart` (JSON)
  *   GET /__wildshard_scene/geometry/<key>  one geometry (`encodeGeometry`), immutable by key
  *   GET /__wildshard_scene/texture/<key>   one RGBA8 raster, row 0 at v = 0, immutable by key
+ *   GET /__wildshard_scene/ground/<hash>   AP18: the whole ground (one terrain tile's wire bytes: 257² heights and
+ *                                          colours), immutable by hash, for the hook's `setGround`
  *   POST /__wildshard_scene/reshell        AP17: the page's look can't take this revision live; build a new shell (the page
  *                                          reloads on the state that names it)
  */
@@ -17,13 +19,13 @@ export const DEV_SCENE_PATH = '/__wildshard_scene/';
 export const WATCH_SOCKET = '/__wildshard_scene/socket';
 export const WATCH_RESHELL = '/__wildshard_scene/reshell';
 /** The protocol between the watch server and its own page script: they ship together, so a mismatch is a stale page. */
-export const WATCH_WIRE = 3;
+export const WATCH_WIRE = 4;
 /** The engine dev hook version this sdk drives: engine's `DEV_HOOK_VERSION`, named in a devserver client's build flags. */
-export const DEV_HOOK_VERSION = 2;
+export const DEV_HOOK_VERSION = 3;
 
 export interface WatchState {
   readonly wire: number;
-  /** the shell the page booted from: a new one (a ground, spawn or grade change) means the page reloads */
+  /** the shell the page booted from: a new one (a spawn or fixed look change) means the page reloads */
   readonly shell: number;
   readonly revision: number;
   /** every part and its content hash; a part missing here is gone */
@@ -31,6 +33,9 @@ export interface WatchState {
   /** the look section the page's shardfile would carry (AP17: day keys, sun arc, exposure, tone, vignette, bloom), set live
    *  through the hook's `setLook` */
   readonly look: { readonly hash: string; readonly keys: readonly unknown[]; readonly look: unknown };
+  /** AP18: the ground now and the ground the shell was built with (hashes); when they differ the page fetches `ground/<hash>`
+   *  and swaps it in through the hook's `setGround` */
+  readonly ground: { readonly hash: string; readonly shell: string };
   /** the last compile's refusal; the page keeps what it has */
   readonly error: string | null;
   /** the wall clock (ms) this revision's edit was seen and its state sent: the timing's server half (AP6, AP17) */

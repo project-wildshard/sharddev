@@ -5,6 +5,7 @@ import { join, resolve } from 'node:path';
 import { afterAll, expect, test } from 'vitest';
 import { socketOf, startWatchPage, type DevHookLike } from './page';
 import { DEV_HOOK_VERSION, WATCH_WIRE, hookMismatch } from './protocol';
+import { decodeTerrainTile, terrainTileHeight } from '@wildshard/format/terrainTileBytes';
 import { NO_SERVICE_WORKER, pageScript, watchProject } from './watch';
 
 const ROOT = resolve(import.meta.dirname, '../../../tmp');
@@ -27,15 +28,16 @@ export default defineShard({ slug: 'watch-test', name: 'Watch Test' }, (world) =
 
 /** A stand-in for engine's dev hook: it records each call and draws nothing. */
 /** `refuseCall`: the n-th `setLook` (from 1) answers that the page can't take it live. */
-function recordingHook(refuseCall = 0): DevHookLike & { calls: string[]; looks: unknown[]; roof: () => readonly number[] | null } {
-  const calls: string[] = [], looks: unknown[] = [], drawn = new Map<string, { materials: { name: string; colour: number[] }[] }>();
+function recordingHook(refuseCall = 0): DevHookLike & { calls: string[]; looks: unknown[]; grounds: Uint8Array[]; roof: () => readonly number[] | null } {
+  const calls: string[] = [], looks: unknown[] = [], grounds: Uint8Array[] = [], drawn = new Map<string, { materials: { name: string; colour: number[] }[] }>();
   return {
-    version: DEV_HOOK_VERSION, calls, looks,
+    version: DEV_HOOK_VERSION, calls, looks, grounds,
     addPart: (name, part) => { calls.push(`add ${name}`); drawn.set(name, part as never); },
     replacePart: (name, part) => { calls.push(`replace ${name}`); drawn.set(name, part as never); },
     removePart: (name) => { calls.push(`remove ${name}`); drawn.delete(name); },
     setLook: (look) => { calls.push('look'); looks.push(look); return looks.length !== refuseCall; },
     swapColliders: (name, boxes) => { calls.push(`colliders ${name} ${boxes.length}`); },
+    setGround: (ground) => { calls.push('ground'); grounds.push(ground); return true; },
     roof: () => drawn.get('hut')?.materials.find((m) => m.name === 'roof')?.colour ?? null,
   };
 }
@@ -106,13 +108,13 @@ test('AP5: a page booted from shell 1 reloads on a state for shell 2; a part who
     socket: () => { const socket = { onmessage: null, onclose: null, close: () => undefined }; sockets.push(socket); return socket; },
     frame: () => undefined, wait: () => undefined, reshell: () => undefined, now: () => 0, log: (line: string) => { logs.push(line); } };
   const stale = startWatchPage({ ...env, reload: () => { reloads.push('stale'); }, shell: () => 1 });
-  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 2, revision: 1, parts: [], look: { hash: '', keys: [], look: null }, error: null, seenAt: 0, sentAt: 0 }) });
+  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 2, revision: 1, parts: [], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
   expect(reloads).toEqual(['stale']);
   stale.stop();
   const page = startWatchPage({ ...env, reload: () => { reloads.push('page'); }, shell: () => 1 });
   sockets[1]?.onmessage?.({ data: 'not json' });
   expect(page.report.error).toContain('can\'t read');
-  sockets[1]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'h1' }], look: { hash: '', keys: [], look: null }, error: null, seenAt: 0, sentAt: 0 }) });
+  sockets[1]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'h1' }], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
   await until(() => page.report.applied.length === 1);
   expect(page.report.error).toContain('hut colliders: bad box');
   expect(page.report.framedRevision).toBe(0);
@@ -180,4 +182,52 @@ test('AP17: a look the hook refuses live asks the watch server for a new shell, 
     // the server built shell 2: the page script reloads on its state
     await until(() => reloads === 1, 60_000);
   } finally { page.stop(); await server.close(); }
+});
+
+const groundSource = (height: number): string => `import * as THREE from 'three';
+import { defineShard } from '@wildshard/sdk/scene/shard';
+export default defineShard({ slug: 'watch-test', name: 'Watch Test' }, (world) => {
+  world.ground((x, z) => ${height} * Math.max(0, 1 - Math.hypot(x - 10, z - 10) / 20), { colourAt: () => [0.3, 0.4, 0.2] });
+  world.part('hut', (hut) => { hut.add(new THREE.Mesh(new THREE.BoxGeometry(4, 1, 4), new THREE.MeshStandardMaterial({ name: 'roof' }))); });
+});
+`;
+
+test('AP18: a ground edit goes live as the whole lattice (no new shell, no part fetched); the page reloads when the hook refuses it', { timeout: 120_000 }, async () => {
+  writeFileSync(join(project, 'shard.config.ts'), groundSource(0));
+  const server = await watchProject(project, { client: null, log: () => undefined });
+  const hook = recordingHook();
+  let reloads = 0, reshells = 0;
+  const page = startWatchPage({ origin: server.url.replace(/\/$/u, ''), hook: () => hook, fetch: (url) => fetch(url), socket: (url) => socketOf(new WebSocket(url)),
+    frame: (run) => { setTimeout(run, 8); }, wait: (ms, run) => { setTimeout(run, ms); }, reload: () => { reloads++; }, reshell: () => { reshells++; }, now: () => Date.now(), log: () => undefined, shell: () => 1 });
+  try {
+    await until(() => page.report.framedRevision >= 1);
+    // the shell holds its own ground: nothing to set
+    expect(hook.calls).toEqual(['look', 'add hut', 'colliders hut 0']);
+    writeFileSync(join(project, 'shard.config.ts'), groundSource(6));
+    await until(() => page.report.framedRevision >= 2);
+    expect(hook.calls.slice(3)).toEqual(['ground']);
+    expect(page.report.kind).toBe('ground');
+    const lattice = decodeTerrainTile(hook.grounds[0] ?? new Uint8Array(0));
+    expect([lattice.resolution, lattice.x, lattice.size, lattice.colours?.length]).toEqual([257, -250, 500, 257 ** 2 * 3]);
+    expect(terrainTileHeight(lattice, 10, 10)).toBeGreaterThan(5.5); // the peak falls between samples
+    expect([reloads, reshells]).toEqual([0, 0]);
+    // back to the shell's ground: set live again (the page holds the edited one now)
+    writeFileSync(join(project, 'shard.config.ts'), groundSource(0));
+    await until(() => page.report.framedRevision >= 3);
+    expect(hook.calls.slice(4)).toEqual(['ground']);
+    expect(terrainTileHeight(decodeTerrainTile(hook.grounds[1] ?? new Uint8Array(0)), 10, 10)).toBeCloseTo(0, 3);
+  } finally { page.stop(); await server.close(); }
+  // a page whose hook can't take a ground asks for a new shell
+  writeFileSync(join(project, 'shard.config.ts'), groundSource(0));
+  const again = await watchProject(project, { client: null, log: () => undefined });
+  const refusing = { ...recordingHook(), setGround: () => false };
+  let asked = 0;
+  const second = startWatchPage({ origin: again.url.replace(/\/$/u, ''), hook: () => refusing, fetch: (url) => fetch(url), socket: (url) => socketOf(new WebSocket(url)),
+    frame: (run) => { setTimeout(run, 8); }, wait: (ms, run) => { setTimeout(run, ms); }, reload: () => undefined, reshell: () => { asked++; }, now: () => Date.now(), log: () => undefined, shell: () => 1 });
+  try {
+    await until(() => second.report.framedRevision >= 1);
+    writeFileSync(join(project, 'shard.config.ts'), groundSource(3));
+    await until(() => asked === 1);
+    expect(second.report.kind).toBe('reload');
+  } finally { second.stop(); await again.close(); }
 });

@@ -36,6 +36,11 @@ const EDITS = {
   sun: { line: /key\.position\.set\(-?[0-9.]+, 30, 34\)/u, write: (i) => `key.position.set(${-30 + i * 6}, 30, 34)` },
   ambient: { line: /new THREE\.Color\('#7a6a3c'\), [0-9.]+\)\);/u, write: (i) => `new THREE.Color('#7a6a3c'), ${(0.55 + i * 0.07).toFixed(2)}));` },
   lamp: { line: /new THREE\.PointLight\('#ffa040', [0-9.]+, 6\.5, 1\.4\)/u, write: (i) => `new THREE.PointLight('#ffa040', ${(4 + i * 0.7).toFixed(1)}, 6.5, 1.4)` },
+  // AP18: a flat-topped hill (5 m top, 8 m foot) raised under the player at the first camera, a little higher each edit; the
+  // page counts once the player's feet stand on its top, and again a second later (they did not fall through)
+  hill: { line: /y \+= far \* \(noise\.fbm\(x \* 0\.02 \+ 50, z \* 0\.02 \+ 50, 3\) - 0\.35\) \* 7;(?: y \+= [0-9.]+ \* Math\.min\(1, Math\.max\(0, \(8 - Math\.hypot\(x \+ 3\.9, z \+ 5\.6\)\) \/ 3\)\);)?/u,
+    write: (i) => `y += far * (noise.fbm(x * 0.02 + 50, z * 0.02 + 50, 3) - 0.35) * 7; y += ${(0.2 + i * 0.3).toFixed(1)} * Math.min(1, Math.max(0, (8 - Math.hypot(x + 3.9, z + 5.6)) / 3));`,
+    read: '() => Math.round(window.__wildshard.world.player.position.y * 20) / 20', expect: (i) => Math.round((0.2 + i * 0.3) * 20) / 20, held: true },
 };
 const EDIT = EDITS[values.edit ?? 'roof'];
 if (EDIT === undefined) throw new Error(`--edit: one of ${Object.keys(EDITS).join(', ')}`);
@@ -95,16 +100,20 @@ try {
         const moved = Math.hypot(...after.at.map((v, k) => v - before.at[k]));
         // the page's own steps, from the file write: its state received, its parts fetched, swapped in, the first frame after
         const steps = after.steps === undefined ? null : { seen: after.steps.seen - at, sent: after.steps.sent - at, received: after.steps.received - at, fetched: after.steps.fetched - at, swapped: after.steps.swapped - at, framed: framedAt - at };
-        runs.push({ value: written, ms: framedAt - at, frames: after.frames - before.frames, moved: Number(moved.toFixed(4)), reloaded: after.marker !== 'same page', kind: after.kind, steps });
+        // a ground edit: still standing on it a second later
+        let held = null;
+        if (EDIT.held === true) { await page.waitForTimeout(1000); held = await page.evaluate(`(${EDIT.read})()`) === EDIT.expect(value); }
+        runs.push({ value: written, ms: framedAt - at, frames: after.frames - before.frames, moved: Number(moved.toFixed(4)), reloaded: after.marker !== 'same page', kind: after.kind, steps, ...(held === null ? {} : { held }) });
         console.info(`edit ${value}: ${written} on screen in ${framedAt - at} ms${after.kind === null ? '' : ` (${after.kind})`}${steps === null ? '' : ` [seen ${steps.seen}, sent ${steps.sent}, received ${steps.received}, fetched ${steps.fetched}, swapped ${steps.swapped}]`}`);
         await page.waitForTimeout(400);
       }
     } finally { writeFileSync(file, original); }
     const sorted = runs.map((r) => r.ms).sort((a, b) => a - b), median = sorted.length % 2 === 1 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2;
-    result.timing = { edit: values.edit ?? 'roof', runs, median, min: sorted[0], max: sorted.at(-1), reloads: runs.filter((r) => r.reloaded).length, maxMoved: Math.max(...runs.map((r) => r.moved)), frameLoopStopped: runs.some((r) => r.frames <= 0) };
+    result.timing = { edit: values.edit ?? 'roof', runs, median, min: sorted[0], max: sorted.at(-1), reloads: runs.filter((r) => r.reloaded).length, maxMoved: Math.max(...runs.map((r) => r.moved)), frameLoopStopped: runs.some((r) => r.frames <= 0),
+      ...(EDIT.held === true ? { stood: runs.filter((r) => r.held === true).length } : {}) };
     await page.waitForTimeout(3000);
     await page.screenshot({ path: join(OUT, `${PREFIX}timing-last.png`) });
-    console.info(`median ${median} ms (min ${sorted[0]}, max ${sorted.at(-1)}), reloads ${result.timing.reloads}, player moved ≤ ${result.timing.maxMoved} m`);
+    console.info(`median ${median} ms (min ${sorted[0]}, max ${sorted.at(-1)}), reloads ${result.timing.reloads}, player moved ≤ ${result.timing.maxMoved} m${result.timing.stood === undefined ? '' : `, still on the hill 1 s later in ${result.timing.stood} of ${runs.length}`}`);
   }
 } finally {
   await browser.close();

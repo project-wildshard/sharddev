@@ -6,3 +6,8 @@
   250 ms poll was the real detector; it now polls every 40 to 250 ms. Second surprise: a page reload under watch landed
   on the client's service-worker cache (no page script, old shell); watch now serves a self-removing worker. A look set
   live matches the same look booted from a new shell to 0.03 of 255 per channel.
+- AP18: a ground edit no longer rebuilds the shell. Watch sends the whole 257² lattice (heights and colours, the bake's
+  `groundLattice`, as one terrain tile's wire bytes) at `ground/<hash>`; the page script hands it to engine's hook v3
+  `setGround`, which swaps the page and in-page server colliders, the height fields and only the drawn tiles whose
+  samples changed, and lifts the player onto new ground. A hill raised under the player at the hut camera: median
+  116.5 ms from file write to first frame (91 to 174, 10 edits, 0 reloads), still standing on it 1 s later in 10 of 10.

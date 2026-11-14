@@ -122,8 +122,11 @@ export interface BakedTerrain {
   critical: string[]; assets: Map<string, Uint8Array>;
 }
 
-/** Bake a shared 257² lattice into 64 L0 and 16 L1 tiles, with an independent whole-sim collision file. */
-export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
+/**
+ * The shared 257² lattice (heights and colours, 500 m centred on the origin) every tile and the collider are cut from.
+ * `wildshard watch` (AP18) sends it whole, as one terrain tile's wire bytes, to a page's dev hook.
+ */
+export function groundLattice(source: Pick<TerrainBakeSource, 'heightAt' | 'colourAt' | 'overrides'>): TerrainTileData & { colours: Float32Array } {
   for (const patch of source.overrides ?? []) if (![patch.x, patch.z, patch.radius, patch.height].every(Number.isFinite) || patch.radius <= 0 || patch.x < -250 || patch.x > 250 || patch.z < -250 || patch.z > 250 || patch.height < -CELL_BELOW || patch.height > CELL_ABOVE || !['replace', 'lower', 'raise'].includes(patch.mode)) throw new Error('Invalid terrain override');
   const heights = new Float32Array(257 ** 2), colours = new Float32Array(257 ** 2 * 3);
   for (let z = 0; z < 257; z++) for (let x = 0; x < 257; x++) {
@@ -140,6 +143,12 @@ export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
     if (rgb.length !== 3 || rgb.some((c) => !Number.isFinite(c) || c < 0 || c > 1)) throw new Error('Invalid terrain generator colour');
     colours.set(rgb, i * 3);
   }
+  return { resolution: 257, x: -250, z: -250, size: 500, heights, colours };
+}
+
+/** Bake a shared 257² lattice into 64 L0 and 16 L1 tiles, with an independent whole-sim collision file. */
+export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
+  const { heights, colours } = groundLattice(source);
   const grid: TerrainTileData = { resolution: 257, x: -250, z: -250, size: 500, heights };
   const assets = new Map<string, Uint8Array>(), files: Shardfile['files'] = [];
   const store = (data: TerrainTileData, critical: boolean): string => {

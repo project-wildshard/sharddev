@@ -6,7 +6,8 @@ import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, decodeGeome
  * start). It owns the page's half of watch: the socket, the fetches, a cache of decoded geometry and rasters, one scope
  * per part and the swap order, and drives engine's dev hook (`window.__wildshardDevHook`, five calls). Per revision:
  *
- *   1. the look's day keys, if they changed (`setLook`; a look the page can't take live reloads it)
+ *   1. the look's day keys, if they changed (`setLook`; a look the page can't take live reloads it), and the ground (AP18:
+ *      `setGround`, the whole lattice; a page that can't take it reloads)
  *   2. every changed part is fetched and decoded first, so a slow fetch never leaves half a revision on screen
  *   3. each one swaps in (`addPart` or `replacePart`, then `swapColliders`), and only then its old scope goes
  *   4. parts no longer in the scene go (`removePart`, `swapColliders(name, [])`)
@@ -20,6 +21,7 @@ export interface DevHookLike {
   removePart: (name: string) => void;
   setLook: (look: { readonly keys: readonly unknown[]; readonly look?: unknown }) => boolean;
   swapColliders: (name: string, boxes: readonly unknown[]) => void;
+  setGround: (ground: Uint8Array) => boolean;
 }
 
 export interface SocketLike { onmessage: ((event: { data: unknown }) => void) | null; onclose: (() => void) | null; close: () => void }
@@ -57,7 +59,8 @@ export interface WatchPageReport {
   serverError: string | null;
   /** every part swapped in, in order (`name@hash`) */
   readonly applied: string[];
-  /** AP17, AP19: what the last revision changed on this page: `look`, `parts`, `look and parts`, `nothing`, or `reload` */
+  /** AP17 to AP19: what the last revision changed on this page, joined with `and` (`look`, `ground`, `parts`), `nothing`, or
+   *  `reload` */
   kind: string | null;
 }
 
@@ -71,7 +74,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
   const scope = new Scope('watch.page');
   const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [], kind: null, steps: { seen: 0, sent: 0, received: 0, fetched: 0, swapped: 0 } };
   const parts = new Map<string, LivePart>(), geometries = new Map<string, Held<ReturnType<typeof decodeGeometry>>>(), textures = new Map<string, Held<Uint8Array>>();
-  let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, socket: SocketLike | null = null;
+  let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, ground: string | null = null, socket: SocketLike | null = null;
   let pendingFrame: number | null = null;
 
   const tick = (): void => {
@@ -109,6 +112,14 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
         fail('the page\'s look can\'t take this look live: look edits will reload the page');
       }
       look = state.look.hash;
+    }
+    // AP18: the ground the page holds is its shell's until one is set live
+    const groundChanged = state.ground.hash !== (ground ?? state.ground.shell);
+    if (groundChanged) {
+      const bytes = new Uint8Array(await (await get(`ground/${encodeURIComponent(state.ground.hash)}`)).arrayBuffer());
+      if (scope.disposed) return;
+      if (!live.setGround(bytes)) { env.log('wildshard watch: the page can\'t take this ground live; reloading'); report.kind = 'reload'; env.reshell(); return; }
+      ground = state.ground.hash;
     }
     // fetch and decode every changed part before any swaps in
     const changed = state.parts.filter((part) => parts.get(part.name)?.hash !== part.hash);
@@ -150,7 +161,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
       live.removePart(name); live.swapColliders(name, []);
       parts.delete(name); part.scope.dispose();
     }
-    report.kind = [lookChanged ? 'look' : '', fetched.length > 0 || removed > 0 ? 'parts' : ''].filter((what) => what !== '').join(' and ') || 'nothing';
+    report.kind = [lookChanged ? 'look' : '', groundChanged ? 'ground' : '', fetched.length > 0 || removed > 0 ? 'parts' : ''].filter((what) => what !== '').join(' and ') || 'nothing';
     report.revision = state.revision;
     // the timing counts a revision only once all its parts landed
     report.steps.swapped = env.now();
@@ -173,7 +184,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     try { state = JSON.parse(String(data)) as WatchState; }
     catch { fail('the watch server sent a message this page can\'t read'); return; }
     if (state.wire !== WATCH_WIRE) { env.log(`wildshard watch: the server speaks wire ${state.wire}, this page ${WATCH_WIRE}; reloading`); env.reload(); return; }
-    if (shell !== null && state.shell !== shell) { env.log('wildshard watch: the ground, spawn or grade changed; reloading'); env.reload(); return; }
+    if (shell !== null && state.shell !== shell) { env.log('wildshard watch: the spawn or a fixed look field changed; reloading'); env.reload(); return; }
     shell = state.shell; next = state;
     report.steps.seen = state.seenAt; report.steps.sent = state.sentAt;
     if (!running) void drain();

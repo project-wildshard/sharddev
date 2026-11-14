@@ -5,7 +5,8 @@ import { parseGlb, parseKtx2 } from '../assets';
 import { hashImmutableBytes } from '../immutable';
 import type { GeneratedProject, ProjectGenerationContext } from '../projectGeneration';
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
-import { bakeTerrain } from '../bake/terrain';
+import { bakeTerrain, groundLattice } from '../bake/terrain';
+import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, ScenePart, ShardScene } from './description';
 
@@ -241,7 +242,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   };
   // ground (AP4): the declared height field, or a flat cell
   const ground = scene.ground;
-  const terrain = bakeTerrain({ heightAt: ground?.heightAt ?? (() => 0), colourAt: (x, z) => ground?.colourAt?.(x, z) ?? [0.3, 0.36, 0.2] });
+  const terrain = bakeTerrain(groundSource(scene));
   for (const [hash, bytes] of terrain.assets) assets.set(hash, bytes);
   files.push(...terrain.files);
 
@@ -325,4 +326,15 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));
   if (options.extend !== undefined) shard = options.extend(shard);
   return { shard, assets, report: { sprites: scene.parts.reduce((n, p) => n + p.sprites.length, 0), lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
+}
+
+/** The scene's ground as the terrain bake reads it: the declared height field, or a flat cell. */
+function groundSource(scene: ShardScene): Parameters<typeof bakeTerrain>[0] {
+  const ground = scene.ground;
+  return { heightAt: ground?.heightAt ?? (() => 0), colourAt: (x, z) => ground?.colourAt?.(x, z) ?? [0.3, 0.36, 0.2] };
+}
+
+/** AP18: the scene's whole ground as one terrain tile's wire bytes (heights and colours), what a watched page's hook swaps in. */
+export function sceneGroundBytes(scene: ShardScene): Uint8Array {
+  return encodeTerrainTile(groundLattice(groundSource(scene)));
 }
