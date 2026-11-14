@@ -200,7 +200,25 @@
             "chargeDamage": 25,
             "relentless": false
           }
-        },
+        }
+      ]
+    },
+    {
+      "id": "barrow-warden",
+      "kind": "barrowWarden",
+      "label": "Barrow Warden",
+      "aggressive": true,
+      "lockable": true,
+      "dims": {
+        "bodyY": 1.0,
+        "bodyHalfLen": 0.32,
+        "bodyRadius": 0.5,
+        "headRadius": 0.22,
+        "legLen": 0.47,
+        "feet": [],
+        "halfWidth": 0.7
+      },
+      "variants": [
         {
           "id": "warden",
           "label": "Barrow Warden",

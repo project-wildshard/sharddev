@@ -62,5 +62,37 @@
         "critical": false
       }
     ]
+  },
+  {
+    "species": "barrow-warden",
+    "look": "template.look.barrowWarden",
+    "skin": "3058c100bc477fd6fe8268f33b53756b8a2556e7e41c58b2216c703ca7b042c6",
+    "glb": "8a0440f392737a31cf0926a3c7dc011c320144972882945a5462c893e817d94a",
+    "files": [
+      {
+        "hash": "3058c100bc477fd6fe8268f33b53756b8a2556e7e41c58b2216c703ca7b042c6",
+        "kind": "json",
+        "compressed": 584,
+        "decoded": 1168,
+        "gpu": 0,
+        "triangles": 0,
+        "draws": 0,
+        "dependencies": [
+          "8a0440f392737a31cf0926a3c7dc011c320144972882945a5462c893e817d94a"
+        ],
+        "critical": false
+      },
+      {
+        "hash": "8a0440f392737a31cf0926a3c7dc011c320144972882945a5462c893e817d94a",
+        "kind": "glb",
+        "compressed": 248316,
+        "decoded": 279584,
+        "gpu": 219096,
+        "triangles": 1232,
+        "draws": 6,
+        "dependencies": [],
+        "critical": false
+      }
+    ]
   }
 ]

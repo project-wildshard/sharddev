@@ -48,7 +48,7 @@
     },
     {
       "id": "barrow-warden",
-      "species": "grey-blob",
+      "species": "barrow-warden",
       "variant": "warden",
       "brain": null,
       "strike": "template.warden.slam",
@@ -59,7 +59,7 @@
         0,
         -2
       ],
-      "yaw": 0
+      "yaw": -1.5708
     }
   ]
 }
