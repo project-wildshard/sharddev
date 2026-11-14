@@ -18,3 +18,10 @@ plus fetch), the wire and the part swap. Now all of that is sharddev's:
 
 The hook is versioned twice: the page script refuses a hook of another version, and `watch` refuses a devserver client
 whose `build-flags.json` names another `devHook` (engine's app build writes it), so an sdk and its engine pin move together.
+
+Review fixes: the page script records a part as soon as the hook draws it (a collider failure no longer leaves it
+unrecorded, so the next revision replaces it rather than adding it twice); the timing counts a revision only when every
+part landed; the server's error and the page's own are separate fields. A fog kind change (linear against exponential)
+now rebuilds the shell, since engine's live look keeps its fog kind, and a first sync whose look the page can't take live
+says so. Each shell writes `window.__wsShell` before the page script, so a page from an old shell reloads on its first
+message. The socket refuses another origin and upgrades after close; a bad message is reported, not thrown.

@@ -36,6 +36,8 @@ export interface WatchPageEnv {
   readonly reload: () => void;
   readonly now: () => number;
   readonly log: (message: string) => void;
+  /** the shell this page booted from (`window.__wsShell`, written into the page per shell); a state for another reloads */
+  readonly shell?: () => number | null;
 }
 
 export interface WatchPageReport {
@@ -45,7 +47,10 @@ export interface WatchPageReport {
   framedAt: number;
   /** frames since the script started: it only grows, swap or no swap */
   frames: number;
+  /** the page's own failure: a part the hook refused, a fetch, a message it couldn't read */
   error: string | null;
+  /** the watch server's: the source failed to bundle or describe (the page keeps the last good revision) */
+  serverError: string | null;
   /** every part swapped in, in order (`name@hash`) */
   readonly applied: string[];
 }
@@ -58,9 +63,9 @@ const HOOK_WAIT_MS = 180_000;
 
 export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageReport; readonly stop: () => void } {
   const scope = new Scope('watch.page');
-  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, applied: [] };
+  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [] };
   const parts = new Map<string, LivePart>(), geometries = new Map<string, Held<ReturnType<typeof decodeGeometry>>>(), textures = new Map<string, Held<Uint8Array>>();
-  let hook: DevHookLike | null = null, shell: number | null = null, look: string | null = null, socket: SocketLike | null = null;
+  let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, socket: SocketLike | null = null;
   let pendingFrame: number | null = null;
 
   const tick = (): void => {
@@ -89,10 +94,13 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
   const sync = async (state: WatchState, first: boolean): Promise<void> => {
     const live = hook;
     if (live === null) return;
-    report.error = state.error;
+    report.serverError = state.error;
     if (state.error !== null) env.log(`wildshard watch: ${state.error}`);
     if (state.look.hash !== look) {
-      if (!live.setLook({ keys: state.look.keys }) && !first) { env.log('wildshard watch: this look change needs a reload'); env.reload(); return; }
+      if (!live.setLook({ keys: state.look.keys })) {
+        if (!first) { env.log('wildshard watch: this look change needs a reload'); env.reload(); return; }
+        fail('the page\'s look can\'t take day keys live: look edits will reload the page');
+      }
       look = state.look.hash;
     }
     // fetch and decode every changed part before any swaps in
@@ -105,6 +113,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     }
     await Promise.all(fresh.values());
     if (scope.disposed) return;
+    let landed = true;
     for (const part of fetched) {
       const owner = scope.child(`watch.part.${part.name}@${part.hash}`), old = parts.get(part.name);
       try {
@@ -112,16 +121,18 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
           geometries: part.geometries.map((key) => hold(geometries, key, owner)),
           textures: part.textures.map((t) => ({ ...t, rgba: hold(textures, t.key, owner) })) };
         if (old === undefined) live.addPart(part.name, devPart); else live.replacePart(part.name, devPart);
-        live.swapColliders(part.name, part.colliders);
       } catch (cause) {
         // the hook keeps the old part drawn; this revision's copy lets its assets go
-        owner.dispose();
+        owner.dispose(); landed = false;
         fail(`part ${part.name}: ${cause instanceof Error ? cause.message : String(cause)}`);
         continue;
       }
+      // the new part is drawn: record it before anything else can throw, so the next revision replaces it
       parts.set(part.name, { hash: part.hash, scope: owner });
       report.applied.push(`${part.name}@${part.hash}`);
       old?.scope.dispose();
+      try { live.swapColliders(part.name, part.colliders); }
+      catch (cause) { landed = false; fail(`part ${part.name} colliders: ${cause instanceof Error ? cause.message : String(cause)}`); }
     }
     const names = new Set(state.parts.map((part) => part.name));
     for (const [name, part] of parts) {
@@ -129,7 +140,9 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
       live.removePart(name); live.swapColliders(name, []);
       parts.delete(name); part.scope.dispose();
     }
-    report.revision = state.revision; pendingFrame = state.revision;
+    report.revision = state.revision;
+    // the timing counts a revision only once all its parts landed
+    if (landed) pendingFrame = state.revision;
   };
 
   // one sync at a time; a revision announced while one runs waits, and only the newest one runs
@@ -143,7 +156,9 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     running = false;
   };
   const receive = (data: unknown): void => {
-    const state = JSON.parse(String(data)) as WatchState;
+    let state: WatchState;
+    try { state = JSON.parse(String(data)) as WatchState; }
+    catch { fail('the watch server sent a message this page can\'t read'); return; }
     if (state.wire !== WATCH_WIRE) { env.log(`wildshard watch: the server speaks wire ${state.wire}, this page ${WATCH_WIRE}; reloading`); env.reload(); return; }
     if (shell !== null && state.shell !== shell) { env.log('wildshard watch: the ground, spawn or grade changed; reloading'); env.reload(); return; }
     shell = state.shell; next = state;

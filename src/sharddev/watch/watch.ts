@@ -59,7 +59,8 @@ const shellLook = (scene: ShardScene): ReturnType<typeof sceneLook> => sceneLook
 /** What a page boots from: a ground, spawn or look change other than its day keys needs a new shell. */
 const shellKey = (scene: ShardScene): string => {
   const { keys: _keys, ...look } = shellLook(scene);
-  return hashOf((hash) => hash.json({ look, ground: scene.ground?.hash ?? null, spawn: scene.spawn, identity: scene.identity }));
+  // engine's live look keeps its fog kind: linear against exponential needs a new shell
+  return hashOf((hash) => hash.json({ look, linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.hash ?? null, spawn: scene.spawn, identity: scene.identity }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
@@ -70,7 +71,7 @@ export async function pageScript(): Promise<string> {
   const built = Array.isArray(result) ? result[0] : result;
   const chunk = built !== undefined && 'output' in built ? built.output.find((out) => out.type === 'chunk') : undefined;
   if (chunk === undefined || chunk.type !== 'chunk') throw new Error('watch: the page script did not bundle to one module');
-  return `<script>${chunk.code.replaceAll('</script', '<\\/script')}</script>`;
+  return `<script>${chunk.code.replaceAll(/<\/script/giu, '<\\/script')}</script>`;
 }
 
 /** Refuse a devserver client whose dev hook this sdk can't drive (its `build-flags.json`, written by engine's app build). */
@@ -98,7 +99,9 @@ export async function watchProject(project: string, options: { port?: number; cl
       const built = await buildProject(source, target, { devserver: true, ...(options.client === undefined ? {} : { client: options.client }) });
       const page = join(target, 'index.html');
       script ||= await pageScript();
-      if (existsSync(page)) writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', `${script}</body>`));
+      // the shell's number first: the page script reloads on a state for another shell, even on its first message
+      const tags = `<script>window.__wsShell=${shell + 1}</script>${script}</body>`;
+      if (existsSync(page)) writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', () => tags));
       if (product !== '') rmSync(product, { recursive: true, force: true });
       product = target; shardRoot = `/shardfiles/${built.identity.slug}/`; shell++;
     } finally { if (before === undefined) delete process.env['WILDSHARD_SCENE_LIVE']; else process.env['WILDSHARD_SCENE_LIVE'] = before; }
@@ -160,7 +163,11 @@ export async function watchProject(project: string, options: { port?: number; cl
     } catch { response.writeHead(400); response.end(); }
   });
   server.on('upgrade', (request, socket) => {
+    if (stopped) { socket.destroy(); return; }
     if (new URL(request.url ?? '/', 'http://localhost').pathname !== WATCH_SOCKET) { socket.end('HTTP/1.1 404 Not Found\r\n\r\n'); return; }
+    // a browser page from anywhere else may not read the scene stream (a Node client sends no Origin)
+    const origin = request.headers.origin, address = server.address(), port = address !== null && typeof address === 'object' ? address.port : 0;
+    if (origin !== undefined && origin !== `http://127.0.0.1:${String(port)}` && origin !== `http://localhost:${String(port)}`) { socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
     const client: WatchSocket | null = acceptSocket(request, socket, () => { if (client !== null) clients.delete(client); });
     if (client === null) return;
     clients.add(client); client.send(state());

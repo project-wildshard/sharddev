@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { afterAll, expect, test } from 'vitest';
 import { socketOf, startWatchPage, type DevHookLike } from './page';
-import { DEV_HOOK_VERSION, hookMismatch } from './protocol';
+import { DEV_HOOK_VERSION, WATCH_WIRE, hookMismatch } from './protocol';
 import { pageScript, watchProject } from './watch';
 
 const ROOT = resolve(import.meta.dirname, '../../../tmp');
@@ -95,4 +95,25 @@ test('AP5: the injected page script is one classic script with no early close ta
   expect(script.startsWith('<script>')).toBe(true);
   expect(script.slice(8, -9)).not.toContain('</script');
   expect(script).toContain('__wildshardDevHook');
+});
+
+test('AP5: a page booted from shell 1 reloads on a state for shell 2; a part whose colliders fail is still recorded', async () => {
+  const reloads: string[] = [], logs: string[] = [], sockets: { onmessage: ((event: { data: unknown }) => void) | null }[] = [];
+  const hook = { ...recordingHook(), swapColliders: () => { throw new Error('bad box'); } };
+  const part = { name: 'hut', hash: 'h1', materials: [], sprites: [], lamps: [], water: [], draws: [], geometries: [], textures: [], colliders: [] };
+  const env = { origin: 'http://127.0.0.1:1', hook: () => hook, fetch: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve<unknown>(part), arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)) }),
+    socket: () => { const socket = { onmessage: null, onclose: null, close: () => undefined }; sockets.push(socket); return socket; },
+    frame: () => undefined, wait: () => undefined, now: () => 0, log: (line: string) => { logs.push(line); } };
+  const stale = startWatchPage({ ...env, reload: () => { reloads.push('stale'); }, shell: () => 1 });
+  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 2, revision: 1, parts: [], look: { hash: '', keys: [] }, error: null }) });
+  expect(reloads).toEqual(['stale']);
+  stale.stop();
+  const page = startWatchPage({ ...env, reload: () => { reloads.push('page'); }, shell: () => 1 });
+  sockets[1]?.onmessage?.({ data: 'not json' });
+  expect(page.report.error).toContain('can\'t read');
+  sockets[1]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'h1' }], look: { hash: '', keys: [] }, error: null }) });
+  await until(() => page.report.applied.length === 1);
+  expect(page.report.error).toContain('hut colliders: bad box');
+  expect(page.report.framedRevision).toBe(0);
+  page.stop();
 });

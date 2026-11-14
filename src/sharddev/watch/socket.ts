@@ -48,7 +48,7 @@ export function acceptSocket(request: IncomingMessage, socket: Duplex, onClose: 
     }
   });
   socket.on('close', end);
-  socket.on('error', end);
+  socket.on('error', () => { end(); socket.destroy(); });
   return {
     send: (text) => { if (!closed) socket.write(frame(0x1, Buffer.from(text, 'utf8'))); },
     close: () => { if (!closed) socket.write(frame(0x8, Buffer.alloc(0))); end(); },

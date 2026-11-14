@@ -4,7 +4,7 @@ import { socketOf, startWatchPage, type DevHookLike, type WatchPageReport } from
 
 // SHARD-SOURCE AP5: the browser entry `wildshard watch` bundles and injects into the page it serves (watch.ts `pageScript`).
 // It is its own bundle beside the engine's, so it installs its own copy of the browser scope environment (frames, timers).
-declare global { interface Window { __wildshardDevHook?: DevHookLike; __wsDevScene?: WatchPageReport } }
+declare global { interface Window { __wildshardDevHook?: DevHookLike; __wsDevScene?: WatchPageReport; __wsShell?: number } }
 
 installBrowserScopeEnvironment();
 const timers = new Scope('watch.entry');
@@ -18,5 +18,6 @@ const page = startWatchPage({
   reload: () => { location.reload(); },
   now: () => Date.now(),
   log: (message) => { console.error(message); },
+  shell: () => window.__wsShell ?? null,
 });
 window.__wsDevScene = page.report;
