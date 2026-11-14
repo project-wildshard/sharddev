@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-import { object, parse, record, string } from 'valibot'
+import { object, optional, parse, record, string } from 'valibot'
 
 import { prepareFolder, shardfileFiles } from './shardfile.ts'
 
@@ -21,9 +21,11 @@ import { prepareFolder, shardfileFiles } from './shardfile.ts'
 // install, because a git dependency can't resolve with no network.
 
 const ROOT = fileURLToPath(new URL('../../..', import.meta.url))
+const Pins = record(string(), string())
 const ManifestSchema = object({
   bin: record(string(), string()),
-  dependencies: record(string(), string()),
+  dependencies: Pins,
+  peerDependencies: optional(Pins, {}),
 })
 
 function shell(command: string, args: readonly string[]): void {
@@ -59,7 +61,11 @@ function installWildshard(dir: string): string {
   shell('tar', ['-xzf', tarball, '-C', unpacked, '--strip-components', '1'])
   const raw = readFileSync(path.join(unpacked, 'package.json'), 'utf8')
   const manifest = parse(ManifestSchema, JSON.parse(raw))
-  for (const name of Object.keys(manifest.dependencies)) {
+  // SA8: `three` is a peer the app installs at the sdk's pin; this checkout's copy is that pin.
+  for (const name of [
+    ...Object.keys(manifest.dependencies),
+    ...Object.keys(manifest.peerDependencies),
+  ]) {
     linkDependency(modules, name)
   }
   return path.join(unpacked, manifest.bin['wildshard'] ?? 'no bin')
