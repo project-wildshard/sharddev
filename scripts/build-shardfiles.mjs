@@ -14,7 +14,7 @@ import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { productInputKey, productToolchainKey, matchingProductInputKey, publishProductInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { quietCli } from '@wildshard/engine/scripts/quiet-cli.mjs';
-import { outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { manifestFolders, outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
 import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
@@ -61,7 +61,12 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   };
   // SA42 (SA16's rule): a single-shard repo's source is `src/` (its folder named by its slug), a multi-shard repo's is
   // `src/shards/<folder>/`. The engine's shard-outputs owns the layout, so every product helper below agrees with it.
-  const folders = shardSourceFolders(root, ['shard.config.ts']).sort((a, b) => a.localeCompare(b));
+  // SHARD-SOURCE AP7: a `src/shards/<folder>` with no manifest declares no product (the products tests read the manifests),
+  // so it is a source proof that `wildshard check` and `watch` take by path (src/shards/authoring-slice), never built here.
+  const declared = new Set(manifestFolders(root));
+  const proofs = shardSourceFolders(root, ['shard.config.ts']).filter(folder => !declared.has(folder) && existsSync(resolve(root, 'src/shards', folder)));
+  for (const folder of proofs) console.info(`build-shards: src/shards/${folder} has no manifest: a source proof, not a product; skipped`);
+  const folders = shardSourceFolders(root, ['shard.config.ts']).filter(folder => !proofs.includes(folder)).sort((a, b) => a.localeCompare(b));
   // SF88g: a folder with declared outputs (scripts/shard-outputs.mjs) builds one product per output, each to out/<slug>
   const products = folders.flatMap(folder => (shardOutputs(root, folder) ?? [{ slug: folder }]).map(row => ({ name: row.slug, folder, output: row.slug === folder ? undefined : row.slug })));
   const built = products.map(row => row.name).sort((a, b) => a.localeCompare(b));
