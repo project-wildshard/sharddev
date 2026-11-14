@@ -1,8 +1,10 @@
 import { BoxCollider } from '@wildshard/sdk/physics';
 import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
 import { measureUv, type MeasureRole } from '@wildshard/sdk/measure';
-import { BoxGeometry, BufferGeometry, CircleGeometry, CylinderGeometry, Float32BufferAttribute, Group, IcosahedronGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, PointLight, Vector3, type Object3D } from 'three';
+import { BoxGeometry, BufferGeometry, CircleGeometry, CylinderGeometry, Float32BufferAttribute, Group, IcosahedronGeometry, LatheGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, PointLight, Vector2, Vector3, type Object3D } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
+import { POND, pondEdge, pondSDF } from './landscape';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { coursedBox, lumpyCrown, surfaceBox, weather } from './weather';
 
 /**
@@ -12,7 +14,7 @@ import { coursedBox, lumpyCrown, surfaceBox, weather } from './weather';
  * runtime builders' shapes, kept here so the bake no longer reads the runtime modules (retired with the template
  * chunk); nothing here is imported by the client.
  */
-export const poolMask = (x: number, z: number): boolean => Math.hypot(x - 25, z - 20) < 5;
+export const poolMask = (x: number, z: number): boolean => pondSDF(x, z) < 0;
 
 /**
  * A w × h × d box whose first UV set carries SF56's measure data (its `role` and each face's own metres and size: the
@@ -34,9 +36,35 @@ export function measureBox(w: number, h: number, d: number, role: MeasureRole): 
  * hut's blocks a warmer grey, moss its own green (so a trim cap stays moss under a trim tint), wood and iron for the hut's
  * posts, bench, barrels and lamp.
  */
-export const STONE = 0x8c867a, HUT_STONE = 0x9a9080, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2;
-/** LF1-7: the door lamp's post (the lantern hangs 1 m left of it, over the doorway's right edge, in L0 tile 0/4/3). */
-export const LAMP_POST = { x: 1.55, z: -8.3 } as const;
+export const STONE = 0x8c867a, HUT_STONE = 0x9a9080, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2, SLAB = 0x9a9488;
+/** The moss gate's opening half width and pillar size: the yard's west wall stops at the pillars' outer faces. */
+export const GATE_GAP = 1.5, GATE_PILLAR = 1.35;
+/** M2: the moss bridge's six stones span the pond's long axis, their centres this far either side of its middle. */
+export const BRIDGE_STONES = 6, BRIDGE_REACH = 5.2;
+/** The arena's way in, as an angle round `layout.ARENA`: M2's arch faces west, toward the yard's east gap. */
+const arenaDoor = (): number => -Math.PI / 2;
+/** M2: the arena ring is a low mossy wall (the cleanroom's); the arch and its gate stand taller. */
+export const ARENA_WALL = 2.0, ARENA_GATE = 3.0;
+/** M2: the hut room's floor planks and rug. */
+export const PLANK = 0xa07a58, CLOTH = 0x8a3a2a;
+const [[YX0, YZ0], [YX1, YZ1]] = layout.YARD as [[number, number], [number, number]];
+/** The ivy's and the hanging moss's greens. */
+export const IVY = 0x3d6a24, DRAPE = 0x5a7a2a;
+/** The yard's stepping-slab paths (TEMPLATES-CLEANROOM M2, the cleanroom's): spawn to the hut door, to the moss gate, to
+ *  brazier A's pad, to the arena arch, from the gate to the pond's east bank and from its west bank to brazier B. */
+const G0 = layout.MOSSGATE, A0 = layout.BRAZIERS[0] ?? [0, 0], B0 = layout.BRAZIERS[1] ?? [0, 0];
+export const PATHS: readonly (readonly [number, number])[][] = [
+  [[0, 2.2], ...(layout.TRAIL[0] ?? []).slice(1).map(([x = 0, z = 0]): [number, number] => [x, z]).slice(0, -1), [layout.HUT.x, layout.HUT.doorZ + 0.6]],
+  [[-1.4, 0.6], [-5, 0.2], [G0.x + 5.2, G0.z]],
+  [[0.8, -1.2], [4.2, -4], [A0[0] ?? 0, (A0[1] ?? 0) + 2.1]],
+  [[1.5, 0.6], [6, -1.2], [layout.ARENA.x - layout.ARENA.radius - 1.4, layout.ARENA.z]],
+  [[G0.x - 1.4, G0.z], [POND.x + POND.hx + 0.9, POND.z]],
+  [[POND.x - POND.hx - 0.6, POND.z], [(B0[0] ?? 0) + 1.3, B0[1] ?? 0]],
+];
+/** The practice ramp's foot (its treads climb 2 m toward −z), outside the yard's south wall. */
+export const RAMP = { x: 4, z: 20 } as const;
+/** LF1-7: the door lamp's post, right of the hut door (the lantern hangs 1 m left of it, over the doorway's right edge). */
+export const LAMP_POST = { x: layout.HUT.x + 1.55, z: layout.HUT.doorZ + 0.7 } as const;
 /** a grey-box shape (role 1, structure: stone; role 2, trim: moss) */
 let walls = 0;
 /** TEMPLATES-CLEANROOM M2: a tall thin box is a coursed masonry wall (`coursedBox`), anything else a plain box. */
@@ -74,17 +102,20 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     colliders.push(BoxCollider.fromData({ kind: 'box', x: layout.HUT.x + x, y: (y + 3 + y) / 2, z: layout.HUT.z + z, hx: hw, hy: Math.max(0.005, (y + 3 - y) / 2), hz: hd, yaw: -0, surface: 'wood' }).toColliderData());
   }
   ctx.root.add(hut); ctx.piece({ id: 'template.hut', name: 'Grey hut', category: 'buildings', file, object: hut, colliders, surface: 'wood' });
+  // M2: the furnished room inside and the ivy up the front corners, their own piece so the coarse tiles and far proxy skip them
+  const room = hutInterior(); room.position.copy(hut.position);
+  ctx.root.add(room); ctx.piece({ id: 'template.hut-interior', name: 'Hut room and ivy', category: 'props', file, object: room });
   const panel = cube(1.8, 2.5, 0.2, WOOD_DARK, 1); panel.position.set(layout.HUT.x, y + 1.2, layout.HUT.doorZ);
   ctx.root.add(panel); ctx.piece({ id: 'template.door', name: 'Open hut door', category: 'buildings', file, object: panel,
     colliders: [BoxCollider.fromData({ kind: 'box', x: layout.HUT.x, y: (y + 2.5 + y) / 2, z: layout.HUT.doorZ, hx: 0.9, hy: Math.max(0.005, (y + 2.5 - y) / 2), hz: 0.1, yaw: -0, surface: 'wood' }).toColliderData()], active: () => true });
-  // Mossgate Hollow v3: braziers A, B and C on labelled pads where the story puts them (LF1-0): A by the moss gate, B on
-  // the pond's far bank, C beside the arena gate. Unlit until their fields say so.
+  // Braziers A, B and C on lettered pads where the story puts them (TEMPLATES-CLEANROOM M2, the goldens' composition): A heads
+  // the row at the back of the yard, B waits across the moss bridge, C stands by the arena arch. The row's two beacons
+  // (layout.ROW) light with B and C. Unlit until their fields say so.
   const braziers = new Group(), stands: NonNullable<TemplatePart['colliders']> = [];
-  for (const [x, z] of layout.BRAZIERS) {
+  for (const [x, z] of [...layout.BRAZIERS, ...layout.ROW]) {
     if (x === undefined || z === undefined) continue;
-    const by = heightAt(x, z), pad = cube(3, 0.1, 3, 0x6f6866, 1), base = cube(1.1, 0.4, 1.1, STONE), stem = cube(0.6, 0.7, 0.6, STONE), bowl = cube(1.3, 0.3, 1.3, 0x6c6264, 1);
-    pad.position.set(x, by + 0.05, z); base.position.set(x, by + 0.3, z); stem.position.set(x, by + 0.85, z); bowl.position.set(x, by + 1.35, z);
-    braziers.add(pad, base, stem, bowl);
+    const by = heightAt(x, z);
+    braziers.add(brazierStand(x, by, z));
     stands.push(BoxCollider.fromData({ kind: 'box', x, y: by + 0.75, z, hx: 0.55, hy: 0.75, hz: 0.55, yaw: -0, surface: 'stone' }).toColliderData());
   }
   ctx.root.add(braziers); ctx.piece({ id: 'template.braziers', name: 'Braziers A, B and C', category: 'props', file, object: braziers, colliders: stands, surface: 'stone' });
@@ -113,18 +144,22 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   ctx.root.add(dressing.object); ctx.piece({ id: 'template.dressing', name: 'Mossgate dressing', category: 'nature', file, object: dressing.object, colliders: dressing.colliders, surface: 'stone' });
   const foliage = mossgateFoliage(heightAt);
   ctx.root.add(foliage.object); ctx.piece({ id: 'template.foliage', name: 'Mossgate trees, tufts and ferns', category: 'nature', file, object: foliage.object, colliders: foliage.colliders, surface: 'wood' });
-  const ramp = new Group(), from: [number, number, number] = [8, heightAt(8, -8), -8], to: [number, number, number] = [8, from[1] + 2, -14];
-  for (let i = 0; i < 10; i++) { const tread = cube(3, 0.2, 0.6, 0x888888, 2); tread.position.set(8, from[1] + (i + 1) * 0.2 - 0.1, -8 - (i + 0.5) * 0.6); ramp.add(tread); }
-  const slope = cube(3, 0.24, Math.sqrt(40), 0x888888, 2); slope.position.set(12, from[1] + 0.9, -11); slope.rotation.x = Math.atan2(2, 6); ramp.add(slope);
+  // the practice ramp and its stair treads, outside the yard's south wall (M2 moved it off the brazier row)
+  const { x: rx, z: rz } = RAMP, ramp = new Group(), from: [number, number, number] = [rx, heightAt(rx, rz), rz], to: [number, number, number] = [rx, from[1] + 2, rz - 6];
+  for (let i = 0; i < 10; i++) { const tread = cube(3, 0.2, 0.6, 0x888888, 2); tread.position.set(rx, from[1] + (i + 1) * 0.2 - 0.1, rz - (i + 0.5) * 0.6); ramp.add(tread); }
+  const slope = cube(3, 0.24, Math.sqrt(40), 0x888888, 2); slope.position.set(rx + 4, from[1] + 0.9, rz - 3); slope.rotation.x = Math.atan2(2, 6); ramp.add(slope);
   ctx.root.add(ramp); ctx.piece({ id: 'template.ramp', name: 'Ramp and stair treads', category: 'buildings', file, object: ramp,
-    colliders: [{ kind: 'box', x: 12, y: from[1] + 0.9, z: -11, hx: 1.5, hy: 0.12, hz: Math.sqrt(40) / 2,
+    colliders: [{ kind: 'box', x: rx + 4, y: from[1] + 0.9, z: rz - 3, hx: 1.5, hy: 0.12, hz: Math.sqrt(40) / 2,
       rot: { x: Math.sin(Math.atan2(2, 6) / 2), y: 0, z: 0, w: Math.cos(Math.atan2(2, 6) / 2) }, surface: 'wood' },
       { kind: 'treads', from: { x: from[0], y: from[1], z: from[2] }, to: { x: to[0], y: to[1], z: to[2] }, width: 3, count: 10, surface: 'wood' }], surface: 'wood' });
+  // M2: the yard's low coursed walls, the pond garden's and their moss caps, ivy and hanging moss
+  const yard = yardWalls(heightAt);
+  ctx.root.add(yard.object); ctx.piece({ id: 'template.yard-walls', name: 'Yard walls', category: 'buildings', file, object: yard.object, colliders: yard.colliders, surface: 'stone' });
   const props = new Group(), random = ctx.rng.stream('cosmetic');
   for (let i = 0; i < propCount; i++) { const x = random.range(-25, 25), z = random.range(5, 30), prop = cube(0.6, 0.6, 0.6); prop.position.set(x, heightAt(x, z) + 0.3, z); props.add(prop); }
   ctx.root.add(props); ctx.piece({ id: 'template.props', name: 'Grey props', category: 'props', file, object: props });
   const pool = new Mesh(new CircleGeometry(5, 24), new MeshStandardMaterial({ color: 0x9aa6b0, transparent: true, opacity: 0.7 }));
-  pool.rotation.x = -Math.PI / 2; pool.position.set(25, 0, 20); ctx.root.add(pool);
+  pool.rotation.x = -Math.PI / 2; pool.position.set(POND.x, 0, POND.z); ctx.root.add(pool);
   weather(ctx.root, heightAt);
   ctx.root.traverse((node) => {
     if (!(node instanceof Mesh)) return;
@@ -144,10 +179,8 @@ type Colliders = NonNullable<TemplatePart['colliders']>;
 /** A stone box collider at (x, y, z), half sizes `hx`, `hy`, `hz`, turned `yaw`. */
 const stoneBox = (x: number, y: number, z: number, hx: number, hy: number, hz: number, yaw = 0): Colliders[number] =>
   BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: yaw === 0 ? -0 : yaw, surface: 'stone' }).toColliderData();
-/** L0 tile 0/4/3 (x in [0, 62.5), z in [−62.5, 0)): the one yard tile with draws to spare for the red caps' emissive draw. */
-export const redCap = (x: number, z: number): boolean => x >= 0.3 && x < 62 && z < -0.3 && z >= -62;
-/** The dressing's mushroom positions, as `mossgateDressing` places them. */
-const MUSHROOMS: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], [4.4, -3.2], [-5.0, -3.6], [2.2, -8.6], [-1.9, -7.4]];
+/** The dressing's mushroom clumps, as `mossgateDressing` places them: by the hut path, the hut and the boulders. */
+const MUSHROOMS: [number, number][] = [[-1.7, -6.0], [1.9, -9.4], [-6.4, -10.6], [3.2, -3.4], [-4.6, -4.0], [-0.2, -12.4], [-7.6, -6.8], [6.9, 2.6], [-8.8, 5.2]];
 /**
  * Mossgate Hollow v3 (MH-1b): the yard's dressing, one step past grey-box and still a test level. A stepping-slab path
  * from spawn to the hut door, the door lamp, mossy boulders, ferns and mushroom clumps, all measure boxes (the dev-map
@@ -156,11 +189,20 @@ const MUSHROOMS: [number, number][] = [[-1.1, -4.6], [0.9, -6.6], [-3.6, -6.9], 
 export function mossgateDressing(heightAt: (x: number, z: number) => number): { object: Group; colliders: NonNullable<TemplatePart['colliders']> } {
   const root = new Group(), colliders: NonNullable<TemplatePart['colliders']> = [];
   const box = (x: number, y: number, z: number, hx: number, hy: number, hz: number): void => { colliders.push(BoxCollider.fromData({ kind: 'box', x, y, z, hx, hy, hz, yaw: -0, surface: 'stone' }).toColliderData()); };
-  // the slab path: eight stepping stones from spawn to the door, each a little off the line and turned
-  for (let i = 0; i < 8; i++) {
-    const z = -1.4 - i * 1.0, x = jitter(i, 1) * 0.28, w = 1.05 + jitter(i, 2) * 0.2, d = 0.72 + jitter(i, 3) * 0.12;
-    root.add(block(w, 0.08, d, 1, x, heightAt(x, z) + 0.04, z, jitter(i, 4) * 0.35));
+  // the slab paths: flat irregular stepping stones along each walk, each a little off the line and turned (the cleanroom's)
+  let n = 0;
+  for (const points of PATHS) for (let i = 0; i < points.length - 1; i++) {
+    const [ax = 0, az = 0] = points[i] ?? [], [bx = 0, bz = 0] = points[i + 1] ?? [], len = Math.hypot(bx - ax, bz - az), steps = Math.max(1, Math.round(len / 1.15)), dir = Math.atan2(bx - ax, bz - az);
+    for (let k = i === 0 ? 0 : 1; k <= steps; k++, n++) {
+      const t = k / steps, x = ax + (bx - ax) * t + jitter(n, 1) * 0.15, z = az + (bz - az) * t + jitter(n, 2) * 0.1;
+      if (poolMask(x, z)) continue;
+      root.add(block(1.05 + jitter(n, 3) * 0.18, 0.08, 0.82 + jitter(n, 4) * 0.1, 1, x, heightAt(x, z) + 0.035, z, dir + jitter(n, 5) * 0.22, 0, SLAB));
+    }
   }
+  // the sign post at the fork: a post and a board turned toward the hut path
+  const [sx = 0, sz = 0] = layout.SIGN, sy = heightAt(sx, sz);
+  root.add(block(0.16, 1.9, 0.16, 1, sx, sy + 0.85, sz, 0, 0, WOOD_DARK), block(1.2, 0.34, 0.07, 1, sx - 0.15, sy + 1.4, sz, 0.35, 0, WOOD), block(0.5, 0.2, 0.06, 1, sx + 0.1, sy + 1.02, sz, -0.3, 0, WOOD));
+  box(sx, sy + 0.85, sz, 0.1, 0.85, 0.1);
   // the door lamp: a post right of the door, an arm over the doorway and a lamp box under a moss cap
   const { x: lx, z: lz } = LAMP_POST, ly = heightAt(lx, lz);
   root.add(block(0.18, 2.6, 0.18, 1, lx, ly + 1.3, lz, 0, 0, IRON), block(1.2, 0.1, 0.1, 1, lx - 0.5, ly + 2.5, lz, 0, 0, IRON), block(0.06, 0.2, 0.06, 1, lx - 1.0, ly + 2.36, lz, 0, 0, IRON));
@@ -171,7 +213,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   hutFront(root, colliders, heightAt);
   // mossy boulders: two or three tumbled stones and a moss cap each. LF1-7 checks: the small one moved from (-2.6, 2.6),
   // which sat on the spawn-to-arena walk, to between the arena and brazier C walks (foliage.test.ts keeps them clear)
-  const boulders: [number, number, number][] = [[-4.4, -6.2, 1.3], [-5.2, 1.9, 1.0], [5.2, -2.6, 1.15], [-6.8, -10.4, 1.6], [13.2, -7.4, 1.4], [-1.0, 4.0, 0.8]];
+  const boulders: [number, number, number][] = [[-6.2, -4.6, 1.3], [6.4, 3.4, 1.35], [-8.2, -11.2, 1.2], [10.6, -16.2, 1.35], [-8.4, 6.6, 1.2], [7.8, 5.8, 1.0], [-6.8, -17.3, 0.95], [2.4, -17.2, 0.85], [POND.x + POND.hx + 2.4, POND.z + 4.5, 1.35], [POND.x - POND.hx - 2.2, POND.z - 4.6, 1.2], [13.8, 3.4, 1.0], [-3.6, 5.4, 0.8]];
   boulders.forEach(([x, z, s], i) => {
     const y = heightAt(x, z);
     root.add(block(s, s * 0.7, s * 0.9, 1, x, y + s * 0.3, z, jitter(i, 5) * 1.5, jitter(i, 6) * 0.18));
@@ -181,7 +223,7 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     box(x, y + s * 0.35, z, s * 0.55, s * 0.35, s * 0.5);
   });
   // ferns: seven moss fronds fanned up and out from one root (LF1-5: tent fronds, half a box frond's bytes)
-  const ferns: [number, number, number][] = [[-3.45, -8.1, 1], [3.5, -8.1, 1], [-3.5, -5.2, 0.9], [1.7, -3.3, 0.8], [-1.6, -2.0, 0.75], [6.0, -4.4, 0.9], [-5.3, -8.4, 1.1], [-4.4, -0.6, 0.85], [8.3, -8.6, 1], [-3.2, -9.6, 0.8]];
+  const ferns: [number, number, number][] = [[-1.6, -12.4, 1], [-6.8, -12.0, 1.1], [-7.2, -12.8, 0.9], [-8.8, -2.9, 1], [-8.8, 2.9, 1], [-2.2, -5.4, 0.9], [3.1, -6.2, 0.8], [1.6, -11.8, 0.9], [-5.6, -3.6, 0.8], [7.2, 4.8, 0.9]];
   ferns.forEach(([x, z, s], i) => { root.add(fern(x, heightAt(x, z), z, s, i)); });
   // mushroom clumps: pale stems under domed caps, by the path and the boulders. LF1-5: a cap in L0 tile 0/4/3 (x ≥ 0, z < 0)
   // is red (`mushroomCaps`, its own emissive draw); 0/3/3 is at its 8 draws, so a cap there stays a stone box (its bytes
@@ -190,7 +232,6 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
     for (let k = 0; k < 3; k++) {
       const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
       root.add(block(0.06, h, 0.06, 1, mx, y + h / 2, mz, 0, 0, STEM));
-      if (!redCap(mx, mz)) root.add(block(0.24 - k * 0.04, 0.07, 0.24 - k * 0.04, 1, mx, y + h + 0.03, mz, jitter(i, 50 + k), jitter(i, 60 + k) * 0.2, CAP_RED));
     }
   });
   return { object: root, colliders };
@@ -219,6 +260,80 @@ function tent(points: readonly Vector3[], triangles: readonly [number, number, n
   const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
   return foliageUv(geometry, role);
 }
+/** M2: the brazier stand, the cleanroom's: a lettered slab pad, a stepped plinth, a round stem and a wide lathed bowl whose rim
+ *  sits 1.5 m over the pad (the flame panel and the fire's particles rise from there). */
+function brazierStand(x: number, by: number, z: number): Group {
+  const root = new Group(), bowl: Vector2[] = [new Vector2(0, 0)];
+  for (let i = 0; i <= 8; i++) { const t = i / 8; bowl.push(new Vector2(0.26 + 0.5 * Math.sin((t * Math.PI) / 2), t * 0.48)); }
+  bowl.push(new Vector2(0.86, 0.5), new Vector2(0.84, 0.55), new Vector2(0.72, 0.5), new Vector2(0, 0.38));
+  root.add(block(2.1, 0.1, 2.1, 1, x, by + 0.05, z, 0, 0, SLAB), block(1.18, 0.17, 1.18, 1, x, by + 0.085, z, 0, 0, STONE), block(0.94, 0.6, 0.94, 1, x, by + 0.4, z, 0, 0, STONE));
+  const stem = new Mesh(foliageUv(new CylinderGeometry(0.24, 0.36, 0.3, 8), 1), foliageMaterial(STONE)); stem.position.set(x, by + 0.85, z);
+  const cup = new Mesh(foliageUv(new LatheGeometry(bowl, 8), 1), foliageMaterial(0x6c6264)); cup.position.set(x, by + 0.95, z);
+  root.add(stem, cup);
+  return root;
+}
+/** A leafy ivy strand hanging `len` down from (x, y, z): small two-sided leaf diamonds either side of a stem, in the plane turned
+ *  `yaw` (its width runs along (cos yaw, 0, −sin yaw)), `w` its spread. */
+function ivy(x: number, y: number, z: number, len: number, yaw: number, w: number, seed: number): Mesh {
+  const out: number[] = [], ux = Math.cos(yaw), uz = -Math.sin(yaw), nx = Math.sin(yaw), nz = Math.cos(yaw);
+  for (let k = 0, d = 0.04; d < len; k++, d += 0.065 + (jitter(seed, 300 + k) + 1) * 0.02) {
+    const side = (k % 2 === 0 ? 1 : -1) * (0.3 + (jitter(seed, 320 + k) + 1) * 0.35) * w * 0.5, sway = Math.sin(d * 2.2 + seed) * 0.06;
+    const cx = (side + sway) * ux, cz = (side + sway) * uz, cy = -d, s = 0.045 + (jitter(seed, 340 + k) + 1) * 0.02, lift = 0.02 + (jitter(seed, 360 + k) + 1) * 0.02;
+    const p = [[cx - s * ux, cy, cz - s * uz], [cx, cy + s * 1.2, cz], [cx + s * ux, cy, cz + s * uz], [cx, cy - s * 0.9, cz]].map(([a = 0, b = 0, c = 0]) => [a + nx * lift, b, c + nz * lift]);
+    for (const [i, j, l] of [[0, 1, 2], [0, 2, 3], [0, 2, 1], [0, 3, 2]] as const) for (const q of [p[i], p[j], p[l]]) out.push(...(q ?? [0, 0, 0]));
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
+  const mesh = new Mesh(foliageUv(geometry, 2), foliageMaterial(IVY)); mesh.position.set(x, y, z); return mesh;
+}
+/** A strip of hanging moss `len` long under a cap's edge at (x, y, z), its ragged lower edge 0.35 to 1 × `h` down; two-sided, in
+ *  the plane turned `yaw` like `ivy`. */
+function drape(x: number, y: number, z: number, len: number, yaw: number, h: number, seed: number): Mesh {
+  const out: number[] = [], ux = Math.cos(yaw), uz = -Math.sin(yaw), n = Math.max(2, Math.round(len * 4));
+  const at = (c: number, down: number): number[] => { const t = -len / 2 + (len * c) / n; return [t * ux, -down, t * uz]; };
+  for (let c = 0; c < n; c++) {
+    const d0 = c === 0 ? 0.1 : h * (0.35 + (jitter(seed, 400 + c) + 1) * 0.32), d1 = c === n - 1 ? 0.1 : h * (0.35 + (jitter(seed, 401 + c) + 1) * 0.32);
+    const a = at(c, 0), b = at(c + 1, 0), e = at(c, d0), f = at(c + 1, d1), tip = at(c + 0.5, Math.max(d0, d1) * (1.05 + (jitter(seed, 450 + c) + 1) * 0.2));
+    for (const tri of [[a, b, e], [b, f, e], [e, f, tip]]) { for (const q of tri) out.push(...q); for (const q of [...tri].reverse()) out.push(...q); }
+  }
+  const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
+  const mesh = new Mesh(foliageUv(geometry, 2), foliageMaterial(DRAPE)); mesh.position.set(x, y, z); return mesh;
+}
+/**
+ * TEMPLATES-CLEANROOM M2: the yard's walls (layout.YARD), the cleanroom's: low coursed stone runs with fat moss caps, hanging
+ * moss under the caps and ivy down both faces; open at the moss gate (west) and toward the arena arch (east). The pond garden's
+ * lower walls run west from the yard round brazier B. Axis-aligned runs, cut in pieces of at most 4.2 m, a collider each.
+ */
+export function yardWalls(heightAt: (x: number, z: number) => number): { object: Group; colliders: Colliders } {
+  const root = new Group(), colliders: Colliders = [], T = 0.75, SINK = 0.25;
+  const gx = layout.MOSSGATE, g = GATE_GAP + GATE_PILLAR - 0.05, px = POND.x - POND.hx - 7;
+  const runs: [number, number, number, number, number, [number, number][]][] = [
+    [YX0, YZ0, YX1, YZ0, 1.45, []], [YX1, YZ0, YX1, YZ1, 1.45, [[layout.ARENA.z - 1.9, layout.ARENA.z + 1.9]]], [YX0, YZ1, YX1, YZ1, 1.2, []],
+    [YX0, YZ0, YX0, YZ1, 1.45, [[gx.z - g, gx.z + g]]], [px, -9, YX0 - T / 2, -9, 1.2, []], [px, 9, YX0 - T / 2, 9, 1.2, []], [px, -9, px, 9, 1.2, []],
+  ];
+  let seed = 0;
+  for (const [x0, z0, x1, z1, h, gaps] of runs) {
+    const alongX = z0 === z1, lo = alongX ? x0 : z0, hi = alongX ? x1 : z1, cuts = [lo, ...gaps.flat(), hi];
+    for (let i = 0; i < cuts.length; i += 2) {
+      const a = cuts[i] ?? lo, b = cuts[i + 1] ?? hi, n = Math.ceil((b - a) / 4.2), L = (b - a) / n;
+      for (let k = 0; k < n; k++, seed++) {
+        const m = a + (k + 0.5) * L, x = alongX ? m : x0, z = alongX ? z0 : m, yaw = alongX ? 0 : Math.PI / 2;
+        const ends = [-0.5, 0, 0.5].map((t) => heightAt(alongX ? m + t * L : x, alongX ? z : m + t * L)), y = Math.min(...ends) - SINK, top = Math.max(...ends) + h;
+        const wall = alongX ? block(L + 0.02, top - y, T, 1, x, (y + top) / 2, z, 0, 0, STONE) : block(T, top - y, L + 0.02, 1, x, (y + top) / 2, z, 0, 0, STONE);
+        const cap = alongX ? block(L + 0.14, 0.3, T + 0.24, 2, x, top + 0.1, z) : block(T + 0.24, 0.3, L + 0.14, 2, x, top + 0.1, z);
+        root.add(wall, cap);
+        colliders.push(BoxCollider.fromData({ kind: 'box', x, y: (y + top) / 2 + 0.1, z, hx: alongX ? L / 2 : T / 2, hy: (top - y) / 2 + 0.1, hz: alongX ? T / 2 : L / 2, yaw: -0, surface: 'stone' }).toColliderData());
+        for (const side of [-1, 1]) {
+          const ox = alongX ? 0 : side * (T / 2 + 0.13), oz = alongX ? side * (T / 2 + 0.13) : 0, ux = alongX ? 1 : 0, uz = alongX ? 0 : 1;
+          const dl = Math.min(L - 0.4, 0.8 + (jitter(seed, 512 + side) + 1) * 0.6), d0 = jitter(seed, 510 + side) * (L - dl - 0.2) * 0.5;
+          if (dl > 0.3) root.add(drape(x + ox + ux * d0, top - 0.03, z + oz + uz * d0, dl, yaw, 0.3 + (jitter(seed, 514 + side) + 1) * 0.18, seed * 2 + side));
+          if (jitter(seed, 516 + side) > -0.2) { const t = jitter(seed, 518 + side) * L * 0.4; root.add(ivy(x + ox * 0.6 + ux * t, top - 0.02, z + oz * 0.6 + uz * t, 0.6 + (jitter(seed, 520 + side) + 1) * (h - 0.4) * 0.5, yaw, 0.3, seed * 3 + side)); }
+        }
+      }
+    }
+  }
+  return { object: root, colliders };
+}
+
 /** A fern at (x, y, z), `s` its size: seven tent fronds (six triangles each, seen from above and below) fanned up and out. */
 function fern(x: number, y: number, z: number, s: number, i: number): Group {
   const root = new Group(), material = foliageMaterial(0x4f7a2a); root.position.set(x, y + 0.02, z);
@@ -295,13 +410,40 @@ function hutFront(root: Group, colliders: Colliders, heightAt: (x: number, z: nu
     wood(x, z, r, h / 2, r, gy);
   }
 }
+/** M2: the room inside the hut (its own frame, door at z = +3, walls 0.3 m thick at ±3), the cleanroom's: a plank floor, a red
+ *  rug, a table with a bowl and two stools, a shelf of jars on the back wall, stacked crates and a barrel; ivy up the front
+ *  corners and hanging moss off the eaves. No colliders (the walk in and out stays as it was). */
+function hutInterior(): Group {
+  const root = new Group(), JARS = [0x6a8a5a, 0xb08a4a, 0x8a4a3a, 0x5a6a8a, 0xc0a070];
+  const at = (mesh: Mesh, x: number, y: number, z: number): Mesh => { mesh.position.set(x, y, z); return mesh; };
+  root.add(block(5.66, 0.06, 5.66, 1, 0, 0.04, 0, 0, 0, PLANK), block(1.9, 0.02, 1.25, 1, 0.1, 0.08, 0.7, 0.05, 0, CLOTH));
+  root.add(block(1.3, 0.08, 0.75, 1, 0.8, 0.8, -0.5, 0, 0, WOOD));
+  for (const [lx, lz] of [[-0.55, -0.3], [0.55, -0.3], [-0.55, 0.3], [0.55, 0.3]] as const) root.add(block(0.08, 0.76, 0.08, 1, 0.8 + lx, 0.4, -0.5 + lz, 0, 0, WOOD_DARK));
+  root.add(at(new Mesh(foliageUv(new CylinderGeometry(0.14, 0.09, 0.12, 8), 1), foliageMaterial(0x7a5634)), 0.55, 0.9, -0.45));
+  for (const [x, z] of [[-0.35, -0.1], [1.95, -0.3]] as const) root.add(at(new Mesh(foliageUv(new CylinderGeometry(0.2, 0.18, 0.46, 8), 1), foliageMaterial(WOOD)), x, 0.27, z));
+  for (const y of [0.95, 1.5]) root.add(block(1.9, 0.06, 0.34, 1, -1.1, y, -2.62, 0, 0, WOOD));
+  for (const x of [-2.02, -0.18]) root.add(block(0.06, 1.62, 0.34, 1, x, 0.85, -2.62, 0, 0, WOOD_DARK));
+  for (let i = 0; i < 9; i++) {
+    const h = 0.16 + (jitter(i, 600) + 1) * 0.06, jar = new Mesh(foliageUv(new CylinderGeometry(0.07, 0.08, h, 8), 1), foliageMaterial(JARS[i % 5] ?? WOOD));
+    root.add(at(jar, -1.85 + (i % 5) * 0.36 + jitter(i, 601) * 0.04, (i < 5 ? 0.98 : 1.53) + h / 2, -2.6));
+  }
+  for (const [x, y, z, s, yaw] of [[-2.35, 0, -1.6, 0.62, 0.2], [-2.38, 0, -0.85, 0.52, -0.25], [-2.3, 0.62, -1.5, 0.42, 0.4]] as const) root.add(block(s, s, s, 1, x, 0.06 + y + s / 2, z, yaw, 0, WOOD));
+  root.add(at(new Mesh(foliageUv(new CylinderGeometry(0.33, 0.3, 0.8, 10), 1), foliageMaterial(WOOD)), 2.3, 0.46, -2.2));
+  for (const y of [0.22, 0.7]) root.add(at(new Mesh(foliageUv(new CylinderGeometry(0.34, 0.34, 0.06, 10, 1, true), 1), foliageMaterial(IRON)), 2.3, y, -2.2));
+  // outside: ivy up the two front corners and the right side, hanging moss off both eaves
+  root.add(ivy(-3.12, 3.0, 3.12, 2.7, 0, 0.42, 71), ivy(3.12, 3.0, 3.12, 2.1, 0, 0.36, 72), ivy(3.18, 3.0, 1.4, 2.4, Math.PI / 2, 0.4, 73), ivy(-3.18, 3.0, -1.2, 1.8, Math.PI / 2, 0.36, 74));
+  for (const side of [-1, 1]) root.add(drape(0, 3.08, side * 3.72, 6.4, 0, 0.42, 80 + side));
+  return root;
+}
 /**
  * LF1-7 with LF1-2: the door lamp's glass, one whole shape at the lantern (L0 tile 0/4/3) in the GLB material
  * `mossgate.lamp`, which `props.materials` binds to an emissive look entry: one draw, no shadow.
  */
 export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mesh; transform: Matrix4 } {
   const x = LAMP_POST.x - 1.0, z = LAMP_POST.z, y = heightAt(LAMP_POST.x, LAMP_POST.z) + 2.0;
-  const geometry = new BoxGeometry(0.36, 0.48, 0.36).toNonIndexed(); geometry.deleteAttribute('uv');
+  // M2: and the hut room's hanging lamp over the table, in the same whole (one draw)
+  const room = new BoxGeometry(0.3, 0.38, 0.3).translate(layout.HUT.x + 0.8 - x, heightAt(layout.HUT.x, layout.HUT.z) + 2.15 - y, layout.HUT.z - 0.5 - z);
+  const geometry = mergeGeometries([new BoxGeometry(0.36, 0.48, 0.36), room]).toNonIndexed(); geometry.deleteAttribute('uv');
   geometry.setAttribute('color', new Float32BufferAttribute(new Float32Array(geometry.getAttribute('position').count * 3).fill(1), 3));
   const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: 0xffffff, vertexColors: true })); mesh.castShadow = false;
   return { mesh, transform: new Matrix4().makeTranslation(x, y, z) };
@@ -312,24 +454,48 @@ export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mes
  * in the bowl, in the GLB material `mossgate.flame` (emissive), with no shadow, so it costs L0 tile 0/3/3 one draw.
  */
 export function brazierFlame(heightAt: (x: number, z: number) => number, which = 0): Group {
-  const [x = 0, z = 0] = layout.BRAZIERS[which] ?? [], y = heightAt(x, z) + 1.5, flame = new Group();
-  const cones: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
-  cones.forEach(([dx, dz, r, h], i) => {
-    const cone = new Mesh(foliageUv(new CylinderGeometry(0, r, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + h / 2, z + dz); cone.rotation.y = jitter(i, 110) * 1.2; flame.add(cone);
-  });
+  const flame = new Group(), [x = 0, z = 0] = layout.BRAZIERS[which] ?? [];
+  flameCones(flame, x, heightAt(x, z) + 1.5, z);
+  // M2: brazier B's field also lights the row's B beacon at the back of the yard
+  if (which === 1) { const [bx = 0, bz = 0] = layout.ROW[0] ?? []; flameCones(flame, bx, heightAt(bx, bz) + 1.5, bz); }
   return flame;
 }
+/** Five faceted cones in a bowl whose rim is at y. */
+function flameCones(flame: Group, x: number, y: number, z: number): void {
+  const cones: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
+  cones.forEach(([dx, dz, r, h], i) => {
+    const cone = new Mesh(foliageUv(new CylinderGeometry(0, r, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + h / 2 - 0.05, z + dz); cone.rotation.y = jitter(i, 110) * 1.2; flame.add(cone);
+  });
+}
 
-/** Round toy trees in the yard (LF1-5): x, z, size. Off every walk the MH-2, MH-3 and LF1-0 proofs take (see foliage test). */
-export const TREES: readonly [number, number, number][] = [[-6.0, -13.5, 1.1], [-9.0, -16.5, 0.95], [5.3, -13.6, 1.1], [9.5, -2.5, 0.9], [15.5, -5.0, 1.0], [2.5, 7.5, 1.0], [12.5, 3.0, 1.05], [-12.5, 3.5, 0.9]];
-/** Grass tufts at the wall bases (the hut, the moss gate's wings and pillars, the arena ring) and a few in the open yard. */
-const TUFTS: readonly [number, number, number][] = [
-  [-3.6, -8.75, 1], [3.65, -8.7, 0.9], [-3.35, -10.2, 1.1], [-3.35, -12.6, 0.9], [-3.35, -14.3, 1], [3.35, -10.4, 1], [3.35, -12.2, 1.1], [3.35, -14.5, 0.9], [-1.4, -15.35, 1], [1.3, -15.35, 0.9],
-  [-8.6, -10.4, 1], [-8.6, -8.2, 0.9], [-8.4, -6.65, 1.1], [-8.4, -3.35, 1], [-8.6, -2.2, 0.9], [-8.6, 0.6, 1],
-  [3.6, -1.6, 0.8], [-2.2, -5.6, 0.8], [5.8, -7.0, 0.9], [-5.6, -11.8, 1], [7.5, -1.2, 0.9], [11.2, -4.6, 0.8], [-0.8, 3.2, 0.8], [4.2, 4.8, 0.9],
+/** Round toy trees (TEMPLATES-CLEANROOM M2, the cleanroom's spots): x, z, size. A few in the yard's corners, the rest round its
+ *  walls, the pond garden and the arena, framing the goldens' views. Off every walk the proofs take (see foliage test). */
+export const TREES: readonly [number, number, number][] = [
+  [-8.2, -16.6, 1.0], [0.8, -21, 1.15], [-12.5, -21, 1.2], [6.5, -20.5, 1.05], [11, -16.4, 0.95], [-13, -12, 1.1], [-7.8, 5.6, 0.9], [9.5, 5.5, 1.0],
+  [-13.5, 8, 1.15], [-30, 9, 1.2], [-30, -8, 1.15], [-24.5, -10.5, 1.05], [-14.5, 11.5, 1.0], [16, -9.5, 1.0], [16, 6, 1.1], [36, -12, 1.2],
+  [37, 8, 1.15], [24, 10, 1.1], [20, -15, 1.25], [3, 12, 1.2],
 ];
-/** New ferns at the wall bases (the dressing's ten stay where they were): the hut's back corners, the gate wings, the arena. */
-const WALL_FERNS: readonly [number, number, number][] = [[3.5, -14.9, 0.95], [-3.55, -14.8, 0.9], [-8.5, -9.4, 1], [-8.5, 0.1, 0.9]];
+/** Grass tufts and ferns along the inside foot of the yard walls (clear of the gate and the arch gaps) and round the hut. */
+const WALL_FOOT: readonly [number, number][] = (() => {
+  const out: [number, number][] = [];
+  for (let z = YZ0 + 0.9, i = 0; z < YZ1 - 0.6; z += 1.6 + (jitter(i, 200) + 1) * 0.6, i++) {
+    if (Math.abs(z - layout.MOSSGATE.z) > 3.2) out.push([YX0 + 0.85, z]);
+    if (Math.abs(z - layout.ARENA.z) > 2.6) out.push([YX1 - 0.85, z + 0.4]);
+  }
+  for (let x = YX0 + 0.9, i = 0; x < YX1 - 0.6; x += 1.7 + (jitter(i, 201) + 1) * 0.6, i++) { out.push([x, YZ0 + 0.85]); out.push([x + 0.5, YZ1 - 0.85]); }
+  return out;
+})();
+const HUT_FOOT: readonly [number, number][] = [[-3.4, 3.25], [3.4, 3.25], [-3.3, 1.6], [-3.3, -0.6], [-3.3, -2.3], [3.3, 1.4], [3.3, -0.5], [3.3, -2.5], [-1.4, -3.3], [1.3, -3.35]];
+const TUFTS: readonly [number, number, number][] = [
+  ...WALL_FOOT.filter((_, i) => i % 2 === 0).map(([x, z], i): [number, number, number] => [x, z, 0.9 + (jitter(i, 202) + 1) * 0.1]),
+  ...HUT_FOOT.map(([x, z], i): [number, number, number] => [layout.HUT.x + x, layout.HUT.z + z, 0.9 + (jitter(i, 203) + 1) * 0.1]),
+  [3.6, -1.6, 0.8], [-2.2, -5.6, 0.8], [5.8, -7.0, 0.9], [7.5, -1.2, 0.9], [-0.8, 3.2, 0.8], [4.2, 4.8, 0.9], [-5.5, 2.8, 0.9],
+];
+/** Ferns along the wall feet (the other half of `WALL_FOOT`) and at the hut's back corners. */
+const WALL_FERNS: readonly [number, number, number][] = [
+  ...WALL_FOOT.filter((_, i) => i % 2 === 1).map(([x, z], i): [number, number, number] => [x, z, 0.9 + (jitter(i, 204) + 1) * 0.12]),
+  [layout.HUT.x + 3.5, layout.HUT.z - 2.9, 0.95], [layout.HUT.x - 3.55, layout.HUT.z - 2.8, 0.9],
+];
 
 /**
  * LF1-5: the yard's foliage, all in the measure stone's one static draw per tile (the props bake merges a tile's static
@@ -349,7 +515,7 @@ export function mossgateFoliage(heightAt: (x: number, z: number) => number): { o
   TUFTS.forEach(([x, z, s], i) => { root.add(tuft(x, heightAt(x, z), z, s, i)); });
   WALL_FERNS.forEach(([x, z, s], i) => { root.add(fern(x, heightAt(x, z), z, s, 20 + i)); });
   // the arena ring's outer foot, on the yard's side of it: tufts and two ferns either side of the way in
-  const { x: cx, z: cz, radius } = layout.ARENA, door = Math.atan2(-cx, -cz);
+  const { x: cx, z: cz, radius } = layout.ARENA, door = arenaDoor();
   [-0.62, -0.44, -0.3, 0.3, 0.46, 0.66, -0.95, 0.98].forEach((da, k) => {
     const x = cx + (radius + 0.75) * Math.sin(door + da), z = cz + (radius + 0.75) * Math.cos(door + da);
     root.add(k < 6 ? tuft(x, heightAt(x, z), z, 1, 40 + k) : fern(x, heightAt(x, z), z, 0.95, 30 + k));
@@ -366,14 +532,13 @@ export function mushroomCaps(heightAt: (x: number, z: number) => number): { mesh
   MUSHROOMS.forEach(([x, z], i) => {
     for (let k = 0; k < 3; k++) {
       const mx = x + jitter(i, 20 + k) * 0.28, mz = z + jitter(i, 30 + k) * 0.28, h = 0.16 + (k === 0 ? 0.12 : 0) + jitter(i, 40 + k) * 0.04, y = heightAt(mx, mz);
-      if (!redCap(mx, mz)) continue;
       origin ??= new Vector3(mx, y, mz);
       const cap = mushroomCap(0.12 - k * 0.02, foliageMaterial(0xffffff)); cap.position.set(mx - origin.x, y + h - origin.y, mz - origin.z); cap.updateMatrix();
       const g = cap.geometry.toNonIndexed().applyMatrix4(cap.matrix), p = g.getAttribute('position'), n = g.getAttribute('normal');
       for (let v = 0; v < p.count; v++) { out.push(p.getX(v), p.getY(v), p.getZ(v)); normals.push(n.getX(v), n.getY(v), n.getZ(v)); }
     }
   });
-  if (origin === undefined) throw new Error('mushroomCaps: no cap in tile 0/4/3');
+  if (origin === undefined) throw new Error('mushroomCaps: no cap');
   const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)).setAttribute('normal', new Float32BufferAttribute(normals, 3))
     .setAttribute('color', new Float32BufferAttribute(new Float32Array(out.length).fill(1), 3));
   const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: 0xffffff, vertexColors: true })); mesh.castShadow = false;
@@ -389,23 +554,20 @@ export function mushroomCaps(heightAt: (x: number, z: number) => number): { mesh
 export function mossGate(heightAt: (x: number, z: number) => number): { frame: Group; panel: Group; vines: Group; frameColliders: NonNullable<TemplatePart['colliders']>; panelColliders: NonNullable<TemplatePart['colliders']> } {
   const { x, z } = layout.MOSSGATE, y = heightAt(x, z), frame = new Group(), panel = new Group(), vines = new Group(), frameColliders: NonNullable<TemplatePart['colliders']> = [];
   const box = (bx: number, by: number, bz: number, hx: number, hy: number, hz: number): NonNullable<TemplatePart['colliders']>[number] => BoxCollider.fromData({ kind: 'box', x: bx, y: by, z: bz, hx, hy, hz, yaw: -0, surface: 'stone' }).toColliderData();
-  const GAP = 1.3, P = 1.1, H = 3.2;
+  const GAP = GATE_GAP, P = GATE_PILLAR, H = 3.6;
   for (const side of [-1, 1]) {
     const pz = z + side * (GAP + P / 2);
-    // LF1-8: a thick moss cushion over each pillar (t1-06), the same box resized, so no bytes added in 0/3/3
-    frame.add(block(P, H, P, 1, x, y + H / 2, pz), block(P + 0.28, 0.36, P + 0.28, 2, x, y + H + 0.16, pz, jitter(side, 95) * 0.06), block(P + 0.12, 0.3, P + 0.12, 1, x, y + 0.15, pz));
+    // M2: two tall stone pillars in four courses (the cleanroom's), a fat moss cushion on each; the yard's west wall meets them
+    for (let r = 0; r < 4; r++) frame.add(block(P - r * 0.03, 0.88, P - r * 0.03, 1, x, y + r * 0.9 + 0.45, pz, jitter(r + side * 4, 94) * 0.04, 0, STONE));
+    frame.add(block(P + 0.3, 0.5, P + 0.3, 2, x, y + H + 0.1, pz, jitter(side, 95) * 0.06), block(P + 0.12, 0.3, P + 0.12, 1, x, y + 0.15, pz));
     frameColliders.push(box(x, y + H / 2, pz, P / 2, H / 2, P / 2));
-    const wz = z + side * 4.1;
-    frame.add(block(0.6, 1.5, 4.4, 1, x, y + 0.75, wz), block(0.7, 0.1, 4.5, 2, x, y + 1.55, wz));
-    frameColliders.push(box(x, y + 0.75, wz, 0.3, 0.75, 2.2));
-    // three vines down the pillar's yard (east) face, each a moss strand with two leaf tufts
-    for (let k = 0; k < 3; k++) {
-      const vz = pz + (k - 1) * 0.34 + jitter(k, 90 + side) * 0.06, len = 1.1 + (jitter(k, 92 + side) + 1) * 0.55, vx = x + P / 2 + 0.03;
-      vines.add(block(0.05, len, 0.09, 2, vx, y + H - len / 2, vz));
-      for (let t = 0; t < 2; t++) vines.add(block(0.08, 0.16, 0.2, 2, vx + 0.02, y + H - len * (0.35 + t * 0.45), vz + (t === 0 ? 0.07 : -0.07), 0, 0.3));
+    // ivy up both faces and hanging moss off the cushion, the gate's own piece so the coarse tiles can skip it
+    for (const face of [-1, 1]) {
+      for (let k = 0; k < 3; k++) vines.add(ivy(x + face * (P / 2 + 0.03), y + H - 0.05, pz + (k - 1) * 0.42 + jitter(k, 90 + side) * 0.08, 1.3 + (jitter(k, 92 + side * face) + 1) * 0.7, Math.PI / 2, 0.36, k + side * 7 + face * 3));
+      vines.add(drape(x + face * (P / 2 + 0.17), y + H - 0.12, pz, P + 0.3, Math.PI / 2, 0.5 + (jitter(side, 93 + face) + 1) * 0.15, side * 5 + face));
     }
   }
-  frame.add(block(0.8, 0.4, GAP * 2, 1, x, y + 2.85, z), block(0.96, 0.16, GAP * 2, 2, x, y + 3.13, z));
+  frame.add(block(0.8, 0.4, GAP * 2, 1, x, y + H - 0.55, z), block(0.96, 0.16, GAP * 2, 2, x, y + H - 0.27, z));
   // LF1-8: four flagstones leading up to the sill from the yard (t1-06): flat quads, two triangles each (0/3/3 is near its bytes)
   for (let k = 0; k < 4; k++) {
     const fx = x + 1.25 + k * 1.05, fz = z + jitter(k, 96) * 0.22, w = 0.95 + jitter(k, 97) * 0.12, d = 1.15 + jitter(k, 98) * 0.15, slab = new Mesh(flagstone(w, d), foliageMaterial(STONE));
@@ -414,7 +576,7 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
   }
   // the panel: five thick stone bars on a sill, under the lintel
   panel.add(block(0.34, 0.2, GAP * 2, 1, x, y + 0.1, z));
-  for (let k = 0; k < 5; k++) panel.add(block(0.26, 2.45, 0.26, 1, x, y + 0.2 + 2.45 / 2, z - 1.04 + k * 0.52));
+  for (let k = 0; k < 6; k++) panel.add(block(0.26, 2.75, 0.26, 1, x, y + 0.2 + 2.75 / 2, z - GAP + 0.25 + k * ((GAP * 2 - 0.5) / 5)));
   return { frame, panel, vines, frameColliders, panelColliders: [box(x, y + 1.6, z, 0.2, 1.6, GAP)] };
 }
 
@@ -425,8 +587,8 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
  */
 export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders } {
   const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], BED = -3, w = 1.75;
-  for (let i = 0; i < 5; i++) {
-    const x = cx - 4.1 + i * 2.05, z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
+  for (let i = 0; i < BRIDGE_STONES; i++) {
+    const x = cx - BRIDGE_REACH + i * ((BRIDGE_REACH * 2) / (BRIDGE_STONES - 1)), z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
     for (const [root, top, s] of [[raised, 0.1, w], [sunk, -1.4, w - 0.2]] as const) {
       const h = top - BED - 0.1;
       root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw), block(s + 0.1, 0.1, s + 0.1, 2, x, top - 0.05, z, yaw));
@@ -439,15 +601,16 @@ export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders
 export const REED = 0x5f8a32, CATTAIL = 0x6b4226, LILY = 0x4c8a3a, LILY_FLOWER = 0xf2a6c2;
 /** LF1-8: the crossing's line (the MH-3 bridge walk runs along z = POND.z) and the half width kept clear of plants and lip. */
 export const CROSSING_CLEAR = 1.5;
-/** LF1-8: reed clumps round the pond: angle (degrees from +x), radius, size. Off the crossing line and B's pad. */
+/** LF1-8: reed clumps round the pond: angle (degrees from +x), metres past the edge (negative: in the shallows), size. Off
+ *  the crossing line and B's pad. */
 export const REEDS: readonly [number, number, number][] = [
-  [28, 5.3, 1.05], [52, 4.6, 0.9], [74, 5.4, 1.1], [101, 5.25, 0.95], [126, 4.7, 1.0], [152, 5.4, 1.1],
-  [205, 5.3, 1.0], [228, 4.6, 0.9], [251, 5.45, 1.1], [283, 5.2, 0.95], [306, 4.65, 1.05], [333, 5.35, 0.9],
+  [28, 0.3, 1.05], [40, -0.4, 0.95], [52, -0.4, 0.9], [74, 0.4, 1.1], [101, 0.25, 0.95], [126, -0.3, 1.0], [140, 0.35, 1.05], [152, 0.4, 1.1],
+  [205, 0.3, 1.0], [220, -0.35, 0.95], [228, -0.4, 0.9], [251, 0.45, 1.1], [283, 0.2, 0.95], [306, -0.35, 1.05], [320, 0.3, 1.0], [333, 0.35, 0.9],
 ];
-/** LF1-8: lily pads on the water: x and z off the pond's centre, radius; `flower` marks the three in bloom. */
+/** LF1-8: lily pads on the water: x and z off the pond's centre, radius; `flower` marks the ones in bloom. */
 export const LILIES: readonly [number, number, number, boolean][] = [
-  [-2.6, 2.4, 0.42, true], [-1.2, 3.3, 0.34, false], [1.4, 2.6, 0.4, false], [2.9, 1.9, 0.3, true], [0.2, 3.9, 0.28, false],
-  [-2.9, -2.1, 0.38, false], [-0.8, -3.2, 0.44, true], [1.8, -2.7, 0.32, false], [3.1, -1.8, 0.36, false], [-1.9, -3.6, 0.26, false],
+  [-3.4, 2.6, 0.42, true], [-1.6, 3.6, 0.34, false], [1.8, 2.9, 0.4, false], [3.8, 2.1, 0.3, true], [0.3, 4.2, 0.28, false], [-4.6, 3.6, 0.3, false],
+  [-3.8, -2.3, 0.38, false], [-1.0, -3.5, 0.44, true], [2.3, -3.0, 0.32, false], [4.0, -2.0, 0.36, false], [-2.5, -4.0, 0.26, false], [4.7, -3.6, 0.3, true],
 ];
 /** LF1-8: a flat, upward-facing w × d quad (a flagstone): two triangles, no grid. */
 function flagstone(w: number, d: number): BufferGeometry {
@@ -491,11 +654,11 @@ function reedClump(x: number, y: number, z: number, s: number, i: number): Group
  * colliders: the bridge walk and the swim are unchanged.
  */
 export function pondPlanting(heightAt: (x: number, z: number) => number): Group {
-  const { x: cx, z: cz } = layout.POND, root = new Group(), WATER = 0, R = 5;
-  REEDS.forEach(([deg, r, s], i) => {
-    const a = (deg * Math.PI) / 180, x = cx + Math.cos(a) * r, z = cz + Math.sin(a) * r;
-    // a clump in the shallows (inside the rim) stands up from just under the surface; one on the bank from the ground
-    root.add(reedClump(x, r < R ? WATER - 0.35 : heightAt(x, z), z, s, i));
+  const { x: cx, z: cz } = layout.POND, root = new Group(), WATER = 0;
+  REEDS.forEach(([deg, out, s], i) => {
+    const [x, z] = pondEdge((deg * Math.PI) / 180, out);
+    // a clump in the shallows (inside the edge) stands up from just under the surface; one on the bank from the ground
+    root.add(reedClump(x, out < 0 ? WATER - 0.35 : heightAt(x, z), z, s, i));
   });
   const flowers = foliageMaterial(LILY_FLOWER), pads = foliageMaterial(LILY);
   LILIES.forEach(([dx, dz, r, flower], i) => {
@@ -505,63 +668,65 @@ export function pondPlanting(heightAt: (x: number, z: number) => number): Group 
     const bloom = new Mesh(tent([...points, new Vector3(0, 0.14, 0)], [[0, 1, 5], [1, 2, 5], [2, 3, 5], [3, 4, 5], [4, 0, 5]], new Vector3(0, 0.03, 0), 1), flowers);
     bloom.position.set(cx + dx + 0.08, WATER + 0.05, cz + dz - 0.05); root.add(bloom);
   });
-  // the lip: 20 segments of a moss-topped stone kerb over the rim (a top, an inner face down to the water and a short outer
-  // face, six triangles a segment), the ones the crossing passes through left out
-  const N = 20, RIN = R - 0.3, ROUT = R + 0.45, moss = foliageMaterial(MOSS), stone = foliageMaterial(STONE);
-  for (let k = 0; k < N; k++) {
-    const a0 = (k / N) * Math.PI * 2, a1 = ((k + 1) / N) * Math.PI * 2, am = (a0 + a1) / 2;
-    if (Math.abs(Math.sin(am) * R) < CROSSING_CLEAR) continue;
-    const at = (r: number, a: number, y: number): Vector3 => new Vector3(cx + Math.cos(a) * r, y, cz + Math.sin(a) * r);
-    const ground = heightAt(cx + Math.cos(am) * ROUT, cz + Math.sin(am) * ROUT) - 0.05, top = Math.max(ground + 0.17, WATER + 0.12); // the kerb stands proud of the water
-    const lid = [at(RIN, a0, top), at(ROUT, a0, top), at(ROUT, a1, top), at(RIN, a1, top)];
-    root.add(new Mesh(tent(lid, [[0, 1, 2], [0, 2, 3]], at((RIN + ROUT) / 2, am, top - 1), 2), moss));
-    const sides = [at(RIN, a0, top), at(RIN, a1, top), at(RIN, a1, WATER - 0.4), at(RIN, a0, WATER - 0.4), at(ROUT, a0, top), at(ROUT, a1, top), at(ROUT, a1, ground), at(ROUT, a0, ground)];
-    root.add(new Mesh(tent(sides, [[0, 1, 2], [0, 2, 3], [4, 5, 6], [4, 6, 7]], at((RIN + ROUT) / 2, am, (top + ground) / 2), 1), stone));
+  // M2: the kerb, the cleanroom's: a ring of low tumbled stone blocks along the water's edge, every fourth with a moss cap,
+  // open where the crossing lands on each bank. No collider: the swim and the bridge walk are unchanged.
+  for (let k = 0, at = 0; k < 140; k++) {
+    const [ax, az] = pondEdge((k / 140) * Math.PI * 2, 0.05), [bx, bz] = pondEdge(((k + 1) / 140) * Math.PI * 2, 0.05);
+    at += Math.hypot(bx - ax, bz - az);
+    if (at < 0.85) continue;
+    at = 0;
+    if (Math.abs(az - cz) < CROSSING_CLEAR + 0.45) continue;
+    const yaw = Math.atan2(-(bz - az), bx - ax) + jitter(k, 180) * 0.15, w = 0.82 + jitter(k, 181) * 0.12, d = 0.58 + jitter(k, 182) * 0.07;
+    root.add(block(w, 0.36, d, 1, ax, WATER - 0.1 + jitter(k, 183) * 0.03, az, yaw, jitter(k, 184) * 0.05, STONE));
+    if (k % 4 === 1) root.add(block(w * 0.7, 0.09, d * 0.75, 2, ax, WATER + 0.11, az, yaw + 0.2));
   }
   return root;
 }
 
 /**
- * The arena (MH-3): a 3.2 m stone ring at `layout.ARENA` round the boss's floor, twenty segments with the one facing spawn
+ * The arena (MH-3): a low stone ring (M2: `ARENA_WALL`) at `layout.ARENA` round the boss's floor, twenty segments with the one facing the yard
  * left out as the way in. Two posts and a lintel frame it, and `gate` (bars, a panel with its own collider) shuts it
  * until brazier C's field takes it away. It sits north-west of spawn so the gate's panel lands in L0 tile 0/3/4, the
  * one tile there with two draws to spare.
  */
 export function arenaRing(heightAt: (x: number, z: number) => number): { wall: Group; gate: Group; wallColliders: Colliders; gateColliders: Colliders } {
-  const { x: cx, z: cz, radius: r } = layout.ARENA, wall = new Group(), gate = new Group(), wallColliders: Colliders = [], N = 20, H = 3.2;
-  const door = Math.atan2(-cx, -cz), len = 2 * r * Math.sin(Math.PI / N) + 0.2;
+  const { x: cx, z: cz, radius: r } = layout.ARENA, wall = new Group(), gate = new Group(), wallColliders: Colliders = [], N = 20, H = ARENA_WALL;
+  const door = arenaDoor(), len = 2 * r * Math.sin(Math.PI / N) + 0.2;
   for (let k = 1; k < N; k++) {
     const a = door + (k / N) * Math.PI * 2, x = cx + r * Math.sin(a), z = cz + r * Math.cos(a), y = heightAt(x, z) - 0.2;
-    wall.add(block(len, H, 0.7, 1, x, y + H / 2, z, a), block(len + 0.05, 0.14, 0.86, 2, x, y + H + 0.07, z, a));
+    wall.add(block(len, H, 0.8, 1, x, y + H / 2, z, a), block(len + 0.12, 0.3, 1.0, 2, x, y + H + 0.12, z, a));
     wallColliders.push(stoneBox(x, y + H / 2, z, len / 2, H / 2, 0.35, a));
   }
   // the way in: posts at the gap's two ends, a lintel over it, and the bars between, all in the gap's own frame
   const half = r * Math.sin(Math.PI / N), inner = r * Math.cos(Math.PI / N), at = (along: number): [number, number] =>
     [cx + inner * Math.sin(door) + along * Math.cos(door), cz + inner * Math.cos(door) - along * Math.sin(door)];
   const [gx, gz] = at(0), gy = heightAt(gx, gz) - 0.2;
+  // M2: the arch is taller than the low ring (the cleanroom's): four-course posts, a lintel with a moss cushion
+  const GH = ARENA_GATE;
   for (const side of [-1, 1]) {
     const [px, pz] = at(side * half);
-    wall.add(block(0.9, H + 0.8, 0.9, 1, px, gy + (H + 0.8) / 2, pz, door), block(1.0, 0.14, 1.0, 2, px, gy + H + 0.87, pz, door));
-    wallColliders.push(stoneBox(px, gy + (H + 0.8) / 2, pz, 0.45, (H + 0.8) / 2, 0.45, door));
+    for (let c = 0; c < 4; c++) wall.add(block(1.05 - c * 0.03, (GH + 0.6) / 4 - 0.02, 1.05 - c * 0.03, 1, px, gy + ((c + 0.5) * (GH + 0.6)) / 4, pz, door + jitter(c + side * 4, 96) * 0.04, 0, STONE));
+    wall.add(block(1.15, 0.3, 1.15, 2, px, gy + GH + 0.72, pz, door));
+    wallColliders.push(stoneBox(px, gy + (GH + 0.6) / 2, pz, 0.5, (GH + 0.6) / 2, 0.5, door));
   }
-  wall.add(block(half * 2 + 0.9, 0.5, 0.8, 1, gx, gy + H + 0.55, gz, door));
-  for (let k = 0; k < 7; k++) { const [bx, bz] = at(-half + 0.45 + (k + 0.5) * (half * 2 - 0.9) / 7); gate.add(block(0.14, H - 0.1, 0.14, 2, bx, gy + (H - 0.1) / 2, bz, door)); }
-  for (const y of [0.5, 1.7, 2.8]) gate.add(block(half * 2 - 0.9, 0.12, 0.1, 2, gx, gy + y, gz, door));
-  return { wall, gate, wallColliders, gateColliders: [stoneBox(gx, gy + H / 2, gz, half - 0.45, H / 2, 0.15, door)] };
+  wall.add(block(half * 2 + 1.0, 0.55, 0.9, 1, gx, gy + GH + 0.85, gz, door, 0, STONE), block(half * 2 + 1.2, 0.36, 1.1, 2, gx, gy + GH + 1.25, gz, door));
+  for (let k = 0; k < 7; k++) { const [bx, bz] = at(-half + 0.45 + (k + 0.5) * (half * 2 - 0.9) / 7); gate.add(block(0.14, GH - 0.1, 0.14, 2, bx, gy + (GH - 0.1) / 2, bz, door)); }
+  for (const y of [0.5, 1.5, GH - 0.4]) gate.add(block(half * 2 - 0.9, 0.12, 0.1, 2, gx, gy + y, gz, door));
+  return { wall, gate, wallColliders, gateColliders: [stoneBox(gx, gy + GH / 2, gz, half - 0.45, GH / 2, 0.15, door)] };
 }
 
 /** LF1-9: the arena floor's slate (the checker's dark squares; the light ones are moss) and its cell, in metres. */
 export const SLATE = 0x4f4d52, FLOOR_MOSS = 0x4e6a2a, ARENA_CELL = 1.5;
 /** LF1-9: the three braziers on the arena rim, as angles round `layout.ARENA` from the way in (across from it and either side). */
 export const RIM_BRAZIERS: readonly number[] = [Math.PI - 0.72, Math.PI, Math.PI + 0.72];
+/** M2: the Warden's core gem floats this high over its feet (the Warden is 3 times the blob, was 2.2). */
+export const WARDEN_CORE = 4.6;
 /** LF1-9: the Warden's slam tell, a ring this far round `layout.BOSS` (MH-4's twelve anchors stood 3.5 m out). */
 export const TELL_RADIUS = 3.5;
-/** The arena's way in, as an angle round `layout.ARENA` (the gap faces spawn). */
-const arenaDoor = (): number => Math.atan2(-layout.ARENA.x, -layout.ARENA.z);
 /** A rim brazier's centre, on the wall cap's top. */
 function rimBrazier(heightAt: (x: number, z: number) => number, k: number): [number, number, number] {
   const { x: cx, z: cz, radius: r } = layout.ARENA, a = arenaDoor() + (RIM_BRAZIERS[k] ?? 0), x = cx + r * Math.sin(a), z = cz + r * Math.cos(a);
-  return [x, heightAt(x, z) - 0.2 + 3.2 + 0.14, z];
+  return [x, heightAt(x, z) - 0.2 + ARENA_WALL + 0.27, z];
 }
 /**
  * LF1-9 (t1-12 to t1-15): the arena's floor and rim, in its tile's (0/3/4) one static draw. A checker of flat 1.5 m squares,
@@ -570,7 +735,7 @@ function rimBrazier(heightAt: (x: number, z: number) => number, k: number): [num
  * from the way in, their flames a panel brazier C's field shows (`rimFlames`).
  */
 function arenaDressing(root: Group, heightAt: (x: number, z: number) => number): void {
-  const { x: cx, z: cz, radius: r } = layout.ARENA, door = arenaDoor(), N = 20, H = 3.2, slate = foliageMaterial(SLATE), moss = foliageMaterial(MOSS), floorMoss = foliageMaterial(FLOOR_MOSS);
+  const { x: cx, z: cz, radius: r } = layout.ARENA, door = arenaDoor(), N = 20, H = ARENA_WALL, slate = foliageMaterial(SLATE), moss = foliageMaterial(MOSS), floorMoss = foliageMaterial(FLOOR_MOSS);
   const reach = r - 1.0, n = Math.ceil(reach / ARENA_CELL), s = ARENA_CELL / 2 - 0.04;
   for (let i = -n; i <= n; i++) for (let j = -n; j <= n; j++) {
     const x = cx + i * ARENA_CELL, z = cz + j * ARENA_CELL;
@@ -581,7 +746,7 @@ function arenaDressing(root: Group, heightAt: (x: number, z: number) => number):
   // the moss drip: under each segment's cap on the inner face, a strip whose lower edge hangs 0.2 to 0.9 m down
   for (let k = 1; k < N; k++) {
     // on the segment box's inner face (a chord `half` long each way, 0.35 m in from the ring), 2 cm proud of it
-    const am = door + (k / N) * Math.PI * 2, ri = r - 0.37, half = r * Math.sin(Math.PI / N) + 0.05;
+    const am = door + (k / N) * Math.PI * 2, ri = r - 0.52, half = r * Math.sin(Math.PI / N) + 0.05;
     const top = heightAt(cx + r * Math.sin(am), cz + r * Math.cos(am)) - 0.2 + H, at = (t: number, y: number): Vector3 => new Vector3(cx + ri * Math.sin(am) + t * Math.cos(am), y, cz + ri * Math.cos(am) - t * Math.sin(am));
     const points: Vector3[] = [], tris: [number, number, number][] = [];
     for (let c = 0; c <= 4; c++) { const t = -half + (half * 2 * c) / 4; points.push(at(t, top), at(t, top - 0.2 - (jitter(k, 160 + c) + 1) * 0.35)); }
@@ -603,6 +768,8 @@ export function rimFlames(heightAt: (x: number, z: number) => number): Group {
       const cone = new Mesh(foliageUv(new CylinderGeometry(0, rr, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + 0.94 + h / 2, z + dz); cone.rotation.y = jitter(k * 3 + i, 170) * 1.2; flames.add(cone);
     }
   });
+  // M2: brazier C's field also lights the row's C beacon at the back of the yard
+  const [bx = 0, bz = 0] = layout.ROW[1] ?? []; flameCones(flames, bx, heightAt(bx, bz) + 1.5, bz);
   return flames;
 }
 /**
@@ -620,7 +787,7 @@ export function wardenTell(heightAt: (x: number, z: number) => number): { ring: 
   }
   // `tent` winds each face away from a point under the ring, so every triangle faces up
   ring.add(new Mesh(tent(points, tris, new Vector3(bx, heightAt(bx, bz) - 5, bz), 1), foliageMaterial(0xffffff)));
-  const gem = new Mesh(foliageUv(new IcosahedronGeometry(0.42, 0), 1), foliageMaterial(0xffffff)); gem.position.set(bx, heightAt(bx, bz) + 3.5, bz); gem.scale.set(1.2, 1.8, 1.2); core.add(gem);
+  const gem = new Mesh(foliageUv(new IcosahedronGeometry(0.42, 0), 1), foliageMaterial(0xffffff)); gem.position.set(bx, heightAt(bx, bz) + WARDEN_CORE, bz); gem.scale.set(1.2, 1.8, 1.2); core.add(gem);
   return { ring, core };
 }
 

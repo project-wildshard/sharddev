@@ -25,9 +25,9 @@
       "seed": 435,
       "scale": 1,
       "at": [
+        2.5,
         0,
-        0,
-        -19
+        -16.5
       ],
       "yaw": 0
     },
@@ -53,11 +53,11 @@
       "brain": null,
       "strike": "template.warden.slam",
       "seed": 437,
-      "scale": 2.2,
+      "scale": 3.0,
       "at": [
-        -18,
+        24.5,
         0,
-        16
+        -2
       ],
       "yaw": 0
     }

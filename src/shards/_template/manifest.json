@@ -30,8 +30,8 @@
     {
       "id": "hut",
       "name": "Grey hut",
-      "x": 0,
-      "z": -9,
+      "x": -4,
+      "z": -11.5,
       "r": 6
     },
     {
@@ -44,44 +44,51 @@
     {
       "id": "barrow-warden",
       "name": "Barrow Warden",
-      "x": -18,
-      "z": 16,
+      "x": 24.5,
+      "z": -2,
       "r": 8
     },
     {
       "id": "blob",
       "name": "Grey blob",
-      "x": 0,
-      "z": -19,
+      "x": 2.5,
+      "z": -16.5,
       "r": 4
     },
     {
       "id": "mossgate",
       "name": "Moss gate",
-      "x": -9,
-      "z": -5,
+      "x": -10,
+      "z": 0,
       "r": 3
     },
     {
       "id": "brazier-a",
       "name": "Brazier A",
-      "x": -6.8,
-      "z": -1.4,
+      "x": 5.9,
+      "z": -12.8,
       "r": 2
     },
     {
       "id": "brazier-c",
       "name": "Brazier C",
-      "x": -6.6,
-      "z": 10.7,
+      "x": 9.6,
+      "z": -5.4,
       "r": 2
     },
     {
       "id": "lamplighter",
       "name": "Lamplighter",
-      "x": 2.6,
-      "z": -2.2,
+      "x": 1.1,
+      "z": -6.4,
       "r": 2
+    },
+    {
+      "id": "pond",
+      "name": "Moss pond",
+      "x": -19.4,
+      "z": 0,
+      "r": 3
     }
   ],
   "assetGlobs": [

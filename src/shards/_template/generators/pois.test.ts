@@ -5,8 +5,8 @@ import card from '../data/card.json' with { type: 'json' };
 import { templateHeightAt } from './landscape';
 
 // TEMPLATE-E2E S-T1.0: the test yard. Every station within 25 m of spawn has a named POI, so a Template 1 spec walks to
-// `poseAt('mossgate')` instead of a copied coordinate. Brazier B and the pond sit past 25 m (39.7 m, 32 m); moving them is
-// a content change (J281), so they stay unnamed until a layout row brings them in.
+// `poseAt('mossgate')` instead of a copied coordinate. TEMPLATES-CLEANROOM M2's composition brings the pond in (19.4 m);
+// brazier B stays past 25 m (27.6 m), across the pond, and unnamed.
 const YARD = 25;
 const SPAWN: [number, number] = [manifest.spawn.x, manifest.spawn.z];
 const [braziers0, , braziers2] = layout.BRAZIERS;
@@ -21,6 +21,7 @@ const STATIONS: Readonly<Record<string, [number, number]>> = {
   'brazier-a': [braziers0?.[0] ?? Number.NaN, braziers0?.[1] ?? Number.NaN],
   'brazier-c': [braziers2?.[0] ?? Number.NaN, braziers2?.[1] ?? Number.NaN],
   lamplighter: [layout.LAMPLIGHTER.x, layout.LAMPLIGHTER.z],
+  pond: [layout.POND.x, layout.POND.z],
 };
 
 interface Pose { x: number; y: number; z: number; yaw: number }

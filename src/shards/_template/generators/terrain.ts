@@ -1,4 +1,4 @@
-import { POND, templateHeightAt } from './landscape';
+import { pondSDF, templateHeightAt } from './landscape';
 import { templateNoise } from './landscapeNoise';
 import { bakeTerrain, type BakedTerrain } from '@wildshard/sdk/bake/terrain';
 import { Color, SRGBColorSpace } from 'three';
@@ -33,7 +33,7 @@ function mossFloor(): (x: number, z: number) => [number, number, number] {
     col = mix(col, lite, clamp((k - 0.5) * 2.5));
     const tint = [0.96 + (b - 0.5) * 0.3, 0.98 + (b - 0.5) * 0.22, 0.86 + (w - 0.5) * 0.3];
     col = col.map((v, i) => v * (tint[i] ?? 1) * (0.9 + k * 0.15));
-    const shore = Math.hypot(x - POND.x, z - POND.z) - 5; // the water's 5 m circle (data/water.json)
+    const shore = pondSDF(x, z); // the water's edge (data/water.json)
     if (shore < 1.2) col = mix(col, dirt, clamp((1.2 - shore) / 1.6));
     c.setRGB(clamp((col[0] ?? 0) / 255), clamp((col[1] ?? 0) / 255), clamp((col[2] ?? 0) / 255), SRGBColorSpace);
     return [c.r, c.g, c.b];

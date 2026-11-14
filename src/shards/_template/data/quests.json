@@ -119,8 +119,8 @@
       "id": "hut",
       "kind": "region",
       "flag": "template.hut",
-      "x": 0,
-      "z": -9,
+      "x": -4,
+      "z": -11.5,
       "radius": 3
     },
     {

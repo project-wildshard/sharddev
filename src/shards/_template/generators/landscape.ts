@@ -30,19 +30,31 @@ function trailDistance(x: number, z: number): number {
   return Math.sqrt(distance);
 }
 
-/** The pond's centre (world.ts `poolMask`, the water's 5 m circle) and its bowl: −3 m at the heart, shelving at 37° so the
- * 257² lattice keeps a beach inside the water's circle (−0.4 m at its edge, shallower than the swim's 1.05 m stand-up). The old
- * cliff at r 5 smeared over a 1.95 m cell into a pit wall past the water's edge, too steep to climb: Jake, 2026-11-12, "glitched
- * into the pond cant use shift to surface". */
-export const POND = { x: 25, z: 20, bed: -3, flat: 1.5, shelf: 0.75 } as const;
-export const pondFloor = (r: number): number => POND.bed + Math.max(0, r - POND.flat) * POND.shelf;
+/** TEMPLATES-CLEANROOM M2: the pond is the cleanroom's rounded rectangle (layout.POND: centre, half extents, corner radius;
+ * data/water.json is the same outline as a 32-point polygon). Its bowl shelves from −0.375 m at the water's edge down to −3 m
+ * at 37°, so the 257² lattice keeps a beach inside the edge (shallower than the swim's 1.05 m stand-up). An old cliff at the
+ * edge smeared into a pit wall too steep to climb: Jake, 2026-11-12, "glitched into the pond cant use shift to surface". */
+export const POND = { ...layout.POND, bed: -3, edge: -0.375, shelf: 0.75 } as const;
+/** Signed distance to the pond's edge in metres: negative in the water, positive on the bank. */
+export function pondSDF(x: number, z: number): number {
+  const qx = Math.abs(x - POND.x) - POND.hx + POND.r, qz = Math.abs(z - POND.z) - POND.hz + POND.r;
+  return Math.hypot(Math.max(qx, 0), Math.max(qz, 0)) + Math.min(Math.max(qx, qz), 0) - POND.r;
+}
+/** The pond's floor at signed distance `d` from its edge. */
+export const pondFloor = (d: number): number => Math.max(POND.bed, POND.edge + d * POND.shelf);
+/** The point on the pond's edge in direction `a` (radians from +x) from its centre, `out` metres past it. */
+export function pondEdge(a: number, out = 0): [number, number] {
+  let r = Math.min(POND.hx, POND.hz);
+  for (let k = 0; k < 40; k++) r -= (pondSDF(POND.x + Math.cos(a) * r, POND.z + Math.sin(a) * r) - out) * 0.8;
+  return [POND.x + Math.cos(a) * r, POND.z + Math.sin(a) * r];
+}
 
 /** The retained Template author height law: seeded yard, pool, trail bed, flat roads and entry ramps.
  * No runtime field, registry, render service or captured height grid is read. */
 export function templateHeightAt(seed = 357): (x: number, z: number) => number {
   const noise = templateNoise(seed);
   return (x, z) => {
-    let height = Math.min(noise(x * 0.015, z * 0.015) * 0.5, pondFloor(Math.hypot(x - POND.x, z - POND.z)));
+    let height = Math.min(noise(x * 0.015, z * 0.015) * 0.5, pondFloor(pondSDF(x, z)));
     height -= smoothstep(9, 2.5, trailDistance(x, z)) * 0.35;
     height = cellGround(x, z, height);
     const half = ROAD_WIDTH / 2 + 3;
