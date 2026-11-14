@@ -7,7 +7,7 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
-## Unreleased
+## v0.3.0 (2026-11-14)
 
 - Breaking: the sdk moves to shard-format 0.5.3 and engine 0.1.19.
   shard-format 0.5 renamed its modules: `@wildshard/format/product`
