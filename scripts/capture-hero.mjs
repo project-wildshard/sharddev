@@ -81,6 +81,11 @@ async function selectCard(page, base, name) {
 }
 
 export async function captureHero(shard, given, { name = servedName(shard), log = console.info } = {}) {
+  // A curated card (hero.json "curated": true) is hand-picked art: a capture would put the spawn view over it.
+  const stampPath = join(shard, 'hero.json');
+  if (existsSync(stampPath) && JSON.parse(readFileSync(stampPath, 'utf8')).curated === true) {
+    throw new Error(`${stampPath}: this hero is curated ("curated": true), hand-picked art that is never recaptured; re-stamp it for new content with \`wildshard hero <source> --stamp-existing\`, or remove "curated" to capture this view`);
+  }
   const base = servedRoot(given);
   // Loaded here, so --stamp-existing needs no browser or engine to resolve.
   const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([

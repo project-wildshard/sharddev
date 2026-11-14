@@ -104,6 +104,11 @@ hero:
 Build then refuses a shard file whose content changed after the hero was stamped (`hero-stale`), and upload refuses a
 new version whose hero is the same as the previous version's (`hero-unchanged`). Section 6 has every hero refusal.
 
+**A curated hero** is hand-picked art, not a capture. Put `"curated": true` in `hero.json` and the art is kept: after a
+content change, `wildshard hero . --stamp-existing` re-stamps the images already there, and `wildshard hero . --base`
+refuses rather than shoot the spawn view over them. A new version still needs a new picture (`hero-unchanged`): swap
+the art, then `--stamp-existing`. Remove `curated` to capture again.
+
 ### Uploading
 
 An upload sends one shard file to the API (`https://api.wildshard.io`) and names its channel. Do these in order,
@@ -498,7 +503,8 @@ Codes `declared-costs`, `performance-targets` (shard-format checking the costs t
 
 The shard's content changed after its hero was captured, or the card names images `hero.json` has no stamp for. The
 hero must show the current world: capture it again (`wildshard hero . --base <url>`). Only if the images already show
-the current world, `wildshard hero . --stamp-existing`.
+the current world, `wildshard hero . --stamp-existing`. A curated hero (`"curated": true` in `hero.json`, "The hero")
+keeps its art: re-stamp it with `wildshard hero . --stamp-existing`.
 
 #### hero-not-in-product
 

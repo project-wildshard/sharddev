@@ -15,6 +15,8 @@ import {
 import { stampExistingHero } from './adopt.ts'
 import { field, heroState, readJson, writeHeroStamp } from './stamp.ts'
 
+import type { Project } from '../../test/helpers/hero-project.ts'
+
 // A shard repo that bumps its sharddev pin gets this check with curated heroes
 // and no stamp, and recapturing from the spawn view would replace good art
 // with a plain shot. `--stamp-existing` adopts the files on disk, no capture.
@@ -109,4 +111,46 @@ test('stamp-existing refuses a stamp for other content, and a hero.json that doe
   assert.equal(await stateOf(space.shard), 'stale')
   await writeFile(path.join(space.shard, 'hero.json'), '{"camera":')
   await assert.rejects(stampExistingHero(space.shard), /does not parse/u)
+})
+
+/** The flag survives a stamp-existing run and a plain re-stamp. */
+async function assertCuratedKept(shard: string): Promise<void> {
+  assert.equal(await stampedField(shard, 'curated'), true)
+  await writeHeroStamp(shard, { base: BASE })
+  assert.equal(await stampedField(shard, 'curated'), true)
+}
+
+async function assertNeverRecaptured(space: Project): Promise<void> {
+  assert.equal(await stateOf(space.shard), 'stale')
+  await assert.rejects(cut(space), /curated.*--stamp-existing/u)
+  const capture = spawnSync(
+    process.execPath,
+    [BIN, 'hero', space.shard, '--base', 'http://127.0.0.1:9'],
+    { encoding: 'utf8' },
+  )
+  assert.notEqual(capture.status, 0)
+  assert.match(capture.stderr, /curated.*never recaptured/u)
+}
+
+test('a curated hero is re-stamped over new content, keeps its art, camera and flag, and is never recaptured', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  const camera = { pos: [1, 2, 3], look: [0, 0, 0], fov: 50 }
+  await writeFile(
+    path.join(space.shard, 'hero.json'),
+    JSON.stringify({ camera, curated: true }),
+  )
+  const thumb = await readFile(path.join(space.shard, 'card', 'thumb.jpg'))
+  stampExisting(space.shard)
+  await writeFile(path.join(space.shard, 'world.json'), '{"hut":[9,0,9]}')
+  await assertNeverRecaptured(space)
+  assert.match(stampExisting(space.shard), /stamped .*hero\.json/u)
+  await assertAdopted(space.shard, camera, thumb)
+  await assertCuratedKept(space.shard)
+})
+
+test('a curated hero with no stamp yet is pointed at stamp-existing, not a capture', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  await writeFile(path.join(space.shard, 'hero.json'), '{"curated":true}')
+  assert.equal(await stateOf(space.shard), 'unstamped')
+  await assert.rejects(cut(space), /curated.*--stamp-existing/u)
 })

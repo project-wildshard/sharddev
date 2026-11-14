@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.12 (2026-11-13)
+
+- New: a hand-picked hero card can be marked `"curated": true` in
+  `hero.json`. After a content change, `wildshard hero
+  --stamp-existing` re-stamps the art already there, and a
+  `--base` capture refuses instead of shooting the spawn view over
+  it.
+
 ## v0.2.11 (2026-11-13)
 
 - Fix: `wildshard prepare <folder>` with no `--base` now finds

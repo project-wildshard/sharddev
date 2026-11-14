@@ -71,6 +71,9 @@ function refusal(shard: string, hero: HeroState): string {
   const name = path.basename(shard)
   const capture = `serve this candidate in an engine build, then capture it: ${captureCommand(shard)}`
   const adopt = `; or, only if the images already there show this content, stamp them with no capture: ${stampExistingCommand(shard)}`
+  if (hero.curated === true) {
+    return `the hero of ${name} is curated (${STAMP} "curated": true) and its stamp does not match this content or these images; keep the art and re-stamp it with no capture: ${stampExistingCommand(shard)}`
+  }
   if (hero.state === 'unstamped') {
     return `the hero of ${name} has no ${STAMP} stamp, so nothing says it shows this content; ${capture}${adopt}`
   }

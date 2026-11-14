@@ -91,7 +91,13 @@ async function stampExistingHero(shard: string): Promise<Adopted> {
   if (hero.state === 'fresh') {
     return { written: false, content: hero.content }
   }
-  if (hero.stamped !== undefined && hero.stamped !== hero.content) {
+  // A curated hero (hero.json "curated": true) is hand-picked art that no
+  // spawn-view capture should replace: it is re-stamped over new content.
+  if (
+    hero.curated !== true &&
+    hero.stamped !== undefined &&
+    hero.stamped !== hero.content
+  ) {
     throw new Error(
       `the hero of ${path.basename(shard)} was stamped for other content (captured ${hero.captured ?? 'at an unknown time'}); the world has changed since, so only a capture fixes it, nothing stamped`,
     )

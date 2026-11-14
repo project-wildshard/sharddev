@@ -20,22 +20,12 @@ const MANIFEST = 'manifest.json'
 const SLOTS = ['thumb', 'portrait', 'landscape'] as const
 // Generated, ignored, test or prose files are not the world a hero shows.
 // The directories are skipped at the shard folder's top level only.
-const SKIPPED_DIRECTORIES = new Set([
-  '.cache',
-  '.git',
-  '.worktrees',
-  'dist',
-  'node_modules',
-  'public',
-  'tmp',
-])
-const SKIPPED_SUFFIXES = [
-  '.generated.ts',
-  '.test.ts',
-  '.test.mjs',
-  '.md',
-  '.DS_Store',
-]
+const SKIPPED_DIRECTORIES = new Set(
+  '.cache .git .worktrees dist node_modules public tmp'.split(' '),
+)
+const SKIPPED_SUFFIXES = '.generated.ts .test.ts .test.mjs .md .DS_Store'.split(
+  ' ',
+)
 const NOT_FOUND = 'ENOENT'
 const VALUE = 1
 const NONE = 0
@@ -52,6 +42,7 @@ interface HeroState {
   readonly stamped?: string | undefined
   /** When the stamp says the hero was captured. */
   readonly captured?: string | undefined
+  readonly curated?: boolean | undefined
 }
 
 interface HeroStamp {
@@ -60,6 +51,8 @@ interface HeroStamp {
   readonly base: string
   readonly card: Readonly<Record<string, string>>
   readonly camera?: unknown
+  /** `"curated": true`: hand-picked art, re-stamped, never recaptured. */
+  readonly curated?: true
 }
 
 function sha256(bytes: Readonly<Uint8Array> | string): string {
@@ -242,16 +235,21 @@ async function heroState(shard: string): Promise<HeroState> {
     return { state: 'generated', content }
   }
   const stamp = await readStamp(shard)
+  const curated = field(stamp, 'curated') === true
   const stamped = field(stamp, 'content')
   if (typeof stamped !== 'string') {
-    return { state: 'unstamped', content }
+    return { state: 'unstamped', content, curated }
   }
-  const same = sameCard(field(stamp, 'card'), await cardHashes(shard))
   return {
-    state: stamped === content && same ? 'fresh' : 'stale',
+    state:
+      stamped === content &&
+      sameCard(field(stamp, 'card'), await cardHashes(shard))
+        ? 'fresh'
+        : 'stale',
     content,
     stamped,
     captured: textOf(field(stamp, 'captured')),
+    curated,
   }
 }
 
@@ -262,12 +260,14 @@ async function writeHeroStamp(
 ): Promise<HeroStamp> {
   const previous = await readStamp(shard)
   const camera = options.camera ?? field(previous, 'camera')
+  const curated = field(previous, 'curated') === true
   const stamp: HeroStamp = {
     content: await heroContentHash(shard),
     captured: options.captured ?? new Date().toISOString(),
     base: options.base,
     card: await cardHashes(shard),
     ...(camera === undefined ? {} : { camera }),
+    ...(curated ? { curated: true } : {}),
   }
   const partial = path.join(shard, `${STAMP}.${randomUUID()}.partial`)
   try {
