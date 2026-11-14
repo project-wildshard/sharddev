@@ -63,6 +63,7 @@ export async function watchProject(project: string, options: { port?: number; cl
 
   const buildShell = async (): Promise<void> => {
     const target = join(scratch, `shell-${shell + 1}`);
+    const before = process.env['WILDSHARD_SCENE_LIVE'];
     process.env['WILDSHARD_SCENE_LIVE'] = '1';
     try {
       const built = await buildProject(source, target, { devserver: true, ...(options.client === undefined ? {} : { client: options.client }) });
@@ -70,7 +71,7 @@ export async function watchProject(project: string, options: { port?: number; cl
       writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', `${RELOAD.replace('WS_SHELL', String(shell + 1))}</body>`));
       if (product !== '') rmSync(product, { recursive: true, force: true });
       product = target; shardRoot = `/shardfiles/${built.identity.slug}/`; shell++;
-    } finally { delete process.env['WILDSHARD_SCENE_LIVE']; }
+    } finally { if (before === undefined) delete process.env['WILDSHARD_SCENE_LIVE']; else process.env['WILDSHARD_SCENE_LIVE'] = before; }
   };
 
   const compile = async (): Promise<void> => {
@@ -81,7 +82,10 @@ export async function watchProject(project: string, options: { port?: number; cl
     const { scene } = described, key = shellKey(scene);
     if (key !== shellHash) {
       if (shellHash !== '') log('wildshard watch: the look, ground or spawn changed; rebuilding the shell (the page reloads)');
-      await buildShell(); shellHash = key;
+      // the first shell's failure is the command's; a later one is the page's error, and the old shell keeps serving
+      if (shellHash === '') await buildShell();
+      else try { await buildShell(); } catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
+      shellHash = key;
     }
     const changed = scene.parts.filter((part) => parts.find((live) => live.name === part.name)?.hash !== part.hash).map((part) => part.name);
     for (const part of scene.parts) {
