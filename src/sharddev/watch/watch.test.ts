@@ -231,3 +231,25 @@ test('AP18: a ground edit goes live as the whole lattice (no new shell, no part 
     expect(second.report.kind).toBe('reload');
   } finally { second.stop(); await again.close(); }
 });
+
+test('AP20: once edits rest 5 s watch runs the full build and the page gets its budget table; an edit starts the wait again', { timeout: 180_000 }, async () => {
+  writeFileSync(join(project, 'shard.config.ts'), groundSource(2));
+  const server = await watchProject(project, { client: null, log: () => undefined });
+  const hook = recordingHook(), panels: string[][] = [];
+  const page = startWatchPage({ origin: server.url.replace(/\/$/u, ''), hook: () => hook, fetch: (url) => fetch(url), socket: (url) => socketOf(new WebSocket(url)),
+    frame: (run) => { setTimeout(run, 8); }, wait: (ms, run) => { setTimeout(run, ms); }, reload: () => undefined, reshell: () => undefined, now: () => Date.now(), log: () => undefined, shell: () => 1,
+    overlay: (lines) => { panels.push([...lines]); } });
+  try {
+    await until(() => page.report.framedRevision >= 1);
+    const started = Date.now();
+    await until(() => page.report.build !== null, 120_000);
+    expect(Date.now() - started).toBeGreaterThan(3000);
+    const build = page.report.build;
+    expect(build?.error).toBeNull();
+    expect([build?.revision, build?.tiles, build?.over.length]).toEqual([1, 80, 0]);
+    expect(build?.download).toBeGreaterThan(10_000);
+    // the panel shows the table, and the revision's own swap did not run again
+    expect(panels.at(-1)?.some((line) => line.startsWith('full build of revision 1 in'))).toBe(true);
+    expect(hook.calls).toEqual(['look', 'add hut', 'colliders hut 0']);
+  } finally { page.stop(); await server.close(); }
+});

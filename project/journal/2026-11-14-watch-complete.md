@@ -11,3 +11,12 @@
   `setGround`, which swaps the page and in-page server colliders, the height fields and only the drawn tiles whose
   samples changed, and lifts the player onto new ground. A hill raised under the player at the hut camera: median
   116.5 ms from file write to first frame (91 to 174, 10 edits, 0 reloads), still standing on it 1 s later in 10 of 10.
+- AP20: `parity.mjs` shoots the slice's four cameras through both back ends (`wildshard watch`, the hook drawing parts
+  live, and `wildshard dev`, the full build) with the camera off the player (a player's body stands where colliders put
+  it, which differed by camera). The back ends still differ where the shardfile back end lowers on purpose (a glowing
+  material is the emissive family without its base colour, AP10 transparency, AP11 billboards, AP28 lamps: the pond
+  lantern, lily pads and the lamp spill), so the guard is a ratchet over `parity-baseline.json` (hut-front 1.66/255,
+  door-lamp 4.08, hut-back 0.09, pond 3.06; two clean runs differ by under 0.002). `pnpm check` runs `--check` (45 s):
+  clean green, the live roof colour halved red. An engine pin without hook v3 skips it with a line. Watch also runs the
+  full build in a child process once edits rest 5 s and shows its budget table in a page panel (the slice: 37 MB, two
+  L0 tiles over their caps).

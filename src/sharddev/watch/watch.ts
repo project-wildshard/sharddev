@@ -23,7 +23,10 @@ import * as liveShard from '../scene/shard';
 import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
 import { lampRows, sceneGroundBytes, sceneLook, waterRows } from '../scene/shardfile';
-import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchState } from './protocol';
+import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, budgetLines, budgetOf, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchBuild, type WatchState } from './protocol';
+import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
+// oxlint-disable-next-line import/no-nodejs-modules -- The idle full build runs `wildshard build` in a child process.
+import { spawn, type ChildProcess } from 'node:child_process';
 import { acceptSocket, type WatchSocket } from './socket';
 
 /**
@@ -106,6 +109,17 @@ const liveLook = (scene: ShardScene): { keys: readonly unknown[]; look: unknown 
  * The day keys, the sun's arc, exposure, tone, vignette and bloom go live (AP17); a page whose hook refuses one anyway asks
  * for a new shell (`WATCH_RESHELL`).
  */
+/** A built product's files (its `shard.json`) and tiles (format 2: the `world/tiles` section), for the budget table. */
+function builtProduct(folder: string): Parameters<typeof budgetOf>[0] {
+  const shard = JSON.parse(readFileSync(join(folder, 'shard.json'), 'utf8')) as { files: { compressed: number }[]; sections?: { name: string; path: string }[] };
+  const section = shard.sections?.find((row) => row.name === 'world/tiles');
+  const tiles = section === undefined ? [] : (JSON.parse(readFileSync(join(folder, section.path), 'utf8')) as { tiles: Parameters<typeof budgetOf>[0]['tiles'] }).tiles;
+  return { files: shard.files, tiles };
+}
+
+/** AP20: how long edits rest before watch runs the full build. */
+const IDLE_BUILD_MS = 5000;
+
 const shellKey = (scene: ShardScene): string => {
   const { keys: _keys, materials: _materials, day, grade, ...look } = shellLook(scene);
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
@@ -137,11 +151,11 @@ export async function watchProject(project: string, options: { port?: number; cl
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-watch-'))), log = options.log ?? ((line: string): void => { console.info(line); });
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
   let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
-  let ground: WatchState['ground'] = { hash: '', shell: '' };
+  let ground: WatchState['ground'] = { hash: '', shell: '' }, lastBuild: WatchBuild | null = null, idle: Scope | null = null, building: ChildProcess | null = null;
   const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>(), grounds = new Map<string, Uint8Array>();
   const clients = new Set<WatchSocket>(), scope = new Scope('sdk.watch');
   let seenAt = 0, observed = projectSourceStamp(source), work = Promise.resolve(), pending = false, stampMs = 0;
-  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, error, seenAt, sentAt: Date.now() } satisfies WatchState);
+  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, build: lastBuild, error, seenAt, sentAt: Date.now() } satisfies WatchState);
   const announce = (): void => { const message = state(); for (const client of clients) client.send(message); };
 
   const buildShell = async (): Promise<void> => {
@@ -160,6 +174,38 @@ export async function watchProject(project: string, options: { port?: number; cl
     } finally { if (before === undefined) delete process.env['WILDSHARD_SCENE_LIVE']; else process.env['WILDSHARD_SCENE_LIVE'] = before; }
   };
 
+  /**
+   * AP20: once edits rest `IDLE_BUILD_MS`, the full `wildshard build` of the source (the shardfile back end, as an upload
+   * would carry it) in a child process, so a long build never holds an edit back; an edit kills it. Its budget table goes to
+   * the page (`WatchState.build`) and the log.
+   */
+  const fullBuild = async (): Promise<void> => {
+    if (stopped || building !== null) return;
+    const of = revision, started = diagnosticNow(), target = join(scratch, 'build');
+    rmSync(target, { recursive: true, force: true });
+    const child = spawn(process.execPath, [join(SDK_ROOT, 'bin/wildshard.mjs'), 'build', source, target, '--folder-only'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WILDSHARD_SCENE_LIVE: '' } });
+    building = child;
+    let output = '';
+    child.stdout?.on('data', (chunk: Buffer) => { output += String(chunk); }); child.stderr?.on('data', (chunk: Buffer) => { output += String(chunk); });
+    const code = await new Promise<number | null>((_resolve) => { child.on('close', _resolve); });
+    building = null;
+    if (stopped || of !== revision || child.signalCode !== null) return;
+    const ms = Math.round(diagnosticNow() - started), refused = (reason: string): WatchBuild => ({ revision: of, ms, error: reason, download: 0, files: 0, tiles: 0, triangles: 0, draws: 0, over: [] });
+    let table: WatchBuild;
+    try {
+      table = code === 0 ? { revision: of, ms, error: null, ...budgetOf(builtProduct(target), CONTENT_CAPS) }
+        : refused(output.trim().split('\n').reverse().find((row: string) => row !== '' && !row.includes('ExperimentalWarning') && !row.includes('--trace-warnings')) ?? `exit ${String(code)}`);
+    } catch (cause) { table = refused(cause instanceof Error ? cause.message : String(cause)); }
+    lastBuild = table;
+    for (const row of budgetLines(table)) log(`wildshard watch: ${row}`);
+    announce();
+  };
+
+  const idleBuild = (): void => {
+    idle?.dispose();
+    idle = scope.child('sdk.watch.idle');
+    idle.timeout(IDLE_BUILD_MS, () => { void fullBuild(); });
+  };
   /** Push one described revision: a new shell if it needs one, the changed parts and the look. */
   const push = async (scene: ShardScene, timing: string, started: number): Promise<void> => {
     const key = shellKey(scene);
@@ -194,6 +240,7 @@ export async function watchProject(project: string, options: { port?: number; cl
     parts = next; look = { hash: lookHash, ...live }; ground = { hash: groundHash, shell: reshelled ? groundHash : ground.shell }; revision++;
     announce();
     const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : [], ...groundChanged && !reshelled ? ['the ground'] : []];
+    idleBuild();
     log(`wildshard watch: revision ${revision}, ${what.length === 0 ? (reshelled ? 'a new shell' : 'parts removed') : what.join(' and ')} in ${Math.round(diagnosticNow() - started)} ms ${timing}`);
   };
 
@@ -230,6 +277,8 @@ export async function watchProject(project: string, options: { port?: number; cl
     stampMs = diagnosticNow() - stamped;
     if (next === observed) return;
     observed = next; pending = true; seenAt = Date.now();
+    // an edit: the idle full build waits for the next rest, and one running is of a stale source
+    idle?.dispose(); idle = null; building?.kill('SIGTERM');
     const run = async (): Promise<void> => {
       pending = false;
       try { if (!stopped) await compile(); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); }
@@ -291,7 +340,7 @@ export async function watchProject(project: string, options: { port?: number; cl
   const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No watch server address');
   return { url: `http://127.0.0.1:${address.port}/`, close: async () => {
     if (stopped) return;
-    stopped = true; scope.dispose();
+    stopped = true; scope.dispose(); building?.kill('SIGTERM');
     for (const client of clients) client.close();
     await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
     await work;

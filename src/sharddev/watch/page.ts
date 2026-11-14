@@ -1,5 +1,5 @@
 import { Scope } from '@wildshard/engine/app/scope';
-import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, decodeGeometry, type WatchPart, type WatchState } from './protocol';
+import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, budgetLines, decodeGeometry, type WatchBuild, type WatchPart, type WatchState } from './protocol';
 
 /**
  * SHARD-SOURCE AP5 (J347): the page script `wildshard watch` injects into the page it serves (`pageEntry.ts`, bundled at
@@ -42,6 +42,8 @@ export interface WatchPageEnv {
   readonly log: (message: string) => void;
   /** the shell this page booted from (`window.__wsShell`, written into the page per shell); a state for another reloads */
   readonly shell?: () => number | null;
+  /** AP19, AP20: the page's watch panel: what the last revision did, and the last full build's budget table */
+  readonly overlay?: (lines: readonly string[]) => void;
 }
 
 export interface WatchPageReport {
@@ -62,6 +64,8 @@ export interface WatchPageReport {
   /** AP17 to AP19: what the last revision changed on this page, joined with `and` (`look`, `ground`, `parts`), `nothing`, or
    *  `reload` */
   kind: string | null;
+  /** AP20: the last full build the watch server ran, and its budget table */
+  build: WatchBuild | null;
 }
 
 interface Held<T> { readonly value: T; users: number }
@@ -72,15 +76,21 @@ const HOOK_WAIT_MS = 180_000;
 
 export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageReport; readonly stop: () => void } {
   const scope = new Scope('watch.page');
-  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [], kind: null, steps: { seen: 0, sent: 0, received: 0, fetched: 0, swapped: 0 } };
+  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [], kind: null, build: null, steps: { seen: 0, sent: 0, received: 0, fetched: 0, swapped: 0 } };
   const parts = new Map<string, LivePart>(), geometries = new Map<string, Held<ReturnType<typeof decodeGeometry>>>(), textures = new Map<string, Held<Uint8Array>>();
   let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, ground: string | null = null, socket: SocketLike | null = null;
   let pendingFrame: number | null = null;
 
+  /** The watch panel: the last revision's kind and time, then the build's table. */
+  const show = (): void => {
+    const took = report.framedAt > 0 && report.steps.seen > 0 ? ` in ${Math.max(0, report.framedAt - report.steps.seen)} ms` : '';
+    env.overlay?.([`watch: revision ${report.revision}, ${report.kind ?? 'starting'}${report.kind === null || report.kind === 'nothing' || report.kind === 'reload' ? '' : took}`,
+      ...report.serverError === null ? [] : [`refused: ${report.serverError}`], ...report.build === null ? ['full build: once edits rest 5 s'] : budgetLines(report.build)]);
+  };
   const tick = (): void => {
     if (scope.disposed) return;
     report.frames++;
-    if (pendingFrame !== null) { report.framedRevision = pendingFrame; report.framedAt = env.now(); pendingFrame = null; }
+    if (pendingFrame !== null) { report.framedRevision = pendingFrame; report.framedAt = env.now(); pendingFrame = null; show(); }
     env.frame(tick);
   };
   env.frame(tick);
@@ -183,6 +193,9 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     let state: WatchState;
     try { state = JSON.parse(String(data)) as WatchState; }
     catch { fail('the watch server sent a message this page can\'t read'); return; }
+    // AP20: a full build of a revision this page already holds changes only the panel
+    if (state.revision === report.revision && report.revision > 0 && state.shell === shell) { report.build = state.build; show(); return; }
+    report.build = state.build;
     if (state.wire !== WATCH_WIRE) { env.log(`wildshard watch: the server speaks wire ${state.wire}, this page ${WATCH_WIRE}; reloading`); env.reload(); return; }
     if (shell !== null && state.shell !== shell) { env.log('wildshard watch: the spawn or a fixed look field changed; reloading'); env.reload(); return; }
     shell = state.shell; next = state;

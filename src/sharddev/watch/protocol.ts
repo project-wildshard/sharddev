@@ -36,11 +36,49 @@ export interface WatchState {
   /** AP18: the ground now and the ground the shell was built with (hashes); when they differ the page fetches `ground/<hash>`
    *  and swaps it in through the hook's `setGround` */
   readonly ground: { readonly hash: string; readonly shell: string };
+  /** AP20: the last full `wildshard build` (watch runs one once edits rest 5 s) and its budget table; null until one ran */
+  readonly build: WatchBuild | null;
   /** the last compile's refusal; the page keeps what it has */
   readonly error: string | null;
   /** the wall clock (ms) this revision's edit was seen and its state sent: the timing's server half (AP6, AP17) */
   readonly seenAt: number;
   readonly sentAt: number;
+}
+
+/** AP20: a full build's budget table, as the page shows it: the download, and each tile against its level's caps. */
+export interface WatchBuild {
+  /** the revision the build was of, and how long it took */
+  readonly revision: number;
+  readonly ms: number;
+  /** the build's refusal (the shardfile back end or validation); the live page may still draw what the build refuses */
+  readonly error: string | null;
+  readonly download: number;
+  readonly files: number;
+  readonly tiles: number;
+  readonly triangles: number;
+  readonly draws: number;
+  /** the tiles over their level's caps (`CONTENT_CAPS`: L0 40k triangles and 8 draws, L1 10k and 2), the worst first */
+  readonly over: readonly { readonly tile: string; readonly triangles: number; readonly draws: number; readonly compressed: number }[];
+}
+
+/** A built shardfile's budget table. */
+export function budgetOf(shard: { readonly files: readonly { readonly compressed: number }[]; readonly tiles: readonly { readonly lod: number; readonly x: number; readonly z: number; readonly triangles: number; readonly draws: number; readonly compressed: number }[] }, caps: Readonly<Record<'l0' | 'l1', { readonly triangles: number; readonly draws: number; readonly compressed: number }>>): Omit<WatchBuild, 'revision' | 'ms' | 'error'> {
+  const over = shard.tiles.filter((tile) => { const cap = tile.lod === 0 ? caps.l0 : caps.l1; return tile.triangles > cap.triangles || tile.draws > cap.draws || tile.compressed > cap.compressed; })
+    .map((tile) => ({ tile: `${tile.lod}/${tile.x}/${tile.z}`, triangles: tile.triangles, draws: tile.draws, compressed: tile.compressed }))
+    .sort((a, b) => b.triangles - a.triangles);
+  return { download: shard.files.reduce((sum, file) => sum + file.compressed, 0), files: shard.files.length, tiles: shard.tiles.length,
+    triangles: shard.tiles.filter((tile) => tile.lod === 0).reduce((sum, tile) => sum + tile.triangles, 0),
+    draws: shard.tiles.filter((tile) => tile.lod === 0).reduce((sum, tile) => sum + tile.draws, 0), over };
+}
+
+/** The budget table as text lines (the page's overlay and the watch log). */
+export function budgetLines(build: WatchBuild): string[] {
+  if (build.error !== null) return [`full build of revision ${build.revision} refused: ${build.error}`];
+  const mb = (bytes: number): string => `${(bytes / 1_048_576).toFixed(1)} MB`;
+  return [`full build of revision ${build.revision} in ${(build.ms / 1000).toFixed(1)} s: ${mb(build.download)} in ${build.files} files`,
+    `${build.tiles} tiles, ${build.triangles.toLocaleString('en-US')} triangles and ${build.draws} draws near (L0)`,
+    build.over.length === 0 ? 'every tile under its caps' : `${build.over.length} tiles over their caps:`,
+    ...build.over.slice(0, 6).map((tile) => `  ${tile.tile}: ${tile.triangles.toLocaleString('en-US')} tris, ${tile.draws} draws, ${mb(tile.compressed)}`)];
 }
 
 /** One part as the page fetches it: the hook's `DevPart` with geometry and rasters by key, and its colliders. */

@@ -1,0 +1,22 @@
+{
+  "note": "AP20: each camera's measured watch-against-build drift; parity.mjs --rebase writes it",
+  "source": "src/shards/authoring-slice",
+  "cameras": {
+    "hut-front": {
+      "mean": 1.656,
+      "share": 0.02757
+    },
+    "door-lamp": {
+      "mean": 4.077,
+      "share": 0.07512
+    },
+    "hut-back": {
+      "mean": 0.089,
+      "share": 0.00136
+    },
+    "pond": {
+      "mean": 3.055,
+      "share": 0.05147
+    }
+  }
+}
