@@ -244,7 +244,8 @@ export async function watchProject(project: string, options: { port?: number; cl
     const live = liveLook(scene), lookHash = hashOf((hash) => hash.json(live));
     const same = !reshelled && error === null && !groundChanged && !gameplayChanged && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
     error = null;
-    if (same) return;
+    // a save that changes nothing still owes the idle full build reconcile put off
+    if (same) { if (lastBuild?.revision !== revision) idleBuild(); return; }
     const lookChanged = look.hash !== '' && lookHash !== look.hash;
     parts = next; look = { hash: lookHash, ...live }; ground = { hash: groundHash, shell: reshelled ? groundHash : ground.shell };
     gameplayState = { hash: gameplayHash, shell: reshelled ? gameplayHash : gameplayState.shell }; revision++;
@@ -258,10 +259,13 @@ export async function watchProject(project: string, options: { port?: number; cl
   let edits = 0, truth: Scope | null = null;
   const compile = async (): Promise<void> => {
     const started = diagnosticNow();
+    // every compile is a new edit, before the source can fail: a pending texture recheck of an older one must not push
+    const edit = ++edits;
+    truth?.dispose(); truth = null;
     let described: Awaited<ReturnType<typeof describeSource>>;
     try { described = await describeSource(source, memo); }
     catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
-    const guessed = memo.hits, edit = ++edits;
+    const guessed = memo.hits;
     await push(described.scene, described.gameplay, `(bundle ${described.bundleMs} ms, describe ${described.describeMs} ms${guessed > 0 ? `, ${guessed} of ${guessed + memo.misses} textures kept` : ''})`, started);
     // AP17: a kept texture was a guess. Once the page has fetched this revision (painting holds this process), and unless a
     // newer edit came, paint every texture again and push what differs.
@@ -273,7 +277,6 @@ export async function watchProject(project: string, options: { port?: number; cl
       try { painted = described.describe('truth'); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); return; }
       await push(painted, described.gameplay, `(a kept texture changed; repainted in ${Math.round(diagnosticNow() - checked)} ms)`, checked);
     };
-    truth?.dispose();
     truth = scope.child('sdk.watch.truth');
     truth.timeout(TRUTH_AFTER_MS, () => { work = work.then(verify); });
   };
@@ -304,7 +307,8 @@ export async function watchProject(project: string, options: { port?: number; cl
       const path = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
       if (path === WATCH_RESHELL && request.method === 'POST') {
         // the page's look refused this revision live: the next compile builds a new shell, which the page reloads into
-        reshell = true; observed = ''; reconcile();
+        // a revision whose shell build already failed gets no new one until the source changes
+        if (error === null) { reshell = true; observed = ''; reconcile(); }
         response.writeHead(204); response.end(); return;
       }
       if (path.startsWith(DEV_SCENE_PATH)) {

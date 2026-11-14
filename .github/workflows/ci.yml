@@ -80,7 +80,7 @@ jobs:
           fi
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
-      # The same members as pnpm check; author tests run in products.
+      # The same members as pnpm check bar check:watch-build (a GPU and a devserver client: pre-push only); author tests run in products.
       - run: node scripts/check-lift-review.mjs
       - run: pnpm typecheck
       - run: pnpm lint

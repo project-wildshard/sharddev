@@ -124,6 +124,17 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     return held.value;
   };
 
+  /**
+   * Ask the server for a new shell, which the page reloads into: once per revision, and never for a revision that carries the
+   * server's refusal (its shell build of that source failed too, so asking again would rebuild it in a loop).
+   */
+  let asked: string | null = null;
+  const reshell = (state: WatchState, why: string): void => {
+    report.kind = 'reload';
+    const key = `${state.shell}/${state.revision}`;
+    if (state.error !== null || asked === key) { env.log(`wildshard watch: ${why}; waiting for an edit the shell build takes`); return; }
+    asked = key; env.log(`wildshard watch: ${why}; reloading`); env.reshell();
+  };
   const sync = async (state: WatchState, first: boolean): Promise<void> => {
     const live = hook;
     if (live === null) return;
@@ -132,7 +143,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     const lookChanged = state.look.hash !== look;
     if (lookChanged) {
       if (!live.setLook({ keys: state.look.keys, look: state.look.look })) {
-        if (!first) { env.log('wildshard watch: this look change needs a new shell; reloading'); report.kind = 'reload'; env.reshell(); return; }
+        if (!first) { reshell(state, 'this look change needs a new shell'); return; }
         fail('the page\'s look can\'t take this look live: look edits will reload the page');
       }
       look = state.look.hash;
@@ -142,7 +153,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     if (groundChanged) {
       const bytes = new Uint8Array(await (await get(`ground/${encodeURIComponent(state.ground.hash)}`)).arrayBuffer());
       if (scope.disposed) return;
-      if (!live.setGround(bytes)) { env.log('wildshard watch: the page can\'t take this ground live; reloading'); report.kind = 'reload'; env.reshell(); return; }
+      if (!live.setGround(bytes)) { reshell(state, 'the page can\'t take this ground live'); return; }
       ground = state.ground.hash;
     }
     // AP19: a quest, encounter, spawn or script change restarts the in-page simulation (the player keeps their place)
@@ -152,7 +163,8 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
       if (scope.disposed) return;
       const done = await live.restartGameplay(rows);
       report.restart = done;
-      if (!done.ok) { env.log(`wildshard watch: the page can't restart its simulation on this revision${done.reason === undefined ? '' : ` (${done.reason})`}; reloading`); report.kind = 'reload'; env.reshell(); return; }
+      if (scope.disposed) return;
+      if (!done.ok) { reshell(state, `the page can't restart its simulation on this revision${done.reason === undefined ? '' : ` (${done.reason})`}`); return; }
       gameplay = state.gameplay.hash;
     }
     // fetch and decode every changed part before any swaps in

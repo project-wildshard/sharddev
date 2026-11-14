@@ -332,7 +332,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
  * SHARD-SOURCE AP19: the shardfile sections a watched page restarts its simulation for (engine's dev hook v4,
  * `DEV_GAMEPLAY_SECTIONS` in engine `src/shared/game/devGameplay.ts`: keep the two lists the same).
  */
-export const GAMEPLAY_SECTIONS = ['quests', 'questNpcs', 'questHost', 'encounters', 'directors', 'creatures', 'crowds', 'hooks', 'ledger', 'sim', 'clientScripts'] as const;
+// `questNpcs` and `clientScripts` are the page's alone (the hook rebuilds only the quest views): a change there is a new shell.
+export const GAMEPLAY_SECTIONS = ['quests', 'questHost', 'encounters', 'directors', 'creatures', 'crowds', 'hooks', 'ledger', 'sim'] as const;
 
 /**
  * AP19: what `options.extend` adds to a scene shard, split for `wildshard watch`: the gameplay sections (a soft restart takes
@@ -341,11 +342,14 @@ export const GAMEPLAY_SECTIONS = ['quests', 'questNpcs', 'questHost', 'encounter
  */
 export function sceneGameplay(identity: ShardScene['identity'], options: ShardfileOptions = {}): { gameplay: Record<string, unknown>; rest: Record<string, unknown> } {
   const base = parseShardfile(emptyShardfile({ slug: identity.slug, name: identity.name, author: identity.author ?? 'Wildshard', revision: identity.revision ?? 1, seed: identity.seed ?? 1 }));
-  const shard = options.extend === undefined ? base : options.extend(base) as unknown as Record<string, unknown>, before = base as unknown as Record<string, unknown>;
+  // the base as it was, before an `extend` that edits its input in place can change it
+  const before = structuredClone(base) as unknown as Record<string, unknown>;
+  const shard = options.extend === undefined ? base : options.extend(base) as unknown as Record<string, unknown>;
   const gameplay: Record<string, unknown> = {}, rest: Record<string, unknown> = {};
-  for (const [key, value] of Object.entries(shard)) {
-    if ((GAMEPLAY_SECTIONS as readonly string[]).includes(key)) gameplay[key] = value;
-    else if (JSON.stringify(value) !== JSON.stringify(before[key])) rest[key] = value;
+  for (const key of new Set([...Object.keys(before), ...Object.keys(shard)])) {
+    const value = (shard as Record<string, unknown>)[key];
+    if ((GAMEPLAY_SECTIONS as readonly string[]).includes(key)) { if (value !== undefined) gameplay[key] = value; }
+    else if (JSON.stringify(value) !== JSON.stringify(before[key])) rest[key] = value ?? null;
   }
   return { gameplay, rest };
 }

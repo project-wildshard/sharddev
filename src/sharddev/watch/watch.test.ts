@@ -122,6 +122,23 @@ test('AP5: a page booted from shell 1 reloads on a state for shell 2; a part who
   page.stop();
 });
 
+test('AP19 review: a refused restart asks for a new shell once per revision, never on a revision the server refused', async () => {
+  const reshells: number[] = [], sockets: { onmessage: ((event: { data: unknown }) => void) | null }[] = [];
+  let restarts = 0;
+  const hook = { ...recordingHook(), restartGameplay: () => { restarts++; return Promise.resolve({ ok: false, serverMs: 0, questsMs: null, reason: 'no' }); } };
+  const page = startWatchPage({ origin: 'http://127.0.0.1:1', hook: () => hook, fetch: () => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve<unknown>({}), arrayBuffer: () => Promise.resolve(new ArrayBuffer(0)) }),
+    socket: () => { const socket = { onmessage: null, onclose: null, close: () => undefined }; sockets.push(socket); return socket; },
+    frame: () => undefined, wait: () => undefined, reload: () => undefined, reshell: () => { reshells.push(restarts); }, now: () => 0, log: () => undefined, shell: () => 1 });
+  const state = (revision: number, error: string | null): string => JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision, parts: [], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, gameplay: { hash: 'g2', shell: 'g1' }, error, seenAt: 0, sentAt: 0 });
+  sockets[0]?.onmessage?.({ data: state(2, null) });
+  await until(() => reshells.length === 1);
+  sockets[0]?.onmessage?.({ data: state(2, null) });
+  sockets[0]?.onmessage?.({ data: state(3, 'the shell build refused it') });
+  await until(() => restarts === 3);
+  expect(reshells).toEqual([1]);
+  page.stop();
+});
+
 const lookSource = (exposure: number, stone: string, fog: string): string => `import * as THREE from 'three';
 import { defineShard } from '@wildshard/sdk/scene/shard';
 import { paint } from '@wildshard/sdk/scene/author';
@@ -261,7 +278,7 @@ test('AP19: a quest edit restarts the page simulation on the new rows (no shell,
     expect(page.report.restart).toMatchObject({ ok: true });
     const rows = hook.gameplays[0] as { quests: { quests: { steps: { objective: string }[] }[] } };
     expect(rows.quests.quests[0]?.steps[0]?.objective).toBe('Walk down to the pond');
-    expect(Object.keys(rows).sort()).toEqual(['clientScripts', 'creatures', 'crowds', 'encounters', 'hooks', 'ledger', 'quests', 'sim']);
+    expect(Object.keys(rows).sort()).toEqual(['creatures', 'crowds', 'encounters', 'hooks', 'ledger', 'quests', 'sim']);
     await until(() => panels.some((lines) => lines[0]?.startsWith('watch: revision 2, simulation restarted (player kept) in') === true));
     expect([reloads, reshells]).toEqual([0, 0]);
     // a field the restart can't take (the identity here) needs a new shell: the page reloads into it

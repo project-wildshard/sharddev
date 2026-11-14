@@ -77,6 +77,8 @@ async function shoot(browser, url, live, after = []) {
         if (eye !== undefined) { camera.position.set(eye[0], eye[1], eye[2]); camera.rotation.set(eye[4], eye[3], 0, 'YXZ'); camera.updateMatrixWorld(true); }
       }, 'ap20.camera');
     });
+    // the watch panel's timings and build table change from run to run: they are not the scene
+    await page.addStyleTag({ content: '#wildshard-watch { display: none !important; }' });
     const sets = [];
     for (const change of [null, ...after]) {
       if (change !== null) await page.evaluate(change);
@@ -143,10 +145,11 @@ async function main() {
   let results;
   try { results = await run(values.check === true, out); }
   catch (cause) {
-    // an engine pin from before this sdk's dev hook serves no page watch can drive: the check says so and passes
+    // an engine pin from before this sdk's dev hook serves no page watch can drive, and a machine with no client (offline, no
+    // release asset) or no browser has nothing to compare: the check says so and passes. Only a comparison goes red.
     const message = cause instanceof Error ? cause.message : String(cause);
-    if (values.check !== true || !/dev hook/u.test(message)) throw cause;
-    console.info(`watch equals build: skipped, ${/(this engine client[^\n]*|the page's dev hook[^\n]*)/u.exec(message)?.[1] ?? 'no client with this sdk\'s dev hook'}`);
+    if (values.check !== true || !/dev hook|dev client|engine release .* has no|fetch failed|browserType\.launch/u.test(message)) throw cause;
+    console.info(`watch equals build: skipped, ${/(this engine client[^\n]*|the page's dev hook[^\n]*)/u.exec(message)?.[1] ?? message.split('\n')[0]}`);
     return;
   }
   const [clean, planted] = results;
