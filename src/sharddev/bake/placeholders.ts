@@ -12,7 +12,7 @@ import { MEASURE_SLOT, parseFamilyMaterial, type FamilyMaterialParams } from '@w
 import { materialGraphIr } from '@wildshard/format/materials';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { placeholderGeometry, placeholderLeanDrop, type PlaceholderGrid, type PlaceholderLook, type PlaceholderLookRuntime, type PlaceholderPart } from '@wildshard/engine/game/plugin/placeholderGeometry';
-import { assetCost } from '@wildshard/format/product';
+import { assetCost } from '@wildshard/format/shardfileAssets';
 import { parseGlb } from '../assets';
 import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { staticGlb } from './glb';

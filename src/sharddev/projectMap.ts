@@ -1,5 +1,5 @@
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import { assetCost } from '@wildshard/format/product';
+import { assetCost } from '@wildshard/format/shardfileAssets';
 import { hashAssetBytes } from './assetHandle';
 
 /** Build input for a baked map; paths and URLs never enter the authored product. */

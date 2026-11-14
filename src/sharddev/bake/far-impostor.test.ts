@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
-import { assetCost } from '@wildshard/format/product';
+import { assetCost } from '@wildshard/format/shardfileAssets';
 import { FarSchema } from '@wildshard/format/shardSections';
 import { bakeFarPlaceholder } from './placeholders';
 import { FAR_IMPOSTOR_BAKE } from './farImpostor';

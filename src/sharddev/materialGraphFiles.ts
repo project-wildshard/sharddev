@@ -1,4 +1,4 @@
-import { assetCost } from '@wildshard/format/product';
+import { assetCost } from '@wildshard/format/shardfileAssets';
 import { encodeCanonicalJson } from './immutable';
 import { hashAssetBytes } from './assetHandle';
 

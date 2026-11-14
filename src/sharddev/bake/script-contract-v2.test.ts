@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import * as v from 'valibot';
 import { compileScriptV2 } from './compileScriptV2';
 import { admitScriptContract, ScriptContractSchema } from '@wildshard/format/scriptContract';
-import { assetCost } from '@wildshard/format/product';
+import { assetCost } from '@wildshard/format/shardfileAssets';
 import { SCRIPT_V2_REVISIONS } from '@wildshard/format/scriptAdmissionV2';
 
 const head = 'export function ws_abi():i32{return 2;} export function ws_io():i32{return 1024;} export function ws_init(lo:i32,hi:i32,fuel:i32):i32{return 0;}\n';

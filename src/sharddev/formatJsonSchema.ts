@@ -119,7 +119,7 @@ import { AudioRoutingSchema } from '@wildshard/format/audioRouting';
 import { AudioDataSchema } from '@wildshard/format/audio';
 import { LedgerFactSchema, LedgerRulesSchema } from '@wildshard/format/ledger';
 import { DirectorSchema } from '@wildshard/format/director';
-import { DirectorProductSchema } from '@wildshard/format/directorProduct';
+import { DirectorDocumentSchema as DirectorProductSchema } from '@wildshard/format/directorDocument';
 import { DirectorStagesSchema } from '@wildshard/format/directorStages';
 import { LogicalStateSchema, MigrationsSchema } from '@wildshard/format/migrations';
 import { TraversalSchema } from '@wildshard/format/traversal';

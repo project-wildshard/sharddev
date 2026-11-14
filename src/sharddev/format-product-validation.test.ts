@@ -6,7 +6,7 @@ import { relative, resolve } from 'node:path';
 import { emptyShardfile } from '@wildshard/sdk/author';
 import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
-import { validateShardfileProduct, type ProductFiles } from '@wildshard/format/productValidation';
+import { validateShardfileFolder as validateShardfileProduct, type ShardfileFiles as ProductFiles } from '@wildshard/format/shardfileValidation';
 import { hashImmutableBytes } from './immutable';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 

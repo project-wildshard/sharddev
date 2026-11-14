@@ -1,7 +1,7 @@
 import { PAINTED_TERRAIN_ATTRIBUTES } from '@wildshard/format/materialFamilies';
 import { CELL_ABOVE, CELL_BELOW, CONTENT_CAPS } from '@wildshard/format/contentBounds';
 import { bilinearTerrainSamplers, decodeTerrainTile, encodeTerrainTile, terrainTileCost, terrainTileHeight, type TerrainTileData } from '@wildshard/format/terrainTileBytes';
-import { validateTerrainAssets } from '@wildshard/format/product';
+import { validateTerrainAssets } from '@wildshard/format/shardfileAssets';
 import { TerrainSchema, type ShardTerrain } from '@wildshard/format/terrain';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import * as v from 'valibot';

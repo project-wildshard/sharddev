@@ -3,7 +3,7 @@ import { EXTMeshoptCompression, KHRMeshQuantization } from '@gltf-transform/exte
 import { dedup } from '@gltf-transform/functions';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { MeshoptEncoder } from 'meshoptimizer/encoder';
-import { parseGlb, prepareAssetDecoders } from '@wildshard/format/product';
+import { parseGlb, prepareAssetDecoders } from '@wildshard/format/shardfileAssets';
 
 await MeshoptEncoder.ready;
 await prepareAssetDecoders();

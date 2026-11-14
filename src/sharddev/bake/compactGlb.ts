@@ -8,7 +8,7 @@ import { hashImmutableBytes } from '../immutable';
 import { nameBlob, nameMeshoptBlob, type BlobOptions, type NamedBlob } from '../blobs';
 import { entryFootprints, obstructsEntry } from '@wildshard/format/entryGeometry';
 import type { ShardEntryways } from '@wildshard/format/entryways';
-import { visitGlbTriangles } from '@wildshard/format/product';
+import { visitGlbTriangles } from '@wildshard/format/shardfileAssets';
 
 /** The brotli size a phone pays for a file over the wire: the deploy's own encoding, quality 3 (Vercel's responses match it
  *  byte for byte). */

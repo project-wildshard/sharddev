@@ -1,12 +1,12 @@
 import { registeredJsonContract } from '@wildshard/format/registeredJson';
 import type { ScriptContract } from '@wildshard/format/scriptContract';
 import type { JsonSchema } from '@valibot/to-json-schema';
-import type { AssetCost } from '@wildshard/format/product';
+import type { AssetCost } from '@wildshard/format/shardfileAssets';
 import type { OutputFile } from '@wildshard/format/outputIndex';
 import { AdmissionServerSchema, serverFilePath, type ServerFile } from '@wildshard/format/admissionServer';
 import { NATIVE_ASSEMBLY_DATA_SCHEMA, NATIVE_ASSEMBLY_FILE, NATIVE_ASSEMBLY_SCHEMA, type NativeAssemblyPlan as AssemblyPlan } from '@wildshard/format/nativeAssembly';
 import { validatePlatformFile } from '@wildshard/format/platformFileFamilies';
-import { outputBlobKind } from '@wildshard/format/productValidation';
+import { outputBlobKind } from '@wildshard/format/shardfileValidation';
 import { parse } from 'valibot';
 import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { nameBlobBytes } from './blobBytes';
