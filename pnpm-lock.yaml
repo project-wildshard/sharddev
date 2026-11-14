@@ -7,7 +7,7 @@ settings:
 overrides:
   binaryen: npm:@pre-bundled/binaryen@132.0.0-patch-1
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
-  '@wildshard/format': npm:@wildshard/shard-format@0.5.3
+  '@wildshard/format': npm:@wildshard/shard-format@0.5.5
 
 packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 
@@ -49,8 +49,8 @@ importers:
         specifier: 0.1.19
         version: 0.1.19(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
-        specifier: npm:@wildshard/shard-format@0.5.3
-        version: '@wildshard/shard-format@0.5.3(typescript@7.0.2)'
+        specifier: npm:@wildshard/shard-format@0.5.5
+        version: '@wildshard/shard-format@0.5.5(typescript@7.0.2)'
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -654,8 +654,8 @@ packages:
       sharp:
         optional: true
 
-  '@wildshard/shard-format@0.5.3':
-    resolution: {integrity: sha512-hEi+PVrFEjLwYfPWNyFE670/PoWj61vrpCxEwIkOndnV5K/0BjQVkKKt46cEwBEfK3rQ7Qm1GvzzwrQVO8Qi5Q==}
+  '@wildshard/shard-format@0.5.5':
+    resolution: {integrity: sha512-KSXSnRcYb4MADrtj4xVRn54atCaM7phV3u2CenI5lVRoqNtJ9pYvLd2FHX9VtvhcZc2EgyF9/aj3XhGaGCk4vw==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -1733,7 +1733,7 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
-      '@wildshard/format': '@wildshard/shard-format@0.5.3(typescript@7.0.2)'
+      '@wildshard/format': '@wildshard/shard-format@0.5.5(typescript@7.0.2)'
       '@wildshard/wire': 0.1.0(typescript@7.0.2)
       ajv: 6.15.0
       fflate: 0.8.3
@@ -1757,7 +1757,7 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@wildshard/shard-format@0.5.3(typescript@7.0.2)':
+  '@wildshard/shard-format@0.5.5(typescript@7.0.2)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@7.0.2)
