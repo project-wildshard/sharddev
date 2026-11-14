@@ -320,6 +320,12 @@ the rule is chosen by that code, and each heading below that one names lists its
 
 ### Any command
 
+#### three-version
+
+`three` is a peer of the sdk, pinned exact (J317): every `wildshard` run first checks that the `three` the sdk would
+import is the version it pins, and refuses naming both before anything else runs. Install that version:
+`pnpm add three@<version> --save-exact`. `wildshard --version` prints the chain the sdk pins, `three` included.
+
 #### usage
 
 A verb got arguments or flags it does not take. `wildshard <verb> --help` prints what it takes.
