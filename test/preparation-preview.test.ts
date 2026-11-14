@@ -39,3 +39,22 @@ test('the page carries the candidate inline; its files are served beside the pag
     expect((await get('/shardfiles/isle/%2e%2e/%2e%2e/etc/hosts'))[0]).toBe(404);
   } finally { await preview.close(); }
 });
+
+test("S12f: the candidate's mounts are served at their URLs, from mounts/ or the blob cook.json names", async () => {
+  const header = JSON.stringify({ identity: { slug: 'isle', name: 'Isle' } });
+  const cook = JSON.stringify({ version: 1, mounts: [
+    { url: '/shardfiles/isle/discovery.json', path: 'mounts/shardfiles/isle/discovery.json' },
+    { url: '/assets/isle/rock.glb', path: 'blobs/glb/abc.glb' },
+    { url: '/assets/isle/escape.bin', path: '../outside.bin' },
+  ] });
+  const client = folder({ 'index.html': '<html><head></head><body></body></html>', 'assets/isle/rock.glb': 'client rock' });
+  const candidate = folder({ 'shard.json': header, 'cook.json': cook, 'mounts/shardfiles/isle/discovery.json': '{"d":1}', 'blobs/glb/abc.glb': 'rock' });
+  const { preparationPreview } = await import('../scripts/preparation-preview.mjs') as { preparationPreview: Serve };
+  const preview = await preparationPreview(client, candidate, { clientPage });
+  const get = async (path: string): Promise<[number, string]> => { const response = await fetch(new URL(path, preview.url)); return [response.status, await response.text()]; };
+  try {
+    expect(await get('/shardfiles/isle/discovery.json')).toEqual([200, '{"d":1}']);
+    expect(await get('/assets/isle/rock.glb')).toEqual([200, 'rock']);
+    expect((await get('/assets/isle/escape.bin'))[0]).toBe(404);
+  } finally { await preview.close(); }
+});

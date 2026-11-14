@@ -7,6 +7,15 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.2.13 (2026-11-13)
+
+- Fix: `wildshard prepare` with no `--base` timed out. Its preview
+  served the candidate's mounted files (its `discovery.json` under
+  `mounts/shardfiles/<slug>/`, and the public files it owns) from
+  the wrong place, so the page's boot stopped at "Discovery of
+  <slug> answered 404". The preview now serves each mount at its
+  URL from where the product's `cook.json` says it is kept.
+
 ## v0.2.12 (2026-11-13)
 
 - New: a hand-picked hero card can be marked `"curated": true` in

@@ -25,6 +25,10 @@ export async function preparationPreview(client,dir,{clientPage}){
   const recorded=existsSync(resolve(dir,'programs',`${slug}.json`));
   const page=clientPage(readFileSync(resolve(client,'index.html'),'utf8'),header.trim().replaceAll('<','\\u003c'),slug,recorded);
   const shardRoot=`/shardfiles/${slug}/`;
+  // S12f: the candidate's mounts (its discovery.json under mounts/shardfiles/<slug>/, the public files it owns) are
+  // served at their URLs from where cook.json says the product keeps them (mounts/, or the blob with the same bytes).
+  const cook=existsSync(resolve(dir,'cook.json'))?JSON.parse(readFileSync(resolve(dir,'cook.json'),'utf8')):{};
+  const mounts=new Map((Array.isArray(cook.mounts)?cook.mounts:[]).filter(row=>typeof row?.url==='string'&&typeof row.path==='string').map(row=>[row.url,row.path]));
   const server=createServer((request,response)=>{
     response.setHeader('Cache-Control','no-store');
     try{
@@ -33,7 +37,8 @@ export async function preparationPreview(client,dir,{clientPage}){
       if(path==='/'||path==='/index.html'){response.setHeader('Content-Type','text/html');response.end(request.method==='HEAD'?undefined:page);return;}
       // The inline product reads beside the page, as `wildshard build` lays the client over the product folder (the
       // client's file wins); the in-page server reads where a release serves the shard.
-      const file=path.startsWith(shardRoot)?inside(dir,path.slice(shardRoot.length)):inside(client,path.slice(1))??inside(dir,path.slice(1));
+      const mounted=mounts.get(path);
+      const file=mounted!==undefined?inside(dir,mounted):path.startsWith(shardRoot)?inside(dir,path.slice(shardRoot.length)):inside(client,path.slice(1))??inside(dir,path.slice(1));
       if(file===undefined){response.writeHead(404);response.end();return;}
       response.setHeader('Content-Type',MIME[extname(file)]??'application/octet-stream');
       if(request.method==='HEAD')response.end();else createReadStream(file).on('error',()=>{response.destroy();}).pipe(response);
