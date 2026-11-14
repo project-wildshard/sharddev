@@ -1,7 +1,32 @@
 {
   "version": 1,
   "products": {
-    "_template": {},
+    "_template": {
+      "tile/0/3/3/resident": 5250188,
+      "tile/0/3/3/compressed": 2569008,
+      "tile/0/3/3/draws": 11,
+      "tile/0/3/4/compressed": 1541492,
+      "tile/0/4/3/compressed": 1939692,
+      "tile/0/4/3/draws": 10,
+      "tile/0/4/4/compressed": 1388148,
+      "tile/1/2/1/compressed": 253704,
+      "window/2/2/compressed": 8463160,
+      "window/2/3/compressed": 8432224,
+      "window/2/4/compressed": 8472284,
+      "window/2/5/compressed": 8512940,
+      "window/3/2/compressed": 8412040,
+      "window/3/3/compressed": 8441060,
+      "window/3/4/compressed": 8454888,
+      "window/3/5/compressed": 8456068,
+      "window/4/2/compressed": 8435332,
+      "window/4/3/compressed": 8479180,
+      "window/4/4/compressed": 8444912,
+      "window/4/5/compressed": 8412132,
+      "window/5/2/compressed": 8420460,
+      "window/5/3/compressed": 8430040,
+      "window/5/4/compressed": 8401416,
+      "window/5/5/compressed": 8401560
+    },
     "blender-template": {
       "missing/0/0/0": 1,
       "missing/0/0/1": 1,
