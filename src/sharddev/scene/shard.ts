@@ -18,6 +18,7 @@ import type { ShardWorld } from './author';
 import type { ShardIdentityInput, ShardScene } from './description';
 import { lowerShard } from './lower';
 import { compileShardfile, type ShardfileOptions } from './shardfile';
+import { liveShell } from '../watch/encode';
 
 
 /** A shard written as a scene: the generator `wildshard build` runs, plus the scene `wildshard watch` reads. */
@@ -31,6 +32,7 @@ export interface SceneShard {
 /** Declare a shard as a three.js scene. The build function runs at compile time only, never in a page or on a server. */
 export function defineShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void, options: ShardfileOptions = {}): SceneShard {
   const describe = (): ShardScene => lowerShard(identity, build);
-  const generate = (ctx: ProjectGenerationContext): Promise<GeneratedProject> => compileShardfile(describe(), ctx, options);
+  // `wildshard watch` builds the page's shell only: the dev scene host draws the parts (SHARD-SOURCE AP6)
+  const generate = (ctx: ProjectGenerationContext): Promise<GeneratedProject> => compileShardfile(process.env['WILDSHARD_SCENE_LIVE'] === '1' ? liveShell(describe()) : describe(), ctx, options);
   return Object.assign(generate, { describe, identity });
 }

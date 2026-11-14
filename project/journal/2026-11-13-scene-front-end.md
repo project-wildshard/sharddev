@@ -13,3 +13,9 @@ front end that reads the scene instead:
   `look.materials` / `props.materials`, lamps, sun, fog, terrain, collider boxes and water rows. Phone caps are reported
   (J338), never refused, for now.
 - `src/shards/authoring-slice` is the Mossgate hut, pond and lamps ported line for line; `wildshard check` passes on it.
+
+Later the same evening: `wildshard watch` (`src/sharddev/watch/`). The page boots once from a live shell (ground, look,
+sun, spawn); each edit re-bundles `shard.config.ts` (~0.3 s), re-runs `describe()`, and pushes only the parts whose hash
+moved over server-sent events to engine's dev scene host (engine `src/client/game/devScene`, AP5). `watch/proof.mjs`
+edits the slice's roof colour ten times and times file write to the first frame drawn with the new colour: median
+869 ms, no reload, the player still. A look or ground edit still rebuilds the shell and reloads (AP17 is that fast path).

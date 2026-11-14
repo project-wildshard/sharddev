@@ -57,7 +57,7 @@ function materials(): { M: Record<string, THREE.MeshStandardMaterial>; tex: Reco
     slab: new THREE.MeshStandardMaterial({ map: tex.slab, roughness: 0.88 }),
     wood: new THREE.MeshStandardMaterial({ map: tex.wood, roughness: 0.78 }),
     darkWood: new THREE.MeshStandardMaterial({ map: tex.wood, color: '#8a6a52', roughness: 0.82 }),
-    shingle: new THREE.MeshStandardMaterial({ map: tex.shingle, roughness: 0.95 }),
+    shingle: new THREE.MeshStandardMaterial({ name: 'roof', map: tex.shingle, roughness: 0.95 }),
     moss: new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1 }),
     iron: new THREE.MeshStandardMaterial({ color: '#3a302a', roughness: 0.5, metalness: 0.6 }),
     bronze: new THREE.MeshStandardMaterial({ color: '#7a5634', roughness: 0.45, metalness: 0.7 }),

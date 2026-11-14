@@ -17,7 +17,7 @@ import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-ou
 import { findShardSource, shardFolderName } from '../src/sharddev/shardSource.ts';
 
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
-const SOURCE_VERBS = new Set(['check', 'synth', 'build', 'dev', 'validate', 'prove']);
+const SOURCE_VERBS = new Set(['check', 'synth', 'build', 'dev', 'watch', 'validate', 'prove']);
 
 let runner;
 /** SA3 (J170): `build` and `check` end by writing the folder's shard file, the step `pack` was. It stays out of the author

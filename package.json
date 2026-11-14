@@ -307,6 +307,8 @@
     "./scene/lower": "./src/sharddev/scene/lower.ts",
     "./scene/description": "./src/sharddev/scene/description.ts",
     "./scene/shardfile": "./src/sharddev/scene/shardfile.ts",
+    "./watch/watch": "./src/sharddev/watch/watch.ts",
+    "./watch/encode": "./src/sharddev/watch/encode.ts",
     "./physics": "./src/sharddev/physics.ts",
     "./entries": "./src/sharddev/entries.ts",
     "./spawns": "./src/sharddev/spawns.ts",

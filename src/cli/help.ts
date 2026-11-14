@@ -39,6 +39,10 @@ const VERBS: Readonly<Record<string, string>> = {
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on
                        every edit`,
+  watch: `watch <source> [port]
+                       For a shard written as a three.js scene
+                       (@wildshard/sdk/scene): serve it, then swap each
+                       edited part into the running page, no reload`,
   check: `check <source> [folder] [--json]
                        Lint, build, validate, prove (with the shard
                        source's proof.json) and read the report card, then

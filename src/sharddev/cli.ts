@@ -5,6 +5,7 @@ import { existsSync } from 'node:fs';
 import { buildProject, readProjectAssets, validateProject } from './project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
+import { watchProject } from './watch/watch';
 import { devClient } from './devClient';
 import { proveAuthorSimulation, measureSimulation, validateSimulation } from '@wildshard/engine/host/headless';
 import { performanceReport, performanceReportLines, type PerformanceObservations } from './reportCard';
@@ -51,7 +52,7 @@ async function writeShardfileOf(options: CliOptions, folder: string, source: str
   catch (error) { throw new ShardfileRefusalError(error instanceof Error ? error.message : String(error), { cause: error }); }
 }
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
-const SOURCE_VERBS: ReadonlySet<string> = new Set(['check', 'synth', 'build', 'dev', 'validate', 'prove']);
+const SOURCE_VERBS: ReadonlySet<string> = new Set(['check', 'synth', 'build', 'dev', 'watch', 'validate', 'prove']);
 interface CliOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: ShardfileWriter }
 async function runCommand(given: readonly string[], options: CliOptions): Promise<void> {
   // SA16 (J317): a verb given a repo finds its shard source at `src/` or its one `src/shards/<slug>/`.
@@ -97,7 +98,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     for (const line of updateShardRepo(resolve(positional[0] ?? '.'))) console.info(line);
     return;
   }
-  if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] (wildshard --help lists them all)');
+  if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] | watch <source> [port] (wildshard --help lists them all)');
   // SA16 (J314): a hand-written src/ (--template blender) has no shard.config.ts to build, synth or serve; check settles it.
   if ((command === 'build' || command === 'synth' || command === 'dev') && isRepoSource(resolve(input)) && isHandwrittenSource(resolve(input))) throw new Error(`${command}: ${input} is a hand-written shard file (--template blender): run wildshard check on the repo, which settles and builds it`);
   if (command === 'synth') {
@@ -123,6 +124,18 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
     writeShardRepo(resolve(input), slug, { template, empty: empty === 1 });
     return;
+  }
+  if (command === 'watch') {
+    // SHARD-SOURCE AP6: a scene shard's edits swap into the running page, no reload (`dev` is unchanged)
+    const port = output === undefined ? 0 : Number(output);
+    if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('watch port must be 0..65535');
+    const server = await watchProject(resolve(input), { port, client: await devClient() });
+    const onSignal = (): void => {
+      // oxlint-disable-next-line unicorn/no-process-exit -- the signal handler replaced Node's default exit; ending is its job.
+      void server.close().finally(() => { process.exit(0); });
+    };
+    process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
+    console.info(`wildshard watch: ${server.url}?skipintro`); return;
   }
   if (command === 'dev') {
     const port = output === undefined ? 0 : Number(output);
