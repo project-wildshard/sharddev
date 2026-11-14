@@ -38,19 +38,22 @@
       "family": "emissive",
       "colour": [
         1,
-        0.72,
-        0.32
+        0.6,
+        0.2
       ],
-      "intensity": 2.2
+      "intensity": 1.7,
+      "vertexColours": true
     },
     "mossgate.flame": {
       "family": "emissive",
       "colour": [
         1,
-        0.55,
-        0.14
+        1,
+        1
       ],
-      "intensity": 2.4
+      "intensity": 0.65,
+      "vertexColours": true,
+      "blend": "additive"
     },
     "mossgate.tell": {
       "family": "emissive",
@@ -699,9 +702,9 @@
           0.2232
         ],
         "horizon": [
-          1,
-          0.4793,
-          0.1878
+          0.4342,
+          0.1559,
+          0.3613
         ]
       },
       "fog": {

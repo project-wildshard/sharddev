@@ -444,7 +444,10 @@ export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mes
   // M2: and the hut room's hanging lamp over the table, in the same whole (one draw)
   const room = new BoxGeometry(0.3, 0.38, 0.3).translate(layout.HUT.x + 0.8 - x, heightAt(layout.HUT.x, layout.HUT.z) + 2.15 - y, layout.HUT.z - 0.5 - z);
   const geometry = mergeGeometries([new BoxGeometry(0.36, 0.48, 0.36), room]).toNonIndexed(); geometry.deleteAttribute('uv');
-  geometry.setAttribute('color', new Float32BufferAttribute(new Float32Array(geometry.getAttribute('position').count * 3).fill(1), 3));
+  // M4.10: warm glass, brightest low where the wick burns (the cleanroom's lamp glass gradient), dimmer under the lid
+  const p = geometry.getAttribute('position'), colour = new Float32Array(p.count * 3);
+  for (let i = 0; i < p.count; i++) { const k = p.getY(i) > 0.1 ? 0.62 : 1; colour.set([k, k * (0.9 + 0.1 * k), k * (0.8 + 0.2 * k)], i * 3); }
+  geometry.setAttribute('color', new Float32BufferAttribute(colour, 3));
   const mesh = new Mesh(geometry, new MeshStandardMaterial({ color: 0xffffff, vertexColors: true })); mesh.castShadow = false;
   return { mesh, transform: new Matrix4().makeTranslation(x, y, z) };
 }
@@ -460,11 +463,28 @@ export function brazierFlame(heightAt: (x: number, z: number) => number, which =
   if (which === 1) { const [bx = 0, bz = 0] = layout.ROW[0] ?? []; flameCones(flame, bx, heightAt(bx, bz) + 1.5, bz); }
   return flame;
 }
-/** Five faceted cones in a bowl whose rim is at y. */
-function flameCones(flame: Group, x: number, y: number, z: number): void {
-  const cones: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
-  cones.forEach(([dx, dz, r, h], i) => {
-    const cone = new Mesh(foliageUv(new CylinderGeometry(0, r, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + h / 2 - 0.05, z + dz); cone.rotation.y = jitter(i, 110) * 1.2; flame.add(cone);
+/**
+ * M4.10 (the cleanroom's layered flame cards, MG textures.js and world.js:338): one flame tongue, a cone whose vertex
+ * colours run from `base` at its foot to `tip`, fading to dark at its point. The flame look entry is additive and reads the
+ * vertex colours, so a tongue fades out where it is dark and the tongues overlapping in the bowl add up to a hot core.
+ */
+const FLAME_OUTER: readonly [readonly [number, number, number], readonly [number, number, number]] = [[1, 0.42, 0.07], [0.22, 0.03, 0]];
+const FLAME_INNER: readonly [readonly [number, number, number], readonly [number, number, number]] = [[1, 0.78, 0.32], [0.45, 0.13, 0.01]];
+function tongue(r: number, h: number, [base, tip]: typeof FLAME_OUTER): Mesh {
+  const geometry = foliageUv(new CylinderGeometry(0, r, h, 6, 1, true), 1), p = geometry.getAttribute('position'), colour = new Float32Array(p.count * 3);
+  for (let i = 0; i < p.count; i++) {
+    const t = Math.min(1, Math.max(0, p.getY(i) / h + 0.5)), k = t * t;
+    for (let c = 0; c < 3; c++) colour[i * 3 + c] = (base[c] ?? 0) * (1 - k) + (tip[c] ?? 0) * k;
+  }
+  geometry.setAttribute('color', new Float32BufferAttribute(colour, 3));
+  return new Mesh(geometry, foliageMaterial(0xffffff));
+}
+/** Five outer tongues and three inner ones in a bowl whose rim is at y (M4.10: was five opaque faceted cones). */
+function flameCones(flame: Group, x: number, y: number, z: number, s = 1): void {
+  const outer: [number, number, number, number][] = [[0, 0, 0.42, 1.3], [0.24, 0.12, 0.24, 0.8], [-0.22, 0.16, 0.26, 0.9], [0.08, -0.25, 0.22, 0.75], [-0.14, -0.18, 0.2, 0.65]];
+  const inner: [number, number, number, number][] = [[0.02, 0.01, 0.24, 0.95], [0.12, -0.08, 0.15, 0.6], [-0.1, 0.07, 0.15, 0.55]];
+  for (const [layer, cones, seed] of [[FLAME_OUTER, outer, 110], [FLAME_INNER, inner, 112]] as const) cones.forEach(([dx, dz, r, h], i) => {
+    const cone = tongue(r * s, h * s, layer); cone.position.set(x + dx * s, y + (h * s) / 2 - 0.05, z + dz * s); cone.rotation.set(jitter(i, seed + 1) * 0.12, jitter(i, seed) * 1.2, jitter(i, seed + 2) * 0.12); flame.add(cone);
   });
 }
 
@@ -585,15 +605,21 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
  * `raised` stands their moss-capped tops 0.1 m over the water, with colliders, for brazier B's field to show; `sunk` is the
  * same pillars, a little thinner and 1.4 m under, with no collider, so before B the walk ends in the water.
  */
+/** The raised bridge stones' top over the water, and the sunk slabs' wet stone. */
+const STONE_TOP = 0.3, WET_STONE = 0x5a524a;
 export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders } {
   const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], BED = -3, w = 1.75;
   for (let i = 0; i < BRIDGE_STONES; i++) {
     const x = cx - BRIDGE_REACH + i * ((BRIDGE_REACH * 2) / (BRIDGE_STONES - 1)), z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
-    for (const [root, top, s] of [[raised, 0.1, w], [sunk, -1.4, w - 0.2]] as const) {
+    // M4.10: the sunk stones are the cleanroom's stepping slabs, a hand over the water (the mirror pond hides anything under
+    // it); the raised bridge stands a step (under the motor's 0.35 m autostep) above them once brazier B burns
+    for (const [root, top, s] of [[raised, STONE_TOP, w], [sunk, 0.05, w - 0.2]] as const) {
       const h = top - BED - 0.1;
-      root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw), block(s + 0.1, 0.1, s + 0.1, 2, x, top - 0.05, z, yaw));
+      // the slabs read as wet dark stone, as the cleanroom's sunk blocks do (not the bridge's moss caps)
+      const wet = root === sunk ? WET_STONE : undefined;
+      root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw, 0, wet), block(s + 0.1, 0.1, s + 0.1, wet === undefined ? 2 : 1, x, top - 0.05, z, yaw, 0, wet));
     }
-    colliders.push(stoneBox(x, (0.1 + BED) / 2, z, w / 2, (0.1 - BED) / 2, w / 2, yaw));
+    colliders.push(stoneBox(x, (STONE_TOP + BED) / 2, z, w / 2, (STONE_TOP - BED) / 2, w / 2, yaw));
   }
   return { raised, sunk, colliders };
 }
@@ -764,12 +790,11 @@ export function rimFlames(heightAt: (x: number, z: number) => number): Group {
   const flames = new Group();
   RIM_BRAZIERS.forEach((_, k) => {
     const [x, y, z] = rimBrazier(heightAt, k);
-    for (const [i, [dx, dz, rr, h]] of ([[0, 0, 0.34, 1.05], [0.18, 0.1, 0.2, 0.7], [-0.16, -0.12, 0.2, 0.62]] as const).entries()) {
-      const cone = new Mesh(foliageUv(new CylinderGeometry(0, rr, h, 5), 1), foliageMaterial(0xffffff)); cone.position.set(x + dx, y + 0.94 + h / 2, z + dz); cone.rotation.y = jitter(k * 3 + i, 170) * 1.2; flames.add(cone);
-    }
+    flameCones(flames, x, y + 0.99, z, 0.8);
   });
-  // M2: brazier C's field also lights the row's C beacon at the back of the yard
-  const [bx = 0, bz = 0] = layout.ROW[1] ?? []; flameCones(flames, bx, heightAt(bx, bz) + 1.5, bz);
+  // M2: brazier C's field also lights the row's C beacon at the back of the yard; M4.10: and brazier C's own bowl
+  const [bx = 0, bz = 0] = layout.ROW[1] ?? [], [cx = 0, cz = 0] = layout.BRAZIERS[2] ?? [];
+  flameCones(flames, bx, heightAt(bx, bz) + 1.5, bz); flameCones(flames, cx, heightAt(cx, cz) + 1.5, cz);
   return flames;
 }
 /**
