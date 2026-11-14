@@ -5,10 +5,10 @@ description: Move a Wildshard shard repo to a newer @wildshard/sdk - its pins in
 
 # wildshard-upgrade
 
-`package.json` pins `@wildshard/sdk`, `@wildshard/format`, `@wildshard/engine` and `three` exactly; a `--template
-blender` repo pins only the first two, as dev dependencies (`GUIDE.md#2-the-shard-source`). Moving to a newer sdk
-moves every pin together, then the shard source must build again on them. `GUIDE.md` at the repo root holds the
-facts; a pointer `GUIDE.md#<anchor>` is the guide heading with that anchor.
+`package.json` pins `@wildshard/sdk`, `@wildshard/format`, `@wildshard/engine` and `three` exactly; a repo made
+with the retired `--template blender` pins only the first two, as dev dependencies (`GUIDE.md#2-the-shard-source`).
+Moving to a newer sdk moves every pin together, then the shard source must build again on them. `GUIDE.md` at the
+repo root holds the facts; a pointer `GUIDE.md#<anchor>` is the guide heading with that anchor.
 
 Run the newest CLI once to move, whatever sdk the repo is on now:
 

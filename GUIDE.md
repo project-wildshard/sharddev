@@ -54,7 +54,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 
 | Verb | What it is for |
 |---|---|
-| `wildshard new <dir> [slug] [--template sdk\|blender] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. `--template sdk` (the default) copies the reference world; `--template blender` copies the hand-written Blender template (below); any other template refuses before writing. `--empty` writes a bare shard source instead of the reference world |
+| `wildshard new <dir> [slug] [--template sdk] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. It copies the reference world (`--template sdk`, the only template); any other template refuses before writing, and `--template blender` is retired (below). `--empty` writes a bare shard source instead of the reference world |
 | `wildshard update [dir] [--pins[=<version>]]` | Rewrite this guide and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). The first run fetches engine's dev client once ("Walking your shard") |
 | `wildshard watch <source>` | For a shard written as a three.js scene (`@wildshard/sdk/scene/shard`): serve it once, then swap each edited part into the running page in about a second, no reload. A look, ground or spawn edit still reloads |
@@ -207,14 +207,11 @@ source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo wit
 into the repo's `public/shardfiles/`; a `src/shards/<slug>/` source into its own folder's. SA24 moves the existing
 single-shard repos to `src/`.
 
-**The hand-written template (`--template blender`).** shard-format's `blender-template`: no sdk at runtime, no
-three.js, no `shard.config.ts`. Its `src/` is a shard file folder held by hand: `shard.json` (the index),
-`sections/` (the JSON you edit), `blobs/` (baked files, Blender models among them, each named by its SHA-256),
-`mounts/` (what the boot reads first, with its receipt) and `validation.json`. `check` lint skips it (no code); its
-build runs shard-format's `shard-format pack`, which settles every hash and size the sections measure and validates
-the whole folder, then writes the built folder and shard file as any build does. A changed blob is a new file under
-its new hash, with every row that names it changed to match. `package.json` lists only `@wildshard/sdk` (the CLI) and
-shard-format, as dev dependencies; there is no `tsconfig.json`.
+**Blender makes models, not shards (J341).** A shard is TypeScript three.js scene source: `shard.config.ts`, its
+`generators/` and `data/`. Blender makes the `.glb` models that code loads; export them into `assets/`. The old
+hand-written template (`new --template blender`, a shard file folder held by hand) is retired, and `new` refuses it.
+A repo started that way before still checks and uploads: `wildshard check .` packs and validates its `src/` folder as
+it always did.
 
 **What a shard may declare.** The runtime contract lists every section, `client/plan` kind, named file, script rule,
 budget and limit a shard file may carry, and what validation refuses:
@@ -340,8 +337,9 @@ an existing folder.
 
 #### new-template
 
-`--template` names `sdk` (the reference world, the default) or `blender` (the hand-written Blender template). Any
-other name refuses before `new` writes anything. Leave the flag out or pass `--template sdk` or `--template blender`.
+`--template` names `sdk` (the reference world, the default and only template). Any other name refuses before `new`
+writes anything. `--template blender` is retired (J341): a shard is TypeScript three.js scene source, and Blender
+makes the `.glb` models it loads (section 2). Leave the flag out or pass `--template sdk`.
 
 #### new-refused
 

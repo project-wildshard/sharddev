@@ -100,7 +100,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   }
   if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] | watch <source> [port] (wildshard --help lists them all)');
   // SA16 (J314): a hand-written src/ (--template blender) has no shard.config.ts to build, synth or serve; check settles it.
-  if ((command === 'build' || command === 'synth' || command === 'dev') && isRepoSource(resolve(input)) && isHandwrittenSource(resolve(input))) throw new Error(`${command}: ${input} is a hand-written shard file (--template blender): run wildshard check on the repo, which settles and builds it`);
+  if ((command === 'build' || command === 'synth' || command === 'dev') && isRepoSource(resolve(input)) && isHandwrittenSource(resolve(input))) throw new Error(`${command}: ${input} is a hand-written shard file (the retired --template blender): run wildshard check on the repo, which settles and builds it`);
   if (command === 'synth') {
     if (output !== undefined) throw new Error('usage: wildshard synth <source>');
     const result = await synthProject(resolve(input));
@@ -118,7 +118,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       else if (value.startsWith('--')) unknown = true;
       else names.push(value);
     }
-    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk|blender] [--empty]');
+    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk] [--empty]');
     // An unknown template refuses here, before anything is written.
     const template = templateNamed(templates[0] ?? 'sdk');
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';

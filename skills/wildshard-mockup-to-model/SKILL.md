@@ -22,7 +22,8 @@ Read `GUIDE.md#2-the-shard-source` before your first edit: it says what ships in
 3. **Pick one way to build it.**
    - **Code:** a generator in `generators/` that builds the mesh at build time. Pick it when the shape follows numbers
      or data (stairs, fences, a row of posts), or changes often. Generators run only at build time and must not import
-     runtime code (`GUIDE.md#lint-no-runtime-in-build`). A `--template blender` repo has no generators: use Blender.
+     runtime code (`GUIDE.md#lint-no-runtime-in-build`). An old repo made with the retired `--template blender` has
+     no generators: use Blender.
    - **Blender:** model it by hand or with a Blender script, keep the `.blend` or script in `blender/`, and export a
      GLB. Pick it for an organic shape, a UV unwrap, a baked texture or a bevel.
    - **An image-to-3D tool or a CC0 model** you are licensed to use: treat its GLB as the Blender path's export.
@@ -37,8 +38,9 @@ Read `GUIDE.md#2-the-shard-source` before your first edit: it says what ships in
      nothing names it. A creature's GLB is named in `data/skins.json` and its skin file together with measured sizes:
      replacing one needs the Wildshard team today. If nothing names a model of its kind yet, ask the Wildshard team
      how it is loaded; the guide does not say yet.
-   - **The `--template blender` repo:** the GLB goes in `blobs/glb/` as `<sha256>.glb`, and every `sections/` row that
-     names it changes to match; `wildshard check .` settles the sizes (`GUIDE.md#2-the-shard-source`).
+   - **An old `--template blender` repo** (retired, J341; still checks and uploads): the GLB goes in `blobs/glb/` as
+     `<sha256>.glb`, and every `sections/` row that names it changes to match; `wildshard check .` settles the sizes
+     (`GUIDE.md#2-the-shard-source`).
    Done when `git status` shows the new file and the changed rows or imports.
 6. **Check.** `wildshard check .` (`GUIDE.md#1-the-loop`). The report card measures draws, triangles, memory and
    download against their limits (`GUIDE.md#3-budgets`); a refusal names its fix, for example

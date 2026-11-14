@@ -31,19 +31,24 @@ function writeInstallScriptPolicy(project: string): void {
   writeFileSync(resolve(project, 'pnpm-workspace.yaml'), INSTALL_SCRIPT_POLICY);
 }
 
-/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`); `blender` is shard-format's
- * hand-written `blender-template` (`corpus/handwritten`): a shard file folder held by hand, no sdk at runtime, no three. */
-export const TEMPLATES = ['sdk', 'blender'] as const;
+/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`), the only template since
+ * SS5 (J341): a shard is TypeScript three.js scene source, and Blender makes the models it loads. */
+export const TEMPLATES = ['sdk'] as const;
 export type TemplateName = (typeof TEMPLATES)[number];
+/** What `writeShardRepo` can still lay out. `blender` is the retired hand-written shape (shard-format's
+ * `blender-template`, a shard file folder held by hand): `new` refuses it, but repos made that way still check and upload,
+ * so tests keep making one to prove that. */
+export type RepoShape = TemplateName | 'blender';
 /** The template `new` makes with no flag. */
 export const DEFAULT_TEMPLATE: TemplateName = 'sdk';
 /** J317: a repo with one shard keeps its shard source at `src/`. */
 export const SHARD_SOURCE_FOLDER = 'src';
 
-/** The template named by `--template`, or a refusal that names both, thrown before anything is written. */
+/** The template named by `--template`, or a refusal, thrown before anything is written. */
 export function templateNamed(name: string): TemplateName {
+  if (name === 'blender') throw new Error('new: --template blender is retired (J341): a shard is TypeScript three.js scene source, and Blender makes the .glb models that code loads; leave out --template. Repos made with it still check and upload');
   const found = TEMPLATES.find(template => template === name);
-  if (found === undefined) throw new Error(`new: unknown template ${name}: use --template sdk or --template blender`);
+  if (found === undefined) throw new Error(`new: unknown template ${name}: leave out --template, or pass --template sdk`);
   return found;
 }
 
@@ -76,7 +81,7 @@ export const REPO_DEPENDENCIES = ['@wildshard/engine', '@wildshard/format', 'thr
 export const HANDWRITTEN_DEPENDENCIES = ['@wildshard/format'] as const;
 
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
-export function repoPackageJson(slug: string, template: TemplateName = DEFAULT_TEMPLATE): string {
+export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE): string {
   const sdk = sdkPackage(), dependencies: Record<string, string> = { '@wildshard/sdk': sdk.version };
   for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
     const spec = sdk.dependencies[name];
@@ -118,7 +123,7 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
   nothing here imports code, so no engine and no three.js. Its \`version\` is
   the version \`wildshard upload\` sends.`;
 
-function repoReadme(slug: string, template: TemplateName, empty: boolean): string {
+function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
   const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)' : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
@@ -151,7 +156,7 @@ ${layout}
 
 /** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, and the agent files
  * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
-function writeRepoFiles(project: string, slug: string, template: TemplateName, empty: boolean): void {
+function writeRepoFiles(project: string, slug: string, template: RepoShape, empty: boolean): void {
   writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template));
   // A hand-written repo holds no TypeScript to check.
   if (template !== 'blender' || empty) writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
@@ -202,8 +207,8 @@ export function writeEmptyShardSource(source: string, slug: string): void {
   writeEmptySource(source, slug);
 }
 
-/** `wildshard new <dir> [slug] [--template sdk|blender] [--empty]`: a whole single-shard repo, its shard source at `src/`. */
-export function writeShardRepo(project: string, slug: string, options: { readonly template?: TemplateName; readonly empty?: boolean } = {}): void {
+/** `wildshard new <dir> [slug] [--template sdk] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. */
+export function writeShardRepo(project: string, slug: string, options: { readonly template?: RepoShape; readonly empty?: boolean } = {}): void {
   const template = options.template ?? DEFAULT_TEMPLATE;
   assertTarget(project, slug);
   mkdirSync(project, { recursive: true });

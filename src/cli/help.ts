@@ -16,13 +16,13 @@ const PACK_ALIAS = `pack <folder> [--out <file>]
 
 /** Each verb's entry: its usage lines, then what it does, indented. */
 const VERBS: Readonly<Record<string, string>> = {
-  new: `new <dir> [slug] [--template sdk|blender] [--empty]
+  new: `new <dir> [slug] [--template sdk] [--empty]
                        Start a shard repo in <dir>, a folder that does not
                        exist yet, with its shard source at src/ (slug: the
-                       folder's name unless given). --template sdk (the
-                       default) copies the reference world; --template
-                       blender copies the hand-written Blender template
-                       (a shard file folder, no code). --empty writes a
+                       folder's name unless given). It copies the reference
+                       world (--template sdk, the only template; blender is
+                       retired: Blender makes models, code makes the
+                       shard). --empty writes a
                        bare shard source instead`,
   update: `update [dir] [--pins[=<version>]]
                        Rewrite GUIDE.md and the four wildshard skills in

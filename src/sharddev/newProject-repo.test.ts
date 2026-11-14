@@ -8,9 +8,12 @@ import { newProject } from './project';
 import { findShardSource, shardFolderName, shardOutputRoot } from './shardSource';
 import { checkProject } from './checkProject';
 import { validateOutputProduct } from './outputProduct';
+import { writeShardRepo } from './newProject';
+import { REFUSAL_RULES } from './refusals';
 
-// SA16 (J314, J317): `wildshard new <dir> [--template sdk|blender]` writes a whole single-shard repo, its shard source at
-// `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written.
+// SA16 (J314, J317): `wildshard new <dir> [--template sdk]` writes a whole single-shard repo, its shard source at
+// `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written. SS5
+// (J341): `blender` is retired and refuses too, but a repo made that way still checks.
 describe('wildshard new writes a shard repo (SA16)', () => {
   let scratch = '';
   const sdk = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; dependencies: Record<string, string>; peerDependencies: Record<string, string> };
@@ -45,17 +48,29 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate');
   });
 
-  it('an unknown template refuses before writing, naming both', async () => {
+  it('an unknown template refuses before writing, naming sdk', async () => {
     const repo = resolve(scratch, 'unknown');
-    await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x.*--template sdk or --template blender/u);
+    await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x: leave out --template, or pass --template sdk/u);
     expect(existsSync(repo)).toBe(false);
     await expect(runCli(['new', repo, '--template'])).rejects.toThrow(/usage: wildshard new/u);
     expect(existsSync(repo)).toBe(false);
   });
 
-  it('--template blender: the hand-written blender-template at src/, renamed, settled, and checked', async () => {
+  it('--template blender is retired (SS5, J341): it refuses before writing and points at scene source', async () => {
+    const repo = resolve(scratch, 'retired');
+    for (const flags of [['--template', 'blender'], ['--template=blender']]) {
+      await expect(runCli(['new', repo, 'clay-hall', ...flags])).rejects.toThrow(/^new: --template blender is retired \(J341\): a shard is TypeScript three\.js scene source, and Blender makes the \.glb models that code loads/u);
+      expect(existsSync(repo)).toBe(false);
+    }
+    // The refusal reads as new-template, whose fix names scene source.
+    const rule = REFUSAL_RULES.find(row => row.id === 'new-template');
+    expect(rule?.match?.test('new: --template blender is retired (J341)')).toBe(true);
+    expect(rule?.fix).toMatch(/scene source/u);
+  });
+
+  it('an old --template blender repo (the hand-written blender-template at src/) still settles and checks', async () => {
     const repo = resolve(scratch, 'blender');
-    await runCli(['new', repo, 'clay-hall', '--template', 'blender']);
+    writeShardRepo(repo, 'clay-hall', { template: 'blender' });
     // The source's real entry is its index: a shard file folder held by hand, no shard.config.ts and no TypeScript.
     expect(existsSync(resolve(repo, 'src/shard.json'))).toBe(true);
     expect(existsSync(resolve(repo, 'src/shard.config.ts'))).toBe(false);
