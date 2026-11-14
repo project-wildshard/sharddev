@@ -1,5 +1,5 @@
 import type { ScriptContract } from '@wildshard/format/scriptContract';
-import { assetCost as cost, assetOverdraw as raster, parseAudio as audio, parseGlb as glb, prepareAssetDecoders, type AssetCost as Cost } from '@wildshard/format/product';
+import { assetCost as cost, assetOverdraw as raster, parseAudio as audio, parseGlb as glb, prepareAssetDecoders, type AssetCost as Cost } from '@wildshard/format/shardfileAssets';
 import { parseKtx2 as ktx2 } from '@wildshard/format/ktx2Cost';
 
 // Author-only facade: keep synchronous cost APIs ready without suspending app modules.

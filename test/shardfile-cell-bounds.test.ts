@@ -7,7 +7,7 @@ import * as v from 'valibot';
 import { BoxGeometry, MeshBasicMaterial } from 'three';
 import { emptyShardfile } from '@wildshard/sdk/author';
 import { staticGlb } from '../src/sharddev/bake/glb';
-import { validatePropDrawBounds } from '@wildshard/format/product';
+import { validatePropDrawBounds } from '@wildshard/format/shardfileAssets';
 
 const box = { min: [-250, -250, -250], max: [250, 250, 250] };
 test('every section refuses a nested spatial extent outside the exact inclusive cell envelope', () => {

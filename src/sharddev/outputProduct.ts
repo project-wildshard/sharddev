@@ -12,7 +12,7 @@ import { outputSectionPayloads, OUTPUT_SECTIONS } from '@wildshard/format/output
 import { decisionScriptsFromSections, scriptAdmissionRows, type ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
 import { structuralGridEvidence } from '@wildshard/format/gridReadiness';
-import { offlineMemoryAdmission } from '@wildshard/format/product';
+import { offlineMemoryAdmission } from '@wildshard/format/shardfileAssets';
 import { validationRevision, validationSourceBytes } from '@wildshard/format/validationReceipt';
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { admitProduct, readmitted, rememberAdmitted } from './productOutput';
@@ -26,7 +26,7 @@ import { COOK_DATA_PATH, cookMountPath } from '@wildshard/format/cookData';
 import type { CookInput } from './cookInput';
 import { validateDefinedJson, type EmittedSections } from './sections';
 import { parseDiscoveryValues, type DiscoveryValues } from '@wildshard/format/discoveryValues';
-import { checkWorldTargets, outputBlobExtension as blobExtension, outputBlobKind as blobKind, readCanonicalJson as readJson, validateShardfileProduct, type ProductFiles, type ValidatedProduct } from '@wildshard/format/productValidation';
+import { checkWorldTargets, outputBlobExtension as blobExtension, outputBlobKind as blobKind, readCanonicalJson as readJson, validateShardfileFolder as validateShardfileProduct, type ShardfileFiles as ProductFiles, type ValidatedShardfile as ValidatedProduct } from '@wildshard/format/shardfileValidation';
 
 const encoder = new TextEncoder();
 function jsonBytes(value: unknown): Uint8Array { return encoder.encode(encodeCanonicalJson(value)); }

@@ -6,7 +6,7 @@ import { heroHashOf } from './hero.ts'
 
 import type { HeroCard } from './hero.ts'
 import type { AudioReport } from '@wildshard/format/audioRules'
-import type { ProductFiles } from '@wildshard/format/productValidation'
+import type { ShardfileFiles as ProductFiles } from '@wildshard/format/shardfileValidation'
 
 // The same check api-server runs on commit, run first on the author's
 // machine: a shardfile the server would refuse should not cost a Brotli
@@ -52,10 +52,12 @@ async function validateShardfile(
   tarball: Readonly<Uint8Array>,
 ): Promise<ValidShardfile> {
   installFormatHook()
-  const { prepareAssetDecoders } = await import('@wildshard/format/product')
-  const { validateShardfileProduct } =
-    await import('@wildshard/format/productValidation')
-  const { productAudioReport } = await import('@wildshard/format/productAudio')
+  const { prepareAssetDecoders } =
+    await import('@wildshard/format/shardfileAssets')
+  const { validateShardfileFolder: validateShardfileProduct } =
+    await import('@wildshard/format/shardfileValidation')
+  const { shardfileAudioReport: productAudioReport } =
+    await import('@wildshard/format/shardfileAudio')
   const { readTar } = await import('@wildshard/format/tar')
   await prepareAssetDecoders()
   const product = productFiles(readTar(tarball))

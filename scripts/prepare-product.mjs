@@ -14,8 +14,8 @@ import {parseOutputIndex,assembleOutputShardfile} from '@wildshard/format/output
 import {controlFileHashes,playLibrarySteps} from '@wildshard/format/admissionControl';
 import {entryFileSteps} from '@wildshard/format/tierSelection';
 import {validationSourceBytes} from '@wildshard/format/validationReceipt';
-import {prepareAssetDecoders} from '@wildshard/format/product';
-import {validateShardfileProduct} from '@wildshard/format/productValidation';
+import {prepareAssetDecoders} from '@wildshard/format/shardfileAssets';
+import {validateShardfileFolder as validateShardfileProduct} from '@wildshard/format/shardfileValidation';
 
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const json=(dir,name)=>JSON.parse(readFileSync(join(dir,name),'utf8'));

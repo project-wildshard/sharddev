@@ -3,7 +3,7 @@ import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import * as v from 'valibot';
 import { isJsonData } from '@wildshard/format/json';
-import { parseGlb } from '@wildshard/format/product';
+import { parseGlb } from '@wildshard/format/shardfileAssets';
 
 const MAX_BYTES = 25_000_000;
 const count = v.pipe(v.number(), v.integer(), v.minValue(0));

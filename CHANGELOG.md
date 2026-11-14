@@ -9,6 +9,19 @@ the next version and date, commit and push it, then run repo-kit's
 
 ## Unreleased
 
+- Breaking: the sdk moves to shard-format 0.5.3 and engine 0.1.19.
+  shard-format 0.5 renamed its modules: `@wildshard/format/product`
+  is now `shardfileAssets`, `productValidation` is
+  `shardfileValidation`, `productAudio` is `shardfileAudio` and
+  `directorProduct` is `directorDocument`. A shard source that
+  imports one of those changes the path; `wildshard update --pins`
+  moves the pins.
+- New: write a shard as a three.js scene (`@wildshard/sdk/scene/shard`)
+  and run `wildshard watch <source>`: each edited part swaps into the
+  running page in about a second, without a reload.
+- Retired: `wildshard new --template blender`. A shard is TypeScript
+  three.js scene source, and Blender makes the `.glb` models it
+  loads. Repos made with it still check and upload.
 - New: `three` is a peer of `@wildshard/sdk`, pinned exact. Every
   `wildshard` and `sharddev` command checks the installed `three`
   first and refuses, naming the version it wants and the one it

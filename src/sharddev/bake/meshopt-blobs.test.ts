@@ -6,7 +6,7 @@ import { MeshoptEncoder } from 'meshoptimizer/encoder';
 import { staticGlb } from './glb';
 import { compressGlb } from './glbCompression';
 import { nameBlob, emitNamedBlobs } from '../blobs';
-import { parseGlb, visitGlbTriangles } from '@wildshard/format/product';
+import { parseGlb, visitGlbTriangles } from '@wildshard/format/shardfileAssets';
 import { createOwnedGeometry } from '@wildshard/engine/models/ownedGeometry';
 
 const record = (value: unknown): Record<string, unknown> => {

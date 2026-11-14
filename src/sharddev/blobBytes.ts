@@ -1,4 +1,4 @@
-import { assetCost, prepareAssetDecoders } from '@wildshard/format/product';
+import { assetCost, prepareAssetDecoders } from '@wildshard/format/shardfileAssets';
 import { parseImageAsset } from '@wildshard/format/stillImage';
 import { decodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { outputBlobPath } from '@wildshard/format/outputAddress';
