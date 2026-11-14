@@ -12,7 +12,7 @@ import type { SceneGeometry, ScenePart, ShardScene } from '../scene/description'
  *   GET /__wildshard_scene/texture/<key>   one RGBA8 raster, row 0 at v = 0, immutable by key
  */
 export const DEV_SCENE_PATH = '/__wildshard_scene/';
-export const WATCH_SOCKET = `${DEV_SCENE_PATH}socket`;
+export const WATCH_SOCKET = '/__wildshard_scene/socket';
 /** The protocol between the watch server and its own page script: they ship together, so a mismatch is a stale page. */
 export const WATCH_WIRE = 2;
 /** The engine dev hook version this sdk drives: engine's `DEV_HOOK_VERSION`, named in a devserver client's build flags. */
