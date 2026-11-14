@@ -1,4 +1,4 @@
-import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix3, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import { Box3, BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix3, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import type { PoolSurface } from '@wildshard/format/pool-surface';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../author';
@@ -16,9 +16,11 @@ import { hashOf } from './hash';
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
  * author types by hand today:
  *
- * - **static parts** (AP2): every `Mesh` and `InstancedMesh`, merged per material per 62.5 m tile (instances expanded, their
- *   colours in the vertex colours, the map's repeat and offset in the uvs), one named GLB material per scene material, a
- *   generated `look.materials` entry and `props.materials` binding for each, painted textures as RGBA8 KTX2 slots;
+ * - **static parts** (AP2): every `Mesh`, merged per material per 62.5 m tile (the map's repeat and offset in the uvs), one
+ *   named GLB material per scene material, a generated `look.materials` entry and `props.materials` binding for each,
+ *   painted textures as RGBA8 KTX2 slots; an `InstancedMesh` with no motion stays instanced (SHARD-SOURCE AP15): its
+ *   geometry once per tile, its copies as `EXT_mesh_gpu_instancing` rows in the tile of their seat (a swaying or carded
+ *   one is still expanded: the engine's sway reads the mesh's own frame);
  * - **light and look** (AP3): `PointLight`s to `look.light.lamps` (the 16 brightest), the brightest `DirectionalLight` to
  *   the sun key, a `HemisphereLight` to the ambient key, `scene.fog`, `world.post`;
  * - **ground, colliders, water** (AP4): `world.ground(heightAt)` to the terrain bake, `solid(mesh)` to collider boxes, each
@@ -39,6 +41,8 @@ export interface ShardfileOptions {
 }
 
 const TILE = 62.5, HALF = 250;
+/** AP15: how far an instanced copy may hang past the cell's edge (format `props.overhang`, at most 1 m). */
+const OVERHANG = 1;
 const glbName = (material: SceneMaterial, taken: Map<string, string>): string => {
   const wanted = material.name.replaceAll(/[^\w.-]/gu, '-').slice(0, 96) || material.key;
   const owner = taken.get(wanted);
@@ -96,6 +100,55 @@ function mergeDraws(key: string, draws: readonly SceneDraw[], scene: ShardScene,
       appendCopy(geometry, material, world, normalMatrix, flip, tint, key, tiles, p, n, draw.motion?.kind === 'sway' ? draw.motion.amount : 0);
     }
   }
+}
+
+/** AP15: one instanced draw's copies in one tile: its base geometry (local, uvs and vertex colours as the merge writes
+ *  them) once, each copy's world matrix and its colour. */
+interface InstancedGroup { key: string; geometry: BufferGeometry; matrices: Matrix4[]; colours: Color[] | null; castShadow: boolean; box: Box3 }
+/** The fewest copies a draw needs to stay instanced (below it the merge is as small). */
+const INSTANCE_MIN = 2, INSTANCE_CAP = 10_000;
+
+/** A copy the engine's loader can place: translation, rotation and a positive scale, no shear (the loader reads instance
+ *  TRS rows; an exact `_MATRIX` row loads as the identity there). */
+function isTrs(matrix: Matrix4): boolean {
+  const position = new Vector3(), rotation = new Quaternion(), scale = new Vector3();
+  matrix.decompose(position, rotation, scale);
+  const composed = new Matrix4().compose(position, rotation, scale);
+  return scale.x > 0 && scale.y > 0 && scale.z > 0 && matrix.elements.every((n, i) => Number.isFinite(n) && Math.abs(n - (composed.elements[i] ?? Infinity)) <= 1e-6);
+}
+
+/** AP15: an `InstancedMesh` with no motion as per-tile instance groups, or null when a copy is mirrored or sheared (the
+ *  merge takes it). Instance colours over 1 are folded into the base colours (glTF instance colours are 0 to 1). */
+function instanceGroups(key: string, draw: SceneDraw, scene: ShardScene): Map<string, InstancedGroup> | null {
+  const geometry = scene.geometries[draw.geometry], material = scene.materials[draw.material], instances = draw.instances;
+  if (geometry === undefined || material === undefined || instances === null) return null;
+  const base = new Matrix4().fromArray(draw.matrix), worlds: Matrix4[] = [];
+  for (let copy = 0; copy < instances.count; copy++) {
+    const world = base.clone().multiply(new Matrix4().fromArray(instances.matrices, copy * 16));
+    if (!(world.determinant() > 0) || !isTrs(world)) return null;
+    worlds.push(world);
+  }
+  const tints = instances.colours, peak = tints === null ? 1 : Math.max(1, ...tints);
+  const count = geometry.position.length / 3, uv = new Float32Array(count * 2), colour = new Float32Array(count * 3);
+  for (let at = 0; at < count; at++) {
+    uv[at * 2] = (geometry.uv?.[at * 2] ?? 0) * material.repeat[0] + material.offset[0];
+    uv[at * 2 + 1] = (geometry.uv?.[at * 2 + 1] ?? 0) * material.repeat[1] + material.offset[1];
+    for (let c = 0; c < 3; c++) colour[at * 3 + c] = (material.vertexColours && geometry.colour !== null ? geometry.colour[at * 3 + c] ?? 1 : 1) * peak;
+  }
+  const shape = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(geometry.position, 3)).setAttribute('normal', new Float32BufferAttribute(geometry.normal, 3))
+    .setAttribute('uv', new Float32BufferAttribute(uv, 2)).setAttribute('color', new BufferAttribute(colour, 3));
+  if (geometry.index !== null) shape.setIndex([...geometry.index]);
+  shape.computeBoundingBox();
+  const local = shape.boundingBox ?? new Box3(), groups = new Map<string, InstancedGroup>();
+  worlds.forEach((world, copy) => {
+    const tile = `${tileOf(world.elements[12] ?? 0)}/${tileOf(world.elements[14] ?? 0)}`;
+    let group = groups.get(tile);
+    if (group === undefined) { group = { key, geometry: shape, matrices: [], colours: tints === null ? null : [], castShadow: draw.castShadow, box: new Box3() }; groups.set(tile, group); }
+    group.matrices.push(world);
+    if (tints !== null) group.colours?.push(new Color((tints[copy * 3] ?? 1) / peak, (tints[copy * 3 + 1] ?? 1) / peak, (tints[copy * 3 + 2] ?? 1) / peak));
+    group.box.union(local.clone().applyMatrix4(world));
+  });
+  return groups;
 }
 
 function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Matrix4, normalMatrix: Matrix3, flip: boolean, tint: Vector3, key: string, tiles: Map<string, Map<string, Merge>>, p: Vector3, n: Vector3, sway = 0): void {
@@ -342,7 +395,14 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     const found = scene.materials[material]; if (found === undefined) return null;
     const key = entryKey(material, motion, card); if (!entries.has(key)) entries.set(key, { material: found, motion, card }); return key;
   };
-  for (const draw of draws) { const key = entryOf(draw.material, draw.motion); if (key === null) continue; const list = byEntry.get(key) ?? []; list.push(draw); byEntry.set(key, list); }
+  const instanced = new Map<string, InstancedGroup[]>();
+  for (const draw of draws) {
+    const key = entryOf(draw.material, draw.motion); if (key === null) continue;
+    // AP15: a still InstancedMesh stays instanced, its copies in the tiles of their seats
+    const groups = draw.motion === null && (draw.instances?.count ?? 0) >= INSTANCE_MIN ? instanceGroups(key, draw, scene) : null;
+    if (groups !== null) { for (const [tile, group] of groups) { const list = instanced.get(tile) ?? []; list.push(group); instanced.set(tile, list); } continue; }
+    const list = byEntry.get(key) ?? []; list.push(draw); byEntry.set(key, list);
+  }
   const tiles = new Map<string, Map<string, Merge>>();
   for (const [key, list] of byEntry) mergeDraws(key, list, scene, tiles);
   // cards (AP11): every sprite and every point a camera-facing quad in its seat's tile
@@ -364,9 +424,11 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   }
   const shardTiles = terrain.tiles.map((t) => ({ ...t, files: [...t.files], bounds: { min: [...t.bounds.min] as [number, number, number], max: [...t.bounds.max] as [number, number, number] } }));
   const propTiles: { lod: 0; x: number; z: number; file: string }[] = [], tileReport: { tile: string; triangles: number; draws: number; bytes: number }[] = [];
-  for (const [address, merges] of [...tiles].sort(([a], [b]) => a.localeCompare(b))) {
+  const addresses = [...new Set([...tiles.keys(), ...instanced.keys()])].sort((a, b) => a.localeCompare(b));
+  for (const address of addresses) {
+    const merges = tiles.get(address) ?? new Map<string, Merge>();
     const [x = 0, z = 0] = address.split('/').map(Number);
-    const primitives: GlbPrimitive[] = [], dependencies = new Set<string>();
+    const primitives: GlbPrimitive[] = [], dependencies = new Set<string>(), drawn = new Box3();
     for (const [key, merge] of [...merges].sort(([p], [q]) => p.localeCompare(q))) {
       const entry = entries.get(key), material = entry?.material; if (entry === undefined || material === undefined || merge.position.length === 0) continue;
       const swaying = entry.motion?.kind === 'sway';
@@ -382,11 +444,23 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
       }
       const file = material.map === null ? undefined : textureFiles.get(material.map); if (file !== undefined) dependencies.add(file.hash);
     }
+    for (const primitive of primitives) { primitive.geometry.computeBoundingBox(); if (primitive.geometry.boundingBox !== null) drawn.union(primitive.geometry.boundingBox); }
+    // AP15: the tile's instance groups, at most INSTANCE_CAP copies a node
+    for (const group of instanced.get(address) ?? []) {
+      const entry = entries.get(group.key), material = entry?.material; if (entry === undefined || material === undefined) continue;
+      const glbMaterial = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); glbMaterial.name = glbNames.get(group.key) ?? group.key;
+      for (let from = 0; from < group.matrices.length; from += INSTANCE_CAP) {
+        const colours = group.colours?.slice(from, from + INSTANCE_CAP);
+        primitives.push({ geometry: group.geometry, material: glbMaterial, castShadow: group.castShadow, instances: group.matrices.slice(from, from + INSTANCE_CAP), ...(colours === undefined ? {} : { instanceColours: colours }) });
+      }
+      drawn.union(group.box);
+      const file = material.map === null ? undefined : textureFiles.get(material.map); if (file !== undefined) dependencies.add(file.hash);
+    }
     if (primitives.length === 0) continue;
     // a GLB holds at most 25 MB (shard-format glbCost): batch the primitives into as many files as the tile needs
     const batches: GlbPrimitive[][] = []; let batch: GlbPrimitive[] = [], bytes = 0;
     for (const primitive of primitives) {
-      const size = primitive.geometry.getAttribute('position').count * 44 + (primitive.geometry.getIndex()?.count ?? 0) * 4;
+      const size = primitive.geometry.getAttribute('position').count * 44 + (primitive.geometry.getIndex()?.count ?? 0) * 4 + (primitive.instances?.length ?? 0) * 76;
       if (batch.length > 0 && bytes + size > 18_000_000) { batches.push(batch); batch = []; bytes = 0; }
       batch.push(primitive); bytes += size;
     }
@@ -401,7 +475,15 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     const sum = (pick: (f: Shardfile['files'][number]) => number): number => rows.reduce((n, f) => n + pick(f), 0) + textures.reduce((n, f) => n + pick(f), 0);
     tile.compressed += sum((f) => f.compressed); tile.decoded += sum((f) => f.decoded); tile.gpu += sum((f) => f.gpu);
     tile.triangles += rows.reduce((n, f) => n + f.triangles, 0); tile.draws += rows.reduce((n, f) => n + f.draws, 0);
-    for (const primitive of primitives) { primitive.geometry.computeBoundingBox(); const box = primitive.geometry.boundingBox; if (box === null) continue; tile.bounds.min[1] = Math.min(tile.bounds.min[1], box.min.y); tile.bounds.max[1] = Math.max(tile.bounds.max[1], box.max.y); }
+    if (!drawn.isEmpty()) {
+      tile.bounds.min[1] = Math.min(tile.bounds.min[1], drawn.min.y); tile.bounds.max[1] = Math.max(tile.bounds.max[1], drawn.max.y);
+      // AP15: an instanced copy is whole in its seat's tile, so it may hang over the tile's edge: its draw bounds say so
+      if (drawn.min.x < tile.bounds.min[0] || drawn.min.z < tile.bounds.min[2] || drawn.max.x > tile.bounds.max[0] || drawn.max.z > tile.bounds.max[2]) {
+        const low = (v: number): number => Math.max(-HALF - OVERHANG, Math.floor(v * 1000) / 1000), high = (v: number): number => Math.min(HALF + OVERHANG, Math.ceil(v * 1000) / 1000);
+        tile.drawBounds = { min: [low(Math.min(tile.bounds.min[0], drawn.min.x)), tile.bounds.min[1], low(Math.min(tile.bounds.min[2], drawn.min.z))],
+          max: [high(Math.max(tile.bounds.max[0], drawn.max.x)), tile.bounds.max[1], high(Math.max(tile.bounds.max[2], drawn.max.z))] };
+      }
+    }
     const row = { triangles: rows.reduce((n, f) => n + f.triangles, 0), draws: rows.reduce((n, f) => n + f.draws, 0), compressed: rows.reduce((n, f) => n + f.compressed, 0) };
     tileReport.push({ tile: `0/${x}/${z}`, triangles: row.triangles, draws: row.draws, bytes: row.compressed });
   }
@@ -418,7 +500,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     look: sceneLook(scene, lights, lookMaterials), spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
     critical: [...terrain.critical], far: null,
-    props: { version: 1, family: 'pbr', tiles: propTiles, panels: [], models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
+    props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels: [], models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
     ...(water.length === 0 ? {} : { water }),
   };
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
