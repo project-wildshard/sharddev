@@ -9,65 +9,7 @@
       "family": "pbr",
       "vertexColours": true,
       "metalness": 0,
-      "faceted": true,
-      "measure": {
-        "floor": [
-          0.29,
-          0.35,
-          0.17
-        ],
-        "label": {
-          "colour": [
-            1,
-            0.93,
-            0.8
-          ],
-          "height": 0.36
-        },
-        "lift": 0.4,
-        "line": {
-          "alpha": 0.45,
-          "colour": [
-            1,
-            0.95,
-            0.82
-          ],
-          "floorAlpha": 0.3,
-          "width": 0.011
-        },
-        "structure": [
-          0.5,
-          0.47,
-          0.47
-        ],
-        "sub": {
-          "alpha": 0.08,
-          "step": 0.25
-        },
-        "trim": [
-          0.3,
-          0.44,
-          0.18
-        ],
-        "tint": [
-          0.85,
-          0.85,
-          0
-        ],
-        "grain": {
-          "amount": [
-            0.14,
-            0.12,
-            0.1
-          ],
-          "size": 0.35
-        },
-        "grid": [
-          0.35,
-          0.55,
-          0.18
-        ]
-      }
+      "faceted": false
     },
     "mossgate.mushroom-cap": {
       "family": "emissive",
@@ -81,7 +23,7 @@
     "mossgate.lamp": {
       "family": "emissive",
       "colour": [
-        1.0,
+        1,
         0.72,
         0.32
       ],
@@ -90,7 +32,7 @@
     "mossgate.flame": {
       "family": "emissive",
       "colour": [
-        1.0,
+        1,
         0.55,
         0.14
       ],
@@ -99,7 +41,7 @@
     "mossgate.tell": {
       "family": "emissive",
       "colour": [
-        1.0,
+        1,
         0.48,
         0.08
       ],
@@ -137,237 +79,525 @@
               "depth"
             ]
           },
-          "uy": {
+          "ray": {
+            "op": "viewRay"
+          },
+          "h": {
             "op": "swizzle",
             "in": [
-              "uv"
+              "ray"
             ],
             "mask": "y"
           },
-          "p1": {
-            "op": "mul",
+          "e": {
+            "op": "max",
             "in": [
-              "uv",
-              [
-                2.6,
-                11.0
-              ]
+              "h",
+              0
             ]
           },
-          "n1": {
-            "op": "noise",
-            "in": [
-              "p1"
-            ]
-          },
-          "p2": {
-            "op": "mul",
-            "in": [
-              "uv",
-              [
-                7.0,
-                26.0
-              ]
-            ]
-          },
-          "n2": {
-            "op": "noise",
-            "in": [
-              "p2"
-            ]
-          },
-          "n2h": {
-            "op": "mul",
-            "in": [
-              "n2",
-              0.45
-            ]
-          },
-          "nn": {
-            "op": "add",
-            "in": [
-              "n1",
-              "n2h"
-            ]
-          },
-          "cover": {
-            "op": "smoothstep",
-            "in": [
-              0.12,
-              0.42,
-              "nn"
-            ]
-          },
-          "bandLo": {
-            "op": "smoothstep",
-            "in": [
-              0.54,
-              0.64,
-              "uy"
-            ]
-          },
-          "bandHi0": {
-            "op": "smoothstep",
-            "in": [
-              0.86,
-              0.99,
-              "uy"
-            ]
-          },
-          "bandHi": {
-            "op": "oneMinus",
-            "in": [
-              "bandHi0"
-            ]
-          },
-          "band": {
-            "op": "mul",
-            "in": [
-              "bandLo",
-              "bandHi"
-            ]
-          },
-          "cl0": {
-            "op": "mul",
-            "in": [
-              "cover",
-              "band"
-            ]
-          },
-          "cl1": {
-            "op": "mul",
-            "in": [
-              "cl0",
-              "sky"
-            ]
-          },
-          "clouds": {
-            "op": "mul",
-            "in": [
-              "cl1",
-              0.92
-            ]
-          },
-          "cmix": {
-            "op": "smoothstep",
-            "in": [
-              0.6,
-              0.92,
-              "uy"
-            ]
-          },
-          "ccol": {
-            "op": "mix",
-            "in": [
-              [
-                1.0,
-                0.66,
-                0.5
-              ],
-              [
-                0.9,
-                0.46,
-                0.62
-              ],
-              "cmix"
-            ]
-          },
-          "withClouds": {
-            "op": "mix",
-            "in": [
-              "rgb",
-              "ccol",
-              "clouds"
-            ]
-          },
-          "d0": {
-            "op": "sub",
-            "in": [
-              "uv",
-              [
-                0.5,
-                0.55
-              ]
-            ]
-          },
-          "d1": {
-            "op": "mul",
-            "in": [
-              "d0",
-              [
-                1.6,
-                1.0
-              ]
-            ]
-          },
-          "r2": {
+          "dot0": {
             "op": "dot",
             "in": [
-              "d1",
-              "d1"
+              "ray",
+              [
+                0.30461,
+                0.03332,
+                -0.9519
+              ]
             ]
           },
-          "g0": {
+          "sd": {
+            "op": "max",
+            "in": [
+              "dot0",
+              0
+            ]
+          },
+          "smoothstep1": {
+            "op": "smoothstep",
+            "in": [
+              0.07,
+              0.19,
+              "e"
+            ]
+          },
+          "mix2": {
+            "op": "mix",
+            "in": [
+              [
+                1,
+                0.4793,
+                0.1878
+              ],
+              [
+                0.9387,
+                0.2623,
+                0.2159
+              ],
+              "smoothstep1"
+            ]
+          },
+          "smoothstep3": {
+            "op": "smoothstep",
+            "in": [
+              0.15,
+              0.26,
+              "e"
+            ]
+          },
+          "mix4": {
+            "op": "mix",
+            "in": [
+              "mix2",
+              [
+                0.4342,
+                0.1559,
+                0.3613
+              ],
+              "smoothstep3"
+            ]
+          },
+          "smoothstep5": {
+            "op": "smoothstep",
+            "in": [
+              0.22,
+              0.42,
+              "e"
+            ]
+          },
+          "mix6": {
+            "op": "mix",
+            "in": [
+              "mix4",
+              [
+                0.0931,
+                0.0844,
+                0.3613
+              ],
+              "smoothstep5"
+            ]
+          },
+          "smoothstep7": {
+            "op": "smoothstep",
+            "in": [
+              0.4,
+              0.75,
+              "e"
+            ]
+          },
+          "mix8": {
+            "op": "mix",
+            "in": [
+              "mix6",
+              [
+                0.0252,
+                0.0319,
+                0.2232
+              ],
+              "smoothstep7"
+            ]
+          },
+          "smoothstep9": {
+            "op": "smoothstep",
+            "in": [
+              0,
+              0.4,
+              "e"
+            ]
+          },
+          "oneMinus10": {
+            "op": "oneMinus",
+            "in": [
+              "smoothstep9"
+            ]
+          },
+          "pow11": {
+            "op": "pow",
+            "in": [
+              "sd",
+              6
+            ]
+          },
+          "mul12": {
             "op": "mul",
             "in": [
-              "r2",
-              -14.0
+              "pow11",
+              0.4
             ]
           },
-          "g1": {
-            "op": "exp",
-            "in": [
-              "g0"
-            ]
-          },
-          "gs": {
+          "mul13": {
             "op": "mul",
             "in": [
-              "sky",
+              "mul12",
+              "oneMinus10"
+            ]
+          },
+          "mul14": {
+            "op": "mul",
+            "in": [
+              [
+                1,
+                0.62,
+                0.36
+              ],
+              "mul13"
+            ]
+          },
+          "pow15": {
+            "op": "pow",
+            "in": [
+              "sd",
+              120
+            ]
+          },
+          "mul16": {
+            "op": "mul",
+            "in": [
+              "pow15",
+              0.35
+            ]
+          },
+          "mul17": {
+            "op": "mul",
+            "in": [
+              [
+                1,
+                0.7913,
+                0.4342
+              ],
+              "mul16"
+            ]
+          },
+          "smoothstep18": {
+            "op": "smoothstep",
+            "in": [
+              0.99935,
+              0.9997,
+              "sd"
+            ]
+          },
+          "mul19": {
+            "op": "mul",
+            "in": [
+              "smoothstep18",
+              0.9
+            ]
+          },
+          "mul20": {
+            "op": "mul",
+            "in": [
+              [
+                1,
+                0.85,
+                0.6
+              ],
+              "mul19"
+            ]
+          },
+          "add21": {
+            "op": "add",
+            "in": [
+              "mix8",
+              "mul14"
+            ]
+          },
+          "add22": {
+            "op": "add",
+            "in": [
+              "add21",
+              "mul17"
+            ]
+          },
+          "add23": {
+            "op": "add",
+            "in": [
+              "add22",
+              "mul20"
+            ]
+          },
+          "swizzle24": {
+            "op": "swizzle",
+            "in": [
+              "ray"
+            ],
+            "mask": "xz"
+          },
+          "add25": {
+            "op": "add",
+            "in": [
+              "h",
+              0.08
+            ]
+          },
+          "max26": {
+            "op": "max",
+            "in": [
+              "add25",
+              0.04
+            ]
+          },
+          "div27": {
+            "op": "div",
+            "in": [
+              "swizzle24",
+              "max26"
+            ]
+          },
+          "mul28": {
+            "op": "mul",
+            "in": [
+              "div27",
+              1.6
+            ]
+          },
+          "mul29": {
+            "op": "mul",
+            "in": [
+              "mul28",
+              0.55
+            ]
+          },
+          "add30": {
+            "op": "add",
+            "in": [
+              "mul29",
+              4
+            ]
+          },
+          "noise31": {
+            "op": "noise",
+            "in": [
+              "add30"
+            ]
+          },
+          "mul32": {
+            "op": "mul",
+            "in": [
+              "mul28",
+              1.15
+            ]
+          },
+          "add33": {
+            "op": "add",
+            "in": [
+              "mul32",
+              17
+            ]
+          },
+          "noise34": {
+            "op": "noise",
+            "in": [
+              "add33"
+            ]
+          },
+          "mul35": {
+            "op": "mul",
+            "in": [
+              "mul28",
+              2.4
+            ]
+          },
+          "add36": {
+            "op": "add",
+            "in": [
+              "mul35",
+              9
+            ]
+          },
+          "noise37": {
+            "op": "noise",
+            "in": [
+              "add36"
+            ]
+          },
+          "mul38": {
+            "op": "mul",
+            "in": [
+              "noise31",
               0.6
             ]
           },
-          "gw": {
+          "mul39": {
+            "op": "mul",
+            "in": [
+              "noise34",
+              0.3
+            ]
+          },
+          "add40": {
             "op": "add",
             "in": [
-              "gs",
-              0.12
+              "mul38",
+              "mul39"
             ]
           },
-          "g2": {
+          "mul41": {
             "op": "mul",
             "in": [
-              "g1",
-              "gw"
+              "noise37",
+              0.22
             ]
           },
-          "glow": {
+          "add42": {
+            "op": "add",
+            "in": [
+              "add40",
+              "mul41"
+            ]
+          },
+          "smoothstep43": {
+            "op": "smoothstep",
+            "in": [
+              0.04,
+              0.1,
+              "h"
+            ]
+          },
+          "smoothstep44": {
+            "op": "smoothstep",
+            "in": [
+              0.3,
+              0.5,
+              "h"
+            ]
+          },
+          "oneMinus45": {
+            "op": "oneMinus",
+            "in": [
+              "smoothstep44"
+            ]
+          },
+          "mul46": {
             "op": "mul",
+            "in": [
+              "smoothstep43",
+              "oneMinus45"
+            ]
+          },
+          "smoothstep47": {
+            "op": "smoothstep",
+            "in": [
+              0.1,
+              0.24,
+              "add42"
+            ]
+          },
+          "cloud": {
+            "op": "mul",
+            "in": [
+              "smoothstep47",
+              "mul46"
+            ]
+          },
+          "mul48": {
+            "op": "mul",
+            "in": [
+              "sd",
+              "sd"
+            ]
+          },
+          "mix49": {
+            "op": "mix",
             "in": [
               [
-                1.0,
-                0.6,
-                0.3
+                1,
+                0.46,
+                0.46
               ],
-              "g2"
+              [
+                1,
+                0.56,
+                0.32
+              ],
+              "mul48"
             ]
           },
-          "lit": {
-            "op": "add",
-            "in": [
-              "withClouds",
-              "glow"
-            ]
-          },
-          "warm": {
+          "mul50": {
             "op": "mul",
             "in": [
-              "lit",
+              "mix49",
+              0.86
+            ]
+          },
+          "smoothstep51": {
+            "op": "smoothstep",
+            "in": [
+              -0.2,
+              0.4,
+              "noise37"
+            ]
+          },
+          "mul52": {
+            "op": "mul",
+            "in": [
+              "smoothstep51",
+              0.35
+            ]
+          },
+          "mix53": {
+            "op": "mix",
+            "in": [
+              "mul50",
               [
-                1.05,
-                1.0,
-                0.93
-              ]
+                0.2667,
+                0.1175,
+                0.3432
+              ],
+              "mul52"
+            ]
+          },
+          "smoothstep54": {
+            "op": "smoothstep",
+            "in": [
+              0.14,
+              0.45,
+              "e"
+            ]
+          },
+          "mix55": {
+            "op": "mix",
+            "in": [
+              1,
+              0.72,
+              "smoothstep54"
+            ]
+          },
+          "mul56": {
+            "op": "mul",
+            "in": [
+              "mix53",
+              "mix55"
+            ]
+          },
+          "mul57": {
+            "op": "mul",
+            "in": [
+              "cloud",
+              0.92
+            ]
+          },
+          "mix58": {
+            "op": "mix",
+            "in": [
+              "add23",
+              "mul56",
+              "mul57"
+            ]
+          },
+          "skyCol": {
+            "op": "mul",
+            "in": [
+              "mix58",
+              0.95
+            ]
+          },
+          "scene": {
+            "op": "mix",
+            "in": [
+              "rgb",
+              "skyCol",
+              "sky"
             ]
           },
           "vd": {
@@ -384,7 +614,7 @@
               "vd"
             ]
           },
-          "v0": {
+          "smoothstep59": {
             "op": "smoothstep",
             "in": [
               0.2,
@@ -392,23 +622,23 @@
               "vr"
             ]
           },
-          "v1": {
+          "mul60": {
             "op": "mul",
             "in": [
-              "v0",
+              "smoothstep59",
               0.22
             ]
           },
           "vig": {
             "op": "oneMinus",
             "in": [
-              "v1"
+              "mul60"
             ]
           },
           "out": {
             "op": "mul",
             "in": [
-              "warm",
+              "scene",
               "vig"
             ]
           }
@@ -423,12 +653,12 @@
   ],
   "grade": {
     "exposure": 0,
-    "saturation": 1.12,
-    "contrast": 1.06,
-    "lut": "f2db05998615ce1cb79ea96be32c168842eb6a2b34ec01feb86d36404603ee54",
+    "saturation": 1.18,
+    "contrast": 1.03,
+    "lut": null,
     "bloom": {
-      "intensity": 0.9,
-      "threshold": 0.85
+      "intensity": 0.6,
+      "threshold": 0.9
     }
   },
   "clock": "engine",
@@ -436,74 +666,74 @@
     "minutes": 12,
     "start": 0.5,
     "maxElevation": 60,
-    "azimuth": -145
+    "azimuth": 163.4
   },
-  "dayOverride": 0.735,
+  "dayOverride": 0.65,
   "keys": [
     {
       "time": 0,
       "sky": {
         "zenith": [
-          0.1,
-          0.05,
-          0.32
+          0.0252,
+          0.0319,
+          0.2232
         ],
         "horizon": [
-          1.0,
-          0.42,
-          0.18
+          1,
+          0.4793,
+          0.1878
         ]
       },
       "fog": {
         "colour": [
-          0.94,
-          0.56,
-          0.42
+          0.6867,
+          0.314,
+          0.3515
         ],
         "density": 0,
-        "near": 55,
-        "far": 420
+        "near": 30,
+        "far": 280
       },
       "sun": {
         "colour": [
-          1.0,
-          0.66,
-          0.42
+          1,
+          0.6724,
+          0.4233
         ],
-        "intensity": 2.0
+        "intensity": 2.2
       },
       "ambient": {
         "sky": [
-          0.6,
-          0.46,
-          0.62
+          0.552,
+          0.4342,
+          0.7758
         ],
         "ground": [
-          0.36,
-          0.26,
-          0.14
+          0.1946,
+          0.1441,
+          0.0452
         ],
-        "intensity": 0.75
+        "intensity": 2.6
       }
     }
   ],
   "light": {
     "ao": {
-      "intensity": 2,
+      "intensity": 1,
       "radius": 1.2
     },
     "rim": {
       "colour": [
-        1.0,
-        0.62,
-        0.42
+        1,
+        0.3231,
+        0.2159
       ],
       "strength": 0.3,
       "power": 3
     },
     "pools": {
       "colour": [
-        1.0,
+        1,
         0.62,
         0.28
       ],

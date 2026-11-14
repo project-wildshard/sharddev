@@ -4,6 +4,7 @@ import { templateScatterRandom } from './landscapeNoise';
 import { buildCellFill, cellCoarse, cellFar, CELL_PIECES } from './cell';
 import { brazierFlame, buildTemplateWorld, hutLamp, jumpCoursePads, lanternModel, mushroomCaps, rimFlames, wardenTell, type TemplatePart } from './world';
 import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
+import { plainWalls } from './weather';
 
 /** LF1-5: the GLB material names `props.materials` binds (product.ts): the measure stone every merged shape draws in, and the
  *  red mushroom caps' emissive surface. */
@@ -35,6 +36,7 @@ export function templateProps(count = 20): { source: PropsBakeSource; original: 
   // opus-greybox: the legacy grey scatter cubes (`template.props`, 0.6 m measure boxes on the pond's banks and the yard) are
   // not baked at all now (LF1-9 had dropped them from tile 0/3/4 only). The world still builds them, so its seeded stream
   // and everything placed after them stay put; they had no collider, so no walk changes.
+  plainWalls(coarse); plainWalls(far); // TEMPLATES-CLEANROOM M2: coursed walls stay plain boxes at range
   const door = shape('template.door');
   // SF16 relocates the course into the cell; this fixture records its same three pads at a bounded practice location.
   const course = jumpCoursePads(30, 90);

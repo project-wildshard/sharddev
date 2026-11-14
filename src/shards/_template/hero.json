@@ -1,10 +1,10 @@
 {
-  "content": "e2447d207a4d8377654dbb02d1c70227db0e8d75920c4624fef3a6617c297755",
-  "captured": "2026-11-13T06:51:06.351Z",
-  "base": "http://127.0.0.1:4787",
+  "content": "74c2adb4210197e3b33f0da5960af3011178b3792b0582ebb2bb7a10b12288b7",
+  "captured": "2026-11-14T00:45:43.381Z",
+  "base": "http://127.0.0.1:4471",
   "card": {
-    "card/thumb.jpg": "dc9a8377361faa8bac9005387e4ef8a8e6a35ab987c72b50b756a65de8cf22cc",
-    "card/portrait.jpg": "0c71efe0318e567c61c90b528b1bf5f617a99a213b08c6315ed0c5d28ebb6e43",
-    "card/landscape.jpg": "8783b5913142480c3c91be78ab5bf35e72783c2ddbee114f4c6b6258c0f03809"
+    "card/thumb.jpg": "11cb11763002f9897a5deff1117bab584ae98a9dabe223e6328c846b629e8b5b",
+    "card/portrait.jpg": "d56d770cf7734026342598e274c4d5c00b8fa5383facd2280357fe57ff70cbf9",
+    "card/landscape.jpg": "71f57cd03515d156179a348b39e69a2eab78e5c4ee5c9de1be0eb190b942433a"
   }
 }

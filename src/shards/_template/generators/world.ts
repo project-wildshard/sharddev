@@ -3,6 +3,7 @@ import type { PropsBakeSource } from '@wildshard/sdk/bake/props';
 import { measureUv, type MeasureRole } from '@wildshard/sdk/measure';
 import { BoxGeometry, BufferGeometry, CircleGeometry, CylinderGeometry, Float32BufferAttribute, Group, IcosahedronGeometry, Material, Matrix4, Mesh, MeshStandardMaterial, PointLight, Vector3, type Object3D } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
+import { coursedBox, lumpyCrown, surfaceBox, weather } from './weather';
 
 /**
  * Build-time only (SHARD-PLATFORM SF16): the template's grey-box shapes as the props baker
@@ -33,11 +34,18 @@ export function measureBox(w: number, h: number, d: number, role: MeasureRole): 
  * hut's blocks a warmer grey, moss its own green (so a trim cap stays moss under a trim tint), wood and iron for the hut's
  * posts, bench, barrels and lamp.
  */
-export const STONE = 0x847a7d, HUT_STONE = 0x8d8479, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2;
+export const STONE = 0x8c867a, HUT_STONE = 0x9a9080, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2;
 /** LF1-7: the door lamp's post (the lantern hangs 1 m left of it, over the doorway's right edge, in L0 tile 0/4/3). */
 export const LAMP_POST = { x: 1.55, z: -8.3 } as const;
 /** a grey-box shape (role 1, structure: stone; role 2, trim: moss) */
-const cube = (w: number, h: number, d: number, color?: number, role: MeasureRole = 1): Mesh => new Mesh(measureBox(w, h, d, role), new MeshStandardMaterial({ color: color ?? (role === 2 ? MOSS : STONE), flatShading: true }));
+let walls = 0;
+/** TEMPLATES-CLEANROOM M2: a tall thin box is a coursed masonry wall (`coursedBox`), anything else a plain box. */
+const shape = (w: number, h: number, d: number, stone: boolean): BufferGeometry => (stone && h >= 1.2 && Math.max(w, d) >= 1.8 && Math.min(w, d) <= 1.6 ? coursedBox(w, h, d, walls++) : surfaceBox(w, h, d));
+const cube = (w: number, h: number, d: number, color?: number, role: MeasureRole = 1): Mesh => {
+  const geometry = shape(w, h, d, color === undefined || color === STONE || color === HUT_STONE), mesh = new Mesh(geometry, new MeshStandardMaterial({ color: color ?? (role === 2 ? MOSS : STONE), flatShading: true }));
+  if (geometry.getAttribute('position').count > 24) mesh.userData.plainBox = [w, h, d];
+  return mesh;
+};
 /** What the shapes need: a root, a scope that owns their buffers, the registry sink, the seeded RNG and the ground height. */
 /** One authored scene part and its collider rows, before SDK compilation. No native registry owns it. */
 export interface TemplatePart {
@@ -117,6 +125,7 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   ctx.root.add(props); ctx.piece({ id: 'template.props', name: 'Grey props', category: 'props', file, object: props });
   const pool = new Mesh(new CircleGeometry(5, 24), new MeshStandardMaterial({ color: 0x9aa6b0, transparent: true, opacity: 0.7 }));
   pool.rotation.x = -Math.PI / 2; pool.position.set(25, 0, 20); ctx.root.add(pool);
+  weather(ctx.root, heightAt);
   ctx.root.traverse((node) => {
     if (!(node instanceof Mesh)) return;
     if (node.geometry instanceof BufferGeometry) ctx.scope.own(node.geometry);
@@ -333,7 +342,7 @@ export function mossgateFoliage(heightAt: (x: number, z: number) => number): { o
   TREES.forEach(([x, z, s], i) => {
     const y = heightAt(x, z), h = 2.3 * s, r = 1.3 * s;
     const trunk = new Mesh(foliageUv(new CylinderGeometry(0.17 * s, 0.26 * s, h + 0.3, 6, 1, true), 1), bark); trunk.position.set(x, y + h / 2 - 0.15, z);
-    const crown = new Mesh(foliageUv(new IcosahedronGeometry(r, 1), 2), leaves); crown.position.set(x, y + h + r * 0.75, z); crown.rotation.set(jitter(i, 100) * 0.4, jitter(i, 101) * 3, 0);
+    const crown = new Mesh(lumpyCrown(r * 1.12, i), leaves); crown.position.set(x, y + h + r * 0.8, z); crown.rotation.set(0, jitter(i, 101) * 3, 0);
     root.add(trunk, crown);
     colliders.push(BoxCollider.fromData({ kind: 'box', x, y: y + h / 2, z, hx: 0.24 * s, hy: h / 2, hz: 0.24 * s, yaw: -0, surface: 'wood' }).toColliderData());
   });
