@@ -18,7 +18,10 @@ import { validateShardfile } from './validate.ts'
 // files (its `stream-check-hero.test.ts`), run against format v0.4.4's
 // corpus. Brasscap Mesa is shaped like `_template`: a generated `data:`
 // card in its manifest and no presentation card, the shape UP3's first
-// pre-check never refused.
+// pre-check never refused. Format v0.5.7 moved it to `corpus/exports/`,
+// re-exported from `shard-brasscap` (SHARD-SOURCE SS4), so its card and
+// digest are new; the digest is the same algorithm's, which the
+// handwritten and presentation-only cases pin to api-server's.
 
 const CORPUS = fileURLToPath(
   new URL('../../../node_modules/@wildshard/format/corpus/', import.meta.url),
@@ -27,7 +30,7 @@ const API_DIGEST = {
   handwritten:
     'e3774b1d1ea3c3c44d14d6aa286d561c1c0be384f085fdbe096ca5ab858134c2',
   brasscapMesa:
-    '3cd056a0891cf951011171dd2d1e5d1ae4037ae08264aaefc3362924aa55d168',
+    'afc0cbbda24a14adc615c4eb4658c1858b87422e14dcb62d6f689db312882e0b',
   presentationOnly:
     'bd9c8e0df149c367a9421e2dbf9f8c1856118c490b6261501572b2ab2e109d1d',
 }
@@ -52,7 +55,10 @@ async function tarOf(root: string, prepared = false): Promise<Uint8Array> {
 async function templateShaped(): Promise<
   Readonly<{ tarball: Uint8Array; slug: string; heroHash: string }>
 > {
-  const tarball = await tarOf(path.join(CORPUS, 'brasscap-mesa'), true)
+  const tarball = await tarOf(
+    path.join(CORPUS, 'exports', 'brasscap-mesa'),
+    true,
+  )
   const { slug } = await validateShardfile(tarball)
   return { tarball, slug, heroHash: API_DIGEST.brasscapMesa }
 }
@@ -67,7 +73,7 @@ test("a packed manifest card's digest is the API's", async (): Promise<void> => 
 
 test("a generated data: card's digest is the API's", async (): Promise<void> => {
   const shard = await validateShardfile(
-    await tarOf(path.join(CORPUS, 'brasscap-mesa')),
+    await tarOf(path.join(CORPUS, 'exports', 'brasscap-mesa')),
   )
 
   assert.equal(shard.card, undefined, 'no presentation card, as _template')
