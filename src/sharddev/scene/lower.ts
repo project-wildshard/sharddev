@@ -4,9 +4,10 @@ import {
   type BufferAttribute, type BufferGeometry, Color, type InterleavedBufferAttribute, Material, ShaderMaterial, type Texture,
 } from 'three';
 import { GraphMaterial, graph, isCatalogueMaterial, type GraphValue } from '../materials';
+import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
 import { isSolid, motionOf, paintedPixels, Water, type ShardWorld } from './author';
 import type {
-  Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
+  Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
   SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
@@ -244,6 +245,7 @@ const DEFAULT_POST: ScenePost = { tone: 'aces', exposure: 1, bloom: null, vignet
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
   const scene = new Scene(), parts: Group[] = [];
+  let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   const world: ShardWorld = {
     scene,
@@ -254,6 +256,12 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     },
     ground: (heightAt, options = {}) => { ground = { heightAt, colourAt: options.colourAt ?? null, hash: groundHash(heightAt, options.colourAt ?? null) }; },
     post: (settings) => { post = { ...DEFAULT_POST, ...post, ...settings }; },
+    // AP14: the sky compiles at once, so a graph outside the vocabulary or the sky's budget is refused at its line
+    sky: (colour, options = {}) => {
+      const env = options.environment;
+      sky = { graph: graph({ kind: 'material', model: 'unlit', surface: { colour } }, { budget: LOOK_SKY_BUDGET }),
+        environment: env === undefined ? null : { intensity: env.intensity, ground: [env.ground[0], env.ground[1], env.ground[2]] } };
+    },
     spawn: (x, y, z, yaw = 0) => { spawn = { position: [x, y, z], yaw }; },
   };
   build(world);
@@ -270,7 +278,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const background = scene.background !== null && typeof scene.background === 'object' && 'isColor' in scene.background ? rgb(scene.background as Color) : null;
   return {
     identity, parts: lowered, materials: Object.fromEntries(tables.materials), textures: Object.fromEntries(tables.textures),
-    geometries: Object.fromEntries(tables.geometries), look: { fog, background, post }, ground, spawn,
+    geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn,
   };
 }
 

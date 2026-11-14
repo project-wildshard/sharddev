@@ -8,6 +8,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { animate, drift, flicker, pulse, rise, solid, sway, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
 import * as T from './textures';
+import { sunsetSky } from './sky';
 
 export const LAYOUT = {
   SPAWN: { x: 0, z: 0, yaw: 0 },
@@ -488,6 +489,10 @@ export function yard(part: THREE.Group, M: Record<string, THREE.MeshStandardMate
 
 /** The sunset light (cleanroom main.js 40-66): hemisphere, the key sun, the rim, the haze, the composer. */
 export function sunset(world: ShardWorld): void {
+  // the sky dome (cleanroom sky.js) and the environment PMREM'd from it at 0.4 (main.js 63-70); under the skyline the
+  // cleanroom's environment sees the dome's haze, so the ground the engine filters with is that haze
+  const haze = new THREE.Color('#ffb878').multiplyScalar(0.92);
+  world.sky(sunsetSky(), { environment: { intensity: 0.4, ground: [haze.r, haze.g, haze.b] } });
   world.scene.fog = new THREE.FogExp2(new THREE.Color('#d898a0'), 0.0062);
   world.part('light', (part) => {
     part.add(new THREE.HemisphereLight(new THREE.Color('#c4b0e4'), new THREE.Color('#7a6a3c'), 0.85));

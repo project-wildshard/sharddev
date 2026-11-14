@@ -267,7 +267,7 @@ function constLiteral(value: unknown): GraphLiteral | undefined {
  * const ir = graph({ flatShading: true, lighting: { sun: graphInputs.albedo.mul(graphInputs.sunColour).mul(cel).mul(1 / Math.PI) } });
  * ```
  */
-export function graph(spec: GraphSpec): GraphIr {
+export function graph(spec: GraphSpec, host: { readonly budget?: GraphBudget } = {}): GraphIr {
   const nodes: Record<string, GraphNode> = {}, ids = new Map<Node, string>(), used = new Set<string>(), paramDefs: Record<string, GraphParam> = {};
   let counter = 0;
   const fresh = (): string => { let id = `n${counter++}`; while (used.has(id)) id = `n${counter++}`; return id; };
@@ -384,7 +384,8 @@ export function graph(spec: GraphSpec): GraphIr {
     ...(spec.doubleSided === undefined ? {} : { doubleSided: spec.doubleSided }), ...(spec.flipBackfaceNormals === undefined ? {} : { flipBackfaceNormals: spec.flipBackfaceNormals }), ...(spec.toonCaustics === undefined ? {} : { toonCaustics: spec.toonCaustics }), ...(spec.flatShading === undefined ? {} : { flatShading: spec.flatShading }),
     ...(Object.keys(paramDefs).length === 0 ? {} : { params: paramDefs }), nodes, stages,
   };
-  const checked = validateGraph(structuredClone(ir), { trustedBudget: true });
+  // `host.budget`: the ceilings a host grants this kind of graph (a look's sky, AP14), checked here and never written in it
+  const checked = validateGraph(structuredClone(ir), { trustedBudget: true, ...(host.budget === undefined ? {} : { budget: host.budget }) });
   if (!checked.ok) throw new Error(`graph: ${checked.errors.join('; ')}`);
   return checked.graph;
 }

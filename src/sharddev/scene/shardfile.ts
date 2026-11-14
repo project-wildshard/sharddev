@@ -1,4 +1,5 @@
 import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix3, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import type { PoolSurface } from '@wildshard/format/pool-surface';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../author';
 import { parseGlb, parseKtx2 } from '../assets';
@@ -212,11 +213,13 @@ export function lampRows(lights: readonly SceneLight[]): { at: [number, number, 
 }
 
 /** A part's `Water` surfaces as the shardfile's water rows (AP4): the outline is the Water's own geometry. */
-export function waterRows(part: ScenePart): { id: string; kind: 'pool'; level: number; shape: { kind: 'polygon'; points: [number, number][] } }[] {
+export function waterRows(part: ScenePart): { id: string; kind: 'pool'; level: number; shape: { kind: 'polygon'; points: [number, number][] }; surface: PoolSurface }[] {
   return part.water.map((w, i) => ({
     id: `scene.${part.name}.water${i === 0 ? '' : `-${i}`}`, kind: 'pool', level: round(w.level, 3),
     shape: { kind: 'polygon', points: w.outline.map(([px, pz]) => [round(px, 3), round(pz, 3)]) },
-    // shard-format 0.4.10 has no water surface fields; tint and planar reflection ride TEMPLATES-CLEANROOM M4.6's format
+    // AP14: the Water's own reflection and deep tint (format pool-surface, TEMPLATES-CLEANROOM M4.6): the cleanroom pond's
+    // Fresnel 0.35 + 0.65 (1 - v.y)^3 and its 1024 mirror; a planar mirror shows the painted sky, a phone's sky reflection too
+    surface: { reflect: w.reflect, tint: rgb01(w.tint), fresnel: [0.35, 3], ripple: { scale: 3, amplitude: 0.0022, speed: 1 }, resolution: 1024 },
   }));
 }
 
@@ -229,12 +232,14 @@ export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], mate
   const toSun = sun === undefined ? new Vector3(0.3, 1, 0.4) : new Vector3(...sun.position).sub(new Vector3(...sun.target ?? [0, 0, 0]));
   toSun.normalize();
   const elevation = Math.asin(clamp01(toSun.y)) * 180 / Math.PI, azimuth = Math.atan2(toSun.x, -toSun.z) * 180 / Math.PI;
-  const fog = scene.look.fog, post = scene.look.post;
+  const fog = scene.look.fog, post = scene.look.post, sky = scene.look.sky ?? null;
   const skyColour: Rgb = hemisphere?.colour ?? ambient?.colour ?? [0.5, 0.5, 0.6], groundColour: Rgb = hemisphere?.groundColour ?? skyColour;
   const fogColour: Rgb = fog?.colour ?? scene.look.background ?? skyColour;
   return {
     families: ['pbr', 'emissive'], materials: materials as Shardfile['look']['materials'],
     ...(post?.passes === undefined || post.passes.length === 0 ? {} : { post: post.passes.map((graph) => ({ graph })) }),
+    // AP14: the painted sky on the dome; the engine filters its environment from the same dome
+    ...(sky === null ? {} : { sky: { graph: sky.graph } }),
     grade: { exposure: round(Math.log2(post?.exposure ?? 1), 3), saturation: 1, contrast: 1, lut: null,
       ...(post?.bloom === null || post?.bloom === undefined ? {} : { bloom: { intensity: round(Math.min(4, post.bloom.strength * 1.5), 3), threshold: round(post.bloom.threshold, 3), radius: round(clamp01(post.bloom.radius), 3) } }),
       ...(post?.tone === 'neutral' || post?.tone === 'aces' ? { tone: post.tone } : {}) },
@@ -243,7 +248,8 @@ export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], mate
       fog: fog?.kind === 'linear' ? { colour: rgb01(fog.colour), density: 0, near: fog.near, far: fog.far } : { colour: rgb01(fogColour), density: round(fog?.kind === 'exp2' ? fog.density : 0, 5) },
       sun: { colour: rgb01(sun?.colour ?? [1, 1, 1]), intensity: round(sun?.intensity ?? 0, 3) },
       ambient: { sky: rgb01(skyColour), ground: rgb01(groundColour), intensity: round((hemisphere?.intensity ?? ambient?.intensity ?? 0.5) * Math.PI, 3) } }],
-    light: lamps.length === 0 ? {} : { lamps: lampRows(lamps) },
+    light: { ...(lamps.length === 0 ? {} : { lamps: lampRows(lamps) }),
+      ...(sky?.environment === null || sky === null ? {} : { environment: { intensity: round(Math.min(4, sky.environment.intensity), 3), ground: rgb01(sky.environment.ground) } }) },
   } as Shardfile['look'];
 }
 

@@ -177,7 +177,16 @@ export interface ScenePost {
   readonly passes?: readonly GraphIr[];
 }
 
+/** AP14 `world.sky(...)`: the dome's painted sky (an unlit graph over the view ray) and the light it gives. */
+export interface SceneSky {
+  readonly graph: GraphIr;
+  /** PBR surfaces lit from the sky (and a pond reflecting it): an intensity over a ground colour; null: none */
+  readonly environment: { readonly intensity: number; readonly ground: Rgb } | null;
+}
+
 export interface SceneLook {
+  /** AP14: null or absent: the format's two-colour dome */
+  readonly sky?: SceneSky | null;
   readonly fog: { readonly kind: 'exp2'; readonly colour: Rgb; readonly density: number } | { readonly kind: 'linear'; readonly colour: Rgb; readonly near: number; readonly far: number } | null;
   readonly background: Rgb | null;
   readonly post: ScenePost | null;

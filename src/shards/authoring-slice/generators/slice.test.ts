@@ -1,5 +1,7 @@
 import { expect, test } from 'vitest';
 import { sceneSummary } from '@wildshard/sdk/scene/lower';
+import { sceneLook } from '@wildshard/sdk/scene/shardfile';
+import { lookSkyErrors } from '@wildshard/format/look-sky';
 import { slice } from './shard';
 
 /** AP1's done-when: the cleanroom's lantern() and hut block (mossgate-cleanroom eac5bb8 src/world.js 286-309, 398-530),
@@ -39,3 +41,17 @@ test('the cleanroom hut and its lanterns lower with no refusal', () => {
   expect(shard.ground).not.toBeNull();
 });
 
+
+/** AP14's done-when: the cleanroom's makeSky compiles to the look's dome sky (not a post pass), and its environment rides
+ *  the same dome. */
+test('the cleanroom sky compiles to look.sky with its environment', () => {
+  const shard = slice.describe(), sky = shard.look.sky;
+  expect(sky?.graph.kind).toBe('material');
+  if (sky === undefined || sky === null) return;
+  expect(lookSkyErrors(sky.graph)).toEqual([]);
+  console.info(`sky: ${Object.keys(sky.graph.nodes).length} nodes`);
+  const look = sceneLook(shard, shard.parts.flatMap((p) => p.lights), {});
+  expect(look.sky?.graph).toBe(sky.graph);
+  expect(look.post).toBeUndefined();
+  expect(look.light?.environment?.intensity).toBe(0.4);
+});

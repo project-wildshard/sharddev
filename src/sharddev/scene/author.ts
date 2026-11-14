@@ -1,4 +1,6 @@
 import { DataTexture, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
+import { positionLocal } from 'three/tsl';
+import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost } from './description';
 
 /**
@@ -13,11 +15,20 @@ export interface ShardWorld {
   part: (name: string, build: (part: Group) => void) => Group;
   /** The ground: its height everywhere in the 500 m cell, and optionally its colour (linear RGB). */
   ground: (heightAt: (x: number, z: number) => number, options?: { colourAt?: (x: number, z: number) => Rgb }) => void;
+  /**
+   * AP14: the sky, a TSL colour (linear) along {@link skyRay}, drawn on the engine's dome in place of its gradient: the
+   * cleanroom's sky dome `ShaderMaterial`, written in TSL. `environment` lights PBR surfaces from that same sky (three's
+   * `scene.environment` from a PMREM of the dome, at `intensity`, over a `ground` colour), so ponds and metal reflect it.
+   */
+  sky: (colour: GraphValue, options?: { environment?: { intensity: number; ground: Rgb } }) => void;
   /** The cleanroom's composer, as numbers. */
   post: (settings: Partial<Omit<ScenePost, 'bloom'>> & { bloom?: ScenePost['bloom'] }) => void;
   /** Where a player enters. */
   spawn: (x: number, y: number, z: number, yaw?: number) => void;
 }
+
+/** AP14: the view ray through a sky pixel (unit, world axes, y up): the dome is centred on the camera. */
+export const skyRay: ReturnType<typeof positionLocal.normalize> = positionLocal.normalize();
 
 /** Painted pixels by texture source: `clone()` shares the source, so a clone with its own `repeat` still lowers. */
 /** as a canvas `ImageData` stores a value: clamped to 0..255 and rounded */
