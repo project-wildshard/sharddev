@@ -150,7 +150,9 @@ readonly skyLightDirection: Node<"vec3">;
 /** Its linear colour multiplied by intensity; excludes shadowing and atmosphere fog colour. */
 readonly skyLightColour: Node<"vec3">;
 /** the scene colour at the pixel (a post input) */
-readonly sceneColour: Node<"vec4">; } = {
+readonly sceneColour: Node<"vec4">;
+/** the world direction through the pixel (a post input: sky detail; SHARD-SOURCE AP13) */
+readonly viewRay: Node<"vec3">; } = {
   /** toward the light (the `sun` sub-graph only) */
   /** true for a front-facing fragment; vertex stages refuse this input */
   frontFacing: op('frontFacing', 'bool'),
@@ -198,6 +200,7 @@ readonly sceneColour: Node<"vec4">; } = {
   skyLightColour: op('skyLightColour', 'vec3'),
   /** the scene colour at the pixel (a post input) */
   sceneColour: op('sceneColour', 'vec4'),
+  viewRay: op('viewRay', 'vec3'),
 } as const;
 
 /** TSL built-ins that are graph inputs as they are (matched by identity; `uv()` by its attribute). */

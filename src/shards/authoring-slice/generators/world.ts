@@ -6,7 +6,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { solid, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
+import { animate, drift, flicker, pulse, rise, solid, sway, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
 import * as T from './textures';
 
 export const LAYOUT = {
@@ -50,7 +50,7 @@ export function groundColour(x: number, z: number): [number, number, number] {
 
 /** The textures and materials every part shares (`buildWorld`'s `tex` and `M`). */
 function materials(): { M: Record<string, THREE.MeshStandardMaterial>; tex: Record<string, THREE.Texture> } {
-  const tex = { stone: T.stone(3, { moss: 0.32 }), stoneClean: T.stone(8, { moss: 0.12 }), slab: T.slab(), wood: T.wood(), shingle: T.shingle(), glow: T.glow(), ivy: T.ivy(), drape: T.hangingMoss() };
+  const tex = { stone: T.stone(3, { moss: 0.32 }), stoneClean: T.stone(8, { moss: 0.12 }), slab: T.slab(), wood: T.wood(), shingle: T.shingle(), glow: T.glow(), ivy: T.ivy(), drape: T.hangingMoss(), frond: T.frond(), grass: T.grassCard(), flame: T.flameSprite() };
   const M = {
     stone: new THREE.MeshStandardMaterial({ map: tex.stone, roughness: 0.93 }),
     stoneClean: new THREE.MeshStandardMaterial({ map: tex.stoneClean, roughness: 0.9 }),
@@ -68,6 +68,12 @@ function materials(): { M: Record<string, THREE.MeshStandardMaterial>; tex: Reco
   };
   return { M, tex };
 }
+
+// The cleanroom's update(t), said as data (AP12): every lamp's intensity * (0.92 + 0.05 sin 7t + 0.03 sin 17.3t), a flame
+// tongue's height * (0.85 + 0.12 sin 9t + 0.06 sin 23t), foliage in the wind.
+const LAMP_FLICKER = flicker({ rate: 1.1, amount: 0.08 });
+const FLAME_PULSE = pulse({ rate: 1.4, amount: 0.14 });
+const FOLIAGE_SWAY = sway({ rate: 0.5, amount: 0.06 });
 
 interface Block { x: number; y: number; z: number; sx: number; sy: number; sz: number; rotY: number; tint: number }
 /** One part's builders: the cleanroom's accumulators (`addBlock`, `addCap`, `drape`, `ivy`) and its lamp helpers. */
@@ -126,7 +132,7 @@ function kit(part: THREE.Group, seed: number, M: Record<string, THREE.MeshStanda
     if (on) {
       if (light) {
         const l = new THREE.PointLight('#ffa850', 3.4 * scale, 6, 1.7);
-        l.position.set(x, y, z); part.add(l);
+        l.position.set(x, y, z); part.add(animate(l, LAMP_FLICKER));
       }
       const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.glow, color: '#ffb466', blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.5, fog: false }));
       s.scale.setScalar(1.1 * scale); s.position.set(x, y, z); part.add(s);
@@ -302,8 +308,8 @@ export function hut(part: THREE.Group, M: Record<string, THREE.MeshStandardMater
   for (const [cx, cz, s] of [[-1.85, -0.6, 0.6], [-1.85, 0.05, 0.5], [-1.8, -0.3, 0.42]] as const) { const cr = new THREE.Mesh(new RoundedBoxGeometry(s, s, s, 1, 0.03), M.wood); cr.position.set(hx + cx, s / 2 + (s < 0.45 ? 0.6 : 0), iz + cz); cr.rotation.y = R(-0.3, 0.3); part.add(cr); }
   barrel(part, M, hx + 1.95, iz - 1.4);
   lantern(hx + 0.6, 1.95, iz - 0.3, { on: true, scale: 0.9, light: false });
-  const inLight = new THREE.PointLight('#ffa040', 7, 6.5, 1.4); inLight.position.set(hx + 0.4, 1.8, iz + 0.2); part.add(inLight);
-  const inLight2 = new THREE.PointLight('#ff9a40', 3, 4, 1.5); inLight2.position.set(hx - 1.5, 1.5, iz - 1.0); part.add(inLight2);
+  const inLight = new THREE.PointLight('#ffa040', 7, 6.5, 1.4); inLight.position.set(hx + 0.4, 1.8, iz + 0.2); part.add(animate(inLight, LAMP_FLICKER));
+  const inLight2 = new THREE.PointLight('#ff9a40', 3, 4, 1.5); inLight2.position.set(hx - 1.5, 1.5, iz - 1.0); part.add(animate(inLight2, LAMP_FLICKER));
   // outside: bench, barrels, crates
   const bench = new THREE.Mesh(new RoundedBoxGeometry(1.5, 0.12, 0.44, 2, 0.03), M.wood); bench.position.set(hx - 2.15, 0.48, z0 + 0.95); bench.castShadow = true; part.add(bench);
   for (const bx of [-0.58, 0.58]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.45, 0.38), M.darkWood); l.position.set(hx - 2.15 + bx, 0.22, z0 + 0.95); part.add(l); }
@@ -389,6 +395,97 @@ export function pond(part: THREE.Group, M: Record<string, THREE.MeshStandardMate
   flush();
 }
 
+/** The yard (cleanroom world.js 375-430 and 891-1030, AP10 to AP12): brazier A lit, its flame cards, sparks and light;
+ *  ferns and grass cards round the hut, swaying; fireflies over the slice. The cleanroom moved these in `update(t)`; here
+ *  each says its motion once with `animate`, and the engine plays it. */
+export function yard(part: THREE.Group, M: Record<string, THREE.MeshStandardMaterial>, tex: Record<string, THREE.Texture>): void {
+  const rand = T.rng(877);
+  const R = (a: number, b: number): number => a + (b - a) * rand();
+  // brazier A: a stone plinth, a lathe bowl, a fire
+  const [bx, bz] = [5.9, -12.8], gy = groundHeight(bx, bz);
+  const pad = new THREE.Mesh(new RoundedBoxGeometry(2.1, 0.12, 2.1, 2, 0.05), M.slab);
+  pad.position.set(bx, gy + 0.02, bz); pad.receiveShadow = true; part.add(pad);
+  decal(part, 'A', bx, gy + 0.09, bz + 0.68, 0, 0.9, true);
+  const g = new THREE.Group();
+  const plinth = new THREE.Mesh(new RoundedBoxGeometry(0.78, 0.5, 0.78, 2, 0.05), M.stone); plinth.position.y = 0.25;
+  const step = new THREE.Mesh(new RoundedBoxGeometry(0.98, 0.14, 0.98, 2, 0.04), M.stone); step.position.y = 0.07;
+  const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.3, 0.32, 8), M.stone); stem.position.y = 0.66;
+  const prof = [new THREE.Vector2(0, 0)];
+  for (let i = 0; i <= 10; i++) { const t = i / 10; prof.push(new THREE.Vector2(0.22 + 0.42 * Math.sin(t * Math.PI / 2), t * 0.4)); }
+  prof.push(new THREE.Vector2(0.72, 0.42), new THREE.Vector2(0.7, 0.46), new THREE.Vector2(0.6, 0.42), new THREE.Vector2(0.0, 0.32));
+  const bowl = new THREE.Mesh(new THREE.LatheGeometry(prof, 8), M.stone); bowl.position.y = 0.8;
+  g.add(plinth, step, stem, bowl);
+  g.traverse((o) => { if (o instanceof THREE.Mesh) { o.castShadow = true; o.receiveShadow = true; } });
+  solid(plinth); g.position.set(bx, gy, bz); part.add(g);
+  // the fire: three flame cards breathing (normal blending, so overlapping tongues stay orange), a flickering light
+  const top = gy + 1.18, fire = animate(new THREE.Group(), FLAME_PULSE);
+  const flame = new THREE.SpriteMaterial({ map: tex.flame, color: new THREE.Color(1.5, 1.3, 1.15), depthWrite: false, transparent: true, fog: false, alphaTest: 0.05 });
+  for (let i = 0; i < 3; i++) {
+    const h = [1.9, 1.5, 1.3][i] ?? 1, s = new THREE.Sprite(flame);
+    // the cleanroom's mean frame (k = 0.85): the pulse breathes round it
+    s.center.set(0.5, 0.1); s.scale.set(h * 0.62 * 1.05, h * 0.85, 1); s.position.set([0, -0.24, 0.26][i] ?? 0, -0.02, [0, 0.12, -0.14][i] ?? 0);
+    fire.add(s);
+  }
+  fire.position.set(bx, top, bz); part.add(fire);
+  // its halo (the cleanroom's instanced glows row: 2.6 m, #ff8a40 at 0.18, additive)
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex.glow, color: '#ff8a40', blending: THREE.AdditiveBlending, depthWrite: false, transparent: true, opacity: 0.18, fog: false }));
+  halo.scale.setScalar(2.6); halo.position.set(bx, top + 0.55, bz); part.add(halo);
+  const l = new THREE.PointLight('#ff9a3a', 16, 12, 1.5); l.position.set(bx, top + 0.7, bz); part.add(animate(l, LAMP_FLICKER));
+  // sparks: 36 seats round the bowl, each climbing 2.6 m and fading (the cleanroom's (s0 + t sp 0.4) % 1)
+  const sparks = new Float32Array(36 * 3);
+  for (let i = 0; i < 36; i++) sparks.set([bx + R(-0.35, 0.35), top + 0.4, bz + R(-0.35, 0.35)], i * 3);
+  const sparkCloud = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(sparks, 3)),
+    new THREE.PointsMaterial({ map: tex.glow, color: new THREE.Color('#ffc060').multiplyScalar(3), size: 0.07, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  part.add(animate(sparkCloud, rise({ rate: 0.3, height: 2.6, spread: 0.5 })));
+  // ferns: nine fronds a clump, round the hut and the yard
+  const fernSpots: [number, number][] = [[-1.6, -12.4], [-6.8, -12.6], [-6.6, -12.0], [-2.2, -5.4], [3.1, -6.2], [1.6, -11.8], [4.4, -10.6], [-8.4, -9.2], [7.6, -14.6]];
+  {
+    const fg = new THREE.PlaneGeometry(0.3, 1.05, 1, 6); fg.translate(0, 0.52, 0);
+    const p = fg.attributes.position;
+    if (p !== undefined) for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setZ(i, y * y * 0.55); p.setY(i, y * (1 - y * 0.25)); }
+    fg.computeVertexNormals();
+    const im = new THREE.InstancedMesh(fg, new THREE.MeshStandardMaterial({ map: tex.frond, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.8 }), fernSpots.length * 9);
+    const o = new THREE.Object3D();
+    let k = 0;
+    for (const [x, z] of fernSpots) {
+      const s = R(0.75, 1.25);
+      for (let f = 0; f < 9; f++) {
+        o.position.set(x, groundHeight(x, z), z); o.rotation.set(0, (f / 9) * Math.PI * 2 + R(-0.2, 0.2), 0); o.rotateX(R(-0.55, -0.25));
+        o.scale.set(s, s * R(0.8, 1.1), s); o.updateMatrix(); im.setMatrixAt(k++, o.matrix);
+      }
+    }
+    im.castShadow = true; part.add(animate(im, FOLIAGE_SWAY));
+  }
+  // grass cards: the cleanroom's crossed card, scattered within 24 m of the yard
+  {
+    const card = new THREE.PlaneGeometry(0.38, 0.28); card.translate(0, 0.13, 0);
+    const cross = mergeGeometries([card, card.clone().rotateY(Math.PI / 2)]);
+    const nrm = cross.attributes.normal;
+    if (nrm !== undefined) for (let i = 0; i < nrm.count; i++) nrm.setXYZ(i, 0, 1, 0);
+    const N = 1400, im = new THREE.InstancedMesh(cross, new THREE.MeshStandardMaterial({ map: tex.grass, alphaTest: 0.35, side: THREE.DoubleSide, roughness: 0.9 }), N);
+    const o = new THREE.Object3D(), c = new THREE.Color(), H = LAYOUT.HUT;
+    let k = 0, tries = 0;
+    while (k < N && tries < N * 5) {
+      tries++;
+      const r = Math.sqrt(rand()) * 24, a = R(0, Math.PI * 2), x = Math.cos(a) * r - 6, z = Math.sin(a) * r - 6;
+      if (x > H.x - H.w / 2 - 0.3 && x < H.x + H.w / 2 + 0.3 && z < H.z + H.d / 2 + 0.3 && z > H.z - H.d / 2 - 0.3) continue;
+      if (pondSDF(x, z) < 0.3) continue;
+      if (Math.hypot(x - bx, z - bz) < 1.3) continue;
+      if (noise.fbm(x * 0.25, z * 0.25, 2) < 0.42 && rand() < 0.75) continue;
+      o.position.set(x, groundHeight(x, z) - 0.02, z); o.rotation.set(0, R(0, Math.PI), 0); o.scale.setScalar(R(0.5, 1.1));
+      o.updateMatrix(); im.setMatrixAt(k, o.matrix); im.setColorAt(k, c.setRGB(R(0.82, 1.0), R(0.82, 1.0), R(0.62, 0.85)));
+      k++;
+    }
+    im.count = k; part.add(animate(im, FOLIAGE_SWAY));
+  }
+  // fireflies: 60 seats over the slice, each wandering 0.6 m round itself
+  const flies = new Float32Array(60 * 3);
+  for (let i = 0; i < 60; i++) flies.set([R(-24, 10), R(0.3, 2.4), R(-18, 6)], i * 3);
+  const flyCloud = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(flies, 3)),
+    new THREE.PointsMaterial({ map: tex.glow, color: new THREE.Color('#ffd27a').multiplyScalar(2), size: 0.12, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }));
+  part.add(animate(flyCloud, drift({ rate: 0.3, radius: 0.6 })));
+}
+
 /** The sunset light (cleanroom main.js 40-66): hemisphere, the key sun, the rim, the haze, the composer. */
 export function sunset(world: ShardWorld): void {
   world.scene.fog = new THREE.FogExp2(new THREE.Color('#d898a0'), 0.0062);
@@ -411,5 +508,6 @@ export function buildSlice(world: ShardWorld): void {
   world.ground(groundHeight, { colourAt: groundColour });
   world.part('hut', (part) => { hut(part, M, tex); });
   world.part('pond', (part) => { pond(part, M, tex); });
+  world.part('yard', (part) => { yard(part, M, tex); });
   world.spawn(-3.9, 0, -5.6, 0.03);
 }

@@ -1,5 +1,5 @@
 import { DataTexture, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
-import type { Rgb, ScenePost } from './description';
+import type { Rgb, SceneMotion, ScenePost } from './description';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -131,3 +131,27 @@ export class Water extends Mesh<ShapeGeometry, MeshStandardMaterial> {
     this.name = 'water';
   }
 }
+
+const MOTION = new WeakMap<Object3D, SceneMotion>();
+/**
+ * `animate(node, motion)`: declared motion (SHARD-SOURCE AP12), the cleanroom's `update(t)` said as data. The engine plays
+ * it per frame; no author code runs in a page. A motion on a group reaches every object under it in its part.
+ *
+ * - `flicker` on a `PointLight`: its intensity wavers (a lamp, a fire);
+ * - `pulse` on a `Sprite`: the card breathes (a flame tongue); `drift` / `rise` on a `Sprite` or `Points`: the card wanders
+ *   round its seat (fireflies) or climbs and fades (sparks);
+ * - `sway` on a mesh: it bends in the wind from its root (foliage); `uvScroll` on a mesh: its map moves (water, cloud).
+ */
+export function animate<T extends Object3D>(object: T, motion: SceneMotion): T { MOTION.set(object, motion); return object; }
+/** The motion declared on `object` or its nearest animated ancestor under `root`. */
+export function motionOf(object: Object3D, root: Object3D): SceneMotion | null {
+  for (let node: Object3D | null = object; node !== null; node = node.parent) { const m = MOTION.get(node); if (m !== undefined) return m; if (node === root) break; }
+  return null;
+}
+export const flicker = (o: { rate: number; amount: number }): SceneMotion => ({ kind: 'flicker', rate: o.rate, amount: o.amount });
+export const pulse = (o: { rate: number; amount: number }): SceneMotion => ({ kind: 'pulse', rate: o.rate, amount: o.amount });
+export const drift = (o: { rate: number; radius: number }): SceneMotion => ({ kind: 'drift', rate: o.rate, radius: o.radius });
+export const rise = (o: { rate: number; height: number; spread?: number }): SceneMotion => ({ kind: 'rise', rate: o.rate, height: o.height, spread: o.spread ?? 0 });
+/** `amount`: metres the top of the mesh moves; it grows with the square of the height over the mesh's own bounds. */
+export const sway = (o: { rate: number; amount: number; direction?: readonly [number, number] }): SceneMotion => ({ kind: 'sway', rate: o.rate, amount: o.amount, direction: o.direction ?? [0.8, 0.6] });
+export const uvScroll = (u: number, v: number): SceneMotion => ({ kind: 'uvScroll', u, v });

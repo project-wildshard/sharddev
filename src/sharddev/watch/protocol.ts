@@ -106,12 +106,14 @@ export function encodePart(scene: ShardScene, part: ScenePart, rows: { lamps: re
   const material = (key: string): unknown => { const row = scene.materials[key]; if (row === undefined) throw new Error(`watch: part ${part.name} names material ${key} the scene lacks`); return row; };
   return {
     name: part.name, hash: part.hash,
-    materials: part.materials.map(material),
+    // a Points material draws as the hook's sprite material (each point a sprite, AP11)
+    materials: part.materials.map((key) => { const row = material(key) as { kind?: string }; return row.kind === 'points' ? { ...row, kind: 'sprite' } : row; }),
     textures: part.textures.map((key) => { const t = scene.textures[key]; if (t === undefined) throw new Error(`watch: part ${part.name} names texture ${key} the scene lacks`); return { key, width: t.width, height: t.height, colourSpace: t.colourSpace }; }),
     geometries: part.geometries,
     draws: part.draws.map((d) => ({ geometry: d.geometry, material: d.material, matrix: d.matrix, castShadow: d.castShadow, receiveShadow: d.receiveShadow,
       instances: d.instances === null ? null : { count: d.instances.count, matrices: Array.from(d.instances.matrices), colours: d.instances.colours === null ? null : Array.from(d.instances.colours) } })),
-    sprites: part.sprites.map((s) => ({ material: s.material, position: s.position, scale: s.scale, center: s.center })),
+    sprites: [...part.sprites.map((s) => ({ material: s.material, position: s.position, scale: s.scale, center: s.center })),
+      ...part.points.flatMap((cloud) => { const size = ((scene.materials[cloud.material]?.pointSize ?? 0) * 0.7265); const out = []; for (let i = 0; i < cloud.positions.length; i += 3) out.push({ material: cloud.material, position: [cloud.positions[i] ?? 0, cloud.positions[i + 1] ?? 0, cloud.positions[i + 2] ?? 0], scale: [size, size], center: [0.5, 0.5] }); return out; })],
     lamps: rows.lamps, water: rows.water,
     colliders: part.colliders.map((c) => ({ centre: c.centre, half: c.half, rotation: c.rotation })),
   };
@@ -147,7 +149,7 @@ export function decodeGeometry(key: string, bytes: ArrayBuffer): { key: string; 
  * lamps, colliders and water left to the page script, which swaps them live through the dev hook.
  */
 export function liveShell(scene: ShardScene): ShardScene {
-  return { ...scene, parts: scene.parts.map((part) => ({ ...part, draws: [], sprites: [], colliders: [], water: [], lights: part.lights.filter((l) => l.kind !== 'point'), materials: [], textures: [], geometries: [] })) };
+  return { ...scene, parts: scene.parts.map((part) => ({ ...part, draws: [], sprites: [], points: [], colliders: [], water: [], lights: part.lights.filter((l) => l.kind !== 'point'), materials: [], textures: [], geometries: [] })) };
 }
 
 /**

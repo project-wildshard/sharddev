@@ -171,3 +171,62 @@ export function hangingMoss(): DataTexture {
     ctx.fillStyle = 'rgb(84,104,36)'; ctx.fillRect(0, 0, 256, 10);
   });
 }
+
+// Fern frond: a tapered stem with paired leaflets, root at the bottom.
+export function frond(): DataTexture {
+  return paintCanvas(128, 512, (ctx) => {
+    ctx.clearRect(0, 0, 128, 512);
+    const grad = ctx.createLinearGradient(0, 512, 0, 0);
+    grad.addColorStop(0, '#3e5a1c');
+    grad.addColorStop(1, '#8fae3c');
+    ctx.fillStyle = grad;
+    ctx.strokeStyle = grad;
+    ctx.lineWidth = 4;
+    ctx.beginPath(); ctx.moveTo(64, 512); ctx.lineTo(64, 10); ctx.stroke();
+    for (let y = 40; y < 500; y += 16) {
+      const len = 54 * Math.sin(((y - 20) / 490) * Math.PI) + 4;
+      for (const s of [-1, 1]) {
+        ctx.beginPath();
+        ctx.ellipse(64 + s * len * 0.5, y - 6, len * 0.5, 6, s * -0.35, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  });
+}
+
+// Grass blade card: a fan of tapered blades.
+export function grassCard(): DataTexture {
+  return paintCanvas(128, 128, (ctx) => {
+    ctx.clearRect(0, 0, 128, 128);
+    const r = rng(4);
+    for (let i = 0; i < 14; i++) {
+      const x = 20 + r() * 88, h = 60 + r() * 64, lean = (r() - 0.5) * 40;
+      const g = ctx.createLinearGradient(0, 128, 0, 128 - h);
+      g.addColorStop(0, '#6a8a2e'); g.addColorStop(1, r() < 0.3 ? '#c6cc6a' : '#a4c04c');
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.moveTo(x - 3, 128); ctx.quadraticCurveTo(x + lean * 0.4, 128 - h * 0.6, x + lean, 128 - h); ctx.lineTo(x + 3, 128); ctx.fill();
+    }
+  });
+}
+
+// Flame sprite: five pointed tongues in three layers, red-orange outside, orange, then a yellow-white core.
+export function flameSprite(): DataTexture {
+  return paintCanvas(128, 256, (ctx) => {
+    ctx.clearRect(0, 0, 128, 256);
+    const tongue = (cx: number, top: number, w: number, col: string): void => {
+      ctx.fillStyle = col;
+      ctx.beginPath(); ctx.moveTo(cx - w, 236);
+      ctx.bezierCurveTo(cx - w * 1.1, 170, cx - w * 0.2, 120, cx + w * 0.15, top);
+      ctx.bezierCurveTo(cx + w * 0.5, 120, cx + w * 1.2, 170, cx + w, 236);
+      ctx.closePath(); ctx.fill();
+    };
+    const base = (r: number, col: string): void => { ctx.fillStyle = col; ctx.beginPath(); ctx.ellipse(64, 222, r, r * 0.5, 0, 0, Math.PI * 2); ctx.fill(); };
+    base(46, 'rgba(232,74,22,0.95)');
+    for (const [x, t, w] of [[38, 92, 24], [58, 18, 30], [82, 60, 26], [100, 120, 18], [24, 140, 16]] as const) tongue(x, t, w, 'rgba(232,74,22,0.95)');
+    base(36, 'rgba(255,140,30,1)');
+    for (const [x, t, w] of [[44, 110, 18], [62, 50, 22], [80, 96, 18]] as const) tongue(x, t, w, 'rgba(255,140,30,1)');
+    base(24, 'rgba(255,214,90,1)');
+    for (const [x, t, w] of [[56, 120, 13], [70, 104, 13]] as const) tongue(x, t, w, 'rgba(255,214,90,1)');
+    base(12, 'rgba(255,248,214,1)');
+  });
+}

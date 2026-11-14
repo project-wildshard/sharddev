@@ -16,11 +16,11 @@ test('a re-run changes only the edited part\'s hash', () => {
 
 test('what has no lowering yet is refused by path and row, never dropped', () => {
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => {
-    world.part('motes', (part) => { part.add(new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3)))); });
+    world.part('lines', (part) => { part.add(new THREE.Line(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(6), 3)))); });
   })).toThrow(SceneRefusalError);
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => {
     world.part('shader', (part) => { part.add(new THREE.Mesh(new THREE.BoxGeometry(), new THREE.ShaderMaterial())); });
-  })).toThrow(/shader\/Mesh 0: ShaderMaterial has no lowering yet/u);
+  })).toThrow(/shader\/Mesh 0: a ShaderMaterial is raw GLSL/u);
   const boxed = lowerShard({ slug: 's', name: 's' }, (world) => { world.part('wall', (part) => { const m = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 3, 0.3))); m.position.set(1, 1.5, 2); m.rotation.y = Math.PI / 2; part.add(m); }); });
   const box = boxed.parts[0]?.colliders[0];
   expect(box?.half[0]).toBeCloseTo(3); expect(box?.centre).toEqual([1, 1.5, 2]);

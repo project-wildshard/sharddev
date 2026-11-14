@@ -8,6 +8,9 @@
  * Each part carries a content hash, so a re-run that changes one part changes only that part's hash.
  */
 
+import type { GraphIr } from '@wildshard/format/materialGraph';
+import type { MaterialEntry } from '@wildshard/format/materials';
+
 /** Linear RGB, each 0..n (an HDR emissive may exceed 1). */
 export type Rgb = readonly [number, number, number];
 export type Vec3 = readonly [number, number, number];
@@ -21,12 +24,21 @@ export interface SceneTexture {
   readonly colourSpace: 'srgb' | 'linear';
 }
 
-/** A lowered material: the fields of `MeshStandardMaterial` / `MeshBasicMaterial` / `SpriteMaterial` an M1 scene uses. */
+/** A declared motion (`animate(node, ...)`, SHARD-SOURCE AP12): plain data the engine plays, never author code. */
+export type SceneMotion =
+  | { readonly kind: 'flicker'; readonly rate: number; readonly amount: number }
+  | { readonly kind: 'pulse'; readonly rate: number; readonly amount: number }
+  | { readonly kind: 'drift'; readonly rate: number; readonly radius: number }
+  | { readonly kind: 'rise'; readonly rate: number; readonly height: number; readonly spread: number }
+  | { readonly kind: 'sway'; readonly rate: number; readonly amount: number; readonly direction: readonly [number, number] }
+  | { readonly kind: 'uvScroll'; readonly u: number; readonly v: number };
+
+/** A lowered material: the fields of `MeshStandardMaterial` / `MeshBasicMaterial` / `SpriteMaterial` / `PointsMaterial`. */
 export interface SceneMaterial {
   readonly key: string;
   /** the author's `material.name`, or the key */
   readonly name: string;
-  readonly kind: 'standard' | 'basic' | 'sprite';
+  readonly kind: 'standard' | 'basic' | 'sprite' | 'points';
   readonly colour: Rgb;
   readonly roughness: number;
   readonly metalness: number;
@@ -45,6 +57,12 @@ export interface SceneMaterial {
   readonly blending: 'normal' | 'additive';
   readonly depthWrite: boolean;
   readonly fog: boolean;
+  /** AP13: a TSL material's catalogue entry (`GraphMaterial`, `ToonMaterial`, `PainterlyMaterial`): written as it is */
+  readonly entry: MaterialEntry | null;
+  /** AP10: `polygonOffset` as its factor (0: none) */
+  readonly polygonOffset: number;
+  /** AP11: a `PointsMaterial`'s `size` (metres with size attenuation); 0 otherwise */
+  readonly pointSize: number;
 }
 
 /** One geometry in its own frame. `colour` is 3 floats per vertex when present. */
@@ -71,6 +89,8 @@ export interface SceneDraw {
   readonly instances: { readonly count: number; readonly matrices: Float32Array; readonly colours: Float32Array | null } | null;
   readonly castShadow: boolean;
   readonly receiveShadow: boolean;
+  /** AP12: `sway` or `uvScroll`, declared on the mesh or an ancestor in its part; null: still */
+  readonly motion: SceneMotion | null;
 }
 
 /** A `Sprite`: a camera-facing card at a world point. */
@@ -80,6 +100,17 @@ export interface SceneSprite {
   readonly position: Vec3;
   readonly scale: readonly [number, number];
   readonly center: readonly [number, number];
+  /** AP12: `pulse`, `drift` or `rise`; null: still */
+  readonly motion: SceneMotion | null;
+}
+
+/** AP11: a `Points` cloud: each point a camera-facing card `pointSize` across, its seat in world space. */
+export interface ScenePoints {
+  readonly path: string;
+  readonly material: string;
+  /** world x, y, z per point */
+  readonly positions: Float32Array;
+  readonly motion: SceneMotion | null;
 }
 
 export interface SceneLight {
@@ -96,6 +127,8 @@ export interface SceneLight {
   /** directional only: where it points */
   readonly target: Vec3 | null;
   readonly castShadow: boolean;
+  /** AP12: a point light's `flicker`; null: steady */
+  readonly motion: SceneMotion | null;
 }
 
 /** A solid box, said once by `solid(mesh)`: the mesh's own bounds in its world frame. */
@@ -125,6 +158,7 @@ export interface ScenePart {
   readonly hash: string;
   readonly draws: readonly SceneDraw[];
   readonly sprites: readonly SceneSprite[];
+  readonly points: readonly ScenePoints[];
   readonly lights: readonly SceneLight[];
   readonly colliders: readonly SceneCollider[];
   readonly water: readonly SceneWater[];
@@ -139,6 +173,8 @@ export interface ScenePost {
   readonly exposure: number;
   readonly bloom: { readonly strength: number; readonly radius: number; readonly threshold: number } | null;
   readonly vignette: number;
+  /** AP13: post passes compiled from TSL (`graph({ kind: 'post', ... })`), drawn in order after the grade */
+  readonly passes?: readonly GraphIr[];
 }
 
 export interface SceneLook {
