@@ -2,7 +2,7 @@ import { dot, max, mix, screenUV, smoothstep, vec3 } from 'three/tsl';
 import { graph, graphInputs, noise, sceneDepth } from '@wildshard/sdk/materials';
 import type { GraphIr } from '@wildshard/format/materialGraph';
 
-// The Template's sky post pass (data/look.json post[0], 77 graph nodes) as TSL (SHARD-SOURCE AP13): a five-band dusk,
+// The Template's sky post pass, kept here so the Template's own hero stamp stays true (data/look.json post[0], 77 graph nodes) as TSL (SHARD-SOURCE AP13): a five-band dusk,
 // a sun glow, halo and disc, three octaves of cloud, the vignette. `graph()` compiles it to the same graph.
 export function templateSky(): GraphIr {
   const { sceneColour, viewRay } = graphInputs;

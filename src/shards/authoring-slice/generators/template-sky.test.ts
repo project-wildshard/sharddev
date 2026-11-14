@@ -2,10 +2,12 @@
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 import type { GraphIr, GraphRef } from '@wildshard/format/materialGraph';
-import { templateSky } from './sky';
+import { templateSky } from './template-sky';
 
 // SHARD-SOURCE AP13: the Template's 77-node sky post graph, rewritten as TSL of 40 lines or fewer, compiles to the same
 // graph: every output pixel is the same expression of the same inputs (node ids aside), so the frame is equal.
+// the Template shard's folder: its look's sky post graph is what the TSL here must equal
+const TEMPLATE = new URL(['..', '..', '_template', ''].join('/'), import.meta.url);
 function expression(ir: GraphIr, ref: GraphRef): string {
   if (typeof ref !== 'string') return JSON.stringify(ref);
   const node = ir.nodes[ref];
@@ -15,13 +17,13 @@ function expression(ir: GraphIr, ref: GraphRef): string {
 }
 
 test('the Template sky in TSL compiles to its 77-node graph', () => {
-  const look = JSON.parse(readFileSync(new URL('../data/look.json', import.meta.url), 'utf8')) as { post: { graph: GraphIr }[] };
+  const look = JSON.parse(readFileSync(new URL('data/look.json', TEMPLATE), 'utf8')) as { post: { graph: GraphIr }[] };
   const golden = look.post[0]?.graph, ours = templateSky();
   if (golden === undefined) throw new Error('the Template look has no post graph');
   const out = (ir: GraphIr): GraphRef => ir.stages.post?.colour ?? '';
   expect(expression(ours, out(ours))).toBe(expression(golden, out(golden)));
   expect(Object.keys(ours.nodes).length).toBeLessThanOrEqual(Object.keys(golden.nodes).length);
-  const source = readFileSync(new URL('sky.ts', import.meta.url), 'utf8').split('\n');
+  const source = readFileSync(new URL('template-sky.ts', import.meta.url), 'utf8').split('\n');
   const body = source.slice(source.findIndex((line) => line.startsWith('export function templateSky')));
   expect(body.filter((line) => line.trim() !== '').length).toBeLessThanOrEqual(40);
 });
