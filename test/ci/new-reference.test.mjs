@@ -18,15 +18,25 @@ const root=mkdtempSync(join(parent,'new-reference-'));
 after(()=>rmSync(root,{recursive:true,force:true}));
 const bin=installWildshard(root), app=join(root,'app'), repo=join(app,'first-island'), source=join(repo,'src'), output=join(app,'product');
 let referenceDoor;
+// TEMPLATES-CLEANROOM M2 moved the hut left of the spawn path (data/layout.json HUT: x -4, door at z -11.5): west
+// along the spawn row to the hut's x, then north up the slab path into the closed door.
 const doorSegments=[
  {id:'distant-door',ticks:1,commands:[{kind:'interact',id:'template.door.use'}]},
- {id:'approach',ticks:130,commands:[{kind:'player',moveX:0,moveZ:-1,yaw:0}]},
+ {id:'to-hut-x',ticks:67,commands:[{kind:'player',moveX:-1,moveZ:0,yaw:0}]},
+ {id:'stop',ticks:20,commands:[]},
+ {id:'approach',ticks:160,commands:[{kind:'player',moveX:0,moveZ:-1,yaw:0}]},
  {id:'open-door',ticks:1,commands:[{kind:'interact',id:'template.door.use'}]},
  {id:'door-status',ticks:2,commands:[]},
  {id:'cross-door',ticks:80,commands:[{kind:'player',moveX:0,moveZ:-1,yaw:0}]},
  {id:'settle',ticks:20,commands:[]},
 ];
-const doorOutcomes=observations=>observations.map(({id,position,grounded,flags})=>({id,position,grounded,flags}));
+// The Template 1 pin (revision 2) keeps the old layout: its hut sits on the spawn path, door at z -9.
+const pinDoorSegments=doorSegments.filter(({id})=>id!=='to-hut-x'&&id!=='stop').map(segment=>segment.id==='approach'?{...segment,ticks:130}:segment);
+const HUT_DOOR_Z=-11.5, PIN_HUT_DOOR_Z=-9;
+// What the two journeys must share, each on its own layout: the same segment's door flag and footing, and the
+// player through its own doorway once the door is open.
+const doorStory=(observations,doorZ)=>observations.map(({id,position,grounded,flags})=>({id,grounded,
+ open:flags.includes('template.door-open'),inside:position[2]<doorZ-1.5}));
 function cli(args, success=true) {
  const done=spawnSync(process.execPath,[bin,...args],{cwd:app,encoding:'utf8',timeout:90_000,
   env:{...process.env,WILDSHARD_GEN_CACHE:join(root,'generation'),WILDSHARD_SHARDFILE_CACHE:join(root,'compiler')}});
@@ -63,19 +73,20 @@ test('the new author opens and crosses the real door, then resumes', {timeout:60
   for(const segment of doorSegments){last=await world.verbTapePart({version:1,observe:[],segments:[segment]});observations.push(...last.report.observations);}
   assert.ok(!observations[0].flags.includes('template.door-open'),'A distant use must not open the real door');
   assert.ok(observations.at(-1).flags.includes('template.door-open'),'The author must physically reach and open the door');
-  assert.ok(observations.at(-1).position[2]<-10,'The open panel must allow actual movement into the hut');
+  assert.ok(observations.at(-1).position[2]<HUT_DOOR_Z-1.5,`The open panel must allow actual movement into the hut: ${observations.at(-1).position[2]}`);
   const resumed=await create(last.commit.snapshot);
   const suffix={version:1,observe:[],segments:[{id:'resume',ticks:5,commands:[]}]};
   const a=await world.verbTapePart(suffix),b=await resumed.verbTapePart(suffix);
   assert.equal(a.commit.snapshot,b.commit.snapshot); assert.deepEqual(a.commit.effects,b.commit.effects); assert.deepEqual(a.report,b.report);
-  referenceDoor=doorOutcomes(observations);
+  referenceDoor=doorStory(observations,HUT_DOOR_Z);
  } finally {for(const world of worlds)await world.dispose();}
 });
 
 // SD-19, Ring 2: fetch and hash-check the complete public Template shardfile
 // named by engine main's shard pin since `ccdbd181` (catalogue number 4,
 // re-prepared on a default-set preview; OVERNIGHT 6s), then run the same
-// physical input journey.
+// physical input journey on the pin's own layout: its door opens and is
+// crossed on the same beats as the new author's.
 // This is an immutable external product, not an engine test/source import.
 // Measured 12.96 s locally including the cold download and real worker.
 test('the engine Template 1 pin agrees with the newly authored real door journey',{timeout:120_000},async()=>{
@@ -102,9 +113,10 @@ test('the engine Template 1 pin agrees with the newly authored real door journey
  const world=await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:productHeadlessSections(product)});
  try{
   const observations=[];
-  for(const segment of doorSegments){const part=await world.verbTapePart({version:1,observe:[],segments:[segment]});observations.push(...part.report.observations);}
+  for(const segment of pinDoorSegments){const part=await world.verbTapePart({version:1,observe:[],segments:[segment]});observations.push(...part.report.observations);}
   assert.ok(referenceDoor,'The newly built author must establish its real control journey');
-  assert.deepEqual(doorOutcomes(observations),referenceDoor,'Pinned and newly authored door play must agree');
+  const ids=new Set(pinDoorSegments.map(({id})=>id));
+  assert.deepEqual(doorStory(observations,PIN_HUT_DOOR_Z),referenceDoor.filter(({id})=>ids.has(id)),'Pinned and newly authored door play must agree');
   console.log(`engine Template 1 pin ${hash}: ${bytes.length} bytes; actual door journey agrees`);
  }finally{await world.dispose();}
 });
