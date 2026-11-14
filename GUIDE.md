@@ -727,11 +727,12 @@ message says which.
 ### Lint
 
 `check` lints the shard source with the sdk's rules. Each wildshard lint rule keeps a shard to data and build-time
-code; its printed fix says what to change.
+code; its printed fix says what to change. In a shard repo it runs the repo's own `.oxlintrc.author.json` from the repo
+root, as the repo's `pnpm lint` does (with its `lint/ratchet.json`); a repo without one skips lint and says so.
 
 #### lint-not-run
 
-The linter that ships with the sdk did not run. Reinstall the sdk.
+The linter did not run: the repo's oxlint, or the one that ships with the sdk. Reinstall (`pnpm install`).
 
 #### lint-refused
 

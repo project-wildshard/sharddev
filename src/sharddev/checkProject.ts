@@ -1,12 +1,10 @@
 // The real steps behind `wildshard check` (SA4); check.ts runs them in order and gives the verdict.
-// oxlint-disable-next-line import/no-nodejs-modules -- Lint runs the SDK's own oxlint as a child process.
+// oxlint-disable-next-line import/no-nodejs-modules -- Lint runs oxlint (the repo's or the SDK's) as a child process.
 import { spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author proof tape is an explicit local input file.
 import { existsSync, readFileSync } from 'node:fs';
-// oxlint-disable-next-line import/no-nodejs-modules -- Find oxlint the way this installed package resolves it.
-import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the project, its output and the SDK's lint config.
-import { basename, dirname, resolve } from 'node:path';
+import { basename, resolve } from 'node:path';
 import * as v from 'valibot';
 import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
 import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
@@ -21,6 +19,7 @@ import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
 import { refusalCode } from './refusals';
 import { DRAFT_SDK, draftMessage } from './draft';
+import { authorLintPlan } from './authorLint';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -32,22 +31,12 @@ export function readProofTape(path: string): v.InferOutput<typeof AuthorProofPla
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 // The bundled CLI defines import.meta.dirname as the package's src/sharddev, so the package root is two up.
 const SDK_ROOT = resolve(import.meta.dirname, '../..');
-const LINT_CONFIG = resolve(SDK_ROOT, '.oxlintrc.author.json');
 
-function oxlintBin(): string | undefined {
-  try {
-    const manifest = createRequire(resolve(SDK_ROOT, 'package.json')).resolve('oxlint/package.json');
-    const bin = resolve(dirname(manifest), 'bin/oxlint');
-    return existsSync(bin) ? bin : undefined;
-  } catch { return undefined; }
-}
-
-/** The SDK's author lint (`.oxlintrc.author.json` and its wildshard rules) over the project's source. */
+/** The author lint over the project's source: its repo's `.oxlintrc.author.json`, else the SDK's (authorLint.ts). */
 function lintProject(project: string): StepOutcome {
-  const bin = oxlintBin();
-  if (bin === undefined || !existsSync(LINT_CONFIG)) return { status: 'skip', note: 'the author lint (oxlint and .oxlintrc.author.json) is not installed with this @wildshard/sdk' };
-  // The jsPlugins resolve engine from the working directory: run from the SDK root, as `pnpm lint:author` does.
-  const done = spawnSync(bin, ['-c', LINT_CONFIG, '--format', 'json', project], { cwd: SDK_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  const plan = authorLintPlan(project, SDK_ROOT);
+  if (plan.kind === 'skip') return { status: 'skip', note: plan.note };
+  const done = spawnSync(plan.bin, plan.args, { cwd: plan.cwd, env: { ...process.env, ...plan.env }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   if (done.error !== undefined) return { status: 'fail', refusals: [{ message: `oxlint did not run: ${done.error.message}` }] };
   return lintOutcome(`${done.stdout}${done.stdout.trim() === '' ? done.stderr : ''}`, done.status);
 }

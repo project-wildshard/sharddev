@@ -200,7 +200,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Read the reason: a format refusal means build again (`wildshard build`); a server refusal names what it wants.' },
   // lint, besides the rules below
   { id: 'lint-not-run', anchor: 'lint-not-run', steps: ['lint'], match: /^oxlint (?:did not run|exited|report has no)/u,
-    fix: 'Reinstall @wildshard/sdk (`pnpm install`): the author lint ships with it.' },
+    fix: 'Reinstall (`pnpm install`): the author lint runs the repo\'s oxlint, or the one that ships with @wildshard/sdk.' },
   { id: 'lint-refused', anchor: 'lint-refused', steps: ['lint'],
     fix: 'Fix what the message names at the file and line shown.' },
 ];
