@@ -135,6 +135,24 @@
           -3.2
         ]
       ]
+    },
+    "surface": {
+      "reflect": "planar",
+      "tint": [
+        0.011,
+        0.009,
+        0.024
+      ],
+      "fresnel": [
+        0.35,
+        3
+      ],
+      "ripple": {
+        "scale": 3,
+        "amplitude": 0.0022,
+        "speed": 1
+      },
+      "resolution": 1024
     }
   }
 ]
