@@ -17,7 +17,7 @@ import type { ProjectGenerationContext, GeneratedProject } from '../projectGener
 import type { ShardWorld } from './author';
 import type { ShardIdentityInput, ShardScene } from './description';
 import { lowerShard } from './lower';
-import { compileShardfile, type ShardfileOptions } from './shardfile';
+import { compileShardfile, sceneGameplay, type ShardfileOptions } from './shardfile';
 import { liveShell } from '../watch/protocol';
 
 
@@ -27,6 +27,9 @@ export interface SceneShard {
   /** Run the author's build once on a fresh scene and read it (compile time only). */
   readonly describe: () => ShardScene;
   readonly identity: ShardIdentityInput;
+  /** AP19: the gameplay sections `options.extend` declares (`wildshard watch` restarts the page's simulation on a change) and
+   *  the rest of what it adds (a change there is a new shell) */
+  readonly gameplay: () => ReturnType<typeof sceneGameplay>;
 }
 
 /** Declare a shard as a three.js scene. The build function runs at compile time only, never in a page or on a server. */
@@ -34,5 +37,5 @@ export function defineShard(identity: ShardIdentityInput, build: (world: ShardWo
   const describe = (): ShardScene => lowerShard(identity, build);
   // `wildshard watch` builds the page's shell only: the dev scene host draws the parts (SHARD-SOURCE AP6)
   const generate = (ctx: ProjectGenerationContext): Promise<GeneratedProject> => compileShardfile(process.env['WILDSHARD_SCENE_LIVE'] === '1' ? liveShell(describe()) : describe(), ctx, options);
-  return Object.assign(generate, { describe, identity });
+  return Object.assign(generate, { describe, identity, gameplay: () => sceneGameplay(identity, options) });
 }

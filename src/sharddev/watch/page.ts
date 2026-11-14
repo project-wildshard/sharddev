@@ -8,6 +8,8 @@ import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, budgetLines
  *
  *   1. the look's day keys, if they changed (`setLook`; a look the page can't take live reloads it), and the ground (AP18:
  *      `setGround`, the whole lattice; a page that can't take it reloads)
+ *   1b. the gameplay sections, if they changed (AP19: `restartGameplay`: the in-page server restarts its world on them and the
+ *      quest views are built again; a page that can't reloads)
  *   2. every changed part is fetched and decoded first, so a slow fetch never leaves half a revision on screen
  *   3. each one swaps in (`addPart` or `replacePart`, then `swapColliders`), and only then its old scope goes
  *   4. parts no longer in the scene go (`removePart`, `swapColliders(name, [])`)
@@ -22,7 +24,12 @@ export interface DevHookLike {
   setLook: (look: { readonly keys: readonly unknown[]; readonly look?: unknown }) => boolean;
   swapColliders: (name: string, boxes: readonly unknown[]) => void;
   setGround: (ground: Uint8Array) => boolean;
+  /** v4 (AP19) */
+  restartGameplay: (gameplay: unknown) => Promise<DevRestartLike>;
 }
+
+/** What engine's soft restart did (its `DevRestart`): the server's world restart and the page's quest views, in ms. */
+export interface DevRestartLike { readonly ok: boolean; readonly serverMs: number; readonly questsMs: number | null; readonly reason?: string }
 
 export interface SocketLike { onmessage: ((event: { data: unknown }) => void) | null; onclose: (() => void) | null; close: () => void }
 
@@ -61,14 +68,20 @@ export interface WatchPageReport {
   serverError: string | null;
   /** every part swapped in, in order (`name@hash`) */
   readonly applied: string[];
-  /** AP17 to AP19: what the last revision changed on this page, joined with `and` (`look`, `ground`, `parts`), `nothing`, or
-   *  `reload` */
+  /** AP17 to AP19: what the last revision changed on this page, joined with `and` (`look`, `ground`, `gameplay`, `parts`),
+   *  `nothing`, or `reload` */
   kind: string | null;
+  /** AP19: the last soft restart, as engine's hook answered it */
+  restart: DevRestartLike | null;
   /** AP20: the last full build the watch server ran, and its budget table */
   build: WatchBuild | null;
 }
 
 interface Held<T> { readonly value: T; users: number }
+
+/** The panel's name for each kind of reload a revision ran (the plan's `wildshard watch` table). */
+const RELOADS: Readonly<Record<string, string>> = { look: 'look data live', ground: 'ground and colliders swapped', parts: 'parts swapped', gameplay: 'simulation restarted (player kept)',
+  nothing: 'nothing changed', reload: 'full page reload' };
 interface LivePart { readonly hash: string; readonly scope: Scope }
 
 /** How long the script waits for the engine to boot and install its hook. */
@@ -76,15 +89,16 @@ const HOOK_WAIT_MS = 180_000;
 
 export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageReport; readonly stop: () => void } {
   const scope = new Scope('watch.page');
-  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [], kind: null, build: null, steps: { seen: 0, sent: 0, received: 0, fetched: 0, swapped: 0 } };
+  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, serverError: null, applied: [], kind: null, restart: null, build: null, steps: { seen: 0, sent: 0, received: 0, fetched: 0, swapped: 0 } };
   const parts = new Map<string, LivePart>(), geometries = new Map<string, Held<ReturnType<typeof decodeGeometry>>>(), textures = new Map<string, Held<Uint8Array>>();
-  let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, ground: string | null = null, socket: SocketLike | null = null;
+  let hook: DevHookLike | null = null, shell: number | null = env.shell?.() ?? null, look: string | null = null, ground: string | null = null, gameplay: string | null = null, socket: SocketLike | null = null;
   let pendingFrame: number | null = null;
 
-  /** The watch panel: the last revision's kind and time, then the build's table. */
+  /** The watch panel: which reload the last revision ran and its time, then the build's table. */
   const show = (): void => {
     const took = report.framedAt > 0 && report.steps.seen > 0 ? ` in ${Math.max(0, report.framedAt - report.steps.seen)} ms` : '';
-    env.overlay?.([`watch: revision ${report.revision}, ${report.kind ?? 'starting'}${report.kind === null || report.kind === 'nothing' || report.kind === 'reload' ? '' : took}`,
+    const named = (report.kind ?? 'starting').split(' and ').map((kind) => RELOADS[kind] ?? kind).join(' and ');
+    env.overlay?.([`watch: revision ${report.revision}, ${named}${report.kind === null || report.kind === 'nothing' || report.kind === 'reload' ? '' : took}`,
       ...report.serverError === null ? [] : [`refused: ${report.serverError}`], ...report.build === null ? ['full build: once edits rest 5 s'] : budgetLines(report.build)]);
   };
   const tick = (): void => {
@@ -131,6 +145,16 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
       if (!live.setGround(bytes)) { env.log('wildshard watch: the page can\'t take this ground live; reloading'); report.kind = 'reload'; env.reshell(); return; }
       ground = state.ground.hash;
     }
+    // AP19: a quest, encounter, spawn or script change restarts the in-page simulation (the player keeps their place)
+    const gameplayChanged = state.gameplay.hash !== (gameplay ?? state.gameplay.shell);
+    if (gameplayChanged) {
+      const rows = await (await get(`gameplay/${encodeURIComponent(state.gameplay.hash)}`)).json();
+      if (scope.disposed) return;
+      const done = await live.restartGameplay(rows);
+      report.restart = done;
+      if (!done.ok) { env.log(`wildshard watch: the page can't restart its simulation on this revision${done.reason === undefined ? '' : ` (${done.reason})`}; reloading`); report.kind = 'reload'; env.reshell(); return; }
+      gameplay = state.gameplay.hash;
+    }
     // fetch and decode every changed part before any swaps in
     const changed = state.parts.filter((part) => parts.get(part.name)?.hash !== part.hash);
     const fetched = await Promise.all(changed.map(async ({ name }) => await (await get(`part/${encodeURIComponent(name)}`)).json() as WatchPart));
@@ -171,7 +195,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
       live.removePart(name); live.swapColliders(name, []);
       parts.delete(name); part.scope.dispose();
     }
-    report.kind = [lookChanged ? 'look' : '', groundChanged ? 'ground' : '', fetched.length > 0 || removed > 0 ? 'parts' : ''].filter((what) => what !== '').join(' and ') || 'nothing';
+    report.kind = [lookChanged ? 'look' : '', groundChanged ? 'ground' : '', gameplayChanged ? 'gameplay' : '', fetched.length > 0 || removed > 0 ? 'parts' : ''].filter((what) => what !== '').join(' and ') || 'nothing';
     report.revision = state.revision;
     // the timing counts a revision only once all its parts landed
     report.steps.swapped = env.now();

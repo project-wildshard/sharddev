@@ -328,6 +328,28 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   return { shard, assets, report: { sprites: scene.parts.reduce((n, p) => n + p.sprites.length, 0), lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
 }
 
+/**
+ * SHARD-SOURCE AP19: the shardfile sections a watched page restarts its simulation for (engine's dev hook v4,
+ * `DEV_GAMEPLAY_SECTIONS` in engine `src/shared/game/devGameplay.ts`: keep the two lists the same).
+ */
+export const GAMEPLAY_SECTIONS = ['quests', 'questNpcs', 'questHost', 'encounters', 'directors', 'creatures', 'crowds', 'hooks', 'ledger', 'sim', 'clientScripts'] as const;
+
+/**
+ * AP19: what `options.extend` adds to a scene shard, split for `wildshard watch`: the gameplay sections (a soft restart takes
+ * them live) and the rest (a change there needs a new shell). Cheap: `extend` runs over an empty shardfile of the scene's
+ * identity, never the baked one, so it must not read the scene's rows (none of today's do).
+ */
+export function sceneGameplay(identity: ShardScene['identity'], options: ShardfileOptions = {}): { gameplay: Record<string, unknown>; rest: Record<string, unknown> } {
+  const base = parseShardfile(emptyShardfile({ slug: identity.slug, name: identity.name, author: identity.author ?? 'Wildshard', revision: identity.revision ?? 1, seed: identity.seed ?? 1 }));
+  const shard = options.extend === undefined ? base : options.extend(base) as unknown as Record<string, unknown>, before = base as unknown as Record<string, unknown>;
+  const gameplay: Record<string, unknown> = {}, rest: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(shard)) {
+    if ((GAMEPLAY_SECTIONS as readonly string[]).includes(key)) gameplay[key] = value;
+    else if (JSON.stringify(value) !== JSON.stringify(before[key])) rest[key] = value;
+  }
+  return { gameplay, rest };
+}
+
 /** The scene's ground as the terrain bake reads it: the declared height field, or a flat cell. */
 function groundSource(scene: ShardScene): Parameters<typeof bakeTerrain>[0] {
   const ground = scene.ground;

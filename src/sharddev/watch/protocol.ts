@@ -12,6 +12,8 @@ import type { SceneGeometry, ScenePart, ShardScene } from '../scene/description'
  *   GET /__wildshard_scene/texture/<key>   one RGBA8 raster, row 0 at v = 0, immutable by key
  *   GET /__wildshard_scene/ground/<hash>   AP18: the whole ground (one terrain tile's wire bytes: 257² heights and
  *                                          colours), immutable by hash, for the hook's `setGround`
+ *   GET /__wildshard_scene/gameplay/<hash> AP19: the gameplay sections (`GAMEPLAY_SECTIONS`, JSON) for the hook's
+ *                                          `restartGameplay`, immutable by hash
  *   POST /__wildshard_scene/reshell        AP17: the page's look can't take this revision live; build a new shell (the page
  *                                          reloads on the state that names it)
  */
@@ -19,9 +21,9 @@ export const DEV_SCENE_PATH = '/__wildshard_scene/';
 export const WATCH_SOCKET = '/__wildshard_scene/socket';
 export const WATCH_RESHELL = '/__wildshard_scene/reshell';
 /** The protocol between the watch server and its own page script: they ship together, so a mismatch is a stale page. */
-export const WATCH_WIRE = 4;
+export const WATCH_WIRE = 5;
 /** The engine dev hook version this sdk drives: engine's `DEV_HOOK_VERSION`, named in a devserver client's build flags. */
-export const DEV_HOOK_VERSION = 3;
+export const DEV_HOOK_VERSION = 4;
 
 export interface WatchState {
   readonly wire: number;
@@ -36,6 +38,9 @@ export interface WatchState {
   /** AP18: the ground now and the ground the shell was built with (hashes); when they differ the page fetches `ground/<hash>`
    *  and swaps it in through the hook's `setGround` */
   readonly ground: { readonly hash: string; readonly shell: string };
+  /** AP19: the gameplay sections now and the ones the shell was built with (hashes); when they differ the page fetches
+   *  `gameplay/<hash>` and restarts its simulation on them through the hook's `restartGameplay` */
+  readonly gameplay: { readonly hash: string; readonly shell: string };
   /** AP20: the last full `wildshard build` (watch runs one once edits rest 5 s) and its budget table; null until one ran */
   readonly build: WatchBuild | null;
   /** the last compile's refusal; the page keeps what it has */

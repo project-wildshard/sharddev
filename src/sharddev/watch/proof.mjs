@@ -9,7 +9,9 @@
 //           the player never moved, and writes <out>/<prefix>proof.json. The file is restored after.
 // --edit    what --time edits (SHARD-SOURCE AP6, AP17): `roof` (a material colour, the default), `fog` (density), `exposure`
 //           (the grade), `sun` (the key light's direction), `ambient` (the hemisphere's intensity), `lamp` (a point light's
-//           intensity). Each is a line of the authoring slice's `generators/world.ts`.
+//           intensity), `hill` (AP18: ground under the player), each a line of the authoring slice's `generators/world.ts`;
+//           `quest` (AP19: the slice quest's objective, in `generators/shard.ts`), read from the page's own text.
+// --fps     the page's frame cap (default 60: GPU benches share Jake's laptop; 0 leaves it uncapped)
 import { chromium } from 'playwright';
 // oxlint-disable-next-line import/no-nodejs-modules -- a node script: it writes the shots and the timing beside the source edit.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -18,7 +20,7 @@ import { join, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- a node script reads its flags.
 import { parseArgs } from 'node:util';
 
-const { values } = parseArgs({ options: { url: { type: 'string' }, out: { type: 'string' }, shots: { type: 'boolean' }, time: { type: 'string' }, runs: { type: 'string' }, prefix: { type: 'string' }, edit: { type: 'string' } } });
+const { values } = parseArgs({ options: { url: { type: 'string' }, out: { type: 'string' }, shots: { type: 'boolean' }, time: { type: 'string' }, runs: { type: 'string' }, prefix: { type: 'string' }, edit: { type: 'string' }, fps: { type: 'string' } } });
 if (values.url === undefined || values.out === undefined) throw new Error('usage: proof.mjs --url <page> --out <dir> [--shots] [--time <file> --runs N]');
 const OUT = resolve(values.out), RUNS = Number(values.runs ?? 10), PREFIX = values.prefix ?? '';
 mkdirSync(OUT, { recursive: true });
@@ -42,7 +44,11 @@ const EDITS = {
     write: (i) => `y += far * (noise.fbm(x * 0.02 + 50, z * 0.02 + 50, 3) - 0.35) * 7; y += ${(0.2 + i * 0.3).toFixed(1)} * Math.min(1, Math.max(0, (8 - Math.hypot(x + 3.9, z + 5.6)) / 3));`,
     read: '() => Math.round(window.__wildshard.world.player.position.y * 20) / 20', expect: (i) => Math.round((0.2 + i * 0.3) * 20) / 20, held: true },
 };
+// AP19: the quest's objective, as the page's quest panel says it once the simulation restarted on the new rows
+EDITS.quest = { line: /objective: 'Walk down to the pond(?: \(\d+\))?'/u, write: (i) => `objective: 'Walk down to the pond (${i})'`,
+  read: '() => /walk down to the pond \\(\\d+\\)/iu.exec(document.body.innerText)?.[0].toLowerCase() ?? null', expect: (i) => `walk down to the pond (${i})` };
 const EDIT = EDITS[values.edit ?? 'roof'];
+const FPS = Number(values.fps ?? 60);
 if (EDIT === undefined) throw new Error(`--edit: one of ${Object.keys(EDITS).join(', ')}`);
 
 const browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
@@ -51,6 +57,9 @@ try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 720 } });
   // engine's probe controls (pose) answer only a harness-pinned page (engine scripts/debug-settings.mjs harnessPins)
   await page.addInitScript({ content: 'window.__wildshardHarness=Object.assign(window.__wildshardHarness??{},{seed:357});' });
+  // the lane rule's 60 fps cap: a frame's callbacks run together, at most one frame per 1/FPS s
+  if (FPS > 0) await page.addInitScript({ content: `(() => { const raf = window.requestAnimationFrame.bind(window), gap = 1000 / ${FPS} - 1; let at = -1e9;
+    window.requestAnimationFrame = (run) => raf(function held(t) { if (t !== at && t - at < gap) { raf(held); return; } at = t; run(t); }); })();` });
   page.on('pageerror', (error) => { console.error(`page error: ${error.message}`); });
   await page.goto(`${values.url}?skipintro`);
   await page.waitForFunction(() => window.__wildshard?.world?.player !== undefined, undefined, { timeout: 180_000, polling: 500 });
@@ -96,15 +105,15 @@ try {
           return read === null || new Function(`return (${read})()`)() === expected ? report.framedAt : false;
         }, [before.revision, EDIT.expect?.(value) ?? null, EDIT.read ?? null], { timeout: 30_000, polling: 'raf' });
         const framedAt = await handle.jsonValue();
-        const after = await page.evaluate(() => ({ frames: window.__wsDevScene.frames, at: window.__wildshard.world.player.position.toArray(), marker: window.__ap6Marker, kind: window.__wsDevScene.kind ?? null, steps: { ...window.__wsDevScene.steps } }));
+        const after = await page.evaluate(() => ({ frames: window.__wsDevScene.frames, at: window.__wildshard.world.player.position.toArray(), marker: window.__ap6Marker, kind: window.__wsDevScene.kind ?? null, restart: window.__wsDevScene.restart ?? null, steps: { ...window.__wsDevScene.steps } }));
         const moved = Math.hypot(...after.at.map((v, k) => v - before.at[k]));
         // the page's own steps, from the file write: its state received, its parts fetched, swapped in, the first frame after
         const steps = after.steps === undefined ? null : { seen: after.steps.seen - at, sent: after.steps.sent - at, received: after.steps.received - at, fetched: after.steps.fetched - at, swapped: after.steps.swapped - at, framed: framedAt - at };
         // a ground edit: still standing on it a second later
         let held = null;
         if (EDIT.held === true) { await page.waitForTimeout(1000); held = await page.evaluate(`(${EDIT.read})()`) === EDIT.expect(value); }
-        runs.push({ value: written, ms: framedAt - at, frames: after.frames - before.frames, moved: Number(moved.toFixed(4)), reloaded: after.marker !== 'same page', kind: after.kind, steps, ...(held === null ? {} : { held }) });
-        console.info(`edit ${value}: ${written} on screen in ${framedAt - at} ms${after.kind === null ? '' : ` (${after.kind})`}${steps === null ? '' : ` [seen ${steps.seen}, sent ${steps.sent}, received ${steps.received}, fetched ${steps.fetched}, swapped ${steps.swapped}]`}`);
+        runs.push({ value: written, ms: framedAt - at, frames: after.frames - before.frames, moved: Number(moved.toFixed(4)), reloaded: after.marker !== 'same page', kind: after.kind, steps, ...(after.kind === 'gameplay' ? { restart: after.restart } : {}), ...(held === null ? {} : { held }) });
+        console.info(`edit ${value}: ${written} on screen in ${framedAt - at} ms${after.kind === null ? '' : ` (${after.kind})`}${after.kind === 'gameplay' && after.restart !== null ? ` [server restart ${after.restart.serverMs} ms, quest views ${after.restart.questsMs} ms]` : ''}${steps === null ? '' : ` [seen ${steps.seen}, sent ${steps.sent}, received ${steps.received}, fetched ${steps.fetched}, swapped ${steps.swapped}]`}`);
         await page.waitForTimeout(400);
       }
     } finally { writeFileSync(file, original); }

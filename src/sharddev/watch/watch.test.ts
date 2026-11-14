@@ -28,16 +28,17 @@ export default defineShard({ slug: 'watch-test', name: 'Watch Test' }, (world) =
 
 /** A stand-in for engine's dev hook: it records each call and draws nothing. */
 /** `refuseCall`: the n-th `setLook` (from 1) answers that the page can't take it live. */
-function recordingHook(refuseCall = 0): DevHookLike & { calls: string[]; looks: unknown[]; grounds: Uint8Array[]; roof: () => readonly number[] | null } {
-  const calls: string[] = [], looks: unknown[] = [], grounds: Uint8Array[] = [], drawn = new Map<string, { materials: { name: string; colour: number[] }[] }>();
+function recordingHook(refuseCall = 0): DevHookLike & { calls: string[]; looks: unknown[]; grounds: Uint8Array[]; gameplays: unknown[]; roof: () => readonly number[] | null } {
+  const calls: string[] = [], looks: unknown[] = [], grounds: Uint8Array[] = [], gameplays: unknown[] = [], drawn = new Map<string, { materials: { name: string; colour: number[] }[] }>();
   return {
-    version: DEV_HOOK_VERSION, calls, looks, grounds,
+    version: DEV_HOOK_VERSION, calls, looks, grounds, gameplays,
     addPart: (name, part) => { calls.push(`add ${name}`); drawn.set(name, part as never); },
     replacePart: (name, part) => { calls.push(`replace ${name}`); drawn.set(name, part as never); },
     removePart: (name) => { calls.push(`remove ${name}`); drawn.delete(name); },
     setLook: (look) => { calls.push('look'); looks.push(look); return looks.length !== refuseCall; },
     swapColliders: (name, boxes) => { calls.push(`colliders ${name} ${boxes.length}`); },
     setGround: (ground) => { calls.push('ground'); grounds.push(ground); return true; },
+    restartGameplay: (gameplay) => { calls.push('gameplay'); gameplays.push(gameplay); return Promise.resolve({ ok: true, serverMs: 1, questsMs: 1 }); },
     roof: () => drawn.get('hut')?.materials.find((m) => m.name === 'roof')?.colour ?? null,
   };
 }
@@ -108,13 +109,13 @@ test('AP5: a page booted from shell 1 reloads on a state for shell 2; a part who
     socket: () => { const socket = { onmessage: null, onclose: null, close: () => undefined }; sockets.push(socket); return socket; },
     frame: () => undefined, wait: () => undefined, reshell: () => undefined, now: () => 0, log: (line: string) => { logs.push(line); } };
   const stale = startWatchPage({ ...env, reload: () => { reloads.push('stale'); }, shell: () => 1 });
-  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 2, revision: 1, parts: [], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
+  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 2, revision: 1, parts: [], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, gameplay: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
   expect(reloads).toEqual(['stale']);
   stale.stop();
   const page = startWatchPage({ ...env, reload: () => { reloads.push('page'); }, shell: () => 1 });
   sockets[1]?.onmessage?.({ data: 'not json' });
   expect(page.report.error).toContain('can\'t read');
-  sockets[1]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'h1' }], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
+  sockets[1]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'h1' }], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, gameplay: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
   await until(() => page.report.applied.length === 1);
   expect(page.report.error).toContain('hut colliders: bad box');
   expect(page.report.framedRevision).toBe(0);
@@ -227,6 +228,56 @@ test('AP18: a ground edit goes live as the whole lattice (no new shell, no part 
   try {
     await until(() => second.report.framedRevision >= 1);
     writeFileSync(join(project, 'shard.config.ts'), groundSource(3));
+    await until(() => asked === 1);
+    expect(second.report.kind).toBe('reload');
+  } finally { second.stop(); await again.close(); }
+});
+
+const questSource = (objective: string, manifestName = 'Watch Test'): string => `import * as THREE from 'three';
+import { defineShard } from '@wildshard/sdk/scene/shard';
+const quests = { flags: ['pond.seen', 'walk.done'], triggers: [], dialogue: [],
+  quests: [{ id: 'walk', title: 'A walk', completeFlag: 'walk.done', steps: [{ id: 'pond', objective: ${JSON.stringify(objective)}, done: { all: ['pond.seen'] } }] }] };
+export default defineShard({ slug: 'watch-test', name: 'Watch Test' }, (world) => {
+  world.part('hut', (hut) => { hut.add(new THREE.Mesh(new THREE.BoxGeometry(4, 1, 4), new THREE.MeshStandardMaterial({ name: 'roof' }))); });
+}, { extend: (shard) => ({ ...shard, quests, identity: { ...shard.identity, name: ${JSON.stringify(manifestName)} } }) });
+`;
+
+test('AP19: a quest edit restarts the page simulation on the new rows (no shell, no part); another extended field is a new shell', { timeout: 120_000 }, async () => {
+  writeFileSync(join(project, 'shard.config.ts'), questSource('Walk to the pond'));
+  const server = await watchProject(project, { client: null, log: () => undefined });
+  const hook = recordingHook(), panels: string[][] = [];
+  let reloads = 0, reshells = 0;
+  const page = startWatchPage({ origin: server.url.replace(/\/$/u, ''), hook: () => hook, fetch: (url) => fetch(url), socket: (url) => socketOf(new WebSocket(url)),
+    frame: (run) => { setTimeout(run, 8); }, wait: (ms, run) => { setTimeout(run, ms); }, reload: () => { reloads++; }, reshell: () => { reshells++; }, now: () => Date.now(), log: () => undefined, shell: () => 1,
+    overlay: (lines) => { panels.push([...lines]); } });
+  try {
+    await until(() => page.report.framedRevision >= 1);
+    // the shell holds the boot's quests: nothing to restart
+    expect(hook.calls).toEqual(['look', 'add hut', 'colliders hut 0']);
+    writeFileSync(join(project, 'shard.config.ts'), questSource('Walk down to the pond'));
+    await until(() => page.report.framedRevision >= 2);
+    expect(hook.calls.slice(3)).toEqual(['gameplay']);
+    expect(page.report.kind).toBe('gameplay');
+    expect(page.report.restart).toMatchObject({ ok: true });
+    const rows = hook.gameplays[0] as { quests: { quests: { steps: { objective: string }[] }[] } };
+    expect(rows.quests.quests[0]?.steps[0]?.objective).toBe('Walk down to the pond');
+    expect(Object.keys(rows).sort()).toEqual(['clientScripts', 'creatures', 'crowds', 'encounters', 'hooks', 'ledger', 'quests', 'sim']);
+    await until(() => panels.some((lines) => lines[0]?.startsWith('watch: revision 2, simulation restarted (player kept) in') === true));
+    expect([reloads, reshells]).toEqual([0, 0]);
+    // a field the restart can't take (the identity here) needs a new shell: the page reloads into it
+    writeFileSync(join(project, 'shard.config.ts'), questSource('Walk down to the pond', 'Watch Test Two'));
+    await until(() => reloads === 1);
+  } finally { page.stop(); await server.close(); }
+  // a page whose hook refuses the restart asks for a new shell
+  writeFileSync(join(project, 'shard.config.ts'), questSource('Walk to the pond'));
+  const again = await watchProject(project, { client: null, log: () => undefined });
+  const refusing = { ...recordingHook(), restartGameplay: () => Promise.resolve({ ok: false, serverMs: 0, questsMs: null, reason: 'no server' }) };
+  let asked = 0;
+  const second = startWatchPage({ origin: again.url.replace(/\/$/u, ''), hook: () => refusing, fetch: (url) => fetch(url), socket: (url) => socketOf(new WebSocket(url)),
+    frame: (run) => { setTimeout(run, 8); }, wait: (ms, run) => { setTimeout(run, ms); }, reload: () => undefined, reshell: () => { asked++; }, now: () => Date.now(), log: () => undefined, shell: () => 1 });
+  try {
+    await until(() => second.report.framedRevision >= 1);
+    writeFileSync(join(project, 'shard.config.ts'), questSource('Swim'));
     await until(() => asked === 1);
     expect(second.report.kind).toBe('reload');
   } finally { second.stop(); await again.close(); }

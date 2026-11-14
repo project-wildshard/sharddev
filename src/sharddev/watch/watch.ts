@@ -22,7 +22,7 @@ import * as liveLower from '../scene/lower';
 import * as liveShard from '../scene/shard';
 import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
-import { lampRows, sceneGroundBytes, sceneLook, waterRows } from '../scene/shardfile';
+import { lampRows, sceneGroundBytes, sceneLook, waterRows, type sceneGameplay } from '../scene/shardfile';
 import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, budgetLines, budgetOf, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchBuild, type WatchState } from './protocol';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 // oxlint-disable-next-line import/no-nodejs-modules -- The idle full build runs `wildshard build` in a child process.
@@ -40,7 +40,8 @@ import { acceptSocket, type WatchSocket } from './socket';
  *   push    one `WatchState` on the WebSocket; the page script fetches the changed parts, and only the geometry and
  *           rasters it lacks, and drives engine's dev hook
  *
- * A sky, fog, sun colour or ambient edit goes live (the look's day keys); a ground edit too (AP18: `setGround`). A spawn, grade or sun direction edit
+ * A sky, fog, sun colour or ambient edit goes live (the look's day keys); a ground edit too (AP18: `setGround`), and a quest,
+ * encounter, spawn or script edit restarts the page's simulation (AP19: `restartGameplay`). A spawn, grade or sun direction edit
  * can't in M1 (AP17's fast path): it rebuilds the shell and the page reloads, as `dev` does. `wildshard dev` is unchanged.
  */
 export interface WatchProject { url: string; close: () => Promise<void> }
@@ -80,7 +81,8 @@ const livePlugin = (): Plugin => {
  * The scene shard `shard.config.ts` exports (its default or `generate`), read fresh from source. Its build runs under `memo`
  * in guess mode (AP17): `describe` runs it again, in guess or truth mode, without bundling again.
  */
-async function describeSource(source: string, memo: PaintMemo): Promise<{ scene: ShardScene; describe: (mode: 'guess' | 'truth') => ShardScene; bundleMs: number; describeMs: number }> {
+type Gameplay = ReturnType<typeof sceneGameplay>;
+async function describeSource(source: string, memo: PaintMemo): Promise<{ scene: ShardScene; gameplay: Gameplay; describe: (mode: 'guess' | 'truth') => ShardScene; bundleMs: number; describeMs: number }> {
   const started = diagnosticNow();
   const result = await build({ configFile: false, logLevel: 'silent', plugins: [livePlugin()], build: { write: false, minify: false, lib: { entry: resolve(source, 'shard.config.ts'), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
   const built = Array.isArray(result) ? result[0] : result;
@@ -88,11 +90,11 @@ async function describeSource(source: string, memo: PaintMemo): Promise<{ scene:
   if (chunk === undefined || chunk.type !== 'chunk') throw new Error('watch: shard.config.ts did not bundle to one module');
   const loaded = await executeBundle(chunk.code, source) as Record<string, unknown>;
   const bundled = diagnosticNow();
-  const shard = [loaded['default'], loaded['generate']].find((value): value is { describe: () => ShardScene } => typeof value === 'function' && 'describe' in value && typeof value.describe === 'function');
+  const shard = [loaded['default'], loaded['generate']].find((value): value is { describe: () => ShardScene; gameplay?: () => Gameplay } => typeof value === 'function' && 'describe' in value && typeof value.describe === 'function');
   if (shard === undefined) throw new Error('watch: shard.config.ts exports no scene shard (defineShard from @wildshard/sdk/scene/shard)');
   const describe = (mode: 'guess' | 'truth'): ShardScene => { memo.begin(mode); return withPaintMemo(memo, () => shard.describe()); };
-  const scene = describe('guess');
-  return { scene, describe, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
+  const scene = describe('guess'), gameplay = shard.gameplay?.() ?? { gameplay: {}, rest: {} };
+  return { scene, gameplay, describe, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
 }
 
 /** The shell's look, as the shardfile back end writes it for the live shell: its day keys go live, the rest is the shell's. */
@@ -120,12 +122,12 @@ function builtProduct(folder: string): Parameters<typeof budgetOf>[0] {
 /** AP20: how long edits rest before watch runs the full build. */
 const IDLE_BUILD_MS = 5000;
 
-const shellKey = (scene: ShardScene): string => {
+const shellKey = (scene: ShardScene, gameplay: Gameplay): string => {
   const { keys: _keys, materials: _materials, day, grade, ...look } = shellLook(scene);
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
   // engine's live look keeps its fog kind: linear against exponential needs a new shell
   return hashOf((hash) => hash.json({ look, grade: fixedGrade, day: day === undefined ? null : { minutes: day.minutes, start: day.start },
-    linearFog: scene.look.fog?.kind === 'linear', spawn: scene.spawn, identity: scene.identity }));
+    linearFog: scene.look.fog?.kind === 'linear', spawn: scene.spawn, identity: scene.identity, extended: gameplay.rest }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
@@ -151,11 +153,11 @@ export async function watchProject(project: string, options: { port?: number; cl
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-watch-'))), log = options.log ?? ((line: string): void => { console.info(line); });
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
   let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
-  let ground: WatchState['ground'] = { hash: '', shell: '' }, lastBuild: WatchBuild | null = null, idle: Scope | null = null, building: ChildProcess | null = null;
-  const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>(), grounds = new Map<string, Uint8Array>();
+  let ground: WatchState['ground'] = { hash: '', shell: '' }, gameplayState: WatchState['gameplay'] = { hash: '', shell: '' }, lastBuild: WatchBuild | null = null, idle: Scope | null = null, building: ChildProcess | null = null;
+  const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>(), grounds = new Map<string, Uint8Array>(), gameplays = new Map<string, Uint8Array>();
   const clients = new Set<WatchSocket>(), scope = new Scope('sdk.watch');
   let seenAt = 0, observed = projectSourceStamp(source), work = Promise.resolve(), pending = false, stampMs = 0;
-  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, build: lastBuild, error, seenAt, sentAt: Date.now() } satisfies WatchState);
+  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, gameplay: gameplayState, build: lastBuild, error, seenAt, sentAt: Date.now() } satisfies WatchState);
   const announce = (): void => { const message = state(); for (const client of clients) client.send(message); };
 
   const buildShell = async (): Promise<void> => {
@@ -207,8 +209,8 @@ export async function watchProject(project: string, options: { port?: number; cl
     idle.timeout(IDLE_BUILD_MS, () => { void fullBuild(); });
   };
   /** Push one described revision: a new shell if it needs one, the changed parts and the look. */
-  const push = async (scene: ShardScene, timing: string, started: number): Promise<void> => {
-    const key = shellKey(scene);
+  const push = async (scene: ShardScene, gameplay: Gameplay, timing: string, started: number): Promise<void> => {
+    const key = shellKey(scene, gameplay);
     const reshelled = key !== shellHash || reshell;
     if (reshelled) {
       if (shellHash !== '') log(`wildshard watch: ${reshell ? 'the page can\'t take this look live' : 'the ground, spawn or a fixed look field changed'}; rebuilding the shell (the page reloads)`);
@@ -224,6 +226,13 @@ export async function watchProject(project: string, options: { port?: number; cl
       grounds.set(groundHash, sceneGroundBytes(scene));
     }
     const groundChanged = ground.hash !== '' && groundHash !== ground.hash;
+    // AP19: the gameplay sections go live (`restartGameplay`); the shell keeps the ones it was built with
+    const gameplayHash = hashOf((hash) => hash.json(gameplay.gameplay));
+    if (!gameplays.has(gameplayHash)) {
+      if (gameplays.size > 8) gameplays.clear();
+      gameplays.set(gameplayHash, new TextEncoder().encode(JSON.stringify(gameplay.gameplay)));
+    }
+    const gameplayChanged = gameplayState.hash !== '' && gameplayHash !== gameplayState.hash;
     const changed = scene.parts.filter((part) => parts.find((live) => live.name === part.name)?.hash !== part.hash).map((part) => part.name);
     for (const part of scene.parts) {
       if (encodedParts.has(part.hash)) continue;
@@ -233,13 +242,14 @@ export async function watchProject(project: string, options: { port?: number; cl
     }
     const next = scene.parts.map((part) => ({ name: part.name, hash: part.hash }));
     const live = liveLook(scene), lookHash = hashOf((hash) => hash.json(live));
-    const same = !reshelled && error === null && !groundChanged && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
+    const same = !reshelled && error === null && !groundChanged && !gameplayChanged && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
     error = null;
     if (same) return;
     const lookChanged = look.hash !== '' && lookHash !== look.hash;
-    parts = next; look = { hash: lookHash, ...live }; ground = { hash: groundHash, shell: reshelled ? groundHash : ground.shell }; revision++;
+    parts = next; look = { hash: lookHash, ...live }; ground = { hash: groundHash, shell: reshelled ? groundHash : ground.shell };
+    gameplayState = { hash: gameplayHash, shell: reshelled ? gameplayHash : gameplayState.shell }; revision++;
     announce();
-    const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : [], ...groundChanged && !reshelled ? ['the ground'] : []];
+    const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : [], ...groundChanged && !reshelled ? ['the ground'] : [], ...gameplayChanged && !reshelled ? ['the gameplay'] : []];
     idleBuild();
     log(`wildshard watch: revision ${revision}, ${what.length === 0 ? (reshelled ? 'a new shell' : 'parts removed') : what.join(' and ')} in ${Math.round(diagnosticNow() - started)} ms ${timing}`);
   };
@@ -252,7 +262,7 @@ export async function watchProject(project: string, options: { port?: number; cl
     try { described = await describeSource(source, memo); }
     catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
     const guessed = memo.hits, edit = ++edits;
-    await push(described.scene, `(bundle ${described.bundleMs} ms, describe ${described.describeMs} ms${guessed > 0 ? `, ${guessed} of ${guessed + memo.misses} textures kept` : ''})`, started);
+    await push(described.scene, described.gameplay, `(bundle ${described.bundleMs} ms, describe ${described.describeMs} ms${guessed > 0 ? `, ${guessed} of ${guessed + memo.misses} textures kept` : ''})`, started);
     // AP17: a kept texture was a guess. Once the page has fetched this revision (painting holds this process), and unless a
     // newer edit came, paint every texture again and push what differs.
     if (guessed === 0) return;
@@ -261,7 +271,7 @@ export async function watchProject(project: string, options: { port?: number; cl
       const checked = diagnosticNow();
       let painted: ShardScene;
       try { painted = described.describe('truth'); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); return; }
-      await push(painted, `(a kept texture changed; repainted in ${Math.round(diagnosticNow() - checked)} ms)`, checked);
+      await push(painted, described.gameplay, `(a kept texture changed; repainted in ${Math.round(diagnosticNow() - checked)} ms)`, checked);
     };
     truth?.dispose();
     truth = scope.child('sdk.watch.truth');
@@ -300,9 +310,9 @@ export async function watchProject(project: string, options: { port?: number; cl
       if (path.startsWith(DEV_SCENE_PATH)) {
         const rest = path.slice(DEV_SCENE_PATH.length), [kind = '', name = ''] = rest.split(/\/(.*)/su);
         const hash = kind === 'part' ? parts.find((part) => part.name === name)?.hash : undefined;
-        const body = kind === 'part' ? (hash === undefined ? undefined : encodedParts.get(hash)) : kind === 'geometry' ? geometries.get(name) : kind === 'texture' ? textures.get(name) : kind === 'ground' ? grounds.get(name) : undefined;
+        const body = kind === 'part' ? (hash === undefined ? undefined : encodedParts.get(hash)) : kind === 'geometry' ? geometries.get(name) : kind === 'texture' ? textures.get(name) : kind === 'ground' ? grounds.get(name) : kind === 'gameplay' ? gameplays.get(name) : undefined;
         if (body === undefined) { response.writeHead(404); response.end(); return; }
-        response.setHeader('Content-Type', kind === 'part' ? 'application/json' : 'application/octet-stream');
+        response.setHeader('Content-Type', kind === 'part' || kind === 'gameplay' ? 'application/json' : 'application/octet-stream');
         response.end(body); return;
       }
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
