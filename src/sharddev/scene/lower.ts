@@ -52,6 +52,8 @@ function lowerGeometry(geometry: BufferGeometry, path: string, tables: Tables): 
   return key;
 }
 
+/** A painted array's texture key per colour space (an array is never written after it is painted). */
+const PIXEL_KEYS = new WeakMap<Uint8Array, Partial<Record<'srgb' | 'linear', string>>>();
 function lowerTexture(texture: Texture, path: string, tables: Tables): string {
   const known = tables.textureKeys.get(texture); if (known !== undefined) return known;
   let pixels = paintedPixels(texture.source);
@@ -61,7 +63,10 @@ function lowerTexture(texture: Texture, path: string, tables: Tables): string {
   }
   if (pixels === undefined) throw new SceneRefusalError(path, `texture ${texture.name || texture.constructor.name} has no pixels at compile time`, 'Paint it with paint(width, height, fn) from @wildshard/sdk/scene/shard (a CanvasTexture needs a browser), or hand in an RGBA8 DataTexture');
   const colourSpace = texture.colorSpace === 'srgb' ? 'srgb' : 'linear';
-  const key = `t${hashOf((h) => { h.numbers([pixels.width, pixels.height]).text(colourSpace).bytes(pixels.rgba); })}`;
+  // AP17: a watched revision's memoised paint hands back the same pixel array, so its hash is kept by that array
+  const cached = PIXEL_KEYS.get(pixels.rgba)?.[colourSpace], { rgba, width, height } = pixels;
+  const key = cached ?? `t${hashOf((h) => { h.numbers([width, height]).text(colourSpace).bytes(rgba); })}`;
+  if (cached === undefined) PIXEL_KEYS.set(rgba, { ...PIXEL_KEYS.get(rgba), [colourSpace]: key });
   if (!tables.textures.has(key)) tables.textures.set(key, { key, width: pixels.width, height: pixels.height, rgba: pixels.rgba, colourSpace });
   tables.textureKeys.set(texture, key);
   return key;

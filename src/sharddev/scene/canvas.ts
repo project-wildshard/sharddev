@@ -1,5 +1,5 @@
 import type { DataTexture } from 'three';
-import { byte, checkSize, paintedTexture } from './author';
+import { byte, checkSize, memoPainted } from './author';
 
 /**
  * AUTHORING-PARITY AP1: `paintCanvas(w, h, draw)`, the part of the Canvas 2D API the cleanrooms paint with, in plain
@@ -208,6 +208,5 @@ export class PaintContext {
 /** `paintCanvas(w, h, (ctx) => ...)`: a cleanroom canvas painter, run at compile time, as a sampled texture. */
 export function paintCanvas(width: number, height: number, draw: (ctx: PaintContext) => void, options: { colourSpace?: 'srgb' | 'linear' } = {}): DataTexture {
   checkSize(width, height);
-  const ctx = new PaintContext(width, height); draw(ctx);
-  return paintedTexture(width, height, ctx.bytes(), options);
+  return memoPainted('canvas', width, height, draw, options, () => { const ctx = new PaintContext(width, height); draw(ctx); return ctx.bytes(); });
 }

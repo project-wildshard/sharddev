@@ -1,0 +1,8 @@
+# Watch, complete (SHARD-SOURCE stage 5, opus-ss5)
+
+- AP17: look edits go live in ~70-110 ms. Most of the old 632 ms was bundling three and the sdk per revision (170 ms;
+  now shared from the watch process, 20 ms) and painting textures (200 ms; now kept by painter text and checked by a
+  repaint once edits pause). Surprise: on this Mac native fs.watch delivers no events at all (FSEvents used up), so the
+  250 ms poll was the real detector; it now polls every 40 to 250 ms. Second surprise: a page reload under watch landed
+  on the client's service-worker cache (no page script, old shell); watch now serves a self-removing worker. A look set
+  live matches the same look booted from a new shell to 0.03 of 255 per channel.

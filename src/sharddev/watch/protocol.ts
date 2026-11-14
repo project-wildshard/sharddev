@@ -10,13 +10,16 @@ import type { SceneGeometry, ScenePart, ShardScene } from '../scene/description'
  *   GET /__wildshard_scene/part/<name>     one `WatchPart` (JSON)
  *   GET /__wildshard_scene/geometry/<key>  one geometry (`encodeGeometry`), immutable by key
  *   GET /__wildshard_scene/texture/<key>   one RGBA8 raster, row 0 at v = 0, immutable by key
+ *   POST /__wildshard_scene/reshell        AP17: the page's look can't take this revision live; build a new shell (the page
+ *                                          reloads on the state that names it)
  */
 export const DEV_SCENE_PATH = '/__wildshard_scene/';
 export const WATCH_SOCKET = '/__wildshard_scene/socket';
+export const WATCH_RESHELL = '/__wildshard_scene/reshell';
 /** The protocol between the watch server and its own page script: they ship together, so a mismatch is a stale page. */
-export const WATCH_WIRE = 2;
+export const WATCH_WIRE = 3;
 /** The engine dev hook version this sdk drives: engine's `DEV_HOOK_VERSION`, named in a devserver client's build flags. */
-export const DEV_HOOK_VERSION = 1;
+export const DEV_HOOK_VERSION = 2;
 
 export interface WatchState {
   readonly wire: number;
@@ -25,10 +28,14 @@ export interface WatchState {
   readonly revision: number;
   /** every part and its content hash; a part missing here is gone */
   readonly parts: readonly { readonly name: string; readonly hash: string }[];
-  /** the look's day keys (sky, fog, sun, ambient), set live through the hook's `setLook` */
-  readonly look: { readonly hash: string; readonly keys: readonly unknown[] };
+  /** the look section the page's shardfile would carry (AP17: day keys, sun arc, exposure, tone, vignette, bloom), set live
+   *  through the hook's `setLook` */
+  readonly look: { readonly hash: string; readonly keys: readonly unknown[]; readonly look: unknown };
   /** the last compile's refusal; the page keeps what it has */
   readonly error: string | null;
+  /** the wall clock (ms) this revision's edit was seen and its state sent: the timing's server half (AP6, AP17) */
+  readonly seenAt: number;
+  readonly sentAt: number;
 }
 
 /** One part as the page fetches it: the hook's `DevPart` with geometry and rasters by key, and its colliders. */

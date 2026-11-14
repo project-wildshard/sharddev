@@ -32,12 +32,58 @@ export const paintedPixels = (source: object): { width: number; height: number; 
  */
 export function paint(width: number, height: number, fn: (u: number, v: number, x: number, y: number) => readonly number[], options: { colourSpace?: 'srgb' | 'linear' } = {}): DataTexture {
   checkSize(width, height);
-  const top = new Uint8Array(width * height * 4);
-  for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-    const [r = 0, g = 0, b = 0, a = 255] = fn(x / width, y / height, x, y), i = (y * width + x) * 4;
-    top[i] = byte(r); top[i + 1] = byte(g); top[i + 2] = byte(b); top[i + 3] = byte(a);
+  return memoPainted('paint', width, height, fn, options, () => {
+    const top = new Uint8Array(width * height * 4);
+    for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
+      const [r = 0, g = 0, b = 0, a = 255] = fn(x / width, y / height, x, y), i = (y * width + x) * 4;
+      top[i] = byte(r); top[i + 1] = byte(g); top[i + 2] = byte(b); top[i + 3] = byte(a);
+    }
+    return top;
+  });
+}
+
+/**
+ * SHARD-SOURCE AP17: `wildshard watch`'s paint memo. A watched revision reruns the author's whole build, and painting is most
+ * of it (the authoring slice: ~200 of ~250 ms). While `withPaintMemo` runs a build in `guess` mode, a `paint` or
+ * `paintCanvas` call whose painter source, size and colour space match the n-th such call of the last revision takes that
+ * call's pixels without painting. It is a guess: a painter's closure can change while its source text does not. So watch
+ * pushes the guess, then runs the build again in `truth` mode (every call paints) and pushes the difference, if any.
+ */
+export class PaintMemo {
+  private last = new Map<string, Uint8Array>();
+  private now = new Map<string, Uint8Array>();
+  private readonly seen = new Map<string, number>();
+  mode: 'guess' | 'truth' = 'guess';
+  hits = 0;
+  misses = 0;
+  /** Start a build: what the last one painted (or guessed) is what this one may take. */
+  begin(mode: 'guess' | 'truth'): void {
+    if (this.now.size > 0) this.last = this.now;
+    this.now = new Map(); this.seen.clear(); this.mode = mode; this.hits = 0; this.misses = 0;
   }
-  return paintedTexture(width, height, top, options);
+  /** One call's pixels (rows bottom first, as the texture holds them): the last revision's, or `paint()`'s. */
+  pixels(kind: string, width: number, height: number, source: string, colourSpace: string, draw: () => Uint8Array): Uint8Array {
+    const base = `${kind}|${width}x${height}|${colourSpace}|${source}`, nth = this.seen.get(base) ?? 0;
+    this.seen.set(base, nth + 1);
+    const key = `${base}#${nth}`, kept = this.mode === 'guess' ? this.last.get(key) : undefined;
+    if (kept !== undefined) this.hits++; else this.misses++;
+    const rgba = kept ?? draw();
+    this.now.set(key, rgba);
+    return rgba;
+  }
+}
+let memo: PaintMemo | null = null;
+/** Run `build` with `next` as the paint memo (null: none, every call paints). */
+export function withPaintMemo<T>(next: PaintMemo | null, build: () => T): T {
+  const before = memo; memo = next;
+  try { return build(); } finally { memo = before; }
+}
+/** A painter's texture through the memo, when one is set (rows top first in, as a canvas holds them). */
+export function memoPainted(kind: string, width: number, height: number, painter: object, options: { colourSpace?: 'srgb' | 'linear' }, top: () => Uint8Array): DataTexture {
+  if (memo === null) return paintedTexture(width, height, top(), options);
+  // eslint-disable-next-line @typescript-eslint/no-base-to-string -- a painter is a function: its source text is the key
+  const rgba = memo.pixels(kind, width, height, String(painter), options.colourSpace ?? 'srgb', () => flipRows(width, height, top()));
+  return textureOf(width, height, rgba, options);
 }
 
 /** A texture size from 1 to 4096 a side, or a refusal. */
@@ -47,9 +93,17 @@ export function checkSize(width: number, height: number): void {
 
 /** RGBA8 rows top first (as a canvas holds them) as the texture a `CanvasTexture` of that canvas would be. */
 export function paintedTexture(width: number, height: number, top: Uint8Array, options: { colourSpace?: 'srgb' | 'linear' } = {}): DataTexture {
-  // canvas row y (top = 0) is texture row height-1-y: a CanvasTexture flips Y on upload, a DataTexture does not
+  return textureOf(width, height, flipRows(width, height, top), options);
+}
+
+/** Canvas row y (top = 0) is texture row height-1-y: a CanvasTexture flips Y on upload, a DataTexture does not. */
+function flipRows(width: number, height: number, top: Uint8Array): Uint8Array {
   const rgba = new Uint8Array(width * height * 4);
   for (let y = 0; y < height; y++) rgba.set(top.subarray(y * width * 4, (y + 1) * width * 4), (height - 1 - y) * width * 4);
+  return rgba;
+}
+
+function textureOf(width: number, height: number, rgba: Uint8Array, options: { colourSpace?: 'srgb' | 'linear' }): DataTexture {
   const texture = new DataTexture(rgba, width, height);
   texture.colorSpace = options.colourSpace === 'linear' ? LinearSRGBColorSpace : SRGBColorSpace;
   texture.wrapS = texture.wrapT = RepeatWrapping;

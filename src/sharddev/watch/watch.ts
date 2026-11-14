@@ -6,7 +6,8 @@ import { createReadStream, existsSync, mkdtempSync, readdirSync, readFileSync, r
 import { tmpdir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
-import { build } from 'vite';
+import { build, type Plugin } from 'vite';
+import * as THREE from 'three';
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { Scope } from '@wildshard/engine/app/scope';
 import { SDK_ROOT } from '../agentFiles';
@@ -14,9 +15,15 @@ import { buildProject } from '../project';
 import { projectSourceStamp } from '../dev';
 import { executeBundle } from '../executeBundle';
 import type { ShardScene } from '../scene/description';
+import * as liveAuthor from '../scene/author';
+import { PaintMemo, withPaintMemo } from '../scene/author';
+import * as liveCanvas from '../scene/canvas';
+import * as liveLower from '../scene/lower';
+import * as liveShard from '../scene/shard';
+import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
 import { lampRows, sceneLook, waterRows } from '../scene/shardfile';
-import { DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchState } from './protocol';
+import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchState } from './protocol';
 import { acceptSocket, type WatchSocket } from './socket';
 
 /**
@@ -38,10 +45,41 @@ export interface WatchProject { url: string; close: () => Promise<void> }
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
 const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees', 'tmp']);
 
-/** The scene shard `shard.config.ts` exports (its default or `generate`), read fresh from source. */
-async function describeSource(source: string): Promise<{ scene: ShardScene; bundleMs: number; describeMs: number }> {
+/**
+ * AP17: the modules a watched revision shares with this process instead of bundling and evaluating its own copy: `three`
+ * and the scene API. An author's bundle is then only the author's own code (~20 ms, not ~170 ms), and three and the
+ * lowering stay loaded and warm across revisions. Each is a virtual module that re-exports this process's instance, so
+ * an author's `THREE.Mesh` is the lowering's `Mesh`.
+ */
+const LIVE_GLOBAL = '__wildshardWatchLive';
+const LIVE: Readonly<Record<string, object>> = { three: THREE, '@wildshard/sdk/scene/author': liveAuthor, '@wildshard/sdk/scene/canvas': liveCanvas,
+  '@wildshard/sdk/scene/lower': liveLower, '@wildshard/sdk/scene/shard': liveShard, '@wildshard/sdk/scene/shardfile': liveShardfile };
+/** The client's service worker, and what `watch` serves in its place: a worker that unregisters itself and serves nothing. */
+const SERVICE_WORKER = '/sw.js';
+export const NO_SERVICE_WORKER = "self.addEventListener('install', () => { self.skipWaiting(); });\nself.addEventListener('activate', (event) => { event.waitUntil(self.registration.unregister()); });\n";
+/** AP17: how long after a guessed revision the true paint runs: once edits pause, so a paint (it holds this process) rarely delays one. */
+const TRUTH_AFTER_MS = 1500;
+const IDENTIFIER = /^[A-Za-z_$][\w$]*$/u, LIVE_PREFIX = '\0wildshard-live:';
+const livePlugin = (): Plugin => {
+  (globalThis as Record<string, unknown>)[LIVE_GLOBAL] = LIVE;
+  return {
+    name: 'wildshard-watch-live', enforce: 'pre',
+    resolveId: (id) => (Object.hasOwn(LIVE, id) ? `${LIVE_PREFIX}${id}` : null),
+    load: (id) => {
+      if (!id.startsWith(LIVE_PREFIX)) return null;
+      const name = id.slice(LIVE_PREFIX.length), live = LIVE[name] ?? {}, keys = Object.keys(live).filter((key) => key !== 'default' && IDENTIFIER.test(key));
+      return `const live = globalThis.${LIVE_GLOBAL}[${JSON.stringify(name)}];\nexport const { ${keys.join(', ')} } = live;\n${'default' in live ? 'export default live.default;\n' : ''}`;
+    },
+  };
+};
+
+/**
+ * The scene shard `shard.config.ts` exports (its default or `generate`), read fresh from source. Its build runs under `memo`
+ * in guess mode (AP17): `describe` runs it again, in guess or truth mode, without bundling again.
+ */
+async function describeSource(source: string, memo: PaintMemo): Promise<{ scene: ShardScene; describe: (mode: 'guess' | 'truth') => ShardScene; bundleMs: number; describeMs: number }> {
   const started = diagnosticNow();
-  const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false, lib: { entry: resolve(source, 'shard.config.ts'), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
+  const result = await build({ configFile: false, logLevel: 'silent', plugins: [livePlugin()], build: { write: false, minify: false, lib: { entry: resolve(source, 'shard.config.ts'), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
   const built = Array.isArray(result) ? result[0] : result;
   const chunk = built !== undefined && 'output' in built ? built.output.find((out) => out.type === 'chunk') : undefined;
   if (chunk === undefined || chunk.type !== 'chunk') throw new Error('watch: shard.config.ts did not bundle to one module');
@@ -49,18 +87,31 @@ async function describeSource(source: string): Promise<{ scene: ShardScene; bund
   const bundled = diagnosticNow();
   const shard = [loaded['default'], loaded['generate']].find((value): value is { describe: () => ShardScene } => typeof value === 'function' && 'describe' in value && typeof value.describe === 'function');
   if (shard === undefined) throw new Error('watch: shard.config.ts exports no scene shard (defineShard from @wildshard/sdk/scene/shard)');
-  const scene = shard.describe();
-  return { scene, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
+  const describe = (mode: 'guess' | 'truth'): ShardScene => { memo.begin(mode); return withPaintMemo(memo, () => shard.describe()); };
+  const scene = describe('guess');
+  return { scene, describe, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
 }
 
 /** The shell's look, as the shardfile back end writes it for the live shell: its day keys go live, the rest is the shell's. */
 const shellLook = (scene: ShardScene): ReturnType<typeof sceneLook> => sceneLook(scene, liveShell(scene).parts.flatMap((p) => p.lights), {});
 
-/** What a page boots from: a ground, spawn or look change other than its day keys needs a new shell. */
+/** The shell's look as the page takes it live (AP17): the whole section but its materials, which ride the parts. */
+const liveLook = (scene: ShardScene): { keys: readonly unknown[]; look: unknown } => {
+  const { materials: _materials, ...look } = shellLook(scene);
+  return { keys: look.keys, look };
+};
+
+/**
+ * What a page boots from: a ground or spawn change, or a look change engine's dev hook can't set live, needs a new shell.
+ * The day keys, the sun's arc, exposure, tone, vignette and bloom go live (AP17); a page whose hook refuses one anyway asks
+ * for a new shell (`WATCH_RESHELL`).
+ */
 const shellKey = (scene: ShardScene): string => {
-  const { keys: _keys, ...look } = shellLook(scene);
+  const { keys: _keys, materials: _materials, day, grade, ...look } = shellLook(scene);
+  const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
   // engine's live look keeps its fog kind: linear against exponential needs a new shell
-  return hashOf((hash) => hash.json({ look, linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.hash ?? null, spawn: scene.spawn, identity: scene.identity }));
+  return hashOf((hash) => hash.json({ look, grade: fixedGrade, day: day === undefined ? null : { minutes: day.minutes, start: day.start },
+    linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.hash ?? null, spawn: scene.spawn, identity: scene.identity }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
@@ -85,10 +136,11 @@ export async function watchProject(project: string, options: { port?: number; cl
   if (typeof options.client === 'string') assertHook(options.client);
   const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-watch-'))), log = options.log ?? ((line: string): void => { console.info(line); });
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
-  let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [] };
+  let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
   const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>();
-  const clients = new Set<WatchSocket>();
-  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, error } satisfies WatchState);
+  const clients = new Set<WatchSocket>(), scope = new Scope('sdk.watch');
+  let seenAt = 0, observed = projectSourceStamp(source), work = Promise.resolve(), pending = false, stampMs = 0;
+  const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, error, seenAt, sentAt: Date.now() } satisfies WatchState);
   const announce = (): void => { const message = state(); for (const client of clients) client.send(message); };
 
   const buildShell = async (): Promise<void> => {
@@ -107,18 +159,16 @@ export async function watchProject(project: string, options: { port?: number; cl
     } finally { if (before === undefined) delete process.env['WILDSHARD_SCENE_LIVE']; else process.env['WILDSHARD_SCENE_LIVE'] = before; }
   };
 
-  const compile = async (): Promise<void> => {
-    const started = diagnosticNow();
-    let described: Awaited<ReturnType<typeof describeSource>>;
-    try { described = await describeSource(source); }
-    catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
-    const { scene } = described, key = shellKey(scene);
-    if (key !== shellHash) {
-      if (shellHash !== '') log('wildshard watch: the ground, spawn or grade changed; rebuilding the shell (the page reloads)');
+  /** Push one described revision: a new shell if it needs one, the changed parts and the look. */
+  const push = async (scene: ShardScene, timing: string, started: number): Promise<void> => {
+    const key = shellKey(scene);
+    const reshelled = key !== shellHash || reshell;
+    if (reshelled) {
+      if (shellHash !== '') log(`wildshard watch: ${reshell ? 'the page can\'t take this look live' : 'the ground, spawn or a fixed look field changed'}; rebuilding the shell (the page reloads)`);
       // the first shell's failure is the command's; a later one is the page's error, and the old shell keeps serving
       if (shellHash === '') await buildShell();
       else try { await buildShell(); } catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
-      shellHash = key;
+      shellHash = key; reshell = false;
     }
     const changed = scene.parts.filter((part) => parts.find((live) => live.name === part.name)?.hash !== part.hash).map((part) => part.name);
     for (const part of scene.parts) {
@@ -128,17 +178,56 @@ export async function watchProject(project: string, options: { port?: number; cl
       for (const t of part.textures) { const texture = scene.textures[t]; if (!textures.has(t) && texture !== undefined) textures.set(t, texture.rgba); }
     }
     const next = scene.parts.map((part) => ({ name: part.name, hash: part.hash }));
-    const { keys } = shellLook(scene), lookHash = hashOf((hash) => hash.json(keys));
-    const same = error === null && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
+    const live = liveLook(scene), lookHash = hashOf((hash) => hash.json(live));
+    const same = !reshelled && error === null && lookHash === look.hash && next.length === parts.length && next.every((part, i) => part.name === parts[i]?.name && part.hash === parts[i]?.hash);
     error = null;
     if (same) return;
     const lookChanged = look.hash !== '' && lookHash !== look.hash;
-    parts = next; look = { hash: lookHash, keys }; revision++;
+    parts = next; look = { hash: lookHash, ...live }; revision++;
     announce();
     const what = [...changed.length === 0 ? [] : [`changed ${changed.join(', ')}`], ...lookChanged ? ['the look'] : []];
-    log(`wildshard watch: revision ${revision}, ${what.length === 0 ? 'parts removed' : what.join(' and ')} in ${Math.round(diagnosticNow() - started)} ms (bundle ${described.bundleMs} ms, describe ${described.describeMs} ms)`);
+    log(`wildshard watch: revision ${revision}, ${what.length === 0 ? (reshelled ? 'a new shell' : 'parts removed') : what.join(' and ')} in ${Math.round(diagnosticNow() - started)} ms ${timing}`);
   };
 
+  const memo = new PaintMemo();
+  let edits = 0, truth: Scope | null = null;
+  const compile = async (): Promise<void> => {
+    const started = diagnosticNow();
+    let described: Awaited<ReturnType<typeof describeSource>>;
+    try { described = await describeSource(source, memo); }
+    catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
+    const guessed = memo.hits, edit = ++edits;
+    await push(described.scene, `(bundle ${described.bundleMs} ms, describe ${described.describeMs} ms${guessed > 0 ? `, ${guessed} of ${guessed + memo.misses} textures kept` : ''})`, started);
+    // AP17: a kept texture was a guess. Once the page has fetched this revision (painting holds this process), and unless a
+    // newer edit came, paint every texture again and push what differs.
+    if (guessed === 0) return;
+    const verify = async (): Promise<void> => {
+      if (edit !== edits || stopped) return;
+      const checked = diagnosticNow();
+      let painted: ShardScene;
+      try { painted = described.describe('truth'); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); return; }
+      await push(painted, `(a kept texture changed; repainted in ${Math.round(diagnosticNow() - checked)} ms)`, checked);
+    };
+    truth?.dispose();
+    truth = scope.child('sdk.watch.truth');
+    truth.timeout(TRUTH_AFTER_MS, () => { work = work.then(verify); });
+  };
+
+  // Edits: a native watch per top-level folder (and the root), plus a stamp poll for what native events miss. AP17: the poll
+  // runs every 40 to 250 ms, twenty times as long as a stamp takes, since native events don't always come (on a Mac whose
+  // FSEvents streams are used up, none do, and a fixed 250 ms poll alone cost an edit 125 ms on average).
+  const reconcile = (): void => {
+    if (stopped || pending) return;
+    const stamped = diagnosticNow(), next = projectSourceStamp(source);
+    stampMs = diagnosticNow() - stamped;
+    if (next === observed) return;
+    observed = next; pending = true; seenAt = Date.now();
+    const run = async (): Promise<void> => {
+      pending = false;
+      try { if (!stopped) await compile(); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); }
+    };
+    work = work.then(run);
+  };
   try { await compile(); } catch (cause) { rmSync(scratch, { recursive: true, force: true }); throw cause; }
   if (product === '') { rmSync(scratch, { recursive: true, force: true }); throw new Error(`wildshard watch: ${error ?? 'no shell was built'}`); }
 
@@ -146,6 +235,11 @@ export async function watchProject(project: string, options: { port?: number; cl
     response.setHeader('Cache-Control', 'no-store');
     try {
       const path = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
+      if (path === WATCH_RESHELL && request.method === 'POST') {
+        // the page's look refused this revision live: the next compile builds a new shell, which the page reloads into
+        reshell = true; observed = ''; reconcile();
+        response.writeHead(204); response.end(); return;
+      }
       if (path.startsWith(DEV_SCENE_PATH)) {
         const rest = path.slice(DEV_SCENE_PATH.length), [kind = '', name = ''] = rest.split(/\/(.*)/su);
         const hash = kind === 'part' ? parts.find((part) => part.name === name)?.hash : undefined;
@@ -155,6 +249,9 @@ export async function watchProject(project: string, options: { port?: number; cl
         response.end(body); return;
       }
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
+      // AP17: the client's service worker would serve a reloaded page its cached index.html, which has no page script (and
+      // an older shell); a watched page runs without one, so watch serves one that removes itself
+      if (path === SERVICE_WORKER) { response.setHeader('Content-Type', 'text/javascript'); response.end(NO_SERVICE_WORKER); return; }
       const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
       const file = resolve(product, served === '/' ? 'index.html' : served.slice(1));
       if (!file.startsWith(`${product}${sep}`) || !existsSync(file) || !statSync(file).isFile() || !realpathSync(file).startsWith(`${product}${sep}`)) { response.writeHead(404); response.end(); return; }
@@ -174,19 +271,6 @@ export async function watchProject(project: string, options: { port?: number; cl
   });
   await new Promise<void>((_resolve, reject) => { server.once('error', reject); server.listen(options.port ?? 0, '127.0.0.1', _resolve); });
 
-  // Edits: a native watch per top-level folder (and the root), plus a 250 ms stamp poll for what native events miss.
-  let observed = projectSourceStamp(source), work = Promise.resolve(), pending = false;
-  const reconcile = (): void => {
-    if (stopped || pending) return;
-    const next = projectSourceStamp(source);
-    if (next === observed) return;
-    observed = next; pending = true;
-    const run = async (): Promise<void> => {
-      pending = false;
-      try { if (!stopped) await compile(); } catch (cause) { log(`wildshard watch: ${cause instanceof Error ? cause.message : String(cause)}`); }
-    };
-    work = work.then(run);
-  };
   const onChange = (prefix: string) => (_event: string, filename: string | null): void => {
     if (`${prefix}${filename ?? ''}`.split(/[\\/]/u).some((part) => ignored.has(part))) return;
     reconcile();
@@ -194,8 +278,8 @@ export async function watchProject(project: string, options: { port?: number; cl
   const watchers = [watch(source, onChange('')), ...readdirSync(source, { withFileTypes: true })
     .filter((entry) => entry.isDirectory() && !ignored.has(entry.name))
     .map((entry) => watch(join(source, entry.name), { recursive: true }, onChange(`${entry.name}/`)))];
-  const scope = new Scope('sdk.watch');
-  scope.interval(250, reconcile);
+  const poll = (): void => { reconcile(); scope.timeout(Math.min(250, Math.max(40, Math.round(stampMs * 20))), poll); };
+  poll();
   const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No watch server address');
   return { url: `http://127.0.0.1:${address.port}/`, close: async () => {
     if (stopped) return;
