@@ -18,7 +18,7 @@ import type { ShardWorld } from './author';
 import type { ShardIdentityInput, ShardScene } from './description';
 import { lowerShard } from './lower';
 import { compileShardfile, type ShardfileOptions } from './shardfile';
-import { liveShell } from '../watch/encode';
+import { liveShell } from '../watch/protocol';
 
 
 /** A shard written as a scene: the generator `wildshard build` runs, plus the scene `wildshard watch` reads. */

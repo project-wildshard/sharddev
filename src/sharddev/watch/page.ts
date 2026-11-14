@@ -1,0 +1,182 @@
+import { Scope } from '@wildshard/engine/app/scope';
+import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, decodeGeometry, type WatchPart, type WatchState } from './protocol';
+
+/**
+ * SHARD-SOURCE AP5 (J347): the page script `wildshard watch` injects into the page it serves (`pageEntry.ts`, bundled at
+ * start). It owns the page's half of watch: the socket, the fetches, a cache of decoded geometry and rasters, one scope
+ * per part and the swap order, and drives engine's dev hook (`window.__wildshardDevHook`, five calls). Per revision:
+ *
+ *   1. the look's day keys, if they changed (`setLook`; a look the page can't take live reloads it)
+ *   2. every changed part is fetched and decoded first, so a slow fetch never leaves half a revision on screen
+ *   3. each one swaps in (`addPart` or `replacePart`, then `swapColliders`), and only then its old scope goes
+ *   4. parts no longer in the scene go (`removePart`, `swapColliders(name, [])`)
+ *
+ * `window.__wsDevScene` reports what landed and the first frame after it, for `proof.mjs`'s timing.
+ */
+export interface DevHookLike {
+  readonly version: number;
+  addPart: (name: string, part: unknown) => void;
+  replacePart: (name: string, part: unknown) => void;
+  removePart: (name: string) => void;
+  setLook: (look: { readonly keys: readonly unknown[] }) => boolean;
+  swapColliders: (name: string, boxes: readonly unknown[]) => void;
+}
+
+export interface SocketLike { onmessage: ((event: { data: unknown }) => void) | null; onclose: (() => void) | null; close: () => void }
+
+export interface WatchPageEnv {
+  /** the watch server's origin, `http://127.0.0.1:<port>` */
+  readonly origin: string;
+  readonly hook: () => DevHookLike | undefined;
+  readonly fetch: (url: string) => Promise<{ ok: boolean; status: number; json: () => Promise<unknown>; arrayBuffer: () => Promise<ArrayBuffer> }>;
+  readonly socket: (url: string) => SocketLike;
+  /** the page's next frame (`requestAnimationFrame`) */
+  readonly frame: (run: () => void) => void;
+  readonly wait: (ms: number, run: () => void) => void;
+  readonly reload: () => void;
+  readonly now: () => number;
+  readonly log: (message: string) => void;
+}
+
+export interface WatchPageReport {
+  revision: number;
+  /** the last revision whose parts all landed, and the wall clock (ms) of the first frame after it */
+  framedRevision: number;
+  framedAt: number;
+  /** frames since the script started: it only grows, swap or no swap */
+  frames: number;
+  error: string | null;
+  /** every part swapped in, in order (`name@hash`) */
+  readonly applied: string[];
+}
+
+interface Held<T> { readonly value: T; users: number }
+interface LivePart { readonly hash: string; readonly scope: Scope }
+
+/** How long the script waits for the engine to boot and install its hook. */
+const HOOK_WAIT_MS = 180_000;
+
+export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageReport; readonly stop: () => void } {
+  const scope = new Scope('watch.page');
+  const report: WatchPageReport = { revision: 0, framedRevision: 0, framedAt: 0, frames: 0, error: null, applied: [] };
+  const parts = new Map<string, LivePart>(), geometries = new Map<string, Held<ReturnType<typeof decodeGeometry>>>(), textures = new Map<string, Held<Uint8Array>>();
+  let hook: DevHookLike | null = null, shell: number | null = null, look: string | null = null, socket: SocketLike | null = null;
+  let pendingFrame: number | null = null;
+
+  const tick = (): void => {
+    if (scope.disposed) return;
+    report.frames++;
+    if (pendingFrame !== null) { report.framedRevision = pendingFrame; report.framedAt = env.now(); pendingFrame = null; }
+    env.frame(tick);
+  };
+  env.frame(tick);
+
+  const fail = (message: string): void => { report.error = message; env.log(`wildshard watch: ${message}`); };
+  const get = async (path: string): Promise<{ json: () => Promise<unknown>; arrayBuffer: () => Promise<ArrayBuffer> }> => {
+    const response = await env.fetch(`${env.origin}${DEV_SCENE_PATH}${path}`);
+    if (!response.ok) throw new Error(`${path} answered ${response.status}`);
+    return response;
+  };
+  /** Take one use of a cached asset for `owner`; it is let go when `owner` is disposed. */
+  const hold = <T>(map: Map<string, Held<T>>, key: string, owner: Scope): T => {
+    const held = map.get(key);
+    if (held === undefined) throw new Error(`asset ${key} was not fetched`);
+    held.users++;
+    owner.onDispose(() => { if (--held.users === 0) map.delete(key); });
+    return held.value;
+  };
+
+  const sync = async (state: WatchState, first: boolean): Promise<void> => {
+    const live = hook;
+    if (live === null) return;
+    report.error = state.error;
+    if (state.error !== null) env.log(`wildshard watch: ${state.error}`);
+    if (state.look.hash !== look) {
+      if (!live.setLook({ keys: state.look.keys }) && !first) { env.log('wildshard watch: this look change needs a reload'); env.reload(); return; }
+      look = state.look.hash;
+    }
+    // fetch and decode every changed part before any swaps in
+    const changed = state.parts.filter((part) => parts.get(part.name)?.hash !== part.hash);
+    const fetched = await Promise.all(changed.map(async ({ name }) => await (await get(`part/${encodeURIComponent(name)}`)).json() as WatchPart));
+    const fresh = new Map<string, Promise<void>>();
+    for (const part of fetched) {
+      for (const key of part.geometries) if (!geometries.has(key) && !fresh.has(`g:${key}`)) fresh.set(`g:${key}`, (async () => { const bytes = await (await get(`geometry/${key}`)).arrayBuffer(); geometries.set(key, { value: decodeGeometry(key, bytes), users: 0 }); })());
+      for (const t of part.textures) if (!textures.has(t.key) && !fresh.has(`t:${t.key}`)) fresh.set(`t:${t.key}`, (async () => { const bytes = await (await get(`texture/${t.key}`)).arrayBuffer(); textures.set(t.key, { value: new Uint8Array(bytes), users: 0 }); })());
+    }
+    await Promise.all(fresh.values());
+    if (scope.disposed) return;
+    for (const part of fetched) {
+      const owner = scope.child(`watch.part.${part.name}@${part.hash}`), old = parts.get(part.name);
+      try {
+        const devPart = { materials: part.materials, sprites: part.sprites, lamps: part.lamps, water: part.water, draws: part.draws,
+          geometries: part.geometries.map((key) => hold(geometries, key, owner)),
+          textures: part.textures.map((t) => ({ ...t, rgba: hold(textures, t.key, owner) })) };
+        if (old === undefined) live.addPart(part.name, devPart); else live.replacePart(part.name, devPart);
+        live.swapColliders(part.name, part.colliders);
+      } catch (cause) {
+        // the hook keeps the old part drawn; this revision's copy lets its assets go
+        owner.dispose();
+        fail(`part ${part.name}: ${cause instanceof Error ? cause.message : String(cause)}`);
+        continue;
+      }
+      parts.set(part.name, { hash: part.hash, scope: owner });
+      report.applied.push(`${part.name}@${part.hash}`);
+      old?.scope.dispose();
+    }
+    const names = new Set(state.parts.map((part) => part.name));
+    for (const [name, part] of parts) {
+      if (names.has(name)) continue;
+      live.removePart(name); live.swapColliders(name, []);
+      parts.delete(name); part.scope.dispose();
+    }
+    report.revision = state.revision; pendingFrame = state.revision;
+  };
+
+  // one sync at a time; a revision announced while one runs waits, and only the newest one runs
+  let running = false, next: WatchState | null = null, synced = 0;
+  const drain = async (): Promise<void> => {
+    running = true;
+    while (next !== null && !scope.disposed) {
+      const state = next; next = null;
+      try { await sync(state, synced++ === 0); } catch (cause) { fail(cause instanceof Error ? cause.message : String(cause)); }
+    }
+    running = false;
+  };
+  const receive = (data: unknown): void => {
+    const state = JSON.parse(String(data)) as WatchState;
+    if (state.wire !== WATCH_WIRE) { env.log(`wildshard watch: the server speaks wire ${state.wire}, this page ${WATCH_WIRE}; reloading`); env.reload(); return; }
+    if (shell !== null && state.shell !== shell) { env.log('wildshard watch: the ground, spawn or grade changed; reloading'); env.reload(); return; }
+    shell = state.shell; next = state;
+    if (!running) void drain();
+  };
+  const connect = (): void => {
+    if (scope.disposed) return;
+    const opened = env.socket(`${env.origin.replace(/^http/u, 'ws')}${WATCH_SOCKET}`);
+    socket = opened;
+    opened.onmessage = (event) => { receive(event.data); };
+    opened.onclose = () => { if (socket === opened && !scope.disposed) env.wait(1000, connect); };
+  };
+
+  const started = env.now();
+  const find = (): void => {
+    if (scope.disposed) return;
+    const found = env.hook();
+    if (found === undefined) {
+      if (env.now() - started > HOOK_WAIT_MS) { fail('the page never installed engine\'s dev hook: is this a devserver client?'); return; }
+      env.wait(250, find); return;
+    }
+    if (found.version !== DEV_HOOK_VERSION) { fail(`the page's dev hook is v${found.version}, this sdk drives v${DEV_HOOK_VERSION}: move the sdk and its engine pin together`); return; }
+    hook = found;
+    connect();
+  };
+  find();
+  return { report, stop: () => { scope.dispose(); const open = socket; socket = null; open?.close(); } };
+}
+
+/** A platform WebSocket as the page script's `SocketLike` (the browser's, or Node's in a test). */
+export function socketOf(open: WebSocket): SocketLike {
+  const socket: SocketLike = { onmessage: null, onclose: null, close: () => { open.close(); } };
+  open.onmessage = (event) => { socket.onmessage?.({ data: event.data }); };
+  open.onclose = () => { socket.onclose?.(); };
+  return socket;
+}

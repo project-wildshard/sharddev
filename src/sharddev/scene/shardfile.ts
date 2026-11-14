@@ -7,7 +7,7 @@ import type { GeneratedProject, ProjectGenerationContext } from '../projectGener
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain } from '../bake/terrain';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, ScenePart, ShardScene } from './description';
 
 /**
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
@@ -163,8 +163,22 @@ function boxRow(collider: SceneCollider): { kind: 'box'; x: number; y: number; z
   return { kind: 'box', x, y, z, hx: round(extent.x, 3), hy: round(extent.y, 3), hz: round(extent.z, 3) };
 }
 
+/** Point lights as the look's lamp rows (`look.light.lamps`): what a baked shard and a watched part (the dev hook) both draw. */
+export function lampRows(lights: readonly SceneLight[]): { at: [number, number, number]; colour: [number, number, number]; intensity: number; distance: number }[] {
+  return lights.filter((l) => l.kind === 'point').map((l) => ({ at: l.position.map((v) => round(v, 3)) as [number, number, number], colour: rgb01(l.colour), intensity: round(Math.min(100, l.intensity), 3), distance: round(Math.min(50, Math.max(0.1, l.distance === 0 ? 50 : l.distance)), 3) }));
+}
+
+/** A part's `Water` surfaces as the shardfile's water rows (AP4): the outline is the Water's own geometry. */
+export function waterRows(part: ScenePart): { id: string; kind: 'pool'; level: number; shape: { kind: 'polygon'; points: [number, number][] } }[] {
+  return part.water.map((w, i) => ({
+    id: `scene.${part.name}.water${i === 0 ? '' : `-${i}`}`, kind: 'pool', level: round(w.level, 3),
+    shape: { kind: 'polygon', points: w.outline.map(([px, pz]) => [round(px, 3), round(pz, 3)]) },
+    // shard-format 0.4.10 has no water surface fields; tint and planar reflection ride TEMPLATES-CLEANROOM M4.6's format
+  }));
+}
+
 /** The look a scene declares (AP3), over the format's day-key model fixed at one time of day. */
-function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: Record<string, unknown>): Shardfile['look'] {
+export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: Record<string, unknown>): Shardfile['look'] {
   const directional = lights.filter((l) => l.kind === 'directional').sort((a, b) => b.intensity - a.intensity);
   const sun = directional[0], hemisphere = lights.find((l) => l.kind === 'hemisphere'), ambient = lights.find((l) => l.kind === 'ambient');
   const lamps = lights.filter((l) => l.kind === 'point').sort((a, b) => b.intensity - a.intensity).slice(0, 16);
@@ -185,7 +199,7 @@ function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: 
       fog: fog?.kind === 'linear' ? { colour: rgb01(fog.colour), density: 0, near: fog.near, far: fog.far } : { colour: rgb01(fogColour), density: round(fog?.kind === 'exp2' ? fog.density : 0, 5) },
       sun: { colour: rgb01(sun?.colour ?? [1, 1, 1]), intensity: round(sun?.intensity ?? 0, 3) },
       ambient: { sky: rgb01(skyColour), ground: rgb01(groundColour), intensity: round((hemisphere?.intensity ?? ambient?.intensity ?? 0.5) * Math.PI, 3) } }],
-    light: lamps.length === 0 ? {} : { lamps: lamps.map((l) => ({ at: l.position.map((v) => round(v, 3)) as [number, number, number], colour: rgb01(l.colour), intensity: round(Math.min(100, l.intensity), 3), distance: round(Math.min(50, Math.max(0.1, l.distance === 0 ? 50 : l.distance)), 3) })) },
+    light: lamps.length === 0 ? {} : { lamps: lampRows(lamps) },
   } as Shardfile['look'];
 }
 
@@ -293,12 +307,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   }
   // colliders (AP4)
   const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: `scene.${part.name}`, panel: null, initialActive: true, shapes: part.colliders.map(boxRow) }));
-  // water (AP4): the outline is the Water's own geometry
-  const water = scene.parts.flatMap((part) => part.water.map((w, i) => ({
-    id: `scene.${part.name}.water${i === 0 ? '' : `-${i}`}`, kind: 'pool', level: round(w.level, 3),
-    shape: { kind: 'polygon', points: w.outline.map(([px, pz]) => [round(px, 3), round(pz, 3)]) },
-    // shard-format 0.4.10 has no water surface fields; tint and planar reflection ride TEMPLATES-CLEANROOM M4.6's format
-  })));
+  // water (AP4)
+  const water = scene.parts.flatMap(waterRows);
   const lights = scene.parts.flatMap((part) => part.lights);
   const base = emptyShardfile({ slug: scene.identity.slug, name: scene.identity.name, author: scene.identity.author ?? 'Wildshard', revision: scene.identity.revision ?? 1, seed: scene.identity.seed ?? 1 });
   const [sx, sy, sz] = scene.spawn.position;
