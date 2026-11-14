@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## Unreleased
+
+- New: `three` is a peer of `@wildshard/sdk`, pinned exact. Every
+  `wildshard` and `sharddev` command checks the installed `three`
+  first and refuses, naming the version it wants and the one it
+  found, so a wrong `three` fails before anything is built.
+
 ## v0.2.13 (2026-11-13)
 
 - Fix: `wildshard prepare` with no `--base` timed out. Its preview
