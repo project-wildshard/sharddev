@@ -1,6 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { parseGlb } from '@wildshard/format/shardfileAssets';
+import { LookLightSchema } from '@wildshard/format/look-light';
+import * as v from 'valibot';
 import { readSourceModel } from '../bake/skinned';
 import { creatureGlb, creatureLampRows, creatureSkin } from './creature';
 import { SceneRefusalError } from './lower';
@@ -87,6 +89,8 @@ test('a PointLight under a bone becomes a lamp row that follows the actor\'s bon
   expect(row?.at.map((n) => Math.round(n * 1000) / 1000)).toEqual([0, 0.05, 0.12]);
   expect(row?.colour[0]).toBeCloseTo(new THREE.Color('#ff6020').r);
   expect([row?.intensity, row?.distance, row?.decay]).toEqual([6, 9, 2]);
+  // shard-format v0.5.9 reads it as a look lamp
+  expect(v.parse(LookLightSchema, { lamps: creatureLampRows(rig, 'boss.warden') }).lamps?.[0]?.follow).toEqual({ actor: 'boss.warden', bone: 'head' });
   const loose = fixture(); loose.body.add(new THREE.PointLight('#fff', 1, 4));
   expect(() => creatureGlb(loose.body)).toThrow(/a creature light hangs under no bone/u);
   const endless = fixture(); endless.body.getObjectByName('head')?.add(new THREE.PointLight('#fff', 1, 0));

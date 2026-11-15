@@ -9,6 +9,10 @@ the next version and date, commit and push it, then run repo-kit's
 
 ## Unreleased
 
+- A creature can be written in three.js: `creatureGlb` turns a Group of named bone nodes, meshes and
+  AnimationClips into a skinned GLB rig, `creatureSkin` writes its skin rows, and a PointLight under a
+  bone becomes a look lamp that follows the creature (`creatureLampRows`, shard-format v0.5.9).
+- `world.trigger` and `world.interact` place quest triggers and interactions at a scene node.
 - A two-sided three.js material (grass, ivy and fern cards) is two-sided
   in the built shard too: `wildshard build` used to drop the back faces
   that `wildshard watch` and three.js draw.

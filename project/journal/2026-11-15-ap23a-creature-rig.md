@@ -13,3 +13,4 @@
   distance, decay) and `creatureLampRows(rig, actor)` writes them as `look.light.lamps` rows with
   `follow { actor, bone }` (shard-format v0.5.9). A light is never a bone; a light under no bone, a non-point light
   and a following lamp with no distance are refused.
+- Format pin 0.5.7 to 0.5.9 (lamps follow, 256 lamps); the AP24c test now parses its rows with `LookLightSchema`.
