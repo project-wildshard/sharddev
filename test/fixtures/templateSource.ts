@@ -20,8 +20,11 @@ const { assets: terrain, ...rows } = templateTerrain(), props = templatePropRows
 export const TEMPLATE_SOURCE = templateProduct(rows, props, TEMPLATE_BEHAVIOUR, TEMPLATE_BOSS);
 /** Preserve independently owned input bytes for each admission. Other producers migrate in subsequent GR1 slices. */
 export function templateAssets(hashes?: ReadonlySet<string>): Map<string, Uint8Array> {
-  const selected = hashes === undefined ? TEMPLATE_SOURCE.files : TEMPLATE_SOURCE.files.filter(file => hashes.has(file.hash));
-  if (hashes !== undefined && selected.length !== hashes.size) throw new Error('Unknown Template fixture asset');
-  return new Map(selected.map(file => [file.hash,
-    new Uint8Array(generated.get(file.hash) ?? fs.readFileSync(resolve('src/shards/_template/assets', file.hash)))]));
+  const available = new Map([...TEMPLATE_SOURCE.files, TEMPLATE_BOSS].map(file => [file.hash, file]));
+  const selected = hashes === undefined ? [...available.values()] : [...hashes].map(hash => available.get(hash));
+  if (selected.some(file => file === undefined)) throw new Error('Unknown Template fixture asset');
+  return new Map(selected.map(file => {
+    if (file === undefined) throw new Error('Unknown Template fixture asset');
+    return [file.hash,
+    new Uint8Array(generated.get(file.hash) ?? fs.readFileSync(resolve('src/shards/_template/assets', file.hash)))];}));
 }
