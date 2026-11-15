@@ -43,9 +43,9 @@ export function shardRepoRoot(source: string): string {
   const given = resolve(source), parent = dirname(given);
   if (isRepoSource(given)) return parent;
   if (basename(parent) === 'shards' && basename(dirname(parent)) === 'src') return dirname(dirname(parent));
-  for (let at = parent; ; at = dirname(at)) {
+  for (let at = given; ; at = dirname(at)) {
     if (existsSync(resolve(at, 'package.json')) || existsSync(resolve(at, '.git'))) return at;
-    if (dirname(at) === at) return parent;
+    if (dirname(at) === at) return given;
   }
 }
 

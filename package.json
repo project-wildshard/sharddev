@@ -63,7 +63,7 @@
     "agents:sync": "node scripts/agent-sync.mjs",
     "md:wrap": "node kit/scripts/md-wrap.mjs",
     "test:hooks": "node --test '.githooks/*.test.mjs'",
-    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm check:watch-build && pnpm check:asks && pnpm check:agents && pnpm check:agent-sync && pnpm test:agent-hooks && pnpm check:parity && node --check scripts/chromium-keychain-check.mjs && node --test test/tooling/chrome-keychain.test.mjs test/tooling/worktree-guard.test.mjs",
+    "check": "pnpm typecheck && pnpm lint && pnpm format:check && pnpm test && pnpm check:watch-build && pnpm check:asks && pnpm check:agents && pnpm check:agent-sync && pnpm test:agent-hooks && pnpm check:parity && node --check scripts/chromium-keychain-check.mjs && node --test test/tooling/chrome-keychain.test.mjs test/tooling/worktree-guard.test.mjs test/tooling/disk-land.test.mjs test/tooling/lane-live.test.mjs test/tooling/keep-copy.test.mjs test/tooling/leftovers-report.test.mjs test/tooling/reap-report.test.mjs",
     "check:watch-build": "node src/sharddev/watch/parity.mjs --check",
     "typecheck:kit": "tsc -p src/tsconfig.json && tsc -p src/web/tsconfig.json",
     "typecheck:author": "tsc -p tsconfig.author.json",

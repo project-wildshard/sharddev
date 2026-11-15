@@ -1,31 +1,31 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Spawn the real `wildshard dev` and signal it.
 import { spawn, type ChildProcess } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- A scratch shard and a stand-in devserver client.
-import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Probe whether the port is still bound.
 import { connect } from 'node:net';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the bin and the scratch project.
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { writeShardRepo } from './newProject';
+import { closeFixtures, fixtureRoot } from './test/ownedScratch';
 
 // HOW-WE-BUILD SD-6: Ctrl-C (SIGINT) or SIGTERM ends `wildshard dev` and frees its port within 2 s, page open or not.
 const BIN = resolve(import.meta.dirname, '../../bin/wildshard.mjs');
 let root = '';
 beforeAll(() => {
-  mkdirSync('tmp/codex-netlag', { recursive: true });
-  root = mkdtempSync(resolve('tmp/codex-netlag', 'wildshard-dev-signal-'));
+  root = fixtureRoot('dev-signal-');
   const client = join(root, 'client');
   mkdirSync(client);
   writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
   writeFileSync(join(client, 'build-flags.json'), JSON.stringify({ devserver: true }));
   writeShardRepo(join(root, 'shard'), 'dev-signal');
 });
-afterAll(() => { rmSync(root, { recursive: true, force: true }); });
+afterAll(() => { rmSync(root, { recursive: true, force: true }); closeFixtures(); });
 
 /** Starts `wildshard dev` on the scratch shard; resolves with the child and the URL it prints. */
 async function startDev(): Promise<{ child: ChildProcess; url: URL }> {
-  const child = spawn(process.execPath, [BIN, 'dev', join(root, 'shard', 'src')], { env: { ...process.env, WS_LANE_NAME: 'codex-netlag', WILDSHARD_DEV_CLIENT: join(root, 'client') } });
+  const child = spawn(process.execPath, [BIN, 'dev', join(root, 'shard', 'src')], { env: { ...process.env, WS_LANE_NAME: `test-dev-${process.pid}`, WILDSHARD_DEV_CLIENT: join(root, 'client') } });
   let output = '';
   const url = await new Promise<URL>((_resolve, reject) => {
     child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString(); const found = /wildshard dev: (http:\/\/\S+)/u.exec(output); if (found?.[1] !== undefined) _resolve(new URL(found[1])); });
@@ -46,7 +46,7 @@ describe('wildshard dev on a signal', () => {
   it('a killed dev process leaves an owned pidfile for the manual audit', async () => {
     const { child, url } = await startDev();
     try {
-      const scratch = join(root, 'shard', 'tmp', 'codex-netlag');
+      const scratch = join(root, 'shard', 'tmp', `test-dev-${process.pid}`);
       const output = readdirSync(scratch).find(name => name.startsWith(['dev', String(child.pid), ''].join('-')));
       expect(output).toBeDefined();
       const directory = join(scratch, output ?? '');
