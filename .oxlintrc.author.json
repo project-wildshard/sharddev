@@ -196,6 +196,8 @@
         "wildshard/no-generated-json-import": "error",
         // SA6/SA38 (J170, J317, J319): the SDK rule (lint/sdk-plugin.mjs); generators deny only Wildshard cheats
         "wildshard-sdk/generator-imports": "error",
+        // SHARD-SOURCE AP39: graphs are TSL; the two G169 fixtures keep their checked-in graph IR until they import their TSL
+        "wildshard-sdk/no-hand-graph": ["error", { "allow": ["src/shards/pastel-plain/generators/product.ts", "src/shards/ink-cel-valley/generators/product.ts"] }],
         "wildshard/no-url-switch": "error", "wildshard/no-inline-ui-string": "error", "wildshard/no-authored-html": "error",
         // E362 AG16: zero stays zero in editors and the ordinary lint gate too.
         "wildshard/no-shard-branch": "error",

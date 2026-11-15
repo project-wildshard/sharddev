@@ -1,7 +1,7 @@
 // SHARD-AUTHORING SA6: the SDK's generator-imports rule. SA38 (J319): generators are arbitrary Node, so the rule is a
 // denylist of Wildshard cheats there; data/, quests/ and shard.config.ts keep the authoring allowlist.
 import { describe, expect, it } from 'vitest';
-import plugin, { generatorImportViolation } from '../lint/sdk-plugin.mjs';
+import plugin, { generatorImportViolation, handGraphImport } from '../lint/sdk-plugin.mjs';
 
 const generator = '/repo/src/shards/meadow/generators/rows.ts';
 const refused = (filename: string, source: string) => {
@@ -155,6 +155,21 @@ describe('wildshard-sdk/generator-imports outside generators/', () => {
 
   it('is the wildshard-sdk plugin', () => {
     expect(plugin.meta.name).toBe('wildshard-sdk');
-    expect(Object.keys(plugin.rules)).toEqual(['generator-imports']);
+    expect(Object.keys(plugin.rules)).toEqual(['generator-imports', 'no-hand-graph']);
+  });
+});
+
+describe('wildshard-sdk/no-hand-graph (SHARD-SOURCE AP39)', () => {
+  it('refuses a graph IR file import in shard source and names the TSL fix', () => {
+    for (const source of ['../data/rock.graph.json', '../data/edge.post.json', './x.graph.json?raw']) {
+      const reason = handGraphImport('/repo/src/shards/meadow/generators/product.ts', source);
+      expect(reason, source).toMatch(/^no-hand-graph: .*graph\(\) from @wildshard\/sdk\/materials/u);
+    }
+  });
+
+  it('passes other JSON, files outside shard source and the files `allow` names', () => {
+    expect(handGraphImport('/repo/src/shards/meadow/generators/product.ts', '../data/look.json')).toBeNull();
+    expect(handGraphImport('/repo/tools/x.ts', './rock.graph.json')).toBeNull();
+    expect(handGraphImport('/repo/src/shards/pastel-plain/generators/product.ts', '../data/rock.graph.json', ['src/shards/pastel-plain/generators/product.ts'])).toBeNull();
   });
 });

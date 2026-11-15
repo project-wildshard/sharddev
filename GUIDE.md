@@ -755,6 +755,12 @@ An import the rule denies. In `generators/` any npm package, valibot, shard-form
 rule denies engine, sdk paths outside its exports, another shard's source and a second copy of `three`. In `data/` and
 `shard.config.ts` only `three`, valibot, shard-format, the sdk and Node built-ins are allowed.
 
+#### lint-no-hand-graph
+
+A hand-written graph: a `*.graph.json` or `*.post.json` import, or an object with `version`, `kind` and `nodes`. Write
+the graph in TSL with `graph()` from `@wildshard/sdk/materials` (`new GraphMaterial(graph({ model, surface, lighting
+}))`); the sdk compiles it to the same graph IR (SHARD-SOURCE AP39).
+
 #### lint-engine-internal
 
 Shard code imports a game-only engine export; use the sdk's shard-facing one.

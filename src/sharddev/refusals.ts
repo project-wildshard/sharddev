@@ -208,6 +208,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
 /** Wildshard's lint rules an author's source can hit (`.oxlintrc.author.json`), with the fix for each. */
 const LINT_FIXES: Readonly<Record<string, string>> = {
   'wildshard-sdk/generator-imports': 'Import Wildshard code only through @wildshard/sdk\'s exports; copy what another shard has instead of importing it.',
+  'wildshard-sdk/no-hand-graph': 'Write the graph in TSL with graph() from @wildshard/sdk/materials; it compiles to the graph IR.',
   'wildshard/engine-internal': 'Use the shard-facing SDK export instead of the game-only engine export.',
   'wildshard/engine-sides': 'Keep client, server and shared code apart: import the shared module, not the other side\'s.',
   'wildshard/engine-words': 'Move Wildshard words (shard and game names) out of engine code into content data.',

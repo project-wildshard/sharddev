@@ -164,5 +164,43 @@ const generatorImports = {
   },
 };
 
-const plugin = { meta: { name: 'wildshard-sdk' }, rules: { 'generator-imports': generatorImports } };
+// SHARD-SOURCE AP39: graphs are written in TSL (`graph()` from @wildshard/sdk/materials, AP13), which compiles to the graph
+// IR; a hand-written IR (a `*.graph.json` or `*.post.json` file, or an object literal with `version`, `kind` and `nodes`)
+// is refused in shard source. `allow` names the fixtures that still import one (path suffixes), none new.
+const HAND_GRAPH = 'no-hand-graph';
+const GRAPH_FILE = /\.(?:graph|post)\.json(?:[?#].*)?$/u;
+const handGraphMessage = (what) => `${HAND_GRAPH}: ${what} is a hand-written graph; write it in TSL with graph() from `
+  + '@wildshard/sdk/materials, which compiles to the same graph IR (new GraphMaterial(graph({ ... })))';
+const keyName = (property) => property.type === 'Property' && !property.computed
+  ? (property.key.type === 'Identifier' ? property.key.name : property.key.type === 'Literal' ? String(property.key.value) : null) : null;
+export function handGraphImport(filename, source, allow = []) {
+  const path = resolve(filename).replaceAll('\\', '/');
+  if (shardFile(path) === null || typeof source !== 'string' || !GRAPH_FILE.test(source)) return null;
+  if (allow.some((suffix) => path.endsWith(suffix))) return null;
+  return handGraphMessage(`the import ${source}`);
+}
+const noHandGraph = {
+  meta: { type: 'problem', docs: { description: 'Graphs are TSL source, not hand-written graph IR (SHARD-SOURCE AP39)' },
+    schema: [{ type: 'object', properties: { allow: { type: 'array', items: { type: 'string' } } }, additionalProperties: false }] },
+  create(context) {
+    const allow = context.options[0]?.allow ?? [];
+    const path = resolve(context.filename).replaceAll('\\', '/');
+    if (shardFile(path) === null || allow.some((suffix) => path.endsWith(suffix))) return {};
+    const check = (node, specifier) => {
+      const source = importPrefix(specifier), reason = handGraphImport(context.filename, source, allow);
+      if (reason !== null) context.report({ node, message: reason });
+    };
+    return {
+      ImportDeclaration(node) { check(node, node.source); },
+      ImportExpression(node) { check(node, node.source); },
+      ObjectExpression(node) {
+        const keys = new Set(node.properties.map(keyName));
+        const nodes = node.properties.find((property) => keyName(property) === 'nodes');
+        if (keys.has('version') && keys.has('kind') && nodes?.value?.type === 'ObjectExpression') context.report({ node, message: handGraphMessage('this object') });
+      },
+    };
+  },
+};
+
+const plugin = { meta: { name: 'wildshard-sdk' }, rules: { 'generator-imports': generatorImports, [HAND_GRAPH]: noHandGraph } };
 export default plugin; // oxlint loads a JS plugin from its default export
