@@ -94,5 +94,12 @@
         "critical": false
       }
     ]
+  },
+  {
+    "species": "mossling",
+    "look": "template.look.mossling",
+    "skin": "97ec4d8f75f5fa6239ee919444d6dc19fd35896bb305930c1f050ac6e0e0e6a6",
+    "glb": "2bf489fdb15f1734ddb4c4f32d500ec6da85c765ec7a4eb28dc6781160e7ec8c",
+    "files": []
   }
 ]

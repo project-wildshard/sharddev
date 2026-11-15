@@ -21,13 +21,73 @@
       "species": "grey-blob",
       "variant": "grey",
       "brain": "blob-pursuit",
-      "strike": null,
+      "strike": "template.blob.bump",
       "seed": 435,
       "scale": 1,
       "at": [
         2.5,
         0,
         -16.5
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "mossling:1",
+      "species": "mossling",
+      "variant": "moss",
+      "brain": "template.mosslings",
+      "strike": null,
+      "seed": 501,
+      "scale": 1,
+      "at": [
+        4.5,
+        0,
+        -29.5
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "mossling:2",
+      "species": "mossling",
+      "variant": "moss",
+      "brain": "template.mosslings",
+      "strike": null,
+      "seed": 502,
+      "scale": 1,
+      "at": [
+        7.2,
+        0,
+        -30.8
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "mossling:3",
+      "species": "mossling",
+      "variant": "moss",
+      "brain": "template.mosslings",
+      "strike": null,
+      "seed": 503,
+      "scale": 1,
+      "at": [
+        6.4,
+        0,
+        -28.4
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "mossling:4",
+      "species": "mossling",
+      "variant": "moss",
+      "brain": "template.mosslings",
+      "strike": null,
+      "seed": 504,
+      "scale": 1,
+      "at": [
+        5.4,
+        0,
+        -31.9
       ],
       "yaw": 0
     },
@@ -60,6 +120,48 @@
         -2
       ],
       "yaw": -1.5708
+    }
+  ],
+  "groups": [
+    {
+      "id": "template.mosslings",
+      "kind": "pack",
+      "thinkDivisor": 6,
+      "members": [
+        "mossling:1",
+        "mossling:2",
+        "mossling:3",
+        "mossling:4"
+      ],
+      "home": [
+        6.0,
+        -30.0
+      ],
+      "trotSpeed": 2.5,
+      "runSpeed": 6.5,
+      "shadowMinRadius": 10,
+      "shadowMaxRadius": 15,
+      "ringMinRadius": 4,
+      "ringMaxRadius": 7,
+      "biteRadius": 1.3,
+      "sightRadius": 20,
+      "coneAngle": 1.2,
+      "smellRadius": 24,
+      "hearing": [
+        3,
+        6,
+        12,
+        20
+      ],
+      "telegraphSeconds": 0.5,
+      "dashSeconds": 1.3,
+      "breakoffSeconds": 1.0,
+      "attackSeconds": 0.4,
+      "leaderVariant": "moss",
+      "yipCue": "mossling_yip",
+      "howlCue": "mossling_howl",
+      "snarlCue": "mossling_snarl",
+      "biteCue": "mossling_bite"
     }
   ]
 }

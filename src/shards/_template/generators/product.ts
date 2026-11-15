@@ -27,7 +27,8 @@ import idle from '../data/clientScripts.json' with { type: 'json' };
 
 // Skin projections belong to this build-time declaration, with no runtime wrapper.
 const TEMPLATE_SKIN_LOOKS = skins.map(entry => ({ id: entry.look, species: entry.species, recipe: 'platform.skin', material: null, parameters: { skin: entry.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }));
-const TEMPLATE_SKIN_FILES = skins.flatMap(entry => entry.files), TEMPLATE_SKIN_LIBRARY = skins.map(entry => entry.skin);
+// a species may wear another's skin (the mossling wears the grey blob's): its entry lists no files, and the library names each skin once
+const TEMPLATE_SKIN_FILES = skins.flatMap(entry => entry.files), TEMPLATE_SKIN_LIBRARY = [...new Set(skins.map(entry => entry.skin))];
 const TEMPLATE_SKIN_COST = TEMPLATE_SKIN_FILES.reduce((sum, file) => ({ resident: sum.resident + file.decoded + file.gpu, compressed: sum.compressed + file.compressed }), { resident: 0, compressed: 0 });
 
 /** The particle anchors over braziers A, B and C, in `layout.BRAZIERS` order. */

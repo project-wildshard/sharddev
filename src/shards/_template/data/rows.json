@@ -399,6 +399,42 @@
           }
         }
       ]
+    },
+    {
+      "id": "mossling",
+      "kind": "greyBlob",
+      "label": "Mossling",
+      "aggressive": true,
+      "lockable": true,
+      "dims": {
+        "bodyY": 0.65,
+        "bodyHalfLen": 0.4,
+        "bodyRadius": 0.55,
+        "headRadius": 0.3,
+        "legLen": 0.6,
+        "feet": [],
+        "halfWidth": 0.65
+      },
+      "variants": [
+        {
+          "id": "moss",
+          "label": "Mossling",
+          "rarity": "common",
+          "weight": 1,
+          "scale": [
+            0.5,
+            0.6
+          ],
+          "hp": 24,
+          "mods": {
+            "speed": 1.3,
+            "chargeDist": 1,
+            "damageTaken": 1,
+            "chargeDamage": 6,
+            "relentless": false
+          }
+        }
+      ]
     }
   ],
   "looks": [],
