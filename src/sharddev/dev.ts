@@ -1,18 +1,36 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Serve only built static products from the local author tool.
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author changes rebuild a private disposable product.
-import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, rmSync, statSync, watch, readFileSync, writeFileSync, type Dirent } from 'node:fs';
-// oxlint-disable-next-line import/no-nodejs-modules -- Own temporary build directory.
-import { tmpdir } from 'node:os';
+import { createReadStream, existsSync, mkdirSync, mkdtempSync, realpathSync, readdirSync, rmSync, statSync, watch, readFileSync, writeFileSync, type Dirent } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
 import { buildProject } from './project';
+import { shardRepoRoot } from './shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 
 const POLL = '<script>let wsRevision=WS_REVISION;setInterval(async()=>{try{const r=await fetch("/__wildshard_dev_revision",{cache:"no-store"});const s=await r.json();if(s.error){console.error(s.error);return}if(s.revision!==wsRevision)location.reload()}catch{}},500)</script>';
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
 // .worktrees: a shard repo's plan worktrees (DEV-SPEED DS11) are other checkouts, never this project's source.
-const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees']);
+const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees', 'tmp']);
+
+/** DK23: each dev process owns output inside the project's lane folder. */
+export function createDevScratch(source: string): string {
+  const named = process.env['WS_LANE_NAME'] ?? 'dev';
+  if (!/^[a-zA-Z0-9_-][a-zA-Z0-9._-]{0,99}$/u.test(named) || named.includes('..')) throw new Error('Invalid dev lane name');
+  const parent = join(shardRepoRoot(source), 'tmp', named);
+  mkdirSync(parent, { recursive: true });
+  const record = { lane: named, session: process.env['CLAUDE_SESSION_ID'] ?? process.env['CLAUDE_CODE_SESSION_ID'] ?? named,
+    started: new Date().toISOString(), purpose: 'wildshard dev', pid: process.pid };
+  const marker = join(parent, '.owner');
+  if (!existsSync(marker)) {
+    try { writeFileSync(marker, JSON.stringify(record), { flag: 'wx' }); }
+    catch (cause) { if (!(cause instanceof Error && 'code' in cause && cause.code === 'EEXIST')) throw cause; }
+  }
+  const scratch = realpathSync(mkdtempSync(join(parent, ['dev', String(process.pid), ''].join('-'))));
+  writeFileSync(join(scratch, '.owner'), JSON.stringify(record), { flag: 'wx' });
+  writeFileSync(join(scratch, 'server.pid'), String(process.pid), { flag: 'wx' });
+  return scratch;
+}
 
 /** Synchronous author-source baseline: native recursive watch notifications can miss quick overwrites during startup.
  * Nanosecond change time also detects same-length edits whose modification time was restored. Symlink directories
@@ -41,7 +59,7 @@ export function projectSourceStamp(source: string): string {
 export interface DevProject { url: string; close: (options?: { exiting?: boolean }) => Promise<void> }
 /** Only the author command chooses DEVSERVER; requests, cookies and URL switches cannot enable it. */
 export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string } = {}): Promise<DevProject> {
-  const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-dev-')));
+  const source = resolve(project), scratch = createDevScratch(source);
   let revision = 0, error: string | null = null, current = '', previous = '', stopped = false, shardRoot = '';
   const scope = new Scope('sdk.dev');
   let debounce: Scope | undefined, work = Promise.resolve();

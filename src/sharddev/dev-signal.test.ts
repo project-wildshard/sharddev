@@ -4,8 +4,6 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Probe whether the port is still bound.
 import { connect } from 'node:net';
-// oxlint-disable-next-line import/no-nodejs-modules -- Scratch folders.
-import { tmpdir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the bin and the scratch project.
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -15,7 +13,8 @@ import { writeShardRepo } from './newProject';
 const BIN = resolve(import.meta.dirname, '../../bin/wildshard.mjs');
 let root = '';
 beforeAll(() => {
-  root = mkdtempSync(join(tmpdir(), 'wildshard-dev-signal-'));
+  mkdirSync('tmp/codex-netlag', { recursive: true });
+  root = mkdtempSync(resolve('tmp/codex-netlag', 'wildshard-dev-signal-'));
   const client = join(root, 'client');
   mkdirSync(client);
   writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
