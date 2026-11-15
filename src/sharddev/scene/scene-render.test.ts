@@ -192,6 +192,8 @@ test('anchored rows join what extend wrote; an id declared in both is refused (A
   const anchored = { triggers: [{ id: 'a.pond', kind: 'region' as const, flag: 'a.pond', x: 1, z: 2, radius: 3 }], interactions: [{ id: 'a.door', at: [0, 1, 2] as const, radius: 2, label: 'Open', scene: 'a.open' }] };
   const merged = withAnchored({ quests: { flags: [], quests: [], triggers: [{ id: 'a.cave', kind: 'region', flag: 'a.cave', x: 0, z: 0, radius: 1 }], dialogue: [] } }, anchored);
   expect((merged.quests as { triggers: { id: string }[] }).triggers.map((t) => t.id)).toEqual(['a.cave', 'a.pond']);
+  // the anchored trigger's flag is declared beside the quest flags extend wrote
+  expect((merged.quests as { flags: string[] }).flags).toEqual(['a.pond']);
   expect((merged.targets as { panels: unknown[]; interactions: { id: string }[] })).toMatchObject({ panels: [], interactions: [{ id: 'a.door' }] });
   expect(() => withAnchored({ targets: { panels: [], interactions: [{ id: 'a.door' }] } }, anchored)).toThrow(/extend declares interaction a.door too/u);
 });

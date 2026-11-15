@@ -14,3 +14,4 @@
   `follow { actor, bone }` (shard-format v0.5.9). A light is never a bone; a light under no bone, a non-point light
   and a following lamp with no distance are refused.
 - Format pin 0.5.7 to 0.5.9 (lamps follow, 256 lamps); the AP24c test now parses its rows with `LookLightSchema`.
+- Review (claude -p, no MUSTs): an anchored trigger's flag is declared in `quests.flags`; a following lamp is refused past 0.1 to 50 m or 100 cd, as the format bounds them. Left as SHOULDs: an unnamed rotated group between bones, a mirrored part's winding, re-parsing merged rows.

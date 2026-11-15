@@ -95,4 +95,6 @@ test('a PointLight under a bone becomes a lamp row that follows the actor\'s bon
   expect(() => creatureGlb(loose.body)).toThrow(/a creature light hangs under no bone/u);
   const endless = fixture(); endless.body.getObjectByName('head')?.add(new THREE.PointLight('#fff', 1, 0));
   expect(() => creatureLampRows(creatureGlb(endless.body), 'boss.warden')).toThrow(/a following lamp needs a distance/u);
+  const bright = fixture(); bright.body.getObjectByName('head')?.add(new THREE.PointLight('#fff', 200, 9));
+  expect(() => creatureLampRows(creatureGlb(bright.body), 'boss.warden')).toThrow(/at most 100 cd/u);
 });

@@ -657,7 +657,9 @@ export function sceneGameplay(identity: ShardScene['identity'], options: Shardfi
  */
 export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(shard: T, anchored: ShardScene['anchored']): T {
   if (anchored.triggers.length === 0 && anchored.interactions.length === 0) return shard;
-  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { triggers?: readonly { id: string }[] };
+  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { flags?: readonly string[]; triggers?: readonly { id: string }[] };
+  // a trigger's flag is a quest flag: declare the ones `extend` did not (review SHOULD 4)
+  const flags = [...quests.flags ?? []]; for (const t of anchored.triggers) if (!flags.includes(t.flag)) flags.push(t.flag);
   const targets = (shard.targets ?? { panels: [], interactions: [] }) as { interactions?: readonly { id: string }[] };
   const twice = (rows: readonly { id: string }[], added: readonly { id: string }[], what: string): void => {
     const taken = new Set(rows.map((row) => row.id)), clash = added.find((row) => taken.has(row.id));
@@ -666,7 +668,7 @@ export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(
   twice(quests.triggers ?? [], anchored.triggers, 'trigger'); twice(targets.interactions ?? [], anchored.interactions, 'interaction');
   return {
     ...shard,
-    ...(anchored.triggers.length === 0 ? {} : { quests: { ...quests, triggers: [...quests.triggers ?? [], ...anchored.triggers] } }),
+    ...(anchored.triggers.length === 0 ? {} : { quests: { ...quests, flags, triggers: [...quests.triggers ?? [], ...anchored.triggers] } }),
     ...(anchored.interactions.length === 0 ? {} : { targets: { ...targets, interactions: [...targets.interactions ?? [], ...anchored.interactions] } }),
   };
 }

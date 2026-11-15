@@ -164,7 +164,8 @@ export interface FollowingLampRow {
  */
 export function creatureLampRows(rig: CreatureRig, actor: string): FollowingLampRow[] {
   return rig.lamps.map((lamp) => {
-    if (lamp.distance <= 0) throw new SceneRefusalError(`${actor}/${lamp.bone}`, 'a following lamp needs a distance', 'Give the PointLight a distance in metres (its light ends there)');
+    if (lamp.distance < 0.1 || lamp.distance > 50) throw new SceneRefusalError(`${actor}/${lamp.bone}`, 'a following lamp needs a distance of 0.1 to 50 m', 'Give the PointLight a distance in metres (its light ends there)');
+    if (lamp.intensity > 100) throw new SceneRefusalError(`${actor}/${lamp.bone}`, 'a following lamp is at most 100 cd', 'Lower the PointLight\'s intensity');
     return { at: [...lamp.at], colour: [...lamp.colour], intensity: lamp.intensity, distance: lamp.distance, decay: lamp.decay, follow: { actor, bone: lamp.bone } };
   });
 }
