@@ -4,7 +4,7 @@ import { returnProjectionV2Layout } from '@wildshard/format/returnProjectionV2';
 import { compileScriptV2 } from '../src/sharddev/bake/compileScriptV2.ts';
 import { v2CoreSource } from '../src/sharddev/as/wsV2.ts';
 
-const target = resolve(process.argv[2] ?? '../engine/test/fixtures/ci21-guests');
+const target = resolve(process.argv[2] ?? '../engine/test/fixtures/wasm');
 const ioBytes = returnProjectionV2Layout(2).bytes;
 const source = `import * as core from './core';
 export function ws_abi():i32{return 2;}export function ws_io():i32{return 0;}
