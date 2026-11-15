@@ -1,0 +1,41 @@
+{
+  "npc": {
+    "dialogue": {
+      "id": "template.hermit",
+      "name": "The Pond Hermit",
+      "start": "offer",
+      "nodes": [
+        {
+          "id": "offer",
+          "lines": [
+            "Mind your step, traveller. Four mosslings have taken the bank south of my pond.",
+            "They nip at the reeds and at me. Drive the pack off and I'll make it worth your while."
+          ],
+          "choices": [{ "id": "accept", "label": "I'll deal with the pack.", "next": "waiting", "sets": ["template.hermit.accepted"] }]
+        },
+        {
+          "id": "waiting",
+          "lines": [
+            "They lurk past the yard, south of the trail. They circle before they bite: strike the one that comes in.",
+            "Come back when all four are still."
+          ],
+          "choices": [
+            {
+              "id": "report",
+              "label": "The pack is gone.",
+              "next": "thanks",
+              "sets": ["template.hermit.reported"],
+              "when": { "all": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"] }
+            }
+          ]
+        },
+        {
+          "id": "thanks",
+          "lines": ["Quiet at last. The reeds will grow back. Take these coins, and my thanks."],
+          "choices": []
+        }
+      ]
+    },
+    "talk": { "id": "template.hermit.talk", "radius": 2.5, "label": "Talk to the Pond Hermit", "dialogue": "template.hermit" }
+  }
+}

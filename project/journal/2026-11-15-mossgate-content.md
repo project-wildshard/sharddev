@@ -36,3 +36,7 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
   and 3 achievements.
 
 - TC-M5a: an old chest by the sign at the fork (layout CHEST). Its prompt runs item scene `template.chest.open` (lantern refill, action 4, per player); a region trigger pays 10 coins once through untracked quest `template.chest`, ledger fact `template.chest` ("Finders keepers"). A sign talk was tried and dropped: a talk figure must name a props panel or model, and the sign is dressing.
+- TC-M6 (opus-brassgun3): the Pond Hermit on the pond's north bank, one file per NPC (`data/npcs/hermit.json`, J361;
+  `product.ts` merges its dialogue and talk). His talk starts `template.hermit`: drive off the mossling pack (a 0 to 4 count
+  over `dead:mossling:1..4`, a marker on the bank and a hint), then report back for 15 coins and fact `template.hermit`.
+  His lines follow it: the offer, the waiting line, his thanks. The build's quest graph check passes; the hero gate waits on TC-M8.

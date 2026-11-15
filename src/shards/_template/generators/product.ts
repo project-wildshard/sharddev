@@ -15,7 +15,8 @@ import TEMPLATE_LOOK from '../data/look.json' with { type: 'json' };
 import TEMPLATE_WATER from '../data/water.json' with { type: 'json' };
 import CREATURES from '../data/creatures.json' with { type: 'json' };
 import ENCOUNTERS from '../data/encounters.json' with { type: 'json' };
-import TEMPLATE_QUESTS from '../data/quests.json' with { type: 'json' };
+import QUESTS from '../data/quests.json' with { type: 'json' };
+import hermit from '../data/npcs/hermit.json' with { type: 'json' };
 import TEMPLATE_LEDGER from '../data/ledger.json' with { type: 'json' };
 import TEMPLATE_AUDIO from '../data/audio.json' with { type: 'json' };
 import SPAWN from '../data/spawn.json' with { type: 'json' };
@@ -28,6 +29,9 @@ import idle from '../data/clientScripts.json' with { type: 'json' };
 // Skin projections belong to this build-time declaration, with no runtime wrapper.
 const TEMPLATE_SKIN_LOOKS = skins.map(entry => ({ id: entry.look, species: entry.species, recipe: 'platform.skin', material: null, parameters: { skin: entry.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }));
 // a species may wear another's skin (the mossling wears the grey blob's): its entry lists no files, and the library names each skin once
+// one file per NPC (J361): data/npcs/<name>.json holds its dialogue and its talk target
+const NPCS = [hermit.npc];
+const TEMPLATE_QUESTS = { ...QUESTS, dialogue: [...QUESTS.dialogue, ...NPCS.map(npc => npc.dialogue)] };
 const TEMPLATE_SKIN_FILES = skins.flatMap(entry => entry.files), TEMPLATE_SKIN_LIBRARY = [...new Set(skins.map(entry => entry.skin))];
 const TEMPLATE_SKIN_COST = TEMPLATE_SKIN_FILES.reduce((sum, file) => ({ resident: sum.resident + file.decoded + file.gpu, compressed: sum.compressed + file.compressed }), { resident: 0, compressed: 0 });
 
@@ -74,7 +78,7 @@ const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interact
   return { id: row.id, radius: row.radius, scene: row.scene, unless: row.unless, at, label };
 }), { ...targets.chest, at: terrain.sites.chest, label: text.chest }],
   // MH-5: the Lamplighter (TE-ENG3's `targets.talks`), on the ground east of the spawn-to-hut path; the engine draws its stand-in
-  talks: [{ ...targets.talk, at: terrain.sites.lamplighter }] };
+  talks: [{ ...targets.talk, at: terrain.sites.lamplighter }, { ...hermit.npc.talk, at: terrain.sites.hermit }] };
 const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });
 const playerHandle = 1106943697; // fnv1a32('actor.player') & 0x7fffffff; admission compares this with the session map.
 const script = { hash: door.hash, kind: 'wasm', compressed: door.compressed, decoded: door.compressed, gpu: 0, triangles: 0, draws: 0, dependencies: [], critical: true };

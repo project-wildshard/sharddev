@@ -16,7 +16,14 @@
     "dead:barrow-warden",
     "template.warden.paid",
     "template.chest.opened",
-    "template.chest.paid"
+    "template.chest.paid",
+    "template.hermit.accepted",
+    "template.hermit.reported",
+    "template.hermit.done",
+    "dead:mossling:1",
+    "dead:mossling:2",
+    "dead:mossling:3",
+    "dead:mossling:4"
   ],
   "quests": [
     {
@@ -150,6 +157,84 @@
       "onComplete": {
         "fact": "template.chest",
         "coins": 10
+      }
+    },
+    {
+      "id": "template.hermit",
+      "title": "The pond hermit's pests",
+      "completeFlag": "template.hermit.done",
+      "startWhen": {
+        "all": [
+          "template.hermit.accepted"
+        ]
+      },
+      "steps": [
+        {
+          "id": "pack",
+          "objective": "Drive off the mossling pack",
+          "chip": "Mosslings",
+          "count": [
+            "dead:mossling:1",
+            "dead:mossling:2",
+            "dead:mossling:3",
+            "dead:mossling:4"
+          ],
+          "done": {
+            "all": [
+              "dead:mossling:1",
+              "dead:mossling:2",
+              "dead:mossling:3",
+              "dead:mossling:4"
+            ]
+          },
+          "hint": "They circle, then bite: strike the one that comes in",
+          "markers": [
+            {
+              "id": "mosslings.marker",
+              "label": "Mossling bank",
+              "short": "Pack",
+              "at": {
+                "poi": "world",
+                "x": 6.0,
+                "z": -30.0
+              },
+              "hideWhen": {
+                "all": [
+                  "dead:mossling:1",
+                  "dead:mossling:2",
+                  "dead:mossling:3",
+                  "dead:mossling:4"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "id": "report",
+          "objective": "Tell the Pond Hermit",
+          "done": {
+            "all": [
+              "template.hermit.reported"
+            ]
+          },
+          "hint": "The hermit waits on the pond's north bank",
+          "markers": [
+            {
+              "id": "hermit.marker",
+              "label": "Pond Hermit",
+              "short": "Hermit",
+              "at": {
+                "poi": "world",
+                "x": -15.2,
+                "z": 7.0
+              }
+            }
+          ]
+        }
+      ],
+      "onComplete": {
+        "coins": 15,
+        "fact": "template.hermit"
       }
     }
   ],

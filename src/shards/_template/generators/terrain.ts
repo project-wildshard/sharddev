@@ -5,14 +5,16 @@ import { Color, SRGBColorSpace } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 
 /** Trusted build-time landscape: the legacy seed/noise/trail/pool, levelled under G220's roads and plazas (`cellGround`); no callback enters the shardfile. */
-export function templateTerrain(): BakedTerrain & { sites: { door: [number, number, number]; braziers: [number, number, number][]; lamplighter: [number, number, number]; chest: [number, number, number] } } {
+export function templateTerrain(): BakedTerrain & { sites: { door: [number, number, number]; braziers: [number, number, number][]; lamplighter: [number, number, number]; chest: [number, number, number]; hermit: [number, number, number] } } {
   const heightAt = templateHeightAt();
   const colourAt = mossFloor();
   return { ...bakeTerrain({ heightAt, colourAt, family: 'pbr' }), sites: { door: [layout.HUT.x, heightAt(layout.HUT.x, layout.HUT.z) + 1.2, layout.HUT.doorZ], braziers: braziers(heightAt),
     // MH-5: the Lamplighter's feet, on the ground (a talk's `at` is where its figure stands)
     lamplighter: [layout.LAMPLIGHTER.x, heightAt(layout.LAMPLIGHTER.x, layout.LAMPLIGHTER.z), layout.LAMPLIGHTER.z],
     // TC-M5: the old chest's lid, where its prompt stands
-    chest: [layout.CHEST.x, heightAt(layout.CHEST.x, layout.CHEST.z) + 0.6, layout.CHEST.z] } };
+    chest: [layout.CHEST.x, heightAt(layout.CHEST.x, layout.CHEST.z) + 0.6, layout.CHEST.z],
+    // TC-M6: the Pond Hermit's feet, on the pond's north bank
+    hermit: [layout.HERMIT.x, heightAt(layout.HERMIT.x, layout.HERMIT.z), layout.HERMIT.z] } };
 }
 /** Braziers A, B and C's use points (MH-2, MH-3), 1.7 m over their pads: above the stand's collider (1.5 m), or the prompt's sight line hits it. */
 function braziers(heightAt: (x: number, z: number) => number): [number, number, number][] {
