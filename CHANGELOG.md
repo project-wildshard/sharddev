@@ -7,6 +7,15 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.2 (2026-11-15)
+
+- A panel part's material is one draw, even where it crosses a tile
+  edge; a panel past 18 MB is refused by part name at build, with
+  the fix, instead of failing at upload.
+- Fixed: a source shard with several outputs (Open Plots) builds each
+  output's shard file again: the hero check no longer looks for the
+  source's own card in an output that wears its own.
+
 ## v0.3.1 (2026-11-15)
 
 - New: a three.js scene shard now carries alpha cards and decals,
@@ -18,7 +27,8 @@ the next version and date, commit and push it, then run repo-kit's
   row says so, as a gate that opens.
 - `wildshard watch` takes look edits live in under 0.1 s, ground edits
   in about 0.12 s, and restarts the simulation for a quest edit, keeping
-  the player where they stand.
+  the player where they stand. On engine 0.1.21 it draws parts with
+  lamps or water (they were refused as a duplicate frame observer).
 - Fixed: scene colours leave in sRGB and the ground is a lit PBR
   surface, so scene shards are no longer too dark and saturated. The
   sdk moves to engine 0.1.21 and shard-format 0.5.7.
