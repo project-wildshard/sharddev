@@ -127,7 +127,7 @@ const shellKey = (scene: ShardScene, gameplay: Gameplay): string => {
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
   // engine's live look keeps its fog kind: linear against exponential needs a new shell
   return hashOf((hash) => hash.json({ look, grade: fixedGrade, day: day === undefined ? null : { minutes: day.minutes, start: day.start },
-    linearFog: scene.look.fog?.kind === 'linear', spawn: scene.spawn, identity: scene.identity, extended: gameplay.rest }));
+    linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.surface ?? null, spawn: scene.spawn, identity: scene.identity, extended: gameplay.rest }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */

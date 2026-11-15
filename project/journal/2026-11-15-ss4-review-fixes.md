@@ -22,3 +22,9 @@
   (`dataLook.ts`), so every scene's fill was three times its cleanroom's.
   Now the light's own number. Board: before, after, cleanroom at spawn,
   pond and arena.
+
+Review round (one `claude -p`, no MUST): the ground material's map,
+emissive, transparency or side is refused by path instead of dropped;
+`watch` builds a new shell when the ground's surface changes (it is in the
+shell key); whether a graph reads the mesh map is read from its nodes, not
+from its JSON text.

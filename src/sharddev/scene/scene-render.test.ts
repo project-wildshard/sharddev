@@ -132,6 +132,12 @@ test('the ground is a lit PBR surface with the author\'s roughness and detail, n
   expect(flat.terrain?.family).toBe('scene.ground');
   expect(flat.look.materials['scene.ground']).toMatchObject({ family: 'pbr', roughness: 1 });
   expect(() => lowerShard({ slug: 'g', name: 'g' }, (world) => { world.ground(() => 0, { material: new THREE.MeshBasicMaterial() as unknown as THREE.MeshStandardMaterial }); })).toThrow(/ground.*MeshStandardMaterial/su);
+  // what the shard's ground cannot carry is refused, never dropped (the stage-4 review)
+  const refused = (material: THREE.MeshStandardMaterial): (() => unknown) => () => lowerShard({ slug: 'g', name: 'g' }, (world) => { world.ground(() => 0, { material }); });
+  expect(refused(new THREE.MeshStandardMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1) }))).toThrow(/ground map.*detail/su);
+  expect(refused(new THREE.MeshStandardMaterial({ emissive: '#ff0000' }))).toThrow(/opaque, one-sided/su);
+  expect(refused(new THREE.MeshStandardMaterial({ transparent: true }))).toThrow(/opaque, one-sided/su);
+  expect(refused(new THREE.MeshStandardMaterial({ side: THREE.DoubleSide }))).toThrow(/opaque, one-sided/su);
 });
 
 test('a node material keeps its map: the graph reads the mesh map and the shard binds the texture to it', () => {

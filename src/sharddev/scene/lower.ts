@@ -1,5 +1,5 @@
 import {
-  AdditiveBlending, AmbientLight, BackSide, Box3, DataTexture, DirectionalLight, DoubleSide, Fog, FogExp2, Group, HemisphereLight, InstancedMesh, Line, Matrix4,
+  AdditiveBlending, AmbientLight, BackSide, Box3, DataTexture, DirectionalLight, DoubleSide, Fog, FrontSide, FogExp2, Group, HemisphereLight, InstancedMesh, Line, Matrix4,
   Mesh, MeshBasicMaterial, MeshStandardMaterial, type Object3D, PointLight, Points, PointsMaterial, Quaternion, Scene, SpotLight, Sprite, SpriteMaterial, Vector3,
   type BufferAttribute, type BufferGeometry, Color, type InterleavedBufferAttribute, Material, ShaderMaterial, type Texture,
 } from 'three';
@@ -20,6 +20,10 @@ import { ContentHash, hashOf } from './hash';
  */
 
 /** A refusal: the object's path and the fix. */
+/** ss4d: whether a graph material entry samples the mesh's own map (a `meshMap` node in its graph). */
+const readsMeshMap = (entry: object): boolean =>
+  Object.values((entry as { graph?: { nodes?: Record<string, { op?: string }> } }).graph?.nodes ?? {}).some((node) => node.op === 'meshMap');
+
 export class SceneRefusalError extends Error {
   constructor(path: string, problem: string, fix: string) { super(`scene: ${path}: ${problem}. ${fix}`); this.name = 'SceneRefusalError'; }
 }
@@ -117,7 +121,7 @@ function lowerMaterial(material: Material, path: string, tables: Tables): string
   const m = material as MeshStandardMaterial & MeshBasicMaterial & SpriteMaterial & PointsMaterial;
   // ss4d: a graph draws only what it samples: a map reaches the shard (its props.materials `colour`) only when the graph
   // reads the mesh map (a node material's colorNode replaces its map, as in three)
-  const sampled = catalogue === null || (catalogue as { family?: string }).family !== 'graph' || JSON.stringify(catalogue).includes('"op":"meshMap"');
+  const sampled = catalogue === null || (catalogue as { family?: string }).family !== 'graph' || readsMeshMap(catalogue);
   const map = m.map === null || m.map === undefined || !sampled ? null : lowerTexture(m.map, path, tables);
   const standard = material instanceof MeshStandardMaterial;
   const fields: Omit<SceneMaterial, 'key' | 'name'> = {
@@ -282,6 +286,9 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       // ss4d: the ground is a lit PBR surface (the cleanroom's ground mesh material), never the format's default toon
       const m = options.material;
       if (m !== undefined && !(m instanceof MeshStandardMaterial)) throw new SceneRefusalError('ground', `a ${(m as { type?: string }).type ?? 'material'} ground has no lowering`, 'Give world.ground a MeshStandardMaterial');
+      // the shard's ground takes colour, roughness, metalness and detail only: anything else is refused, never dropped
+      if (m?.map !== null && m?.map !== undefined) throw new SceneRefusalError('ground', 'a ground map has no lowering (the terrain has no uvs)', 'Say its grain with world.ground(h, { detail }), the PBR detail layer');
+      if (m !== undefined && (m.emissive.getHex() !== 0 || m.transparent || m.side !== FrontSide)) throw new SceneRefusalError('ground', 'a ground material is opaque, one-sided and unlit by itself', 'Leave emissive black, transparent off and side FrontSide on the ground material');
       const surface = { colour: m === undefined ? [1, 1, 1] as Rgb : rgb(m.color), roughness: m?.roughness ?? 1, metalness: m?.metalness ?? 0, detail: options.detail ?? null };
       ground = { heightAt, colourAt: options.colourAt ?? null, surface, hash: groundHash(heightAt, options.colourAt ?? null) };
     },
