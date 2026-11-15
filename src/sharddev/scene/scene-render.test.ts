@@ -44,6 +44,22 @@ test('a stencil decal is see-through and pulled off its wall; an ivy card is cut
   expect(entries.filter((e) => e['blend'] === 'alpha' && e['family'] === 'pbr')).toHaveLength(1);
 });
 
+test('a two-sided card is two-sided in its tile GLB too, so build draws its back faces as watch does (AP16w)', () => {
+  const sided = new Map<string, boolean>();
+  for (const tile of shard.props.tiles) {
+    const bytes = assets.get(tile.file); if (bytes === undefined) continue;
+    const json = JSON.parse(new TextDecoder().decode(bytes.subarray(20, 20 + new DataView(bytes.buffer, bytes.byteOffset).getUint32(12, true)))) as { materials?: { name: string; doubleSided?: boolean }[] };
+    for (const m of json.materials ?? []) sided.set(m.name, m.doubleSided === true);
+  }
+  const props = shard.props.materials as Record<string, { id: string }>;
+  const nameOf = (doubleSided: boolean, cutoff: number): string | undefined => Object.entries(props).find(([, row]) => { const e = shard.look.materials[row.id] as Record<string, unknown> | undefined; return e?.['alphaCutoff'] === cutoff && (e['doubleSided'] === true) === doubleSided; })?.[0];
+  const ivy = nameOf(true, 0.45), fern = nameOf(true, 0.4);
+  expect(ivy !== undefined && sided.get(ivy)).toBe(true);
+  expect(fern !== undefined && sided.get(fern)).toBe(true);
+  // a one-sided surface stays one-sided
+  expect([...sided].filter(([name]) => name !== ivy && name !== fern).every(([, two]) => !two)).toBe(true);
+});
+
 test('a flame sprite and a spark cloud are emissive cards, one card draw each in their tile (AP11)', () => {
   const flame = entries.find((e) => e['card'] === true && e['blend'] === 'alpha'), sparks = entries.find((e) => e['card'] === true && (e['motion'] as { kind?: string } | undefined)?.kind === 'rise');
   expect(flame).toMatchObject({ family: 'emissive', fog: 0, motion: { kind: 'pulse', rate: 1.4, amount: 0.12 } });

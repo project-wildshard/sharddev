@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## Unreleased
+
+- A two-sided three.js material (grass, ivy and fern cards) is two-sided
+  in the built shard too: `wildshard build` used to drop the back faces
+  that `wildshard watch` and three.js draw.
+
 ## v0.3.2 (2026-11-15)
 
 - A panel part's material is one draw, even where it crosses a tile

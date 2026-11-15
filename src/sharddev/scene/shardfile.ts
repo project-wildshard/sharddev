@@ -1,4 +1,4 @@
-import { Box3, BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix3, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import { Box3, BufferAttribute, BufferGeometry, Color, DoubleSide, Float32BufferAttribute, FrontSide, Matrix3, Matrix4, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
 import type { PoolSurface } from '@wildshard/format/pool-surface';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../author';
@@ -224,6 +224,16 @@ function appendCard(key: string, seat: readonly [number, number, number], size: 
   merge.index.push(base, base + 1, base + 2, base, base + 2, base + 3);
 }
 
+/**
+ * A tile GLB's material for one entry: white, vertex-coloured, and double-sided when the scene's material is (AP16w). The
+ * engine draws a prop mesh with the side its GLB material says, so a crossed grass card left one-sided lost its back faces in
+ * build while watch drew them.
+ */
+function glbMaterial(name: string, material: SceneMaterial): MeshStandardMaterial {
+  const glb = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true, side: material.side === 'double' ? DoubleSide : FrontSide }); glb.name = name;
+  return glb;
+}
+
 /** A merge cut into primitives of at most 200,000 vertices, each with its own compact vertex list. */
 /** One entry's merge as GLB primitives: a card's corners and a swaying surface's amplitude ride their own channels (AP11, AP12). */
 function primitivesOf(merge: Merge, entry: Entry, name: string, castShadow: boolean): GlbPrimitive[] {
@@ -233,7 +243,7 @@ function primitivesOf(merge: Merge, entry: Entry, name: string, castShadow: bool
       .setAttribute('uv', new Float32BufferAttribute(chunk.uv, 2)).setAttribute('color', new BufferAttribute(new Float32Array(chunk.colour), 3)).setIndex(chunk.index);
     if (entry.card) geometry.setAttribute('corner', new Float32BufferAttribute(chunk.corner, 2));
     if (swaying) geometry.setAttribute('sway', new Float32BufferAttribute(chunk.sway, 1));
-    const material = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); material.name = name;
+    const material = glbMaterial(name, entry.material);
     const primitive: GlbPrimitive = { geometry, material, castShadow: entry.card ? false : castShadow };
     if (entry.card) primitive.customAttributes = { _CORNER: 'corner' }; else if (swaying) primitive.customAttributes = { _SWAY: 'sway' };
     return primitive;
@@ -521,10 +531,10 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     // AP15: the tile's instance groups, at most INSTANCE_CAP copies a node
     for (const group of instanced.get(address) ?? []) {
       const entry = entries.get(group.key), material = entry?.material; if (entry === undefined || material === undefined) continue;
-      const glbMaterial = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); glbMaterial.name = glbNames.get(group.key) ?? group.key;
+      const groupMaterial = glbMaterial(glbNames.get(group.key) ?? group.key, material);
       for (let from = 0; from < group.matrices.length; from += INSTANCE_CAP) {
         const colours = group.colours?.slice(from, from + INSTANCE_CAP);
-        primitives.push({ geometry: group.geometry, material: glbMaterial, castShadow: group.castShadow, instances: group.matrices.slice(from, from + INSTANCE_CAP), ...(colours === undefined ? {} : { instanceColours: colours }) });
+        primitives.push({ geometry: group.geometry, material: groupMaterial, castShadow: group.castShadow, instances: group.matrices.slice(from, from + INSTANCE_CAP), ...(colours === undefined ? {} : { instanceColours: colours }) });
       }
       drawn.union(group.box);
       const file = material.map === null ? undefined : textureFiles.get(material.map); if (file !== undefined) dependencies.add(file.hash);
