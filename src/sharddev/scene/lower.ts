@@ -279,6 +279,14 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>();
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
+  // AP25: rows placed at nodes; read once the build has run and every matrix is current
+  const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
+  const anchorIds = new Set<string>();
+  const anchor = (kind: string, id: string): void => {
+    if (!/^[a-z][a-zA-Z0-9.-]{0,127}$/u.test(id)) throw new SceneRefusalError(id, `a ${kind} id is not a shardfile id`, 'Name it like `slice.pond`: a lower-case letter, then letters, digits, dots and dashes');
+    if (anchorIds.has(`${kind}:${id}`)) throw new SceneRefusalError(id, `two ${kind}s share this id`, `Give every world.${kind} its own id`);
+    anchorIds.add(`${kind}:${id}`);
+  };
   const world: ShardWorld = {
     scene,
     part: (name, fill, options = {}) => {
@@ -312,6 +320,17 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
         environment: env === undefined ? null : { intensity: env.intensity, ground: [env.ground[0], env.ground[1], env.ground[2]] } };
     },
     spawn: (x, y, z, yaw = 0) => { spawn = { position: [x, y, z], yaw }; },
+    trigger: (id, at, options) => {
+      anchor('trigger', id);
+      if (!(options.radius >= 0.01 && options.radius <= 500)) throw new SceneRefusalError(id, `a trigger's radius ${options.radius} is outside 0.01 to 500 m`, 'Give it a radius in metres between 0.01 and 500');
+      triggers.push({ id, at, radius: options.radius, flag: options.flag ?? id });
+    },
+    interact: (id, at, options) => {
+      anchor('interact', id);
+      if (!(options.radius >= 0.1 && options.radius <= 8)) throw new SceneRefusalError(id, `a use prompt's radius ${options.radius} is outside 0.1 to 8 m`, 'Give it a reach in metres between 0.1 and 8');
+      if (options.label.length === 0 || options.label.length > 128) throw new SceneRefusalError(id, 'a use prompt\'s label is 1 to 128 characters', 'Shorten the label');
+      interactions.push({ id, at, ...options });
+    },
   };
   build(world);
   scene.updateMatrixWorld(true);
@@ -325,9 +344,25 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;
   const background = scene.background !== null && typeof scene.background === 'object' && 'isColor' in scene.background ? rgb(scene.background as Color) : null;
+  const placed = (id: string, at: Object3D): Vector3 => {
+    let root: Object3D = at; while (root.parent !== null) root = root.parent;
+    if (root !== scene) throw new SceneRefusalError(id, 'its node is not in the scene', 'Add the node to a part (or the scene) before the build returns');
+    const p = at.getWorldPosition(new Vector3());
+    if (Math.abs(p.x) > 250 || Math.abs(p.z) > 250 || Math.abs(p.y) > 250) throw new SceneRefusalError(id, 'its node stands outside the 500 m cell', 'Move the node inside the cell (x, y and z within 250 m)');
+    return p;
+  };
+  const r3 = (n: number): number => Math.round(n * 1000) / 1000;
+  const anchored: ShardScene['anchored'] = {
+    triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
+    interactions: interactions.map((i) => {
+      const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };
+      if (i.unless !== undefined) row.unless = i.unless;
+      return row;
+    }),
+  };
   return {
     identity, parts: lowered, materials: Object.fromEntries(tables.materials), textures: Object.fromEntries(tables.textures),
-    geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn,
+    geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn, anchored,
   };
 }
 

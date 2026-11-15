@@ -25,7 +25,7 @@ import * as liveMaterials from '../materials';
 import * as liveShard from '../scene/shard';
 import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
-import { lampRows, sceneGroundBytes, sceneLook, waterRows, type sceneGameplay } from '../scene/shardfile';
+import { lampRows, sceneGroundBytes, sceneLook, waterRows, withAnchored, type sceneGameplay } from '../scene/shardfile';
 import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, budgetLines, budgetOf, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchBuild, type WatchState } from './protocol';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 // oxlint-disable-next-line import/no-nodejs-modules -- The idle full build runs `wildshard build` in a child process.
@@ -87,6 +87,14 @@ const livePlugin = (): Plugin => {
  * in guess mode (AP17): `describe` runs it again, in guess or truth mode, without bundling again.
  */
 type Gameplay = ReturnType<typeof sceneGameplay>;
+/** AP25: the scene's anchored rows in the watched gameplay as the build has them: triggers restart the simulation with the
+ *  quests; a use prompt is `targets`, a new shell. */
+function anchoredGameplay(scene: ShardScene, gameplay: Gameplay): Gameplay {
+  const { triggers, interactions } = scene.anchored;
+  if (triggers.length === 0 && interactions.length === 0) return gameplay;
+  const merged = withAnchored({ quests: gameplay.gameplay['quests'], targets: gameplay.rest['targets'] ?? undefined }, scene.anchored);
+  return { gameplay: { ...gameplay.gameplay, quests: merged.quests }, rest: interactions.length === 0 ? gameplay.rest : { ...gameplay.rest, targets: merged.targets } };
+}
 async function describeSource(source: string, memo: PaintMemo): Promise<{ scene: ShardScene; gameplay: Gameplay; describe: (mode: 'guess' | 'truth') => ShardScene; bundleMs: number; describeMs: number }> {
   const started = diagnosticNow();
   const result = await build({ configFile: false, logLevel: 'silent', plugins: [livePlugin()], build: { write: false, minify: false, lib: { entry: resolve(source, 'shard.config.ts'), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
@@ -98,7 +106,7 @@ async function describeSource(source: string, memo: PaintMemo): Promise<{ scene:
   const shard = [loaded['default'], loaded['generate']].find((value): value is { describe: () => ShardScene; gameplay?: () => Gameplay } => typeof value === 'function' && 'describe' in value && typeof value.describe === 'function');
   if (shard === undefined) throw new Error('watch: shard.config.ts exports no scene shard (defineShard from @wildshard/sdk/scene/shard)');
   const describe = (mode: 'guess' | 'truth'): ShardScene => { memo.begin(mode); return withPaintMemo(memo, () => shard.describe()); };
-  const scene = describe('guess'), gameplay = shard.gameplay?.() ?? { gameplay: {}, rest: {} };
+  const scene = describe('guess'), gameplay = anchoredGameplay(scene, shard.gameplay?.() ?? { gameplay: {}, rest: {} });
   return { scene, gameplay, describe, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
 }
 

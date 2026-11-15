@@ -15,6 +15,8 @@ export const LAYOUT = {
   HUT: { x: -4.0, z: -14.0, w: 5.2, d: 4.6, h: 2.5 }, // door face at z + d/2
   POND: { x: -19.4, z: 0, hx: 6.6, hz: 5.4, r: 2.2 },
   ARENA: { x: 25.5, z: -2, r: 9.5 },
+  /** AP25a: the bank the slice's quest walks to (the pond camera's stand) */
+  BANK: { x: -10.4, z: 0.3 },
 };
 
 const noise = T.makeNoise(99);
@@ -512,7 +514,12 @@ export function buildSlice(world: ShardWorld): void {
   sunset(world);
   world.ground(groundHeight, { colourAt: groundColour });
   world.part('hut', (part) => { hut(part, M, tex); });
-  world.part('pond', (part) => { pond(part, M, tex); });
+  world.part('pond', (part) => {
+    pond(part, M, tex);
+    // AP25a: the quest's place is this node; its trigger row is read from it
+    const bank = new THREE.Object3D(); bank.name = 'bank'; bank.position.set(LAYOUT.BANK.x, 0, LAYOUT.BANK.z); part.add(bank);
+    world.trigger('slice.pond', bank, { radius: 4 });
+  });
   world.part('yard', (part) => { yard(part, M, tex); });
   world.spawn(-3.9, 0, -5.6, 0.03);
 }

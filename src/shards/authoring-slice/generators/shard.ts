@@ -5,7 +5,8 @@ import { buildSlice } from './world';
 
 /** SHARD-SOURCE AP19: one quest, so a gameplay edit has something to show (`proof.mjs --edit quest` rewrites its objective). */
 export const SLICE_QUESTS = {
-  flags: ['slice.pond', 'slice.walk'], triggers: [{ id: 'slice.pond', kind: 'region' as const, flag: 'slice.pond', x: -10.4, z: 0.3, radius: 4 }], dialogue: [],
+  // the pond's region trigger is the scene's (`world.trigger` at the bank node, AP25a)
+  flags: ['slice.pond', 'slice.walk'], triggers: [], dialogue: [],
   quests: [{ id: 'slice.walk', title: 'A walk to the pond', completeFlag: 'slice.walk',
     steps: [{ id: 'pond', objective: 'Walk down to the pond', done: { all: ['slice.pond'] } }] }],
 };

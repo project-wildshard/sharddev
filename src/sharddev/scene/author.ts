@@ -41,6 +41,17 @@ export interface ShardWorld {
   post: (settings: Partial<Omit<ScenePost, 'bloom'>> & { bloom?: ScenePost['bloom'] }) => void;
   /** Where a player enters. */
   spawn: (x: number, y: number, z: number, yaw?: number) => void;
+  /**
+   * AP25a: a region trigger round `at`'s world position (read once the build has run, so a node moved later still counts):
+   * entering `radius` metres of it sets quest flag `flag` (default `id`). Written into the shard's `quests.triggers` beside
+   * any `extend` declares, so a quest's place is typed once, in the scene.
+   */
+  trigger: (id: string, at: Object3D, options: { radius: number; flag?: string }) => void;
+  /**
+   * AP25b: a use prompt at `at`'s world position: within `radius` metres the player sees `label`, and using it runs the
+   * shard scene `scene` (format `targets.interactions`; `unless` names the hooks condition that spends it).
+   */
+  interact: (id: string, at: Object3D, options: { label: string; radius: number; scene: string; unless?: string }) => void;
 }
 
 /** AP14: the view ray through a sky pixel (unit, world axes, y up): the dome is centred on the camera. */

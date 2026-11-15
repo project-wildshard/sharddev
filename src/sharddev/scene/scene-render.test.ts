@@ -6,7 +6,7 @@ import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { animate, drift, flicker, pulse, rise, sway, uvScroll } from './author';
 import { GraphMaterial, graph, graphInputs, noise } from '../materials';
 import { lowerShard, SceneRefusalError } from './lower';
-import { SERVER_TICK_MICROS, SIM_CEILING, sceneShardfile } from './shardfile';
+import { SERVER_TICK_MICROS, SIM_CEILING, sceneShardfile, withAnchored } from './shardfile';
 
 // SHARD-SOURCE AP10 to AP12: alpha cards, decals and transparency; sprites and points as camera-facing cards; declared
 // motion. The shardfile back end writes them as plain material and lamp data (no author code at runtime).
@@ -186,4 +186,12 @@ test('a graph material on a card or under a declared motion is refused by path, 
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('stream', (part) => { part.add(swaying); }); })).toThrow(/declared uvScroll/u);
   const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3)), stone() as unknown as THREE.PointsMaterial);
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('fire', (part) => { part.add(sparks); }); })).toThrow(/fire\/Points 0: a graph material has no card/u);
+});
+
+test('anchored rows join what extend wrote; an id declared in both is refused (AP25)', () => {
+  const anchored = { triggers: [{ id: 'a.pond', kind: 'region' as const, flag: 'a.pond', x: 1, z: 2, radius: 3 }], interactions: [{ id: 'a.door', at: [0, 1, 2] as const, radius: 2, label: 'Open', scene: 'a.open' }] };
+  const merged = withAnchored({ quests: { flags: [], quests: [], triggers: [{ id: 'a.cave', kind: 'region', flag: 'a.cave', x: 0, z: 0, radius: 1 }], dialogue: [] } }, anchored);
+  expect((merged.quests as { triggers: { id: string }[] }).triggers.map((t) => t.id)).toEqual(['a.cave', 'a.pond']);
+  expect((merged.targets as { panels: unknown[]; interactions: { id: string }[] })).toMatchObject({ panels: [], interactions: [{ id: 'a.door' }] });
+  expect(() => withAnchored({ targets: { panels: [], interactions: [{ id: 'a.door' }] } }, anchored)).toThrow(/extend declares interaction a.door too/u);
 });

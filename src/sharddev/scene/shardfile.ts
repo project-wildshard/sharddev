@@ -621,6 +621,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));
   if (options.extend !== undefined) shard = options.extend(shard);
+  shard = withAnchored(shard, scene.anchored);
   return { shard, assets, report: { cards, lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
 }
 
@@ -648,6 +649,26 @@ export function sceneGameplay(identity: ShardScene['identity'], options: Shardfi
     else if (JSON.stringify(value) !== JSON.stringify(before[key])) rest[key] = value ?? null;
   }
   return { gameplay, rest };
+}
+
+/**
+ * AP25: the scene's anchored rows merged into the sections `extend` wrote (`quests.triggers`, `targets.interactions`), after
+ * it, so an `extend` that replaces `quests` keeps them. An id `extend` already declares is refused: one place, one row.
+ */
+export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(shard: T, anchored: ShardScene['anchored']): T {
+  if (anchored.triggers.length === 0 && anchored.interactions.length === 0) return shard;
+  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { triggers?: readonly { id: string }[] };
+  const targets = (shard.targets ?? { panels: [], interactions: [] }) as { interactions?: readonly { id: string }[] };
+  const twice = (rows: readonly { id: string }[], added: readonly { id: string }[], what: string): void => {
+    const taken = new Set(rows.map((row) => row.id)), clash = added.find((row) => taken.has(row.id));
+    if (clash !== undefined) throw new SceneRefusalError(clash.id, `extend declares ${what} ${clash.id} too`, `Declare it once: drop the row from extend, or rename the scene's`);
+  };
+  twice(quests.triggers ?? [], anchored.triggers, 'trigger'); twice(targets.interactions ?? [], anchored.interactions, 'interaction');
+  return {
+    ...shard,
+    ...(anchored.triggers.length === 0 ? {} : { quests: { ...quests, triggers: [...quests.triggers ?? [], ...anchored.triggers] } }),
+    ...(anchored.interactions.length === 0 ? {} : { targets: { ...targets, interactions: [...targets.interactions ?? [], ...anchored.interactions] } }),
+  };
 }
 
 /** The scene's ground as the terrain bake reads it: the declared height field, or a flat cell. */

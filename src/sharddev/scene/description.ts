@@ -220,4 +220,12 @@ export interface ShardScene {
   readonly look: SceneLook;
   readonly ground: SceneGround | null;
   readonly spawn: { readonly position: Vec3; readonly yaw: number };
+  /** AP25: gameplay rows placed at scene nodes (`world.trigger`, `world.interact`), their positions read from the nodes */
+  readonly anchored: SceneAnchored;
 }
+
+/** AP25a: a region trigger (format `quests.triggers`, kind `region`) at a node's world x and z. */
+export interface SceneTrigger { readonly id: string; readonly kind: 'region'; readonly flag: string; readonly x: number; readonly z: number; readonly radius: number }
+/** AP25b: a use prompt (format `targets.interactions`) at a node's world position. */
+export interface SceneInteraction { readonly id: string; readonly at: Vec3; readonly radius: number; readonly label: string; readonly scene: string; readonly unless?: string }
+export interface SceneAnchored { readonly triggers: readonly SceneTrigger[]; readonly interactions: readonly SceneInteraction[] }

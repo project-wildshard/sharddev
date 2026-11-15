@@ -1,8 +1,8 @@
 import { expect, test } from 'vitest';
 import { sceneSummary } from '@wildshard/sdk/scene/lower';
-import { sceneLook } from '@wildshard/sdk/scene/shardfile';
+import { sceneLook, sceneShardfile } from '@wildshard/sdk/scene/shardfile';
 import { lookSkyErrors } from '@wildshard/format/look-sky';
-import { slice } from './shard';
+import { SLICE_QUESTS, slice } from './shard';
 
 /** AP1's done-when: the cleanroom's lantern() and hut block (mossgate-cleanroom eac5bb8 src/world.js 286-309, 398-530),
  *  copied into this slice (world.ts), lower with no refusal, and the description lists
@@ -54,4 +54,12 @@ test('the cleanroom sky compiles to look.sky with its environment', () => {
   expect(look.sky?.graph).toBe(sky.graph);
   expect(look.post).toBeUndefined();
   expect(look.light?.environment?.intensity).toBe(0.4);
+});
+
+test('the pond trigger is the bank node\'s, typed once, and builds the row it was (AP25a)', () => {
+  const scene = slice.describe();
+  expect(SLICE_QUESTS.triggers).toEqual([]);
+  const { shard } = sceneShardfile(scene, { extend: (s) => ({ ...s, quests: SLICE_QUESTS }) });
+  expect(shard.quests.triggers).toEqual([{ id: 'slice.pond', kind: 'region', flag: 'slice.pond', x: -10.4, z: 0.3, radius: 4 }]);
+  expect(shard.quests.quests[0]?.id).toBe('slice.walk');
 });
