@@ -1,3 +1,4 @@
+import type { DetailLayer } from '@wildshard/format/detail-layer';
 /**
  * AUTHORING-PARITY AP1: the scene description. An author writes an ordinary three.js scene inside `defineShard`; the
  * walker (`lower.ts`) reads it once into this plain, serialisable shape, and both back ends read only this: the shardfile
@@ -192,10 +193,15 @@ export interface SceneLook {
   readonly post: ScenePost | null;
 }
 
+/** ss4d: the ground's lit surface, from `world.ground`'s `material` and `detail`. */
+export interface SceneGroundSurface { readonly colour: Rgb; readonly roughness: number; readonly metalness: number; readonly detail: DetailLayer | null }
+
 /** The ground the author declared with `world.ground(heightAt)`: closures stay at compile time, never on the wire. */
 export interface SceneGround {
   readonly heightAt: (x: number, z: number) => number;
   readonly colourAt: ((x: number, z: number) => Rgb) | null;
+  /** ss4d: the ground's lit surface (a PBR terrain material): colour (linear), roughness, metalness and its detail layer */
+  readonly surface: SceneGroundSurface;
   /** a hash of the height field sampled on a 2 m grid, so a re-run knows whether the ground changed */
   readonly hash: string;
 }

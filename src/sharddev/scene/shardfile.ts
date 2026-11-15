@@ -60,6 +60,16 @@ const luminance = ([r, g, b]: Rgb): number => 0.2126 * r + 0.7152 * g + 0.0722 *
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 const round = (value: number, digits = 4): number => { const k = 10 ** digits; const out = Math.round(value * k) / k; return out === 0 ? 0 : out; };
 const rgb01 = (colour: Rgb): [number, number, number] => [round(clamp01(colour[0])), round(clamp01(colour[1])), round(clamp01(colour[2]))];
+/** A linear channel as sRGB (three's `LinearToSRGB`). */
+const toSrgb = (c: number): number => (c <= 0.0031308 ? c * 12.92 : 1.055 * c ** (1 / 2.4) - 0.055);
+/**
+ * ss4d: a linear colour (every scene colour, as three.js holds it) as the format's sRGB material colour (`look.materials`
+ * `colour`, `emissive` and a detail layer's moss are sRGB: what an artist picks; engine `families/pbr.ts` reads them with
+ * `SRGBColorSpace`). Lamps, fog, sky keys, pool tints and the environment ground stay linear, as the format says.
+ */
+const srgb01 = (colour: Rgb): [number, number, number] => [round(clamp01(toSrgb(clamp01(colour[0])))), round(clamp01(toSrgb(clamp01(colour[1])))), round(clamp01(toSrgb(clamp01(colour[2]))))];
+/** ss4d: the ground's PBR material id (the terrain family; the format's default `toon` drew a lit scene's ground flat). */
+export const GROUND_MATERIAL = 'scene.ground';
 
 /** One tile's growing merge for one material: world-space vertices and an index (a copy inside one tile keeps its
  *  own index; a triangle cut at a tile seam adds its clipped corners). */
@@ -308,8 +318,8 @@ export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], mate
 
 /** A linear HDR colour as an sRGB tint (0..1) and the gain that restores it. */
 function tintAndGain(colour: Rgb): { tint: [number, number, number]; gain: number } {
-  const peak = Math.max(colour[0], colour[1], colour[2], 1e-6), c = new Color().setRGB(colour[0] / peak, colour[1] / peak, colour[2] / peak);
-  return { tint: [round(clamp01(c.r <= 0.0031308 ? c.r * 12.92 : 1.055 * c.r ** (1 / 2.4) - 0.055)), round(clamp01(c.g <= 0.0031308 ? c.g * 12.92 : 1.055 * c.g ** (1 / 2.4) - 0.055)), round(clamp01(c.b <= 0.0031308 ? c.b * 12.92 : 1.055 * c.b ** (1 / 2.4) - 0.055))], gain: peak };
+  const peak = Math.max(colour[0], colour[1], colour[2], 1e-6);
+  return { tint: srgb01([colour[0] / peak, colour[1] / peak, colour[2] / peak]), gain: peak };
 }
 
 /** A card's motion as the format's (AP12): only a card's kinds reach here. */
@@ -340,7 +350,7 @@ function materialEntry({ material, motion, card }: Entry): Record<string, unknow
   }
   const glow = luminance(material.emissive) * material.emissiveIntensity, emissive = glow > 0 ? tintAndGain(material.emissive) : null;
   const alpha = material.transparent && material.blending === 'normal';
-  return { family: 'pbr', colour: rgb01(material.colour), roughness: round(clamp01(material.roughness), 3), metalness: round(clamp01(material.metalness), 3), vertexColours: true, ...doubleSided,
+  return { family: 'pbr', colour: srgb01(material.colour), roughness: round(clamp01(material.roughness), 3), metalness: round(clamp01(material.metalness), 3), vertexColours: true, ...doubleSided,
     ...(material.alphaTest > 0 ? { alphaCutoff: round(clamp01(material.alphaTest), 3) } : {}),
     // M4.3: a lit surface's own glow (lamp glass, candles) stays lit by the sun and lamps
     ...(emissive === null ? {} : { emissive: emissive.tint, emissiveIntensity: round(Math.min(64, emissive.gain * material.emissiveIntensity), 3) }),
@@ -350,6 +360,14 @@ function materialEntry({ material, motion, card }: Entry): Record<string, unknow
     // AP12: wind sway (its amplitude rides the _SWAY channel) and a scrolling map
     ...(motion?.kind === 'sway' ? { sway: { rate: round(Math.min(8, motion.rate), 3), direction: [round(Math.max(-1, Math.min(1, motion.direction[0])), 3), round(Math.max(-1, Math.min(1, motion.direction[1])), 3)] } } : {}),
     ...(motion?.kind === 'uvScroll' ? { uvScroll: [round(Math.max(-10, Math.min(10, motion.u)), 4), round(Math.max(-10, Math.min(10, motion.v)), 4)] } : {}) };
+}
+
+/** ss4d: the ground's PBR entry: its vertex colours (`colourAt`, linear) times the material's colour, lit as the cleanroom's
+ *  ground mesh is; a flat cell is a plain rough surface. */
+export function groundEntry(scene: Pick<ShardScene, 'ground'>): Record<string, unknown> {
+  const surface = scene.ground?.surface ?? { colour: [1, 1, 1] as Rgb, roughness: 1, metalness: 0, detail: null };
+  return { family: 'pbr', colour: srgb01(surface.colour), roughness: round(clamp01(surface.roughness), 3), metalness: round(clamp01(surface.metalness), 3), vertexColours: true,
+    ...(surface.detail === null ? {} : { detail: surface.detail }) };
 }
 
 /** What the shardfile back end did not write, for the build log (never silent). */
@@ -377,7 +395,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   };
   // ground (AP4): the declared height field, or a flat cell
   const ground = scene.ground;
-  const terrain = bakeTerrain(groundSource(scene));
+  const terrain = bakeTerrain({ ...groundSource(scene), family: GROUND_MATERIAL });
   for (const [hash, bytes] of terrain.assets) assets.set(hash, bytes);
   files.push(...terrain.files);
 
@@ -422,6 +440,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     lookMaterials[lookId(key)] = materialEntry(entry);
     propMaterials[name] = { id: lookId(key), ...(file === undefined ? {} : { colour: { file: file.hash, wrapS: 10497, wrapT: 10497, minFilter: 9987, magFilter: 9729, anisotropy: 4 } }) };
   }
+  lookMaterials[GROUND_MATERIAL] = groundEntry(scene);
   const shardTiles = terrain.tiles.map((t) => ({ ...t, files: [...t.files], bounds: { min: [...t.bounds.min] as [number, number, number], max: [...t.bounds.max] as [number, number, number] } }));
   const propTiles: { lod: 0; x: number; z: number; file: string }[] = [], tileReport: { tile: string; triangles: number; draws: number; bytes: number }[] = [];
   const addresses = [...new Set([...tiles.keys(), ...instanced.keys()])].sort((a, b) => a.localeCompare(b));

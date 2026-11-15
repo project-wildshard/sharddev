@@ -103,3 +103,54 @@ test('a three.js node material compiles its TSL slots through graph() (AP13)', (
   const moved = new MeshStandardNodeMaterial(); moved.positionNode = positionWorld;
   expect(() => lowerShard({ slug: 'n', name: 'n' }, (world) => { world.part('m', (part) => { part.add(new THREE.Mesh(new THREE.BoxGeometry(), moved)); }); })).toThrow(/positionNode has no graph stage/u);
 });
+
+// ss4d (the stage-4 review's open findings): one colour space end to end, the ground lit as the cleanroom's, a node
+// material's map kept, and a graph material's card or motion refused rather than dropped.
+test('a material colour leaves the compiler in sRGB, as the format and the engine read it', () => {
+  const lowered = lowerShard({ slug: 'c', name: 'c' }, (world) => {
+    world.part('pond', (part) => { part.add(new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 2), new THREE.MeshStandardMaterial({ color: '#7a8a36', emissive: '#ff9a3a' }))); });
+  });
+  const entry = Object.entries(sceneShardfile(lowered).shard.look.materials).find(([id]) => id !== 'scene.ground')?.[1] as { colour: number[]; emissive: number[] };
+  // three holds '#7a8a36' as linear (0.195, 0.254, 0.037); the shardfile says the hex the author typed
+  expect(entry.colour.map((c) => Math.round(c * 255))).toEqual([0x7a, 0x8a, 0x36]);
+  expect(entry.emissive.map((c) => Math.round(c * 255))).toEqual([0xff, 0x9a, 0x3a]);
+});
+
+test('the ground is a lit PBR surface with the author\'s roughness and detail, never the default toon', () => {
+  const detail = { scale: 0.35, mottle: 0.3, grain: 0.15, relief: 0.5 };
+  const lowered = lowerShard({ slug: 'g', name: 'g' }, (world) => {
+    world.ground(() => 0, { colourAt: () => [0.12, 0.17, 0.03], material: new THREE.MeshStandardMaterial({ roughness: 0.97 }), detail });
+  });
+  const { shard: built } = sceneShardfile(lowered);
+  expect(built.terrain?.family).toBe('scene.ground');
+  expect(built.look.materials['scene.ground']).toMatchObject({ family: 'pbr', colour: [1, 1, 1], roughness: 0.97, metalness: 0, vertexColours: true, detail });
+  // a flat cell with no ground declared is still lit, plain and rough
+  const flat = sceneShardfile(lowerShard({ slug: 'f', name: 'f' }, () => undefined)).shard;
+  expect(flat.terrain?.family).toBe('scene.ground');
+  expect(flat.look.materials['scene.ground']).toMatchObject({ family: 'pbr', roughness: 1 });
+  expect(() => lowerShard({ slug: 'g', name: 'g' }, (world) => { world.ground(() => 0, { material: new THREE.MeshBasicMaterial() as unknown as THREE.MeshStandardMaterial }); })).toThrow(/ground.*MeshStandardMaterial/su);
+});
+
+test('a node material keeps its map: the graph reads the mesh map and the shard binds the texture to it', () => {
+  const tiled = new MeshStandardNodeMaterial({ map: glow, color: '#808080', roughness: 0.7 });
+  const lowered = lowerShard({ slug: 'm', name: 'm' }, (world) => { world.part('rock', (part) => { part.add(new THREE.Mesh(new THREE.BoxGeometry(), tiled)); }); });
+  const { shard: built } = sceneShardfile(lowered);
+  const entry = Object.values(built.look.materials)[0] as { family: string; graph: { nodes: Record<string, { op: string }> } };
+  expect(entry.family).toBe('graph');
+  expect(Object.values(entry.graph.nodes).map((n) => n.op)).toContain('meshMap');
+  expect(Object.values(built.props?.materials ?? {})).toContainEqual(expect.objectContaining({ colour: expect.objectContaining({ file: expect.any(String) }) }));
+  // a colorNode still replaces the map, as in three
+  const painted = new MeshStandardNodeMaterial({ map: glow }); painted.colorNode = vec3(0.2, 0.3, 0.4);
+  const own = Object.values(sceneShardfile(lowerShard({ slug: 'm', name: 'm' }, (world) => { world.part('rock', (part) => { part.add(new THREE.Mesh(new THREE.BoxGeometry(), painted)); }); })).shard.look.materials)[0] as typeof entry;
+  expect(Object.values(own.graph.nodes).map((n) => n.op)).not.toContain('meshMap');
+});
+
+test('a graph material on a card or under a declared motion is refused by path, never dropped', () => {
+  const stone = (): GraphMaterial => new GraphMaterial(graph({ surface: { colour: vec3(0.5, 0.45, 0.4) } }));
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('ferns', (part) => { part.add(animate(new THREE.Mesh(new THREE.PlaneGeometry(), stone()), sway({ rate: 0.6, amount: 0.08 }))); }); }))
+    .toThrow(/ferns\/Mesh 0: a graph material does not take a declared sway.*vertex: \{ offset \}/su);
+  const swaying = animate(new THREE.Group(), uvScroll(0.05, 0)); swaying.add(new THREE.Mesh(new THREE.PlaneGeometry(), stone()));
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('stream', (part) => { part.add(swaying); }); })).toThrow(/declared uvScroll/u);
+  const sparks = new THREE.Points(new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(new Float32Array(3), 3)), stone() as unknown as THREE.PointsMaterial);
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('fire', (part) => { part.add(sparks); }); })).toThrow(/fire\/Points 0: a graph material has no card/u);
+});

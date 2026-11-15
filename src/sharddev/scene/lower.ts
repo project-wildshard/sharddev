@@ -3,7 +3,8 @@ import {
   Mesh, MeshBasicMaterial, MeshStandardMaterial, type Object3D, PointLight, Points, PointsMaterial, Quaternion, Scene, SpotLight, Sprite, SpriteMaterial, Vector3,
   type BufferAttribute, type BufferGeometry, Color, type InterleavedBufferAttribute, Material, ShaderMaterial, type Texture,
 } from 'three';
-import { GraphMaterial, graph, isCatalogueMaterial, type GraphValue } from '../materials';
+import { vec3 } from 'three/tsl';
+import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
 import { isSolid, motionOf, paintedPixels, Water, type ShardWorld } from './author';
 import type {
@@ -74,7 +75,7 @@ function lowerTexture(texture: Texture, path: string, tables: Tables): string {
   return key;
 }
 
-interface NodeSlots { readonly isNodeMaterial?: boolean; readonly isMeshBasicNodeMaterial?: boolean; readonly [slot: string]: unknown }
+interface NodeSlots { readonly isNodeMaterial?: boolean; readonly isMeshBasicNodeMaterial?: boolean; readonly map?: Texture | null; readonly [slot: string]: unknown }
 const isNodeMaterial = (material: Material): boolean => Reflect.get(material, 'isNodeMaterial') === true;
 /** AP13: a three.js node material (`MeshStandardNodeMaterial`, `MeshBasicNodeMaterial`) as one material graph: its TSL slots
  *  go through `graph()`, its plain numbers stand where a slot is empty. A slot the graph has no stage for is refused. */
@@ -86,10 +87,14 @@ function nodeMaterialGraph(material: Material, path: string): GraphMaterial {
   const value = (node: unknown, fallback: GraphValue): GraphValue => (node === null || node === undefined ? fallback : node as GraphValue);
   const c = m.color ?? new Color(1, 1, 1), e = m.emissive ?? new Color(0, 0, 0);
   const unlit = m.isMeshBasicNodeMaterial === true;
+  // ss4d: a node material's own `map` (three draws map x color when colorNode is empty) is the mesh's colour map: the
+  // graph reads it as `meshMap`, the shard binds the lowered texture to it (props.materials `colour`)
+  const mapped = m.map !== null && m.map !== undefined, empty = (slot: string): boolean => m[slot] === null || m[slot] === undefined;
+  const cutsOrBlends = material.transparent || material.alphaTest > 0;
   const surface = {
-    colour: value(m['colorNode'], [c.r, c.g, c.b]),
+    colour: value(m['colorNode'], mapped ? meshMap.rgb.mul(vec3(c.r, c.g, c.b)) : [c.r, c.g, c.b]),
     ...(unlit ? {} : { emissive: value(m['emissiveNode'], [e.r, e.g, e.b]), roughness: value(m['roughnessNode'], m.roughness ?? 1), metalness: value(m['metalnessNode'], m.metalness ?? 0) }),
-    ...(m['opacityNode'] === null || m['opacityNode'] === undefined ? {} : { alpha: value(m['opacityNode'], 1) }),
+    ...(!empty('opacityNode') ? { alpha: value(m['opacityNode'], 1) } : mapped && empty('colorNode') && cutsOrBlends ? { alpha: meshMap.a.mul(material.opacity) } : {}),
     ...(material.alphaTest > 0 ? { alphaCutoff: material.alphaTest } : {}),
   };
   return new GraphMaterial(graph({ model: unlit ? 'unlit' : 'standard', doubleSided: material.side === DoubleSide, surface }));
@@ -110,7 +115,10 @@ function lowerMaterial(material: Material, path: string, tables: Tables): string
   else throw new SceneRefusalError(path, `${material.type} has no lowering yet`, 'Use MeshStandardMaterial, MeshBasicMaterial, a node material or a GraphMaterial (TSL through graph())');
   if (material instanceof PointsMaterial && !material.sizeAttenuation) throw new SceneRefusalError(path, 'a Points cloud sized in pixels has no lowering', 'Leave sizeAttenuation on: a point is a card `size` metres across');
   const m = material as MeshStandardMaterial & MeshBasicMaterial & SpriteMaterial & PointsMaterial;
-  const map = m.map === null || m.map === undefined ? null : lowerTexture(m.map, path, tables);
+  // ss4d: a graph draws only what it samples: a map reaches the shard (its props.materials `colour`) only when the graph
+  // reads the mesh map (a node material's colorNode replaces its map, as in three)
+  const sampled = catalogue === null || (catalogue as { family?: string }).family !== 'graph' || JSON.stringify(catalogue).includes('"op":"meshMap"');
+  const map = m.map === null || m.map === undefined || !sampled ? null : lowerTexture(m.map, path, tables);
   const standard = material instanceof MeshStandardMaterial;
   const fields: Omit<SceneMaterial, 'key' | 'name'> = {
     kind, colour: rgb(m.color), roughness: standard ? m.roughness : 1, metalness: standard ? m.metalness : 0,
@@ -158,6 +166,18 @@ function fitMotion(object: Object3D, root: Object3D, path: string, kinds: Readon
   return inherited !== null && kinds.has(inherited.kind) ? inherited : null;
 }
 
+/**
+ * ss4d: a graph material (TSL, a node material, a catalogue entry) is its own whole surface: the engine draws its graph
+ * and nothing of the scene's card or motion rows, so a card or a declared motion on one would be dropped. Refused by
+ * path, never dropped: a card is a SpriteMaterial or a PointsMaterial; a graph moves in its own `vertex.offset` stage.
+ */
+function refuseGraphMotion(path: string, key: string, tables: Tables, what: string): void {
+  if (tables.materials.get(key)?.entry === null) return;
+  throw new SceneRefusalError(path, what === 'card' ? 'a graph material has no card (a camera-facing quad)' : `a graph material does not take a declared ${what}`,
+    what === 'card' ? 'Draw a Sprite or Points with a SpriteMaterial or PointsMaterial (its map, colour and blending), or a plain Mesh with the graph'
+      : 'Move it in the graph: vertex: { offset } over graphInputs.windTime (sway) or a uv over time (uvScroll), or draw it with a MeshStandardMaterial');
+}
+
 function lowerPart(root: Object3D, tables: Tables): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   const visit = (object: Object3D): void => {
@@ -192,9 +212,12 @@ function lowerPart(root: Object3D, tables: Tables): ScenePart {
       } else if (isSolid(object)) {
         object.geometry.computeBoundingBox(); colliders.push(colliderOf(path, object.matrixWorld, object.geometry.boundingBox ?? new Box3()));
       }
-      draws.push({ path, geometry, material, matrix: [...object.matrixWorld.elements], instances, castShadow: object.castShadow, receiveShadow: object.receiveShadow, motion: fitMotion(object, root, path, MESH_MOTIONS, 'mesh') });
+      const motion = fitMotion(object, root, path, MESH_MOTIONS, 'mesh');
+      if (motion !== null) refuseGraphMotion(path, material, tables, motion.kind);
+      draws.push({ path, geometry, material, matrix: [...object.matrixWorld.elements], instances, castShadow: object.castShadow, receiveShadow: object.receiveShadow, motion });
     } else if (object instanceof Sprite) {
       const material = lowerMaterial(object.material, path, tables), scale = new Vector3().setFromMatrixScale(object.matrixWorld);
+      refuseGraphMotion(path, material, tables, 'card');
       sprites.push({ path, material, position: v3(new Vector3().setFromMatrixPosition(object.matrixWorld)), scale: [scale.x, scale.y], center: [object.center.x, object.center.y], motion: fitMotion(object, root, path, CARD_MOTIONS, 'Sprite') });
     } else if (object instanceof PointLight || object instanceof DirectionalLight || object instanceof HemisphereLight || object instanceof AmbientLight) {
       const position = v3(new Vector3().setFromMatrixPosition(object.matrixWorld));
@@ -209,6 +232,7 @@ function lowerPart(root: Object3D, tables: Tables): ScenePart {
       // AP11: each point a camera-facing card; the cloud keeps its own motion (drift, rise)
       if (Array.isArray(object.material)) throw new SceneRefusalError(path, 'it has several materials', 'Give a Points cloud one PointsMaterial');
       const material = lowerMaterial(object.material, path, tables), position = object.geometry.getAttribute('position');
+      refuseGraphMotion(path, material, tables, 'card');
       if (position === undefined) throw new SceneRefusalError(path, 'its geometry has no position', 'Give the cloud a position attribute');
       const seats = new Float32Array(position.count * 3), p = new Vector3();
       for (let i = 0; i < position.count; i++) { p.fromBufferAttribute(position, i).applyMatrix4(object.matrixWorld); seats.set([p.x, p.y, p.z], i * 3); }
@@ -254,7 +278,13 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (name === 'scene' || parts.some((p) => p.name === name)) throw new SceneRefusalError(name, 'two parts share this name', 'Give every world.part its own name');
       const group = new Group(); group.name = name; parts.push(group); scene.add(group); fill(group); return group;
     },
-    ground: (heightAt, options = {}) => { ground = { heightAt, colourAt: options.colourAt ?? null, hash: groundHash(heightAt, options.colourAt ?? null) }; },
+    ground: (heightAt, options = {}) => {
+      // ss4d: the ground is a lit PBR surface (the cleanroom's ground mesh material), never the format's default toon
+      const m = options.material;
+      if (m !== undefined && !(m instanceof MeshStandardMaterial)) throw new SceneRefusalError('ground', `a ${(m as { type?: string }).type ?? 'material'} ground has no lowering`, 'Give world.ground a MeshStandardMaterial');
+      const surface = { colour: m === undefined ? [1, 1, 1] as Rgb : rgb(m.color), roughness: m?.roughness ?? 1, metalness: m?.metalness ?? 0, detail: options.detail ?? null };
+      ground = { heightAt, colourAt: options.colourAt ?? null, surface, hash: groundHash(heightAt, options.colourAt ?? null) };
+    },
     post: (settings) => { post = { ...DEFAULT_POST, ...post, ...settings }; },
     // AP14: the sky compiles at once, so a graph outside the vocabulary or the sky's budget is refused at its line
     sky: (colour, options = {}) => {

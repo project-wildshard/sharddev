@@ -1,5 +1,6 @@
 import { DataTexture, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
 import { positionLocal } from 'three/tsl';
+import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost } from './description';
 
@@ -13,8 +14,13 @@ export interface ShardWorld {
   readonly scene: Scene;
   /** A named piece of the world, the unit `watch` swaps. Objects added to `scene` outside a part belong to part `scene`. */
   part: (name: string, build: (part: Group) => void) => Group;
-  /** The ground: its height everywhere in the 500 m cell, and optionally its colour (linear RGB). */
-  ground: (heightAt: (x: number, z: number) => number, options?: { colourAt?: (x: number, z: number) => Rgb }) => void;
+  /**
+   * The ground: its height everywhere in the 500 m cell, and optionally its colour (linear RGB). `material` is the
+   * cleanroom ground mesh's `MeshStandardMaterial` (its colour, roughness and metalness; the vertex colours are
+   * `colourAt`); a map on it does not reach the shard (the terrain has no uvs): say its grain with `detail`, the PBR
+   * family's procedural layer (format `detail-layer`), drawn from world position.
+   */
+  ground: (heightAt: (x: number, z: number) => number, options?: { colourAt?: (x: number, z: number) => Rgb; material?: MeshStandardMaterial; detail?: DetailLayer }) => void;
   /**
    * AP14: the sky, a TSL colour (linear) along {@link skyRay}, drawn on the engine's dome in place of its gradient: the
    * cleanroom's sky dome `ShaderMaterial`, written in TSL. `environment` lights PBR surfaces from that same sky (three's

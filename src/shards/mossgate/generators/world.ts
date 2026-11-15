@@ -976,7 +976,9 @@ export function buildMossgate(world: ShardWorld): void {
   glowMats.clear(); decalMats.clear(); sparkMats.clear(); flameMat = null;
   const { M, tex } = materials();
   sunset(world);
-  world.ground(groundHeight, { colourAt: groundColour });
+  // the cleanroom's ground mesh: MeshStandardMaterial({ map: moss, vertexColors: true, roughness: 0.97 }); its moss map's
+  // clumps (4 m a tile, blotches about a quarter metre across, fine speckle) as the PBR detail layer
+  world.ground(groundHeight, { colourAt: groundColour, material: new THREE.MeshStandardMaterial({ roughness: 0.97 }), detail: { scale: 0.35, mottle: 0.3, grain: 0.15, relief: 0.5 } });
   world.part('walls', (part) => { walls(part, M, tex); });
   world.part('district', (part) => { district(part); });
   world.part('paths', (part) => { paths(part, M); });
