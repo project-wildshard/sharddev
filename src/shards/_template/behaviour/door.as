@@ -1,32 +1,22 @@
-// ABI-v0 scene hook. Door and brazier ownership stays in declared shared state; the platform projects it to the panels/colliders.
-// Shared fields arrive sorted by id after the state counts: 101 template.door.open, 102 to 104 template.brazier-a, -b, -c.
-export function abi_version(): i32 { return 0; }
-export function init(lo: i32, hi: i32): void {}
-export function in_ptr(): i32 { return 16384; }
-export function in_cap(): i32 { return 4096; }
-export function out_ptr(): i32 { return 24576; }
-export function out_cap(): i32 { return 4; }
-let count: i32 = 0;
-let ticks: i32 = 0;
-export function out_count(): i32 { return count; }
-@inline function setShared(field: f64, value: f64): void {
-  const at = 24576 + count * 40;
-  store<f64>(at, 5); store<f64>(at + 8, field); store<f64>(at + 16, value); store<f64>(at + 24, 0); store<f64>(at + 32, 0);
-  count += 1;
-}
+// The Template's door and braziers (ABI v0, the sdk's `wildshard` prelude). Door and brazier ownership stays in declared
+// shared state; the platform projects it to the panels and colliders. Shared fields in declared order: 0 template.door.open
+// (id 101), then template.brazier-a, -b, -c (ids 102 to 104).
+import { begin, eventCount, eventType, setShared, shared } from './wildshard';
+export { abi_version, init, in_ptr, in_cap, out_ptr, out_cap, out_count } from './wildshard';
+const DOOR = 0, BRAZIERS = 1;
+const DOOR_FIELD: f64 = 101, BRAZIER_FIELD: f64 = 102;
+const DOOR_TOGGLE: f64 = 201, BRAZIER_LIT: f64 = 202;
 export function on_tick(): void {
-  count = 0; ticks += 1;
-  let open = load<f64>(16384 + 64), toggled = false;
+  begin();
+  let open = shared(DOOR), toggled = false;
   // MH-2, MH-3: braziers A, B and C (fields 102 to 104, scene events 202 to 204) each light once, for good
   let lit = 0;
-  const events = i32(load<f64>(16384 + 256));
-  for (let i = 0; i < events; i++) {
-    const type = load<f64>(16384 + (33 + i * 6) * 8);
-    if (type === 201) { open = 1 - open; toggled = !toggled; }
+  for (let i = 0; i < eventCount(); i++) {
+    const type = eventType(i);
+    if (type === DOOR_TOGGLE) { open = 1 - open; toggled = !toggled; }
     // E at a brazier: A's field opens the moss gate, B's raises the pond's stones, C's unlocks the arena
-    for (let k = 0; k < 3; k++) if (type === <f64>(202 + k) && load<f64>(16384 + 72 + k * 8) < 0.5) lit |= 1 << k;
+    for (let k = 0; k < 3; k++) if (type === BRAZIER_LIT + k && shared(BRAZIERS + k) < 0.5) lit |= 1 << k;
   }
-  if (toggled) setShared(101, open);
-  for (let k = 0; k < 3; k++) if (lit & (1 << k)) setShared(<f64>(102 + k), 1);
-  store<i32>(30000, ticks); // continuation witness lives outside input/output regions
+  if (toggled) setShared(DOOR_FIELD, open);
+  for (let k = 0; k < 3; k++) if (lit & (1 << k)) setShared(BRAZIER_FIELD + k, 1);
 }

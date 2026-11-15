@@ -255,6 +255,8 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
   const hash = new ContentHash().text(root.name).text(panel ?? '');
   // AP16: a panel is meshes and solids, the things a state row can hide; anything else would stay when it hides
   if (panel !== undefined && sprites.length + points.length + lights.length + water.length > 0) throw new SceneRefusalError(root.name, 'a panel part holds meshes and solids only (its sprites, points, lights and water would not hide with it)', 'Put them in a part of their own');
+  // a panel is a library model, which carries no tile motion: a moving mesh would stand still
+  if (panel !== undefined && draws.some((d) => d.motion !== null)) throw new SceneRefusalError(root.name, 'a panel part cannot move (sway, flicker, pulse or uvScroll)', 'Put the moving meshes in a part of their own');
   for (const draw of draws) {
     hash.text(draw.geometry).text(draw.material).numbers(draw.matrix).numbers([draw.castShadow ? 1 : 0, draw.receiveShadow ? 1 : 0]).json(draw.motion);
     if (draw.instances !== null) { hash.bytes(draw.instances.matrices); if (draw.instances.colours !== null) hash.bytes(draw.instances.colours); }
@@ -284,7 +286,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (name === 'scene' || parts.some((p) => p.name === name)) throw new SceneRefusalError(name, 'two parts share this name', 'Give every world.part its own name');
       const { panel } = options;
       // AP16: the format's panel id (props `id`), one part each, at most 64 (props.panels)
-      if (panel !== undefined && !/^[a-z][a-z0-9.-]{0,127}$/u.test(panel)) throw new SceneRefusalError(name, `panel id ${panel} is not a shardfile id`, 'Name it like `brasscap.gate`: lower case, digits, dots and dashes');
+      // a panel's collider takes its id, so it may not look like a part's collider (`scene.<part>`)
+      if (panel !== undefined && (!/^[a-z][a-z0-9.-]{0,127}$/u.test(panel) || panel.startsWith('scene.'))) throw new SceneRefusalError(name, `panel id ${panel} is not a shardfile id`, 'Name it like `brasscap.gate`: lower case, digits, dots and dashes');
       if (panel !== undefined && [...panels.values()].includes(panel)) throw new SceneRefusalError(name, `two parts are panel ${panel}`, 'Give every panel part its own id');
       if (panel !== undefined && panels.size >= 64) throw new SceneRefusalError(name, 'a shard has at most 64 panels', 'Merge panels that hide together');
       const group = new Group(); group.name = name; parts.push(group); scene.add(group);

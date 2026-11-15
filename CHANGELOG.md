@@ -20,8 +20,11 @@ the next version and date, commit and push it, then run repo-kit's
   in about 0.12 s, and restarts the simulation for a quest edit, keeping
   the player where they stand.
 - Fixed: scene colours leave in sRGB and the ground is a lit PBR
-  surface, so scene shards are no longer too dark and saturated.
-- The sdk moves to engine 0.1.21 and shard-format 0.5.7.
+  surface, so scene shards are no longer too dark and saturated. The
+  sdk moves to engine 0.1.21 and shard-format 0.5.7.
+- New: behaviour scripts import `./wildshard`, a prelude that reads
+  state and events and writes commands by name, so a script holds no
+  memory addresses. The Template's door is written on it.
 
 ## v0.3.0 (2026-11-14)
 

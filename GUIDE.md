@@ -200,6 +200,13 @@ Blender files (`.blend`), mockups and other working files never ship: keep them 
 runs in the game is data, or Wasm compiled from `behaviour/`. `shard.config.ts` and `generators/` run only at build
 time; lint refuses runtime code there (section 6).
 
+**Behaviour scripts read and write by name.** A `behaviour/` script imports the sdk's prelude, `./wildshard`, which
+build supplies: `shared(i)` and `player(i)` read state fields in their declared order, `eventCount()` and
+`eventType(i)` read the call's events, and `setShared(id, value)`, `setPlayer`, `setField`, `emit`, `spawn` and
+`moveTo` write its commands (four a call). Start `on_tick` with `begin()`, and re-export the ABI from it:
+`export { abi_version, init, in_ptr, in_cap, out_ptr, out_cap, out_count } from './wildshard';`. The Template's
+`behaviour/door.as` is the example. A script with its own addresses still builds.
+
 **Repo layout (J317).** A repo with one shard keeps its shard source at `src/` (`src/shard.config.ts`,
 `src/data/`, ...); a repo with several keeps `src/shards/<slug>/`. Commands take the repo (`.`) and find the shard
 source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo with several, name the shard source

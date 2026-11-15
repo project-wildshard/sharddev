@@ -2,6 +2,10 @@
 import binaryen from 'binaryen';
 import { loadAssemblyScriptCompiler } from '../assemblyscriptCompiler.mjs';
 import type { AssemblyScriptMemo } from './assemblyscriptMemoPort';
+import { SCRIPT_PRELUDE } from '../as/prelude';
+
+/** The prelude's virtual file name. */
+const PRELUDE = 'wildshard.ts';
 
 interface Compiler { main: (args: string[], options: { readFile: (name: string) => string | null; writeFile: (name: string, contents: string | Uint8Array) => void }) => Promise<{ error: Error | null; stderr?: { toString: () => string } }> }
 function isCompiler(value: unknown): value is Compiler { return typeof value === 'object' && value !== null && 'main' in value && typeof value.main === 'function'; }
@@ -98,6 +102,8 @@ export async function compileScript(source: string, options: { abi?: 0 | 1; maxi
   const ceiling = options.abi === 1 ? 4 : 64;
   if (!Number.isSafeInteger(maximumPages) || maximumPages < 1 || maximumPages > ceiling) throw new Error(`Script maximumPages must be 1..${ceiling}`);
   const sources = new Map(Object.entries(options.sources ?? {}));
+  // AP27: ABI v0's prelude, `import { ... } from './wildshard'`; a script that never imports it never reads it (same bytes)
+  if (options.abi !== 1 && !sources.has(PRELUDE)) sources.set(PRELUDE, SCRIPT_PRELUDE);
   if (sources.size > 64 || [...sources].some(([name, text]) => name === 'main.ts' || !/^(?:[a-zA-Z0-9_-][a-zA-Z0-9_.-]*\/)*[a-zA-Z0-9_-][a-zA-Z0-9_.-]*\.ts$/u.test(name) || typeof text !== 'string')) throw new Error('Invalid virtual AssemblyScript sources');
   // asc's declaration bundle globally changes Array.at to return T, unsound in host JS.
   // Keep its portable ambient declarations inside the author compiler, not the host type program.

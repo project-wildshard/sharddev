@@ -136,16 +136,13 @@ test('the open-core gem and its sparks float over the Warden\'s crown', () => {
   expect(sparks?.[1]).toBe(WARDEN_CORE);
 });
 
-// M4.10 review: the sunk slabs read as stepping stones, so they stand: one collider each, its top at the slab's
-test('the sunk pond slabs carry a collider each, a step under the raised bridge', () => {
-  const { sunk, colliders, sunkColliders } = pondStones();
-  expect(sunkColliders).toHaveLength(BRIDGE_STONES);
-  sunk.updateMatrixWorld(true);
-  const top = new Box3().setFromObject(sunk).max.y;
-  for (const [i, box] of sunkColliders.entries()) {
-    if (box.kind !== 'box') throw new Error('sunk slab collider');
-    expect(box.y + box.hy).toBeCloseTo(top, 2);
-    const raised = colliders[i]; if (raised?.kind !== 'box') throw new Error('raised collider');
-    expect(raised.y + raised.hy - (box.y + box.hy)).toBeLessThan(0.35); // under the motor's autostep
-  }
+// The sunk slabs stay without colliders (before brazier B the walk ends in the water), and B's raised bridge stands
+// a step over their tops: under the motor's 0.35 m autostep.
+test('the raised bridge stands a step over the sunk slabs', () => {
+  const { sunk, raised, colliders } = pondStones();
+  expect(colliders).toHaveLength(BRIDGE_STONES);
+  for (const group of [sunk, raised]) group.updateMatrixWorld(true);
+  const sunkTop = new Box3().setFromObject(sunk).max.y, raisedTop = new Box3().setFromObject(raised).max.y;
+  expect(raisedTop - sunkTop).toBeGreaterThan(0.1);
+  expect(raisedTop - sunkTop).toBeLessThan(0.35);
 });

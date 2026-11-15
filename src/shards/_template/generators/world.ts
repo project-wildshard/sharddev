@@ -128,11 +128,11 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   ctx.root.add(gate.vines); ctx.piece({ id: 'template.mossgate-vines', name: 'Moss gate vines', category: 'nature', file, object: gate.vines });
   ctx.root.add(gate.panel); ctx.piece({ id: 'template.mossgate', name: 'Moss gate', category: 'nature', file, object: gate.panel, colliders: gate.panelColliders, active: () => true });
   // Mossgate Hollow v3 (MH-3): brazier B's field raises the pond's stones out of the water, and brazier C's takes away the
-  // bars across the arena's one way in. The sunk slabs are static stepping stones a hand over the water (M4.10 review: they
-  // looked walkable and had no collider); the raised panel stands a step over them once B burns.
+  // bars across the arena's one way in. The sunk slabs are static and have no collider on purpose: before B the walk ends in
+  // the water (MG10's proof swims across), so B is what makes the crossing dry (the M4.10 review asked; this stays the design).
   const stones = pondStones();
   ctx.root.add(stones.raised); ctx.piece({ id: 'template.pond-stones', name: 'Pond stepping stones', category: 'nature', file, object: stones.raised, colliders: stones.colliders, active: () => false });
-  ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk, colliders: stones.sunkColliders, surface: 'stone' });
+  ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk });
   const planting = pondPlanting(heightAt);
   ctx.root.add(planting); ctx.piece({ id: 'template.pond-planting', name: 'Pond reeds, lily pads and lip', category: 'nature', file, object: planting });
   const arena = arenaRing(heightAt);
@@ -602,15 +602,15 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
 }
 
 /**
- * The moss bridge (MH-3): five stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
+ * The moss bridge (MH-3): six stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
  * `raised` stands their moss-capped tops 0.3 m over the water, with colliders, for brazier B's field to show; `sunk` is the
- * same pillars, a little thinner, as wet slabs awash at the surface (M4.10, the cleanroom's look) with colliders of their
- * own (`sunkColliders`): they look like stepping stones, so they are (the M4.10 review), and B's bridge rises a step over them.
+ * same pillars, a little thinner, as wet slabs awash at the surface (M4.10, the cleanroom's look) with no collider, so before
+ * B the walk ends in the water.
  */
 /** The raised bridge stones' top over the water, the sunk slabs' top, and their wet stone. */
 const STONE_TOP = 0.3, SUNK_TOP = 0.05, WET_STONE = 0x5a524a;
-export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders; sunkColliders: Colliders } {
-  const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], sunkColliders: Colliders = [], BED = -3, w = 1.75;
+export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders } {
+  const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], BED = -3, w = 1.75;
   for (let i = 0; i < BRIDGE_STONES; i++) {
     const x = cx - BRIDGE_REACH + i * ((BRIDGE_REACH * 2) / (BRIDGE_STONES - 1)), z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
     // M4.10: the sunk stones are the cleanroom's stepping slabs, a hand over the water (the mirror pond hides anything under
@@ -622,9 +622,8 @@ export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders
       root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw, 0, wet), block(s + 0.1, 0.1, s + 0.1, wet === undefined ? 2 : 1, x, top - 0.05, z, yaw, 0, wet));
     }
     colliders.push(stoneBox(x, (STONE_TOP + BED) / 2, z, w / 2, (STONE_TOP - BED) / 2, w / 2, yaw));
-    sunkColliders.push(stoneBox(x, (SUNK_TOP + BED) / 2, z, (w - 0.1) / 2, (SUNK_TOP - BED) / 2, (w - 0.1) / 2, yaw));
   }
-  return { raised, sunk, colliders, sunkColliders };
+  return { raised, sunk, colliders };
 }
 /** LF1-8: the pond's planting colours (the look's `tint` keeps them: reeds and pads trim green, cattails and flowers structure). */
 export const REED = 0x5f8a32, CATTAIL = 0x6b4226, LILY = 0x4c8a3a, LILY_FLOWER = 0xf2a6c2;

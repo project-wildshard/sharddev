@@ -3,7 +3,7 @@
 // (public/assets/baked/skin-fixture, made by scripts/bake/skins.mjs) into the template's content-addressed assets: each
 // GLB, plus one `json` skin file ({ row, binding }) that depends on it, and writes data/skins.json for shard.config.ts.
 // P1-S1: it lives in scripts/, beside the fixture's own producer, since that fixture stays when the template moves out.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 
@@ -31,6 +31,6 @@ const out = species.map(({ species: id, look, skin }) => {
 });
 // entries this script does not make (the Barrow Warden, scripts/bake/template-warden.mjs) stay, after the fixture's
 const path = resolve(project, 'data/skins.json'), made = new Set(out.map((entry) => entry.species));
-const kept = JSON.parse(readFileSync(path, 'utf8')).filter((entry) => !made.has(entry.species));
+const kept = (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : []).filter((entry) => !made.has(entry.species));
 writeFileSync(path, `${JSON.stringify([...out, ...kept], null, 2)}\n`);
 console.info(`template skins: ${out.map((entry) => `${entry.species} ${entry.skin.slice(0, 8)}`).join(', ')}${kept.length === 0 ? '' : `; kept ${kept.map((entry) => entry.species).join(', ')}`}`);

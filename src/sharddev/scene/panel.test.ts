@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { parseGlb } from '@wildshard/format/shardfileAssets';
-import { solid } from './author';
+import { animate, solid, sway } from './author';
 import { lowerShard, SceneRefusalError } from './lower';
 import { sceneShardfile } from './shardfile';
 import { liveShell } from '../watch/protocol';
@@ -51,6 +51,10 @@ test('a panel id is a shardfile id, used once, and a panel holds meshes and soli
     world.part('a', (p) => p.add(box()), { panel: 'p.gate' }); world.part('b', (p) => p.add(box()), { panel: 'p.gate' });
   })).toThrow(/two parts are panel p.gate/u);
   expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('lamp', (p) => p.add(box(), new THREE.PointLight()), { panel: 'p.lamp' }); })).toThrow(/meshes and solids only/u);
+  expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('gate', (p) => p.add(box()), { panel: 'scene.posts' }); })).toThrow(SceneRefusalError);
+  expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => {
+    world.part('gate', (p) => { const m = solid(box()); animate(m, sway({ rate: 0.6, amount: 0.08 })); p.add(m); }, { panel: 'p.gate' });
+  })).toThrow(/cannot move/u);
   const empty = lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('gate', (p) => { const m = solid(box()); m.visible = false; p.add(m); }, { panel: 'p.gate' }); });
   expect(() => sceneShardfile(empty)).toThrow(/draws nothing/u);
 });

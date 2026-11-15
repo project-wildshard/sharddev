@@ -347,6 +347,7 @@
     "./blobBytes": "./src/sharddev/blobBytes.ts",
     "./schemaValidation": "./src/sharddev/schemaValidation.ts",
     "./outputProduct": "./src/sharddev/outputProduct.ts",
+    "./as/prelude": "./src/sharddev/as/prelude.ts",
     "./as/ws": "./src/sharddev/as/ws.ts",
     "./as/wsV2": "./src/sharddev/as/wsV2.ts",
     "./decisionScriptBindings": "./src/sharddev/decisionScriptBindings.ts",
