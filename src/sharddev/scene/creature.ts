@@ -11,13 +11,16 @@
  * const { glb } = creatureGlb(body, { clips: [walk] });
  * ```
  *
- * The group is the creature's frame (its own transform is not read). Its bones are the group itself and every named node
- * under it that is not a mesh, each at its rest position in that frame. A mesh is bound rigidly to its nearest bone ancestor:
+ * The group is the creature's frame (its own transform is not read). Its bones are the named nodes under it that are not
+ * meshes, each at its rest position in that frame (a bone with no bone above it is a root). A mesh is bound rigidly to its
+ * nearest bone ancestor:
  * it moves only with that bone. Clips keep their names and their `<bone>.position|quaternion|scale` tracks. A bone rests
  * unrotated and unscaled (the rig's bind pose is translations only, as every rig the engine loads), so put a rest rotation
  * on the mesh under it instead. Compile time only, like the scene.
  */
 import { BufferAttribute, Matrix4, MeshStandardMaterial, Quaternion, Vector3, type AnimationClip, type BufferGeometry, type Mesh, type Object3D } from 'three';
+import { parseGlb } from '@wildshard/format/shardfileAssets';
+import { hashImmutableBytes } from '../immutable';
 import { skinnedGlb, type SkinnedBone, type SkinnedPart } from '../bake/skinned';
 import { SceneRefusalError } from './lower';
 
@@ -47,15 +50,15 @@ export function creatureGlb(root: Object3D, options: CreatureOptions = {}): Crea
     return [p.x, p.y, p.z];
   };
   const visit = (node: Object3D, parentBone: string | null): void => {
-    const bone = node === root || (!isMesh(node) && node.name !== '');
+    const bone = node !== root && !isMesh(node) && node.name !== '';
     let next = parentBone;
     if (bone) {
-      const boneName = node === root ? name : node.name;
+      const boneName = node.name;
       if (bones.some((b) => b.name === boneName)) throw new SceneRefusalError(`${name}/${boneName}`, 'two bones share this name', 'Give every bone node its own name');
-      if (node !== root && (Math.abs(1 - Math.abs(node.quaternion.dot(new Quaternion()))) > EPS || node.scale.distanceTo(new Vector3(1, 1, 1)) > EPS)) {
+      if ((Math.abs(1 - Math.abs(node.quaternion.dot(new Quaternion()))) > EPS || node.scale.distanceTo(new Vector3(1, 1, 1)) > EPS)) {
         throw new SceneRefusalError(`${name}/${boneName}`, 'a bone rests rotated or scaled', 'Leave the bone unrotated and unscaled at rest; rotate or scale the mesh under it');
       }
-      index.set(node, bones.length); bones.push({ name: boneName, parent: parentBone, pos: node === root ? [0, 0, 0] : at(node) });
+      index.set(node, bones.length); bones.push({ name: boneName, parent: parentBone, pos: at(node) });
       next = boneName;
     }
     for (const child of node.children) visit(child, next);
@@ -67,7 +70,8 @@ export function creatureGlb(root: Object3D, options: CreatureOptions = {}): Crea
     if (!isMesh(o)) return;
     let owner: Object3D | null = o.parent;
     while (owner !== null && !index.has(owner)) owner = owner.parent;
-    const bone = owner === null ? 0 : index.get(owner) ?? 0;
+    const bone = owner === null ? undefined : index.get(owner);
+    if (bone === undefined) throw new SceneRefusalError(`${name}/${o.name || 'Mesh'}`, 'a creature part hangs under no bone', 'Put the mesh under a named bone node');
     const material = o.material;
     if (Array.isArray(material) || !(material instanceof MeshStandardMaterial)) throw new SceneRefusalError(`${name}/${o.name || 'Mesh'}`, 'a creature part draws with one MeshStandardMaterial', 'Give the mesh one MeshStandardMaterial');
     if (material.map !== null) throw new SceneRefusalError(`${name}/${o.name || 'Mesh'}`, 'a creature part\'s map has no lowering yet', 'Colour it with the material colour or vertex colours');
@@ -79,6 +83,7 @@ export function creatureGlb(root: Object3D, options: CreatureOptions = {}): Crea
     geometry.setAttribute('skinIndex', new BufferAttribute(joints, 4)); geometry.setAttribute('skinWeight', new BufferAttribute(weights, 4));
     parts.push({ geometry, material, name: `${name}.${o.name === '' ? parts.length : o.name}` });
   });
+  if (bones.length === 0) throw new SceneRefusalError(name, 'a creature has no bones', 'Name the nodes its meshes hang from (`body`, `head`): a named node that is not a mesh is a bone');
   if (parts.length === 0) throw new SceneRefusalError(name, 'a creature draws nothing', 'Add a mesh under one of its bones');
 
   const clips = options.clips ?? [];
@@ -87,4 +92,31 @@ export function creatureGlb(root: Object3D, options: CreatureOptions = {}): Crea
     if (!bones.some((b) => b.name === bone)) throw new SceneRefusalError(`${name}/${clip.name}`, `track ${track.name} names no bone of the rig`, `Name a bone node \`${bone}\`, or retarget the track`);
   }
   return { glb: skinnedGlb({ name, bones, parts, clips }).glb, bones, clips: clips.map((clip) => clip.name) };
+}
+
+/** The `platform.skin` look's binding beside a rig row (shard-brasscap `src/sources/bandit.skin.json` has the shape). */
+export interface CreatureBinding {
+  /** Clips that loop (`idle`, `walk`); the rest play once. */
+  readonly loops: readonly string[];
+  /** The skin's material entry (a look material family row). */
+  readonly material: Readonly<Record<string, unknown>>;
+  /** A GLB material name to a look material id (`{ Eye: 'glow' }`). */
+  readonly materials?: Readonly<Record<string, string>>;
+}
+
+/**
+ * AP23b: the skin file for a compiled rig, as a species' skin names it: the rig row (its GLB's cost and hash, clips, joints as
+ * parent and child pairs, every bone a socket) and its binding. No species, kind or brain row is written: a species binds
+ * the skin by `id` as it binds a hand-written one.
+ */
+export function creatureSkin(rig: CreatureRig, options: { id: string; family?: 'toon' | 'pbr' | 'painterly'; binding: CreatureBinding }): { row: Record<string, unknown>; binding: Record<string, unknown> } {
+  const cost = parseGlb(rig.glb);
+  for (const loop of options.binding.loops) if (!rig.clips.includes(loop)) throw new SceneRefusalError(options.id, `loop ${loop} is not one of the rig's clips`, `Loop one of ${rig.clips.join(', ')}`);
+  return {
+    row: {
+      cost: { decoded: cost.decoded, draws: cost.draws, gpu: cost.gpu, triangles: cost.triangles }, family: options.family ?? 'toon', file: hashImmutableBytes(rig.glb), id: options.id,
+      rig: { clips: [...rig.clips], joints: rig.bones.filter((b) => b.parent !== null).map((b) => [b.parent, b.name]), skeleton: options.id, sockets: rig.bones.map((b) => b.name) },
+    },
+    binding: { loops: [...options.binding.loops], material: { ...options.binding.material }, ...(options.binding.materials === undefined ? {} : { materials: { ...options.binding.materials } }), skin: options.id },
+  };
 }

@@ -4,3 +4,7 @@
   non-mesh nodes are bones at their rest positions; each mesh binds rigidly to its nearest bone; clips keep their names.
   Built on `bake/skinned.ts` `skinnedGlb`. A bone resting rotated or scaled is refused (the bind pose is translations).
 - Not yet wired into the build (`world.creature`, skin rows): AP23b.
+
+- AP23b: the group is the creature's frame, not a bone (bandit's root joint `body` stands at 0.62 m); a mesh under no
+  bone is refused. `creatureSkin(rig, { id, binding })` writes the skin file's rig row and binding, the shape
+  shard-brasscap's `bandit.skin.json` has; a bandit-shaped fixture matches its rig row (bones, joints, clips).
