@@ -149,7 +149,8 @@ export function decodeGeometry(key: string, bytes: ArrayBuffer): { key: string; 
  * lamps, colliders and water left to the page script, which swaps them live through the dev hook.
  */
 export function liveShell(scene: ShardScene): ShardScene {
-  return { ...scene, parts: scene.parts.map((part) => ({ ...part, draws: [], sprites: [], points: [], colliders: [], water: [], lights: part.lights.filter((l) => l.kind !== 'point'), materials: [], textures: [], geometries: [] })) };
+  // AP16: a panel part stays in the shell whole (a state row hides it there); the page streams the other parts
+  return { ...scene, parts: scene.parts.map((part) => part.panel !== undefined ? part : ({ ...part, draws: [], sprites: [], points: [], colliders: [], water: [], lights: part.lights.filter((l) => l.kind !== 'point'), materials: [], textures: [], geometries: [] })) };
 }
 
 /**

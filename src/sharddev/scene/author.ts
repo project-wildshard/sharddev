@@ -10,10 +10,20 @@ import type { Rgb, SceneMotion, ScenePost } from './description';
  */
 
 /** The world a `defineShard` build function receives. `scene` is a plain three.js `Scene`: add to it as in a cleanroom. */
+/** AP16: what a part is besides its content. */
+export interface PartOptions {
+  /** a panel id (`brasscap.gate`): the part's meshes are one hideable GLB and its solids one collider, both of this id */
+  readonly panel?: string;
+}
+
 export interface ShardWorld {
   readonly scene: Scene;
-  /** A named piece of the world, the unit `watch` swaps. Objects added to `scene` outside a part belong to part `scene`. */
-  part: (name: string, build: (part: Group) => void) => Group;
+  /**
+   * A named piece of the world, the unit `watch` swaps. Objects added to `scene` outside a part belong to part `scene`.
+   * `options.panel` makes the part a panel (SHARD-SOURCE AP16): its meshes ship as one GLB the shard's `targets.panels`
+   * rows show and hide by state (a gate that opens, a rifle taken off a rack), and its solids as one collider of that id.
+   */
+  part: (name: string, build: (part: Group) => void, options?: PartOptions) => Group;
   /**
    * The ground: its height everywhere in the 500 m cell, and optionally its colour (linear RGB). `material` is the
    * cleanroom ground mesh's `MeshStandardMaterial` (its colour, roughness and metalness; the vertex colours are

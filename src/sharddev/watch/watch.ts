@@ -127,7 +127,9 @@ const shellKey = (scene: ShardScene, gameplay: Gameplay): string => {
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
   // engine's live look keeps its fog kind: linear against exponential needs a new shell
   return hashOf((hash) => hash.json({ look, grade: fixedGrade, day: day === undefined ? null : { minutes: day.minutes, start: day.start },
-    linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.surface ?? null, spawn: scene.spawn, identity: scene.identity, extended: gameplay.rest }));
+    linearFog: scene.look.fog?.kind === 'linear', ground: scene.ground?.surface ?? null, spawn: scene.spawn, identity: scene.identity, extended: gameplay.rest,
+    // AP16: a panel part is the shell's, not a streamed part: its change is a new shell
+    panels: scene.parts.filter((part) => part.panel !== undefined).map((part) => part.hash) }));
 };
 
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
@@ -209,8 +211,10 @@ export async function watchProject(project: string, options: { port?: number; cl
     idle.timeout(IDLE_BUILD_MS, () => { void fullBuild(); });
   };
   /** Push one described revision: a new shell if it needs one, the changed parts and the look. */
-  const push = async (scene: ShardScene, gameplay: Gameplay, timing: string, started: number): Promise<void> => {
-    const key = shellKey(scene, gameplay);
+  const push = async (described: ShardScene, gameplay: Gameplay, timing: string, started: number): Promise<void> => {
+    const key = shellKey(described, gameplay);
+    // AP16: the page streams every part but the panels, which the shell draws
+    const scene = { ...described, parts: described.parts.filter((part) => part.panel === undefined) };
     const reshelled = key !== shellHash || reshell;
     if (reshelled) {
       if (shellHash !== '') log(`wildshard watch: ${reshell ? 'the page can\'t take this look live' : 'the ground, spawn or a fixed look field changed'}; rebuilding the shell (the page reloads)`);

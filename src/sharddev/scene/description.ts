@@ -155,6 +155,8 @@ export interface SceneWater {
 
 export interface ScenePart {
   readonly name: string;
+  /** AP16: the panel id when the part is one (`world.part(name, build, { panel })`): one hideable GLB and one collider */
+  readonly panel?: string;
   /** content hash of everything below and of the materials, textures and geometries it uses */
   readonly hash: string;
   readonly draws: readonly SceneDraw[];

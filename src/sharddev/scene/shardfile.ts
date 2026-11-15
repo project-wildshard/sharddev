@@ -10,6 +10,7 @@ import { bakeTerrain, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, ShardScene } from './description';
+import { SceneRefusalError } from './lower';
 import { hashOf } from './hash';
 
 /**
@@ -25,6 +26,8 @@ import { hashOf } from './hash';
  *   the sun key, a `HemisphereLight` to the ambient key, `scene.fog`, `world.post`;
  * - **ground, colliders, water** (AP4): `world.ground(heightAt)` to the terrain bake, `solid(mesh)` to collider boxes, each
  *   `Water` to a `water[]` pool row whose outline is its own geometry's.
+ * - **panels** (AP16): a `world.part(name, build, { panel })` is one library GLB of its own (`props.panels`, every entry
+ *   merged whole) and one collider bound to it, so a `targets.panels` row hides both by state (a gate that opens).
  *
  * - **cards** (AP11): every `Sprite` and every point of a `Points` cloud as a camera-facing quad (its seat in `position`, its
  *   corner in the `_CORNER` channel), merged per material and motion per tile: one draw a tile, an emissive `card` entry;
@@ -222,6 +225,33 @@ function appendCard(key: string, seat: readonly [number, number, number], size: 
 }
 
 /** A merge cut into primitives of at most 200,000 vertices, each with its own compact vertex list. */
+/** One entry's merge as GLB primitives: a card's corners and a swaying surface's amplitude ride their own channels (AP11, AP12). */
+function primitivesOf(merge: Merge, entry: Entry, name: string, castShadow: boolean): GlbPrimitive[] {
+  const swaying = entry.motion?.kind === 'sway';
+  return chunks(merge).map((chunk) => {
+    const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(chunk.position, 3)).setAttribute('normal', new Float32BufferAttribute(chunk.normal, 3))
+      .setAttribute('uv', new Float32BufferAttribute(chunk.uv, 2)).setAttribute('color', new BufferAttribute(new Float32Array(chunk.colour), 3)).setIndex(chunk.index);
+    if (entry.card) geometry.setAttribute('corner', new Float32BufferAttribute(chunk.corner, 2));
+    if (swaying) geometry.setAttribute('sway', new Float32BufferAttribute(chunk.sway, 1));
+    const material = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); material.name = name;
+    const primitive: GlbPrimitive = { geometry, material, castShadow: entry.card ? false : castShadow };
+    if (entry.card) primitive.customAttributes = { _CORNER: 'corner' }; else if (swaying) primitive.customAttributes = { _SWAY: 'sway' };
+    return primitive;
+  });
+}
+
+/** AP16: what the library roots cost with their dependencies (format asset admission's `budgets.library` check). */
+function libraryCost(files: Shardfile['files'], roots: readonly string[]): { resident: number; compressed: number } {
+  const byHash = new Map(files.map((f) => [f.hash, f])), seen = new Set<string>(), pending = [...roots];
+  let resident = 0, compressed = 0;
+  while (pending.length > 0) {
+    const hash = pending.pop(); if (hash === undefined || seen.has(hash)) continue;
+    seen.add(hash); const file = byHash.get(hash); if (file === undefined) continue;
+    resident += file.decoded + file.gpu; compressed += file.compressed; pending.push(...file.dependencies);
+  }
+  return { resident, compressed };
+}
+
 function chunks(merge: Merge, limit = 200_000): Merge[] {
   if (merge.position.length / 3 <= limit) return [merge];
   const out: Merge[] = []; let current: Merge | null = null, remap = new Map<number, number>();
@@ -410,7 +440,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     textureFiles.set(texture.key, store(bytes, 'ktx2'));
   }
   // static parts (AP2): merged per entry (a material and the motion its draws declare) per tile
-  const draws = scene.parts.flatMap((part) => part.draws), byEntry = new Map<string, SceneDraw[]>(), entries = new Map<string, Entry>();
+  const draws = scene.parts.filter((part) => part.panel === undefined).flatMap((part) => part.draws), byEntry = new Map<string, SceneDraw[]>(), entries = new Map<string, Entry>();
   const entryOf = (material: string, motion: SceneMotion | null, card = false): string | null => {
     const found = scene.materials[material]; if (found === undefined) return null;
     const key = entryKey(material, motion, card); if (!entries.has(key)) entries.set(key, { material: found, motion, card }); return key;
@@ -434,6 +464,16 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
       for (let i = 0; i < cloud.positions.length; i += 3) { appendCard(key, [cloud.positions[i] ?? 0, cloud.positions[i + 1] ?? 0, cloud.positions[i + 2] ?? 0], [size, size], [0.5, 0.5], tiles); cards++; }
     }
   }
+  // AP16: each panel part's entries, merged whole (the tile split only cuts its triangles; the panel is one GLB)
+  const panelParts = scene.parts.filter((part) => part.panel !== undefined).map((part) => {
+    const merges = new Map<string, Map<string, Merge>>(), shadows = new Map<string, boolean>(), byKey = new Map<string, SceneDraw[]>();
+    for (const draw of part.draws) {
+      const key = entryOf(draw.material, draw.motion); if (key === null) continue;
+      const list = byKey.get(key) ?? []; list.push(draw); byKey.set(key, list); shadows.set(key, (shadows.get(key) ?? false) || draw.castShadow);
+    }
+    for (const [key, list] of byKey) mergeDraws(key, list, scene, merges);
+    return { id: part.panel ?? part.name, merges, shadows };
+  });
   const names = new Map<string, string>(), glbNames = new Map([...entries].map(([key, entry]) => [key, glbName({ ...entry.material, key, name: entry.card || entry.motion !== null ? `${entry.material.name}-${key.slice(entry.material.key.length + 1)}` : entry.material.name }, names)]));
   const casts = new Map<string, boolean>(); for (const draw of draws) { const key = entryKey(draw.material, draw.motion); casts.set(key, (casts.get(key) ?? false) || draw.castShadow); }
   const lookMaterials: Record<string, unknown> = {}, propMaterials: Record<string, unknown> = {};
@@ -452,19 +492,12 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     const primitives: GlbPrimitive[] = [], dependencies = new Set<string>(), drawn = new Box3();
     for (const [key, merge] of [...merges].sort(([p], [q]) => p.localeCompare(q))) {
       const entry = entries.get(key), material = entry?.material; if (entry === undefined || material === undefined || merge.position.length === 0) continue;
-      const swaying = entry.motion?.kind === 'sway';
-      for (const chunk of chunks(merge)) {
-        const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(chunk.position, 3)).setAttribute('normal', new Float32BufferAttribute(chunk.normal, 3))
-          .setAttribute('uv', new Float32BufferAttribute(chunk.uv, 2)).setAttribute('color', new BufferAttribute(new Float32Array(chunk.colour), 3)).setIndex(chunk.index);
-        // AP11 and AP12: a card's corners and a swaying surface's amplitude ride their own GLB channels
-        if (entry.card) geometry.setAttribute('corner', new Float32BufferAttribute(chunk.corner, 2));
-        if (swaying) geometry.setAttribute('sway', new Float32BufferAttribute(chunk.sway, 1));
-        const glbMaterial = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true }); glbMaterial.name = glbNames.get(key) ?? key;
-        primitives.push({ geometry, material: glbMaterial, castShadow: entry.card ? false : casts.get(key) ?? true,
-          ...(entry.card ? { customAttributes: { _CORNER: 'corner' } } : swaying ? { customAttributes: { _SWAY: 'sway' } } : {}) });
+      for (const primitive of primitivesOf(merge, entry, glbNames.get(key) ?? key, casts.get(key) ?? true)) {
+        primitives.push(primitive);
         // a card draws past its seats by its corners and its rise: the tile's drawn box holds that reach
-        if (entry.card) {
-          geometry.computeBoundingBox(); let reach = 0; for (const c of chunk.corner) reach = Math.max(reach, Math.abs(c));
+        const corner = primitive.geometry.getAttribute('corner');
+        if (entry.card && corner !== undefined) {
+          const geometry = primitive.geometry; geometry.computeBoundingBox(); let reach = 0; for (const c of corner.array) reach = Math.max(reach, Math.abs(c));
           const motion = entry.motion; if (motion?.kind === 'rise') reach += motion.height + motion.spread; else if (motion?.kind === 'drift') reach += motion.radius;
           if (geometry.boundingBox !== null) drawn.union(geometry.boundingBox.clone().expandByScalar(reach));
         }
@@ -514,8 +547,22 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     const row = { triangles: rows.reduce((n, f) => n + f.triangles, 0), draws: rows.reduce((n, f) => n + f.draws, 0), compressed: rows.reduce((n, f) => n + f.compressed, 0) };
     tileReport.push({ tile: `0/${x}/${z}`, triangles: row.triangles, draws: row.draws, bytes: row.compressed });
   }
-  // colliders (AP4)
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: `scene.${part.name}`, panel: null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  // panels (AP16): one library GLB each, its texture slots as dependencies
+  const panels = panelParts.map(({ id, merges, shadows }) => {
+    const primitives: GlbPrimitive[] = [], dependencies = new Set<string>();
+    for (const [, tile] of [...merges].sort(([a], [b]) => a.localeCompare(b))) {
+      for (const [key, merge] of [...tile].sort(([a], [b]) => a.localeCompare(b))) {
+        const entry = entries.get(key); if (entry === undefined || merge.position.length === 0) continue;
+        primitives.push(...primitivesOf(merge, entry, glbNames.get(key) ?? key, shadows.get(key) ?? true));
+        const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
+      }
+    }
+    if (primitives.length === 0) throw new SceneRefusalError(id, 'a panel part draws nothing', 'Give the panel part a visible mesh, or drop its panel option');
+    return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
+  });
+  const library = panels.map((panel) => panel.file);
+  // colliders (AP4); a panel part's solids are its panel's one collider (AP16)
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   const lights = scene.parts.flatMap((part) => part.lights);
@@ -523,11 +570,11 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const [sx, sy, sz] = scene.spawn.position;
   const spawnY = Math.max(sy, (ground?.heightAt(sx, sz) ?? 0) + 1);
   const product = {
-    ...base, budgets: { ...base.budgets, sim: { resident: 16_000_000, compressed: 1_000_000 } }, serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
+    ...base, budgets: { ...base.budgets, library: libraryCost(files, library), sim: { resident: 16_000_000, compressed: 1_000_000 } }, serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
     look: sceneLook(scene, lights, lookMaterials), spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
-    critical: [...terrain.critical], far: null,
-    props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels: [], models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
+    critical: [...terrain.critical], far: null, library: [...base.library, ...library],
+    props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
     ...(water.length === 0 ? {} : { water }),
   };
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does

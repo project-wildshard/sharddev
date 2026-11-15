@@ -182,7 +182,7 @@ function refuseGraphMotion(path: string, key: string, tables: Tables, what: stri
       : 'Move it in the graph: vertex: { offset } over graphInputs.windTime (sway) or a uv over time (uvScroll), or draw it with a MeshStandardMaterial');
 }
 
-function lowerPart(root: Object3D, tables: Tables): ScenePart {
+function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   const visit = (object: Object3D): void => {
     const path = pathOf(object, root);
@@ -252,14 +252,16 @@ function lowerPart(root: Object3D, tables: Tables): ScenePart {
   const materials = [...new Set([...draws.map((d) => d.material), ...sprites.map((s) => s.material), ...points.map((c) => c.material)])];
   const textures = [...new Set(materials.map((key) => tables.materials.get(key)?.map).filter((key): key is string => typeof key === 'string'))];
   const geometries = [...new Set(draws.map((d) => d.geometry))];
-  const hash = new ContentHash().text(root.name);
+  const hash = new ContentHash().text(root.name).text(panel ?? '');
+  // AP16: a panel is meshes and solids, the things a state row can hide; anything else would stay when it hides
+  if (panel !== undefined && sprites.length + points.length + lights.length + water.length > 0) throw new SceneRefusalError(root.name, 'a panel part holds meshes and solids only (its sprites, points, lights and water would not hide with it)', 'Put them in a part of their own');
   for (const draw of draws) {
     hash.text(draw.geometry).text(draw.material).numbers(draw.matrix).numbers([draw.castShadow ? 1 : 0, draw.receiveShadow ? 1 : 0]).json(draw.motion);
     if (draw.instances !== null) { hash.bytes(draw.instances.matrices); if (draw.instances.colours !== null) hash.bytes(draw.instances.colours); }
   }
   hash.json(sprites).json(lights).json(colliders).json(water.map((w) => ({ ...w, triangles: [...w.triangles] })));
   for (const cloud of points) hash.text(cloud.material).bytes(cloud.positions).json(cloud.motion);
-  return { name: root.name, hash: hash.hex(), draws, sprites, points, lights, colliders, water, materials, textures, geometries };
+  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), draws, sprites, points, lights, colliders, water, materials, textures, geometries };
 }
 
 function groundHash(heightAt: (x: number, z: number) => number, colourAt: SceneGround['colourAt']): string {
@@ -272,15 +274,22 @@ const DEFAULT_POST: ScenePost = { tone: 'aces', exposure: 1, bloom: null, vignet
 
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
-  const scene = new Scene(), parts: Group[] = [];
+  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>();
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   const world: ShardWorld = {
     scene,
-    part: (name, fill) => {
+    part: (name, fill, options = {}) => {
       if (!/^[a-z][a-z0-9-]{0,63}$/u.test(name)) throw new SceneRefusalError(name, 'a part name must be kebab-case', 'Name it like `hut` or `pond-lamps`');
       if (name === 'scene' || parts.some((p) => p.name === name)) throw new SceneRefusalError(name, 'two parts share this name', 'Give every world.part its own name');
-      const group = new Group(); group.name = name; parts.push(group); scene.add(group); fill(group); return group;
+      const { panel } = options;
+      // AP16: the format's panel id (props `id`), one part each, at most 64 (props.panels)
+      if (panel !== undefined && !/^[a-z][a-z0-9.-]{0,127}$/u.test(panel)) throw new SceneRefusalError(name, `panel id ${panel} is not a shardfile id`, 'Name it like `brasscap.gate`: lower case, digits, dots and dashes');
+      if (panel !== undefined && [...panels.values()].includes(panel)) throw new SceneRefusalError(name, `two parts are panel ${panel}`, 'Give every panel part its own id');
+      if (panel !== undefined && panels.size >= 64) throw new SceneRefusalError(name, 'a shard has at most 64 panels', 'Merge panels that hide together');
+      const group = new Group(); group.name = name; parts.push(group); scene.add(group);
+      if (panel !== undefined) panels.set(group, panel);
+      fill(group); return group;
     },
     ground: (heightAt, options = {}) => {
       // ss4d: the ground is a lit PBR surface (the cleanroom's ground mesh material), never the format's default toon
@@ -309,7 +318,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const roots = loose.children.length > 0 ? [...parts, loose] : parts;
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap() };
-  const lowered = roots.map((root) => lowerPart(root, tables));
+  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root)));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;
   const background = scene.background !== null && typeof scene.background === 'object' && 'isColor' in scene.background ? rgb(scene.background as Color) : null;
