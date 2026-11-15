@@ -240,6 +240,19 @@ function primitivesOf(merge: Merge, entry: Entry, name: string, castShadow: bool
   });
 }
 
+/** A primitive's GLB bytes, near enough to batch by: 44 a vertex (position, normal, uv, colour, one more channel), 4 an index, 76 an instance. */
+function glbBytes(primitive: GlbPrimitive): number {
+  return primitive.geometry.getAttribute('position').count * 44 + (primitive.geometry.getIndex()?.count ?? 0) * 4 + (primitive.instances?.length ?? 0) * 76;
+}
+
+/** `from`'s vertices and triangles added to `into` (AP16's panels: one merge a material across tiles). */
+function appendMerge(into: Merge, from: Merge): void {
+  const base = into.position.length / 3;
+  // element by element: a spread of a large merge overflows the call stack
+  for (const channel of ['position', 'normal', 'uv', 'colour', 'sway', 'corner'] as const) for (const value of from[channel]) into[channel].push(value);
+  for (const at of from.index) into.index.push(at + base);
+}
+
 /** AP16: what the library roots cost with their dependencies (format asset admission's `budgets.library` check). */
 function libraryCost(files: Shardfile['files'], roots: readonly string[]): { resident: number; compressed: number } {
   const byHash = new Map(files.map((f) => [f.hash, f])), seen = new Set<string>(), pending = [...roots];
@@ -520,7 +533,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     // a GLB holds at most 25 MB (shard-format glbCost): batch the primitives into as many files as the tile needs
     const batches: GlbPrimitive[][] = []; let batch: GlbPrimitive[] = [], bytes = 0;
     for (const primitive of primitives) {
-      const size = primitive.geometry.getAttribute('position').count * 44 + (primitive.geometry.getIndex()?.count ?? 0) * 4 + (primitive.instances?.length ?? 0) * 76;
+      const size = glbBytes(primitive);
       if (batch.length > 0 && bytes + size > 18_000_000) { batches.push(batch); batch = []; bytes = 0; }
       batch.push(primitive); bytes += size;
     }
@@ -550,14 +563,21 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // panels (AP16): one library GLB each, its texture slots as dependencies
   const panels = panelParts.map(({ id, merges, shadows }) => {
     const primitives: GlbPrimitive[] = [], dependencies = new Set<string>();
+    // the panel is one GLB: a material's triangles in every tile it crosses are one merge again, so one draw, not one a tile
+    const byKey = new Map<string, Merge>();
     for (const [, tile] of [...merges].sort(([a], [b]) => a.localeCompare(b))) {
-      for (const [key, merge] of [...tile].sort(([a], [b]) => a.localeCompare(b))) {
-        const entry = entries.get(key); if (entry === undefined || merge.position.length === 0) continue;
-        primitives.push(...primitivesOf(merge, entry, glbNames.get(key) ?? key, shadows.get(key) ?? true));
-        const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
-      }
+      for (const [key, merge] of [...tile].sort(([a], [b]) => a.localeCompare(b))) { const whole = byKey.get(key); if (whole === undefined) byKey.set(key, merge); else appendMerge(whole, merge); }
+    }
+    for (const [key, merge] of [...byKey].sort(([a], [b]) => a.localeCompare(b))) {
+      const entry = entries.get(key); if (entry === undefined || merge.position.length === 0) continue;
+      primitives.push(...primitivesOf(merge, entry, glbNames.get(key) ?? key, shadows.get(key) ?? true));
+      const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
     }
     if (primitives.length === 0) throw new SceneRefusalError(id, 'a panel part draws nothing', 'Give the panel part a visible mesh, or drop its panel option');
+    // a panel is one library file (format props `panels[].file`), and a GLB holds at most 25 MB: the tiles' 18 MB batch is
+    // not open to it, so a panel past that is refused here, by name, not at admission
+    const size = primitives.reduce((n, primitive) => n + glbBytes(primitive), 0);
+    if (size > 18_000_000) throw new SceneRefusalError(id, `a panel part's mesh is ${(size / 1e6).toFixed(1)} MB, over the 18 MB a panel GLB holds`, 'Split it into smaller panel parts, or drop detail from its meshes');
     return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
   });
   const library = panels.map((panel) => panel.file);

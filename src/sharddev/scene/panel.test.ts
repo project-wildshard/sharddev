@@ -28,6 +28,8 @@ test('a panel part is one library GLB and one collider of its id, outside every 
   const bytes = assets.get(panel.file); if (bytes === undefined) throw new Error('no panel bytes');
   // the door's 12 triangles, cut where it crosses the tile edge, all in the panel
   expect(parseGlb(bytes).triangles).toBeGreaterThanOrEqual(12);
+  // review SHOULD: one material across the tile edge is still one draw
+  expect(parseGlb(bytes).draws).toBe(1);
   expect(props.colliders.find((c) => c.id === 'ap16.gate')).toMatchObject({ panel: 'ap16.gate', initialActive: true });
   expect(props.colliders.find((c) => c.id === 'scene.posts')).toMatchObject({ panel: null });
   // the tiles hold the post only
@@ -58,3 +60,10 @@ test('a panel id is a shardfile id, used once, and a panel holds meshes and soli
   const empty = lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('gate', (p) => { const m = solid(box()); m.visible = false; p.add(m); }, { panel: 'p.gate' }); });
   expect(() => sceneShardfile(empty)).toThrow(/draws nothing/u);
 });
+
+test('review SHOULD: a panel past the 18 MB a panel GLB holds is refused by name', () => {
+  const huge = lowerShard({ slug: 'p', name: 'P' }, (world) => {
+    world.part('gate', (p) => p.add(new THREE.Mesh(new THREE.SphereGeometry(5, 720, 600), wood)), { panel: 'p.gate' });
+  });
+  expect(() => sceneShardfile(huge)).toThrow(/over the 18 MB a panel GLB holds/u);
+}, 60_000);
