@@ -2,7 +2,14 @@
 
 > Written by: Claude (opus-mossgate-plan)
 
-> **State:** in progress, 2026-11-12, **low priority**: approved with
+> **State:** held for looks, 2026-11-15 (J357, Jake ~13:35 Cancún:
+> "I don't think we need to polish any more graphics of Mossgate [...]
+> Mossgate and Brascap definitely need to be pumped full of content").
+> The look rows (MG2, MG4 to MG8, MG13, MG15) are stopped. The content
+> intent of MG9 to MG12 is now meta `docs/plans/TEMPLATE-E2E-PLAN.md`
+> rows TC-M1 to TC-M8 (audit: meta
+> `docs/content/2026-11-15-template-content-audit.md`); build those
+> there, not here. Was: in progress, 2026-11-12, **low priority**: approved with
 > every board recommendation (J312, Jake ~23:12 Cancún: "approved go
 > ahead whenever, its not a priority right, we already have the
 > overnight priority to unlock showcase shard"). Build rows queue behind
