@@ -17,6 +17,7 @@
     "./scene/lower": "bake kit",
     "./scene/description": "bake kit",
     "./scene/shardfile": "bake kit",
+    "./scene/creature": "bake kit",
     "./watch/watch": "internal",
     "./watch/protocol": "bake kit",
     "./watch/page": "internal",

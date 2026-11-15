@@ -310,6 +310,7 @@
     "./scene/lower": "./src/sharddev/scene/lower.ts",
     "./scene/description": "./src/sharddev/scene/description.ts",
     "./scene/shardfile": "./src/sharddev/scene/shardfile.ts",
+    "./scene/creature": "./src/sharddev/scene/creature.ts",
     "./watch/watch": "./src/sharddev/watch/watch.ts",
     "./watch/protocol": "./src/sharddev/watch/protocol.ts",
     "./watch/page": "./src/sharddev/watch/page.ts",
