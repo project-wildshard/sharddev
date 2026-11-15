@@ -1,7 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Spawn the real `wildshard dev` and signal it.
 import { spawn, type ChildProcess } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- A scratch shard and a stand-in devserver client.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Probe whether the port is still bound.
 import { connect } from 'node:net';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the bin and the scratch project.
@@ -25,7 +25,7 @@ afterAll(() => { rmSync(root, { recursive: true, force: true }); });
 
 /** Starts `wildshard dev` on the scratch shard; resolves with the child and the URL it prints. */
 async function startDev(): Promise<{ child: ChildProcess; url: URL }> {
-  const child = spawn(process.execPath, [BIN, 'dev', join(root, 'shard', 'src')], { env: { ...process.env, WILDSHARD_DEV_CLIENT: join(root, 'client') } });
+  const child = spawn(process.execPath, [BIN, 'dev', join(root, 'shard', 'src')], { env: { ...process.env, WS_LANE_NAME: 'codex-netlag', WILDSHARD_DEV_CLIENT: join(root, 'client') } });
   let output = '';
   const url = await new Promise<URL>((_resolve, reject) => {
     child.stdout?.on('data', (chunk: Buffer) => { output += chunk.toString(); const found = /wildshard dev: (http:\/\/\S+)/u.exec(output); if (found?.[1] !== undefined) _resolve(new URL(found[1])); });
@@ -43,6 +43,21 @@ const bound = (port: number): Promise<boolean> => new Promise((_resolve) => {
 });
 
 describe('wildshard dev on a signal', () => {
+  it('a killed dev process leaves an owned pidfile for the manual audit', async () => {
+    const { child, url } = await startDev();
+    try {
+      const scratch = join(root, 'shard', 'tmp', 'codex-netlag');
+      const output = readdirSync(scratch).find(name => name.startsWith(['dev', String(child.pid), ''].join('-')));
+      expect(output).toBeDefined();
+      const directory = join(scratch, output ?? '');
+      expect(readFileSync(join(directory, 'server.pid'), 'utf8')).toBe(String(child.pid));
+      const exited = new Promise<void>((_resolve) => { child.once('exit', () => { _resolve(); }); });
+      child.kill('SIGKILL');
+      await exited;
+      expect(await bound(Number(url.port))).toBe(false);
+      expect(existsSync(join(directory, '.owner'))).toBe(true);
+    } finally { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); }
+  }, 60_000);
   it.each([
     ['SIGINT', false], ['SIGTERM', false], ['SIGINT', true],
   ] as const)('%s ends it and frees the port within 2 s (page open: %s)', async (signal, pageOpen) => {
