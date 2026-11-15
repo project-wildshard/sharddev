@@ -263,7 +263,17 @@ function appendMerge(into: Merge, from: Merge): void {
   for (const at of from.index) into.index.push(at + base);
 }
 
-/** AP16: what the library roots cost with their dependencies (format asset admission's `budgets.library` check). */
+/**
+ * AP26: the two server figures a scene shard declares rather than sums. `SIM_CEILING` is the bytes the server reserves for
+ * the shard's simulation in each cell it runs (engine `server/game/plugin/simulation.ts`), which shard-format reads as the
+ * authoring ceiling `budgets.sim.resident` (`runtimeCost.ts`, scripts at their growth limit): a ceiling, so no sum of
+ * critical bytes. It is also the server's `memory`. `SERVER_TICK_MICROS` is the server tick's time a scene shard may spend.
+ * Later steps add their own critical bytes on top (behaviour scripts, platform sections, the authored world).
+ */
+export const SIM_CEILING = 16_000_000, SERVER_TICK_MICROS = 5_000;
+
+/** AP16: what the library (AP26: or critical) roots cost with their dependencies (format asset admission's `budgets.library`
+ *  and `budgets.sim` checks). */
 function libraryCost(files: Shardfile['files'], roots: readonly string[]): { resident: number; compressed: number } {
   const byHash = new Map(files.map((f) => [f.hash, f])), seen = new Set<string>(), pending = [...roots];
   let resident = 0, compressed = 0;
@@ -600,7 +610,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const [sx, sy, sz] = scene.spawn.position;
   const spawnY = Math.max(sy, (ground?.heightAt(sx, sz) ?? 0) + 1);
   const product = {
-    ...base, budgets: { ...base.budgets, library: libraryCost(files, library), sim: { resident: 16_000_000, compressed: 1_000_000 } }, serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
+    ...base, budgets: { ...base.budgets, library: libraryCost(files, library), sim: { resident: SIM_CEILING, compressed: libraryCost(files, terrain.critical).compressed } },
+    serverBudget: { ...base.serverBudget, tickMicros: SERVER_TICK_MICROS, memory: SIM_CEILING },
     look: sceneLook(scene, lights, lookMaterials), spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],

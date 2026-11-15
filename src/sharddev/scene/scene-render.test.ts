@@ -6,7 +6,7 @@ import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { animate, drift, flicker, pulse, rise, sway, uvScroll } from './author';
 import { GraphMaterial, graph, graphInputs, noise } from '../materials';
 import { lowerShard, SceneRefusalError } from './lower';
-import { sceneShardfile } from './shardfile';
+import { SERVER_TICK_MICROS, SIM_CEILING, sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE AP10 to AP12: alpha cards, decals and transparency; sprites and points as camera-facing cards; declared
 // motion. The shardfile back end writes them as plain material and lamp data (no author code at runtime).
@@ -42,6 +42,14 @@ test('a stencil decal is see-through and pulled off its wall; an ivy card is cut
   expect(entries).toContainEqual(expect.objectContaining({ family: 'pbr', blend: 'alpha', depthOffset: -2 }));
   expect(entries).toContainEqual(expect.objectContaining({ family: 'pbr', alphaCutoff: 0.45, doubleSided: true }));
   expect(entries.filter((e) => e['blend'] === 'alpha' && e['family'] === 'pbr')).toHaveLength(1);
+});
+
+test('the critical wire is the scene\'s own critical bytes; the server figures are the named ceilings (AP26)', () => {
+  const critical = shard.files.filter((f) => shard.critical.includes(f.hash));
+  expect(critical.length).toBeGreaterThan(0);
+  expect(shard.budgets.sim.compressed).toBe(critical.reduce((n, f) => n + f.compressed, 0));
+  expect(shard.budgets.sim.resident).toBe(SIM_CEILING);
+  expect(shard.serverBudget).toMatchObject({ memory: SIM_CEILING, tickMicros: SERVER_TICK_MICROS });
 });
 
 test('a two-sided card is two-sided in its tile GLB too, so build draws its back faces as watch does (AP16w)', () => {
