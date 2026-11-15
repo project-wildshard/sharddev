@@ -7,6 +7,22 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.1 (2026-11-15)
+
+- New: a three.js scene shard now carries alpha cards and decals,
+  sprites and points as one draw each, declared motion (flicker,
+  pulse, sway, uvScroll), TSL materials and a painted sky
+  (`world.sky`). A still `InstancedMesh` stays instanced.
+- New: `world.part(name, build, { panel: 'my.gate' })` makes a part a
+  panel: its meshes and solids hide together when a `targets.panels`
+  row says so, as a gate that opens.
+- `wildshard watch` takes look edits live in under 0.1 s, ground edits
+  in about 0.12 s, and restarts the simulation for a quest edit, keeping
+  the player where they stand.
+- Fixed: scene colours leave in sRGB and the ground is a lit PBR
+  surface, so scene shards are no longer too dark and saturated.
+- The sdk moves to engine 0.1.21 and shard-format 0.5.7.
+
 ## v0.3.0 (2026-11-14)
 
 - Breaking: the sdk moves to shard-format 0.5.3 and engine 0.1.19.
