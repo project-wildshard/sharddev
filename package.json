@@ -46,7 +46,7 @@
     "drafts:build": "vite build --config drafts/vite.config.ts",
     "drafts:deploy": "bash drafts/tools/deploy.sh",
     "drafts:test": "tsc -p drafts/tsconfig.json && tsc -p drafts/tools/tsconfig.json && vitest run drafts/test && node drafts/tools/atlas.ts --check",
-    "typecheck": "pnpm typecheck:kit && pnpm typecheck:author",
+    "typecheck": "node scripts/typecheck.mjs",
     "lint": "node scripts/lint-dispatch.mjs --ignore-pattern 'scripts/chromium-keychain*' --ignore-pattern 'test/tooling/chrome-keychain.test.mjs'",
     "lint:kit": "node kit/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'tmp/**' --ignore-pattern 'vitest.config.ts' --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --ignore-pattern 'public/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'drafts/**' --ignore-pattern 'lint/**' --ignore-pattern 'vite/**' --ignore-pattern 'bin/**' --no-error-on-unmatched-pattern",
     "lint:fix": "node kit/scripts/lint.mjs --type-aware --fix --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'scripts/agent-parity.mjs' --ignore-pattern 'scripts/agent-sync.mjs' --ignore-pattern 'tmp/**' --ignore-pattern 'vitest.config.ts' --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --ignore-pattern 'public/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'drafts/**' --ignore-pattern 'lint/**' --ignore-pattern 'vite/**' --ignore-pattern 'bin/**'",
