@@ -16,3 +16,11 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
 - Greyback stays the elite encounter: an encounter's entity is driven by the engine's elite controller, not a brain row.
 - Built locally (`wildshard build`, 14 s): `wildshard content` (sharddev `plan/template-e2e`) reads 4 hostile species,
   7 bodies, 1 group, 3 creature strikes. The `--bar templates` flag is refused by the CLI's argument parser there.
+
+## TC-M2a: enemies to the bar (respawn waits on engine TC-E2)
+
+- Three more grey blobs in the hollow (pursue; two bump, one lane strike). Two sows by the pond graze and ram
+  (`ram-grazer`, a 5 m lane charge at 7 m/s, 12 damage, the boar's skin). Two bog wisps circle over the pond and dive
+  (`orbit-diver` at 5 m, a 1.6 m sphere, 8 damage; the blob's skin, flying).
+- Built: 5 hostile species, 14 bodies, 3 brain kinds (`pursue`, `ram-grazer`, `orbit-diver`), 1 pack.
+- A data shard's `creatures.spawns` never respawn yet: meta TC-E2.

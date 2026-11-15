@@ -73,6 +73,43 @@
       ],
       "weight": 3,
       "speed": 0
+    },
+    {
+      "id": "template.sow.ram",
+      "shape": {
+        "kind": "lane",
+        "length": 5,
+        "width": 1.2
+      },
+      "windup": 0.7,
+      "active": 0.5,
+      "recover": 0.9,
+      "cooldown": 3,
+      "range": 6,
+      "damage": 12,
+      "tags": [
+        "creature.boar"
+      ],
+      "weight": 1,
+      "speed": 7
+    },
+    {
+      "id": "template.wisp.dive",
+      "shape": {
+        "kind": "sphere",
+        "radius": 1.6
+      },
+      "windup": 1.0,
+      "active": 1.0,
+      "recover": 0.6,
+      "cooldown": 5,
+      "range": 12,
+      "damage": 8,
+      "tags": [
+        "creature.greyBlob"
+      ],
+      "weight": 1,
+      "speed": 0
     }
   ],
   "weather": [
@@ -435,6 +472,49 @@
           }
         }
       ]
+    },
+    {
+      "id": "bog-wisp",
+      "kind": "greyBlob",
+      "label": "Bog wisp",
+      "aggressive": true,
+      "lockable": true,
+      "dims": {
+        "bodyY": 0.65,
+        "bodyHalfLen": 0.4,
+        "bodyRadius": 0.55,
+        "headRadius": 0.3,
+        "legLen": 0.6,
+        "feet": [],
+        "halfWidth": 0.65
+      },
+      "variants": [
+        {
+          "id": "bog",
+          "label": "Bog wisp",
+          "rarity": "common",
+          "weight": 1,
+          "scale": [
+            0.4,
+            0.45
+          ],
+          "hp": 30,
+          "mods": {
+            "speed": 1,
+            "chargeDist": 1,
+            "damageTaken": 1,
+            "chargeDamage": 25,
+            "relentless": false
+          }
+        }
+      ],
+      "flight": {
+        "above": "ground",
+        "altitude": 5,
+        "climbRate": 5,
+        "diveRate": 14,
+        "lockRange": 25
+      }
     }
   ],
   "looks": [],

@@ -13,6 +13,45 @@
       "attackCooldownTicks": 60,
       "wanderRadius": 4,
       "wanderEveryTicks": 420
+    },
+    {
+      "id": "sow-ram",
+      "kind": "ram-grazer",
+      "strike": "template.sow.ram",
+      "grazeSpeed": 1,
+      "ramSpeed": 7,
+      "noticeRadius": 8,
+      "rimMargin": 2,
+      "fallDrop": 1.5,
+      "levelTolerance": 2.5,
+      "threatSpeed": 1.4,
+      "wanderMinSeconds": 2,
+      "wanderMaxSeconds": 5,
+      "rampRate": 4
+    },
+    {
+      "id": "wisp-dive",
+      "kind": "orbit-diver",
+      "strike": "template.wisp.dive",
+      "home": {
+        "x": -19.4,
+        "z": 0,
+        "r": 7,
+        "y": 5
+      },
+      "circleSpeed": 5,
+      "hangAltitude": 5,
+      "stalkSpeed": 7,
+      "diveSpeed": 12,
+      "restSeconds": 6,
+      "noticeRadius": 18,
+      "giveUpRadius": 30,
+      "initialRestSeconds": 3,
+      "stalkMaxSeconds": 8,
+      "riseMargin": 1.5,
+      "targetHeight": 1.2,
+      "alignRadius": 2.5,
+      "alignTolerance": 1.4
     }
   ],
   "spawns": [
@@ -90,6 +129,135 @@
         -31.9
       ],
       "yaw": 0
+    },
+    {
+      "id": "grey-blob:2",
+      "species": "grey-blob",
+      "variant": "grey",
+      "brain": "blob-pursuit",
+      "strike": "template.blob.bump",
+      "seed": 511,
+      "scale": 1,
+      "at": [
+        -8,
+        0,
+        -4
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "grey-blob:3",
+      "species": "grey-blob",
+      "variant": "grey",
+      "brain": "blob-pursuit",
+      "strike": "template.blob.lane",
+      "seed": 512,
+      "scale": 1,
+      "at": [
+        8,
+        0,
+        2
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "grey-blob:4",
+      "species": "grey-blob",
+      "variant": "grey",
+      "brain": "blob-pursuit",
+      "strike": "template.blob.bump",
+      "seed": 513,
+      "scale": 1,
+      "at": [
+        -2,
+        0,
+        -24
+      ],
+      "yaw": 0
+    },
+    {
+      "id": "sow:1",
+      "species": "boar",
+      "variant": "sow",
+      "brain": "sow-ram",
+      "strike": null,
+      "seed": 521,
+      "scale": 1,
+      "at": [
+        -14,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "home": {
+        "x": -14,
+        "y": 0,
+        "z": 8,
+        "r": 5
+      }
+    },
+    {
+      "id": "sow:2",
+      "species": "boar",
+      "variant": "sow",
+      "brain": "sow-ram",
+      "strike": null,
+      "seed": 522,
+      "scale": 1,
+      "at": [
+        -25,
+        0,
+        7
+      ],
+      "yaw": 0,
+      "home": {
+        "x": -25,
+        "y": 0,
+        "z": 7,
+        "r": 5
+      }
+    },
+    {
+      "id": "bog-wisp:1",
+      "species": "bog-wisp",
+      "variant": "bog",
+      "brain": "wisp-dive",
+      "strike": null,
+      "seed": 531,
+      "scale": 1,
+      "at": [
+        -17,
+        5,
+        -2
+      ],
+      "yaw": 0,
+      "home": {
+        "x": -19.4,
+        "y": 5,
+        "z": 0,
+        "r": 7
+      }
+    },
+    {
+      "id": "bog-wisp:2",
+      "species": "bog-wisp",
+      "variant": "bog",
+      "brain": "wisp-dive",
+      "strike": null,
+      "seed": 532,
+      "scale": 1,
+      "at": [
+        -22,
+        5,
+        2
+      ],
+      "yaw": 0,
+      "home": {
+        "x": -19.4,
+        "y": 5,
+        "z": 0,
+        "r": 7
+      }
     },
     {
       "id": "greyback",
