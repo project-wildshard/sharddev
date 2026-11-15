@@ -172,6 +172,10 @@ const VERBS: Readonly<Record<string, string>> = {
                        shard file folders (one per output) under out/.
                        --shard builds only those outputs; --reuse keeps a
                        folder whose inputs are unchanged`,
+  content: `content <built-shard-dir> [--bar templates]
+                       Count player-facing content in a built shard's sections.
+                       --bar templates checks the template content minimums
+                       and names every short line`,
   pack: PACK_ALIAS,
 }
 
