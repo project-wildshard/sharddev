@@ -36,3 +36,16 @@ test('the Barrow Warden spawn is its own species; the grey blob keeps only its g
   expect(species?.variants.map((row) => row.id)).toEqual(['warden']);
   expect(rows.species.find((row) => row.id === 'grey-blob')?.variants.map((row) => row.id)).toEqual(['grey']);
 });
+
+// TEMPLATE-E2E TC-M3 (J357): the Warden turns three strikes, the third from the second phase, and its death is an achievement.
+test('the Barrow Warden turns slam, sweep and a thrown stone; its fall is an achievement', async () => {
+  const decision = (await import('../data/bossDecision.json', { with: { type: 'json' } })).default;
+  const ledger = (await import('../data/ledger.json', { with: { type: 'json' } })).default;
+  const source = readFileSync(resolve(import.meta.dirname, '../behaviour/boss.as'), 'utf8');
+  const ids = Object.values(decision.strikes);
+  expect(ids).toEqual(['template.warden.slam', 'template.warden.sweep', 'template.warden.throw']);
+  for (const id of ids) expect(rows.strikes.some((row) => row.id === id && row.damage > 0)).toBe(true);
+  for (const key of Object.keys(decision.strikes)) expect(source).toContain(`Strike.${key}`);
+  expect(source).toContain('State.phase==2?3:2');
+  expect(ledger.find((row) => row.fact === 'template.warden')?.rewards[0]?.kind).toBe('achievement');
+});

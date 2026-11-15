@@ -28,5 +28,20 @@
         "threshold": 1
       }
     ]
+  },
+  {
+    "fact": "template.warden",
+    "origin": {
+      "kind": "engine",
+      "source": "quest.complete"
+    },
+    "rewards": [
+      {
+        "kind": "achievement",
+        "id": "template.warden",
+        "title": "Barrow Warden",
+        "threshold": 1
+      }
+    ]
   }
 ]

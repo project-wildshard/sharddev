@@ -33,7 +33,9 @@
   },
   "moves": {},
   "strikes": {
-    "slam": "template.warden.slam"
+    "slam": "template.warden.slam",
+    "sweep": "template.warden.sweep",
+    "stone": "template.warden.throw"
   },
   "cues": {},
   "fields": {
@@ -72,6 +74,14 @@
       "type": "bool",
       "default": true,
       "scope": "binding"
+    },
+    {
+      "name": "beat",
+      "type": "i32",
+      "default": 0,
+      "scope": "binding",
+      "min": 0,
+      "max": 2
     }
   ],
   "params": {

@@ -13,7 +13,8 @@
     "template.lamp.c",
     "template.lamp.reported",
     "template.lamp.done",
-    "dead:barrow-warden"
+    "dead:barrow-warden",
+    "template.warden.paid"
   ],
   "quests": [
     {
@@ -105,6 +106,27 @@
       "onComplete": {
         "coins": 25,
         "fact": "template.lamplighter"
+      }
+    },
+    {
+      "id": "template.warden",
+      "title": "The Barrow Warden",
+      "track": false,
+      "completeFlag": "template.warden.paid",
+      "steps": [
+        {
+          "id": "warden",
+          "objective": "Put down the Barrow Warden",
+          "done": {
+            "all": [
+              "dead:barrow-warden"
+            ]
+          }
+        }
+      ],
+      "onComplete": {
+        "fact": "template.warden",
+        "coins": 10
       }
     }
   ],

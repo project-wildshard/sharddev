@@ -24,3 +24,13 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
   (`orbit-diver` at 5 m, a 1.6 m sphere, 8 damage; the blob's skin, flying).
 - Built: 5 hostile species, 14 bodies, 3 brain kinds (`pursue`, `ram-grazer`, `orbit-diver`), 1 pack.
 - A data shard's `creatures.spawns` never respawn yet: meta TC-E2.
+
+## TC-M3: the Warden at the bar
+
+- `behaviour/boss.as` turns slam, sweep (a 6.6 m arc at its scale 3) and, from the second phase, a thrown stone (an 18 m
+  wedge); each is told by the ground ring and opens the core after, as the slam did. The strike key is `stone`, not
+  `throw`: a reserved word fails the script row's semantic rules.
+- A grid data cell's ledger hears only `quest.complete`, so the boss achievement is an untracked quest done on
+  `dead:barrow-warden` (10 coins, fact `template.warden`, achievement "Barrow Warden").
+- `generators/warden.test.ts` checks the three strike ids, their rows and the achievement; the build reads 3 boss strikes
+  and 3 achievements.
