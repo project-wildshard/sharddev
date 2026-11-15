@@ -793,7 +793,7 @@ class Landing{
     this.say('cleaned',line);
     return line;
    }
-   let unchanged=()=>{try{return worktreeState(this.root)===before;}catch{return false;}};
+   const unchanged=()=>{try{return worktreeState(this.root)===before;}catch{return false;}};
    if(!unchanged()){
     const line=parts.concat('worktree kept: changed during copy').join('; ');
     this.say('cleaned',line);return line;
