@@ -35,6 +35,22 @@ writeFileSync(resolve(target, 'script-v2-group-rng.wasm'), await compileScriptV2
 }));
 writeFileSync(resolve(target, 'script-v2-group-rng.json'), `${JSON.stringify({ source: groupRngSource, fixture: 'script-v2-group-rng.wasm', ioBytes: groupRngIoBytes }, null, 2)}\n`);
 
+const groupMembersSource = `import * as core from './sdk/as/wsV2';
+export function ws_abi():i32{return 2;}export function ws_io():i32{return 0;}
+export function ws_init(lo:i32,hi:i32,fuel:i32):i32{return fuel;}
+export function ws_project(fuel:i32):i32{core.beginState();assert(core.beginBinding(0));
+  core.setState(0,core.state(0)+1);const signal=i32(core.parameter(0));
+  if(signal==4){core.pageOutput(6,3,4);core.pageOutput(2,0,1);core.endBinding();return fuel;}
+  core.pageOutput(1,0,core.field(1),signal==3?2:core.field(0));
+  core.pageOutput(2,0,signal==2?99:1);core.pageOutput(3,0,1.2,2.3,3.4);
+  core.pageOutput(4,0,6,7,8);core.pageOutput(5,0,.5);core.pageOutput(6,3,4);
+  core.endBinding();return fuel;}`;
+const groupMembersIoBytes = 1408;
+writeFileSync(resolve(target, 'script-v2-group-members.wasm'), await compileScriptV2(groupMembersSource, {
+  lane: 'project', ioBytes: groupMembersIoBytes, sources: { 'sdk/as/wsV2.ts': v2CoreSource(0) },
+}));
+writeFileSync(resolve(target, 'script-v2-group-members.json'), `${JSON.stringify({ source: groupMembersSource, fixture: 'script-v2-group-members.wasm', ioBytes: groupMembersIoBytes }, null, 2)}\n`);
+
 const legacyGuests = {
   'script-call-results': `let calls:i32=0;
 export function abi_version():i32{return 0;}
