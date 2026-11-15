@@ -1,4 +1,4 @@
-import { afterAll, afterEach, expect, test } from 'vitest';
+import { afterAll, afterEach, expect, test, vi } from 'vitest';
 // oxlint-disable-next-line import/no-nodejs-modules -- The test owns bounded local author fixtures.
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
@@ -7,7 +7,7 @@ import { createDevScratch, projectSourceStamp } from './dev';
 import { closeFixtures, fixtureRoot } from './test/ownedScratch';
 
 const directories: string[] = [];
-afterEach(() => { for (const path of directories.splice(0)) rmSync(path, { recursive: true }); });
+afterEach(() => { for (const path of directories.splice(0)) rmSync(path, { recursive: true }); vi.unstubAllEnvs(); });
 afterAll(closeFixtures);
 const put = (root: string, path: string, body: string): void => { mkdirSync(dirname(resolve(root, path)), { recursive: true }); writeFileSync(resolve(root, path), body); };
 
@@ -39,6 +39,16 @@ test('flat shard scratch stays in its own repository', () => {
   put(root, 'shard.config.ts', 'export default {};\n');
   const scratch = createDevScratch(root);
   expect(resolve(scratch, '../..')).toBe(resolve(root, 'tmp'));
+});
+
+test('dev scratch records a Codex runtime identity instead of just its lane', () => {
+  vi.stubEnv('CLAUDE_SESSION_ID', undefined); vi.stubEnv('CLAUDE_CODE_SESSION_ID', undefined);
+  vi.stubEnv('CODEX_THREAD_ID', 'test-runtime-thread'); vi.stubEnv('WS_LANE_NAME', 'test-codex');
+  const root = fixtureRoot('runtime-owner-'); directories.push(root);
+  put(root, 'package.json', '{}'); put(root, 'shard.config.ts', 'export default {};\n');
+  const scratch = createDevScratch(root);
+  const owner = JSON.parse(readFileSync(resolve(scratch, '.owner'), 'utf8')) as {session: string; agent: string};
+  expect(owner.session).toBe('test-runtime-thread'); expect(owner.agent).toBe('codex');
 });
 
 test('Vitest watch mode and the injected-builder tree hash both skip plan worktrees (DEV-SPEED DS11)', () => {
