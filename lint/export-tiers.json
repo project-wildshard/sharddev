@@ -172,6 +172,7 @@
     "./bake/nativeInteractionFacts": "bake kit",
     "./bake/geometryError": "bake kit",
     "./bake/slabs": "bake kit",
+    "./bake/slabChunks": "bake kit",
     "./bake/wholePieceJoin": "bake kit",
     "./configBoundary": "internal",
     "./executeBundle": "internal",
@@ -180,6 +181,7 @@
     "./commons/courseProgram": "bake kit",
     "./commons/scripts/course.as": "scripts",
     "./commons/bake/portableMath": "bake kit",
+    "./test/scriptScenario": "internal",
     "./scripts/*": "internal"
   }
 }
