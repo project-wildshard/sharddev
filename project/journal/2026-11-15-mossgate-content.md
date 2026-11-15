@@ -45,3 +45,11 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
   the first adventure and the Lamplighter's quest now has a marker and a hint (the first adventure is tracked now, so its
   markers show), and the manifest and card list 11 POIs (the old chest and the hermit join). The ~400 m route (J361) is
   TC-M7b: it needs the hollow to grow, not rows.
+
+## TC-M5b: the iron sword on a rack (J361)
+
+- The sword leaves the loadout (`loadout.secondary` null, out of the manifest's `start`) for a rack by the yard
+  (`layout.RACK`, 1, -12). The rack's prompt `template.rack.use` runs scene `template.rack.take` (type 102, value 3), an
+  item scene the server's kit runs (engine TC-E4, `plan/tc-e2` `6d2b44db`).
+- Building it needs shard-format 0.5.8 (a melee weapon may be an item scene's take); 0.5.7 refuses it as
+  "declared item action scenes". The pin moves with TC-M8.

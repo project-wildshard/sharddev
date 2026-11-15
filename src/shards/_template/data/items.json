@@ -164,7 +164,7 @@
   ],
   "loadout": {
     "primary": "weapon.template-whip",
-    "secondary": "weapon.sword-iron",
+    "secondary": null,
     "tools": [
       "tool.template-lantern"
     ]
