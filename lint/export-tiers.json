@@ -147,6 +147,7 @@
     "./blobBytes": "contract",
     "./schemaValidation": "contract",
     "./outputProduct": "contract",
+    "./as/prelude": "scripts",
     "./as/ws": "scripts",
     "./as/wsV2": "scripts",
     "./decisionScriptBindings": "scripts",
