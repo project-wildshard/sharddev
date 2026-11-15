@@ -22,6 +22,9 @@ const STATIONS: Readonly<Record<string, [number, number]>> = {
   'brazier-c': [braziers2?.[0] ?? Number.NaN, braziers2?.[1] ?? Number.NaN],
   lamplighter: [layout.LAMPLIGHTER.x, layout.LAMPLIGHTER.z],
   pond: [layout.POND.x, layout.POND.z],
+  // TC-M5a, TC-M6 (TEMPLATE-E2E): the old chest and the Pond Hermit
+  chest: [layout.CHEST.x, layout.CHEST.z],
+  hermit: [layout.HERMIT.x, layout.HERMIT.z],
 };
 
 interface Pose { x: number; y: number; z: number; yaw: number }

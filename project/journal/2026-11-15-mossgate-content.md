@@ -40,3 +40,8 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
   `product.ts` merges its dialogue and talk). His talk starts `template.hermit`: drive off the mossling pack (a 0 to 4 count
   over `dead:mossling:1..4`, a marker on the bank and a hint), then report back for 15 coins and fact `template.hermit`.
   His lines follow it: the offer, the waiting line, his thanks. The build's quest graph check passes; the hero gate waits on TC-M8.
+- TC-M7a (opus-brassgun3): the three quests chain. The Lamplighter's offer waits on the first adventure
+  (`template.complete`), the hermit's on the Lamplighter's (`template.lamp.done`); each says so in a line. Every step of
+  the first adventure and the Lamplighter's quest now has a marker and a hint (the first adventure is tracked now, so its
+  markers show), and the manifest and card list 11 POIs (the old chest and the hermit join). The ~400 m route (J361) is
+  TC-M7b: it needs the hollow to grow, not rows.

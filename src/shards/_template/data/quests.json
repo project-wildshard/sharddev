@@ -29,7 +29,7 @@
     {
       "id": "template.quest",
       "title": "A first adventure",
-      "track": false,
+      "track": true,
       "completeFlag": "template.complete",
       "steps": [
         {
@@ -39,7 +39,20 @@
             "all": [
               "template.hut"
             ]
-          }
+          },
+          "hint": "The grey hut is just north of the moss gate",
+          "markers": [
+            {
+              "id": "hut.marker",
+              "label": "Grey hut",
+              "short": "Hut",
+              "at": {
+                "poi": "world",
+                "x": -4,
+                "z": -11.5
+              }
+            }
+          ]
         },
         {
           "id": "blob",
@@ -48,7 +61,20 @@
             "all": [
               "template.blob"
             ]
-          }
+          },
+          "hint": "The grey blob wanders past the hut: hit it until it pops",
+          "markers": [
+            {
+              "id": "blob.marker",
+              "label": "Grey blob",
+              "short": "Blob",
+              "at": {
+                "poi": "world",
+                "x": 2.5,
+                "z": -16.5
+              }
+            }
+          ]
         }
       ],
       "onComplete": {
@@ -73,7 +99,25 @@
             "all": [
               "template.lamp.a"
             ]
-          }
+          },
+          "hint": "Brazier A stands by the training ground, east of the hut",
+          "markers": [
+            {
+              "id": "brazier-a.marker",
+              "label": "Brazier A",
+              "short": "A",
+              "at": {
+                "poi": "world",
+                "x": 5.9,
+                "z": -12.8
+              },
+              "hideWhen": {
+                "all": [
+                  "template.lamp.a"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "b",
@@ -82,7 +126,25 @@
             "all": [
               "template.lamp.b"
             ]
-          }
+          },
+          "hint": "Brazier B is across the pond, on its west bank",
+          "markers": [
+            {
+              "id": "brazier-b.marker",
+              "label": "Brazier B",
+              "short": "B",
+              "at": {
+                "poi": "world",
+                "x": -27.6,
+                "z": 0.2
+              },
+              "hideWhen": {
+                "all": [
+                  "template.lamp.b"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "c",
@@ -91,7 +153,25 @@
             "all": [
               "template.lamp.c"
             ]
-          }
+          },
+          "hint": "Brazier C waits by the barrow ring",
+          "markers": [
+            {
+              "id": "brazier-c.marker",
+              "label": "Brazier C",
+              "short": "C",
+              "at": {
+                "poi": "world",
+                "x": 9.6,
+                "z": -5.4
+              },
+              "hideWhen": {
+                "all": [
+                  "template.lamp.c"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "warden",
@@ -100,7 +180,25 @@
             "all": [
               "dead:barrow-warden"
             ]
-          }
+          },
+          "hint": "The Warden wakes in the barrow ring: dodge its slam, then strike",
+          "markers": [
+            {
+              "id": "warden.marker",
+              "label": "Barrow ring",
+              "short": "Warden",
+              "at": {
+                "poi": "world",
+                "x": 24.5,
+                "z": -2
+              },
+              "hideWhen": {
+                "all": [
+                  "dead:barrow-warden"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "report",
@@ -109,7 +207,20 @@
             "all": [
               "template.lamp.reported"
             ]
-          }
+          },
+          "hint": "The Lamplighter waits on the path east of spawn",
+          "markers": [
+            {
+              "id": "lamplighter.marker",
+              "label": "The Lamplighter",
+              "short": "Lamp",
+              "at": {
+                "poi": "world",
+                "x": 1.1,
+                "z": -6.4
+              }
+            }
+          ]
         }
       ],
       "onComplete": {
@@ -311,7 +422,8 @@
           "id": "offer",
           "lines": [
             "The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring.",
-            "Light all three, then put the Warden down. Will you?"
+            "Light all three, then put the Warden down. Will you?",
+            "Find your feet first: see the grey hut and beat the blob, then come back to me."
           ],
           "choices": [
             {
@@ -320,7 +432,12 @@
               "next": "waiting",
               "sets": [
                 "template.lamp.accepted"
-              ]
+              ],
+              "when": {
+                "all": [
+                  "template.complete"
+                ]
+              }
             }
           ]
         },

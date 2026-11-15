@@ -9,9 +9,24 @@
           "id": "offer",
           "lines": [
             "Mind your step, traveller. Four mosslings have taken the bank south of my pond.",
-            "They nip at the reeds and at me. Drive the pack off and I'll make it worth your while."
+            "They nip at the reeds and at me. Drive the pack off and I'll make it worth your while.",
+            "But the Lamplighter's braziers come first. Help her, then come see me."
           ],
-          "choices": [{ "id": "accept", "label": "I'll deal with the pack.", "next": "waiting", "sets": ["template.hermit.accepted"] }]
+          "choices": [
+            {
+              "id": "accept",
+              "label": "I'll deal with the pack.",
+              "next": "waiting",
+              "sets": [
+                "template.hermit.accepted"
+              ],
+              "when": {
+                "all": [
+                  "template.lamp.done"
+                ]
+              }
+            }
+          ]
         },
         {
           "id": "waiting",
@@ -24,18 +39,34 @@
               "id": "report",
               "label": "The pack is gone.",
               "next": "thanks",
-              "sets": ["template.hermit.reported"],
-              "when": { "all": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"] }
+              "sets": [
+                "template.hermit.reported"
+              ],
+              "when": {
+                "all": [
+                  "dead:mossling:1",
+                  "dead:mossling:2",
+                  "dead:mossling:3",
+                  "dead:mossling:4"
+                ]
+              }
             }
           ]
         },
         {
           "id": "thanks",
-          "lines": ["Quiet at last. The reeds will grow back. Take these coins, and my thanks."],
+          "lines": [
+            "Quiet at last. The reeds will grow back. Take these coins, and my thanks."
+          ],
           "choices": []
         }
       ]
     },
-    "talk": { "id": "template.hermit.talk", "radius": 2.5, "label": "Talk to the Pond Hermit", "dialogue": "template.hermit" }
+    "talk": {
+      "id": "template.hermit.talk",
+      "radius": 2.5,
+      "label": "Talk to the Pond Hermit",
+      "dialogue": "template.hermit"
+    }
   }
 }
