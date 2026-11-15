@@ -114,6 +114,9 @@ test('a material colour leaves the compiler in sRGB, as the format and the engin
   // three holds '#7a8a36' as linear (0.195, 0.254, 0.037); the shardfile says the hex the author typed
   expect(entry.colour.map((c) => Math.round(c * 255))).toEqual([0x7a, 0x8a, 0x36]);
   expect(entry.emissive.map((c) => Math.round(c * 255))).toEqual([0xff, 0x9a, 0x3a]);
+  // the engine's hemisphere takes the ambient key's intensity as is: the cleanroom's HemisphereLight number, never x pi
+  const lit = sceneShardfile(lowerShard({ slug: 'h', name: 'h' }, (world) => { world.part('light', (part) => { part.add(new THREE.HemisphereLight('#c4b0e4', '#7a6a3c', 0.85)); }); })).shard;
+  expect(lit.look.keys[0]?.ambient.intensity).toBe(0.85);
 });
 
 test('the ground is a lit PBR surface with the author\'s roughness and detail, never the default toon', () => {

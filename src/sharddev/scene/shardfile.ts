@@ -286,7 +286,9 @@ export function waterRows(part: ScenePart): { id: string; kind: 'pool'; level: n
   }));
 }
 
-/** The look a scene declares (AP3), over the format's day-key model fixed at one time of day. */
+/** The look a scene declares (AP3), over the format's day-key model fixed at one time of day. The engine sets its
+ *  hemisphere light's intensity to the ambient key's (engine `dataLook.ts`), so the key is the HemisphereLight's own
+ *  number (ss4d: it was x pi, a ground three times brighter than its cleanroom's). */
 export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: Record<string, unknown>): Shardfile['look'] {
   const directional = lights.filter((l) => l.kind === 'directional').sort((a, b) => b.intensity - a.intensity);
   const sun = directional[0], hemisphere = lights.find((l) => l.kind === 'hemisphere'), ambient = lights.find((l) => l.kind === 'ambient');
@@ -310,7 +312,7 @@ export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], mate
     keys: [{ time: 0, sky: { zenith: rgb01(skyColour), horizon: rgb01(fogColour) },
       fog: fog?.kind === 'linear' ? { colour: rgb01(fog.colour), density: 0, near: fog.near, far: fog.far } : { colour: rgb01(fogColour), density: round(fog?.kind === 'exp2' ? fog.density : 0, 5) },
       sun: { colour: rgb01(sun?.colour ?? [1, 1, 1]), intensity: round(sun?.intensity ?? 0, 3) },
-      ambient: { sky: rgb01(skyColour), ground: rgb01(groundColour), intensity: round((hemisphere?.intensity ?? ambient?.intensity ?? 0.5) * Math.PI, 3) } }],
+      ambient: { sky: rgb01(skyColour), ground: rgb01(groundColour), intensity: round(hemisphere?.intensity ?? ambient?.intensity ?? 0.5, 3) } }],
     light: { ...(lamps.length === 0 ? {} : { lamps: lampRows(lamps) }),
       ...(sky?.environment === null || sky === null ? {} : { environment: { intensity: round(Math.min(4, sky.environment.intensity), 3), ground: rgb01(sky.environment.ground) } }) },
   } as Shardfile['look'];

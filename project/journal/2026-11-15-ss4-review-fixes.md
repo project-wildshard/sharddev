@@ -17,3 +17,8 @@
   uvScroll, lost its card or motion silently: now a refusal by path,
   with the fix (a SpriteMaterial / PointsMaterial, or the graph's own
   `vertex.offset`).
+- The other half of "bright": the ambient key was the HemisphereLight's
+  intensity x pi, and the engine sets its hemisphere to the key as is
+  (`dataLook.ts`), so every scene's fill was three times its cleanroom's.
+  Now the light's own number. Board: before, after, cleanroom at spawn,
+  pond and arena.
