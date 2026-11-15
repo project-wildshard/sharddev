@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { parseGlb } from '@wildshard/format/shardfileAssets';
 import { readSourceModel } from '../bake/skinned';
-import { creatureGlb, creatureSkin } from './creature';
+import { creatureGlb, creatureLampRows, creatureSkin } from './creature';
 import { SceneRefusalError } from './lower';
 
 // SHARD-SOURCE AP23a: a Group of bone nodes and meshes, with clips, compiles to a skinned GLB rig.
@@ -74,4 +74,21 @@ test('a bandit-shaped rig writes the skin rows bandit.skin.json holds, bones and
   expect(skin.binding).toEqual({ loops: ['idle', 'walk'], material: { family: 'pbr', vertexColours: true, metalness: 0.45, roughness: 0.45 }, materials: { Eye: 'glow' }, skin: 'brasscap.bandit' });
   expect(rig.bones[1]?.pos[1]).toBeCloseTo(1.0);
   expect(() => creatureSkin(rig, { id: 'x', binding: { loops: ['run'], material: {} } })).toThrow(/loop run is not one of the rig's clips/u);
+});
+
+test('a PointLight under a bone becomes a lamp row that follows the actor\'s bone (AP24c)', () => {
+  const { body, clips } = fixture();
+  const eyes = new THREE.PointLight('#ff6020', 6, 9, 2); eyes.name = 'eyes'; eyes.position.set(0, 0.05, 0.12);
+  body.getObjectByName('head')?.add(eyes);
+  const rig = creatureGlb(body, { clips });
+  expect(rig.bones.map((b) => b.name)).toEqual(['hips', 'arm', 'head']);
+  const [row] = creatureLampRows(rig, 'boss.warden');
+  expect(row?.follow).toEqual({ actor: 'boss.warden', bone: 'head' });
+  expect(row?.at.map((n) => Math.round(n * 1000) / 1000)).toEqual([0, 0.05, 0.12]);
+  expect(row?.colour[0]).toBeCloseTo(new THREE.Color('#ff6020').r);
+  expect([row?.intensity, row?.distance, row?.decay]).toEqual([6, 9, 2]);
+  const loose = fixture(); loose.body.add(new THREE.PointLight('#fff', 1, 4));
+  expect(() => creatureGlb(loose.body)).toThrow(/a creature light hangs under no bone/u);
+  const endless = fixture(); endless.body.getObjectByName('head')?.add(new THREE.PointLight('#fff', 1, 0));
+  expect(() => creatureLampRows(creatureGlb(endless.body), 'boss.warden')).toThrow(/a following lamp needs a distance/u);
 });

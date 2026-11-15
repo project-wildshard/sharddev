@@ -8,3 +8,8 @@
 - AP23b: the group is the creature's frame, not a bone (bandit's root joint `body` stands at 0.62 m); a mesh under no
   bone is refused. `creatureSkin(rig, { id, binding })` writes the skin file's rig row and binding, the shape
   shard-brasscap's `bandit.skin.json` has; a bandit-shaped fixture matches its rig row (bones, joints, clips).
+
+- AP24c: a `PointLight` under a bone rides it. `creatureGlb` returns `lamps` (bone, offset, linear colour, intensity,
+  distance, decay) and `creatureLampRows(rig, actor)` writes them as `look.light.lamps` rows with
+  `follow { actor, bone }` (shard-format v0.5.9). A light is never a bone; a light under no bone, a non-point light
+  and a following lamp with no distance are refused.
