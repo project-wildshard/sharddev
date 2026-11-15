@@ -1,7 +1,10 @@
 import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import { pondEdge, pondSDF, templateHeightAt } from './landscape';
-import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, REEDS, rimFlames, TELL_RADIUS, TREES, wardenTell } from './world';
+import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, pondStones, BRIDGE_STONES, REEDS, rimFlames, TELL_RADIUS, TREES, WARDEN_CORE, wardenTell } from './world';
+import { WARDEN_CROWN } from './warden';
+import creatures from '../data/creatures.json' with { type: 'json' };
+import clientScripts from '../data/clientScripts.json' with { type: 'json' };
 import { Box3, Group, Mesh, type Object3D } from 'three';
 
 // LF1-5: the yard's foliage stands clear of every walk the MH-2, MH-3 and LF1-0 proofs take and of every use point, so no
@@ -121,4 +124,28 @@ test('the arena dressing and the Warden tell stay in the arena, colliderless', (
   const { x: bx, z: bz } = layout.BOSS, ring = new Box3().setFromObject(tell.ring);
   expect(ring.max.x - bx).toBeCloseTo(TELL_RADIUS + 0.22, 1); expect(bz - ring.min.z).toBeCloseTo(TELL_RADIUS + 0.22, 1);
   expect(ring.max.y - ring.min.y).toBeLessThan(0.6);
+});
+
+// M4.10 review: the open-core gem (field 111) and its sparks sat at 4.6 m, inside the golem's head; they float over its crown
+test('the open-core gem and its sparks float over the Warden\'s crown', () => {
+  const heightAt = templateHeightAt(), { x: bx, z: bz } = layout.BOSS, ground = heightAt(bx, bz);
+  const scale = creatures.spawns.find((row) => row.species === 'barrow-warden')?.scale ?? 0;
+  const gem = new Box3().setFromObject(wardenTell(heightAt).core);
+  expect(gem.min.y - ground).toBeGreaterThan(WARDEN_CROWN * scale);
+  const sparks = JSON.stringify(clientScripts).match(/"name":"warden-core","target":\{"kind":"particles","id":"template.warden-core","at":\[([^\]]+)\]/u)?.[1]?.split(',').map(Number);
+  expect(sparks?.[1]).toBe(WARDEN_CORE);
+});
+
+// M4.10 review: the sunk slabs read as stepping stones, so they stand: one collider each, its top at the slab's
+test('the sunk pond slabs carry a collider each, a step under the raised bridge', () => {
+  const { sunk, colliders, sunkColliders } = pondStones();
+  expect(sunkColliders).toHaveLength(BRIDGE_STONES);
+  sunk.updateMatrixWorld(true);
+  const top = new Box3().setFromObject(sunk).max.y;
+  for (const [i, box] of sunkColliders.entries()) {
+    if (box.kind !== 'box') throw new Error('sunk slab collider');
+    expect(box.y + box.hy).toBeCloseTo(top, 2);
+    const raised = colliders[i]; if (raised?.kind !== 'box') throw new Error('raised collider');
+    expect(raised.y + raised.hy - (box.y + box.hy)).toBeLessThan(0.35); // under the motor's autostep
+  }
 });

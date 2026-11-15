@@ -128,10 +128,11 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   ctx.root.add(gate.vines); ctx.piece({ id: 'template.mossgate-vines', name: 'Moss gate vines', category: 'nature', file, object: gate.vines });
   ctx.root.add(gate.panel); ctx.piece({ id: 'template.mossgate', name: 'Moss gate', category: 'nature', file, object: gate.panel, colliders: gate.panelColliders, active: () => true });
   // Mossgate Hollow v3 (MH-3): brazier B's field raises the pond's stones out of the water, and brazier C's takes away the
-  // bars across the arena's one way in. The sunken stones are static (no collider), so the raised panel covers them.
+  // bars across the arena's one way in. The sunk slabs are static stepping stones a hand over the water (M4.10 review: they
+  // looked walkable and had no collider); the raised panel stands a step over them once B burns.
   const stones = pondStones();
   ctx.root.add(stones.raised); ctx.piece({ id: 'template.pond-stones', name: 'Pond stepping stones', category: 'nature', file, object: stones.raised, colliders: stones.colliders, active: () => false });
-  ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk, surface: 'stone' });
+  ctx.root.add(stones.sunk); ctx.piece({ id: 'template.pond-stones-sunk', name: 'Sunken pond stones', category: 'nature', file, object: stones.sunk, colliders: stones.sunkColliders, surface: 'stone' });
   const planting = pondPlanting(heightAt);
   ctx.root.add(planting); ctx.piece({ id: 'template.pond-planting', name: 'Pond reeds, lily pads and lip', category: 'nature', file, object: planting });
   const arena = arenaRing(heightAt);
@@ -602,27 +603,28 @@ export function mossGate(heightAt: (x: number, z: number) => number): { frame: G
 
 /**
  * The moss bridge (MH-3): five stone pillars across the pond at `layout.POND` (radius 5, bed −3, water at 0), west to east.
- * `raised` stands their moss-capped tops 0.1 m over the water, with colliders, for brazier B's field to show; `sunk` is the
- * same pillars, a little thinner, as wet slabs awash at the surface (M4.10, the cleanroom's look) with no collider, so before
- * B the walk ends in the water.
+ * `raised` stands their moss-capped tops 0.3 m over the water, with colliders, for brazier B's field to show; `sunk` is the
+ * same pillars, a little thinner, as wet slabs awash at the surface (M4.10, the cleanroom's look) with colliders of their
+ * own (`sunkColliders`): they look like stepping stones, so they are (the M4.10 review), and B's bridge rises a step over them.
  */
-/** The raised bridge stones' top over the water, and the sunk slabs' wet stone. */
-const STONE_TOP = 0.3, WET_STONE = 0x5a524a;
-export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders } {
-  const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], BED = -3, w = 1.75;
+/** The raised bridge stones' top over the water, the sunk slabs' top, and their wet stone. */
+const STONE_TOP = 0.3, SUNK_TOP = 0.05, WET_STONE = 0x5a524a;
+export function pondStones(): { raised: Group; sunk: Group; colliders: Colliders; sunkColliders: Colliders } {
+  const { x: cx, z: cz } = layout.POND, raised = new Group(), sunk = new Group(), colliders: Colliders = [], sunkColliders: Colliders = [], BED = -3, w = 1.75;
   for (let i = 0; i < BRIDGE_STONES; i++) {
     const x = cx - BRIDGE_REACH + i * ((BRIDGE_REACH * 2) / (BRIDGE_STONES - 1)), z = cz + jitter(i, 80) * 0.12, yaw = jitter(i, 81) * 0.1;
     // M4.10: the sunk stones are the cleanroom's stepping slabs, a hand over the water (the mirror pond hides anything under
     // it); the raised bridge stands a step (under the motor's 0.35 m autostep) above them once brazier B burns
-    for (const [root, top, s] of [[raised, STONE_TOP, w], [sunk, 0.05, w - 0.2]] as const) {
+    for (const [root, top, s] of [[raised, STONE_TOP, w], [sunk, SUNK_TOP, w - 0.2]] as const) {
       const h = top - BED - 0.1;
       // the slabs read as wet dark stone, as the cleanroom's sunk blocks do (not the bridge's moss caps)
       const wet = root === sunk ? WET_STONE : undefined;
       root.add(block(s, h, s, 1, x, BED + h / 2, z, yaw, 0, wet), block(s + 0.1, 0.1, s + 0.1, wet === undefined ? 2 : 1, x, top - 0.05, z, yaw, 0, wet));
     }
     colliders.push(stoneBox(x, (STONE_TOP + BED) / 2, z, w / 2, (STONE_TOP - BED) / 2, w / 2, yaw));
+    sunkColliders.push(stoneBox(x, (SUNK_TOP + BED) / 2, z, (w - 0.1) / 2, (SUNK_TOP - BED) / 2, (w - 0.1) / 2, yaw));
   }
-  return { raised, sunk, colliders };
+  return { raised, sunk, colliders, sunkColliders };
 }
 /** LF1-8: the pond's planting colours (the look's `tint` keeps them: reeds and pads trim green, cattails and flowers structure). */
 export const REED = 0x5f8a32, CATTAIL = 0x6b4226, LILY = 0x4c8a3a, LILY_FLOWER = 0xf2a6c2;
@@ -746,8 +748,12 @@ export function arenaRing(heightAt: (x: number, z: number) => number): { wall: G
 export const SLATE = 0x4f4d52, FLOOR_MOSS = 0x4e6a2a, ARENA_CELL = 1.5;
 /** LF1-9: the three braziers on the arena rim, as angles round `layout.ARENA` from the way in (across from it and either side). */
 export const RIM_BRAZIERS: readonly number[] = [Math.PI - 0.72, Math.PI, Math.PI + 0.72];
-/** M2: the Warden's core gem floats this high over its feet (the Warden is 3 times the blob, was 2.2). */
-export const WARDEN_CORE = 4.6;
+/**
+ * The open-core gem's centre over the Warden's feet: just over its crown (warden.ts `WARDEN_CROWN`, 1.76 m at scale 1, so
+ * 5.27 m at the spawn's scale 3) by its own half height (0.76 m) and a 0.2 m gap. It was 4.6, inside the golem's head
+ * (M4.10 review); the panel is fixed, so over the crown it reads whichever way the Warden turns.
+ */
+export const WARDEN_CORE = 6.2;
 /** LF1-9: the Warden's slam tell, a ring this far round `layout.BOSS` (MH-4's twelve anchors stood 3.5 m out). */
 export const TELL_RADIUS = 3.5;
 /** A rim brazier's centre, on the wall cap's top. */

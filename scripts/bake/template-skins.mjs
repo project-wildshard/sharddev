@@ -29,5 +29,8 @@ const out = species.map(({ species: id, look, skin }) => {
       { hash: row.file, kind: 'glb', compressed: glb.length, decoded: row.cost.decoded, gpu: row.cost.gpu, triangles: row.cost.triangles, draws: row.cost.draws, dependencies: [], critical: false },
     ] };
 });
-writeFileSync(resolve(project, 'data/skins.json'), `${JSON.stringify(out, null, 2)}\n`);
-console.info(`template skins: ${out.map((entry) => `${entry.species} ${entry.skin.slice(0, 8)}`).join(', ')}`);
+// entries this script does not make (the Barrow Warden, scripts/bake/template-warden.mjs) stay, after the fixture's
+const path = resolve(project, 'data/skins.json'), made = new Set(out.map((entry) => entry.species));
+const kept = JSON.parse(readFileSync(path, 'utf8')).filter((entry) => !made.has(entry.species));
+writeFileSync(path, `${JSON.stringify([...out, ...kept], null, 2)}\n`);
+console.info(`template skins: ${out.map((entry) => `${entry.species} ${entry.skin.slice(0, 8)}`).join(', ')}${kept.length === 0 ? '' : `; kept ${kept.map((entry) => entry.species).join(', ')}`}`);

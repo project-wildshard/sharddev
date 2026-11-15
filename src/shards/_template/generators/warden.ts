@@ -20,6 +20,10 @@ import { hashImmutableBytes } from '@wildshard/sdk/immutable';
  *  the Template's Warden stands 1 m nearer the arena gate than the cleanroom's (24.5 against 25.5), so the cameras frame
  *  it as the cleanroom's (head and raised fists in shot 13). */
 const UNIT = (1.45 / 3) * 0.88;
+/** The body group's height in cleanroom units (its blocks sit on it) and the head's moss cap over it. */
+const BODY_Y = 1.1, CAP_Y = 2.94, CAP_H = 0.18;
+/** The top of the Warden's head (its moss cap) in metres at scale 1: what the open-core gem floats over (world.ts). */
+export const WARDEN_CROWN = (BODY_Y + CAP_Y + CAP_H / 2) * UNIT;
 /** GLB material names: the family surface, and the two look-material parts. */
 export const WARDEN_PARTS = { Eyes: 'mossgate.lamp', Core: 'mossgate.tell' } as const;
 const MATERIALS = ['Stone', 'Eyes', 'Core'] as const;
@@ -127,7 +131,7 @@ function stoneColour(normal: Vector3, height: number, tint: number, roll: number
 
 /** The golem's blocks and dressing, after the cleanroom's (its body group sat at y 1.1). */
 function buildHull(): Hull {
-  const hull = new Hull(437), b = 1.1;
+  const hull = new Hull(437), b = BODY_Y;
   for (const [s, joint] of [[1, 'legL'], [-1, 'legR']] as const) {
     hull.block(joint, [s * 0.55, 0.62, 0], [0.75, 1.0, 0.8], { rotation: [0, hull.range(-0.06, 0.06), 0] });
     hull.block(joint, [s * 0.55, 0.17, 0.08], [0.9, 0.35, 1.0], { chamfer: 0.07 });
@@ -143,7 +147,7 @@ function buildHull(): Hull {
   hull.block('head', [0, b + 2.5, 0.15], [0.95, 0.8, 0.9], { chamfer: 0.1 });
   hull.block('head', [0, b + 2.36, 0.5], [0.7, 0.16, 0.22], { chamfer: 0.04, colour: (n, h) => stoneColour(n, h, 0.78, 1) }); // brow-less jaw ledge
   for (const s of [-1, 1]) hull.block('head', [s * 0.2, b + 2.58, 0.61], [0.18, 0.09, 0.05], { chamfer: 0, material: 1, colour: () => colourOf(EYE, 1) });
-  hull.moss('head', [0, b + 2.94, 0.12], [1.02, 0.18, 0.98], 3);
+  hull.moss('head', [0, b + CAP_Y, 0.12], [1.02, CAP_H, 0.98], 3);
   for (const [s, joint] of [[1, 'armL'], [-1, 'armR']] as const) {
     const x = s * 1.45, y = b + 1.85;
     hull.block(joint, [x, y, 0], [0.85, 0.8, 0.85]);
