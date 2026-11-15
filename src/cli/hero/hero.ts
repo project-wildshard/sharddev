@@ -66,6 +66,50 @@ async function assertProductCarries(
   }
 }
 
+/** The string at `keys` in parsed JSON, if there is one. */
+function stringAt(value: unknown, keys: readonly string[]): string | undefined {
+  let at = value
+  for (const key of keys) {
+    at =
+      typeof at === 'object' && at !== null ? Reflect.get(at, key) : undefined
+  }
+  return typeof at === 'string' ? at : undefined
+}
+
+/**
+ * SA51: the slug of a product built as one output of a source that emits several (Open Plots: 17 outputs, each with its
+ * own card), when it differs from the source's own slug; undefined for the source's own product. Such an output never
+ * carries the source's hero files, so the carry check does not apply to it.
+ */
+async function otherOutput(
+  product: string,
+  shard: string,
+): Promise<string | undefined> {
+  const output = stringAt(await readJson(path.join(product, 'shard.json')), [
+    'identity',
+    'slug',
+  ])
+  const own = stringAt(await readJson(path.join(shard, MANIFEST)), ['slug'])
+  return output !== undefined && own !== undefined && output !== own
+    ? output
+    : undefined
+}
+
+/** A fresh hero's line: the product carries it, unless the product is another output of its source (SA51). */
+async function freshLine(
+  product: string,
+  shard: string,
+  hero: HeroState,
+): Promise<string> {
+  const captured = `hero: current (captured ${hero.captured ?? UNKNOWN_TIME})`
+  const output = await otherOutput(product, shard)
+  if (output === undefined) {
+    await assertProductCarries(product, shard)
+    return captured
+  }
+  return `${captured}; ${output} is one output of this source and wears its own card, so the source's hero is not looked for in it`
+}
+
 /** Why a hero that is neither fresh nor generated stops the cut, and the fix. */
 function refusal(shard: string, hero: HeroState): string {
   const name = path.basename(shard)
@@ -101,8 +145,7 @@ async function assertHeroCurrent(
   }
   const hero = await heroState(shard)
   if (hero.state === 'fresh') {
-    await assertProductCarries(product, shard)
-    report(`hero: current (captured ${hero.captured ?? UNKNOWN_TIME})`)
+    report(await freshLine(product, shard, hero))
   } else if (hero.state === 'generated') {
     report(
       `hero: generated card, no captured hero; capture one: ${captureCommand(shard)}`,

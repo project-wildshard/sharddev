@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { copyFile, rm, writeFile } from 'node:fs/promises'
+import { copyFile, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
@@ -94,6 +94,25 @@ test('a product built before the capture does not carry the new hero and is refu
     assert.equal(refusalNote('pack', error.message).rule, 'hero-not-in-product')
     return true
   })
+})
+
+test('SA51: one output of a source that emits several wears its own card; the source hero is not looked for in it', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  const manifest = path.join(space.shard, 'manifest.json')
+  const card: unknown = JSON.parse(await readFile(manifest, 'utf8'))
+  assert.ok(typeof card === 'object' && card !== null)
+  await writeFile(manifest, JSON.stringify({ ...card, slug: 'hero-source' }))
+  await writeFile(path.join(space.shard, 'card', 'portrait.jpg'), 'new shot')
+  await writeHeroStamp(space.shard, { base: BASE })
+  assert.equal(await stateOf(space.shard), 'fresh')
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean =>
+      /hero: current .*one output of this source and wears its own card/u.test(
+        line,
+      ),
+    ),
+  )
 })
 
 test('a generated card has no captured hero to go stale; a product with no source is not checked', async (context: TestContext): Promise<void> => {
