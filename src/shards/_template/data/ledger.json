@@ -43,5 +43,20 @@
         "threshold": 1
       }
     ]
+  },
+  {
+    "fact": "template.chest",
+    "origin": {
+      "kind": "engine",
+      "source": "quest.complete"
+    },
+    "rewards": [
+      {
+        "kind": "achievement",
+        "id": "template.chest",
+        "title": "Finders keepers",
+        "threshold": 1
+      }
+    ]
   }
 ]

@@ -56,6 +56,11 @@
         "id": "template.brazier-c.light",
         "type": 204,
         "value": 1
+      },
+      {
+        "id": "template.chest.open",
+        "type": 102,
+        "value": 4
       }
     ]
   },

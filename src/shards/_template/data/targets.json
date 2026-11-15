@@ -101,6 +101,11 @@
         "scene": "template.lantern.refill",
         "item": "tool.template-lantern",
         "action": 4
+      },
+      {
+        "scene": "template.chest.open",
+        "item": "tool.template-lantern",
+        "action": 4
       }
     ],
     "itemFields": [
@@ -146,5 +151,10 @@
     "radius": 2.5,
     "label": "Talk to the Lamplighter",
     "dialogue": "template.lamplighter"
+  },
+  "chest": {
+    "id": "template.chest.use",
+    "radius": 2.2,
+    "scene": "template.chest.open"
   }
 }

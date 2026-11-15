@@ -204,6 +204,10 @@ export function mossgateDressing(heightAt: (x: number, z: number) => number): { 
   const [sx = 0, sz = 0] = layout.SIGN, sy = heightAt(sx, sz);
   root.add(block(0.16, 1.9, 0.16, 1, sx, sy + 0.85, sz, 0, 0, WOOD_DARK), block(1.2, 0.34, 0.07, 1, sx - 0.15, sy + 1.4, sz, 0.35, 0, WOOD), block(0.5, 0.2, 0.06, 1, sx + 0.1, sy + 1.02, sz, -0.3, 0, WOOD));
   box(sx, sy + 0.85, sz, 0.1, 0.85, 0.1);
+  // TC-M5: the old chest by the sign (its prompt pays lantern oil, and coins the first time)
+  const { x: chx, z: chz } = layout.CHEST, chy = heightAt(chx, chz);
+  root.add(block(0.9, 0.45, 0.55, 1, chx, chy + 0.22, chz, 0.4, 0, WOOD), block(0.94, 0.12, 0.59, 1, chx, chy + 0.5, chz, 0.4, 0, WOOD_DARK), block(0.12, 0.16, 0.04, 1, chx + 0.1, chy + 0.36, chz + 0.27, 0.4, 0, IRON));
+  box(chx, chy + 0.28, chz, 0.47, 0.28, 0.3);
   // the door lamp: a post right of the door, an arm over the doorway and a lamp box under a moss cap
   const { x: lx, z: lz } = LAMP_POST, ly = heightAt(lx, lz);
   root.add(block(0.18, 2.6, 0.18, 1, lx, ly + 1.3, lz, 0, 0, IRON), block(1.2, 0.1, 0.1, 1, lx - 0.5, ly + 2.5, lz, 0, 0, IRON), block(0.06, 0.2, 0.06, 1, lx - 1.0, ly + 2.36, lz, 0, 0, IRON));

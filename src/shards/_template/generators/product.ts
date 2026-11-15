@@ -72,7 +72,7 @@ const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: terrain.sites.door }, 
 const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: terrain.sites.door, label: text.door }, ...targets.braziers.map((row, i) => {
   const at = terrain.sites.braziers[i], label = text.braziers[i]; if (at === undefined || label === undefined) throw new Error(`${row.id} needs a pad in layout.BRAZIERS and a label`);
   return { id: row.id, radius: row.radius, scene: row.scene, unless: row.unless, at, label };
-})],
+}), { ...targets.chest, at: terrain.sites.chest, label: text.chest }],
   // MH-5: the Lamplighter (TE-ENG3's `targets.talks`), on the ground east of the spawn-to-hut path; the engine draws its stand-in
   talks: [{ ...targets.talk, at: terrain.sites.lamplighter }] };
 const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });

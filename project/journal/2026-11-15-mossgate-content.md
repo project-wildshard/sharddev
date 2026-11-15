@@ -34,3 +34,5 @@ gun loop, one named file per system (J361). This journal follows the TC-M rows o
   `dead:barrow-warden` (10 coins, fact `template.warden`, achievement "Barrow Warden").
 - `generators/warden.test.ts` checks the three strike ids, their rows and the achievement; the build reads 3 boss strikes
   and 3 achievements.
+
+- TC-M5a: an old chest by the sign at the fork (layout CHEST). Its prompt runs item scene `template.chest.open` (lantern refill, action 4, per player); a region trigger pays 10 coins once through untracked quest `template.chest`, ledger fact `template.chest` ("Finders keepers"). A sign talk was tried and dropped: a talk figure must name a props panel or model, and the sign is dressing.

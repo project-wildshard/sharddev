@@ -14,7 +14,9 @@
     "template.lamp.reported",
     "template.lamp.done",
     "dead:barrow-warden",
-    "template.warden.paid"
+    "template.warden.paid",
+    "template.chest.opened",
+    "template.chest.paid"
   ],
   "quests": [
     {
@@ -128,6 +130,27 @@
         "fact": "template.warden",
         "coins": 10
       }
+    },
+    {
+      "id": "template.chest",
+      "title": "The old chest",
+      "track": false,
+      "completeFlag": "template.chest.paid",
+      "steps": [
+        {
+          "id": "chest",
+          "objective": "Open the old chest by the sign",
+          "done": {
+            "all": [
+              "template.chest.opened"
+            ]
+          }
+        }
+      ],
+      "onComplete": {
+        "fact": "template.chest",
+        "coins": 10
+      }
     }
   ],
   "triggers": [
@@ -183,6 +206,14 @@
           "template.lamp.accepted"
         ]
       }
+    },
+    {
+      "id": "template.chest.near",
+      "kind": "region",
+      "flag": "template.chest.opened",
+      "x": -8.2,
+      "z": -7.6,
+      "radius": 1.6
     }
   ],
   "dialogue": [
