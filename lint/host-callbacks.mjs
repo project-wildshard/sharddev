@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import ts from '@typescript/typescript6';
 import { hostPlayFile } from './host-files.mjs';
-import { formatSource } from '../scripts/format-package.mjs';
+import { formatSource } from '@wildshard/engine/scripts/format-package.mjs';
 
 const projects = new Map();
 const localPath = (root, file) => relative(root, file).replaceAll('\\', '/');
