@@ -122,6 +122,22 @@ test('AP5: a page booted from shell 1 reloads on a state for shell 2; a part who
   page.stop();
 });
 
+test('AP16: a part the hook refuses lets its own holds go, never an asset a later part of the same revision shares', async () => {
+  const sockets: { onmessage: ((event: { data: unknown }) => void) | null }[] = [];
+  const hook = { ...recordingHook(), addPart: (name: string) => { if (name === 'hut') throw new Error('Duplicate system id: harness.walk'); hook.calls.push(`add ${name}`); } };
+  const part = (name: string): unknown => ({ name, hash: `${name}1`, materials: [], sprites: [], lamps: [], water: [], draws: [], geometries: [], textures: [{ key: 'shared' }], colliders: [] });
+  const page = startWatchPage({ origin: 'http://127.0.0.1:1', hook: () => hook,
+    fetch: (url) => Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(part(/part\/(\w+)$/u.exec(url)?.[1] ?? '')), arrayBuffer: () => Promise.resolve(new ArrayBuffer(4)) }),
+    socket: () => { const socket = { onmessage: null, onclose: null, close: () => undefined }; sockets.push(socket); return socket; },
+    frame: () => undefined, wait: () => undefined, reload: () => undefined, reshell: () => undefined, now: () => 0, log: () => undefined });
+  sockets[0]?.onmessage?.({ data: JSON.stringify({ wire: WATCH_WIRE, shell: 1, revision: 1, parts: [{ name: 'hut', hash: 'hut1' }, { name: 'rock', hash: 'rock1' }], look: { hash: '', keys: [], look: null }, ground: { hash: '', shell: '' }, gameplay: { hash: '', shell: '' }, error: null, seenAt: 0, sentAt: 0 }) });
+  await until(() => page.report.applied.length === 1);
+  expect(page.report.applied).toEqual(['rock@rock1']);
+  expect(hook.calls).toContain('add rock');
+  expect(page.report.error).toContain('hut: Duplicate system id');
+  page.stop();
+});
+
 test('AP19 review: a refused restart asks for a new shell once per revision, never on a revision the server refused', async () => {
   const reshells: number[] = [], sockets: { onmessage: ((event: { data: unknown }) => void) | null }[] = [];
   let restarts = 0;

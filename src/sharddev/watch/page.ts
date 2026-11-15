@@ -135,6 +135,31 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     if (state.error !== null || asked === key) { env.log(`wildshard watch: ${why}; waiting for an edit the shell build takes`); return; }
     asked = key; env.log(`wildshard watch: ${why}; reloading`); env.reshell();
   };
+  /** Draw each fetched part through the hook; false when any failed (the hook keeps that part's old copy drawn). */
+  const place = (fetched: readonly WatchPart[], live: DevHookLike): boolean => {
+    let landed = true;
+    for (const part of fetched) {
+      const owner = scope.child(`watch.part.${part.name}@${part.hash}`), old = parts.get(part.name);
+      try {
+        const devPart = { materials: part.materials, sprites: part.sprites, lamps: part.lamps, water: part.water, draws: part.draws,
+          geometries: part.geometries.map((key) => hold(geometries, key, owner)),
+          textures: part.textures.map((t) => ({ ...t, rgba: hold(textures, t.key, owner) })) };
+        if (old === undefined) live.addPart(part.name, devPart); else live.replacePart(part.name, devPart);
+      } catch (cause) {
+        // the hook keeps the old part drawn; this revision's copy lets its assets go
+        owner.dispose(); landed = false;
+        fail(`part ${part.name}: ${cause instanceof Error ? cause.message : String(cause)}`);
+        continue;
+      }
+      // the new part is drawn: record it before anything else can throw, so the next revision replaces it
+      parts.set(part.name, { hash: part.hash, scope: owner });
+      report.applied.push(`${part.name}@${part.hash}`);
+      old?.scope.dispose();
+      try { live.swapColliders(part.name, part.colliders); }
+      catch (cause) { landed = false; fail(`part ${part.name} colliders: ${cause instanceof Error ? cause.message : String(cause)}`); }
+    }
+    return landed;
+  };
   const sync = async (state: WatchState, first: boolean): Promise<void> => {
     const live = hook;
     if (live === null) return;
@@ -178,27 +203,15 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     await Promise.all(fresh.values());
     if (scope.disposed) return;
     report.steps.fetched = env.now();
-    let landed = true;
+    // the revision holds every asset it fetched until all its parts are placed: a part that fails lets its own holds go,
+    // and an asset it shares with a later part must not leave the cache on that (it would be "not fetched" there)
+    const revision = scope.child(`watch.revision.${state.revision}`);
     for (const part of fetched) {
-      const owner = scope.child(`watch.part.${part.name}@${part.hash}`), old = parts.get(part.name);
-      try {
-        const devPart = { materials: part.materials, sprites: part.sprites, lamps: part.lamps, water: part.water, draws: part.draws,
-          geometries: part.geometries.map((key) => hold(geometries, key, owner)),
-          textures: part.textures.map((t) => ({ ...t, rgba: hold(textures, t.key, owner) })) };
-        if (old === undefined) live.addPart(part.name, devPart); else live.replacePart(part.name, devPart);
-      } catch (cause) {
-        // the hook keeps the old part drawn; this revision's copy lets its assets go
-        owner.dispose(); landed = false;
-        fail(`part ${part.name}: ${cause instanceof Error ? cause.message : String(cause)}`);
-        continue;
-      }
-      // the new part is drawn: record it before anything else can throw, so the next revision replaces it
-      parts.set(part.name, { hash: part.hash, scope: owner });
-      report.applied.push(`${part.name}@${part.hash}`);
-      old?.scope.dispose();
-      try { live.swapColliders(part.name, part.colliders); }
-      catch (cause) { landed = false; fail(`part ${part.name} colliders: ${cause instanceof Error ? cause.message : String(cause)}`); }
+      for (const key of part.geometries) if (geometries.has(key)) hold(geometries, key, revision);
+      for (const t of part.textures) if (textures.has(t.key)) hold(textures, t.key, revision);
     }
+    let landed: boolean;
+    try { landed = place(fetched, live); } finally { revision.dispose(); }
     const names = new Set(state.parts.map((part) => part.name));
     let removed = 0;
     for (const [name, part] of parts) {

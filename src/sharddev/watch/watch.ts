@@ -8,6 +8,8 @@ import { tmpdir } from 'node:os';
 import { extname, join, resolve, sep } from 'node:path';
 import { build, type Plugin } from 'vite';
 import * as THREE from 'three';
+import * as liveTsl from 'three/tsl';
+import * as liveWebgpu from 'three/webgpu';
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { Scope } from '@wildshard/engine/app/scope';
 import { SDK_ROOT } from '../agentFiles';
@@ -19,6 +21,7 @@ import * as liveAuthor from '../scene/author';
 import { PaintMemo, withPaintMemo } from '../scene/author';
 import * as liveCanvas from '../scene/canvas';
 import * as liveLower from '../scene/lower';
+import * as liveMaterials from '../materials';
 import * as liveShard from '../scene/shard';
 import * as liveShardfile from '../scene/shardfile';
 import { hashOf } from '../scene/hash';
@@ -51,12 +54,14 @@ const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees',
 
 /**
  * AP17: the modules a watched revision shares with this process instead of bundling and evaluating its own copy: `three`
- * and the scene API. An author's bundle is then only the author's own code (~20 ms, not ~170 ms), and three and the
+ * (with `three/tsl` and `three/webgpu`, whose node graph is per instance: a bundled copy's `toVar()` has no graph op), the
+ * sdk's materials and the scene API. An author's bundle is then only the author's own code (~20 ms, not ~170 ms), and three and the
  * lowering stay loaded and warm across revisions. Each is a virtual module that re-exports this process's instance, so
  * an author's `THREE.Mesh` is the lowering's `Mesh`.
  */
 const LIVE_GLOBAL = '__wildshardWatchLive';
-const LIVE: Readonly<Record<string, object>> = { three: THREE, '@wildshard/sdk/scene/author': liveAuthor, '@wildshard/sdk/scene/canvas': liveCanvas,
+const LIVE: Readonly<Record<string, object>> = { three: THREE, 'three/tsl': liveTsl, 'three/webgpu': liveWebgpu,
+  '@wildshard/sdk/materials': liveMaterials, '@wildshard/sdk/scene/author': liveAuthor, '@wildshard/sdk/scene/canvas': liveCanvas,
   '@wildshard/sdk/scene/lower': liveLower, '@wildshard/sdk/scene/shard': liveShard, '@wildshard/sdk/scene/shardfile': liveShardfile };
 /** The client's service worker, and what `watch` serves in its place: a worker that unregisters itself and serves nothing. */
 const SERVICE_WORKER = '/sw.js';
