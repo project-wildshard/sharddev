@@ -31,8 +31,11 @@
     "src/sharddev/bake/script-v2-radial.test.ts",
     "test/schema-code-memory.test.ts",
     "test/world-scene-graph-pages.test.ts",
+    "test/return-projection-inventory.test.ts",
+    "test/return-program-group-v2.test.ts",
     "test/fixtures/productFile.ts",
     "test/fixtures/ci21sdk-tail/frozen.ts",
-    "test/fixtures/defined-json-value.ts"
+    "test/fixtures/defined-json-value.ts",
+    "test/fixtures/return-group.ts"
   ]
 }

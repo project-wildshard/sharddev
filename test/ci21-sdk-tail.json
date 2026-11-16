@@ -146,11 +146,49 @@
           "revision": "23aa1d14f5f0952d5eceb2731ca87163ab84cc22"
         }
       ]
+    },
+    {
+      "sourcePath": "test/return-projection-inventory.test.ts",
+      "targetPath": "test/return-projection-inventory.test.ts",
+      "sourceBlob": "c5aacdb98893549e7b71cfe6716db07f5351e947",
+      "originalTests": [
+        "project ABI survives named reconstruction, disk, browser and native without scheduling",
+        "missing or mismatched project contracts refuse without guessing the ABI",
+        "legacy return inventories keep the original parser normalization and refusals"
+      ],
+      "changes": "Retain all original product/ABI/contract/parser cases and assertions. A real synthetic SDK-compiled projection replaces the absent shard-owned Titan fixture; native JSON uses the actual public paced validator. Synthetic contract has field/random reads, two fields, two signals and three channels; shard-specific Titan mechanics are outside this ABI/inventory test. All original accepted/refused parser inputs and assertions remain."
+    },
+    {
+      "sourcePath": "test/return-program-group-v2.test.ts",
+      "targetPath": "test/return-program-group-v2.test.ts",
+      "sourceBlob": "4c76f2f4553c75b37823415eabe09d82583e94a6",
+      "originalTests": [
+        "numeric and distinct group profiles use one entered programme and exactly one Wasm instance",
+        "full group metadata participates in cache identity before any second instance can be constructed",
+        "ancestor sliced retirement refuses group capture and acceptance without publishing the bank or RNG",
+        "the shared engine loan rejects a different executable or IO reservation",
+        "the full admitted named descriptor retains group rows without changing legacy witness bytes",
+        "shared capacity never broadens the numeric or group publication rights",
+        "native capture cannot reenter the other side of the shared programme"
+      ],
+      "changes": "Retain all original cases/assertions using public native seams and real SDK-compiled projection witnesses. Private unscoped group assertion stays in the paired engine companion.",
+      "assertionCompanions": [
+        {
+          "repository": "project-wildshard/engine",
+          "targetPath": "test/return-program-group-v2.test.ts",
+          "branch": "plan/ci21sdk-tail",
+          "originalTests": [
+            "full group metadata participates in cache identity before any second instance can be constructed"
+          ],
+          "scope": "Full second case including private new ReturnProjectionV2 unscoped prepareGroup refusal; exact SDK compiler input/output pinned by hash."
+        }
+      ]
     }
   ],
   "supportPaths": [
     "test/fixtures/productFile.ts",
     "test/fixtures/ci21sdk-tail/frozen.ts",
-    "test/fixtures/defined-json-value.ts"
+    "test/fixtures/defined-json-value.ts",
+    "test/fixtures/return-group.ts"
   ]
 }
