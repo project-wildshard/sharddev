@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.3 (2026-11-16)
+
+- `wildshard hero` works on a scene shard with no manifest.json; the next build's card wears the capture.
+- Every `wildshard hero` refusal is one `[hero-<rule>]` line with its fix, never a stack trace.
+- A creature can be written in three.js: `creatureGlb` turns bones, meshes and clips into a skinned rig.
+- `world.trigger` and `world.interact` place quest triggers and interactions at a scene node.
+- A two-sided three.js material (grass, ivy and fern cards) is two-sided in the built shard too.
+
 ## Unreleased
 
 - A creature can be written in three.js: `creatureGlb` turns a Group of named bone nodes, meshes and
