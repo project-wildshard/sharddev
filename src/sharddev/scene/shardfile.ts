@@ -124,8 +124,10 @@ interface InstancedGroup { key: string; geometry: BufferGeometry; matrices: Matr
 const INSTANCE_MIN = 2, INSTANCE_CAP = 10_000;
 /**
  * AP9c: the coarse (L1) copies the back end writes itself, so no author keeps a hand coarse list. An L1 tile (two by two
- * fine tiles) draws past the fine ring, from about 150 m: its still meshes are simplified to a quarter of their triangles
- * within half a metre, and an instanced shape smaller than COARSE_MIN_SIZE across (grass, flowers) stays near-only.
+ * fine tiles) draws past the fine ring, from about 150 m: its still meshes are simplified toward a quarter of their
+ * triangles (half a metre of error for the bounded pass; past 1.5 times the target meshopt's topology-free pass takes over,
+ * with no metre bound), and an instanced shape smaller than COARSE_MIN_SIZE across in its own frame (grass, flowers) stays
+ * near-only.
  */
 const COARSE_RATIO = 0.25, COARSE_ERROR = 0.5, COARSE_MIN_SIZE = 2;
 /** A simplified geometry with only the vertices its index still names (the simplifier keeps every vertex). */
@@ -606,7 +608,9 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const coarseShapes = new Map<BufferGeometry, BufferGeometry>();
   const coarseShape = (geometry: BufferGeometry): BufferGeometry => {
     const found = coarseShapes.get(geometry); if (found !== undefined) return found;
-    const made = compacted(coarseGeometry(geometry, COARSE_RATIO, COARSE_ERROR, { sloppy: true })); coarseShapes.set(geometry, made); return made;
+    const simplified = compacted(coarseGeometry(geometry, COARSE_RATIO, COARSE_ERROR, { sloppy: true }));
+    // a shape simplified to nothing keeps its own geometry (an empty GLB accessor is refused)
+    const made = (simplified.getIndex()?.count ?? 0) === 0 ? geometry : simplified; coarseShapes.set(geometry, made); return made;
   };
   for (let x = 0; x < 4; x++) for (let z = 0; z < 4; z++) {
     const children = [[0, 0], [0, 1], [1, 0], [1, 1]].map(([dx = 0, dz = 0]) => `${String(x * 2 + dx)}/${String(z * 2 + dz)}`);
@@ -641,6 +645,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     }
     if (primitives.length === 0) continue;
     for (const primitive of primitives) if (primitive.instances === undefined) { primitive.geometry.computeBoundingBox(); if (primitive.geometry.boundingBox !== null) drawn.union(primitive.geometry.boundingBox); }
+    const size = primitives.reduce((n, primitive) => n + glbBytes(primitive), 0);
+    if (size > 18_000_000) throw new Error(`scene: the generated L1 tile 1/${String(x)}/${String(z)} is ${(size / 1e6).toFixed(1)} MB, over the 18 MB one GLB holds (AP9c)`);
     const row = store(staticGlb(primitives, `scene.l1.${String(x)}.${String(z)}`), 'glb', [...dependencies].sort());
     propTiles.push({ lod: 1, x, z, file: row.hash });
     const tile = shardTiles.find((t) => t.lod === 1 && t.x === x && t.z === z);
@@ -649,7 +655,15 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     tile.files.push(row.hash, ...textures.map((f) => f.hash).filter((hash) => !tile.files.includes(hash)));
     tile.compressed += row.compressed + textures.reduce((n, f) => n + f.compressed, 0); tile.decoded += row.decoded + textures.reduce((n, f) => n + f.decoded, 0);
     tile.gpu += row.gpu + textures.reduce((n, f) => n + f.gpu, 0); tile.triangles += row.triangles; tile.draws += row.draws;
-    if (!drawn.isEmpty()) { tile.bounds.min[1] = Math.min(tile.bounds.min[1], drawn.min.y); tile.bounds.max[1] = Math.max(tile.bounds.max[1], drawn.max.y); }
+    if (!drawn.isEmpty()) {
+      tile.bounds.min[1] = Math.min(tile.bounds.min[1], drawn.min.y); tile.bounds.max[1] = Math.max(tile.bounds.max[1], drawn.max.y);
+      // an instanced copy is whole in its seat's tile, so it may hang over the L1 tile's edge: its draw bounds say so
+      if (drawn.min.x < tile.bounds.min[0] || drawn.min.z < tile.bounds.min[2] || drawn.max.x > tile.bounds.max[0] || drawn.max.z > tile.bounds.max[2]) {
+        const low = (v: number): number => Math.max(-HALF - OVERHANG, Math.floor(v * 1000) / 1000), high = (v: number): number => Math.min(HALF + OVERHANG, Math.ceil(v * 1000) / 1000);
+        tile.drawBounds = { min: [low(Math.min(tile.bounds.min[0], drawn.min.x)), tile.bounds.min[1], low(Math.min(tile.bounds.min[2], drawn.min.z))],
+          max: [high(Math.max(tile.bounds.max[0], drawn.max.x)), tile.bounds.max[1], high(Math.max(tile.bounds.max[2], drawn.max.z))] };
+      }
+    }
   }
   // panels (AP16): one library GLB each, its texture slots as dependencies
   const panels = panelParts.map(({ id, merges, shadows }) => {
