@@ -18,3 +18,12 @@ Ring2 worker journey; fighting belongs to ONE-FORMAT OF42.
 Keep a final-state screenshot and renderer diagnostic on failure. The
 new case remains report-only Ring2, outside hooks and quick discovery.
 Hosted actual receipts, rather than report-only job colour, decide TC13.
+
+Hosted43979364554 passed all reference cases and the empty browser, but
+the actual default browser failed its unchanged10s/13frame wait: game6
+to16 and draw354 to394, healthy entered play, no faults or cleanup errors.
+The job was green because this step reports only. Preserve that failure.
+Linux now selects explicit ANGLE SwiftShader, the earlier held diagnostic
+configuration, rather than relying on implicit Vulkan SwiftShader. The
+optional software flag also allows reproducing the renderer locally.
+All frame, render, error and lifecycle assertions remain unchanged.

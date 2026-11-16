@@ -58,7 +58,9 @@ async function observeAuthorBrowser(context, empty) {
     const url = new URL(await ready); url.searchParams.set('mute', '1'); url.searchParams.set('nolock', '1'); url.searchParams.set('sw', '0');
     receipt.url = url.href;
     cancellation.signal.throwIfAborted();
-    server = await chromium.launchServer({ timeout: 15_000, headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', ...(process.platform === 'darwin' ? ['--use-angle=metal'] : [])] });
+    // Linux CI's implicit Vulkan SwiftShader can miss the real-time frame
+    // budget; select the explicit ANGLE software path used by the diagnostic.
+    server = await chromium.launchServer({ timeout: 15_000, headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', ...(process.env.WS_BROWSER_SOFTWARE === '1' || process.platform === 'linux' ? ['--use-angle=swiftshader'] : process.platform === 'darwin' ? ['--use-angle=metal'] : [])] });
     if (cancellation.signal.aborted) { server.process().kill('SIGKILL'); cancellation.signal.throwIfAborted(); }
     browser = await chromium.connect(server.wsEndpoint(), { timeout: 10_000 });
     page = await browser.newPage({ viewport: { width: 960, height: 640 } });
