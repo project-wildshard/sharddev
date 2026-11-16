@@ -90,6 +90,15 @@ is kept, so run it again.
 `dev` serves this shard alone: no other shards, no grid and no other players. To see it beside the rest of the
 world, upload it to staging once the Wildshard team has placed it on the grid (section 5).
 
+**Driving a `dev` page from a script** (a headless walk with Playwright or the like). The page answers
+`window.__wildshard.state()` (the player, the creatures and the flags) at once. The calls that move the world for you,
+`__wildshard.pose({ x, z, yaw })`, `nav.path(a, b)`, `combat.equip(id)` and `combat.target(kind, near)`, refuse with
+`Probe control requires the harness pins` unless the page boots with the harness pins set. Set them before the page
+loads, for example `await page.addInitScript(() => { window.__wildshardHarness = { seed: 1, capture: null }; })`;
+`seed` fixes the page's random numbers, so two walks see the same world. `combat.target` holds the creature it returns
+still until `combat.hold(creature, false)`. A creature's `brain` in `state()` is the page's copy: on a `dev` page the
+server runs the brains, so it reads `idle` while the creature chases and bites; read its position and `hp` to see it act.
+
 ### Proof tapes
 
 A proof tape is `src/proof.json`: player input, tick by tick, and the quest facts it must earn. `wildshard check .`
