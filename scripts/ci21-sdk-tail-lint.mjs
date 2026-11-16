@@ -56,7 +56,7 @@ function titles(path) {
 for (const file of manifest.files) {
   if (file.wireSplit !== undefined && file.caseSplit === true) throw new Error(`CI21 split modes are mutually exclusive: ${file.targetPath}`);
   for (const row of file.assertionCompanions ?? []) {
-    if (!/^[a-f0-9]{40}$/u.test(row.revision ?? '') || !/^[a-f0-9]{40}$/u.test(row.targetBlob ?? '') || row.targetPath !== file.sourcePath || row.repository !== 'project-wildshard/engine' || !Array.isArray(row.originalTests) || row.originalTests.length === 0 || row.originalTests.some(title => !file.originalTests.includes(title))) throw new Error(`CI21 companion must pin its revision, blob and original cases: ${file.targetPath}`);
+    if (!/^[a-f0-9]{40}$/u.test(row.revision ?? '') || !/^[a-f0-9]{40}$/u.test(row.targetBlob ?? '') || row.targetPath !== file.sourcePath || !['project-wildshard/engine','project-wildshard/shard-nalati'].includes(row.repository) || !Array.isArray(row.originalTests) || row.originalTests.length === 0 || row.originalTests.some(title => !file.originalTests.includes(title))) throw new Error(`CI21 companion must pin its revision, blob and original cases: ${file.targetPath}`);
   }
   if (file.targetTests !== undefined) {
     if (file.wireSplit !== undefined) {
@@ -74,10 +74,10 @@ for (const file of manifest.files) {
       process.stdout.write(`CI21 wire split: ${targets.length} SDK cases + ${companions.length} shard cases, ${keys.length} original wires (${file.targetPath})\n`);
     } else if (file.caseSplit === true) {
       const companions = file.assertionCompanions ?? [];
-      if (companions.length === 0 || companions.some(row => !/^[a-f0-9]{40}$/u.test(row.revision ?? '') || row.targetPath !== file.sourcePath || row.repository !== 'project-wildshard/engine' || !Array.isArray(row.originalTests) || row.originalTests.length === 0)) throw new Error(`CI21 split requires pinned native companions: ${file.targetPath}`);
+      if (companions.length === 0 || companions.some(row => !/^[a-f0-9]{40}$/u.test(row.revision ?? '') || row.targetPath !== file.sourcePath || !['project-wildshard/engine','project-wildshard/shard-nalati'].includes(row.repository) || !Array.isArray(row.originalTests) || row.originalTests.length === 0)) throw new Error(`CI21 split requires pinned native companions: ${file.targetPath}`);
       const covered = [...file.targetTests, ...companions.flatMap(row => row.originalTests)];
       if (new Set(covered).size !== covered.length || covered.length !== file.originalTests.length || covered.some(title => !file.originalTests.includes(title))) throw new Error(`CI21 split must partition every original case exactly once: ${file.targetPath}`);
-      process.stdout.write(`CI21 split: ${file.targetTests.length} SDK + ${covered.length - file.targetTests.length} native declarations (${file.targetPath})\n`);
+      process.stdout.write(`CI21 split: ${file.targetTests.length} SDK + ${covered.length - file.targetTests.length} owner declarations (${file.targetPath})\n`);
     } else if (file.targetTests.length !== file.originalTests.length) throw new Error(`CI21 renamed case count differs: ${file.targetPath}`);
     for (const [index, title] of file.targetTests.entries()) if (file.caseSplit !== true && file.wireSplit === undefined && title !== file.originalTests[index]) process.stdout.write(`CI21 rename: ${file.originalTests[index]} -> ${title} (${file.targetPath})\n`);
   }

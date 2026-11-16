@@ -336,6 +336,34 @@
         }
       ],
       "changes": "Retain all author type/metadata/assertion cases in SDK. Split the complete original wire golden across actual shard producer owners, with identical full original fixture bytes/Git blob and exact disjoint key partition. Every generator executes under the real public renderer-guarded Node loader; real test/compiler/typed-lint admission and deliberately red controls verified. No golden updated, no assertion retired."
+    },
+    {
+      "sourcePath": "test/nalati-field-author-ports.test.ts",
+      "targetPath": "test/terrain-field-author-port.test.ts",
+      "sourceBlob": "b5c5e58bfb85e8b232102843819f853700acea16",
+      "originalTests": [
+        "native field and planting metadata retain complete signatures, mandatory dimensions and identity",
+        "all twenty original spruce geometries retain every channel bit, group and bound"
+      ],
+      "targetTests": [
+        "native field and planting metadata retain complete signatures, mandatory dimensions and identity"
+      ],
+      "caseSplit": true,
+      "supplementalBatch": "NAL-BAKE (outside SDK24 count)",
+      "changes": "Keep complete original terrain/forest type and native numeric equality case on SDK, all 25 height/normal/trail probes and identity/policy assertions unchanged. Keep entire original twenty-spruce geometry golden on actual Nalati owner with exact fixture/helper blobs. No case or assertion retired.",
+      "assertionCompanions": [
+        {
+          "repository": "project-wildshard/shard-nalati",
+          "targetPath": "test/nalati-field-author-ports.test.ts",
+          "branch": "plan/ci21sdk-tail",
+          "revision": "e977329c400f733200de4f8083b823d6a6edad23",
+          "targetBlob": "79cc35d19ac69d154e911d4df92c6b7707064a13",
+          "originalTests": [
+            "all twenty original spruce geometries retain every channel bit, group and bound"
+          ],
+          "scope": "Full original twenty-spruce geometry/channel/index/group/bound golden, exact original fixture/helper and disposal; default suite/compiler/typed lint/retention admission."
+        }
+      ]
     }
   ],
   "supportPaths": [

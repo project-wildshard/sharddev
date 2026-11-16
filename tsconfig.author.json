@@ -36,6 +36,7 @@
     "test/tile-bakes.test.ts",
     "test/species-barrel-author-ports.test.ts",
     "test/view-author-metadata.test.ts",
+    "test/terrain-field-author-port.test.ts",
     "test/fixtures/productFile.ts",
     "test/fixtures/ci21sdk-tail/frozen.ts",
     "test/fixtures/defined-json-value.ts",
