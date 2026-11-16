@@ -1,0 +1,7 @@
+{
+  "default": { "surface": "sand", "count": 10, "atFeet": true, "sparks": false },
+  "kinds": {
+    "crab": { "surface": "shell", "count": 9, "atFeet": false, "sparks": true },
+    "sailor": { "surface": "wood", "count": 8, "atFeet": false, "sparks": true }
+  }
+}
