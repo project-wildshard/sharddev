@@ -88,6 +88,7 @@ export interface SpeciesFlight {
 /** Species gameplay data with an optional `brain`; a row without one keeps its runtime's own policy. */
 export interface BrainedSpecies {
   harvest?: readonly HarvestDrop[];
+  capExempt?: boolean;
   id: string; kind: string; label: string;
   variants: SpeciesVariant[]; spawnOnly?: SpeciesVariant[];
   aggressive?: boolean; walkSpeed?: number; chargeSpeed?: number; chargeDamage?: number;

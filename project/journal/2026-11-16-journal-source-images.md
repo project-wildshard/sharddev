@@ -15,3 +15,7 @@ all seven PNGs. The SDK species-brain contract also retains the admitted
 harvest type, as its existing exact engine-type comparison requires.
 Published format pins, old glyph deletion and product publication stay
 open. This does not claim an appearance verdict.
+
+Retain the admitted optional capExempt field in the SDK species-brain
+contract as engine OF31d2a consumes it. Root types and author lint pass
+with the unchanged exact SDK/engine type comparison.
