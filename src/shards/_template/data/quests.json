@@ -306,8 +306,8 @@
               "short": "Pack",
               "at": {
                 "poi": "world",
-                "x": 6.0,
-                "z": -30.0
+                "x": 36.0,
+                "z": -98.0
               },
               "hideWhen": {
                 "all": [

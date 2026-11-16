@@ -25,6 +25,8 @@ const STATIONS: Readonly<Record<string, [number, number]>> = {
   // TC-M5a, TC-M6 (TEMPLATE-E2E): the old chest and the Pond Hermit
   chest: [layout.CHEST.x, layout.CHEST.z],
   hermit: [layout.HERMIT.x, layout.HERMIT.z],
+  // TC-M5b: the iron sword's rack (TC-M7b names it)
+  rack: [layout.RACK.x, layout.RACK.z],
 };
 
 interface Pose { x: number; y: number; z: number; yaw: number }
