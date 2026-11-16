@@ -19,7 +19,7 @@ import { buildBehaviourProject } from './buildBehaviour';
 import { synthProject } from './synth';
 import { formatJsonSchemas, schemaAt, schemaDeclaration } from './formatJsonSchema';
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
-import { outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
+import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
 import { locatedError } from './authorError';
 import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
@@ -184,11 +184,13 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('prove requires a format-2 shard.json or shard source');
     if (output === undefined || buildFlag !== undefined) throw new Error('usage: wildshard prove <source|shard.json> <proof.json>');
     const built = input.endsWith('.json') || !existsSync(resolve(input, 'shard.config.ts'));
-    const { shard, assets } = built
+    // A v1 decision (the Template's) needs the output's sections, or the engine reads every Wasm as ABI 0 and refuses
+    // `Import signature outside ABI` (engine TC-NE5b).
+    const { shard, assets, sections } = built
       ? validateOutputProduct(resolve(input.endsWith('.json') ? dirname(input) : input))
-      : await readProjectAssets(resolve(input), undefined, options.manifest, options);
+      : await readProjectAssets(resolve(input), undefined, options.manifest, options).then(read => ({ ...read, sections: outputPlatformPayloads(read.output.platform) }));
     const plan = readProofTape(resolve(output));
-    console.info(JSON.stringify(await proveAuthorSimulation(shard, assets, plan), null, 2)); return;
+    console.info(JSON.stringify(await proveAuthorSimulation(shard, assets, plan, sections), null, 2)); return;
   }
   if (command === 'validate') {
     if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('validate requires a format-2 shard.json or shard source');
@@ -213,7 +215,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     }
     console.info(`advisory asset raster layers: ${layers.toFixed(2)} total, ${blended.toFixed(2)} blended, ${masked.toFixed(2)} alpha-tested (primitive bounds; before culling/occlusion, not measured screen overdraw)`);
     if (shard.runtime !== null) { printReport(shard, unmeasured, policy); console.info(`validated ${shard.identity.slug} v${shard.version}: native execution/entries UNMEASURED (trusted browser proof required)`); return; }
-    const proof = await validateSimulation(shard, assets);
+    const proof = await validateSimulation(shard, assets, outputPlatformPayloads(extensions.platform));
     printReport(shard, proof, policy);
     console.info(`validated ${shard.identity.slug} v${shard.version}: ${proof.ticks} sim ticks, ${proof.lanes} edge lanes, ${proof.steps} capsule steps`);
     console.info(`advisory tick timing (${proof.timing.samples} samples): median ${proof.timing.medianMicros.toFixed(1)} us, max ${proof.timing.maxMicros.toFixed(1)} us, declared ${shard.serverBudget.tickMicros} us`);

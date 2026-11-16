@@ -100,10 +100,11 @@ export async function checkProject(projectPath: string, outputPath: string | und
     prove: async (): Promise<StepOutcome> => {
       const tape = resolve(project, PROOF_FILE);
       if (!existsSync(tape)) return { status: 'skip', note: `no ${PROOF_FILE}: add an author proof tape to prove the shard's quests` };
-      const { shard, assets } = validateOutputProduct(built());
+      const { shard, assets, sections } = validateOutputProduct(built());
       if (shard.runtime !== null) return { status: 'skip', note: 'native gameplay: the author proof needs data-only gameplay' };
       const plan = readProofTape(tape);
-      const report = await proveAuthorSimulation(shard, assets, plan);
+      // The output's sections name each decision's ABI; without them a v1 decision fails `Import signature outside ABI`.
+      const report = await proveAuthorSimulation(shard, assets, plan, sections);
       return { status: 'pass', note: `${report.ticks} ticks, ${report.ledger.facts.length} facts filed` };
     },
     report: async (): Promise<StepOutcome> => {

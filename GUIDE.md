@@ -134,8 +134,8 @@ node -e 'const walk=[{kind:"player",moveX:0,moveZ:-1,yaw:0}];require("fs").write
 ```
 
 **Known, sdk 0.3.x:** a valid tape can still fail in the engine's save step (`traveler pose changed on restore` on a
-scene shard, `Import signature outside ABI` on the reference world), and a tape cannot yet talk to an NPC or choose a
-dialogue line. Both are being fixed (meta NEW-SHARD-E2E F27); until then a failing prove is not your tape's fault if
+scene shard, `restored regional suffix diverged` when a creature is moving at the checkpoint), and a tape cannot yet
+talk to an NPC or choose a dialogue line. Both are being fixed (meta NEW-SHARD-E2E F27); until then a failing prove is not your tape's fault if
 those are its words.
 
 ### The hero
