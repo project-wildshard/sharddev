@@ -151,6 +151,48 @@
         "legacy map layout remains the fallback until a source map exists"
       ],
       "targetSha256": "e4c9436c4a7d0a3c6ef784f0f5143e03d33c0575c729843607afbeb965ab07bd"
+    },
+    {
+      "sourcePath": "test/map-source-inputs.test.ts",
+      "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
+      "sourceBlob": "f6e0cf9fa1e2105919f87dffbfeb0e114a453397",
+      "targetPath": "test/ci21-source/map-source-inputs.draft.ts",
+      "partial": true,
+      "engineRemovalAllowed": false,
+      "originalTests": [
+        "map keys ignore installed launchers while retaining source and lockfile bytes",
+        "%s map names exactly the SDK files its generators reach",
+        "source-owned maps declare their program and its defining raster inputs",
+        "%s map declarations invalidate on raster and scene edits"
+      ],
+      "delegatedOriginalTests": [
+        "source-owned maps declare their program and its defining raster inputs"
+      ],
+      "outstandingOwnerProofs": [
+        "blender-template/brasscap-mesa",
+        "driftwood-isle",
+        "far-reach",
+        "nalati-grasslands",
+        "nine-dragon-stack (including all extra root assertions)",
+        "open-plots",
+        "pine-hollow",
+        "sunscar-dunes"
+      ],
+      "state": "PARTIAL SDK slice only; no whole-original or engine removal credit",
+      "changes": "Six SDK cache/closure/raster-input cases pass on actual source. Eight other original owner assertions and Nine extra roots stay owed to content owners. Actual SDK bug fixed: retired src/sdk inputs replaced by exact80/85 reached SDK+commons paths; all three actual source products build.",
+      "localRuntime": {
+        "files": 1,
+        "cases": 6,
+        "seconds": 0.62,
+        "result": "SDK slice pass; original owner case remains partial"
+      },
+      "targetTests": [
+        "map keys ignore installed launchers while retaining source and lockfile bytes",
+        "%s map names exactly the SDK files its generators reach",
+        "SDK-owned maps declare their program and its defining raster inputs",
+        "%s map declarations invalidate on raster and scene edits"
+      ],
+      "targetSha256": "027fb423c1bde55fef97eeba92370f6b30ab29240f33af6eee0aaa93d052688a"
     }
   ]
 }
