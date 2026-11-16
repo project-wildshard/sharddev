@@ -28,6 +28,10 @@ on:
         description: Exact engine candidate commit (empty keeps the pin)
         type: string
         default: ''
+      browser_only:
+        description: Diagnose the two packed browser cases only (does not qualify full Ring 2)
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -95,12 +99,16 @@ jobs:
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
       - name: Ring 2 cold and relocated complete template bakes
+        if: ${{ !inputs.browser_only }}
         run: node --test --test-concurrency=1 test/ci/template-determinism.test.mjs
       - name: Installed reference, door, save and real cook
+        if: ${{ !inputs.browser_only }}
         run: node --test --test-concurrency=1 test/ci/new-reference.test.mjs
       - name: Installed generated author inputs and maps
+        if: ${{ !inputs.browser_only }}
         run: node --test --test-concurrency=1 test/ci/author-inputs.test.mjs
       - name: Installed warm author build with OS networking denied
+        if: ${{ !inputs.browser_only }}
         run: node --test --test-concurrency=1 test/ci/offline-author.test.mjs
       # TC14: report for one real week before explicit blocking admission.
       # Cold published client download + native browser are Ring 2, never hooks.

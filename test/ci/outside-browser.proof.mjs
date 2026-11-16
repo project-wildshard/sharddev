@@ -12,8 +12,10 @@ import { installWildshard } from '../../src/test/helpers/install.ts';
 
 function observation() {
   const probe = window.__wildshard, game = probe?.world?.game, state = probe?.state();
+  const gl = game?.renderer.getContext(), debug = gl?.getExtension('WEBGL_debug_renderer_info');
   return { slug: probe?.shard?.slug, state: state?.appState, frame: probe?.app.clock.frame,
     drawn: game?.renderer.info.render.frame, player: state?.player,
+    renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl?.getParameter(gl.RENDERER),
     entered: probe?.world?.hud.entered, paused: probe?.world?.hud.paused,
     fatal: [...document.querySelectorAll('#wserr,.ws-load-error,.ws-game-dev-alert,[data-boot-fatal]')].map(node => node.textContent) };
 }
@@ -26,7 +28,7 @@ async function observeAuthorBrowser(context, empty) {
   mkdirSync(parent, { recursive: true }); mkdirSync(report, { recursive: true });
   const root = mkdtempSync(join(parent, 'author-')), app = join(root, 'app');
   const faults = [], requests = [], delivered = [], receipt = { faults, requests, delivered };
-  let browser, server, dev, devClosed, output = '';
+  let browser, server, dev, devClosed, page, output = '';
   const cancellation = new AbortController();
   const abort = () => cancellation.abort(new Error('outside-author deadline'));
   const deadline = setTimeout(abort, 80_000); // reserve 40 seconds for bounded operations and cleanup
@@ -56,10 +58,10 @@ async function observeAuthorBrowser(context, empty) {
     const url = new URL(await ready); url.searchParams.set('mute', '1'); url.searchParams.set('nolock', '1'); url.searchParams.set('sw', '0');
     receipt.url = url.href;
     cancellation.signal.throwIfAborted();
-    server = await chromium.launchServer({ timeout: 15_000, headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', ...(process.platform === 'darwin' ? ['--use-angle=metal'] : [])] });
+    server = await chromium.launchServer({ timeout: 15_000, headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', ...(process.env.WS_BROWSER_SOFTWARE === '1' ? ['--use-angle=swiftshader'] : process.platform === 'darwin' ? ['--use-angle=metal'] : [])] });
     if (cancellation.signal.aborted) { server.process().kill('SIGKILL'); cancellation.signal.throwIfAborted(); }
     browser = await chromium.connect(server.wsEndpoint(), { timeout: 10_000 });
-    const page = await browser.newPage({ viewport: { width: 960, height: 640 } });
+    page = await browser.newPage({ viewport: { width: 960, height: 640 } });
     page.on('pageerror', error => faults.push(error.message));
     page.on('console', message => { if (message.type() === 'error') faults.push(message.text()); });
     page.on('response', response => {
@@ -96,7 +98,16 @@ async function observeAuthorBrowser(context, empty) {
     }
     await page.screenshot({ path: join(report, 'outside-author.png') });
     receipt.verdict = 'pass';
-  } catch (error) { receipt.verdict = 'fail'; receipt.error = String(error); throw error; }
+  } catch (error) {
+    receipt.verdict = 'fail'; receipt.error = String(error);
+    // Preserve actual progress when a hosted browser misses the deadline;
+    // the primary failure and every existing assertion remain unchanged.
+    if (page) {
+      try { receipt.last = await page.evaluate(observation); await page.screenshot({ path: join(report, 'failure.png'), timeout: 3_000 }); }
+      catch (diagnostic) { receipt.diagnosticError = String(diagnostic); }
+    }
+    throw error;
+  }
   finally {
     clearTimeout(deadline);
     context.signal.removeEventListener('abort', abort);
