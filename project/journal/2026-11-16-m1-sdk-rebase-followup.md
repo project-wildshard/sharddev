@@ -18,3 +18,8 @@ pin; the temporary engine source link is restored in finally.
 The coordinator is cutting engine0.1.31. Verify it containsc7a984fa and
 is npm-visible before pinning it. At13:46 it was not listed. Root and kit
 remain aligned source labels0.3.5; no M1 package has been published.
+
+Post-rebase author lint,17 focused cases across7 files and all18 kit
+cases also pass against the coherent engine source. Its temporary engine
+link is restored to installed bytes in finally. Rechecked npm14:04:
+engine0.1.31 still not listed. No actual dependency pin is advanced.
