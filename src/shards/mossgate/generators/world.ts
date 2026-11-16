@@ -9,7 +9,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { animate, drift, flicker, pulse, rise, solid, sway, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
+import { animate, drift, flicker, pulse, rise, solid, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
 import * as T from './textures';
 import { sunsetSky } from './sky';
 
@@ -91,7 +91,6 @@ function materials(): { M: Materials; tex: Textures } {
 // tongue's height * (0.85 + 0.12 sin 9t + 0.06 sin 23t), foliage in the wind, sparks climbing, fireflies wandering.
 const LAMP_FLICKER = flicker({ rate: 1.1, amount: 0.08 });
 const FLAME_PULSE = pulse({ rate: 1.4, amount: 0.14 });
-const FOLIAGE_SWAY = sway({ rate: 0.5, amount: 0.06 });
 
 // One material per halo colour and strength, per stencil text: repeated ones share a draw (the cleanroom's decalMats).
 const glowMats = new Map<string, THREE.SpriteMaterial>(), decalMats = new Map<string, THREE.MeshStandardMaterial>();
@@ -865,7 +864,7 @@ export function boulders(part: THREE.Group, M: Materials, tex: Textures): void {
 }
 
 /** Ferns, mushrooms and flowers (cleanroom world.js 891-936): ferns along the yard's edges, by the boulders and the hut. */
-export function flora(part: THREE.Group, tex: Textures): void {
+export function flora(part: THREE.Group, tex: Textures, world: ShardWorld): void {
   const rand = T.rng(891), R = (a: number, b: number): number => a + (b - a) * rand();
   const Y = LAYOUT.YARD, G = LAYOUT.GATE;
   const edge: [number, number][] = [];
@@ -873,22 +872,24 @@ export function flora(part: THREE.Group, tex: Textures): void {
   for (let x = Y.x0 + 0.8; x < Y.x1 - 0.5; x += R(1.4, 3)) { edge.push([x, Y.z0 + 0.8]); edge.push([x, Y.z1 - 0.8]); }
   const fernSpots: [number, number][] = [...edge, ...BOULDERS.map(([x, z]): [number, number] => [x + R(-0.8, 0.8), z + R(0.5, 1)]),
     [-1.6, -12.4], [-6.8, -12.6], [-6.6, -12.0], [G.x + 1.0, G.z - 2.6], [G.x + 1.0, G.z + 2.6], [-2.2, -5.4], [3.1, -6.2], [1.6, -11.8]];
+  // ferns (AP32d): one nine-frond rosette is the detail card, a copy a spot; the engine scatters them round the camera
   {
-    const fg = new THREE.PlaneGeometry(0.3, 1.05, 1, 6); fg.translate(0, 0.52, 0);
-    const p = fg.attributes.position;
+    const frond = new THREE.PlaneGeometry(0.3, 1.05, 1, 6); frond.translate(0, 0.52, 0);
+    const p = frond.attributes.position;
     if (p !== undefined) for (let i = 0; i < p.count; i++) { const y = p.getY(i); p.setZ(i, y * y * 0.55); p.setY(i, y * (1 - y * 0.25)); }
-    fg.computeVertexNormals();
-    const im = new THREE.InstancedMesh(fg, new THREE.MeshStandardMaterial({ map: tex.frond, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.8 }), fernSpots.length * 9);
+    frond.computeVertexNormals();
+    // the rosette's own stream, so the mushrooms and flowers below draw the numbers they always drew
+    const lean = T.rng(892);
+    const rosette = mergeGeometries(Array.from({ length: 9 }, (_, f) => frond.clone().rotateX(-(0.25 + 0.3 * lean())).rotateY((f / 9) * Math.PI * 2 + (lean() - 0.5) * 0.4)));
+    const im = new THREE.InstancedMesh(rosette, new THREE.MeshStandardMaterial({ map: tex.frond, alphaTest: 0.4, side: THREE.DoubleSide, roughness: 0.8 }), fernSpots.length);
     const o = new THREE.Object3D();
     let k = 0;
     for (const [x, z] of fernSpots) {
       const s = R(0.75, 1.25);
-      for (let f = 0; f < 9; f++) {
-        o.position.set(x, groundHeight(x, z), z); o.rotation.set(0, (f / 9) * Math.PI * 2 + R(-0.2, 0.2), 0); o.rotateX(R(-0.55, -0.25));
-        o.scale.set(s, s * R(0.8, 1.1), s); o.updateMatrix(); im.setMatrixAt(k++, o.matrix);
-      }
+      for (let f = 0; f < 9; f++) { R(-0.2, 0.2); R(-0.55, -0.25); R(0.8, 1.1); }
+      o.position.set(x, groundHeight(x, z), z); o.rotation.set(0, 0, 0); o.scale.setScalar(s); o.updateMatrix(); im.setMatrixAt(k++, o.matrix);
     }
-    im.castShadow = true; part.add(animate(im, FOLIAGE_SWAY));
+    world.detail('ferns', im, { cell: 1, radius: 30, sway: { amount: 0.06, rate: 0.5 }, shadow: true });
   }
   // mushrooms and flowers: the same small meshes, one shared geometry each (the cleanroom merged them per material)
   const capGeo = new THREE.SphereGeometry(0.12, 12, 8, 0, Math.PI * 2, 0, Math.PI / 2);
@@ -913,8 +914,9 @@ export function flora(part: THREE.Group, tex: Textures): void {
   }
 }
 
-/** Grass (cleanroom world.js 937-959): 9,000 crossed cards within 62 m, off the hut, the pond, the arena and the path. */
-export function grass(part: THREE.Group, tex: Textures): void {
+/** Grass (cleanroom world.js 937-959): 9,000 crossed cards within 62 m, off the hut, the pond, the arena and the path, as a
+ *  detail layer (AP32d): the shard keeps the card and a count of cards per metre square, the engine grows them round the camera. */
+export function grass(world: ShardWorld, tex: Textures): void {
   const rand = T.rng(937), R = (a: number, b: number): number => a + (b - a) * rand();
   const { slabs } = pathSlabs(), H = LAYOUT.HUT, doorZ = H.z + H.d / 2;
   const card = new THREE.PlaneGeometry(0.38, 0.28); card.translate(0, 0.13, 0);
@@ -938,7 +940,8 @@ export function grass(part: THREE.Group, tex: Textures): void {
     o.updateMatrix(); im.setMatrixAt(k, o.matrix); im.setColorAt(k, c.setRGB(R(0.82, 1.0), R(0.82, 1.0), R(0.62, 0.85)));
     k++;
   }
-  im.count = k; part.add(animate(im, FOLIAGE_SWAY));
+  im.count = k;
+  world.detail('grass', im, { cell: 2, radius: 40, sway: { amount: 0.06, rate: 0.5 } });
 }
 
 /** Fireflies (cleanroom world.js 979-991): 160 seats over the hollow, each wandering 0.6 m round itself. */
@@ -991,8 +994,8 @@ export function buildMossgate(world: ShardWorld): void {
   world.part('arena', (part) => { arena(part, M, tex); });
   world.part('trees', (part) => { trees(part, M, tex); });
   world.part('boulders', (part) => { boulders(part, M, tex); });
-  world.part('flora', (part) => { flora(part, tex); });
-  world.part('grass', (part) => { grass(part, tex); });
+  world.part('flora', (part) => { flora(part, tex, world); });
+  grass(world, tex);
   world.part('fireflies', (part) => { fireflies(part, tex); });
   world.spawn(LAYOUT.SPAWN.x, 0, LAYOUT.SPAWN.z, LAYOUT.SPAWN.yaw);
 }

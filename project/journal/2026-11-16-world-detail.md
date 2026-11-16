@@ -11,10 +11,9 @@
 - 9,000 clumps over 60 m: 2,980 bytes against 477,280 for the baked instances. A textured or graph card is refused for
   now (a layer has no texture binding yet).
 - AP32d (opus-ss16j): a textured card lowers now: its map is the detail look entry's PBR colour map (a library KTX2, the
-  same bytes a tile GLB would bind), its uvs carry the map's repeat and offset. Mossgate's own move (9,000 grass cards at
-  2 m cells, radius 40; fern rosettes at 1 m, radius 30, shadows; download 21.27 MB to 17.15 MB, the two layers 12 KB and
-  8 KB plus their 3 KB and 5 KB maps) waits on branch `plan/ss16j-mossgate` for an engine release that draws
-  `look.details` and this repo's engine pin: on engine 0.1.24 Mossgate would show no grass.
+  same bytes a tile GLB would bind), its uvs carry the map's repeat and offset. Mossgate's 9,000 grass cards (2 m cells,
+  radius 40) and its fern rosettes (one nine-frond card a spot, 1 m cells, radius 30, shadows) are `world.detail` layers:
+  download 21.27 MB to 17.15 MB; the two layers are 12 KB and 8 KB plus their 3 KB and 5 KB maps.
 - Review fixes (opus-ss16j): the fullest cell is found with a loop (a 512-cell grid overflowed `Math.max(...)`), a card
   that is not a MeshStandardMaterial is refused by layer id, and the walker's detail set lives one lowering, so a mesh
   reused in a later build draws.
