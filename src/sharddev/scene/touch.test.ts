@@ -31,3 +31,14 @@ test('a touchable part that is not a panel, or has nothing in it, refuses', () =
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('crate', () => undefined, { panel: 'yard.crate', touchable: { material: 'wood' } }); }))
     .toThrow(/no bounds/u);
 });
+
+test('a panel that shares a texture with the far tiles refuses by name (SS9e: the crate borrowed the yard wall\'s wood)', () => {
+  const grain = new THREE.DataTexture(new Uint8Array(4 * 4 * 4).fill(200), 4, 4); grain.needsUpdate = true;
+  const planks = new THREE.MeshStandardMaterial({ map: grain, roughness: 0.8 });
+  const lowered = lowerShard({ slug: 'shared', name: 'Shared' }, (world) => {
+    world.part('mound', (part) => { const wall = solid(new THREE.Mesh(new THREE.SphereGeometry(3, 48, 24), planks)); wall.position.set(0, 1, -6); part.add(wall); });
+    world.part('crate', (part) => { const box = solid(new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), planks)); box.position.set(3, 0.4, 2); part.add(box); },
+      { panel: 'yard.crate', touchable: { material: 'wood' } });
+  });
+  expect(() => sceneShardfile(lowered)).toThrow(/shares a texture with the far \(L1\) tiles/u);
+});

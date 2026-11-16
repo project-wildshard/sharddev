@@ -678,7 +678,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   }
   // AP9c: each L1 tile carries a simplified copy of its four fine tiles' still meshes and of their larger instanced shapes;
   // cards and moving entries stay near-only. The engine draws an L1 tile where its fine tiles are not resident.
-  const coarseShapes = new Map<BufferGeometry, BufferGeometry>();
+  const coarseShapes = new Map<BufferGeometry, BufferGeometry>(), coarseFiles = new Set<string>();
   const coarseShape = (geometry: BufferGeometry): BufferGeometry => {
     const found = coarseShapes.get(geometry); if (found !== undefined) return found;
     const simplified = compacted(coarseGeometry(geometry, COARSE_RATIO, COARSE_ERROR, { sloppy: true }));
@@ -720,6 +720,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     for (const primitive of primitives) if (primitive.instances === undefined) { primitive.geometry.computeBoundingBox(); if (primitive.geometry.boundingBox !== null) drawn.union(primitive.geometry.boundingBox); }
     const size = primitives.reduce((n, primitive) => n + glbBytes(primitive), 0);
     if (size > 18_000_000) throw new Error(`scene: the generated L1 tile 1/${String(x)}/${String(z)} is ${(size / 1e6).toFixed(1)} MB, over the 18 MB one GLB holds (AP9c)`);
+    for (const hash of dependencies) coarseFiles.add(hash);
     const row = store(staticGlb(primitives, `scene.l1.${String(x)}.${String(z)}`), 'glb', [...dependencies].sort());
     propTiles.push({ lod: 1, x, z, file: row.hash });
     const tile = shardTiles.find((t) => t.lod === 1 && t.x === x && t.z === z);
@@ -752,6 +753,9 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
       const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
     }
     if (primitives.length === 0) throw new SceneRefusalError(id, 'a panel part draws nothing', 'Give the panel part a visible mesh, or drop its panel option');
+    // a panel loads with the shard (the library) and a far (L1) tile may not depend on the library (format asset admission's
+    // `coarse dependency on library`): say which panel, not the format's bare line (SS9e: Mossgate's crate borrowed the yard's wood)
+    if ([...dependencies].some((hash) => coarseFiles.has(hash))) throw new SceneRefusalError(id, 'a panel part shares a texture with the far (L1) tiles', 'Give the panel part its own textured material, or an untextured one');
     // a panel is one library file (format props `panels[].file`), and a GLB holds at most 25 MB: the tiles' 18 MB batch is
     // not open to it, so a panel past that is refused here, by name, not at admission
     const size = primitives.reduce((n, primitive) => n + glbBytes(primitive), 0);

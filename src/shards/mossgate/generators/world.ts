@@ -580,11 +580,16 @@ function barrel(part: THREE.Group, k: Kit, M: Materials, x: number, z: number): 
  * SHARD-SOURCE SS9e: a crate inside the yard gate that players push (format `props.bodies`): its own panel part, a
  * planked box with iron corner bands, one body the server keeps and every player sees move the same way.
  */
+/** SS9e: the crate's planks (`T.crateWood`), made once */
+const crateWood = T.crateWood();
+
 export function crate(part: THREE.Group, M: Materials): void {
   const { x, z, yaw } = LAYOUT.CRATE, gy = groundHeight(x, z), size = 0.8;
-  const box = solid(new THREE.Mesh(new RoundedBoxGeometry(size, size, size, 2, 0.03), M.wood)); box.position.set(x, gy + size / 2, z); box.rotation.y = yaw; box.castShadow = true; part.add(box);
+  // its own planks and bands: a panel's textures load with the shard, and the yard's far tiles may not share them
+  const planks = new THREE.MeshStandardMaterial({ map: crateWood, roughness: 0.8 }), iron = M.iron.clone();
+  const box = solid(new THREE.Mesh(new RoundedBoxGeometry(size, size, size, 2, 0.03), planks)); box.position.set(x, gy + size / 2, z); box.rotation.y = yaw; box.castShadow = true; part.add(box);
   for (const [cx, cz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
-    const band = new THREE.Mesh(new THREE.BoxGeometry(0.06, size, 0.06), M.iron);
+    const band = new THREE.Mesh(new THREE.BoxGeometry(0.06, size, 0.06), iron);
     const ox = cx * (size / 2 - 0.02), oz = cz * (size / 2 - 0.02);
     band.position.set(x + ox * Math.cos(yaw) + oz * Math.sin(yaw), gy + size / 2, z - ox * Math.sin(yaw) + oz * Math.cos(yaw)); band.rotation.y = yaw; part.add(band);
   }

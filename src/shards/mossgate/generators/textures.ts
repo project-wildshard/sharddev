@@ -90,6 +90,17 @@ export function wood(): DataTexture {
   });
 }
 
+/** SS9e: the crate's planks, its own map: a panel loads with the shard (the library), and a far (L1) tile may not share
+ *  a texture with it, so the crate never borrows the yard's wood. */
+export function crateWood(): DataTexture {
+  const n = makeNoise(13);
+  const S = 128;
+  return paint(S, S, (u, v) => {
+    const grain = n(u * 3, v * 48) * 0.6 + n(u * 2, v * 110) * 0.4, seam = Math.abs(((u * 4) % 1) - 0.5) > 0.46 ? 0.55 : 1;
+    return mix3([96, 66, 40], [150, 108, 66], grain).map((x) => x * seam);
+  });
+}
+
 export function shingle(): DataTexture {
   const n = makeNoise(9);
   const S = 256;
