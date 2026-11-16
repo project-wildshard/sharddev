@@ -14,7 +14,8 @@ import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/chec
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { buildProject } from './project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
-import { handwrittenIdentity, settleHandwritten } from './handwritten';
+import { handwrittenIdentity } from './handwritten';
+import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
 import { validateOutputProduct } from './outputProduct';
 import { engineMusicLine } from './engineMusic';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
@@ -23,6 +24,7 @@ import { authorErrorText } from './authorError';
 import { refusalCode } from '../../packages/upload/src/sharddev/refusals';
 import { DRAFT_SDK, draftMessage } from '../../packages/upload/src/sharddev/draft';
 import { authorLintPlan } from './authorLint';
+import { assertCreatureTemperaments } from './creatureLayers';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -57,6 +59,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
   const project = resolve(projectPath);
   let output = outputPath === undefined ? undefined : resolve(outputPath), admitted: Admitted | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
+    assertCreatureTemperaments(shard.rows);
     admitted = { check: await checkShardfile(shard, assets, {sections, policy}) };
   };
   // SA16 (J314): a hand-written source (`--template blender`) has nothing to build: format's pack settles it into the
@@ -68,8 +71,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
     // Its build output goes beside src/, never inside the folder pack reads (or a built folder named as a source).
     if (!isRepoSource(source)) throw new Error(`${source}: a hand-written shard file builds only from a repo's src/: run wildshard check on the repo`);
     output ??= resolve(shardOutputRoot(source), 'public/shardfiles', handwrittenIdentity(source).slug);
-    settleHandwritten(source, output);
-    const checked = validateOutputProduct(output);
+    const checked = settleHandwrittenCreatureLayers(source, output);
     await admit(checked.shard, checked.assets, checked.shard.runtime === null ? 'refuse' : 'warn', checked.sections);
     return checked.shard;
   };

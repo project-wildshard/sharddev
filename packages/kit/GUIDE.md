@@ -7,6 +7,13 @@ The plain JSON catalogue and TypeScript helpers describe the same rows.
 Copy the content you use into a shard at build time. A kit update changes
 a shard only when that shard rebuilds with the updated content.
 
+`@wildshard/kit/legacySpecies` supplies fresh compatibility profiles for old
+source labels. The SDK expands those profiles into explicit rows at build time
+and warns. A shard's existing spawn brain and an encounter-owned body keep
+their declarations. New species declare their own temperament; an unknown label
+does not select an implicit profile. A body using its own GLB may omit the kit
+skeleton name; kit posers name their skeleton contract explicitly.
+
 The temperament helper returns temperament and senses together:
 
 ```ts

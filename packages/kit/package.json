@@ -22,6 +22,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./body": "./src/body.ts",
+    "./legacySpecies": "./src/legacySpecies.ts",
     "./temperament": "./src/temperament.ts",
     "./abilities": "./src/abilities.ts",
     "./content/*": "./content/*",
@@ -39,7 +40,7 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "node --test src/catalogue.test.ts 'src/geometry/*.test.ts'"
+    "test": "node --test 'src/**/*.test.ts'"
   },
   "dependencies": {
     "@wildshard/shard-format": "^0.6.0",
