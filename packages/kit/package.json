@@ -21,6 +21,7 @@
   ],
   "exports": {
     ".": "./src/index.ts",
+    "./creatures": "./src/creatures.ts",
     "./body": "./src/body.ts",
     "./legacySpecies": "./src/legacySpecies.ts",
     "./temperament": "./src/temperament.ts",

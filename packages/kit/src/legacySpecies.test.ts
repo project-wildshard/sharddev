@@ -7,7 +7,18 @@ import { legacyCreatureProfile } from './legacySpecies.ts'
 test('old source profiles copy exact kit tuning and never retain caller mutations', () => {
   const first = legacyCreatureProfile('boar')
   assert.ok(first)
-  assert.deepEqual(first.temperament.tuning, boar.tuning)
+  const { motion, ...tuning } = { ...first.temperament.tuning } as Record<
+    string,
+    unknown
+  >
+  assert.deepEqual(tuning, boar.tuning)
+  assert.deepEqual(motion, {
+    walkSpeed: boar.walkSpeed,
+    chargeSpeed: boar.chargeSpeed,
+    chargeWindup: boar.chargeWindup,
+    ringRadius: boar.ringRadius,
+    trampleRadius: boar.trampleRadius,
+  })
   const speed = first.temperament.home.speed
   first.temperament.home.speed = 0
   first.senses.notice = 0

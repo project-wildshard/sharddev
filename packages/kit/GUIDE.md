@@ -26,6 +26,15 @@ rows. Each custom policy keeps its own parameters. A section without that hunt
 owner receives no hunting numbers. The SDK rehashes changed section bytes before
 admission; no content is selected in the engine.
 
+`commonCreature('boar' | 'bear', { id, look, strike? })` copies the complete
+layered species and its strike rows. Its body uses the caller's look; its ordered
+variants retain their authored dimensions, health and modifiers. Hunting includes
+explicit walk, charge, windup, ring and trample numbers in `tuning.motion`, beside
+the existing hunt numbers. The consumer reads those parameters at setup. Sounds,
+perception and ability values come from the shipped JSON. Calls own their nested
+rows; editing one result changes no other caller. Asset assembly and loot rows
+are separate producer integration steps.
+
 The temperament helper returns temperament and senses together:
 
 ```ts

@@ -41,7 +41,7 @@ test('four old source kinds expand once while explicit author layers and origina
     assertCreatureTemperaments(built.rows);
     expect(expandCreatureLayers(built, line => { warnings.push(line); })).toBe(built);
     expect(warnings).toHaveLength(1);
-    if (kind === 'boar') expect(built.rows.species[0]?.temperament?.tuning).toEqual(boar.tuning);
+    if (kind === 'boar') expect(built.rows.species[0]?.temperament?.tuning).toMatchObject(boar.tuning);
   }
 });
 
@@ -76,7 +76,7 @@ test('the real build emits explicit layers and check names a missing custom temp
     writeFileSync(resolve(root, 'shard.config.ts'), "import input from './data.json' with { type: 'json' };\nexport default input;\n");
     writeFileSync(resolve(root, 'data.json'), JSON.stringify(fixture()));
     const built = await buildProject(root, resolve(root, 'built'), { client: null });
-    expect(built.rows.species[0]?.temperament?.tuning).toEqual(boar.tuning);
+    expect(built.rows.species[0]?.temperament?.tuning).toMatchObject(boar.tuning);
     expect(warnings.mock.calls.some(([line]) => typeof line === 'string' && line.includes('expanded kit layers'))).toBe(true);
     writeFileSync(resolve(root, 'data.json'), JSON.stringify(built));
     const explicit = await buildProject(root, resolve(root, 'explicit'), { client: null });

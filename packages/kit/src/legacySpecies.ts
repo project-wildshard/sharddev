@@ -38,6 +38,13 @@ function hunt(
   tuning: unknown,
   reaction: CreatureTemperament['reaction'],
   sounds: CreaturePresentation['sounds'],
+  motion?: {
+    walkSpeed: number
+    chargeSpeed: number
+    chargeWindup: number
+    ringRadius: number
+    trampleRadius: number
+  },
 ): LegacyCreatureProfile {
   const numbers = parse(HuntTuningSchema, tuning)
   return {
@@ -48,7 +55,19 @@ function hunt(
       leash: numbers.fleeUntilMax,
       assist: numbers.herdAlertRadius,
       home: { speed: numbers.trotSpeed, stop: 1.5 },
-      tuning: numbers,
+      tuning:
+        motion === undefined
+          ? numbers
+          : {
+              ...numbers,
+              motion: {
+                walkSpeed: motion.walkSpeed,
+                chargeSpeed: motion.chargeSpeed,
+                chargeWindup: motion.chargeWindup,
+                ringRadius: motion.ringRadius,
+                trampleRadius: motion.trampleRadius,
+              },
+            },
     },
     senses: {
       notice: numbers.sightRange,
@@ -68,8 +87,8 @@ function hunt(
   }
 }
 const profiles: ReadonlyMap<string, LegacyCreatureProfile> = new Map([
-  ['boar', hunt(boar.tuning, 'aggressive', boar.sounds)],
-  ['bear', hunt(bear.tuning, 'aggressive', bear.sounds)],
+  ['boar', hunt(boar.tuning, 'aggressive', boar.sounds, boar)],
+  ['bear', hunt(bear.tuning, 'aggressive', bear.sounds, bear)],
   [
     'deer',
     hunt(deerTuning, 'skittish', { call: 'deer_call', hurt: 'deer_call' }),

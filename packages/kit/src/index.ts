@@ -17,3 +17,10 @@ export type {
   TemperamentOptions,
   TemperamentProfile,
 } from './temperament.ts'
+
+export { commonCreature } from './creatures.ts'
+export type {
+  CommonCreatureKind,
+  CreatureOptions,
+  CreatureContent,
+} from './creatures.ts'

@@ -1,0 +1,247 @@
+{
+  "species": {
+    "id": "kit.creature.bear",
+    "kind": "bear",
+    "label": "Bear",
+    "aggressive": true,
+    "lockable": true,
+    "dims": {
+      "bodyY": 0.66,
+      "bodyHalfLen": 0.72,
+      "bodyRadius": 0.36,
+      "headRadius": 0.21,
+      "legLen": 0.62,
+      "feet": [
+        [
+          0.18,
+          0.48
+        ],
+        [
+          -0.18,
+          0.48
+        ],
+        [
+          0.17,
+          -0.4
+        ],
+        [
+          -0.17,
+          -0.4
+        ]
+      ],
+      "halfWidth": 0.31
+    },
+    "variants": [
+      {
+        "id": "black",
+        "label": "Black bear",
+        "rarity": "common",
+        "weight": 37,
+        "scale": [
+          1.3,
+          1.4
+        ],
+        "hp": 220,
+        "mods": {
+          "speed": 1,
+          "chargeDist": 1,
+          "damageTaken": 1,
+          "chargeDamage": 35,
+          "relentless": false
+        }
+      },
+      {
+        "id": "black-blaze",
+        "label": "Black bear",
+        "rarity": "common",
+        "weight": 18,
+        "scale": [
+          1.3,
+          1.4
+        ],
+        "hp": 220,
+        "mods": {
+          "speed": 1,
+          "chargeDist": 1,
+          "damageTaken": 1,
+          "chargeDamage": 35,
+          "relentless": false
+        }
+      },
+      {
+        "id": "brown",
+        "label": "Brown bear",
+        "rarity": "uncommon",
+        "weight": 30,
+        "scale": [
+          1.6,
+          1.75
+        ],
+        "hp": 320,
+        "mods": {
+          "speed": 1,
+          "chargeDist": 1,
+          "damageTaken": 0.85,
+          "chargeDamage": 45,
+          "relentless": true
+        }
+      },
+      {
+        "id": "black-old",
+        "label": "Old Blackpaw",
+        "rarity": "rare",
+        "weight": 10,
+        "scale": [
+          1.65,
+          1.65
+        ],
+        "hp": 330,
+        "mods": {
+          "speed": 1,
+          "chargeDist": 1.2,
+          "damageTaken": 1,
+          "chargeDamage": 42,
+          "relentless": true
+        }
+      },
+      {
+        "id": "brown-old",
+        "label": "Grizzled Sow",
+        "rarity": "rare",
+        "weight": 5,
+        "scale": [
+          2,
+          2
+        ],
+        "hp": 480,
+        "mods": {
+          "speed": 1.05,
+          "chargeDist": 1.3,
+          "damageTaken": 0.8,
+          "chargeDamage": 55,
+          "relentless": true
+        }
+      }
+    ],
+    "type": "beast",
+    "body": {
+      "skeleton": "quadruped",
+      "size": "medium",
+      "scale": 1,
+      "look": "kit.creature.bear.look"
+    },
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "aggressive",
+      "leash": 90,
+      "assist": 20,
+      "home": {
+        "speed": 3.5,
+        "stop": 1.5
+      },
+      "tuning": {
+        "hp": 220,
+        "sightRange": 45,
+        "sightRangeGraze": 30,
+        "sightCone": 1.2217304763960306,
+        "hearStill": 6,
+        "hearCrouch": 12,
+        "hearWalk": 25,
+        "hearSprint": 45,
+        "noticeRate": 0.8,
+        "forgetRate": 0.15,
+        "alertAt": 0.3,
+        "boltAt": 0.6,
+        "freezeMin": 1,
+        "freezeMax": 2,
+        "relaxAfter": 3,
+        "panicDist": 14,
+        "runSpeed": 7,
+        "trotSpeed": 3.5,
+        "fleeMinTime": 3,
+        "fleeUntil": 60,
+        "fleeUntilMax": 90,
+        "fleeMaxTime": 12,
+        "lookBack": 2,
+        "waryTime": 30,
+        "waryBoost": 1.3,
+        "herdAlertRadius": 20,
+        "herdBoltDelayMin": 0.3,
+        "herdBoltDelayMax": 1,
+        "impactSpook": 20,
+        "impactAlert": 80,
+        "stalk": {
+          "detect": 40,
+          "speed": 2.5,
+          "giveUp": 60,
+          "rechargeCd": 1.5,
+          "huffMin": 1.8,
+          "huffMax": 3.2,
+          "roar": "bear_roar",
+          "fleeBelowHp": 0.2,
+          "fleeChance": 0.5
+        },
+        "motion": {
+          "walkSpeed": 1,
+          "chargeSpeed": 9,
+          "chargeWindup": 0.65,
+          "ringRadius": 7.5,
+          "trampleRadius": 0.75
+        }
+      }
+    },
+    "senses": {
+      "notice": 45,
+      "sight": {
+        "range": 45,
+        "cone": 1.2217304763960306,
+        "graze": 30
+      },
+      "hearing": {
+        "still": 6,
+        "crouch": 12,
+        "walk": 25,
+        "sprint": 45
+      }
+    },
+    "abilities": [
+      {
+        "use": "kit.creature.bear.charge",
+        "range": 10,
+        "cooldown": 2,
+        "weight": 1,
+        "damage": 35,
+        "speed": 9,
+        "windup": 0.65
+      }
+    ],
+    "presentation": {
+      "blood": true,
+      "sounds": {
+        "call": "bear_growl",
+        "hurt": "bear_hurt"
+      }
+    }
+  },
+  "strikes": [
+    {
+      "id": "kit.creature.bear.charge",
+      "shape": {
+        "kind": "lane",
+        "length": 8,
+        "width": 0.9
+      },
+      "windup": 0.65,
+      "active": 0.6,
+      "recover": 0.8,
+      "cooldown": 2,
+      "range": 10,
+      "damage": 35,
+      "tags": [
+        "creature.bear"
+      ],
+      "weight": 1,
+      "speed": 9
+    }
+  ]
+}
