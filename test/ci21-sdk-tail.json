@@ -95,7 +95,31 @@
       "originalTests": [
         "admitted project radial math is finite and close to native geometry"
       ],
-      "changes": "Keep original ws_project source, all44 yaw/radius pairs,88 finite/tolerance checks and signed-zero assertion. Drive the actual native projection through public ReturnProgram.page with a real compiled ABI1 radial compatibility witness; no private engine export or replacement math."
+      "changes": "Keep original ws_project source, all44 yaw/radius pairs,88 finite/tolerance checks and signed-zero assertion. Drive the actual native projection through public ReturnProgram.page with a real compiled ABI1 radial compatibility witness; no private engine export or replacement math. The exact original V2 binary is lent through ReturnProgram.lendModules to a disposed Scope and checked against its artifact hash; missing and wrong-byte loans refuse."
+    },
+    {
+      "sourcePath": "test/schema-code-memory.test.ts",
+      "targetPath": "test/schema-code-memory.test.ts",
+      "sourceBlob": "6739968bb23c8c30c267d0bc049187c280bbb148",
+      "originalTests": [
+        "real dressing retains author/runtime acceptance and nested refusal without schema mutation",
+        "data-valued keywords and existing reference bases retain their original meanings",
+        "factored tuple, dependency, conditional and disjunction rules match the author validator"
+      ],
+      "changes": "SDK author/native admission comparisons retain all original candidate values, full dressing wire, schema immutability, data-valued keywords and conditional refusals. Actual native private factoring size, const identity, reserved reference passthrough and synchronous-driver assertions are retained in the engine companion at the same source path, with the same three case names. No assertion retired.",
+      "assertionCompanions": [
+        {
+          "repository": "project-wildshard/engine",
+          "targetPath": "test/schema-code-memory.test.ts",
+          "branch": "plan/ci21sdk-tail",
+          "originalTests": [
+            "real dressing retains author/runtime acceptance and nested refusal without schema mutation",
+            "data-valued keywords and existing reference bases retain their original meanings",
+            "factored tuple, dependency, conditional and disjunction rules match the author validator"
+          ],
+          "scope": "All native synchronous checks plus factored-size, const-reference identity and reserved-reference passthrough; no SDK imports. Destination source uses the same original blob."
+        }
+      ]
     }
   ],
   "supportPaths": [

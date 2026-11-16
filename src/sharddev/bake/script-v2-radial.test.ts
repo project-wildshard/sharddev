@@ -29,16 +29,20 @@ test('admitted project radial math is finite and close to native geometry',async
         Read.radial(Read.field(0,Field.yaw),Read.field(0,Field.radius));Do.channel(Channel.x,List.at(0));Do.channel(Channel.z,List.at(1));}`]]),{asLineCeiling:5});
   const owner=new Scope('radial-native'),hash=hashImmutableBytes(bytes);
   try {
-  ReturnProgram.lendModules(owner,new Map([[hash,bytes]]),[{id:'radial.projection',module:`blobs/wasm/${hash}.wasm`,side:'sim',abi:2,
-    lane:'project',pages:1,ioBytes:layout.bytes,compilerRevision:SCRIPT_V2_REVISIONS.compiler,admissionRevision:SCRIPT_V2_REVISIONS.admission}]);
-  const program=ReturnProgram.page({...built.legacy,v2:{artifact:{abi:2,minor:0,compilerRevision:SCRIPT_V2_REVISIONS.compiler,admissionRevision:SCRIPT_V2_REVISIONS.admission,
-    hash,lane:'project',pages:1,ioBytes:layout.bytes},fields:['radius','yaw'],signals:['radial'],channels:['x','z'],bytes:''}},owner);
-  for(const yaw of [0,-0,Math.PI,-Math.PI,Math.PI/2,600*2.6,-75.8695,-74.7565,-70.3045,1e6,1e12])for(const radius of [0,1,3.6,10000]){
-    const actual=program.project('radial',{radius,yaw}),expected={x:Math.sin(yaw)*radius,z:Math.cos(yaw)*radius};
-    // G415: AS and native libm may round a transcendental result differently.
-    // Geometry uses a tight relative/near-zero tolerance, not bit identity.
-    for(const key of ['x','z'] as const)expect(Math.abs((actual[key]??Infinity)-expected[key])).toBeLessThanOrEqual(1e-12*Math.max(1,Math.abs(expected[key])));
-  }
-  expect(Object.is(program.project('radial',{radius:1,yaw:-0})['x'],-0)).toBe(true);
+    const declaration={...built.legacy,v2:{artifact:{abi:2,minor:0,compilerRevision:SCRIPT_V2_REVISIONS.compiler,admissionRevision:SCRIPT_V2_REVISIONS.admission,
+      hash,lane:'project',pages:1,ioBytes:layout.bytes},fields:['radius','yaw'],signals:['radial'],channels:['x','z'],bytes:''}};
+    const contract={id:'radial.projection',module:`blobs/wasm/${hash}.wasm`,side:'sim' as const,abi:2 as const,
+      lane:'project' as const,pages:1,ioBytes:layout.bytes,compilerRevision:SCRIPT_V2_REVISIONS.compiler,admissionRevision:SCRIPT_V2_REVISIONS.admission};
+    expect(()=>ReturnProgram.page(declaration,owner)).toThrow('raw return module loan');
+    expect(()=>ReturnProgram.lendModules(owner,new Map([[hash,new Uint8Array([0])]]),[contract])).toThrow('hash mismatch');
+    ReturnProgram.lendModules(owner,new Map([[hash,bytes]]),[contract]);
+    const program=ReturnProgram.page(declaration,owner);
+    for(const yaw of [0,-0,Math.PI,-Math.PI,Math.PI/2,600*2.6,-75.8695,-74.7565,-70.3045,1e6,1e12])for(const radius of [0,1,3.6,10000]){
+      const actual=program.project('radial',{radius,yaw}),expected={x:Math.sin(yaw)*radius,z:Math.cos(yaw)*radius};
+      // G415: AS and native libm may round a transcendental result differently.
+      // Geometry uses a tight relative/near-zero tolerance, not bit identity.
+      for(const key of ['x','z'] as const)expect(Math.abs((actual[key]??Infinity)-expected[key])).toBeLessThanOrEqual(1e-12*Math.max(1,Math.abs(expected[key])));
+    }
+    expect(Object.is(program.project('radial',{radius:1,yaw:-0})['x'],-0)).toBe(true);
   } finally { owner.dispose(); }
 });

@@ -11,6 +11,15 @@
       "sourceName": "quests/carried.json",
       "pinManifestSha256": "87a917080511e4d7e5f04e36dea2e54d9dc10af5624f5ce461036fa6234e65b6",
       "recipe": "engine test/fixtures/frozen/runtime-manifest.json records this exact admitted pin file and its original source hash; frozen CarriedQuest parser input, no generator dependency."
+    },
+    "nalati-dressing-phone.json": {
+      "sourcePath": "test/fixtures/frozen/nalati-dressing-phone.json",
+      "bytes": 872977,
+      "sha256": "60b838e0074e4045c786f067a7ceecf8df0b16adc1f429de693ca6a54a7b1c6c",
+      "sourcePin": "nalati-grasslands",
+      "sourceName": "world/dressing-phone.json",
+      "sourceSha256": "60b838e0074e4045c786f067a7ceecf8df0b16adc1f429de693ca6a54a7b1c6c",
+      "pinManifestSha256": "87a917080511e4d7e5f04e36dea2e54d9dc10af5624f5ce461036fa6234e65b6"
     }
   }
 }
