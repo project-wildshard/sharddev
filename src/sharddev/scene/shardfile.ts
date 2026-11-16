@@ -14,6 +14,7 @@ import { SceneRefusalError } from './lower';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
+import { detailFileFaults, detailMeshBytes } from '@wildshard/format/look-details';
 
 /**
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
@@ -539,6 +540,33 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     propMaterials[name] = { id: lookId(key), ...(file === undefined ? {} : { colour: { file: file.hash, wrapS: 10497, wrapT: 10497, minFilter: 9987, magFilter: 9729, anisotropy: 4 } }) };
   }
   lookMaterials[GROUND_MATERIAL] = groundEntry(scene);
+  // AP32c: detail layers: the card, mask and heights as plain binary files (engine G649: never base64), the card's own look
+  // entry (no vertex colours: the cards have none, the engine tints each clump)
+  const binary = (bytes: Uint8Array, gpu: number, triangles: number): string => {
+    const hash = hashImmutableBytes(bytes);
+    if (!assets.has(hash)) { assets.set(hash, bytes); files.push({ hash, kind: 'binary', compressed: bytes.length, decoded: bytes.length, gpu, triangles, draws: triangles > 0 ? 1 : 0, dependencies: [], critical: false }); }
+    return hash;
+  };
+  const details = (scene.details ?? []).map((layer) => {
+    const material = scene.materials[layer.material], geometry = scene.geometries[layer.geometry];
+    if (material === undefined || geometry === undefined) throw new SceneRefusalError(layer.path, 'its card did not lower', 'Give world.detail an InstancedMesh with a geometry and a MeshStandardMaterial');
+    const look = lookId(`${layer.material}.detail`);
+    const entry = materialEntry({ material, motion: null, card: false });
+    entry['vertexColours'] = false;
+    lookMaterials[look] = entry;
+    const mesh = detailMeshFile(geometry), { region } = layer;
+    const faults = detailFileFaults({ id: layer.id, mesh: { file: '', vertices: mesh.vertices, triangles: mesh.triangles }, region }, { mesh: mesh.bytes, mask: layer.mask, heights: layer.heights });
+    if (faults.length > 0) throw new SceneRefusalError(layer.path, faults.join('; '), 'Report this: the sdk wrote a detail file the format refuses');
+    const row: Record<string, unknown> = {
+      id: layer.id, material: look, mesh: { file: binary(mesh.bytes, mesh.bytes.length, mesh.triangles), vertices: mesh.vertices, triangles: mesh.triangles },
+      region: { corner: [round(region.corner[0], 3), round(region.corner[1], 3)], cell: region.cell, columns: region.columns, rows: region.rows, span: [round(region.span[0], 3), round(region.span[1], 3)] },
+      mask: binary(layer.mask, 0, 0), heights: binary(layer.heights, 0, 0), clumps: layer.clumps,
+      scale: [round(layer.scale[0], 3), round(layer.scale[1], 3)], tilt: round(clamp01(layer.tilt), 3), tint: [srgb01(layer.tint[0]), srgb01(layer.tint[1])],
+      radius: layer.radius, shadow: layer.shadow,
+    };
+    if (layer.sway !== null) row['sway'] = { amount: round(clamp01(layer.sway.amount), 3), rate: round(layer.sway.rate, 3) };
+    return row as { mesh: { file: string }; mask: string; heights: string };
+  });
   const shardTiles = terrain.tiles.map((t) => ({ ...t, files: [...t.files], bounds: { min: [...t.bounds.min] as [number, number, number], max: [...t.bounds.max] as [number, number, number] } }));
   const propTiles: { lod: 0 | 1; x: number; z: number; file: string }[] = [], tileReport: { tile: string; triangles: number; draws: number; bytes: number }[] = [];
   const addresses = [...new Set([...tiles.keys(), ...instanced.keys()])].sort((a, b) => a.localeCompare(b));
@@ -685,7 +713,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     if (size > 18_000_000) throw new SceneRefusalError(id, `a panel part's mesh is ${(size / 1e6).toFixed(1)} MB, over the 18 MB a panel GLB holds`, 'Split it into smaller panel parts, or drop detail from its meshes');
     return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
   });
-  const library = panels.map((panel) => panel.file);
+  // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
+  const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights])];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)
   const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
@@ -697,7 +726,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const product = {
     ...base, budgets: { ...base.budgets, library: libraryCost(files, library), sim: { resident: SIM_CEILING, compressed: libraryCost(files, terrain.critical).compressed } },
     serverBudget: { ...base.serverBudget, tickMicros: SERVER_TICK_MICROS, memory: SIM_CEILING },
-    look: sceneLook(scene, lights, lookMaterials), spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
+    look: { ...sceneLook(scene, lights, lookMaterials), ...(details.length === 0 ? {} : { details }) }, spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],
     props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
@@ -756,6 +785,21 @@ export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(
     ...(anchored.triggers.length === 0 ? {} : { quests: { ...quests, flags, triggers: [...quests.triggers ?? [], ...anchored.triggers] } }),
     ...(anchored.interactions.length === 0 ? {} : { targets: { ...targets, interactions: [...targets.interactions ?? [], ...anchored.interactions] } }),
   };
+}
+
+/**
+ * AP32c: a detail card in the format's mesh file layout (`look-details-bytes.ts`): f32 positions, normals and uvs (zero
+ * when the card has none), then u16 indices (in order when it has no index).
+ */
+export function detailMeshFile(geometry: SceneGeometry): { bytes: Uint8Array; vertices: number; triangles: number } {
+  const vertices = geometry.position.length / 3, triangles = geometry.triangles;
+  const indices = Uint16Array.from(geometry.index ?? Array.from({ length: triangles * 3 }, (_, i) => i));
+  const floats = new Float32Array(vertices * 8);
+  floats.set(geometry.position, 0); floats.set(geometry.normal, vertices * 3);
+  if (geometry.uv !== null) floats.set(geometry.uv, vertices * 6);
+  const bytes = new Uint8Array(detailMeshBytes(vertices, triangles));
+  bytes.set(new Uint8Array(floats.buffer), 0); bytes.set(new Uint8Array(indices.buffer), floats.byteLength);
+  return { bytes, vertices, triangles };
 }
 
 /** The scene's ground as the terrain bake reads it: the declared height field, or a flat cell. */

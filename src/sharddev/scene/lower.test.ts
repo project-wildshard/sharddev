@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { lowerShard, SceneRefusalError } from './lower';
 import { solid } from './author';
+import { sceneShardfile } from './shardfile';
 
 test('a re-run changes only the edited part\'s hash', () => {
   const run = (roof: string) => lowerShard({ slug: 'authoring-slice', name: 'Slice' }, (world) => {
@@ -42,4 +43,62 @@ test('a trigger and a use prompt take their node\'s world position, read after t
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.trigger('lost', new THREE.Object3D(), { radius: 1 }); })).toThrow(/its node is not in the scene/u);
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const a = new THREE.Object3D(); world.scene.add(a); world.trigger('twice', a, { radius: 1 }); world.trigger('twice', a, { radius: 1 }); })).toThrow(/two triggers share this id/u);
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const a = new THREE.Object3D(); world.scene.add(a); world.interact('far', a, { label: 'x', radius: 9, scene: 's.x' }); })).toThrow(/outside 0.1 to 8 m/u);
+});
+
+// AP32c: world.detail turns an InstancedMesh's copies into one look.details row: counts per cell, not matrices
+function meadow(count: number): THREE.InstancedMesh {
+  const card = new THREE.PlaneGeometry(0.6, 0.8, 1, 1).translate(0, 0.4, 0), cross = card.clone().rotateY(Math.PI / 2);
+  const geometry = new THREE.BufferGeometry();
+  const positions = [...card.getAttribute('position').array, ...cross.getAttribute('position').array];
+  const normals = [...card.getAttribute('normal').array, ...cross.getAttribute('normal').array];
+  const uvs = [...card.getAttribute('uv').array, ...cross.getAttribute('uv').array];
+  const index = [...(card.getIndex()?.array ?? []), ...[...(cross.getIndex()?.array ?? [])].map((i) => i + 4)];
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3)).setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3)).setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2)).setIndex(index);
+  const mesh = new THREE.InstancedMesh(geometry, new THREE.MeshStandardMaterial({ color: '#6f8f3a', side: THREE.DoubleSide }), count);
+  let seed = 7; const random = (): number => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+  const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler(), p = new THREE.Vector3(), s = new THREE.Vector3(), c = new THREE.Color();
+  for (let i = 0; i < count; i++) {
+    // denser to the west: x is the larger of two draws, so the east half holds about three quarters of the clumps
+    const x = -30 + 60 * Math.max(random(), random()), z = -30 + 60 * random(), k = 0.6 + 0.6 * random();
+    m.compose(p.set(x, 2 + 0.05 * x, z), q.setFromEuler(e.set((random() - 0.5) * 0.3, random() * Math.PI * 2, 0)), s.set(k, k, k));
+    mesh.setMatrixAt(i, m); mesh.setColorAt(i, c.setRGB(0.7 + 0.3 * random(), 0.8 + 0.2 * random(), 0.6));
+  }
+  return mesh;
+}
+
+test('world.detail lowers 9,000 clumps to one row: the same count per cell, under a tenth of the baked bytes (AP32c)', () => {
+  const clumps = meadow(9000);
+  const detail = lowerShard({ slug: 'meadow', name: 'Meadow' }, (world) => { world.part('field', (part) => { part.add(clumps); }); world.detail('grass', clumps, { cell: 2, radius: 40, sway: { amount: 0.3, rate: 0.8 } }); });
+  const baked = lowerShard({ slug: 'meadow', name: 'Meadow' }, (world) => { world.part('field', (part) => { part.add(meadow(9000)); }); });
+  expect(detail.parts[0]?.draws).toHaveLength(0);
+  const layer = detail.details?.[0];
+  expect(detail.details).toHaveLength(1);
+  if (layer === undefined) return;
+  // the copies counted again per cell, against what the mask says
+  const counts = new Uint32Array(layer.region.columns * layer.region.rows), m = new THREE.Matrix4(), p = new THREE.Vector3();
+  for (let i = 0; i < clumps.count; i++) {
+    clumps.getMatrixAt(i, m); p.setFromMatrixPosition(m);
+    const at = Math.floor((p.z - layer.region.corner[1]) / 2) * layer.region.columns + Math.floor((p.x - layer.region.corner[0]) / 2);
+    counts[at] = (counts[at] ?? 0) + 1;
+  }
+  const off = [...counts].map((n, at) => Math.abs((layer.mask[at] ?? 0) / 255 * layer.clumps - n));
+  expect(Math.max(...off)).toBeLessThanOrEqual(1);
+  expect(layer.scale[0]).toBeGreaterThanOrEqual(0.6); expect(layer.scale[1]).toBeLessThanOrEqual(1.2);
+  expect(layer.tilt).toBeLessThanOrEqual(0.16);
+  // the shard file: one look.details row, three plain binary files, valid
+  const { shard, assets } = sceneShardfile(detail), row = shard.look.details?.[0];
+  expect(shard.look.details).toHaveLength(1);
+  expect(row?.sway).toEqual({ amount: 0.3, rate: 0.8 });
+  const files = [row?.mesh.file, row?.mask, row?.heights].map((hash) => shard.files.find((f) => f.hash === hash));
+  expect(files.map((f) => f?.kind)).toEqual(['binary', 'binary', 'binary']);
+  const detailBytes = [row?.mesh.file, row?.mask, row?.heights].reduce((n, hash) => n + (assets.get(hash ?? '')?.length ?? 0), 0);
+  const bakedRun = sceneShardfile(baked), terrain = new Set(bakedRun.shard.tiles.flatMap((t) => t.files).filter((hash) => bakedRun.shard.files.find((f) => f.hash === hash)?.kind === 'binary'));
+  const bakedBytes = [...bakedRun.assets].filter(([hash]) => !terrain.has(hash) && bakedRun.shard.files.find((f) => f.hash === hash)?.kind === 'glb').reduce((n, [, bytes]) => n + bytes.length, 0);
+  expect(detailBytes * 10).toBeLessThan(bakedBytes);
+});
+
+test('world.detail refuses what the format cannot hold, by id', () => {
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.detail('grass', meadow(10), { cell: 0.1, radius: 40 }); })).toThrow(/detail grass: its cell 0.1 m/u);
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.detail('Grass', meadow(10), { cell: 2, radius: 40 }); })).toThrow(/a detail id is not a look id/u);
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const mesh = meadow(10); mesh.material = new THREE.MeshStandardMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1) }); world.detail('grass', mesh, { cell: 2, radius: 40 }); })).toThrow(/map has no lowering yet/u);
 });

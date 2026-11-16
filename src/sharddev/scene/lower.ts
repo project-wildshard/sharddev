@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { isSolid, motionOf, paintedPixels, Water, type ShardWorld } from './author';
+import { isDetail, isSolid, markDetail, motionOf, paintedPixels, Water, type ShardWorld } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -185,6 +185,8 @@ function refuseGraphMotion(path: string, key: string, tables: Tables, what: stri
 function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   const visit = (object: Object3D): void => {
+    // AP32c: a world.detail mesh is its layer's, never copies in a tile
+    if (isDetail(object)) return;
     const path = pathOf(object, root);
     if (!object.visible) {
       // an invisible solid is a collider only: said once, drawn never
@@ -274,6 +276,80 @@ function groundHash(heightAt: (x: number, z: number) => number, colourAt: SceneG
 
 const DEFAULT_POST: ScenePost = { tone: 'aces', exposure: 1, bloom: null, vignette: 0 };
 
+/** Format `look.details` limits (shard-format `look-details.ts`): a refusal names them before the schema would. */
+const DETAIL_LIMITS = { layers: 8, side: 512, clumps: 64, triangles: 2000, vertices: 6000, cell: [0.5, 8], radius: [4, 200], scale: [0.05, 20], rate: [0.05, 10] } as const;
+
+interface DetailRequest { readonly id: string; readonly mesh: InstancedMesh; readonly cell: number; readonly radius: number; readonly sway: { amount: number; rate: number } | null; readonly shadow: boolean }
+
+/**
+ * AP32c: one `world.detail` InstancedMesh as a detail layer. Its copies' world seats are counted per `cell`-metre square of
+ * the box round them (the mask: the fullest cell is 255, `clumps` clumps), their mean height per cell (u16 over the
+ * span), and the ranges their scale (the matrix's mean axis length), lean (the copy's up from world up) and colour span.
+ */
+function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter {
+  const { id, mesh, cell } = request, path = `detail ${id}`;
+  if (Array.isArray(mesh.material)) throw new SceneRefusalError(path, 'its mesh has several materials', 'Give a detail card one material');
+  const material = lowerMaterial(mesh.material, path, tables), entry = tables.materials.get(material);
+  if (entry?.map !== null && entry?.map !== undefined) throw new SceneRefusalError(path, 'a detail card\'s map has no lowering yet (a layer has no texture binding)', 'Colour the card with its material and instanceColor; a textured card is an sdk row after AP32d');
+  if (entry?.entry !== null && entry?.entry !== undefined) throw new SceneRefusalError(path, 'a graph material on a detail card has no lowering yet', 'Draw the card with a MeshStandardMaterial');
+  const geometry = lowerGeometry(mesh.geometry, path, tables), card = tables.geometries.get(geometry);
+  const vertices = (card?.position.length ?? 0) / 3, triangles = card?.triangles ?? 0;
+  if (triangles > DETAIL_LIMITS.triangles || vertices > DETAIL_LIMITS.vertices) throw new SceneRefusalError(path, `its card has ${triangles} triangles and ${vertices} vertices, over ${DETAIL_LIMITS.triangles} and ${DETAIL_LIMITS.vertices}`, 'Draw the clump as a few crossed cards');
+  if (!(cell >= DETAIL_LIMITS.cell[0] && cell <= DETAIL_LIMITS.cell[1])) throw new SceneRefusalError(path, `its cell ${cell} m is outside ${DETAIL_LIMITS.cell[0]} to ${DETAIL_LIMITS.cell[1]} m`, 'Count clumps per 0.5 to 8 m square');
+  if (!(request.radius >= DETAIL_LIMITS.radius[0] && request.radius <= DETAIL_LIMITS.radius[1])) throw new SceneRefusalError(path, `its radius ${request.radius} m is outside ${DETAIL_LIMITS.radius[0]} to ${DETAIL_LIMITS.radius[1]} m`, 'Grow it 4 to 200 m round the camera');
+  const sway = request.sway;
+  if (sway !== null && !(sway.amount >= 0 && sway.amount <= 1 && sway.rate >= DETAIL_LIMITS.rate[0] && sway.rate <= DETAIL_LIMITS.rate[1])) throw new SceneRefusalError(path, 'its sway is outside amount 0 to 1 and rate 0.05 to 10', 'Give sway an amount 0 to 1 and a rate in cycles a second');
+  const count = mesh.count;
+  if (count === 0) throw new SceneRefusalError(path, 'its InstancedMesh holds no copies', 'Fill the mesh before handing it to world.detail');
+  // every copy's world matrix: the mesh's own (it may sit in a part) times the copy's
+  mesh.updateMatrixWorld(true);
+  const seat = new Matrix4(), local = new Matrix4(), position = new Vector3(), rotation = new Quaternion(), size = new Vector3(), up = new Vector3();
+  const xs = new Float64Array(count), ys = new Float64Array(count), zs = new Float64Array(count);
+  let scaleLow = Infinity, scaleHigh = 0, tilt = 0;
+  for (let i = 0; i < count; i++) {
+    seat.multiplyMatrices(mesh.matrixWorld, local.fromArray(mesh.instanceMatrix.array, i * 16));
+    seat.decompose(position, rotation, size);
+    xs[i] = position.x; ys[i] = position.y; zs[i] = position.z;
+    const s = (Math.abs(size.x) + Math.abs(size.y) + Math.abs(size.z)) / 3;
+    scaleLow = Math.min(scaleLow, s); scaleHigh = Math.max(scaleHigh, s);
+    tilt = Math.max(tilt, Math.acos(Math.min(1, Math.max(-1, up.set(0, 1, 0).applyQuaternion(rotation).y))));
+  }
+  if (scaleLow < DETAIL_LIMITS.scale[0] || scaleHigh > DETAIL_LIMITS.scale[1]) throw new SceneRefusalError(path, `its copies scale ${scaleLow.toFixed(3)} to ${scaleHigh.toFixed(3)}, outside 0.05 to 20`, 'Size the card so its copies scale 0.05 to 20');
+  // the grid: whole cells from the low corner of the copies' box, at most 512 a side
+  let minX = Infinity, minZ = Infinity, maxX = -Infinity, maxZ = -Infinity;
+  for (let i = 0; i < count; i++) { minX = Math.min(minX, xs[i] ?? 0); maxX = Math.max(maxX, xs[i] ?? 0); minZ = Math.min(minZ, zs[i] ?? 0); maxZ = Math.max(maxZ, zs[i] ?? 0); }
+  const corner: [number, number] = [Math.floor(minX / cell) * cell, Math.floor(minZ / cell) * cell];
+  const columns = Math.floor((maxX - corner[0]) / cell) + 1, rows = Math.floor((maxZ - corner[1]) / cell) + 1;
+  if (columns > DETAIL_LIMITS.side || rows > DETAIL_LIMITS.side) throw new SceneRefusalError(path, `its copies span ${columns} × ${rows} cells of ${cell} m, over ${DETAIL_LIMITS.side} a side`, 'Use a bigger cell, or split the clumps into two layers');
+  const counts = new Uint32Array(columns * rows), sums = new Float64Array(columns * rows);
+  for (let i = 0; i < count; i++) {
+    const c = Math.min(columns - 1, Math.floor(((xs[i] ?? 0) - corner[0]) / cell)), r = Math.min(rows - 1, Math.floor(((zs[i] ?? 0) - corner[1]) / cell)), at = r * columns + c;
+    counts[at] = (counts[at] ?? 0) + 1; sums[at] = (sums[at] ?? 0) + (ys[i] ?? 0);
+  }
+  const clumps = Math.max(...counts);
+  if (clumps > DETAIL_LIMITS.clumps) throw new SceneRefusalError(path, `its fullest ${cell} m cell holds ${clumps} copies, over ${DETAIL_LIMITS.clumps}`, 'Use a smaller cell, or fewer, bigger clumps');
+  let low = Infinity, high = -Infinity;
+  for (let at = 0; at < counts.length; at++) if ((counts[at] ?? 0) > 0) { const mean = (sums[at] ?? 0) / (counts[at] ?? 1); low = Math.min(low, mean); high = Math.max(high, mean); }
+  const mask = new Uint8Array(counts.length), heights = new Uint8Array(counts.length * 2), view = new DataView(heights.buffer);
+  for (let at = 0; at < counts.length; at++) {
+    const n = counts[at] ?? 0; mask[at] = Math.round((n / clumps) * 255);
+    const mean = n > 0 ? (sums[at] ?? 0) / n : low;
+    view.setUint16(at * 2, high > low ? Math.round(((mean - low) / (high - low)) * 65535) : 0, true);
+  }
+  // tint: each channel's lowest and highest instance colour (linear), or white
+  let tint: [Rgb, Rgb] = [[1, 1, 1], [1, 1, 1]];
+  const colours = mesh.instanceColor?.array;
+  if (colours !== undefined) {
+    const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < count; i++) for (let k = 0; k < 3; k++) { const v = colours[i * 3 + k] ?? 1; lo[k] = Math.min(lo[k] ?? v, v); hi[k] = Math.max(hi[k] ?? v, v); }
+    tint = [[lo[0] ?? 1, lo[1] ?? 1, lo[2] ?? 1], [hi[0] ?? 1, hi[1] ?? 1, hi[2] ?? 1]];
+  }
+  return {
+    id, path: mesh.name === '' ? path : mesh.name, geometry, material, region: { corner, cell, columns, rows, span: [low, Math.max(low, high)] }, mask, heights, clumps,
+    scale: [scaleLow, scaleHigh], tilt: Math.min(1, tilt), tint, sway, radius: request.radius, shadow: request.shadow, instances: count,
+  };
+}
+
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>();
@@ -281,8 +357,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
-  const anchorIds = new Set<string>();
-  const anchor = (kind: string, id: string): void => {
+  const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
+  const anchor =(kind: string, id: string): void => {
     if (!/^[a-z][a-zA-Z0-9.-]{0,127}$/u.test(id)) throw new SceneRefusalError(id, `a ${kind} id is not a shardfile id`, 'Name it like `slice.pond`: a lower-case letter, then letters, digits, dots and dashes');
     if (anchorIds.has(`${kind}:${id}`)) throw new SceneRefusalError(id, `two ${kind}s share this id`, `Give every world.${kind} its own id`);
     anchorIds.add(`${kind}:${id}`);
@@ -331,6 +407,14 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (options.label.length === 0 || options.label.length > 128) throw new SceneRefusalError(id, 'a use prompt\'s label is 1 to 128 characters', 'Shorten the label');
       interactions.push({ id, at, ...options });
     },
+    detail: (id, mesh, options) => {
+      if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');
+      if (detailRequests.some((d) => d.id === id)) throw new SceneRefusalError(id, 'two detail layers share this id', 'Give every world.detail its own id');
+      if (detailRequests.length >= DETAIL_LIMITS.layers) throw new SceneRefusalError(id, `a look holds at most ${DETAIL_LIMITS.layers} detail layers`, 'Merge layers that share a card');
+      if (!(mesh instanceof InstancedMesh)) throw new SceneRefusalError(id, 'world.detail takes an InstancedMesh', 'Build the clumps as one InstancedMesh of a small card');
+      markDetail(mesh);
+      detailRequests.push({ id, mesh, cell: options.cell, radius: options.radius, sway: options.sway ?? null, shadow: options.shadow ?? false });
+    },
   };
   build(world);
   scene.updateMatrixWorld(true);
@@ -341,6 +425,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap() };
   const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root)));
+  const details = detailRequests.map((request) => lowerDetail(request, tables));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;
   const background = scene.background !== null && typeof scene.background === 'object' && 'isColor' in scene.background ? rgb(scene.background as Color) : null;
@@ -363,6 +448,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   return {
     identity, parts: lowered, materials: Object.fromEntries(tables.materials), textures: Object.fromEntries(tables.textures),
     geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn, anchored,
+    ...(details.length === 0 ? {} : { details }),
   };
 }
 

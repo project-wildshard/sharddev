@@ -222,6 +222,39 @@ export interface ShardScene {
   readonly spawn: { readonly position: Vec3; readonly yaw: number };
   /** AP25: gameplay rows placed at scene nodes (`world.trigger`, `world.interact`), their positions read from the nodes */
   readonly anchored: SceneAnchored;
+  /** AP32c: `world.detail` layers (format `look.details`), counted from their InstancedMeshes; absent or empty: none */
+  readonly details?: readonly SceneDetailScatter[];
+}
+
+/**
+ * SHARD-SOURCE AP32c: one `world.detail` layer, what its InstancedMesh's copies become: a card mesh and a count of clumps
+ * per mask cell, which the engine scatters round the camera (format `look.details`) instead of shipping every matrix.
+ */
+export interface SceneDetailScatter {
+  readonly id: string;
+  /** the InstancedMesh's path, for refusals and the build log */
+  readonly path: string;
+  /** the card, a `geometries` key */
+  readonly geometry: string;
+  /** the card's material, a `materials` key */
+  readonly material: string;
+  readonly region: { readonly corner: readonly [number, number]; readonly cell: number; readonly columns: number; readonly rows: number; readonly span: readonly [number, number] };
+  /** one byte per cell, row by row from the low corner: 255 is `clumps` clumps */
+  readonly mask: Uint8Array;
+  /** one u16 (little-endian) per cell: the mean height of the cell's clumps over `region.span` */
+  readonly heights: Uint8Array;
+  /** clumps in the fullest cell */
+  readonly clumps: number;
+  readonly scale: readonly [number, number];
+  /** the most a clump leans, radians */
+  readonly tilt: number;
+  /** the lowest and highest instance colour per channel (linear), or white */
+  readonly tint: readonly [Rgb, Rgb];
+  readonly sway: { readonly amount: number; readonly rate: number } | null;
+  readonly radius: number;
+  readonly shadow: boolean;
+  /** how many copies the InstancedMesh held */
+  readonly instances: number;
 }
 
 /** AP25a: a region trigger (format `quests.triggers`, kind `region`) at a node's world x and z. */

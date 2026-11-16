@@ -1,4 +1,4 @@
-import { DataTexture, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
+import { DataTexture, type InstancedMesh, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
 import { positionLocal } from 'three/tsl';
 import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
@@ -52,7 +52,21 @@ export interface ShardWorld {
    * shard scene `scene` (format `targets.interactions`; `unless` names the hooks condition that spends it).
    */
   interact: (id: string, at: Object3D, options: { label: string; radius: number; scene: string; unless?: string }) => void;
+  /**
+   * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
+   * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how
+   * many clumps stand in each `cell`-metre square (and their mean height), not the copies, and the engine scatters them
+   * within `radius` metres of the camera (half on a phone), with a seeded yaw and a lean, size and tint inside the ranges
+   * the copies span. The mesh may sit in the scene or not; it is never drawn as copies. `sway` moves the cards' tops on
+   * the wind (`amount` 0 to 1, `rate` in cycles a second).
+   */
+  detail: (id: string, mesh: InstancedMesh, options: { cell: number; radius: number; sway?: { amount: number; rate: number }; shadow?: boolean }) => void;
 }
+
+const DETAIL = new WeakSet<Object3D>();
+/** AP32c: an InstancedMesh handed to `world.detail`: the walker leaves it (and anything under it) out of its part. */
+export const markDetail = (mesh: Object3D): void => { DETAIL.add(mesh); };
+export const isDetail = (object: Object3D): boolean => DETAIL.has(object);
 
 /** AP14: the view ray through a sky pixel (unit, world axes, y up): the dome is centred on the camera. */
 export const skyRay: ReturnType<typeof positionLocal.normalize> = positionLocal.normalize();
