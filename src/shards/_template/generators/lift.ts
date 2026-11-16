@@ -16,8 +16,9 @@ import layout from '../data/layout.json' with { type: 'json' };
 import { surfaceBox } from './weather';
 
 type Colliders = NonNullable<PropsBakeSource['colliders']>[number]['shapes'];
-/** The ledge's top over the ground at its centre, and the lift deck's half size and thickness. */
-export const LEDGE_HEIGHT = 4.2, DECK_HALF = 1.2, DECK_HALF_THICK = 0.12;
+/** The ledge's top over the ground at its centre, and the lift deck's half size and thickness. The top stands out of reach
+ *  of the best double jump (about 3.0 m) from the north wall's cap (about 1 m) beside it, so only the lift reaches the cache. */
+export const LEDGE_HEIGHT = 5.2, DECK_HALF = 1.2, DECK_HALF_THICK = 0.12;
 /** The lift's cycle: rest at the bottom, rise, rest at the top, then the same back (ping-pong), in seconds. */
 const DWELL = 2, RISE = 4;
 /** The mover's script entity: clear of the hooks' (1001, 1002) and every brain's. */

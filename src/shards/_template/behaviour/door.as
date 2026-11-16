@@ -1,6 +1,7 @@
 // The Template's door and braziers (ABI v0, the sdk's `wildshard` prelude). Door and brazier ownership stays in declared
 // shared state; the platform projects it to the panels and colliders. Shared fields in declared order: 0 template.door.open
-// (id 101), then template.brazier-a, -b, -c (ids 102 to 104), TC-M4's south gate (105), then the Warden's two (110, 111).
+// (id 101), then template.brazier-a, -b, -c (ids 102 to 104), TC-M4's south gate (105), then the Warden's two (110, 111),
+// then TC-M4b's template.ledge.standing (112), which nothing sets.
 import { begin, eventCount, eventType, setShared, shared } from './wildshard';
 export { abi_version, init, in_ptr, in_cap, out_ptr, out_cap, out_count } from './wildshard';
 const DOOR = 0, BRAZIERS = 1, SOUTH_GATE = 4;
