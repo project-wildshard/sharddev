@@ -9,12 +9,13 @@ import {
   putObject,
   requestTicket,
 } from './api.ts'
+import { completeUpload } from './completion.ts'
 import { storedForm } from './compress.ts'
-import { placementLines } from './placement.ts'
 import { hashTarball, signTarball } from './signature.ts'
 import { validateShardfile } from './validate.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
+import type { Completion } from './completion.ts'
 import type { StoredForm } from './compress.ts'
 import type { Provenance } from './provenance.ts'
 import type { UploadIdentity } from './signature.ts'
@@ -40,6 +41,8 @@ const ONE_DECIMAL = 1
 const WHOLE = 1
 
 interface UploadOptions extends ApiOptions, Provenance {
+  /** Wait for cooked activation by default; false implements --no-wait. */
+  readonly wait?: boolean
   /** The shardfile tarball. */
   readonly file: string
   /** The channel the upload is for, by its wire name (J301). */
@@ -55,7 +58,7 @@ interface UploadOptions extends ApiOptions, Provenance {
 }
 
 /** The upload that holds the bytes, as the API answered its commit. */
-interface UploadOutcome {
+interface UploadOutcome extends Completion {
   /** The grid line and the links, printed after the commit line (SA32). */
   readonly gridReport: readonly string[]
   readonly hash: string
@@ -155,6 +158,31 @@ function echoOf(answer: CommitAnswer): string {
     .join('')
 }
 
+function reportAnswer(options: UploadOptions, answer: CommitAnswer): void {
+  if (answer.uploadId !== undefined) {
+    return
+  }
+  const {
+    signedBy,
+    created,
+    staged,
+    notified,
+    version,
+    formatVersion,
+    migrations,
+  } = answer
+  const { channel, sharddev, engine, shardFormat } = options
+  options.report(
+    `${options.privateKey === undefined ? 'authorized by' : 'signed by'} ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(notified)}`,
+  )
+  options.report(
+    `sent: channel ${channel}, sharddev ${sharddev}, engine ${engine}, shardFormat ${shardFormat}`,
+  )
+  options.report(
+    `api: version ${version}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}${echoOf(answer)}`,
+  )
+}
+
 /** The commit, always: the API names the version that holds the bytes (V1). */
 async function commit(
   options: UploadOptions,
@@ -173,19 +201,16 @@ async function commit(
     engine,
     shardFormat,
   })
-  const { hash, shard, revision, signedBy, created, staged, notified } = answer
-  const { version, formatVersion, migrations } = answer
-  options.report(
-    `${options.privateKey === undefined ? 'authorized by' : 'signed by'} ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(notified)}`,
-  )
-  options.report(
-    `sent: channel ${channel}, sharddev ${sharddev}, engine ${engine}, shardFormat ${shardFormat}`,
-  )
-  options.report(
-    `api: version ${version}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}${echoOf(answer)}`,
-  )
+  const { hash, shard, revision, created, version, formatVersion, migrations } =
+    answer
+  if (hash !== signed.hash) {
+    throw new Error(
+      'the API commit hash does not match the uploaded shard file',
+    )
+  }
+  reportAnswer(options, answer)
   return {
-    gridReport: placementLines(answer, { channel, place }),
+    ...(await completeUpload(options, answer)),
     hash,
     shard,
     revision,
@@ -245,7 +270,9 @@ async function checkHero(
 function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
   options.report(
-    `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`,
+    outcome.uploadId === undefined || outcome.status === 'live'
+      ? `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`
+      : `queued: ${outcome.shard} ${outcome.version} for ${options.channel} (upload ${outcome.uploadId})`,
   )
   for (const line of outcome.gridReport) {
     options.report(line)

@@ -7,6 +7,7 @@ import {
   number,
   object,
   optional,
+  picklist,
   string,
   tuple,
   unknown,
@@ -66,7 +67,19 @@ const PlacementSchema: GenericSchema<Placement> = variant('placed', [
  * migrations that ran. Format's wire predates them, so sharddev reads the
  * three itself until a format tag carries them.
  */
+const UploadStateSchema = picklist([
+  'checked',
+  'cooking',
+  'staged',
+  'live',
+  'refused',
+  'stalled',
+])
+type UploadState = (typeof UploadStateSchema.options)[number]
+
 interface CommitAnswer extends UploadResult {
+  readonly uploadId?: string | undefined
+  readonly status?: UploadState | undefined
   readonly version: string
   readonly formatVersion: string
   readonly migrations: readonly unknown[]
@@ -91,6 +104,8 @@ const MigrationsSchema = array(unknown())
 const EchoSchema = optional(nullable(string()))
 
 const CommitFieldsSchema = object({
+  uploadId: optional(string()),
+  status: optional(UploadStateSchema),
   version: string(),
   formatVersion: string(),
   migrations: MigrationsSchema,
@@ -127,10 +142,34 @@ const CatalogueSchema: GenericSchema<{
   readonly shards: readonly CatalogueShard[]
 }> = object({ shards: array(CatalogueShardSchema) })
 
+interface UploadStatus {
+  readonly uploadId: string
+  readonly hash: string
+  readonly status: UploadState
+  readonly createdAt: number
+  readonly updatedAt: number
+  readonly report?: unknown
+  readonly build?: string | undefined
+  readonly placement?: unknown
+}
+const UploadStatusSchema: GenericSchema<UploadStatus> = object({
+  uploadId: string(),
+  hash: string(),
+  status: UploadStateSchema,
+  createdAt: number(),
+  updatedAt: number(),
+  report: optional(unknown()),
+  build: optional(string()),
+  placement: optional(unknown()),
+})
+
 export {
   type CatalogueShard,
   type CommitAnswer,
   type Placement,
+  type UploadStatus,
+  type UploadState,
+  UploadStatusSchema,
   CatalogueSchema,
   PlacementSchema,
   CommitAnswerSchema,

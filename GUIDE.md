@@ -235,6 +235,19 @@ wildshard upload public/shardfiles/my-shard.shardfile --channel staging --versio
 Upload checks the shard file as the API will, checks the hero, signs, compresses and sends it, then prints the
 version and what moved. Uploading the same bytes again sends nothing.
 
+With async upload, the command waits and reports `checked`, `cooking`,
+`staged`, then `live`. Nothing is placed before the cook agrees. A refusal
+prints the cook's report and exits non-zero; a stall or a 20-minute wait
+also exits non-zero. To return after acceptance, add `--no-wait`; it prints
+the upload id. Read that upload later with the same account key:
+
+```sh
+wildshard upload status <upload-id> --server https://api.wildshard.io
+```
+
+The status command needs no shard file, version or channel. An older API
+without async status retains the immediate `committed:` behavior.
+
 **First-party shards upload from GitHub Actions.** A `project-wildshard/shard-*` repo carries repo-kit's
 `.github/workflows/publish.yml`, which does steps 3, 4 and 6 on a hosted runner with the org's secrets, so no laptop
 needs a key. Commit and push the hero first (steps 1 and 2), wait for `ci` on `main` to go green, then:

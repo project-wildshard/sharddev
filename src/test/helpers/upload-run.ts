@@ -42,7 +42,12 @@ async function open(
 }
 
 type More = Readonly<
-  Partial<Pick<UploadOptions, 'bypassSecret' | 'channel' | 'place' | 'version'>>
+  Partial<
+    Pick<
+      UploadOptions,
+      'bypassSecret' | 'channel' | 'place' | 'version' | 'wait'
+    >
+  >
 >
 
 /** One upload, `staging` at VERSION unless `more` says otherwise. */

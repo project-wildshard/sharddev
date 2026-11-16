@@ -18,6 +18,7 @@ interface CliArgs {
   readonly level: string | undefined
   /** `upload --no-place` (SA32): take no grid cell. */
   readonly noPlace: boolean
+  readonly noWait: boolean
   readonly out: string | undefined
   readonly port: string | undefined
   readonly server: string | undefined
@@ -35,6 +36,7 @@ const OPTIONS = {
   help: { type: 'boolean', default: false },
   level: { type: 'string' },
   'no-place': { type: 'boolean', default: false },
+  'no-wait': { type: 'boolean', default: false },
   out: { type: 'string' },
   port: { type: 'string' },
   server: { type: 'string' },
@@ -86,6 +88,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     force: values.force,
     level: values.level,
     noPlace: values['no-place'],
+    noWait: values['no-wait'],
     out: values.out,
     port: values.port,
     server: values.server,

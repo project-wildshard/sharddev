@@ -7,11 +7,10 @@ import { buffer } from 'node:stream/consumers'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
-import { literal, number, object, optional, parse, string } from 'valibot'
-
 import { newAccounts, uploadAuthorized } from './auth-double.ts'
 import { answerKeyed, newDeletions } from './delete-double.ts'
 import { close, listen, sendJson } from './http-double.ts'
+import { acceptedAsync, answerAsync, newAsyncUploads } from './upload-async.ts'
 import {
   commitBodyOf,
   createdReply,
@@ -19,12 +18,13 @@ import {
   knownReply,
   listingOf,
   missingVersion,
+  ticketBodyOf,
 } from './upload-commit.ts'
 
 import type { Accounts } from './auth-double.ts'
 import type { Deletions } from './delete-double.ts'
+import type { AsyncUploads } from './upload-async.ts'
 import type { CatalogueShard, Grid, Recorded, Reply } from './upload-commit.ts'
-import type { InferOutput } from 'valibot'
 
 // An api-server stand-in for `sharddev upload`: real sockets, Ed25519 over
 // the tarball's digest, a real Brotli decode, the presigned PUT on a second
@@ -34,14 +34,6 @@ import type { InferOutput } from 'valibot'
 const COMMIT = /^\/api\/shardfiles\/uploads\/(?<hash>[\da-f]{64})\/commit$/u
 const TIME = '2026-11-05T00:00:00.000Z'
 
-const TicketRequestSchema = object({
-  hash: string(),
-  storedBytes: number(),
-  contentEncoding: optional(literal('br')),
-})
-
-type TicketRequest = InferOutput<typeof TicketRequestSchema>
-
 interface StoredObject {
   readonly bytes: Buffer
   readonly headers: Readonly<Record<string, string | string[] | undefined>>
@@ -49,6 +41,7 @@ interface StoredObject {
 
 /** What the double saw, and how it should misbehave. */
 interface UploadServerState {
+  readonly async: AsyncUploads
   readonly apiRequests: IncomingMessage[]
   /** `GET /api/catalogue`'s shards: each slug's newest version (UP4). */
   readonly catalogue: CatalogueShard[]
@@ -169,8 +162,7 @@ function commitReply(
 }
 
 function ticket(double: Double, exchange: Exchange, body: string): void {
-  const raw: unknown = JSON.parse(body)
-  const request: TicketRequest = parse(TicketRequestSchema, raw)
+  const request = ticketBodyOf(body)
   const { hash, storedBytes, contentEncoding } = request
   const { refuseStored, revisions } = double.state
   if (revisions.has(hash)) {
@@ -206,7 +198,10 @@ function route(double: Double, exchange: Exchange, body: string): void {
   if (double.state.sso) {
     response.writeHead(401, { 'content-type': 'text/html' }).end('<html>')
   } else if (committed !== undefined) {
-    const reply = commitReply(double, request, { hash: committed, body })
+    const reply = acceptedAsync(
+      double.state.async,
+      commitReply(double, request, { hash: committed, body }),
+    )
     sendJson(response, reply.status, reply.body)
   } else if (path === '/api/shardfiles/uploads') {
     ticket(double, exchange, body)
@@ -226,7 +221,11 @@ async function answerApi(double: Double, exchange: Exchange): Promise<void> {
   const { state } = double
   state.apiRequests.push(exchange.request)
   const text = body.toString('utf8')
-  if (state.sso || !answerKeyed(state, exchange, text)) {
+  if (
+    state.sso ||
+    (!answerAsync(state.async, exchange, state.accounts.apiKey) &&
+      !answerKeyed(state, exchange, text))
+  ) {
     route(double, exchange, text)
   }
 }
@@ -248,6 +247,7 @@ async function answerPut(
 
 function newState(): UploadServerState {
   return {
+    async: newAsyncUploads(),
     apiRequests: [],
     catalogue: [],
     puts: [],

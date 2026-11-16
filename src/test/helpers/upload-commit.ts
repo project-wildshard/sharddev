@@ -1,10 +1,12 @@
 import {
   boolean,
   literal,
+  number,
   object,
   optional,
   picklist,
   pipe,
+  parse,
   regex,
   safeParse,
   string,
@@ -26,6 +28,18 @@ const OK = 200
 const CREATED = 201
 const CONFLICT = 409
 const UNPROCESSABLE = 422
+
+const TicketRequestSchema = object({
+  hash: string(),
+  storedBytes: number(),
+  contentEncoding: optional(literal('br')),
+})
+function ticketBodyOf(
+  body: string,
+): Readonly<InferOutput<typeof TicketRequestSchema>> {
+  const raw: unknown = JSON.parse(body)
+  return parse(TicketRequestSchema, raw)
+}
 const FIRST_FAILURE = 300
 const X_Y_Z = /^(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})$/u
 
@@ -225,4 +239,5 @@ export {
   knownReply,
   listingOf,
   missingVersion,
+  ticketBodyOf,
 }

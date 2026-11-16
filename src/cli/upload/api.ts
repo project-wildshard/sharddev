@@ -6,6 +6,7 @@ import {
   DirectUploadTicketSchema,
   ErrorBodySchema,
   ShardfileListSchema,
+  UploadStatusSchema,
 } from './wire.ts'
 
 import type { Provenance } from './provenance.ts'
@@ -15,6 +16,7 @@ import type {
   CommitAnswer,
   DirectUploadTicket,
   ShardfileSummary,
+  UploadStatus,
 } from './wire.ts'
 import type { BaseIssue, BaseSchema, InferOutput } from 'valibot'
 
@@ -69,10 +71,22 @@ function jsonOf(text: string): unknown {
   }
 }
 
+class ApiRefusalError extends Error {
+  public override readonly name = 'ApiRefusalError'
+  public readonly status: number
+  public constructor(message: string, status: number) {
+    super(message)
+    this.status = status
+  }
+}
+
 function refusal(path: string, status: number, body?: unknown): Error {
   const parsed = safeParse(ErrorBodySchema, body)
   const reason = parsed.success ? parsed.output.error : BYPASS_HINT
-  return new Error(`${path} answered ${String(status)}: ${reason}`)
+  return new ApiRefusalError(
+    `${path} answered ${String(status)}: ${reason}`,
+    status,
+  )
 }
 
 /** The reply's parsed body; a refusal or anything unparseable throws. */
@@ -90,6 +104,23 @@ async function replyOf<Schema extends AnySchema>(
     throw refusal(path, reply.status)
   }
   return parsed.output
+}
+
+/** The status is private to the account, unlike catalogue reads. */
+async function readUploadStatus(
+  options: ApiOptions,
+  id: string,
+  signal?: Readonly<AbortSignal>,
+): Promise<UploadStatus> {
+  const path = `/api/shardfiles/uploads/${encodeURIComponent(id)}`
+  const reply = await fetch(new URL(path, options.server), {
+    headers: {
+      ...apiHeaders(options),
+      authorization: `Bearer ${options.apiKey}`,
+    },
+    ...(signal === undefined ? {} : { signal }),
+  })
+  return await replyOf(path, reply, UploadStatusSchema)
 }
 
 async function postUpload<Schema extends AnySchema>(
@@ -240,6 +271,8 @@ export {
   type ApiOptions,
   type Channel,
   type UploadRequest,
+  ApiRefusalError,
+  readUploadStatus,
   commitUpload,
   findCatalogued,
   findStored,
