@@ -11,7 +11,8 @@ test('native field and planting metadata retain complete signatures, mandatory d
   expectTypeOf<typeof createTerrainField>().toEqualTypeOf<typeof formatBuildTerrain>();
   expectTypeOf<ReturnType<typeof forestDefaultTreeSpecs>>().toEqualTypeOf<typeof TREE_SPECS>();
   expect(terrainFieldPolicy()).toEqual({ half: CHUNK_HALF, roadWidth: ROAD_WIDTH, roadLength: ROAD_LENGTH });
-  expect(forestDefaultTreeSpecs()).toBe(TREE_SPECS);
+  expect(forestDefaultTreeSpecs()).toStrictEqual(TREE_SPECS);
+  expect(forestDefaultTreeSpecs()).toBe(forestDefaultTreeSpecs());
   const originalField = buildTerrain(17, { landscape: (x, z, noise) => noise.n.get(x / 10, z / 10) + x / 20 - z / 30, trails: [], cabinSites: [] });
   const field = createTerrainField(17, { landscape: (x, z, noise) => noise.n.get(x / 10, z / 10) + x / 20 - z / 30, trails: [], cabinSites: [] });
   for (const z of [-250, -220, 0, 220, 250]) for (const x of [-250, -220, 0, 220, 250]) {
