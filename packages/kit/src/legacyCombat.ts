@@ -1,8 +1,10 @@
-import { StrikeDebrisSchema, type StrikeDebrisPolicy } from '@wildshard/shard-format/strikeDebris'
+import {
+  StrikeDebrisSchema,
+  type StrikeDebrisPolicy,
+} from '@wildshard/shard-format/strikeDebris'
 import { parse } from 'valibot'
 
 import content from '../content/sword-debris.json' with { type: 'json' }
-
 
 /** Compile the former sword effects into ordinary target-row declarations, with no runtime kind lookup. */
 export function legacySwordDebris(

@@ -23,10 +23,12 @@ test('only an explicit old hunt owner copies former numbers, preserving its poli
   expect(expanded.program?.strikes).toEqual(source.program.strikes);
   expect(expanded.native[0]?.variants).toEqual(source.native[0]?.variants);
   expect(expanded.hunt).toEqual(source.hunt);
-  expect(warnings).toHaveLength(2);
+  expect(expanded.native[0]?.capExempt).toBe(false);
+  expect(expanded.program?.species[0]?.capExempt).toBe(false);
+  expect(warnings).toHaveLength(4);
   expect(JSON.stringify(source)).toBe(before);
   expect(expandNativeHuntSource(expanded, line => { warnings.push(line); })).toBe(expanded);
-  expect(warnings).toHaveLength(2);
+  expect(warnings).toHaveLength(4);
   const { hunt: _hunt, ...withoutOwner } = source;
   expect(expandNativeHuntSource(withoutOwner, () => { throw new Error('Unexpected expansion'); })).toBe(withoutOwner);
 });
@@ -46,4 +48,13 @@ test('normal project output admits rehashed native section bytes without mutatin
     expect(expandNativeHuntSections(built ?? platform)).toBe(built);
     expect(() => expandNativeHuntSections({ ...platform, sections: [{ ...section, hash: 'f'.repeat(64) }] })).toThrow('declared bytes');
   } finally { warnings.mockRestore(); }
+});
+
+test('native cap policy follows its own source list and preserves explicit false', () => {
+  const source = fixture(), tagged = { ...source, hunt: { ...source.hunt, fight: { capExempt: ['own.native', 'creature.own.policy'] } } };
+  const result = readSpeciesPrograms(expandNativeHuntSource(tagged, () => undefined));
+  expect(result.native[0]?.capExempt).toBe(true); expect(result.program?.species[0]?.capExempt).toBe(true);
+  const native = tagged.native[0]; if (native === undefined) throw new Error('Missing native row');
+  const explicit = { ...tagged, native: [{ ...native, capExempt: false }] };
+  expect(readSpeciesPrograms(expandNativeHuntSource(explicit, () => undefined)).native[0]?.capExempt).toBe(false);
 });

@@ -211,3 +211,11 @@ The matching 128-square PNG alpha images ship in
 --check` verifies their exact regeneration from those SVG strings. Source
 compatibility compilation copies them into the charged image library and
 sets `tint: 'currentColor'`, preserving the sticker's inherited CSS paint.
+
+`legacySwordDebris(species)` from `@wildshard/kit/legacyCombat` compiles the
+former sword contact values to an admitted default and target-row
+overrides. It returns isolated data; authors can declare another policy
+on each move. Source compilation also copies an older native hunt's own
+cap-exemption list to its species flags, retaining explicit flags and
+explicit move policies. These are compatibility writers, not runtime
+content lookups.
