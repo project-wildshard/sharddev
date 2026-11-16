@@ -1,16 +1,12 @@
 import {
   CreatureTemperamentSchema,
   CreatureSensesSchema,
+  type CreatureSenses,
+  type CreatureTemperament,
 } from '@wildshard/shard-format/creatureLayers'
-import { parse, strictObject } from 'valibot'
+import { parse, strictObject, type GenericSchema } from 'valibot'
 
 import plain from '../content/temperaments.json' with { type: 'json' }
-
-import type {
-  CreatureSenses,
-  CreatureTemperament,
-} from '@wildshard/shard-format/creatureLayers'
-import type { GenericSchema } from 'valibot'
 
 interface TemperamentProfile {
   temperament: CreatureTemperament

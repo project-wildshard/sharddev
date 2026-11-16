@@ -2,12 +2,13 @@ import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { test } from 'node:test'
 
-import { abilities } from './abilities.ts'
+import { abilities, type AbilityHelper } from './abilities.ts'
 import { biped, quadruped } from './body.ts'
-import { temperament } from './temperament.ts'
-
-import type { AbilityHelper } from './abilities.ts'
-import type { PresetName, TemperamentHelper } from './temperament.ts'
+import {
+  temperament,
+  type PresetName,
+  type TemperamentHelper,
+} from './temperament.ts'
 
 async function plain(folder: string, name: string): Promise<string> {
   const file =

@@ -1,16 +1,15 @@
-import { CreatureAbilitySchema } from '@wildshard/shard-format/creatureLayers'
-import { RowsSchema } from '@wildshard/shard-format/rows'
-import { parse, strictObject } from 'valibot'
+import {
+  CreatureAbilitySchema,
+  type CreatureAbility,
+} from '@wildshard/shard-format/creatureLayers'
+import { RowsSchema, type StrikeRows } from '@wildshard/shard-format/rows'
+import { parse, strictObject, type GenericSchema } from 'valibot'
 
 import bite from '../content/abilities/bite.json' with { type: 'json' }
 import charge from '../content/abilities/charge.json' with { type: 'json' }
 import claw from '../content/abilities/claw.json' with { type: 'json' }
 import slam from '../content/abilities/slam.json' with { type: 'json' }
 import swing from '../content/abilities/swing.json' with { type: 'json' }
-
-import type { CreatureAbility } from '@wildshard/shard-format/creatureLayers'
-import type { StrikeRows } from '@wildshard/shard-format/rows'
-import type { GenericSchema } from 'valibot'
 
 interface AbilityTemplate {
   ability: CreatureAbility

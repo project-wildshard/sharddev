@@ -35,6 +35,14 @@ Windows editor-open flaws and dev-server file reads; the engine pins vite 8.3.0 
 `watch` listen on 127.0.0.1 only), and hono 4.13.13 and @hono/node-server 2.1.5 (moderate; the engine's game server
 pins them). The engine moves to the fixed releases; then the sdk follows.
 
+Shared creature content and author geometry live in `@wildshard/kit`. Its
+[public modules](docs/api/KIT.md) define the species, arm, pickup, body and
+weapon helpers; the SDK supplies the compiler and CLI. `wildshard update --pins`
+applies the release codemod for the moved modules and adds the matching kit pin.
+The [checked author examples](docs/api/SHARDDEV.md) show ordinary declared model
+files and item rows. Kit content is copied at build time; a running shard reads
+its own admitted files.
+
 ## 1. The loop
 
 The loop is: `new`, `dev`, `check`, `hero`, `upload --channel staging`, then `upload --channel prod`, then share the

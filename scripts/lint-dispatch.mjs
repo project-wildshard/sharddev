@@ -15,7 +15,7 @@ for(let i=0;i<args.length;i++){
     kitOptions.push(arg,pattern);
   }else files.push(arg);
 }
-const author=file=>/^(?:src\/(?:sharddev|commons|shards)\/|packages\/(?:kit\/src\/geometry|upload\/src\/sharddev)\/|codemods\/)/u.test(file);
+const author=file=>/^(?:src\/(?:sharddev|commons|shards)\/|packages\/(?:kit\/src|upload\/src\/sharddev)\/|codemods\/)/u.test(file);
 const jobs=files.length===0?[['lint:kit',kitOptions],['lint:author',[]]]:
   [['lint:kit',[...kitOptions,...files.filter(file=>!author(file))]],['lint:author',files.filter(author)]]
     .filter(([name,paths])=>name==='lint:kit'?paths.length>kitOptions.length:paths.length>0);

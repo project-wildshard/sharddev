@@ -12,6 +12,11 @@ item rows, so they no longer call the removed catalogue compiler. Exact model
 hash, costs, item rows and asset closure are checked independently. Full lint
 now runs both lanes even when the kit command receives ignore patterns.
 
-The engine-only API generator still refuses the SDK tree before writing docs;
-replace that generator during workspace/check integration (CC2b). All retained
-author examples typecheck against the new exports.
+Workspace checks now include kit types, all its lint sources and its seven
+content/geometry cases. The SDK's documentation build reads actual package
+exports with TypeScript and renders the exact checked examples, without engine
+context files or executing author modules. The six moved modules and wildcard
+exports are verified against their defining bindings. Generated SDK, format and
+kit API pages ship with the SDK. The retained standalone archive proof expects
+kit in place of the retired package. Released pins and frozen installation still
+belong to CC2b2 at the completed M1 land.
