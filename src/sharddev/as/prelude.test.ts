@@ -35,16 +35,20 @@ test('the Template door reads and writes by name, not by address', () => {
   expect(source).not.toMatch(/\b(?:load|store)<[a-z0-9]+>\(/u);
 });
 
-test('the door toggles on its scene event and each brazier lights once', async () => {
+test('the door and the gate toggle on their scene events and each brazier lights once', async () => {
   const tick = await door();
-  // shared fields in declared order: door.open (101), brazier-a, -b, -c (102 to 104); op 5 sets a shared field
-  expect(tick([0, 0, 0, 0], [201])).toEqual([[5, 101, 1, 0, 0]]);
-  expect(tick([1, 0, 0, 0], [201])).toEqual([[5, 101, 0, 0, 0]]);
-  expect(tick([0, 0, 0, 0], [201, 201])).toEqual([]);
-  expect(tick([0, 0, 0, 0], [203, 204])).toEqual([[5, 103, 1, 0, 0], [5, 104, 1, 0, 0]]);
-  expect(tick([0, 0, 1, 0], [203])).toEqual([]);
-  expect(tick([0, 0, 0, 0], [201, 202, 203, 204])).toHaveLength(4);
-  expect(tick([0, 0, 0, 0], [])).toEqual([]);
+  // shared fields in declared order: door.open (101), brazier-a, -b, -c (102 to 104), the south gate (105, TC-M4); op 5
+  // sets a shared field
+  expect(tick([0, 0, 0, 0, 0], [201])).toEqual([[5, 101, 1, 0, 0]]);
+  expect(tick([1, 0, 0, 0, 0], [201])).toEqual([[5, 101, 0, 0, 0]]);
+  expect(tick([0, 0, 0, 0, 0], [201, 201])).toEqual([]);
+  expect(tick([0, 0, 0, 0, 0], [203, 204])).toEqual([[5, 103, 1, 0, 0], [5, 104, 1, 0, 0]]);
+  expect(tick([0, 0, 1, 0, 0], [203])).toEqual([]);
+  expect(tick([0, 0, 0, 0, 0], [201, 202, 203, 204])).toHaveLength(4);
+  expect(tick([0, 0, 0, 0, 0], [])).toEqual([]);
+  // TC-M4: the lever (event 205) swings the south gate both ways
+  expect(tick([0, 0, 0, 0, 0], [205])).toEqual([[5, 105, 1, 0, 0]]);
+  expect(tick([0, 0, 0, 0, 1], [205])).toEqual([[5, 105, 0, 0, 0]]);
 });
 
 test('a script that never imports the prelude compiles to the same bytes', async () => {
