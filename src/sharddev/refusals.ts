@@ -103,6 +103,9 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Do less work per tick in behaviour scripts: spread it over ticks or run it on events.' },
   { id: 'budget-script-fuel', anchor: 'budget-script-fuel', steps: 'any', codes: ['perf-script-fuel'],
     fix: 'Shorten the hottest behaviour script loops; fuel counts instructions per tick.' },
+  // TC-NE6: report's warnings, each a provisional or report-only cap over its limit; nothing refuses them yet.
+  { id: 'budget-report-only', anchor: 'budget-report-only', steps: ['report'], match: /\(a report-only cap: upload still takes it\)$/u,
+    fix: 'Nothing blocks: a report-only cap warns until it is measured on devices. Bring the number under it if you can (GUIDE.md says which caps these are).' },
   { id: 'budget-over', anchor: 'budget-over', steps: ['report'],
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
   // `Performance report refused` is sharddev's own words (cli.ts); the two codes are shard-format's preflight of the same.

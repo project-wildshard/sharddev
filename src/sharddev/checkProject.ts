@@ -110,10 +110,13 @@ export async function checkProject(projectPath: string, outputPath: string | und
       if (admitted === undefined) throw new Error('the build admitted no shard to report on');
       const card = performanceReport(admitted.shard, admitted.observed, admitted.policy);
       const refused = card.issues.filter(issue => issue.severity === 'refusal');
-      const warnings = card.issues.length - refused.length;
+      // TC-NE6 (NEW-SHARD-E2E F6): a count with no names left the author guessing; each warning prints, marked report-only.
+      const reported = card.issues.filter(issue => issue.severity !== 'refusal');
+      const warnings = reported.length;
       const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}`;
       return await Promise.resolve({ status: card.pass ? 'pass' : 'fail', note,
-        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}`, code: issue.code })) });
+        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}`, code: issue.code })),
+        warnings: reported.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)} (a report-only cap: upload still takes it)` })) });
     },
   });
 }

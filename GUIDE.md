@@ -617,6 +617,14 @@ Behaviour scripts take too long per tick. Spread work over ticks, or run it on e
 
 Behaviour scripts run too many instructions per tick. Shorten the hottest loops. Code `perf-script-fuel`.
 
+#### budget-report-only
+
+A warning, not a refusal: a cap the report checks but does not enforce yet. These are the provisional caps (each tile's
+download bytes), the resident-memory targets marked `tradeable`, and the memory gates marked `report-only`; their
+limits are first guesses that wait on measurements from real phones, so check and upload pass over them. The untouched
+reference world itself sits over several (its biggest tiles' downloads and resident memory), so a new repo checks with
+about six of these warnings. Bring a number under its cap when you can; nothing else is needed.
+
 #### budget-over
 
 A budget not named above is over its limit. The message names it; `wildshard check . --json` lists each.

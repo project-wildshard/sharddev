@@ -20,3 +20,12 @@ Found next, for TC-NE5: `wildshard prove` on the untouched reference
 fails at load with `Import signature outside ABI` (a behaviour script
 admitted under the decision ABI), and on `--empty` an idle tape fails
 `traveler pose changed on restore`.
+
+## Report warnings name themselves (TC-NE6)
+
+`check`'s report step counted its warnings ("6 warnings") and printed
+none. Each now prints with the cap, the number and its limit, under the
+new `budget-report-only` row: provisional tile-download caps and
+tradeable resident targets warn and never refuse until they are
+measured on phones. GUIDE.md `#budget-report-only` says so, and that
+the untouched reference sits over about six of them.

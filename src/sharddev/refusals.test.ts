@@ -71,6 +71,8 @@ describe('the refusal table (SA21)', () => {
     for (const [code, rule] of Object.entries(metrics)) expect(refusalNote('report', 'far draws: 9 over 1', { code }).rule, code).toBe(rule);
     // Words with no code are the report step's catch-all: no row reads shard-format's metric words any more.
     expect(refusalNote('report', 'script CPU p95 us/tick: 9 over 1').rule).toBe('budget-over');
+    // TC-NE6: report's warnings are the report-only caps, each named with its own fix.
+    expect(refusalNote('report', 'tile 0/3/3 download bytes: 2567280 over 300000 (a report-only cap: upload still takes it)').rule).toBe('budget-report-only');
     // `build` and `validate` refuse the whole card in one line, in sharddev's own words (no code).
     for (const step of ['build', 'validate'] as const) expect(refusalNote(step, 'Performance report refused this shard').rule).toBe('budget-refused');
   });
