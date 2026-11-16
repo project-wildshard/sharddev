@@ -1,11 +1,11 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- This test builds an author project in a folder of its own.
-import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync} from 'node:fs';
+import {copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync} from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- This test builds an author project in a folder of its own.
 import {join, resolve} from 'node:path';
 import {expect, test} from 'vitest';
 import {parseManifestMetadata} from '@wildshard/format/minimap';
 import {shardFromDiscovery} from '@wildshard/engine/game/shard/discovery';
-import {authorManifest} from '../src/sharddev/authorManifest';
+import {authorManifest, sceneCardUrls} from '../src/sharddev/authorManifest';
 import {buildProject, newProject} from '../src/sharddev/project';
 
 /** C3: an author's shard has no first-party manifest source, and still wears its own card and enters its own page. */
@@ -29,3 +29,19 @@ test('a card can\'t carry markup out of a name, and shards differ by seed', () =
   expect(decodeURIComponent(row('<script>x</script>', 1).card.thumb)).not.toContain('<script');
   expect(row('A', 1).card.thumb).not.toBe(row('A', 2).card.thumb);
 });
+
+/** meta NEW-SHARD-E2E F28: `wildshard hero` writes a scene shard's capture to card/<slot>.jpg; the next build's card wears it. */
+test('a scene shard\'s captured hero replaces its generated card, slot by slot', async () => {
+  mkdirSync('tmp/author-discovery', {recursive: true});
+  const root = mkdtempSync(resolve('tmp/author-discovery/case-')), project = join(root, 'project'), out = join(root, 'out');
+  try {
+    newProject(project, 'trail-side');
+    mkdirSync(join(project, 'card'));
+    copyFileSync(resolve('art/targets/mossgate/t1-01-spawn-yard-fp-front.jpg'), join(project, 'card/thumb.jpg'));
+    expect(sceneCardUrls(project, 'trail-side')).toEqual({thumb: '/src/shards/trail-side/card/thumb.jpg'});
+    await buildProject(project, out, {outputFormat: 2, client: null});
+    const manifest = shardFromDiscovery(JSON.parse(readFileSync(join(out, 'mounts/shardfiles/trail-side/discovery.json'), 'utf8')));
+    expect(manifest.card.thumb).toMatch(/^\/shardfiles\/trail-side\/blobs\/image\/[0-9a-f]{64}\.jpg$/u);
+    expect(manifest.card.portrait).toMatch(/^data:image\/svg\+xml,/u);
+  } finally { rmSync(root, {recursive: true, force: true}); }
+}, 60_000);

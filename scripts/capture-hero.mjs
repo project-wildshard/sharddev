@@ -10,6 +10,10 @@
 // ({ pos: [x,y,z], look: [x,y,z], fov, center }, engine scripts/hero-shots.mjs's view shape) when the shard declares
 // one, else the player's own spawn view. Sizes: thumb 640x360, portrait 804x1626, landscape 1600x900.
 //
+// A scene shard (a `shard.config.ts` and no manifest.json, meta NEW-SHARD-E2E F28) wears a generated card: its hero goes
+// to `card/<slot>.jpg`, which its generated discovery card names from the next build on. Every refusal is one line with a
+// rule id (`[hero-<rule>] ...`), never a stack.
+//
 // `wildshard hero <shard-dir> --stamp-existing` captures nothing: it stamps the hero files already there as showing
 // the content now. It exists for a shard repo that gains this check with curated heroes and no stamp. WARNING: use it
 // only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
@@ -34,11 +38,24 @@ function jpegSize(bytes) {
   throw new Error('No JPEG frame header');
 }
 
+/** A refusal the CLI prints as one line, `[hero-<rule>] <message>`, never a stack. */
+export class HeroRefusal extends Error {
+  constructor(rule, message) { super(`[hero-${rule}] ${message}`); this.name = 'HeroRefusal'; this.rule = rule; }
+}
+
+/** The shard's manifest, or null for a scene shard (its discovery is generated; F28). */
+function manifestOf(shard) {
+  const file = join(shard, 'manifest.json');
+  return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : null;
+}
+
 /** The name SHARD SELECT shows this shard under: its built product's, else the manifest's. */
 export function servedName(shard) {
   const product = resolve(shardRepoRoot(shard), 'out', shardFolderName(shard), 'shard.json');
   if (existsSync(product)) return JSON.parse(readFileSync(product, 'utf8')).identity.name;
-  return String(JSON.parse(readFileSync(join(shard, 'manifest.json'), 'utf8')).name);
+  const manifest = manifestOf(shard);
+  if (manifest === null) throw new HeroRefusal('no-name', `${shard} is a scene shard with no built product, so its SHARD SELECT name is unknown; capture from \`wildshard dev .\` (pass the URL it prints as --base), or build it first`);
+  return String(manifest.name);
 }
 
 /** The served root, so the URL `wildshard dev` prints (`…/?skipintro`) works as `--base` as well as a bare origin. */
@@ -58,8 +75,10 @@ async function isDevServer(base) {
 
 /** Enter the shard the way a player does: SHARD SELECT, its card, ENTER WORLD (hidden shards are Developer cards).
  * A `wildshard dev` page serves this shard alone and enters it by `?skipintro`; its SHARD SELECT lists engine's. */
-async function enter(page, base, name, log) {
+async function enter(page, base, named, log) {
   const dev = await isDevServer(base);
+  // a dev page serves this shard alone: no card to pick, so no name is needed (a scene shard may have none yet)
+  const name = dev ? '' : named();
   const url = `${base.replace(/\/+$/u, '')}/?${dev ? 'skipintro&' : ''}mute=1&sw=0&tier=desktop&nolock=1&perf=0`;
   log(dev ? `hero: loading ${url} (wildshard dev)` : `hero: loading ${url}, card "${name}"`);
   await page.goto(url, { waitUntil: 'load' });
@@ -74,17 +93,17 @@ async function selectCard(page, base, name) {
   await page.locator('.ws-menu-card').first().waitFor({ timeout: 60000 });
   const names = await page.evaluate(() => [...document.querySelectorAll('.ws-menu-card')].map(card => card.querySelector('b')?.textContent?.trim() ?? ''));
   const at = names.indexOf(name);
-  if (at < 0) throw new Error(`no SHARD SELECT card named "${name}" on ${base} (cards: ${names.join(', ')}); serve a build that carries this candidate`);
+  if (at < 0) throw new HeroRefusal('no-card', `no SHARD SELECT card named "${name}" on ${base} (cards: ${names.join(', ')}); serve a build that carries this candidate`);
   await page.evaluate(index => document.querySelector(`.ws-menu-dots i[data-i="${index}"]`)?.click(), at);
   await sleep(1000);
   await page.locator('.ws-menu-play').click();
 }
 
-export async function captureHero(shard, given, { name = servedName(shard), log = console.info } = {}) {
+export async function captureHero(shard, given, { name, log = console.info } = {}) {
   // A curated card (hero.json "curated": true) is hand-picked art: a capture would put the spawn view over it.
   const stampPath = join(shard, 'hero.json');
   if (existsSync(stampPath) && JSON.parse(readFileSync(stampPath, 'utf8')).curated === true) {
-    throw new Error(`${stampPath}: this hero is curated ("curated": true), hand-picked art that is never recaptured; re-stamp it for new content with \`wildshard hero <source> --stamp-existing\`, or remove "curated" to capture this view`);
+    throw new HeroRefusal('curated', `${stampPath}: this hero is curated ("curated": true), hand-picked art that is never recaptured; re-stamp it for new content with \`wildshard hero <source> --stamp-existing\`, or remove "curated" to capture this view`);
   }
   const base = servedRoot(given);
   // Loaded here, so --stamp-existing needs no browser or engine to resolve.
@@ -92,10 +111,11 @@ export async function captureHero(shard, given, { name = servedName(shard), log 
     import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
   // A `data:` slot (new's generated card) is captured to card/<slot>.jpg and named in both card files after; any other
   // slot must already name a file in the shard folder.
-  const files = { ...(await heroSlotFiles(shard)) }, card = JSON.parse(readFileSync(join(shard, 'manifest.json'), 'utf8')).card ?? {};
-  const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined && String(card[slot]).startsWith('data:'));
+  // F28: a scene shard (no manifest) wears a generated card, so every slot it has not captured yet is a new card/<slot>.jpg
+  const manifest = manifestOf(shard), files = { ...(await heroSlotFiles(shard)) }, card = manifest?.card ?? {};
+  const missing = Object.keys(VIEWS).filter(slot => files[slot] === undefined && (manifest === null || String(card[slot]).startsWith('data:')));
   const unnamed = Object.keys(VIEWS).filter(slot => files[slot] === undefined && !missing.includes(slot));
-  if (unnamed.length > 0) throw new Error(`${join(shard, 'manifest.json')}: card.${unnamed.join(', card.')} must name a file in the shard folder (e.g. card/${unnamed[0]}.jpg)`);
+  if (unnamed.length > 0) throw new HeroRefusal('card-file', `${join(shard, 'manifest.json')}: card.${unnamed.join(', card.')} must name a file in the shard folder (e.g. card/${unnamed[0]}.jpg)`);
   for (const slot of missing) files[slot] = join(shard, 'card', `${slot}.jpg`);
   const stampFile = join(shard, 'hero.json');
   const camera = existsSync(stampFile) ? JSON.parse(readFileSync(stampFile, 'utf8')).camera : undefined;
@@ -108,7 +128,7 @@ export async function captureHero(shard, given, { name = servedName(shard), log 
     await saveFixture(context, NAME_ASKED);
     const page = await context.newPage();
     page.on('pageerror', error => errors.push(error.message.slice(0, 200)));
-    await enter(page, base, name, log);
+    await enter(page, base, () => name ?? servedName(shard), log);
     await page.evaluate(view => {
       const world = window.__wildshard.world, cam = world.game.camera;
       try { world.animals.calm = true; } catch { /* a shard without animals */ }
@@ -135,12 +155,12 @@ export async function captureHero(shard, given, { name = servedName(shard), log 
       await sleep(3000);
       shots[slot] = await page.screenshot({ type: 'jpeg', quality: QUALITY });
       const [width, height] = jpegSize(shots[slot]);
-      if (width !== viewport.width * SCALE || height !== viewport.height * SCALE) throw new Error(`${slot} came out ${width}x${height}`);
+      if (width !== viewport.width * SCALE || height !== viewport.height * SCALE) throw new HeroRefusal('size', `${slot} came out ${width}x${height}`);
       log(`hero: ${slot} ${width}x${height}`);
     }
     await context.close();
   } finally { await browser.close(); }
-  if (errors.length > 0) throw new Error(`page errors during capture, nothing written: ${errors.slice(0, 3).join(' | ')}`);
+  if (errors.length > 0) throw new HeroRefusal('page-error', `page errors during capture, nothing written: ${errors.slice(0, 3).join(' | ')}`);
   // Write every file, then the stamp, so a failed capture leaves the old hero and its old stamp.
   if (missing.length > 0) mkdirSync(join(shard, 'card'), { recursive: true });
   for (const [slot, bytes] of Object.entries(shots)) {
@@ -171,11 +191,21 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === resolve(import
     console.error('       Use it ONLY when you have looked at those images and they show the current content; a wrong stamp hides a stale hero.');
     process.exit(2);
   }
-  // SA16 (J317): a repo path names its shard source at src/ or its one src/shards/<slug>/, as the other verbs do.
-  const shard = findShardSource(dir);
-  if (!existsSync(join(shard, 'manifest.json'))) throw new Error(`${shard}: no manifest.json`);
-  if (adopt) console.warn('hero: --stamp-existing: NO capture. Stamping the images already there as showing this content. Only right if they do.');
-  const stamp = adopt ? await stampExistingHero(shard) : { written: true, ...(await captureHero(shard, base)) };
-  const file = join(dirname(shard), basename(shard), 'hero.json');
-  console.info(stamp.written ? `hero: stamped ${file} (content ${stamp.content.slice(0, 12)})` : `hero: ${file} is already current; nothing stamped`);
+  try {
+    // SA16 (J317): a repo path names its shard source at src/ or its one src/shards/<slug>/, as the other verbs do.
+    let shard;
+    try { shard = findShardSource(dir); } catch (error) { throw new HeroRefusal('no-source', error instanceof Error ? error.message : String(error)); }
+    // F28: a shard source is a manifest.json (a reference shard) or a shard.config.ts (a scene shard, generated card)
+    if (!existsSync(join(shard, 'manifest.json')) && !existsSync(join(shard, 'shard.config.ts'))) throw new HeroRefusal('no-source', `${shard} has neither a manifest.json nor a shard.config.ts; run it from the shard project root`);
+    if (adopt) console.warn('hero: --stamp-existing: NO capture. Stamping the images already there as showing this content. Only right if they do.');
+    const stamp = adopt ? await stampExistingHero(shard) : { written: true, ...(await captureHero(shard, base)) };
+    const file = join(dirname(shard), basename(shard), 'hero.json');
+    console.info(stamp.written ? `hero: stamped ${file} (content ${stamp.content.slice(0, 12)})` : `hero: ${file} is already current; nothing stamped`);
+    if (stamp.written && !existsSync(join(shard, 'manifest.json'))) console.info('hero: a scene shard\'s card is card/*.jpg; build again so its card wears the capture');
+  } catch (error) {
+    // one line, never a stack: a refusal names its rule; anything else is [hero-failed] with its message
+    const message = error instanceof HeroRefusal ? error.message : `[hero-failed] ${error instanceof Error ? error.message : String(error)}`;
+    console.error(message);
+    process.exitCode = 1;
+  }
 }
