@@ -81,3 +81,18 @@ preserve every original typed channel, bone, dimension and random draw
 across all eleven variants. SDK's loft helpers now live in
 `@wildshard/kit/geometry/loft`; structural body types live in
 `@wildshard/kit/geometry/types`. The package exports each defining module.
+
+## Plain body files
+
+`content/creatures/bodies.json` lists the body GLB for every boar/bear
+variant in both styles, its SHA-256, byte count, joint rest positions and
+dimensions. Each creature's `look.json` preserves its authored look knobs.
+JSON and Python authors may copy these ordinary files without running a
+TypeScript builder. `geometry/export` exports the deterministic builder.
+
+Regenerate with `node scripts/build-kit-bodies.mjs`, or verify every byte
+with `node scripts/build-kit-bodies.mjs --check` from the SDK checkout.
+The GLBs preserve position, normal, UV, colour, skin indices, weights and
+fur-length channels. Three body parts keep their geometry separate.
+These body files contain no animation clips; the admitted animation
+binding and layered fixture are the next integration step (OF3b).

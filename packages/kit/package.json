@@ -30,7 +30,7 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
-    "test": "node --test src/catalogue.test.ts"
+    "test": "node --test src/catalogue.test.ts 'src/geometry/*.test.ts'"
   },
   "dependencies": {
     "@wildshard/shard-format": "^0.6.0",
