@@ -54,7 +54,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 
 | Verb | What it is for |
 |---|---|
-| `wildshard new <dir> [slug] [--template sdk] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. It copies the reference world (`--template sdk`, the only template); any other template refuses before writing, and `--template blender` is retired (below). `--empty` writes a bare shard source instead of the reference world |
+| `wildshard new <dir> [slug] [--template sdk\|scene] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. It copies the reference world (`--template sdk`), or Mossgate Hollow as one three.js scene module (`--template scene`: `src/generators/world.ts` is the whole world, and `wildshard watch .` shows each save); any other template refuses before writing, and `--template blender` is retired (below). `--empty` writes a bare shard source instead of the reference world |
 | `wildshard update [dir] [--pins[=<version>]]` | Rewrite this guide and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). The first run fetches engine's dev client once ("Walking your shard") |
 | `wildshard watch <source>` | For a shard written as a three.js scene (`@wildshard/sdk/scene/shard`): serve it once, then swap each edited part into the running page in about a second, no reload. A look, ground or spawn edit still reloads |
@@ -345,9 +345,10 @@ an existing folder.
 
 #### new-template
 
-`--template` names `sdk` (the reference world, the default and only template). Any other name refuses before `new`
-writes anything. `--template blender` is retired (J341): a shard is TypeScript three.js scene source, and Blender
-makes the `.glb` models it loads (section 2). Leave the flag out or pass `--template sdk`.
+`--template` names `sdk` (the reference world, the default) or `scene` (Mossgate Hollow as one three.js scene module:
+`src/generators/world.ts` builds the whole world, and `wildshard watch .` draws each save in a running page). Any other
+name refuses before `new` writes anything. `--template blender` is retired (J341): a shard is TypeScript three.js scene
+source, and Blender makes the `.glb` models it loads (section 2). Leave the flag out or pass `--template sdk` or `scene`.
 
 #### new-refused
 

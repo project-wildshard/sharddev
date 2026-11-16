@@ -118,7 +118,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       else if (value.startsWith('--')) unknown = true;
       else names.push(value);
     }
-    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk] [--empty]');
+    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk|scene] [--empty]');
     // An unknown template refuses here, before anything is written.
     const template = templateNamed(templates[0] ?? 'sdk');
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';

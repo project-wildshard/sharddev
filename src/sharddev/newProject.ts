@@ -31,9 +31,10 @@ function writeInstallScriptPolicy(project: string): void {
   writeFileSync(resolve(project, 'pnpm-workspace.yaml'), INSTALL_SCRIPT_POLICY);
 }
 
-/** SA16 (J314, J317): `new --template <name>`. `sdk` is Mossgate (sharddev's `_template`), the only template since
- * SS5 (J341): a shard is TypeScript three.js scene source, and Blender makes the models it loads. */
-export const TEMPLATES = ['sdk'] as const;
+/** SA16 (J314, J317): `new --template <name>`. `sdk` is the Template (sharddev's `_template`, Mossgate's gameplay);
+ * `scene` (AP37a) is Mossgate Hollow's three.js scene module (`src/shards/mossgate`, AP15), the shape every template
+ * moves to (AP36). SS5 (J341): a shard is TypeScript three.js scene source, and Blender makes the models it loads. */
+export const TEMPLATES = ['sdk', 'scene'] as const;
 export type TemplateName = (typeof TEMPLATES)[number];
 /** What `writeShardRepo` can still lay out. `blender` is the retired hand-written shape (shard-format's
  * `blender-template`, a shard file folder held by hand): `new` refuses it, but repos made that way still check and upload,
@@ -48,7 +49,7 @@ export const SHARD_SOURCE_FOLDER = 'src';
 export function templateNamed(name: string): TemplateName {
   if (name === 'blender') throw new Error('new: --template blender is retired (J341): a shard is TypeScript three.js scene source, and Blender makes the .glb models that code loads; leave out --template. Repos made with it still check and upload');
   const found = TEMPLATES.find(template => template === name);
-  if (found === undefined) throw new Error(`new: unknown template ${name}: leave out --template, or pass --template sdk`);
+  if (found === undefined) throw new Error(`new: unknown template ${name}: leave out --template, or pass --template sdk or --template scene`);
   return found;
 }
 
@@ -125,8 +126,11 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
 
 function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
-  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)' : 'the hand-written Blender template (`blender-template`)';
-  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
+  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)'
+    : template === 'scene' ? 'Mossgate Hollow, a three.js scene module (`--template scene`)' : 'the hand-written Blender template (`blender-template`)';
+  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : template === 'scene'
+    ? '`identity.json` (the slug and name)\n  and `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save)'
+    : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/sdk\`, shard-format, engine and \`three\`
   exactly; its \`version\` is the version \`wildshard upload\` sends.`;
@@ -190,6 +194,18 @@ function writeReferenceSource(source: string, slug: string): void {
   writeFileSync(resolve(source, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
 }
 
+/** AP37a: copy Mossgate Hollow's scene module (AP15) into `source` under this project's identity. Its only source is
+ * three.js: `generators/world.ts` builds the scene, `wildshard build` compiles it, `wildshard watch` streams each save. */
+function writeSceneSource(source: string, slug: string): void {
+  // The trusted CLI bundle defines dirname as its installed source directory.
+  const scene = resolve(import.meta.dirname, '../shards/mossgate');
+  cpSync(scene, source, { recursive: true, errorOnExist: true, force: false,
+    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') });
+  writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 357 }));
+  writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { buildMossgate } from './world';\n\n/** This shard: the scene \`world.ts\` builds, under this project's identity. */\nexport const shard = defineShard(identity, buildMossgate);\n`);
+  writeFileSync(resolve(source, 'shard.config.ts'), `// The shard is one three.js scene module: \`generators/world.ts\`. \`wildshard build\` runs it as the generator;\n// \`wildshard watch\` reads its describe() and streams each saved edit to a running page.\nimport { shard } from './generators/shard';\n\nexport const generate: typeof shard = shard;\n// oxlint-disable-next-line import/no-default-export -- The author CLI executes this project entry.\nexport default generate;\n`);
+}
+
 /** Write the runtime-free bare shard source (`new --empty`) into `source`. */
 function writeEmptySource(source: string, slug: string): void {
   for (const folder of ['generators', 'data', 'behaviour', 'assets']) mkdirSync(resolve(source, folder), { recursive: true });
@@ -207,7 +223,7 @@ export function writeEmptyShardSource(source: string, slug: string): void {
   writeEmptySource(source, slug);
 }
 
-/** `wildshard new <dir> [slug] [--template sdk] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. */
+/** `wildshard new <dir> [slug] [--template sdk|scene] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. */
 export function writeShardRepo(project: string, slug: string, options: { readonly template?: RepoShape; readonly empty?: boolean } = {}): void {
   const template = options.template ?? DEFAULT_TEMPLATE;
   assertTarget(project, slug);
@@ -216,6 +232,7 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
   try {
     if (options.empty === true) writeEmptySource(source, slug);
     else if (template === 'blender') writeHandwrittenSource(source, slug);
+    else if (template === 'scene') writeSceneSource(source, slug);
     else writeReferenceSource(source, slug);
     writeRepoFiles(project, slug, template, options.empty === true);
   } catch (error) {

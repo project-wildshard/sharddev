@@ -48,6 +48,20 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate');
   });
 
+  // SHARD-SOURCE AP37a: `--template scene` is Mossgate Hollow's three.js scene module under the project's identity.
+  it('--template scene gives Mossgate Hollow as one scene module, named for the project', async () => {
+    const repo = resolve(scratch, 'scene');
+    await runCli(['new', repo, 'my-scene', '--template', 'scene']);
+    for (const file of ['src/shard.config.ts', 'src/identity.json', 'src/generators/shard.ts', 'src/generators/world.ts']) expect(existsSync(resolve(repo, file)), file).toBe(true);
+    // No Template data, no tests, and no mossgate identity carried over.
+    for (const gone of ['src/data', 'src/generators/generate.ts', 'src/generators/mossgate.test.ts']) expect(existsSync(resolve(repo, gone)), gone).toBe(false);
+    expect(JSON.parse(readFileSync(resolve(repo, 'src/identity.json'), 'utf8'))).toMatchObject({ slug: 'my-scene', name: 'my-scene' });
+    expect(readFileSync(resolve(repo, 'src/generators/shard.ts'), 'utf8')).not.toContain('mossgate');
+    expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('--template scene');
+    const { shard } = await import(resolve(repo, 'src/generators/shard.ts')) as { shard: { describe: () => { identity: { slug: string } } } };
+    expect(shard.describe().identity.slug).toBe('my-scene');
+  });
+
   it('an unknown template refuses before writing, naming sdk', async () => {
     const repo = resolve(scratch, 'unknown');
     await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x: leave out --template, or pass --template sdk/u);

@@ -16,11 +16,12 @@ const PACK_ALIAS = `pack <folder> [--out <file>]
 
 /** Each verb's entry: its usage lines, then what it does, indented. */
 const VERBS: Readonly<Record<string, string>> = {
-  new: `new <dir> [slug] [--template sdk] [--empty]
+  new: `new <dir> [slug] [--template sdk|scene] [--empty]
                        Start a shard repo in <dir>, a folder that does not
                        exist yet, with its shard source at src/ (slug: the
                        folder's name unless given). It copies the reference
-                       world (--template sdk, the only template; blender is
+                       world (--template sdk), or Mossgate Hollow as one
+                       three.js scene module (--template scene; blender is
                        retired: Blender makes models, code makes the
                        shard). --empty writes a
                        bare shard source instead`,
