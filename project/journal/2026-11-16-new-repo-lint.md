@@ -48,3 +48,17 @@ without the pins both calls refuse; with them pose lands at (3, -38) and
 in `state()` is the page's copy and reads `idle` while the server's brain
 chases; the GUIDE says so, and reporting the server's state is engine
 work (TEMPLATE-E2E TC-NE24b).
+
+## Hosted CI caught two installed-sdk cases
+
+`test/ci/installed-author.test.mjs` (packed sdk, app outside any git
+checkout) went red: its author repo has the new config but its
+packages sit one folder up, so the plugins could not load and oxlint
+stopped with no report; and a missing source fell back to the sdk's own
+config, which an installed sdk now ships. `authorLintPlan` now skips,
+naming `pnpm install`, when a repo config's plugins are not installed
+beside it; skips a missing source; and runs the sdk's own config only
+from a checkout (engine under its node_modules). `lintOutcome` quotes
+what oxlint said when it gives no report. Locally the test had passed
+only because the scratch sat in a git-ignored folder, where oxlint
+finds nothing to lint.

@@ -15,6 +15,8 @@ describe('the author lint check runs (authorLintPlan)', () => {
     scratch = mkdtempSync(resolve('tmp', 'author-lint-'));
     sdk = resolve(scratch, 'sdk'); repo = resolve(scratch, 'shard-isle');
     write(resolve(sdk, '.oxlintrc.author.json'), '{}');
+    // A checkout: engine (whose plugin the SDK's config loads from the working directory) under its own node_modules.
+    write(resolve(sdk, 'node_modules/@wildshard/engine/lint/wildshard-plugin.js'), '');
     write(resolve(repo, '.oxlintrc.author.json'), '{}');
     write(resolve(repo, 'src/shard.config.ts'), 'export default {};\n');
   });
@@ -44,5 +46,9 @@ describe('the author lint check runs (authorLintPlan)', () => {
     expect(plan.kind).toBe('skip');
     expect(plan.kind === 'skip' ? plan.note : '').toMatch(/has no \.oxlintrc\.author\.json/u);
     expect(authorLintPlan(resolve(repo, 'src'), sdk, () => undefined).kind).toBe('skip');
+    // TC-NE4: an installed sdk ships its config for `new` to copy; with no engine beside it, it is not run from there.
+    write(resolve(scratch, 'installed-sdk/.oxlintrc.author.json'), '{}');
+    expect(authorLintPlan(loose, resolve(scratch, 'installed-sdk'), oxlint).kind).toBe('skip');
+    expect(authorLintPlan(resolve(scratch, 'nowhere'), sdk, oxlint)).toEqual({ kind: 'skip', note: `no source at ${resolve(scratch, 'nowhere')} to lint` });
   });
 });

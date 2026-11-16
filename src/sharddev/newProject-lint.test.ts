@@ -24,6 +24,9 @@ describe('a new repo lints from its first check (TC-NE4)', () => {
     expect(config).toContain('"./node_modules/@wildshard/sdk/lint/engine-plugin.mjs"');
     expect(config).toContain('"./node_modules/@wildshard/sdk/lint/sdk-plugin.mjs"');
     expect(config).not.toMatch(/src\/shards\/\*\/|"\.\/lint\/|\$schema/u);
+    // Before `pnpm install` the plugins are not there: lint skips and says to install, rather than oxlint stopping blind.
+    const before = authorLintPlan(resolve(repo, 'src'), SDK);
+    expect(before.kind === 'skip' ? before.note : '').toMatch(/node_modules\/@wildshard\/sdk\/lint\/engine-plugin\.mjs.*run pnpm install/u);
     // The installed packages a repo resolves its plugins and imports through: this sdk checkout and its pins.
     mkdirSync(resolve(repo, 'node_modules/@wildshard'), { recursive: true });
     symlinkSync(SDK, resolve(repo, 'node_modules/@wildshard/sdk'));

@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Find the repo's and the SDK's lint config and oxlint on disk.
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Find oxlint the way the repo (or this package) resolves it.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the repo root, its config and the linted folder.
@@ -31,7 +31,14 @@ export function oxlintFrom(root: string): string | undefined {
  */
 export function authorLintPlan(projectPath: string, sdkRoot: string, findOxlint: (root: string) => string | undefined = oxlintFrom): AuthorLintPlan {
   const project = resolve(projectPath), root = shardRepoRoot(project), repoConfig = resolve(root, AUTHOR_LINT_CONFIG);
+  // A missing source has nothing to lint; build names it (source-file-missing).
+  if (!existsSync(project)) return { kind: 'skip', note: `no source at ${project} to lint` };
   if (resolve(root) !== resolve(sdkRoot) && existsSync(repoConfig)) {
+    // TC-NE4: the config loads its plugins from the repo's own node_modules; before `pnpm install` there they cannot load,
+    // and oxlint would stop with no report. Say so instead.
+    const missing = [...readFileSync(repoConfig, 'utf8').matchAll(/"(\.\/node_modules\/[^"]+\.[cm]?js)"/gu)]
+      .map(match => match[1] ?? '').find(plugin => !existsSync(resolve(root, plugin)));
+    if (missing !== undefined) return { kind: 'skip', note: `${AUTHOR_LINT_CONFIG} loads ${missing}, which ${root} has not installed: run pnpm install in the repo` };
     const bin = findOxlint(root) ?? findOxlint(sdkRoot);
     if (bin === undefined) return { kind: 'skip', note: `oxlint is installed neither in ${root} nor with this @wildshard/sdk, so ${AUTHOR_LINT_CONFIG} cannot run` };
     const ratchet = resolve(root, 'lint/ratchet.json');
@@ -39,7 +46,8 @@ export function authorLintPlan(projectPath: string, sdkRoot: string, findOxlint:
       env: existsSync(ratchet) ? { WILDSHARD_RATCHET_FILE: ratchet } : {} };
   }
   const sdkConfig = resolve(sdkRoot, AUTHOR_LINT_CONFIG), bin = findOxlint(sdkRoot);
-  // The SDK's jsPlugins resolve engine from the working directory: run from the SDK root, as `pnpm lint:author` does.
-  if (bin !== undefined && existsSync(sdkConfig)) return { kind: 'run', bin, cwd: sdkRoot, args: ['-c', sdkConfig, '--format', 'json', project], env: {} };
+  // The SDK's jsPlugins resolve engine from the working directory: run from the SDK root, as `pnpm lint:author` does. Only
+  // a checkout has engine under its own node_modules; an installed sdk ships the config for `new` to copy, not to run here.
+  if (bin !== undefined && existsSync(sdkConfig) && existsSync(resolve(sdkRoot, 'node_modules/@wildshard/engine/lint'))) return { kind: 'run', bin, cwd: sdkRoot, args: ['-c', sdkConfig, '--format', 'json', project], env: {} };
   return { kind: 'skip', note: `no author lint: ${root} has no ${AUTHOR_LINT_CONFIG} (a shard repo's lints src with the engine's and the sdk's lint plugins)` };
 }

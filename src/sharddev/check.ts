@@ -95,7 +95,11 @@ export function lintOutcome(stdout: string, exitCode: number | null): StepOutcom
   if (stdout.includes('No files found to lint')) return { status: 'skip', note: 'oxlint found no files to lint here (a git-ignored path?)' };
   let parsed: unknown;
   try { parsed = JSON.parse(stdout); }
-  catch { return { status: 'fail', refusals: [{ message: `oxlint exited ${String(exitCode)} without a report` }] }; }
+  catch {
+    // What oxlint said instead (a plugin that would not load, a bad config): its first lines name the cause.
+    const said = stdout.trim().split('\n').slice(0, 6).join(' / ').slice(0, 600);
+    return { status: 'fail', refusals: [{ message: `oxlint exited ${String(exitCode)} without a report${said === '' ? '' : `: ${said}`}` }] };
+  }
   if (!isRecord(parsed) || !Array.isArray(parsed['diagnostics'])) return { status: 'fail', refusals: [{ message: 'oxlint report has no diagnostics' }] };
   const diagnostics: readonly unknown[] = parsed['diagnostics'];
   const refusals = diagnostics.filter(isRecord).map(row => lintRefusal(row));
