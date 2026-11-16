@@ -55,3 +55,29 @@ commonSpeciesRows reads fresh complete boar/bear gameplay metadata with an
 authored species id. The species subpath and content/species/*.json expose
 these same values for existing bake callers. These compatibility definitions
 preserve current bytes; OF3 supplies the layered species and GLB body assets.
+
+## Body builders
+
+`@wildshard/kit/geometry/common` exports `bakeCommonBody`,
+`commonBodyVariants`, `BOAR_LOOK`, `BEAR_LOOK` and `withBodyGeometry`.
+The builders use the SDK random/noise exports and Three geometry types;
+the kit contains no engine import. The SDK is a peer during its package
+split. Runtime pages read the built content copied into the shard file.
+
+```ts
+import { Rng } from '@wildshard/sdk/random'
+import { bakeCommonBody, commonBodyVariants, withBodyGeometry } from '@wildshard/kit/geometry/common'
+
+const variant = commonBodyVariants('boar')[0]
+if (variant === undefined) throw new Error('No boar variant')
+const baked = withBodyGeometry(false, {}, () =>
+  bakeCommonBody('boar', variant, new Rng(42).snapshot()))
+// The caller owns baked.body's geometries and baked.random.
+```
+
+`withBodyGeometry(lowPoly, paints, build)` restores any outer style, paint,
+shape and shag context on return or failure. The PBR and low-poly builders
+preserve every original typed channel, bone, dimension and random draw
+across all eleven variants. SDK's loft helpers now live in
+`@wildshard/kit/geometry/loft`; structural body types live in
+`@wildshard/kit/geometry/types`. The package exports each defining module.

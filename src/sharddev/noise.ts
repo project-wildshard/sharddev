@@ -1,6 +1,6 @@
 /** Build-only noise; exact equality tests fence the runtime implementation. */
 // 2D simplex noise (Stefan Gustavson's reference implementation, seeded permutation).
-import { Rng } from './random';
+import { Rng } from './random.ts';
 
 const F2 = 0.5 * (Math.sqrt(3) - 1);
 const G2 = (3 - Math.sqrt(3)) / 6;
