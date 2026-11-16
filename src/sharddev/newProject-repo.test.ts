@@ -111,6 +111,8 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     writeFileSync(level, readFileSync(level, 'utf8').replace('"blurb":"Cross the high bridge', '"blurb":"Cross the long bridge'));
     const result = await checkProject(findShardSource(repo), undefined);
     expect(result.steps.map(step => [step.name, step.status])).toEqual([['lint', 'skip'], ['build', 'pass'], ['validate', 'pass'], ['prove', 'skip'], ['report', 'pass']]);
+    expect(result.check).toMatchObject({slug: 'clay-hall', pass: true, performance: {policy: 'refuse'}});
+    expect(result.check?.performance.scripts.scripts.samples).toBe(180);
     expect(readdirSync(resolve(repo, 'public/shardfiles/clay-hall'))).toContain('shard.json');
     // build has nothing to build there and says so; check refuses a hand-written folder outside a repo's src/.
     await expect(runCli(['build', repo])).rejects.toThrow(/hand-written shard file .*run wildshard check/u);

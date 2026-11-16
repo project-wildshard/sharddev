@@ -25,7 +25,7 @@ const [{createApp},{openPglite},{applyMigrations},{createCatalogueStore},
 
 export const REPORT={failures:[{path:'entries',reason:'portal walk refused',detail:{cell:[1,-2]}}]};
 export const TARBALL=await makeShardfile({slug:'async-sdk-isle'});
-const COOK_KEY='fixture-cook-signing-key-with-32-bytes';
+export const COOK_KEY='fixture-cook-signing-key-with-32-bytes';
 
 async function acknowledgeGame(fixture,upload){
   if(typeof fixture.catalogue.uploads.cook?.acknowledge!=='function'){
@@ -92,7 +92,7 @@ async function afterResponse(fixture,request,response,mode){
   }
 }
 
-export async function openApi(context,mode){
+export async function openApi(context,mode,extraPorts={}){
   const sql=await openPglite();
   context.after(sql.close);
   await applyMigrations(sql);
@@ -103,7 +103,7 @@ export async function openApi(context,mode){
   const fixture={sql,store,catalogue,ack:false,states:[],id:undefined,hash:undefined};
   const deps=depsFromEnv({GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin',COOK_SIGNING_KEY:COOK_KEY},
     {version:'api-contract-2ad9890',store,records:store,presigner:store,catalogue,
-      notifier:{notify:async()=>fixture.ack}});
+      notifier:{notify:async()=>fixture.ack},...extraPorts});
   fixture.deps=deps;
   const app=createApp(deps);
   fixture.app=app;
@@ -127,4 +127,10 @@ export async function openApi(context,mode){
   if(!server.listening)await once(server,'listening');
   fixture.url=`http://127.0.0.1:${server.address().port}`;
   return fixture;
+}
+
+/** Real migration consumer; same-format originals need no transform chain. */
+export async function migratePending(fixture){
+  const {deps}=doubles(fixture.sql,new Map(),{originals:fixture.store,activate:uploadActivator(fixture.deps)});
+  for(const job of await fixture.catalogue.ledger.jobsFor(fixture.hash))await runMigrateJob(deps,job);
 }

@@ -41,8 +41,8 @@ describe('GUIDE.md', () => {
   it('keeps to the glossary: check in the loop, no retired words', () => {
     expect(guide).toMatch(/^The loop is: `new`, `dev`, `check`, `hero`, `upload --channel staging`/mu);
     // `hero-not-in-product` is a refusal id (refusals.ts) and `cook-invalid` a shard-format code (SA41); ids and codes
-    // are stable, the prose never says product or cook.
-    expect(guide.replaceAll('hero-not-in-product', '').replaceAll('`cook-invalid`', '')).not.toMatch(/\bproducts?\b|\bcook/iu);
+    // are stable. `cooking` is the upload protocol status, not implementation prose.
+    expect(guide.replaceAll('hero-not-in-product', '').replaceAll('`cook-invalid`', '').replaceAll('`cooking`', '')).not.toMatch(/\bproducts?\b|\bcook/iu);
   });
 
   it('ships in the package and is written by new, byte for byte', () => {

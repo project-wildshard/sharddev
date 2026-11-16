@@ -236,8 +236,8 @@ Upload checks the shard file as the API will, checks the hero, signs, compresses
 version and what moved. Uploading the same bytes again sends nothing.
 
 With async upload, the command waits and reports `checked`, `cooking`,
-`staged`, then `live`. Nothing is placed before the cook agrees. A refusal
-prints the cook's report and exits non-zero; a stall or a 20-minute wait
+`staged`, then `live`. Nothing is placed before the checks pass. A refusal
+prints the full report and exits non-zero; a stall or a 20-minute wait
 also exits non-zero. To return after acceptance, add `--no-wait`; it prints
 the upload id. Read that upload later with the same account key:
 

@@ -1,0 +1,92 @@
+// SP20c3: real API/PGlite, sandboxed cook child, signed parent transport,
+// exact-pack game receiver and actual World/cell host, packed normal CLI.
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {createHash,generateKeyPairSync} from 'node:crypto';
+import {once} from 'node:events';
+import {createServer} from 'node:http';
+import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {createRequire} from 'node:module';
+import {dirname,join,resolve} from 'node:path';
+import {text} from 'node:stream/consumers';
+import {setTimeout as delay} from 'node:timers/promises';
+import {pathToFileURL} from 'node:url';
+import {test} from 'node:test';
+import {installWildshard} from '../../src/test/helpers/install.ts';
+import {COOK_KEY,TARBALL,openApi,migratePending} from './async-upload-fixture.mjs';
+
+const root=dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
+await import(pathToFileURL(join(root,'scripts/bake-loader.mjs')).href);
+const engine=path=>import(pathToFileURL(join(root,path)).href);
+const [{cookApi,pendingSource,uploadDelivery,VerdictOutbox,activationDelivery,gameActivationClient},
+  {createCookWorker,apiSource},{folderStore},{uploadActivator,uploadActivationReceiver},
+  {readPlacementFile},{readPackProduct},{World},{memoryPlayerSaves},{runCells},
+  {placeCell,forgetPlacedCells},{loadRapier}, {placementWriter}]=await Promise.all([
+  engine('src/cook/game/uploadTransport.ts'),engine('src/cook/game/cookWorker.ts'),engine('src/cook/game/packStore.ts'),
+  engine('src/server/host/dedicated/uploadActivation.ts'),engine('src/server/host/dedicated/placementFile.ts'),
+  engine('src/server/host/dedicated/packReader.ts'),engine('src/server/host/dedicated/world.ts'),
+  engine('src/server/host/dedicated/playerSaves.ts'),engine('src/server/host/dedicated/cellHost.ts'),
+  engine('src/server/host/dedicated/gridCells.ts'),import('@wildshard/engine/physics/rapier'),
+  import(pathToFileURL(resolve(process.env.WILDSHARD_API_SOURCE,'src/server/signing/placement-file.ts')).href),
+]);
+
+for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost ACK heals, place=${place}`, {timeout:90_000}, async context=>{
+  const scratch=resolve('tmp/codex-wire');await mkdir(scratch,{recursive:true});
+  const work=await mkdtemp(join(scratch,'composed-'));context.after(()=>rm(work,{recursive:true,force:true}));
+  const keys=generateKeyPairSync('ed25519'),publicKey=keys.publicKey.export({type:'spki',format:'der'}).toString('hex');
+  const documents=new Map();
+  const placements=placementWriter({read:async key=>documents.get(key),write:async(key,value,etag)=>{
+    if(documents.get(key)?.etag!==etag)return false;
+    documents.set(key,{text:value,etag:createHash('sha256').update(value).digest('hex')});return true;
+  }},keys.privateKey.export({type:'pkcs8',format:'pem'}));
+  const fixture=await openApi(context,'manual',{placements});
+  const cli=installWildshard(join(work,'installed')),file=join(work,'shard.tar');await writeFile(file,TARBALL);
+  const child=spawn(process.execPath,[cli,'upload',file,'--server',fixture.url,'--version','0.1.0','--commit','a'.repeat(40),'--channel','staging',...(place?[]:['--no-place'])],{env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
+  context.after(()=>{if(child.exitCode===null)child.kill('SIGTERM');});
+  const stdout=text(child.stdout),stderr=text(child.stderr),closed=once(child,'close');
+  const deadline=Date.now()+30_000;
+  while(fixture.id===undefined&&child.exitCode===null&&Date.now()<deadline)await delay(20);
+  assert.ok(fixture.id,await Promise.race([stderr,Promise.resolve('upload must be recorded')]));
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'cooking');
+  const client=cookApi(fixture.url,COOK_KEY),source=pendingSource(client,apiSource(fixture.url));
+  const packs=join(work,'packs'),build='async-contract',worker=createCookWorker({build,store:folderStore(packs),source,serverPacks:join(work,'server-packs'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:join(root,'scripts/bake-loader.mjs'),script:join(root,'scripts/cook-job.mjs'),wrap:process.platform==='darwin'?['sandbox-exec','-p','(version 1)(allow default)(deny network*)']:['sudo','-n','unshare','--net','--','setpriv',`--reuid=${process.getuid()}`,`--regid=${process.getgid()}`,'--init-groups','--reset-env'],limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
+  const outbox=new VerdictOutbox(join(work,'outbox')),delivery=uploadDelivery({api:client,source,worker,outbox,build,log:line=>context.diagnostic(line)});
+  await delivery.sweep();await delivery.idle();
+  assert.equal(outbox.rows().length,0);
+  await migratePending(fixture);
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'staged');
+  const held=await fixture.catalogue.uploads.byHash(fixture.hash),report=held.report;
+  assert.equal(report.pass,true);assert.equal(report.slug,'async-sdk-isle');
+  const rapier=await loadRapier(await readFile(createRequire(join(root,'package.json')).resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm')));
+  const reads={fetched:0,fetchedBytes:0,cached:0,refused:0},options={origin:pathToFileURL(packs+'/').href,cache:join(work,'game-cache')};
+  const stops=[],rooms=new Set();
+  const boot=slugs=>{
+    const {port1,port2}=new MessageChannel();
+    const cells=runCells(port2,{slugs,build,bootId:()=>build,memory:()=>process.memoryUsage(),load:slug=>readPackProduct(slug,build,rapier,options,reads,fixture.hash,[],true),booted:slug=>rooms.add(slug)});
+    const stop=()=>{cells.dispose();port1.close();};stops.push(stop);
+    return {send:(order,transfer=[])=>port1.postMessage(order,transfer),listen:news=>{port1.onmessage=event=>news(event.data);},stop};
+  };
+  const world=await World.open({build,cells:[],workers:1,seats:8,secret:'fixture-seat-secret',boot,saves:memoryPlayerSaves(),log:()=>{},crashed:error=>{throw new Error(String(error));},restart:()=>{throw new Error('No release restart expected');}});
+  context.after(()=>{world.dispose();for(const stop of stops)stop();forgetPlacedCells();});
+  const activate=uploadActivator({build,channel:'staging',read:async()=>readPlacementFile(documents.get('releases/staging-placements.json').text,publicKey),preload:async(slug,hash)=>{await readPackProduct(slug,build,rapier,options,reads,hash,[],true);},place:row=>{placeCell(row);},open:instances=>world.activateCells(instances),opened:instance=>Object.hasOwn(world.health().table,instance)});
+  const gameToken=['fixture','local','game','receiver','test','key','32bytes'].join('-'),receive=uploadActivationReceiver(gameToken,activate);
+  const server=createServer((request,response)=>{if(!receive(request,response))response.writeHead(404).end();});
+  await new Promise(done=>server.listen(0,'127.0.0.1',done));
+  context.after(async()=>{server.closeAllConnections();await new Promise(done=>server.close(done));});
+  const game=gameActivationClient({staging:{url:`http://127.0.0.1:${server.address().port}`,token:gameToken}},build);
+  let lost=true;
+  const acks=activationDelivery({...client,acknowledge:async(...args)=>{if(lost){lost=false;throw new Error('lost acknowledgement');}await client.acknowledge(...args);}},game);
+  await acks.sweep();await acks.idle();
+  assert.equal(rooms.has('async-sdk-isle'),place,'actual cell opening follows the recorded placement choice');
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'staged');
+  await acks.sweep();await acks.idle();
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'live');
+  // Replaying the exact settled verdict is harmless; it must not remeasure.
+  await client.verdict(fixture.id,JSON.stringify({hash:fixture.hash,result:'cooked',build,report}));
+  await closed;
+  const output=await stdout,errors=await stderr;
+  assert.equal(child.exitCode,0,errors);
+  assert.ok(output.includes(`upload ${fixture.id}: live`),output);
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).hash,fixture.hash);
+  context.diagnostic(`same upload id ${fixture.id}, cooked hash ${fixture.hash}, exact pack preloaded, placement=${place}, packed CLI live`);
+});

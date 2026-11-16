@@ -1,6 +1,7 @@
 // `wildshard check` (meta SHARD-AUTHORING SA4, J317): lint, build, validate, prove and the report card in one verb, with
 // one verdict. The loop is new, dev, check, hero, upload. `--json` prints CheckResult below and nothing else on stdout.
 // SA21: every refusal carries a rule id, a one-line fix and a GUIDE.md link, from refusals.ts.
+import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { authorErrorText } from './authorError';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from './refusals';
@@ -37,6 +38,8 @@ export interface CheckResult {
   readonly steps: readonly CheckStep[];
   readonly refusals: readonly CheckRefusal[];
   readonly warnings: readonly CheckWarning[];
+  /** SP19: the identical structured engine report retained by the upload cook. */
+  readonly check?: ShardfileCheckReport;
 }
 
 /** What a step reports; a thrown error is a `fail` with the error's words as its one refusal. */

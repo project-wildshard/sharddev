@@ -7,13 +7,14 @@ import { existsSync, readFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import * as v from 'valibot';
 import { AuthorProofPlanSchema } from '@wildshard/engine/host/tickProtocol';
-import { measureSimulation, proveAuthorSimulation } from '@wildshard/engine/host/headless';
+import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
+import { checkShardfile } from '@wildshard/engine/host/checkShardfile';
+import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { buildProject } from './project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
 import { handwrittenIdentity, settleHandwritten } from './handwritten';
 import { validateOutputProduct } from './outputProduct';
-import { performanceReport, type PerformanceObservations } from './reportCard';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
@@ -28,7 +29,6 @@ export function readProofTape(path: string): v.InferOutput<typeof AuthorProofPla
   try { return v.parse(AuthorProofPlanSchema, JSON.parse(readFileSync(path, 'utf8'))); }
   catch (error) { throw new Error(`${basename(path)}: ${authorErrorText(error)}`, { cause: error }); }
 }
-const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 // The bundled CLI defines import.meta.dirname as the package's src/sharddev, so the package root is two up.
 const SDK_ROOT = resolve(import.meta.dirname, '../..');
 
@@ -47,7 +47,7 @@ function isDraft(folder: string): boolean {
   return typeof index === 'object' && index !== null && 'sdk' in index && index.sdk === DRAFT_SDK;
 }
 
-interface Admitted { readonly shard: Shardfile; readonly observed: PerformanceObservations; readonly policy: 'warn' | 'refuse' }
+interface Admitted { readonly check: ShardfileCheckReport }
 export interface CheckOptions { readonly decisionLegacyLines?: number; readonly output?: string; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string> }
 
 /** Lint, build (no client; the shard file too, SA3), validate the built folder, prove its tape and read its report card. */
@@ -55,9 +55,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
   const project = resolve(projectPath);
   let output = outputPath === undefined ? undefined : resolve(outputPath), admitted: Admitted | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
-    // Native hybrids need their trusted recipes for a meaningful measurement; never invent one (as `build` does).
-    const observed = shard.runtime === null ? await measureSimulation(shard, assets, undefined, sections) : unmeasured;
-    admitted = { shard, observed, policy };
+    admitted = { check: await checkShardfile(shard, assets, {sections, policy}) };
   };
   // SA16 (J314): a hand-written source (`--template blender`) has nothing to build: format's pack settles it into the
   // built folder, which is then admitted as a built shard is.
@@ -77,7 +75,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
     if (output === undefined) throw new Error('no built shard file folder');
     return output;
   };
-  return await runCheck(project, (): string | null => output ?? null, {
+  const result = await runCheck(project, (): string | null => output ?? null, {
     lint: async (): Promise<StepOutcome> => await Promise.resolve(handwritten
       ? { status: 'skip', note: 'a hand-written shard file: no code to lint' } : lintProject(project)),
     build: async (): Promise<StepOutcome> => {
@@ -109,15 +107,16 @@ export async function checkProject(projectPath: string, outputPath: string | und
     },
     report: async (): Promise<StepOutcome> => {
       if (admitted === undefined) throw new Error('the build admitted no shard to report on');
-      const card = performanceReport(admitted.shard, admitted.observed, admitted.policy);
-      const refused = card.issues.filter(issue => issue.severity === 'refusal');
+      const card = admitted.check.performance;
+      const refused = admitted.check.failures;
       // TC-NE6 (NEW-SHARD-E2E F6): a count with no names left the author guessing; each warning prints, marked report-only.
       const reported = card.issues.filter(issue => issue.severity !== 'refusal');
       const warnings = reported.length;
       const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}`;
-      return await Promise.resolve({ status: card.pass ? 'pass' : 'fail', note,
-        refusals: refused.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)}`, code: issue.code })),
+      return await Promise.resolve({ status: admitted.check.pass ? 'pass' : 'fail', note,
+        refusals: refused.map(issue => ({ message: issue.message, code: issue.code })),
         warnings: reported.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)} (a report-only cap: upload still takes it)` })) });
     },
   });
+  return {...result, ...(admitted === undefined ? {} : {check: admitted.check})};
 }
