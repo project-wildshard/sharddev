@@ -40,3 +40,8 @@ The same test is wired into the existing hosted check job, with no extra
 matrix/job. Hosted CI remains pending the SDK milestone; this source is
 not yet a completed SP21 row. Actual signed cook-parent and game transport
 qualification remains SP20c, and real staging shipment SP22.
+
+The full CLI suite caught a glossary regression in upload help. Help now
+describes progress and validation in the author's vocabulary; runtime
+progress still prints the actual checked/cooking/staged/live states.
+The glossary guard remains unchanged.

@@ -92,8 +92,8 @@ const VERBS: Readonly<Record<string, string>> = {
                        so one uploaded with --no-place never gets one; on
                        a later upload --no-place leaves the grid as it
                        was, so a prod upload adds no production cell.
-                       Async uploads wait for checked, cooking, staged,
-                       then live. A refusal prints the cook's report and
+                       Async uploads show progress until live.
+                       A refusal prints the full validation report and
                        exits non-zero; a stall or 20-minute timeout also
                        exits non-zero. --no-wait prints the upload id
                        immediately. Read it later without uploading:
