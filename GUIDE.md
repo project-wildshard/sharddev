@@ -100,8 +100,13 @@ hero:
 2. Run `wildshard hero . --base <url>` with the URL `dev` printed. It opens that page in headless Chromium, enters your
    shard, shoots the view `hero.json`'s `camera` names (or the spawn view), writes the three files and stamps
    `hero.json` with a hash of your content. A `data:` card becomes `card/thumb.jpg`, `card/portrait.jpg` and
-   `card/landscape.jpg`, named in both `manifest.json` and `data/card.json`.
+   `card/landscape.jpg`, named in both `manifest.json` and `data/card.json`. A scene shard (a `shard.config.ts` and no
+   `manifest.json`) gets the same three files; its next build's card wears them.
 3. Look at the three images, then stop `dev` with Ctrl-C.
+
+A refusal is one line that starts with its rule, `[hero-<rule>]`, never a stack: `hero-no-source` (no shard here),
+`hero-no-name` (a scene shard with no build, captured from a served build that isn't `dev`), `hero-no-card`,
+`hero-card-file`, `hero-curated`, `hero-size` and `hero-page-error`.
 
 Build then refuses a shard file whose content changed after the hero was stamped (`hero-stale`), and upload refuses a
 new version whose hero is the same as the previous version's (`hero-unchanged`). Section 6 has every hero refusal.

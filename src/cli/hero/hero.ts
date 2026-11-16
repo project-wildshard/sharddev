@@ -1,6 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
+import { isSceneShard } from './scene-card.ts'
 import {
   MANIFEST,
   NONE,
@@ -139,7 +140,11 @@ async function assertHeroCurrent(
 ): Promise<void> {
   // SA3: `build` names the project it built; a bare folder is read by layout.
   const shard = source ?? sourceShard(product)
-  if ((await readJson(path.join(shard, MANIFEST))) === undefined) {
+  // F28: a scene shard keeps no manifest; its folder (a shard.config.ts) is still the source a hero shows
+  if (
+    (await readJson(path.join(shard, MANIFEST))) === undefined &&
+    !(await isSceneShard(shard))
+  ) {
     report(`hero: no source shard with a ${MANIFEST} at ${shard}; not checked`)
     return
   }

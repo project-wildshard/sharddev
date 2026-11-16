@@ -3,6 +3,7 @@ import { readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
 import { shardFolderName } from '../../sharddev/shardSource.ts'
+import { sceneCardUrls } from './scene-card.ts'
 
 // A shard's hero (its SHARD SELECT card: thumb, portrait and landscape) is a
 // picture of its world, so it goes stale when the world changes (Jake,
@@ -95,11 +96,12 @@ function field(value: unknown, key: string): unknown {
   )?.[VALUE]
 }
 
-/** The manifest's card urls, by slot. */
+/** The manifest's card urls, by slot; a scene shard's captured card files (F28). */
 async function cardUrls(
   shard: string,
 ): Promise<Readonly<Record<string, string>>> {
-  const card = field(await readJson(path.join(shard, MANIFEST)), 'card')
+  const manifest = await readJson(path.join(shard, MANIFEST))
+  const card = field(manifest, 'card')
   const urls: Record<string, string> = {}
   for (const slot of SLOTS) {
     const url = field(card, slot)
@@ -107,7 +109,7 @@ async function cardUrls(
       urls[slot] = url
     }
   }
-  return urls
+  return manifest === undefined ? await sceneCardUrls(shard) : urls
 }
 
 /**

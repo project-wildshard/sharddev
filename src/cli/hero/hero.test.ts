@@ -14,6 +14,8 @@ import {
 } from '../../test/helpers/hero-project.ts'
 import { writeHeroStamp } from './stamp.ts'
 
+import type { Project } from '../../test/helpers/hero-project.ts'
+
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the
 // templates." A cut (`wildshard build`) of a shard whose captured hero is
 // older than its content is refused, and the refusal names the capture.
@@ -134,6 +136,45 @@ test('a generated card has no captured hero to go stale; a product with no sourc
   assert.ok(
     orphanLines.some((line: string): boolean =>
       line.startsWith('hero: no source shard'),
+    ),
+  )
+})
+
+// Meta NEW-SHARD-E2E F28: a scene shard keeps no manifest.json (its discovery
+// is generated); its captured hero is card/<slot>.jpg, stamped and checked by
+// the cut like any other.
+async function sceneShard(context: TestContext): Promise<Project> {
+  const space = await project(context)
+  await rm(path.join(space.shard, 'manifest.json'))
+  await writeFile(path.join(space.shard, 'shard.config.ts'), 'export {}')
+  return space
+}
+
+test('F28: a scene shard wears its card/*.jpg as its hero, and the cut checks it', async (context: TestContext): Promise<void> => {
+  const space = await sceneShard(context)
+  // Captured card files and no stamp: unstamped, refused like any shard's
+  assert.equal(await stateOf(space.shard), 'unstamped')
+  await writeHeroStamp(space.shard, { base: BASE })
+  assert.equal(await stateOf(space.shard), 'fresh')
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean => line.startsWith('hero: current')),
+  )
+  await writeFile(
+    path.join(space.shard, 'shard.config.ts'),
+    'export const changed = 1',
+  )
+  await assert.rejects(cut(space), /hero of .* is older than its content/u)
+})
+
+test('F28: a scene shard with no capture yet wears a generated card', async (context: TestContext): Promise<void> => {
+  const space = await sceneShard(context)
+  await rm(path.join(space.shard, 'card'), { recursive: true })
+  assert.equal(await stateOf(space.shard), 'generated')
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean =>
+      line.startsWith('hero: generated card'),
     ),
   )
 })

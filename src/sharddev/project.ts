@@ -38,7 +38,7 @@ import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from './cookInput';
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from './audioEncode';
 import { engineMusicLine } from './engineMusic';
-import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest } from './authorManifest';
+import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from './authorManifest';
 import { discoveryDocument, discoveryUrl } from './discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from './outputProduct';
 import { prepareProjectOutput, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from './projectOutput';
@@ -282,7 +282,7 @@ export async function buildProject(project: string, output?: string, options: { 
   try {
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
     const encoded = await encodedCookInput(project, shard.identity.slug);
-    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard), loaded.output.discovery, encoded?.input, assets);
+    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))), loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');

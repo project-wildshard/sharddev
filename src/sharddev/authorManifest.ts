@@ -1,4 +1,20 @@
+// oxlint-disable-next-line import/no-nodejs-modules -- the author tool reads the shard folder's captured card files.
+import { existsSync } from 'node:fs';
+// oxlint-disable-next-line import/no-nodejs-modules -- the author tool reads the shard folder's captured card files.
+import { join } from 'node:path';
 import type { Shardfile } from '@wildshard/format/shardSchema';
+
+/** The card slots a hero fills. */
+type CardSlot = 'thumb' | 'portrait' | 'landscape';
+/**
+ * meta NEW-SHARD-E2E F28: a scene shard's captured hero (`wildshard hero` writes `card/<slot>.jpg` in its folder), as
+ * the urls the discovery packs (`/src/shards/<folder>/card/<slot>.jpg`); only the slots captured.
+ */
+export function sceneCardUrls(source: string, folder: string): Partial<Record<CardSlot, string>> {
+  const urls: Partial<Record<CardSlot, string>> = {};
+  for (const slot of ['thumb', 'portrait', 'landscape'] as const) if (existsSync(join(source, 'card', `${slot}.jpg`))) urls[slot] = `/src/shards/${folder}/card/${slot}.jpg`;
+  return urls;
+}
 
 /** C3: what a page needs before it admits a shard, for an author who wrote no level metadata: `withDiscovery` writes this
  *  as the product's discovery, so the shard wears its own card and enters on its own page, with no first-party manifest
@@ -18,11 +34,13 @@ export function authorCard(name: string, seed: number): string {
   return `data:image/svg+xml,${encodeURIComponent(svg)}`;
 }
 
-export function authorManifest(shard: Shardfile): unknown {
+export function authorManifest(shard: Shardfile, captured: Partial<Record<CardSlot, string>> = {}): unknown {
   const {slug, name, seed} = shard.identity, art = authorCard(name, seed), {spawn} = shard;
+  // F28: a captured hero replaces the generated art slot by slot
+  const card = {thumb: captured.thumb ?? art, portrait: captured.portrait ?? art, landscape: captured.landscape ?? art};
   return {
     api: 1, hoverSpeedClass: 'road', slug, order: 1000, status: 'live', name, label: '(+0, +0)', seed, biome: `By ${shard.identity.author}`, blurb: name,
-    card: {thumb: art, portrait: art, landscape: art}, style: 'greybox', kitLook: 'toon', hands: 'toon', weapon: 'custom', treeCount: 0,
+    card, style: 'greybox', kitLook: 'toon', hands: 'toon', weapon: 'custom', treeCount: 0,
     trees: {factory: 'none', noun: 'trees'}, minimap: {image: art}, pois: [], assetGlobs: [], spawn,
     bounds: {x0: -250, x1: 250, z0: -250, z1: 250, floor: -10},
     sky: {sunColor: NEUTRAL, sunIntensity: 1.5, envIntensity: 0.5, bgIntensity: 1, fogSunColor: NEUTRAL, cloudSunColor: NEUTRAL, hemiSky: 10266548, hemiGround: 6316128, hemiIntensity: 0.7, sun: {azimuth: 35, elevation: 45}},
