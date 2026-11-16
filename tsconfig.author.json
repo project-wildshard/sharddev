@@ -34,6 +34,8 @@
     "test/return-projection-inventory.test.ts",
     "test/return-program-group-v2.test.ts",
     "test/tile-bakes.test.ts",
+    "test/species-barrel-author-ports.test.ts",
+    "test/view-author-metadata.test.ts",
     "test/fixtures/productFile.ts",
     "test/fixtures/ci21sdk-tail/frozen.ts",
     "test/fixtures/defined-json-value.ts",

@@ -226,6 +226,116 @@
           "targetBlob": "3a596044c98528a2a7f3c37e5c1f5569a729ff7b"
         }
       ]
+    },
+    {
+      "sourcePath": "test/species-barrel-author-ports.test.ts",
+      "targetPath": "test/species-barrel-author-ports.test.ts",
+      "sourceBlob": "cfb067d11d760ba117fcefe317803c43253504c8",
+      "originalTests": [
+        "finite species-field readers retain complete defining types, strict grammar and issue order",
+        "barrel metadata preserves native complete identity and stays renderer-free",
+        "complete ecology, barrel bodies/floors and watch decision retain original wires"
+      ],
+      "targetTests": [
+        "finite species-field readers retain complete defining types, strict grammar and issue order",
+        "barrel metadata preserves native complete identity and stays renderer-free"
+      ],
+      "wireSplit": {
+        "originalTest": "complete ecology, barrel bodies/floors and watch decision retain original wires",
+        "requiredKeys": [
+          "ecology",
+          "bodies",
+          "decision"
+        ],
+        "fixtureSourcePath": "test/fixtures/species-barrel-author-original.json",
+        "fixtureBlob": "62009c0307777eddf73066575f68f7730e03d67a"
+      },
+      "wireCompanions": [
+        {
+          "repository": "project-wildshard/shard-nalati",
+          "targetPath": "test/nalati-ecology-wire.test.ts",
+          "revision": "a128751ca56ad289f95f3f7109b8982d4c1f1ff8",
+          "targetBlob": "fc9e4eb70f2663779703b3a78d310d97d6016e5f",
+          "originalTests": [
+            "complete ecology, barrel bodies/floors and watch decision retain original wires"
+          ],
+          "wireKeys": [
+            "ecology"
+          ],
+          "fixturePath": "test/fixtures/species-barrel-author-original.json",
+          "fixtureBlob": "62009c0307777eddf73066575f68f7730e03d67a"
+        },
+        {
+          "repository": "project-wildshard/shard-driftwood",
+          "targetPath": "test/driftwood-barrel-wire.test.ts",
+          "revision": "5b63092793dae46ce2a3d458462ec17a41ee9d5c",
+          "targetBlob": "98f069a391656000b381895d3043b474ba615e10",
+          "originalTests": [
+            "complete ecology, barrel bodies/floors and watch decision retain original wires"
+          ],
+          "wireKeys": [
+            "bodies",
+            "decision"
+          ],
+          "fixturePath": "test/fixtures/species-barrel-author-original.json",
+          "fixtureBlob": "62009c0307777eddf73066575f68f7730e03d67a"
+        }
+      ],
+      "changes": "Retain all author type/metadata/assertion cases in SDK. Split the complete original wire golden across actual shard producer owners, with identical full original fixture bytes/Git blob and exact disjoint key partition. Every generator executes under the real public renderer-guarded Node loader; real test/compiler/typed-lint admission and deliberately red controls verified. No golden updated, no assertion retired."
+    },
+    {
+      "sourcePath": "test/view-author-metadata.test.ts",
+      "targetPath": "test/view-author-metadata.test.ts",
+      "sourceBlob": "515eaa3b4ea66dac2a5dcf15d28b96eec39f3aaf",
+      "originalTests": [
+        "view declarations and fire fields retain complete native contracts and metadata identity",
+        "complete Titan, elite and four fire-profile wires retain every original field and order"
+      ],
+      "targetTests": [
+        "view declarations and fire fields retain complete native contracts and metadata identity"
+      ],
+      "wireSplit": {
+        "originalTest": "complete Titan, elite and four fire-profile wires retain every original field and order",
+        "requiredKeys": [
+          "titan",
+          "elite",
+          "fires"
+        ],
+        "fixtureSourcePath": "test/fixtures/view-author-original.json",
+        "fixtureBlob": "723fd5778f4428b752956b6fe12be0b77cd3ffd0"
+      },
+      "wireCompanions": [
+        {
+          "repository": "project-wildshard/shard-nalati",
+          "targetPath": "test/nalati-view-wires.test.ts",
+          "revision": "a128751ca56ad289f95f3f7109b8982d4c1f1ff8",
+          "targetBlob": "a0574b944d85f83d2b6389a87caeea8f9fea0b7c",
+          "originalTests": [
+            "complete Titan, elite and four fire-profile wires retain every original field and order"
+          ],
+          "wireKeys": [
+            "titan",
+            "elite"
+          ],
+          "fixturePath": "test/fixtures/view-author-original.json",
+          "fixtureBlob": "723fd5778f4428b752956b6fe12be0b77cd3ffd0"
+        },
+        {
+          "repository": "project-wildshard/shard-dunes",
+          "targetPath": "test/sunscar-fire-wires.test.ts",
+          "revision": "6ca348a9f59b1f304be34bb9fa3c49fa8e95b0fa",
+          "targetBlob": "57c8cfbcf928d3399962cfb06093295bf9bc507d",
+          "originalTests": [
+            "complete Titan, elite and four fire-profile wires retain every original field and order"
+          ],
+          "wireKeys": [
+            "fires"
+          ],
+          "fixturePath": "test/fixtures/view-author-original.json",
+          "fixtureBlob": "723fd5778f4428b752956b6fe12be0b77cd3ffd0"
+        }
+      ],
+      "changes": "Retain all author type/metadata/assertion cases in SDK. Split the complete original wire golden across actual shard producer owners, with identical full original fixture bytes/Git blob and exact disjoint key partition. Every generator executes under the real public renderer-guarded Node loader; real test/compiler/typed-lint admission and deliberately red controls verified. No golden updated, no assertion retired."
     }
   ],
   "supportPaths": [
