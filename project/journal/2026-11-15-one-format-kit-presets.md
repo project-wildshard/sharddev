@@ -23,3 +23,9 @@ The format subpaths are unpublished. Only this worktree's isolated kit
 node_modules links the M1 format branch for proofs (recorded in the lane
 receipt); the root SDK pin is unchanged. Replace the proof link with the
 published dependency before the single M1 land. No peer checkout was changed.
+
+CC2b package probes now resolve and execute the root and all three helper
+subpaths. A packed 0.1.0 archive contains the plain JSON and helper sources,
+excludes tests, and emits declarations. Its declared production dependencies
+are format 0.6 and valibot. Workspace lock/integration, copied-row build proof
+and publication are still pending; packing is not a claim of a release.

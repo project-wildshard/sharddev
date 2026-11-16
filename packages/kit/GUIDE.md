@@ -10,6 +10,8 @@ a shard only when that shard rebuilds with the updated content.
 The temperament helper returns temperament and senses together:
 
 ```ts
+import { abilities, quadruped, temperament } from '@wildshard/kit';
+
 const profile = temperament.pack({ aggro: 18, assist: 14 });
 const body = quadruped({ size: 'medium', scale: 1, look: 'mesa.wolf.look' });
 const bite = abilities.bite({ id: 'mesa.wolf.bite', damage: 12 });
@@ -43,3 +45,8 @@ chooses range and damage for its own body. In particular the sweep's current
 7 m radius is a large attack; an ordinary sword swing should state its range.
 Identity and tags use the kit names; the underlying numeric values stay the
 same. Later ability rows add origin sockets, clips, tells and effects.
+
+The package root exports these helpers and their option/result types. The
+body, temperament and abilities subpaths expose them separately. Plain JSON
+is available under the content subpath, including content/temperaments.json,
+content/tuning/*.json and content/abilities/*.json.
