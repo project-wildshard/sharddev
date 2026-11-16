@@ -1,0 +1,24 @@
+{
+  "ability": {
+    "use": "kit.bite",
+    "range": 2,
+    "cooldown": 1,
+    "weight": 2
+  },
+  "strike": {
+    "id": "kit.bite",
+    "shape": {
+      "kind": "point",
+      "radius": 1.8
+    },
+    "windup": 0.7,
+    "active": 0.15,
+    "recover": 0.8,
+    "cooldown": 1,
+    "range": 2,
+    "damage": 8,
+    "tags": ["creature.bite"],
+    "weight": 2,
+    "speed": 0
+  }
+}

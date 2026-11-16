@@ -1,0 +1,24 @@
+{
+  "ability": {
+    "use": "kit.slam",
+    "range": 4,
+    "cooldown": 0.5,
+    "weight": 3
+  },
+  "strike": {
+    "id": "kit.slam",
+    "shape": {
+      "kind": "point",
+      "radius": 1.6
+    },
+    "windup": 1.2,
+    "active": 0.2,
+    "recover": 0.6,
+    "cooldown": 0.5,
+    "range": 4,
+    "damage": 20,
+    "tags": ["creature.slam"],
+    "weight": 3,
+    "speed": 0
+  }
+}

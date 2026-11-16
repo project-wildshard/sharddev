@@ -1,0 +1,519 @@
+{
+  "passive": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "passive",
+      "leash": 50,
+      "assist": 8,
+      "home": {
+        "speed": 3.2,
+        "stop": 1.5
+      },
+      "tuning": {
+        "hp": 60,
+        "sightRange": 30,
+        "sightRangeGraze": 14,
+        "sightCone": 0.9599310885968813,
+        "hearStill": 3,
+        "hearCrouch": 6,
+        "hearWalk": 12,
+        "hearSprint": 24,
+        "noticeRate": 0.3,
+        "forgetRate": 0.3,
+        "alertAt": 0.45,
+        "boltAt": 1,
+        "freezeMin": 4,
+        "freezeMax": 7,
+        "relaxAfter": 3.5,
+        "panicDist": 6,
+        "runSpeed": 6,
+        "trotSpeed": 3.2,
+        "fleeMinTime": 1.5,
+        "fleeUntil": 35,
+        "fleeUntilMax": 50,
+        "fleeMaxTime": 8,
+        "lookBack": 2.5,
+        "waryTime": 10,
+        "waryBoost": 1.2,
+        "herdAlertRadius": 8,
+        "herdBoltDelayMin": 0.4,
+        "herdBoltDelayMax": 1.2,
+        "impactSpook": 4,
+        "impactAlert": 10
+      }
+    },
+    "senses": {
+      "notice": 30,
+      "sight": {
+        "range": 30,
+        "cone": 0.9599310885968813,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 3,
+        "crouch": 6,
+        "walk": 12,
+        "sprint": 24
+      }
+    }
+  },
+  "skittish": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "skittish",
+      "leash": 50,
+      "assist": 8,
+      "home": {
+        "speed": 3.2,
+        "stop": 1.5
+      },
+      "tuning": {
+        "hp": 60,
+        "sightRange": 30,
+        "sightRangeGraze": 14,
+        "sightCone": 0.9599310885968813,
+        "hearStill": 3,
+        "hearCrouch": 6,
+        "hearWalk": 12,
+        "hearSprint": 24,
+        "noticeRate": 0.3,
+        "forgetRate": 0.3,
+        "alertAt": 0.45,
+        "boltAt": 1,
+        "freezeMin": 4,
+        "freezeMax": 7,
+        "relaxAfter": 3.5,
+        "panicDist": 6,
+        "runSpeed": 6,
+        "trotSpeed": 3.2,
+        "fleeMinTime": 1.5,
+        "fleeUntil": 35,
+        "fleeUntilMax": 50,
+        "fleeMaxTime": 8,
+        "lookBack": 2.5,
+        "waryTime": 10,
+        "waryBoost": 1.2,
+        "herdAlertRadius": 8,
+        "herdBoltDelayMin": 0.4,
+        "herdBoltDelayMax": 1.2,
+        "impactSpook": 4,
+        "impactAlert": 10
+      }
+    },
+    "senses": {
+      "notice": 30,
+      "sight": {
+        "range": 30,
+        "cone": 0.9599310885968813,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 3,
+        "crouch": 6,
+        "walk": 12,
+        "sprint": 24
+      }
+    }
+  },
+  "neutral": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "neutral",
+      "leash": 60,
+      "assist": 12,
+      "home": {
+        "speed": 3.6,
+        "stop": 1.5
+      },
+      "tuning": {
+        "hp": 100,
+        "sightRange": 22,
+        "sightRangeGraze": 14,
+        "sightCone": 1.0471975511965976,
+        "hearStill": 4,
+        "hearCrouch": 7,
+        "hearWalk": 14,
+        "hearSprint": 28,
+        "noticeRate": 0.5,
+        "forgetRate": 0.2,
+        "alertAt": 0.35,
+        "boltAt": 1,
+        "freezeMin": 1.5,
+        "freezeMax": 2.8,
+        "relaxAfter": 4,
+        "panicDist": 10,
+        "runSpeed": 6.8,
+        "trotSpeed": 3.6,
+        "fleeMinTime": 2,
+        "fleeUntil": 40,
+        "fleeUntilMax": 60,
+        "fleeMaxTime": 10,
+        "lookBack": 2,
+        "waryTime": 20,
+        "waryBoost": 1.5,
+        "herdAlertRadius": 12,
+        "herdBoltDelayMin": 0.2,
+        "herdBoltDelayMax": 0.7,
+        "impactSpook": 7,
+        "impactAlert": 18
+      }
+    },
+    "senses": {
+      "notice": 22,
+      "sight": {
+        "range": 22,
+        "cone": 1.0471975511965976,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 4,
+        "crouch": 7,
+        "walk": 14,
+        "sprint": 28
+      }
+    }
+  },
+  "aggressive": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "aggressive",
+      "leash": 90,
+      "assist": 20,
+      "home": {
+        "speed": 3.5,
+        "stop": 1.5
+      },
+      "tuning": {
+        "hp": 220,
+        "sightRange": 45,
+        "sightRangeGraze": 30,
+        "sightCone": 1.2217304763960306,
+        "hearStill": 6,
+        "hearCrouch": 12,
+        "hearWalk": 25,
+        "hearSprint": 45,
+        "noticeRate": 0.8,
+        "forgetRate": 0.15,
+        "alertAt": 0.3,
+        "boltAt": 0.6,
+        "freezeMin": 1,
+        "freezeMax": 2,
+        "relaxAfter": 3,
+        "panicDist": 14,
+        "runSpeed": 7,
+        "trotSpeed": 3.5,
+        "fleeMinTime": 3,
+        "fleeUntil": 60,
+        "fleeUntilMax": 90,
+        "fleeMaxTime": 12,
+        "lookBack": 2,
+        "waryTime": 30,
+        "waryBoost": 1.3,
+        "herdAlertRadius": 20,
+        "herdBoltDelayMin": 0.3,
+        "herdBoltDelayMax": 1,
+        "impactSpook": 20,
+        "impactAlert": 80,
+        "stalk": {
+          "detect": 40,
+          "speed": 2.5,
+          "giveUp": 60,
+          "rechargeCd": 1.5,
+          "huffMin": 1.8,
+          "huffMax": 3.2,
+          "roar": "bear_roar",
+          "fleeBelowHp": 0.2,
+          "fleeChance": 0.5
+        }
+      }
+    },
+    "senses": {
+      "notice": 45,
+      "sight": {
+        "range": 45,
+        "cone": 1.2217304763960306,
+        "graze": 30
+      },
+      "hearing": {
+        "still": 6,
+        "crouch": 12,
+        "walk": 25,
+        "sprint": 45
+      }
+    }
+  },
+  "pack": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "neutral",
+      "leash": 60,
+      "assist": 12,
+      "home": {
+        "speed": 3.6,
+        "stop": 1.5
+      },
+      "pack": true,
+      "tuning": {
+        "hp": 100,
+        "sightRange": 22,
+        "sightRangeGraze": 14,
+        "sightCone": 1.0471975511965976,
+        "hearStill": 4,
+        "hearCrouch": 7,
+        "hearWalk": 14,
+        "hearSprint": 28,
+        "noticeRate": 0.5,
+        "forgetRate": 0.2,
+        "alertAt": 0.35,
+        "boltAt": 1,
+        "freezeMin": 1.5,
+        "freezeMax": 2.8,
+        "relaxAfter": 4,
+        "panicDist": 10,
+        "runSpeed": 6.8,
+        "trotSpeed": 3.6,
+        "fleeMinTime": 2,
+        "fleeUntil": 40,
+        "fleeUntilMax": 60,
+        "fleeMaxTime": 10,
+        "lookBack": 2,
+        "waryTime": 20,
+        "waryBoost": 1.5,
+        "herdAlertRadius": 12,
+        "herdBoltDelayMin": 0.2,
+        "herdBoltDelayMax": 0.7,
+        "impactSpook": 7,
+        "impactAlert": 18
+      }
+    },
+    "senses": {
+      "notice": 22,
+      "sight": {
+        "range": 22,
+        "cone": 1.0471975511965976,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 4,
+        "crouch": 7,
+        "walk": 14,
+        "sprint": 28
+      }
+    }
+  },
+  "territorial": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "neutral",
+      "leash": 60,
+      "assist": 12,
+      "home": {
+        "speed": 3.6,
+        "stop": 1.5
+      },
+      "territorial": 10,
+      "tuning": {
+        "hp": 100,
+        "sightRange": 22,
+        "sightRangeGraze": 14,
+        "sightCone": 1.0471975511965976,
+        "hearStill": 4,
+        "hearCrouch": 7,
+        "hearWalk": 14,
+        "hearSprint": 28,
+        "noticeRate": 0.5,
+        "forgetRate": 0.2,
+        "alertAt": 0.35,
+        "boltAt": 1,
+        "freezeMin": 1.5,
+        "freezeMax": 2.8,
+        "relaxAfter": 4,
+        "panicDist": 10,
+        "runSpeed": 6.8,
+        "trotSpeed": 3.6,
+        "fleeMinTime": 2,
+        "fleeUntil": 40,
+        "fleeUntilMax": 60,
+        "fleeMaxTime": 10,
+        "lookBack": 2,
+        "waryTime": 20,
+        "waryBoost": 1.5,
+        "herdAlertRadius": 12,
+        "herdBoltDelayMin": 0.2,
+        "herdBoltDelayMax": 0.7,
+        "impactSpook": 7,
+        "impactAlert": 18
+      }
+    },
+    "senses": {
+      "notice": 22,
+      "sight": {
+        "range": 22,
+        "cone": 1.0471975511965976,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 4,
+        "crouch": 7,
+        "walk": 14,
+        "sprint": 28
+      }
+    }
+  },
+  "ambush": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "aggressive",
+      "leash": 90,
+      "assist": 20,
+      "home": {
+        "speed": 3.5,
+        "stop": 1.5
+      },
+      "ambush": true,
+      "tuning": {
+        "hp": 220,
+        "sightRange": 45,
+        "sightRangeGraze": 30,
+        "sightCone": 1.2217304763960306,
+        "hearStill": 6,
+        "hearCrouch": 12,
+        "hearWalk": 25,
+        "hearSprint": 45,
+        "noticeRate": 0.8,
+        "forgetRate": 0.15,
+        "alertAt": 0.3,
+        "boltAt": 0.6,
+        "freezeMin": 1,
+        "freezeMax": 2,
+        "relaxAfter": 3,
+        "panicDist": 14,
+        "runSpeed": 7,
+        "trotSpeed": 3.5,
+        "fleeMinTime": 3,
+        "fleeUntil": 60,
+        "fleeUntilMax": 90,
+        "fleeMaxTime": 12,
+        "lookBack": 2,
+        "waryTime": 30,
+        "waryBoost": 1.3,
+        "herdAlertRadius": 20,
+        "herdBoltDelayMin": 0.3,
+        "herdBoltDelayMax": 1,
+        "impactSpook": 20,
+        "impactAlert": 80,
+        "stalk": {
+          "detect": 40,
+          "speed": 2.5,
+          "giveUp": 60,
+          "rechargeCd": 1.5,
+          "huffMin": 1.8,
+          "huffMax": 3.2,
+          "roar": "bear_roar",
+          "fleeBelowHp": 0.2,
+          "fleeChance": 0.5
+        }
+      }
+    },
+    "senses": {
+      "notice": 45,
+      "sight": {
+        "range": 45,
+        "cone": 1.2217304763960306,
+        "graze": 30
+      },
+      "hearing": {
+        "still": 6,
+        "crouch": 12,
+        "walk": 25,
+        "sprint": 45
+      }
+    }
+  },
+  "flee": {
+    "temperament": {
+      "brain": "hunt",
+      "reaction": "skittish",
+      "leash": 50,
+      "assist": 8,
+      "home": {
+        "speed": 3.2,
+        "stop": 1.5
+      },
+      "flee": 0.2,
+      "tuning": {
+        "hp": 60,
+        "sightRange": 30,
+        "sightRangeGraze": 14,
+        "sightCone": 0.9599310885968813,
+        "hearStill": 3,
+        "hearCrouch": 6,
+        "hearWalk": 12,
+        "hearSprint": 24,
+        "noticeRate": 0.3,
+        "forgetRate": 0.3,
+        "alertAt": 0.45,
+        "boltAt": 1,
+        "freezeMin": 4,
+        "freezeMax": 7,
+        "relaxAfter": 3.5,
+        "panicDist": 6,
+        "runSpeed": 6,
+        "trotSpeed": 3.2,
+        "fleeMinTime": 1.5,
+        "fleeUntil": 35,
+        "fleeUntilMax": 50,
+        "fleeMaxTime": 8,
+        "lookBack": 2.5,
+        "waryTime": 10,
+        "waryBoost": 1.2,
+        "herdAlertRadius": 8,
+        "herdBoltDelayMin": 0.4,
+        "herdBoltDelayMax": 1.2,
+        "impactSpook": 4,
+        "impactAlert": 10
+      }
+    },
+    "senses": {
+      "notice": 30,
+      "sight": {
+        "range": 30,
+        "cone": 0.9599310885968813,
+        "graze": 14
+      },
+      "hearing": {
+        "still": 3,
+        "crouch": 6,
+        "walk": 12,
+        "sprint": 24
+      }
+    }
+  },
+  "pursue": {
+    "temperament": {
+      "brain": "pursue",
+      "reaction": "aggressive",
+      "leash": 25,
+      "assist": 0,
+      "home": {
+        "speed": 2,
+        "stop": 1.5
+      },
+      "tuning": {
+        "awareRadius": 12,
+        "leashRadius": 25,
+        "speed": 1,
+        "returnSpeed": 2,
+        "stopDistance": 1.5,
+        "turnRate": 4,
+        "thinkDivisor": 3,
+        "attackCooldownTicks": 60,
+        "wanderRadius": 4,
+        "wanderEveryTicks": 420
+      }
+    },
+    "senses": {
+      "notice": 12
+    }
+  }
+}

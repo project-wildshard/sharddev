@@ -1,0 +1,24 @@
+{
+  "ability": {
+    "use": "kit.claw",
+    "range": 14,
+    "cooldown": 5,
+    "weight": 1
+  },
+  "strike": {
+    "id": "kit.claw",
+    "shape": {
+      "kind": "sphere",
+      "radius": 1.9
+    },
+    "windup": 1.1,
+    "active": 1.1,
+    "recover": 0.6,
+    "cooldown": 5,
+    "range": 14,
+    "damage": 10,
+    "tags": ["creature.claw"],
+    "weight": 1,
+    "speed": 0
+  }
+}

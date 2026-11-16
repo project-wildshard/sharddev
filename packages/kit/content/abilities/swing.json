@@ -1,0 +1,25 @@
+{
+  "ability": {
+    "use": "kit.swing",
+    "range": 8,
+    "cooldown": 2.5,
+    "weight": 2
+  },
+  "strike": {
+    "id": "kit.swing",
+    "shape": {
+      "kind": "arc",
+      "radius": 7,
+      "halfAngle": 1.4
+    },
+    "windup": 0.9,
+    "active": 0.3,
+    "recover": 1,
+    "cooldown": 2.5,
+    "range": 8,
+    "damage": 16,
+    "tags": ["creature.swing"],
+    "weight": 2,
+    "speed": 0
+  }
+}
