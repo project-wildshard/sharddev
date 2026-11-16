@@ -17,3 +17,13 @@ package/codemod/type/complete-fixture controls and both real pnpm archives
 pass with the owned M1 engine candidate. Its temporary link restores
 after the checks. The hero commit is retained exactly across the rebase.
 Normal hosted CI follows the actual engine pin alignment and SDK land.
+
+Relay refresh at10:35 rebases onto SDK main908b021. Main's engine0.1.29
+pin stays, instead of replaying the older0.1.28 downgrade. All source/
+watch, CI21 and newer Template changes from main remain; the exact
+handed-over M1 hero stays795e94c9e278. Root SDK is0.3.5 and the normal
+release stamper aligns kit to0.3.5. These are source labels only; M1's
+future one-version minor release remains separate. Frozen install,
+full SDK types, author lint, CI21 lint, focused controls, complete kit
+cases and both real package archives pass. Temporary M1 engine link
+restores after checking; publication pin and hosted SDK CI remain open.
