@@ -12,3 +12,10 @@ Pin the released engine0.1.31 and defining format0.12 together, including
 the whole dependency-graph override. Frozen install and the complete
 normal compiler pass. C2 source admission and paired original removal
 remain separate; publication and shipped verification stay with C11.
+
+The MacBook SDK0.3.6 base3ca10f0 independently landed the identical pin
+and type fixes before this lane synced. Git replay merged the harvest
+import and optional fields twice. The normal push compiler caught that;
+remove only this lane's duplicates and retain the peer's declarations.
+No broken merge was pushed. The complete296-file author run used the
+same correct data contracts before replay.

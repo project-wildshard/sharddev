@@ -3,7 +3,6 @@
 // (game/plugin/brain), so a drift in either fails the test. The engine admits them (game/plugin/brain
 // `admitSpeciesProgram`; SA26 took that runtime call off the SDK).
 import type * as v from 'valibot';
-import type { HarvestDrop } from '@wildshard/format/harvestRows';
 import type { BorrowedDecision } from '@wildshard/format/decisionScripts';
 import type { ScriptSpeciesSchema } from '@wildshard/format/speciesScripts';
 import type { CreatureBodyRecipe } from '@wildshard/format/creatures';
@@ -87,9 +86,6 @@ export interface SpeciesFlight {
 
 /** Species gameplay data with an optional `brain`; a row without one keeps its runtime's own policy. */
 export interface BrainedSpecies {
-  /** Harvest rows and population-cap exemption use the defining format data. */
-  harvest?: readonly HarvestDrop[];
-  capExempt?: boolean;
   id: string; kind: string; label: string;
   variants: SpeciesVariant[]; spawnOnly?: SpeciesVariant[];
   aggressive?: boolean; walkSpeed?: number; chargeSpeed?: number; chargeDamage?: number;
