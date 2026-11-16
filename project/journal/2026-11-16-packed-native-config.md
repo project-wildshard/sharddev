@@ -12,3 +12,7 @@ now follows relative extends references in every packed tsconfig and
 refuses a missing parent. No compiler policy, content, geometry or world
 behavior changes. Repeat the normal native builds from corrected archives;
 do not fill missing package files from a live checkout.
+
+Also validate packed project references: current engine consumers exposed
+a missing root test/tsconfig.json reference after the extends input was
+fixed. Compiler input closure includes both forms.

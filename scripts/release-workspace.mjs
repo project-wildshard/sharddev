@@ -72,12 +72,18 @@ if (command === 'stamp' && destination === undefined) {
       const parents = Array.isArray(config.extends)
         ? config.extends
         : [config.extends]
-      for (const parent of parents) {
+      const inputs = [
+        ...parents,
+        ...(config.references ?? []).map(row => row.path),
+      ]
+      for (const parent of inputs) {
         if (typeof parent !== 'string' || !parent.startsWith('.')) continue
         const target = posix.normalize(posix.join(posix.dirname(file), parent))
-        const candidates = target.endsWith('.json')
-          ? [target]
-          : [target, target + '.json']
+        const candidates = [
+          target,
+          target + '.json',
+          posix.join(target, 'tsconfig.json'),
+        ]
         if (!candidates.some(candidate => files.has(candidate))) {
           throw new Error(
             'Missing packed tsconfig parent ' + pkg.name + ' ' + target,
