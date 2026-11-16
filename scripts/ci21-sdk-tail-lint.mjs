@@ -53,9 +53,18 @@ function titles(path) {
   return found;
 }
 for (const file of manifest.files) {
+  for (const row of file.assertionCompanions ?? []) {
+    if (!/^[a-f0-9]{40}$/u.test(row.revision ?? '') || !/^[a-f0-9]{40}$/u.test(row.targetBlob ?? '') || row.targetPath !== file.sourcePath || row.repository !== 'project-wildshard/engine' || !Array.isArray(row.originalTests) || row.originalTests.length === 0 || row.originalTests.some(title => !file.originalTests.includes(title))) throw new Error(`CI21 companion must pin its revision, blob and original cases: ${file.targetPath}`);
+  }
   if (file.targetTests !== undefined) {
-    if (file.targetTests.length !== file.originalTests.length) throw new Error(`CI21 renamed case count differs: ${file.targetPath}`);
-    for (const [index, title] of file.targetTests.entries()) if (title !== file.originalTests[index]) process.stdout.write(`CI21 rename: ${file.originalTests[index]} -> ${title} (${file.targetPath})\n`);
+    if (file.caseSplit === true) {
+      const companions = file.assertionCompanions ?? [];
+      if (companions.length === 0 || companions.some(row => !/^[a-f0-9]{40}$/u.test(row.revision ?? '') || row.targetPath !== file.sourcePath || row.repository !== 'project-wildshard/engine' || !Array.isArray(row.originalTests) || row.originalTests.length === 0)) throw new Error(`CI21 split requires pinned native companions: ${file.targetPath}`);
+      const covered = [...file.targetTests, ...companions.flatMap(row => row.originalTests)];
+      if (new Set(covered).size !== covered.length || covered.length !== file.originalTests.length || covered.some(title => !file.originalTests.includes(title))) throw new Error(`CI21 split must partition every original case exactly once: ${file.targetPath}`);
+      process.stdout.write(`CI21 split: ${file.targetTests.length} SDK + ${covered.length - file.targetTests.length} native declarations (${file.targetPath})\n`);
+    } else if (file.targetTests.length !== file.originalTests.length) throw new Error(`CI21 renamed case count differs: ${file.targetPath}`);
+    for (const [index, title] of file.targetTests.entries()) if (file.caseSplit !== true && title !== file.originalTests[index]) process.stdout.write(`CI21 rename: ${file.originalTests[index]} -> ${title} (${file.targetPath})\n`);
   }
   if (JSON.stringify(titles(file.targetPath)) !== JSON.stringify(file.targetTests ?? file.originalTests)) throw new Error(`CI21 test declarations differ from their source record: ${file.targetPath}`);
 }
