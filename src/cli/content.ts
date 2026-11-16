@@ -179,8 +179,14 @@ function readContent(dir: string, bar?: string): ContentReport {
     .map(record)
     .filter(row => itemActionScenes.has(text(get(row, 'scene'))))
   // A brain's own strike (a ram, a dive) is its species' strike as much as a spawn's
+  // a brain names its strike (`strike`), or a challenge pair (`charge`, `close`)
   const brainStrikes = new Map(
-    brains.map(row => [text(get(row, 'id')), text(get(row, 'strike'))]),
+    brains.map(row => [
+      text(get(row, 'id')),
+      text(get(row, 'strike')) ||
+        text(get(row, 'charge')) ||
+        text(get(row, 'close')),
+    ]),
   )
   const dialogue = [
     ...array(get(host, 'dialogue')).map(record),

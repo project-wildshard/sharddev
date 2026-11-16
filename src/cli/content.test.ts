@@ -73,7 +73,9 @@ describe('content bar', () => {
     const result = spawnSync(
       process.execPath,
       ['bin/wildshard.mjs', 'content', dir],
-      { encoding: 'utf8' },
+      {
+        encoding: 'utf8',
+      },
     )
     assert.equal(result.status, 2)
     assert.match(result.stderr, /content failed/u)
@@ -165,18 +167,25 @@ describe('content bar', () => {
     assert.deepEqual(report.short, [])
   })
 
-  it('counts talks as NPCs, item prompts as pickups and brain strikes (TC-M, Mossgate rows)', async () => {
+  it('counts talks as NPCs, item prompts as pickups and brain strikes, a challenge pair too (TC-M, TC-B4c)', async () => {
     const dir = await product({
       'actors/creatures': {
         creatures: {
           brains: [
             { id: 'ram', kind: 'ram-grazer', strike: 'sow.ram' },
             { id: 'chase', kind: 'pursue' },
+            {
+              id: 'brawl',
+              kind: 'challenge-grazer',
+              charge: 'brute.tackle',
+              close: 'brute.club',
+            },
           ],
           spawns: [
             { species: 'blob', brain: 'chase', strike: 'blob.bump' },
             { species: 'sow', brain: 'ram' },
             { species: 'wisp', brain: 'chase' },
+            { species: 'brute', brain: 'brawl' },
           ],
         },
       },
@@ -198,6 +207,6 @@ describe('content bar', () => {
     const { counts } = readContent(dir, 'templates')
     assert.equal(counts.npcs, 1)
     assert.equal(counts.pickups, 2)
-    assert.equal(counts.creatureStrikes, 2)
+    assert.equal(counts.creatureStrikes, 3)
   })
 })
