@@ -4,7 +4,7 @@ import '@wildshard/engine/scripts/sim-node-loader.mjs';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {mkdirSync,mkdtempSync,readFileSync,readdirSync,rmSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,mkdtempSync,readFileSync,readdirSync,rmSync,writeFileSync} from 'node:fs';
 import {createRequire} from 'node:module';
 import {dirname,join,resolve} from 'node:path';
 import {brotliCompressSync,brotliDecompressSync,constants} from 'node:zlib';
@@ -43,7 +43,8 @@ const snapshot=world=>serializeSimSnapshot(snapshotSimHostBytes(world.host));
 for(const slug of selected)test(`${slug}: actual cold cook, room play and exact continuation`,{timeout:600_000},async()=>{
  const began=performance.now(),root=mkdtempSync(join(reportRoot,'cold-')),cooked=join(root,'cooked'),extracted=join(root,'server');
  const previous=process.env.WILDSHARD_SPAWN_PART_CACHE;
- process.env.WILDSHARD_SPAWN_PART_CACHE=join(root,'empty-parts');
+ const emptyCache=join(root,'empty-parts');assert.equal(existsSync(emptyCache),false,'Each cook starts with no part cache');
+ process.env.WILDSHARD_SPAWN_PART_CACHE=emptyCache;
  const result={complete:false,engine,resolved:runtime.resolved,producer,source:process.env.GITHUB_SHA,slug,part,parts,expected,selected,cold:true};
  let world,restored;
  try{
@@ -55,6 +56,8 @@ for(const slug of selected)test(`${slug}: actual cold cook, room play and exact 
    brotliCompressSync(bytes,{params:{[constants.BROTLI_PARAM_QUALITY]:4}}).length});
   assert.equal(report.slug,result.admittedSlug);assert.ok(report.parts.count>0);
   result.cookSeconds=report.seconds;result.clientParts=report.parts.count;
+  result.coldEncodedFiles=readdirSync(emptyCache).filter(name=>/^[a-f0-9]{64}\.br$/u.test(name)).length;
+  assert.ok(result.coldEncodedFiles>0,'The production encoder populated this cook’s new private cache');
   const pack=readServerPack(JSON.parse(readFileSync(join(cooked,report.server.index),'utf8'))),files=new Map();
   for(const segment of [pack,...pack.more??[]]){
    const wire=readFileSync(join(cooked,segment.url));assert.equal(wire.length,segment.wireBytes);
