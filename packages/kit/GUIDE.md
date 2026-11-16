@@ -196,3 +196,12 @@ Choose `pbr` or `toon` explicitly. A `skins` entry maps an existing species vari
 id to a shipped body variant; aliases share their skin JSON and GLB. Unknown ids
 or bodies refuse. The table covers every gameplay variant, and every distinct
 skin passes ordinary binary admission before this helper returns.
+
+## Former journal glyphs
+
+`legacyJournalIcon(name)` from `@wildshard/kit/legacyJournalIcons` returns
+the exact original complete SVG string for antlers, ghost, ironhide, deer,
+boar, elk or bear. The same bytes ship in `content/journal-icons.json`.
+This is source compatibility content for compilation to admitted images;
+new journal icons may use any admitted image. Unknown and prototype names
+refuse. No engine import is needed to read the content.
