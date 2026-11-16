@@ -1,4 +1,4 @@
-// Bundle retained commons/format TypeScript for Node; keep the installed SDK worker and three identity external.
+// Bundle retained format TypeScript for Node; keep the installed SDK worker and three identity external.
 // oxlint-disable-next-line import/no-default-export -- Rolldown loads this author-owned configuration.
 export default {
   input: 'prove-native.ts',

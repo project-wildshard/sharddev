@@ -1,6 +1,6 @@
 ## Authoring guide: from a graph to admitted rows
 
-Run `pnpm gen` to rebuild this guide, the complete SDK/format API tables and
+The documentation build renders this guide, the complete SDK/format API tables and
 `docs/api/SHARDFILE.md` (every schema field and script ABI call). The examples
 below are retained TypeScript sources: the documentation test typechecks and
 executes them. They reduce Template 1's hall, door/wave and grey blob to the
@@ -9,9 +9,9 @@ illustrative data, not changes to Template 1's shipped tuning.
 
 Use real three.js `Scene`, `Group`, `Mesh`, `InstancedMesh`, geometry, materials,
 lights and transforms. SDK objects add game declarations to that graph and emit
-data. `generators/` and `data/` use the authoring SDK; a trusted `runtime/` may use
-only the game's published `plugin/*` modules. Remaining SDK `runtime/*` exports
-are compatibility APIs, not a route for a new data-only shard. No imports install
+data. `generators/` and `data/` use the authoring SDK. A shard uses one shard
+format; runtime modules use the game's published `plugin/*` modules. Remaining
+SDK `runtime/*` exports are compatibility APIs. No imports install
 a service. A successful leaf parse does not prove that the complete product's
 assets, references, collider clearance, budgets or gameplay have been admitted.
 
@@ -234,23 +234,15 @@ boss explicitly owns creation/checkpoint shares. Unsupported one-shard laws
 remain trusted tails: Sky's phased-raptor is not silently a phased-flyer, and
 Pine's animated hit timing/weather gaps are not closed by a schema parse.
 
-### Commons packs: select immutable shared content
+### Shared content from kit
 
-Commons is build-time content reused by at least two real shards; Template 1
-does not count as the second user. A v1 pack supplies stable entry ids, original
-encoded bytes and credit/licence. `createCatalogue` hashes bytes and derives
-actual costs; `catalogueRef` resolves an entry to `commons:<hash>`.
-`commonsRequirements` emits the selected unique `requires.commons`,
-`commonsWire` and `commonsCosts`; add the reference to `library` and publish the
-hash-addressed assets at the commons endpoint. Two products select the same hash,
-so the shared cache downloads it once and leases it independently.
+`@wildshard/kit` contains shared creature content and author helpers.
+A build copies the selected content into the one shard format. A shard may
+use its own look; changing a kit version changes a shard only when rebuilt.
+Models, clips and sounds remain ordinary immutable files with their retained
+authored inputs. See the kit GUIDE for plain GLBs and TypeScript builders.
 
 <!-- example: commons -->
-
-There are no shared packs yet: a pack lands only in the commit where two real
-shards use it (G355). The example's rows are a stand-in. Packs run in Node and
-produce immutable partial content; models, clips and sounds stay backed by
-retained authored inputs, and generated output never substitutes for its generator.
 
 ## Data-only herds and divers
 
@@ -267,24 +259,21 @@ refuse when no native owner is supplied. This example declares no rendered rig; 
 
 ## Install outside the workspace
 
-Use the [standalone author setup](standalone-author.md) for matched SDK/format/commons release archives,
-local CLI scripts, catalogue selection and the retained readable TypeScript world generator. Bootstrap
+Use the [standalone author setup](standalone-author.md) for matched SDK/format release archives,
+local CLI scripts, ordinary immutable assets and the retained readable TypeScript world generator. Bootstrap
 preserves installed dependencies and refuses existing authored files; no checkout link is an installation proof.
 
 ## Equip the author template's starter spear
 
-The author template's `generators/spear.ts` is the Mesa fixture's own spear: no real shard uses it, so it is
-not a `@wildshard/commons` pack (G355). Its `starterSpearPack` retains a readable TypeScript model generator
-and a versioned contact/loadout recipe, published through a project-local catalogue.
-Select both `starter-spear/model` and `starter-spear/contacts`; publish their hash-addressed bytes and add
-both references to `library`. `spearLoadout` checks the catalogue identity and exact closure before returning
-detached item rows. The normal client equips the GLB through `kit.melee`; attacks use the existing fixed-step
-contact pipeline and its cooldowns. This starter thrusts and performs a charged heavy thrust. It does not
-throw javelins or claim Nalati's mounted lance, painterly view, or arm animation. No game import is needed.
+The retained `generators/spear.ts` owns the readable static spear model
+and item rows. Its generator writes the GLB as an ordinary immutable file;
+`shard.config.ts` declares its measured cost, includes it in `library`, and
+copies the item rows into the shard. No catalogue compiler or separate
+shared-content endpoint is needed. The native proof checks the exact file
+hash and equipped row before running the simulation and client proofs.
 
-The static model has no textures, rig or clips: its complete asset closure is the model and contact recipe.
-Materials come from the model; `view.colour` does not repaint it. The last owner releases shared resources,
-and every owner has independent held transforms. Two products reuse each hash through the normal cache.
+This spear thrusts and performs a charged heavy thrust. Its static model has
+no textures, rig or clips, and does not claim mounted or throwing behavior.
 
 <!-- example: spear -->
 

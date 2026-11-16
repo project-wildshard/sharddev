@@ -4,12 +4,23 @@
 import {spawnSync} from 'node:child_process';
 import {readFileSync} from 'node:fs';
 
-const files=process.argv.slice(2).filter(file=>file!=='--');
+const files=[], kitOptions=[];
+const args=process.argv.slice(2);
+for(let i=0;i<args.length;i++){
+  const arg=args[i];
+  if(arg==='--')continue;
+  if(arg==='--ignore-pattern'){
+    const pattern=args[++i];
+    if(pattern===undefined)throw new Error('--ignore-pattern needs a pattern');
+    kitOptions.push(arg,pattern);
+  }else files.push(arg);
+}
+const author=file=>/^(?:src\/(?:sharddev|commons|shards)\/|packages\/(?:kit\/src\/geometry|upload\/src\/sharddev)\/|codemods\/)/u.test(file);
+const jobs=files.length===0?[['lint:kit',kitOptions],['lint:author',[]]]:
+  [['lint:kit',[...kitOptions,...files.filter(file=>!author(file))]],['lint:author',files.filter(author)]]
+    .filter(([name,paths])=>name==='lint:kit'?paths.length>kitOptions.length:paths.length>0);
 const manifest=JSON.parse(readFileSync(new URL('../test/ci21-sdk-tail.json',import.meta.url),'utf8'));
 const ports=[...manifest.files.map(file=>file.targetPath),...manifest.supportPaths];
-const author=file=>/^(?:src\/(?:sharddev|commons|shards)|packages\/(?:upload\/src\/sharddev|kit\/src\/geometry))\//u.test(file);
-const jobs=files.length===0?[['lint:kit',[]],['lint:author',[]]]:
-  [['lint:kit',files.filter(file=>!author(file))],['lint:author',files.filter(author)]].filter(([,paths])=>paths.length>0);
 if(files.length===0)jobs.push(['lint:ci21',[]]);
 else {const selected=files.filter(file=>ports.includes(file));if(selected.length>0)jobs.push(['lint:ci21',selected]);}
 for(const [name,paths] of jobs){

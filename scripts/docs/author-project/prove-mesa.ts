@@ -1,5 +1,4 @@
-import { starterSpearPack, spearLoadout } from './generators/spear';
-import { createCatalogue } from '@wildshard/sdk/commons/catalogue';
+import { starterSpearContent } from './generators/spear';
 import { hashImmutableBytes, encodeCanonicalJson } from '@wildshard/sdk/immutable';
 import {
   proveMesaNative, proveSceneClient, proveEquippedItemClient,
@@ -14,21 +13,16 @@ export async function proveMesaOutpost(
   page: AuthorProofPage,
   plan: MesaProofPlan,
 ) {
-  const built = createCatalogue([
-    starterSpearPack({ credit: 'Wildshard starter spear generator', licence: 'First-party' }),
-  ]);
-  const loadout = spearLoadout(built), spear = loadout.rows[0];
+  const content = starterSpearContent(), spear = content.items.rows[0];
   const declared = shard.items.rows.find(row => row.id === spear?.id);
   if (spear === undefined || shard.items.loadout.primary !== spear.id
     || encodeCanonicalJson(declared) !== encodeCanonicalJson(spear)) {
-    throw new Error('Equip the exact commons spear profile');
+    throw new Error('Equip the exact spear profile');
   }
-  for (const entry of built.catalogue.entries) {
-    const ref = `commons:${entry.hash}`, bytes = assets.get(ref);
-    if (bytes === undefined || hashImmutableBytes(bytes) !== entry.hash
-      || !shard.requires.commons.includes(entry.hash) || !shard.library.includes(ref)) {
-      throw new Error(`Missing commons spear catalogue closure: ${entry.id}`);
-    }
+  const bytes = assets.get(content.hash);
+  if (bytes === undefined || hashImmutableBytes(bytes) !== content.hash
+    || !shard.files.some(file => file.hash === content.hash) || !shard.library.includes(content.hash)) {
+    throw new Error('Missing spear model file closure');
   }
   const native = await proveMesaNative(shard, assets, plan);
   const scene = await proveSceneClient(page, {
@@ -37,8 +31,6 @@ export async function proveMesaOutpost(
   const equipped = await proveEquippedItemClient(page, spear.id, spear.view.asset ?? '');
   return {
     version: 1 as const, pass: true as const, native, scene, equipped,
-    catalogue: built.catalogue.entries.map(entry => ({
-      id: entry.id, hash: entry.hash, packVersion: entry.packVersion,
-    })),
+    model: { hash: content.hash, bytes: content.model.length },
   };
 }

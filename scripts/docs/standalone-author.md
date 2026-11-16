@@ -15,13 +15,13 @@ until NPM-PUBLISH NP7 removes the SDK's git dependencies. Follow
 and upload.
 
 The sections below describe the retained OS-F10 tarball proof for maintainers.
-Its bootstrap, commons package and archive-producing commands are historical
+Its bootstrap, kit package and archive-producing commands are historical
 proof inputs, rather than the current SDK install path.
 
 ## Maintainer-only tarball bootstrap (OS-F10)
 
-The retained proof needs three version-matched local archives: SDK,
-format and commons. Get all three from the same historical release.
+The retained proof needs three compatible local archives: SDK,
+format and kit. Get all three from the same historical release.
 From an empty `author-outpost` directory, with the archives in
 `../release/`:
 
@@ -30,7 +30,7 @@ npm init -y
 npm pkg set type=module
 npm pkg set 'overrides.@wildshard/sdk=$@wildshard/sdk'
 npm pkg set 'overrides.@wildshard/format=$@wildshard/format'
-npm install ../release/wildshard-sdk-0.0.0.tgz ../release/wildshard-format-0.0.0.tgz ../release/wildshard-commons-0.0.0.tgz three@0.186.0
+npm install ../release/wildshard-sdk-0.0.0.tgz ../release/wildshard-format-0.0.0.tgz ../release/wildshard-kit-0.0.0.tgz three@0.186.0
 npm install --save-dev typescript@7.0.2 @types/node@24.13.6 @types/three@0.186.0 rolldown@1.2.13
 node node_modules/@wildshard/sdk/dist/author-template/bootstrap.mjs .
 ```
@@ -67,12 +67,11 @@ four `Entry.midpoints()` belong to the same graph. The official GLB reader insta
 mesh collision from that retained source. This is a small floor reference, not an outpost
 with every one-shot behavior already implemented.
 
-`shard.config.ts` builds a project-local catalogue from `generators/spear.ts`, selects
-the stable `starter-spear/model` and `starter-spear/contacts` identities, copies their byte-derived costs and exports the pinned
-`commons` bytes for the builder. Pack imports install nothing. See the executable
-[commons example](author-project/shard.config.ts); assets remain immutable
-content hashes in the product. Add gameplay through the documented rows, then repeat
-build/validate and the brief's actual behavior checks.
+`generate.ts` writes the retained spear GLB as an ordinary immutable file
+and emits its measured metadata and item rows. `shard.config.ts` declares
+that file, its library cost and those rows; no catalogue compiler or separate
+content package is needed. Add gameplay through the documented rows, then
+repeat build/validate and the actual behavior checks.
 
 ## Produce the release archives (maintainers only)
 
@@ -82,7 +81,7 @@ From a clean repository export, use the machine build queue for the SDK's prepac
 mkdir -p release
 pnpm --filter @wildshard/sdk pack --pack-destination ../../release
 pnpm --filter @wildshard/format pack --pack-destination ../../release
-pnpm --filter @wildshard/commons pack --pack-destination ../../release
+pnpm --filter @wildshard/kit pack --pack-destination ../../release
 ```
 
 SDK prepack acquires `heavy-lane.py build` before building both clients. Release
@@ -117,9 +116,7 @@ node proof-tools/audit-product.mjs dist
 ```
 
 Bootstrap copies `proof.config.mjs` and an executing `prove-native.ts`. The runner
-reads the exact built product and immutable files, checks its starter-spear catalogue
-closure, and invokes the SDK's native validation. When changing packs, update that
-explicit pack list to match `shard.config.ts`. The bundle includes commons/format
+reads the exact built product and immutable files, checks its spear model file and equipped row, and invokes the SDK's native validation. When changing the model, keep its declared file hash and item row aligned. The bundle includes format
 source but keeps `@wildshard/engine/host/*`, `three`, and Node built-ins external: the SDK
 retains its real installed worker URL and the client/proof share one three.js identity.
 The config never rewrites installed packages or enables Node's unsupported type stripping.

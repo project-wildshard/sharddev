@@ -137,7 +137,8 @@ describe('wildshard-sdk/generator-imports outside generators/', () => {
       '/repo/src/shards/meadow/shard.config.ts']) {
       expect(refused(filename, 'meshoptimizer')).toMatch(/^generator-imports: .*only three/u);
       expect(refused(filename, '@wildshard/engine/host/immutable')).toMatch(/^generator-imports: /u);
-      for (const source of ['three', 'valibot', 'node:fs', '@wildshard/format/movers', '@wildshard/sdk/immutable', './x'])
+      for (const source of ['three', 'valibot', 'node:fs', '@wildshard/format/movers', '@wildshard/sdk/immutable',
+        '@wildshard/kit/bake/species', '@wildshard/kit/weapons/meleeProfile', './x'])
         expect(generatorImportViolation(filename, source), `${filename} ${source}`).toBeNull();
     }
   });

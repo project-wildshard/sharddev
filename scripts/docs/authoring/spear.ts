@@ -1,17 +1,14 @@
-import { starterSpearPack, spearLoadout } from '../author-project/generators/spear';
-import { createCatalogue, catalogueRef } from '@wildshard/sdk/commons/catalogue';
-import { commonsRequirements, type BuiltCommons } from '@wildshard/sdk/commons';
+import { starterSpearContent } from '../author-project/generators/spear';
 import { emptyShardfile } from '@wildshard/sdk/author';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 
-/** An equipped commons spear: its retained generator, exact asset/contact closure and ordinary author client. */
-export function spearExample(slug = 'spear-outpost'): { source: Shardfile; built: BuiltCommons; model: ReturnType<typeof catalogueRef>; contacts: ReturnType<typeof catalogueRef> } {
-  const built = createCatalogue([starterSpearPack({ credit: 'Wildshard starter spear generator', licence: 'First-party' })]);
-  const model = catalogueRef(built.catalogue, 'starter-spear/model');
-  const contacts = catalogueRef(built.catalogue, 'starter-spear/contacts');
+/** The retained spear is ordinary item rows plus one content-addressed model file. */
+export function spearExample(slug = 'spear-outpost'): { source: Shardfile; assets: ReadonlyMap<string, Uint8Array> } {
+  const spear = starterSpearContent();
   const shard = emptyShardfile({ slug, name: 'Spear outpost', author: 'Example', revision: 1, seed: 435 });
-  shard.requires = { ...shard.requires, ...commonsRequirements(built, [model.entry.id, contacts.entry.id]) };
-  shard.library = [model.ref, contacts.ref];
-  shard.items = spearLoadout(built);
-  return { source: parseShardfile(shard), built, model, contacts };
+  shard.items = spear.items;
+  shard.files = [{ hash: spear.hash, kind: 'glb', compressed: spear.model.length, decoded: spear.cost.decoded, gpu: spear.cost.gpu, triangles: spear.cost.triangles, draws: spear.cost.draws, dependencies: [], critical: false }];
+  shard.library = [spear.hash];
+  shard.budgets.library = { resident: spear.cost.decoded + spear.cost.gpu, compressed: spear.model.length };
+  return { source: parseShardfile(shard), assets: new Map([[spear.hash, spear.model]]) };
 }

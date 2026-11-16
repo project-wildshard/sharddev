@@ -16,7 +16,7 @@ const RULE = 'generator-imports';
 // `createRequire(...)(...)` calls.
 // The authoring surface for data/, quests/ and shard.config.ts (DS0.3, J170): three; the SDK and commons; the shard
 // format and valibot, the language the format's schemas are written in; and Node's built-ins.
-const AUTHOR_PACKAGE = /^(?:three|valibot|@wildshard\/(?:format|shard-format|sdk|sharddev|commons))(?:\/|$)/u;
+const AUTHOR_PACKAGE = /^(?:three|valibot|@wildshard\/(?:format|shard-format|sdk|sharddev|commons|kit))(?:\/|$)/u;
 const SDK_PACKAGE = /^@wildshard\/(?:sdk|sharddev)(?:\/(.*))?$/u;
 // Another shard's repo package (`@wildshard/shard-dunes`); the shard format is not a shard.
 const SHARD_PACKAGE = /^@wildshard\/shard-(?!format(?:\/|$))[^/]+/u;
