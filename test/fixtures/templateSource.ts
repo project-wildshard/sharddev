@@ -21,7 +21,7 @@ export const TEMPLATE_SOURCE = templateProduct(rows, props, TEMPLATE_BEHAVIOUR, 
 /** Preserve independently owned input bytes for each admission. Other producers migrate in subsequent GR1 slices. */
 export function templateAssets(hashes?: ReadonlySet<string>): Map<string, Uint8Array> {
   const available = new Map([...TEMPLATE_SOURCE.files, TEMPLATE_BOSS].map(file => [file.hash, file]));
-  const selected = hashes === undefined ? [...available.values()] : [...hashes].map(hash => available.get(hash));
+  const selected = hashes === undefined ? TEMPLATE_SOURCE.files : [...hashes].map(hash => available.get(hash));
   if (selected.some(file => file === undefined)) throw new Error('Unknown Template fixture asset');
   return new Map(selected.map(file => {
     if (file === undefined) throw new Error('Unknown Template fixture asset');
