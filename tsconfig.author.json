@@ -37,9 +37,12 @@
     "test/species-barrel-author-ports.test.ts",
     "test/view-author-metadata.test.ts",
     "test/terrain-field-author-port.test.ts",
+    "test/scripts/_template-boss.test.ts",
     "test/fixtures/productFile.ts",
     "test/fixtures/ci21sdk-tail/frozen.ts",
     "test/fixtures/defined-json-value.ts",
-    "test/fixtures/return-group.ts"
+    "test/fixtures/return-group.ts",
+    "src/sharddev/test/scriptScenario.ts",
+    "src/sharddev/test/diskScriptScenario.ts"
   ]
 }

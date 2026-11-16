@@ -7,6 +7,8 @@ export interface ScenarioActor {
   fields?: Readonly<Record<number, number>>; fieldBounds?: Readonly<Record<number, { min: number; max: number; integer?: boolean }>>; moving?: boolean; strikeState?: number; spawn?: number;
 }
 export interface ScenarioWorldInput {
+  /** Declared shared field writes use target zero, matching the real DecisionHost ABI. */
+  fields?: ScenarioActor['fields']; fieldBounds?: ScenarioActor['fieldBounds'];
   actors?: readonly ScenarioActor[]; players?: readonly ScenarioActor[];
   spawnGroups?: readonly { id: number; members: readonly number[] }[];
   flags?: Readonly<Record<number, boolean>>; playerFlags?: Readonly<Record<number, Readonly<Record<number, boolean>>>>;
@@ -23,7 +25,7 @@ export interface ScriptScenarioInput extends ScenarioWorldInput {
 export interface ScenarioSnapshot { host: DecisionSnapshot; world: ScenarioWorldInput }
 export type ScenarioCommand = readonly (string | number)[];
 /** Disk fixtures name actor aliases or real platform ids; numeric handles must already be registered. */
-export interface DiskScenarioOptions extends Omit<ScenarioWorldInput, 'actors'> {
+export interface DiskScenarioOptions extends Omit<ScenarioWorldInput, 'actors' | 'fieldBounds'> {
   seed: number;
   /** Published output root, defaulting to out/ in the caller's working directory. */
   products?: string;
@@ -42,11 +44,15 @@ export async function scenario(slug: string, id: string, options: DiskScenarioOp
   return readDiskScriptScenario(slug, id, options);
 }
 function finite(values: readonly number[]): void { if (!values.every(Number.isFinite)) throw new Error('Non-finite scenario value'); }
-function actorCopy(actor: ScenarioActor): ScenarioActor {
-  for (const [key, bound] of Object.entries(actor.fieldBounds ?? {})) {
-    finite([bound.min, bound.max]); const value = actor.fields?.[Number(key)];
+function checkFields(fields:ScenarioActor['fields'],bounds:ScenarioActor['fieldBounds']):void{
+  finite(Object.values(fields??{}));
+  for (const [key, bound] of Object.entries(bounds ?? {})) {
+    finite([bound.min, bound.max]); const value = fields?.[Number(key)];
     if (bound.min > bound.max || value === undefined || value < bound.min || value > bound.max || (bound.integer === true && !Number.isInteger(value))) throw new Error('Invalid scenario field bounds');
   }
+}
+function actorCopy(actor: ScenarioActor): ScenarioActor {
+  checkFields(actor.fields,actor.fieldBounds);
   return { ...actor, at: [...actor.at], fields: { ...actor.fields }, fieldBounds: structuredClone(actor.fieldBounds ?? {}) };
 }
 
@@ -119,13 +125,10 @@ export class ScenarioWorld implements DecisionWorld {
       return this.actor(id);
     };
     for (const [op, target, a, b] of batch) {
-      if ([commands.field, commands.move, commands.stop, commands.strike, commands.despawn].some(value => value === op)) {
-        const actor = owned(target);
-        if (op === commands.field) {
-          const bound = actor.fieldBounds?.[a];
-          if (actor.fields?.[a] === undefined || !Number.isFinite(b) || (bound !== undefined && (b < bound.min || b > bound.max || (bound.integer === true && !Number.isInteger(b))))) throw new Error('Scenario field declaration or bounds refused');
-        }
-      }
+      if(op===commands.field){
+        const value=target===0?this.input:owned(target),bound=value.fieldBounds?.[a];
+        if(value.fields?.[a]===undefined||!Number.isFinite(b)||(bound!==undefined&&(b<bound.min||b>bound.max||(bound.integer===true&&!Number.isInteger(b)))))throw new Error('Scenario field declaration or bounds refused');
+      }else if([commands.move,commands.stop,commands.strike,commands.despawn].some(value=>value===op))owned(target);
       if ([commands.grant, commands.reward, commands.flag].some(value => value === op) && target !== 0 && !player(target)) throw new Error('Scenario target is not an observed player');
       if ((op === commands.impulse || (op === commands.cue && target !== 0)) && !player(target)) owned(target);
       if (op === commands.flag && b !== 0 && b !== 1) throw new Error('Scenario flag value refused');
@@ -136,6 +139,7 @@ export class ScenarioWorld implements DecisionWorld {
         if (op === commands.flag) this.input = target === 0
           ? { ...this.input, flags: { ...this.input.flags, [a]: b === 1 } }
           : { ...this.input, playerFlags: { ...this.input.playerFlags, [target]: { ...this.input.playerFlags?.[target], [a]: b === 1 } } };
+        if(op===commands.field&&target===0)this.input={...this.input,fields:{...this.input.fields,[a]:b}};
         const actor = this.actors.get(target); if (actor === undefined) continue;
         if (op === commands.field) this.actors.set(target, { ...actor, fields: { ...actor.fields, [a]: b } });
         if (op === commands.move || op === commands.stop) this.actors.set(target, { ...actor, moving: op === commands.move });
@@ -151,7 +155,8 @@ export class ScenarioWorld implements DecisionWorld {
     return structuredClone({ ...this.input, actors: [...this.actors.values()].filter(actor => !this.players.has(actor.id)), players: [...this.players].map(id => this.actor(id)) });
   }
   restore(input: ScenarioWorldInput): void {
-    const copy = structuredClone({ actors: input.actors ?? [], players: input.players ?? [], spawnGroups: input.spawnGroups ?? [], flags: input.flags ?? {}, playerFlags: input.playerFlags ?? {}, zones: input.zones ?? [], lists: input.lists ?? [] }), actors = new Map<number, ScenarioActor>();
+    const copy = structuredClone({ actors: input.actors ?? [], players: input.players ?? [], spawnGroups: input.spawnGroups ?? [], flags: input.flags ?? {}, playerFlags: input.playerFlags ?? {}, zones: input.zones ?? [], lists: input.lists ?? [],...(input.fields===undefined?{}:{fields:input.fields}),...(input.fieldBounds===undefined?{}:{fieldBounds:input.fieldBounds}) }), actors = new Map<number, ScenarioActor>();
+    checkFields(copy.fields,copy.fieldBounds);
     for (const actor of [...copy.actors, ...copy.players]) {
       if (!Number.isSafeInteger(actor.id) || actor.id <= 0 || actors.has(actor.id)) throw new Error('Invalid or duplicate scenario actor');
       finite([...actor.at, actor.yaw ?? 0, actor.hpShare ?? 1, ...Object.values(actor.fields ?? {})]); actors.set(actor.id, actorCopy(actor));
@@ -181,7 +186,7 @@ export function scenarioCommand(script: DecisionScript, [op, target, a, b, c]: S
   if (op === commands.grant || op === commands.reward) return [op === commands.grant ? 'grant' : 'reward', actor(target), name(op === commands.grant ? 'facts' : 'rewards', a)];
   if (op === commands.impulse) return ['impulse', actor(target), name('impulses', a)];
   if (op === commands.weather) return ['weather', name('weather', a)];
-  if (op === commands.encounter) { const verb = ['phase', 'win', 'fail'][a - 1]; if (verb === undefined) throw new Error('Unknown encounter verb'); return ['encounter', verb, b]; }
+  if (op === commands.encounter) { const verb = ['phase', 'win', 'fail', 'guard'][a - 1]; if (verb === undefined) throw new Error('Unknown encounter verb'); return ['encounter', verb, b]; }
   const view = Object.entries(commands).find(([key, value]) => key.startsWith('view.') && value === op)?.[0];
   if (view !== undefined) return [view, target, a, b, c];
   throw new Error(`Unknown scenario command ${op}`);

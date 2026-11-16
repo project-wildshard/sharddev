@@ -28,12 +28,13 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const rows = decisionScriptsFromSections(sections);
   const row = rows.find(value => value.id === id), ordinal = rows.findIndex(value => value.id === id);
   if (row === undefined) throw new Error(`Missing simulation scenario script ${id}`);
+  if (row.side !== 'sim') throw new Error('Scenario script must run on simulation side');
   const moves = parseActorMoves(sections.get('actors/moves') ?? []), targets = sections.get('world/targets');
   const nativePlan = sections.get('sim/runtime-plan');
   const nativeActors = shard.runtime === null && nativePlan !== undefined ? nativeRuntimeActorIds(nativePlan) : [];
   const registries = buildDecisionRegistries(shard, moves, targets === undefined ? undefined : parseWorldTargets(targets), readCreatureStrikes(sections.get('actors/strikes') ?? []), rows, nativeActors);
   const map = decisionBindingMap(row, registries), handles = Object.values(map.ids.actors ?? {});
-  const script: DecisionScript = { ...row, ids: map.ids, state: [...row.state], reads: row.reads.filter((name): name is ScriptV1ReadName => Object.hasOwn(SCRIPT_V1_READS, name)),
+  const script: DecisionScript = { ...row, side: row.side, ids: map.ids, state: [...row.state], reads: row.reads.filter((name): name is ScriptV1ReadName => Object.hasOwn(SCRIPT_V1_READS, name)),
     lists: row.reads.filter((name): name is ScriptV1ListName => Object.hasOwn(SCRIPT_V1_LISTS, name)) };
   const file = index.files.find(value => value.kind === 'wasm' && value.path === row.module);
   if (file?.name === undefined) throw new Error('Scenario module requires an admitted logical blob name');
@@ -79,7 +80,8 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const bindings = 'spawnGroup' in binding ? handles.map((actor, ordinalIndex) => ({ id: ordinalIndex + 1, script: row.id, self: actor, actors: [actor], instance: 0 }))
     : [{ id: ordinal + 1, script: row.id, self, actors: handles, instance: 0 }];
   const primary = bindings[0]; if (primary === undefined) throw new Error('Empty scenario binding');
-  const made = createScriptScenario(DecisionHost, { ...options, actors, spawnGroups, seed: options.seed, script, bytes, binding: primary, bindings });
+  if(Object.keys(options.fields??{}).some(key=>!Object.hasOwn(fieldValues,key)))throw new Error('Unknown scenario shared field');
+  const made = createScriptScenario(DecisionHost, { ...options, fields:{...fieldValues,...options.fields},fieldBounds:bounds,actors, spawnGroups, seed: options.seed, script, bytes, binding: primary, bindings });
   const entry = index.sections.find(value => value.name === 'sim/scripts'); if (entry === undefined) throw new Error('Missing scenario section');
   return Object.assign(made, { product: Object.freeze({ slug, script: row.id, sectionHash: entry.hash,
     indexHash: descriptor.indexHash }) });
