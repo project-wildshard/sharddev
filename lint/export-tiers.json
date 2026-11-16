@@ -89,7 +89,6 @@
     "./speciesBrains": "rows",
     "./phasedBoss": "rows",
     "./admission": "contract",
-    "./commons": "bake kit",
     "./commonsCosts": "bake kit",
     "./worldSource": "contract",
     "./weapons/meleeProfile": "rows",
@@ -178,12 +177,11 @@
     "./bake/wholePieceJoin": "bake kit",
     "./configBoundary": "internal",
     "./executeBundle": "internal",
-    "./commons/catalogue": "bake kit",
     "./commons/practiceCourse": "bake kit",
     "./commons/courseProgram": "bake kit",
     "./commons/scripts/course.as": "scripts",
-    "./commons/bake/portableMath": "bake kit",
     "./test/scriptScenario": "internal",
-    "./scripts/*": "internal"
+    "./scripts/*": "internal",
+    "./math/portableMath": "bake kit"
   }
 }

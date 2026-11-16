@@ -26,7 +26,11 @@
     "./abilities": "./src/abilities.ts",
     "./species": "./src/species.ts",
     "./content/*": "./content/*",
-    "./geometry/*": "./src/geometry/*.ts"
+    "./geometry/*": "./src/geometry/*.ts",
+    "./arms": "./src/geometry/arms.ts",
+    "./sharedSpecs": "./src/geometry/sharedSpecs.ts",
+    "./weapons/starterMeleeProfile": "./src/geometry/starterMeleeProfile.ts",
+    "./weapons/starterMoves": "./src/geometry/starterMoves.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

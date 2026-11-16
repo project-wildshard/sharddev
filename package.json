@@ -279,7 +279,6 @@
     "./speciesBrains": "./src/sharddev/speciesBrains.ts",
     "./phasedBoss": "./src/sharddev/phasedBoss.ts",
     "./admission": "./src/sharddev/admission.ts",
-    "./commons": "./src/sharddev/commons.ts",
     "./commonsCosts": "./src/sharddev/commonsCosts.ts",
     "./worldSource": "./src/sharddev/worldSource.ts",
     "./weapons/meleeProfile": "./src/sharddev/weapons/meleeProfile.ts",
@@ -379,12 +378,11 @@
     "./bake/wholePieceJoin": "./src/sharddev/bake/wholePieceJoin.ts",
     "./configBoundary": "./src/sharddev/configBoundary.ts",
     "./executeBundle": "./src/sharddev/executeBundle.ts",
-    "./commons/catalogue": "./src/commons/catalogue.ts",
     "./commons/practiceCourse": "./src/commons/practiceCourse.ts",
     "./commons/courseProgram": "./src/commons/courseProgram.ts",
     "./commons/scripts/course.as": "./src/commons/scripts/course.as",
-    "./commons/bake/portableMath": "./src/commons/bake/portableMath.ts",
-    "./scripts/*": "./scripts/*"
+    "./scripts/*": "./scripts/*",
+    "./math/portableMath": "./src/sharddev/math/portableMath.ts"
   },
   "sideEffects": [
     "./src/sharddev/!(bakePublication).*",

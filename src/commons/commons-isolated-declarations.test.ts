@@ -42,7 +42,7 @@ test('every owned commons implementation emits isolated declarations',()=>{
 
 test('portable math preserves readonly function keys, numeric arguments and callback results',()=>{
  const consumer=resolve('src/commons/t4-portable-consumer.ts');
- let source="import {portableMath,installPortableMath,withPortableMath} from './bake/portableMath';\nexport const sine:number=portableMath.sin(1);\nexport const power:number=portableMath.pow(2,3);\nexport const restore:()=>void=installPortableMath();\nexport const marker:{readonly value:'kept'}=withPortableMath(()=>({value:'kept'}));\n";
+ let source="import {portableMath,installPortableMath,withPortableMath} from '@wildshard/sdk/math/portableMath';\nexport const sine:number=portableMath.sin(1);\nexport const power:number=portableMath.pow(2,3);\nexport const restore:()=>void=installPortableMath();\nexport const marker:{readonly value:'kept'}=withPortableMath(()=>({value:'kept'}));\n";
  const options:ts.CompilerOptions={strict:true,exactOptionalPropertyTypes:true,noUncheckedIndexedAccess:true,
   target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext,moduleResolution:ts.ModuleResolutionKind.Bundler,
   types:[],skipLibCheck:true,noEmit:true};

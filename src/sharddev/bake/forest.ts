@@ -4,7 +4,7 @@ import { readNativeTerrain } from './terrain';
 import { TreeSetSchema } from '@wildshard/format/treeSetRows';
 import { ManifestMetadataSchema } from '@wildshard/format/minimap';
 import * as v from 'valibot';
-import { TREE_SPECS } from '@wildshard/engine/world/forest/treeSpec';
+import { TREE_SPECS } from '@wildshard/kit/sharedSpecs';
 
 /** Native ordered default tree geometry traits used by forest placement. */
 export function forestDefaultTreeSpecs(): typeof TREE_SPECS { return TREE_SPECS; }

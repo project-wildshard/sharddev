@@ -96,3 +96,16 @@ The GLBs preserve position, normal, UV, colour, skin indices, weights and
 fur-length channels. Three body parts keep their geometry separate.
 These body files contain no animation clips; the admitted animation
 binding and layered fixture are the next integration step (OF3b).
+
+## Shared builders and tables
+
+`arms` builds the original glove, sleeve and forearm geometry without a
+live owner. `weapons/starterMeleeProfile` and `weapons/starterMoves` hold
+the original starter sword policy and rich Three poses, using the kit's
+structural types. `sharedSpecs` contains default tree traits and the
+puzzle barrel's complete physical declaration. Bow and pickup tables are
+plain JSON in `content/shared`.
+
+The SDK's corresponding helpers now consume these kit modules. Portable
+math belongs to the SDK library at `@wildshard/sdk/math/portableMath`.
+The practice course is parked and remains outside this kit release.

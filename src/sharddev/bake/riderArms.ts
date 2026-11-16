@@ -1,4 +1,4 @@
-import { forearm, gloveFist, riderArm } from '@wildshard/engine/player/firstPersonArms';
+import { forearm, gloveFist, riderArm } from '@wildshard/kit/arms';
 import { Color, Vector3, BufferGeometry, BufferAttribute, DynamicDrawUsage } from 'three';
 import { parse } from 'valibot';
 import { ReinPresentationSchema, type ReinPresentationRows, type ReinRibbonRows } from '@wildshard/format/riding';

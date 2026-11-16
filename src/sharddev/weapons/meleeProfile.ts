@@ -1,4 +1,4 @@
-import { SWORD_WOOD } from '@wildshard/engine/game/weapons/starterMeleeProfile';
+import { SWORD_WOOD } from '@wildshard/kit/weapons/starterMeleeProfile';
 import type { EquipmentIcon, EquipmentTouchMap, WeaponId } from '@wildshard/engine/combat/Equipment';
 import * as THREE from 'three';
 import { parse } from 'valibot';

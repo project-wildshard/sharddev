@@ -1,6 +1,6 @@
 import { parse, type InferOutput } from 'valibot';
 import { BowWeaponProfileSchema, HeldBowFileSchema, type HeldBowFileRows } from '@wildshard/format/weaponProfiles';
-import STARTER_BOW from '@wildshard/engine/game/weapons/starterBow.json' with { type: 'json' };
+import STARTER_BOW from '@wildshard/kit/content/shared/starterBow.json' with { type: 'json' };
 
 /** Named transitional bow view strategy styles: any name the shard's bow view repaints by (`test/sdk-engine-types.test.ts`
  * keeps it equal to the engine's `combat/view/bowProfile` `BowStyle`). */

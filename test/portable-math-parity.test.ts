@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import { portableMath as engine } from '@wildshard/engine/core/portableMath';
-import { portableMath as authored } from '../src/commons/bake/portableMath';
+import { portableMath as authored } from '../src/sharddev/math/portableMath';
 
 const points = Float64Array.from({ length: 10_000 }, (_, index) => (index - 5_000) / 250);
 const digest = (fn: (x: number, y: number) => number): string => createHash('sha256')
@@ -22,5 +22,5 @@ const body = (file: string, end: string): string => {
 test('author portable math stays equal to the public engine table', () => {
   expect(table(authored)).toEqual(table(engine));
   const engineFile = resolve(import.meta.dirname, '../node_modules/@wildshard/engine/src/shared/engine/core/portableMath.ts');
-  expect(body('src/commons/bake/portableMath.ts', '/** Install the platform-stable')).toBe(body(engineFile, 'const SIM_MATH'));
+  expect(body('src/sharddev/math/portableMath.ts', '/** Install the platform-stable')).toBe(body(engineFile, 'const SIM_MATH'));
 });
