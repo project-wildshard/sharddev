@@ -18,9 +18,11 @@ function observation() {
     fatal: [...document.querySelectorAll('#wserr,.ws-load-error,.ws-game-dev-alert,[data-boot-fatal]')].map(node => node.textContent) };
 }
 
-test('the packed outside author boots its own shard in the published engine client', { timeout: 120_000 }, async context => {
+async function observeAuthorBrowser(context, empty) {
   const parent = resolve(process.env.WS_PROOF_SCRATCH ?? 'tmp/outside-browser');
-  const report = resolve(process.env.WS_BROWSER_REPORT ?? 'tmp/outside-browser-report');
+  const baseReport = resolve(process.env.WS_BROWSER_REPORT ?? 'tmp/outside-browser-report');
+  const report = empty ? baseReport : join(baseReport, 'default-reference');
+  const slug = empty ? 'outside-browser' : 'reference-browser';
   mkdirSync(parent, { recursive: true }); mkdirSync(report, { recursive: true });
   const root = mkdtempSync(join(parent, 'author-')), app = join(root, 'app');
   const faults = [], requests = [], delivered = [], receipt = { faults, requests, delivered };
@@ -36,7 +38,7 @@ test('the packed outside author boots its own shard in the published engine clie
     const env = { ...process.env, WILDSHARD_GEN_CACHE: join(root, 'generation'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') };
     // No WILDSHARD_DEV_CLIENT[_URL] substitute: the package's actual engine pin selects its published client.
     delete env.WILDSHARD_DEV_CLIENT; delete env.WILDSHARD_DEV_CLIENT_URL;
-    const fresh = spawnSync(process.execPath, [bin, 'new', project, 'outside-browser', '--empty'], { cwd: app, env, encoding: 'utf8', timeout: 15_000 });
+    const fresh = spawnSync(process.execPath, [bin, 'new', project, slug, ...(empty ? ['--empty'] : [])], { cwd: app, env, encoding: 'utf8', timeout: 15_000 });
     assert.ifError(fresh.error); assert.equal(fresh.status, 0, `${fresh.stdout}\n${fresh.stderr}`);
     dev = spawn(process.execPath, [bin, 'dev', join(project, 'src')], { cwd: app, env, stdio: ['ignore', 'pipe', 'pipe'] });
     devClosed = new Promise(_resolve => { dev.once('close', _resolve); });
@@ -63,7 +65,7 @@ test('the packed outside author boots its own shard in the published engine clie
     page.on('response', response => {
       if (response.status() >= 400) faults.push(`HTTP ${response.status()} ${response.url()}`);
       const parsed = new URL(response.url());
-      if (parsed.origin === url.origin && parsed.pathname.startsWith('/shardfiles/outside-browser/sections/') && response.ok()) delivered.push(parsed.pathname);
+      if (parsed.origin === url.origin && parsed.pathname.startsWith(`/shardfiles/${slug}/sections/`) && response.ok()) delivered.push(parsed.pathname);
     });
     page.on('requestfailed', request => faults.push(`request failed: ${request.url()} ${request.failure()?.errorText}`));
     page.on('request', request => { const parsed = new URL(request.url()); if (parsed.pathname.startsWith('/shardfiles/')) requests.push(parsed.pathname); });
@@ -76,7 +78,7 @@ test('the packed outside author boots its own shard in the published engine clie
     }, receipt.before, { timeout: 10_000 });
     receipt.after = await page.evaluate(observation);
     const current = receipt.after;
-    assert.equal(current.slug, 'outside-browser'); assert.equal(current.state, 'play');
+    assert.equal(current.slug, slug); assert.equal(current.state, 'play');
     assert.equal(current.entered, true); assert.equal(current.paused, false);
     assert.ok(current.player.health > 0);
     assert.ok(['x', 'y', 'z'].every(key => Number.isFinite(current.player.pos[key])));
@@ -124,4 +126,9 @@ test('the packed outside author boots its own shard in the published engine clie
     rmSync(root, { recursive: true, force: true });
     if (!receipt.error) assert.deepEqual(cleanup, [], 'Owned resources must close');
   }
-});
+}
+
+test('the packed outside author boots its own shard in the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, true));
+// TC13: the default reference is built from fresh packed `new`, with its real generated content.
+// Door/cross/save continue to run on the same graph in new-reference.test.mjs.
+test('the packed default new reference enters play in the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, false));
