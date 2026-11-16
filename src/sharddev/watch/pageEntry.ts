@@ -21,29 +21,11 @@ const panel = (): HTMLElement => {
   held = node;
   return node;
 };
-/**
- * Engine 0.1.21 and earlier give every `game.watchFrames` observer the one system id `harness.walk`. The dev hook's ground
- * sweep takes it at boot, so the first part with a lamp or water threw "Duplicate system id" and never drew. Until the sdk
- * pins an engine whose observers carry their own ids, the page gives each later observer its own (engine-quickfix fix,
- * SHARD-SOURCE AP16). The engine's fields are read loosely: a client without them is left as it is.
- */
-interface ObserverGame { watchFrames?: unknown; levelScope?: { child?: unknown }; app?: { addSystem?: unknown } }
-let observers = 0;
-const ownObserverIds = (): void => {
-  const game = (window as unknown as { __wildshard?: { world?: { game?: ObserverGame } } }).__wildshard?.world?.game;
-  if (game === undefined || typeof game.levelScope?.child !== 'function' || typeof game.app?.addSystem !== 'function') return;
-  const levelScope = game.levelScope as { child: (name: string) => Scope }, app = game.app as { addSystem: (spec: { id: string; phase: 'update'; run: (dt: number) => void; core: boolean }, scope: Scope) => void };
-  game.watchFrames = (run: (dt: number) => void): (() => void) => {
-    const owner = levelScope.child('observer');
-    app.addSystem({ id: `harness.walk.watch.${String(observers++)}`, phase: 'update', run, core: false }, owner);
-    return () => { owner.dispose(); };
-  };
-};
 const entry = location.href;
 const timers = new Scope('watch.entry');
 const page = startWatchPage({
   origin: location.origin,
-  hook: () => { const found = window.__wildshardDevHook; if (found !== undefined) ownObserverIds(); return found; },
+  hook: () => window.__wildshardDevHook,
   fetch: (url) => fetch(url, { cache: 'no-store' }),
   socket: (url) => socketOf(new WebSocket(url)),
   frame: (run) => { timers.raf(run); },
