@@ -27,6 +27,7 @@
     "scripts",
     "!scripts/**/*.test.*",
     "!scripts/docs",
+    "!scripts/entry-reads/tsconfig.json",
     "lint",
     "!lint/**/*.test.*",
     "tsconfig*.json",
