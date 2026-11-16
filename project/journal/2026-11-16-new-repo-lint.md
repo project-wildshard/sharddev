@@ -29,3 +29,10 @@ new `budget-report-only` row: provisional tile-download caps and
 tradeable resident targets warn and never refuse until they are
 measured on phones. GUIDE.md `#budget-report-only` says so, and that
 the untouched reference sits over about six of them.
+
+## From the reference to a scene shard (TC-NE15)
+
+GUIDE.md 2b now says which files a scene shard keeps: `shard.config.ts`
+and what it imports. Followed on a fresh `new` repo (65 files under
+`src/`): every file but `shard.config.ts` deleted, the GUIDE's meadow
+written in, and `wildshard build` built it.

@@ -294,6 +294,14 @@ A shard can also be one three.js scene, written in TypeScript: `wildshard new my
 writes the rest. `wildshard check .` builds it, `wildshard watch .` shows each saved edit in a running page, and
 `wildshard synth` is not for it (synth takes the older scene form only).
 
+**Which files a scene shard keeps.** Only `src/shard.config.ts` and the modules it imports. `--template scene` writes
+four: `shard.config.ts`, `identity.json` (slug, name, author, revision, seed), `generators/shard.ts` (`defineShard`)
+and `generators/world.ts` (the scene), with `generators/sky.ts` and `generators/textures.ts` beside it. To turn a repo
+`new` made from the reference world into a scene shard, replace `src/shard.config.ts` with one like the one below and
+delete everything else under `src/`: `manifest.json`, `data/`, `behaviour/`, `assets/` and the reference's
+`generators/` are the data shard's and a scene shard reads none of them. Keep the repo files around `src/`
+(`package.json`, `.oxlintrc.author.json`, this guide).
+
 The smallest one, `src/shard.config.ts`:
 
 ```ts
