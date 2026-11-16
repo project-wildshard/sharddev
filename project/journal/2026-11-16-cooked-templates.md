@@ -32,3 +32,7 @@ Require each private part cache to be absent before cooking and to
 contain actual production-encoded files afterward. The environment
 path is chosen when each encoder is created. Record this witness in
 every receipt, so a cold cook is not just a descriptive label.
+
+Before world construction, each extracted product must refuse missing,
+truncated and same-size-corrupt actual server Wasm. Restore the exact
+original bytes between controls, then open and play that same product.

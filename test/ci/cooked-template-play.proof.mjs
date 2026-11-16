@@ -16,6 +16,7 @@ const engine=process.env.COOKED_ENGINE_CANDIDATE;assert.match(engine??'',/^[a-f0
 const {loadCookedProduct,loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
 assert.equal(typeof loadCookedProduct,'function','The candidate must publish cooked-product admission before any cook');
 const {openWorld}=await import('@wildshard/engine/host/openWorld');
+const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const {loadRapier}=await import('@wildshard/engine/physics/rapier');
 const {cookShard,servedAsIs}=await import('@wildshard/engine/game/shardCook');
 const {readServerPack,serverPackFile}=await import('@wildshard/engine/game/shardfile/serverPack');
@@ -73,6 +74,20 @@ for(const slug of selected)test(`${slug}: actual cold cook, room play and exact 
   result.serverFiles=files.size;result.serverDigest=digest(Buffer.from(JSON.stringify([...files].sort())));
   // The only world input is the extracted directory. Source output, SDK,
   // client pack and tar bytes are never passed to the room loader.
+  // Refuse actual damaged server code before constructing a world. Restore
+  // the extracted bytes after each control, then prove the same room opens.
+  const product=await loadHeadlessProduct(extracted);
+  const wasm=outputDescriptor(product.shardfile)?.index.files.find(file=>file.kind==='wasm');assert.ok(wasm);
+  const target=join(extracted,wasm.path),original=readFileSync(target);assert.ok(original.length>1);
+  result.refusals=[];
+  for(const mutation of ['missing','truncated','same-size-corruption']){
+   try{
+    if(mutation==='missing')rmSync(target);
+    else if(mutation==='truncated')writeFileSync(target,original.subarray(0,original.length-1));
+    else{const changed=Buffer.from(original);changed[changed.length-1]^=1;writeFileSync(target,changed);}
+    await assert.rejects(()=>loadCookedProduct(extracted,rapier));result.refusals.push(mutation);
+   }finally{writeFileSync(target,original);}
+  }
   const create=async snapshot=>openWorld(await loadCookedProduct(extracted,rapier),{room:true,...(snapshot===undefined?{}:{snapshot})});
   world=await create();
   const player=[...world.host.players.values()][0];assert.ok(player);
