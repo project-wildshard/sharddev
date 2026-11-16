@@ -1,5 +1,8 @@
 import { filePolicy } from '@wildshard/engine/boot/filePolicy';
-import { CLOUD_FIELD_URL } from '@wildshard/engine/boot/bakedApi';
+// QA mini row 37: the URL constants come from node-safe modules. Engine `boot/bakedApi` also holds browser loaders whose
+// dynamic imports split an author config into two chunks, which `wildshard build` refuses. A shard's own boot rows import the
+// same two modules (`@wildshard/engine/boot/bakedUrls`, `@wildshard/engine/physics/wasmUrl`), never `boot/bakedApi`.
+import { CLOUD_FIELD_URL } from '@wildshard/engine/boot/bakedUrls';
 import { RAPIER_WASM_URL } from '@wildshard/engine/physics/wasmUrl';
 
 /** Authoring inputs are explicit presence/byte tables, never a live download service. */
