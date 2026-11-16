@@ -31,6 +31,8 @@ async function observeAuthorBrowser(context, empty) {
   let browser, server, dev, devClosed, page, output = '';
   const cancellation = new AbortController();
   const abort = () => cancellation.abort(new Error('outside-author deadline'));
+  const deadlineAt = performance.now() + 80_000;
+  const remaining = () => Math.max(1, deadlineAt - performance.now());
   const deadline = setTimeout(abort, 80_000); // reserve 40 seconds for bounded operations and cleanup
   const stop = () => { dev?.kill('SIGTERM'); server?.process().kill('SIGTERM'); };
   cancellation.signal.addEventListener('abort', stop, { once: true });
@@ -74,12 +76,14 @@ async function observeAuthorBrowser(context, empty) {
     page.on('requestfailed', request => faults.push(`request failed: ${request.url()} ${request.failure()?.errorText}`));
     page.on('request', request => { const parsed = new URL(request.url()); if (parsed.pathname.startsWith('/shardfiles/')) requests.push(parsed.pathname); });
     await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-    await page.waitForFunction(() => window.__wildshard?.state().appState === 'play', undefined, { timeout: 30_000 });
+    // A cold generated world on hosted software rendering is a Ring 2 boot
+    // proof, not an FPS benchmark. Both waits share the existing hard deadline.
+    await page.waitForFunction(() => window.__wildshard?.state().appState === 'play', undefined, { timeout: remaining() });
     receipt.before = await page.evaluate(observation);
     await page.waitForFunction(({ frame, drawn }) => {
       const probe = window.__wildshard;
       return probe?.app.clock.frame > frame + 12 && probe?.world?.game.renderer.info.render.frame > drawn + 12;
-    }, receipt.before, { timeout: 10_000 });
+    }, receipt.before, { timeout: remaining() });
     receipt.after = await page.evaluate(observation);
     const current = receipt.after;
     assert.equal(current.slug, slug); assert.equal(current.state, 'play');

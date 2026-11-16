@@ -27,3 +27,12 @@ Linux now selects explicit ANGLE SwiftShader, the earlier held diagnostic
 configuration, rather than relying on implicit Vulkan SwiftShader. The
 optional software flag also allows reproducing the renderer locally.
 All frame, render, error and lifecycle assertions remain unchanged.
+
+Hosted43982285539 instead times out while loading application modules:
+all39sections delivered, no probe yet, no faults, screenshot still at
+the load card. Software rendering alone does not remove cold-run variance.
+Boot and progress now share the existing hard80s cancellation deadline,
+rather than independent arbitrary30s/10s sublimits. The120s outer test
+and cleanup bounds stay intact. This is the explicit Ring2 boot proof,
+not an FPS gate: it still must earn13real simulation/render frames and
+pass every health, authored-section, version, fault and cleanup oracle.
