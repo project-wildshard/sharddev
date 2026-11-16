@@ -63,6 +63,39 @@
         "terrain authors receive the exact native channel layout, sizes and fills"
       ],
       "changes": "Complete hash-pinned frozen carried rows replace the shard generator import; all assertions retained."
+    },
+    {
+      "sourcePath": "test/output-runtime.test.ts",
+      "targetPath": "test/output-runtime.test.ts",
+      "sourceBlob": "68b47d3049f1a1b0910d720ad2bbf801d3d5176a",
+      "originalTests": [
+        "ships no runtime TypeScript: declarations pass, a stale runtime output is cleared and other outputs stay",
+        "uses the ruler comment law for templates, regexes, strings and multiline comments",
+        "refuses executable source, non-TS and symlinks before changing a previous output (LD9: no copied runtime entry)",
+        "supports data-only projects and refuses overlapping output",
+        "checks copied constants against unchanged mirrors without a custom registry",
+        "admits the compiled Driftwood source without copying retired runtime data",
+        "refuses retired custom registry %s before deleting any output"
+      ],
+      "targetTests": [
+        "ships no runtime TypeScript: declarations pass, a stale runtime output is cleared and other outputs stay",
+        "uses the ruler comment law for templates, regexes, strings and multiline comments",
+        "refuses executable source, non-TS and symlinks before changing a previous output (LD9: no copied runtime entry)",
+        "supports data-only projects and refuses overlapping output",
+        "checks copied constants against unchanged mirrors without a custom registry",
+        "admits the compiled SDK Template source without copying retired runtime data",
+        "refuses retired custom registry %s before deleting any output"
+      ],
+      "changes": "Keep all 8 cases. Four original ruler inputs now have independent exact 1/3/2/1 line-count oracles; private host-ruler export unnecessary. The real SDK Template source replaces absent Driftwood source, as mapped; all output-preservation, symlink, runtime and registry refusals retained."
+    },
+    {
+      "sourcePath": "test/script-v2-radial.test.ts",
+      "targetPath": "src/sharddev/bake/script-v2-radial.test.ts",
+      "sourceBlob": "531debf7aa70c4802d1b615a78b4f7f6b92e9cc9",
+      "originalTests": [
+        "admitted project radial math is finite and close to native geometry"
+      ],
+      "changes": "Keep original ws_project source, all44 yaw/radius pairs,88 finite/tolerance checks and signed-zero assertion. Drive the actual native projection through public ReturnProgram.page with a real compiled ABI1 radial compatibility witness; no private engine export or replacement math."
     }
   ],
   "supportPaths": [
