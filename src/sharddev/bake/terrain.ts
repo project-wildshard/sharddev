@@ -146,7 +146,6 @@ export function groundLattice(source: Pick<TerrainBakeSource, 'heightAt' | 'colo
   return { resolution: 257, x: -250, z: -250, size: 500, heights, colours };
 }
 
-/** Bake a shared 257² lattice into 64 L0 and 16 L1 tiles, with an independent whole-sim collision file. */
 /**
  * NEW-SHARD-E2E F13: format refuses an entry road off height 0 without saying where; this names the edge, the point and its
  * height. An edge profile (257 samples) is exactly 0 at its middle sample (format `validateTerrainAssets`) and, for a ground
@@ -158,9 +157,10 @@ export function checkEntryRoad(side: 'north' | 'east' | 'south' | 'west', sample
   const height = samples[worst] ?? 0;
   if (height === 0) return;
   const p = Math.round((-250 + worst * 500 / 256) * 10) / 10, [x, z] = side === 'north' ? [p, 250] : side === 'south' ? [p, -250] : side === 'east' ? [250, p] : [-250, p];
-  throw new Error(`Terrain entry road must meet road height zero: the ground is ${String(Number(height.toPrecision(3)))} m high at (${String(x)}, ${String(z)}) on the ${side} entry road. The ground is exactly 0 m within 6 m of the middle of each cell edge, (0, ±250) and (±250, 0), where the roads cross into the next cell: fade hills and ripples to 0 before the edges`);
+  throw new Error(`Terrain entry road must meet road height zero: the ground is ${String(Number(height.toPrecision(3)))} m high at (${String(x)}, ${String(z)}) on the ${side} entry road. The ground is exactly 0 m ${reach > 0 ? 'within 6 m of' : 'at'} the middle of each cell edge, (0, ±250) and (±250, 0), where the roads cross into the next cell: fade hills and ripples to 0 before the edges`);
 }
 
+/** Bake a shared 257² lattice into 64 L0 and 16 L1 tiles, with an independent whole-sim collision file. */
 export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
   const { heights, colours } = groundLattice(source);
   const grid: TerrainTileData = { resolution: 257, x: -250, z: -250, size: 500, heights };

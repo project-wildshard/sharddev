@@ -295,11 +295,11 @@ export default defineShard({ slug: 'meadow', name: 'Meadow' }, (world) => {
   const stone = new THREE.MeshStandardMaterial({ color: '#8a8378', roughness: 0.9 });
   const hut = world.part('hut', (part) => {
     const walls = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), stone));
-    walls.position.set(0, 7.5, -20);
+    walls.position.set(0, 5.6, -20); // the knoll is 4.2 m high here; the walls are 3 m
     part.add(walls);
   });
   world.trigger('meadow.hut', hut.children[0]!, { radius: 8, flag: 'meadow.hut' });
-  world.spawn(0, 6, 10, 0); // yaw 0 faces -z, towards the hut
+  world.spawn(0, 7, 10, 0); // ground 5 m here; yaw 0 faces -z, towards the hut
 });
 ```
 

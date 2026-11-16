@@ -18,3 +18,5 @@ The Mac mini built Honeyknoll from npm 0.3.2 as an outside author. These are its
   manifest.json; hero on a scene shard is F28's (F14).
 - prove's help, the GUIDE and the tape refusal now carry the tape's shape. A stand-still tape on a scene shard fails
   `traveler pose changed on restore` in engine 0.1.24: an engine issue, F27's owner told.
+- One `claude -p` review, no MUSTs; its four SHOULDs fixed: tests for grid, the entry-road refusal and the starter
+  sword; the refusal says 6 m only where it checks 6 m; the GUIDE example's hut and spawn sit on the knoll.
