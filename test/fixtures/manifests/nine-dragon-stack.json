@@ -1,0 +1,453 @@
+{
+  "api": 1,
+  "gridShardfile": "/shardfiles/nine-dragon-stack/shard.json",
+  "kitLook": "pbr",
+  "creatures": {
+    "lowPoly": false,
+    "waitForModels": false,
+    "furRim": false,
+    "tintRange": 0.2,
+    "oneMaterial": false
+  },
+  "debugOptions": [],
+  "boundary": {
+    "visible": false
+  },
+  "uses": [
+    "hover",
+    "explore",
+    "practice"
+  ],
+  "loadout": {
+    "weapons": [
+      "weapon.jian"
+    ],
+    "tools": [
+      "tool.fei-zhua",
+      "tool.hoverboard"
+    ],
+    "start": [
+      "weapon.jian",
+      "tool.hoverboard"
+    ],
+    "pickups": []
+  },
+  "bag": {
+    "tabs": [
+      "map",
+      "gear"
+    ],
+    "pack": {
+      "slots": 0
+    }
+  },
+  "species": [],
+  "encounters": [],
+  "tiers": {
+    "phone": {
+      "ao": false,
+      "slices": true,
+      "aa": "fxaa",
+      "warmTurns": 0,
+      "textures": "img"
+    },
+    "desktop": {
+      "ao": true,
+      "slices": false
+    }
+  },
+  "assetGlobs": [
+    "public/assets/nine-dragon/**",
+    "public/assets/baked/nine-dragon-stack/**",
+    "public/assets/gpu/nine-dragon/**",
+    "public/assets/music/nine-dragon-stack/**",
+    "public/assets/sfx/nine-dragon-stack/**",
+    "public/assets/title/nine-dragon-stack-portrait.jpg",
+    "public/assets/nine-dragon-stack/map/**"
+  ],
+  "order": 4,
+  "status": "experimental",
+  "name": "Nine Dragon Stack",
+  "label": "(\u22122, +1)",
+  "seed": 40234,
+  "treeCount": 0,
+  "biome": "Vertical neon city",
+  "blurb": "Lantern Square, halfway up a city stacked 500 m high: wet granite, a cinnabar gate, neon calligraphy and the Yamen Well dropping away into silk fog. A prototype fragment \u2014 the square, the Well's rim and the stair-street \u2014 rough edges everywhere.",
+  "assets": {
+    "groundLayers": [
+      "forest_ground_04",
+      "leafy_grass",
+      "rock_ground",
+      "stony_dirt_path"
+    ],
+    "groundTints": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        1,
+        1
+      ]
+    ],
+    "slabRock": "rock_ground"
+  },
+  "trees": {
+    "factory": "none",
+    "bark": "pine_bark",
+    "twigAtlas": "pine_tree_01",
+    "noun": "trees"
+  },
+  "spawns": [],
+  "sky": {
+    "hdri": "kloofendal_48d_partly_cloudy_puresky",
+    "painted": {
+      "zenith": [
+        0.09,
+        0.14,
+        0.26
+      ],
+      "horizon": [
+        0.36,
+        0.44,
+        0.58
+      ],
+      "ground": [
+        0.16,
+        0.18,
+        0.22
+      ],
+      "glow": [
+        0.2,
+        0.2,
+        0.3
+      ]
+    },
+    "sun": {
+      "azimuth": 250,
+      "elevation": 8
+    },
+    "sunColor": [
+      0.55,
+      0.62,
+      0.85
+    ],
+    "sunIntensity": 0.6,
+    "envIntensity": 0.5,
+    "bgIntensity": 1,
+    "fogSunColor": [
+      0.6,
+      0.66,
+      0.8
+    ],
+    "cloudSunColor": [
+      0.6,
+      0.66,
+      0.8
+    ],
+    "hemiSky": 7308968,
+    "hemiGround": 2763828,
+    "hemiIntensity": 0.5
+  },
+  "atmosphere": {
+    "fogHeight": 85,
+    "fogHeightFalloff": 0.05,
+    "fogHeightDensity": 0.004,
+    "fogDistDensity": 0.004,
+    "volumetricSunColor": [
+      0.55,
+      0.62,
+      0.85
+    ],
+    "volumetric": {
+      "height": 95,
+      "falloff": 0.05,
+      "density": 0.003,
+      "strength": 0.3
+    }
+  },
+  "grade": {
+    "saturation": 0.1,
+    "brightness": 0,
+    "contrast": 0.1,
+    "bloomIntensity": 0.6,
+    "bloomThreshold": 0.9,
+    "shadowTint": [
+      0.92,
+      0.96,
+      1.08
+    ],
+    "highTint": [
+      1.06,
+      1,
+      0.92
+    ],
+    "lift": [
+      0,
+      0,
+      0.01
+    ],
+    "gain": [
+      1,
+      1,
+      1
+    ],
+    "gamma": 1
+  },
+  "spawn": {
+    "x": 0.95,
+    "z": 7.5,
+    "yaw": -0.20943951023931956,
+    "y": 125
+  },
+  "weapon": "sword",
+  "camera": {
+    "portraitFov": 78
+  },
+  "horizon": {
+    "rings": [],
+    "cloudSea": false
+  },
+  "minimap": {
+    "image": "/assets/nine-dragon-stack/map/top.webp"
+  },
+  "pois": [
+    {
+      "id": "lantern-square",
+      "name": "Lantern square",
+      "x": 11,
+      "z": -3,
+      "r": 16
+    },
+    {
+      "id": "night-market",
+      "name": "Night market",
+      "x": 19,
+      "z": -17,
+      "r": 6
+    },
+    {
+      "id": "stair-street",
+      "name": "Stair-street",
+      "x": 46,
+      "z": 6,
+      "r": 24
+    },
+    {
+      "id": "well-rim",
+      "name": "The well rim",
+      "x": -14,
+      "z": -14,
+      "r": 18
+    },
+    {
+      "id": "portal-north",
+      "name": "Road portal",
+      "x": 0,
+      "z": 236,
+      "r": 8
+    },
+    {
+      "id": "portal-east",
+      "name": "Road portal",
+      "x": 236,
+      "z": 0,
+      "r": 8
+    },
+    {
+      "id": "portal-south",
+      "name": "Road portal",
+      "x": 0,
+      "z": -236,
+      "r": 8
+    },
+    {
+      "id": "portal-west",
+      "name": "Road portal",
+      "x": -236,
+      "z": 0,
+      "r": 8
+    }
+  ],
+  "bounds": {
+    "x0": -36,
+    "x1": 90,
+    "z0": -130,
+    "z1": 28,
+    "floor": 25
+  },
+  "style": "jiehua",
+  "audio": {
+    "catalogue": true,
+    "ambience": "ambience.nd",
+    "score": "score.nd",
+    "bed": "forest",
+    "samples": {
+      "omitLoops": [
+        "shrine"
+      ],
+      "omitShots": [
+        "crab_click",
+        "crab_snap",
+        "monkey_chatter",
+        "monkey_shriek",
+        "sailor_groan",
+        "sailor_slash",
+        "coconut_hit",
+        "coconut_land",
+        "gull"
+      ],
+      "loopGains": {
+        "forest": 0.5
+      }
+    }
+  },
+  "boot": {
+    "precache": [],
+    "barrier": true,
+    "phone": {
+      "deferExtras": true,
+      "fragile": true,
+      "trace": true
+    },
+    "cullBeforeFirstDraw": true,
+    "steps": {}
+  },
+  "forest": {
+    "spacing": 9,
+    "densityFreq": 0.01,
+    "clearings": [
+      -0.3,
+      0.4
+    ],
+    "maxSlope": 0.7,
+    "tintHue": 0.28,
+    "tintHueJitter": [
+      -0.03,
+      0.03
+    ],
+    "tintSat": [
+      0.5,
+      0.7
+    ],
+    "tintLight": [
+      0.5,
+      0.62
+    ],
+    "largeVariantChance": 0
+  },
+  "card": {
+    "thumb": "/src/shards/nine-dragon-stack/thumbs/nine-dragon-stack.jpg",
+    "portrait": "/src/shards/nine-dragon-stack/thumbs/nine-dragon-stack-portrait.jpg",
+    "landscape": "/src/shards/nine-dragon-stack/thumbs/nine-dragon-stack-landscape.jpg"
+  },
+  "explore": {
+    "art": {
+      "world": "/src/shards/nine-dragon-stack/explore/world-nine-dragon-stack.webp",
+      "models": "/src/shards/nine-dragon-stack/explore/models-nine-dragon-stack.webp",
+      "sets": "/src/shards/nine-dragon-stack/explore/sets-nine-dragon-stack.webp",
+      "practice": "/src/shards/nine-dragon-stack/explore/practice-nine-dragon-stack.webp"
+    },
+    "compare": [
+      {
+        "id": "gate",
+        "label": "Lantern gate",
+        "model": "nine-gate",
+        "target": "art/nine-dragon-stack/round-15-eight-domes/A2-gate-look/target-5.jpg",
+        "live": "/src/shards/nine-dragon-stack/explore/nine-gate-live.jpg",
+        "image": "/src/shards/nine-dragon-stack/explore/nine-gate-target.jpg"
+      },
+      {
+        "id": "stair",
+        "label": "Stair street",
+        "model": "nine-stair",
+        "target": "art/nine-dragon-stack/round-15-eight-domes/C1-stair-stand/target-5.jpg",
+        "live": "/src/shards/nine-dragon-stack/explore/nine-stair-live.jpg",
+        "image": "/src/shards/nine-dragon-stack/explore/nine-stair-target.jpg"
+      }
+    ]
+  },
+  "fight": {
+    "input": {
+      "bufferMs": 120,
+      "coyoteMs": 100
+    },
+    "telegraphed": true,
+    "attackers": "unbounded"
+  },
+  "slug": "nine-dragon-stack",
+  "ground": {
+    "structures": true
+  },
+  "bindings": {
+    "accent": "iris",
+    "budgets": {
+      "module": "./data/budgets.json",
+      "export": "default"
+    },
+    "runtimeCost": {
+      "module": "./data/runtimeCost.json",
+      "export": "default"
+    },
+    "navigation": {
+      "program": true
+    },
+    "poses": {
+      "program": true
+    },
+    "ground": {
+      "platform": "declared",
+      "rows": {
+        "module": "./data/ground.json",
+        "export": "default"
+      }
+    },
+    "forestQueries": {
+      "platform": "fixed",
+      "density": 0
+    },
+    "sword": {
+      "platform": "graph",
+      "file": "weapons/jian-row.json"
+    },
+    "render": {
+      "platform": "post",
+      "file": "weapons/jian-row.json",
+      "field": [
+        "look",
+        "post"
+      ]
+    },
+    "ktx2": {
+      "module": "./ktx2.generated"
+    },
+    "boot": {
+      "files": {
+        "program": true
+      },
+      "sources": {
+        "program": true
+      },
+      "explore": {
+        "program": true
+      }
+    },
+    "entry": {
+      "platform": "client-plan",
+      "retainHomeRuntime": true,
+      "stagesOwner": "declared"
+    }
+  }
+}

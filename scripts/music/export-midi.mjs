@@ -5,13 +5,14 @@
 // loop (D → B) is written once, followed by the ring-out.
 import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { ARRANGEMENTS, CHORDS } from '@wildshard/engine/game/audio/theme';
+import '@wildshard/engine/scripts/format-hook.mjs';
+const { ARRANGEMENTS, CHORDS } = await import('@wildshard/engine/game/audio/theme');
 
 const here = import.meta.dirname;
 const name = process.argv[2] ?? 'theme';
 const out = resolve(process.argv[3] ?? `${here}/wildshard-${name}.mid`);
 
-// The defining score is pure author data; Node 24 strips its type-only declarations.
+// The defining score is installed TypeScript; the shared hook strips its type-only declarations.
 const arr = Object.entries(ARRANGEMENTS).find(([key]) => key === name)?.[1];
 if (!arr) throw new Error(`no arrangement ${name}`);
 

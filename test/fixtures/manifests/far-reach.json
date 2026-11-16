@@ -1,0 +1,275 @@
+{
+  "api": 1,
+  "slug": "far-reach",
+  "order": 60,
+  "status": "experimental",
+  "name": "Sky Reach",
+  "label": "(+1, +4)",
+  "seed": 6417,
+  "biome": "Floating islands above the clouds",
+  "blurb": "Grassy islands drift over a sea of cloud at golden hour. Rope bridges hold your weight; the glowing ones carry only a hoverboard.",
+  "style": "skyReach",
+  "kitLook": "toon",
+  "hands": "toon",
+  "weapon": "custom",
+  "treeCount": 0,
+  "trees": {
+    "factory": "none",
+    "noun": "pines"
+  },
+  "spawn": {
+    "x": 0,
+    "y": 31,
+    "z": -5.5,
+    "yaw": 0
+  },
+  "bounds": {
+    "x0": -120,
+    "x1": 120,
+    "z0": -240,
+    "z1": 60,
+    "floor": 12
+  },
+  "assetGlobs": [
+    "public/assets/far-reach/**",
+    "public/assets/lut/far-reach.bin"
+  ],
+  "card": {
+    "thumb": "/src/shards/far-reach/thumbs/far-reach.jpg",
+    "portrait": "/src/shards/far-reach/thumbs/far-reach-portrait.jpg",
+    "landscape": "/src/shards/far-reach/thumbs/far-reach-landscape.jpg"
+  },
+  "horizon": {
+    "rings": [],
+    "cloudSea": false
+  },
+  "minimap": {
+    "image": "/assets/far-reach/map/top.webp"
+  },
+  "pois": [
+    {
+      "id": "islet-north",
+      "name": "Rising islet",
+      "x": 0,
+      "z": 228,
+      "r": 12
+    },
+    {
+      "id": "islet-east",
+      "name": "Rising islet",
+      "x": 228,
+      "z": 0,
+      "r": 12
+    },
+    {
+      "id": "islet-south",
+      "name": "Rising islet",
+      "x": 0,
+      "z": -228,
+      "r": 12
+    },
+    {
+      "id": "islet-west",
+      "name": "Rising islet",
+      "x": -228,
+      "z": 0,
+      "r": 12
+    }
+  ],
+  "sky": {
+    "sunColor": [
+      1,
+      0.8,
+      0.58
+    ],
+    "sunIntensity": 2.3,
+    "envIntensity": 0.7,
+    "bgIntensity": 1,
+    "fogSunColor": [
+      1,
+      0.82,
+      0.64
+    ],
+    "cloudSunColor": [
+      1,
+      0.84,
+      0.7
+    ],
+    "hemiSky": 13158108,
+    "hemiGround": 10393772,
+    "hemiIntensity": 1.4,
+    "sun": {
+      "azimuth": 300,
+      "elevation": 4.3
+    }
+  },
+  "atmosphere": {
+    "fogHeight": -20,
+    "fogHeightFalloff": 0,
+    "fogHeightDensity": 0,
+    "fogDistDensity": 0,
+    "volumetricSunColor": [
+      1,
+      0.8,
+      0.6
+    ]
+  },
+  "grade": {
+    "saturation": 0,
+    "brightness": 0,
+    "contrast": 0.12,
+    "bloomIntensity": 0.35,
+    "bloomThreshold": 0.7,
+    "shadowTint": [
+      0.97,
+      0.98,
+      1.04
+    ],
+    "highTint": [
+      1.06,
+      1,
+      0.88
+    ],
+    "lift": [
+      0.012,
+      0.004,
+      0
+    ],
+    "gain": [
+      1,
+      0.99,
+      0.97
+    ],
+    "gamma": 1
+  },
+  "explore": {
+    "art": {
+      "world": "/src/shards/far-reach/explore/world-far-reach.webp",
+      "models": "/src/shards/far-reach/explore/models-far-reach.webp",
+      "sets": "/src/shards/far-reach/explore/sets-far-reach.webp",
+      "practice": "/src/shards/far-reach/explore/practice-far-reach.webp"
+    }
+  },
+  "ground": {
+    "structures": true,
+    "paths": "plugin"
+  },
+  "world": {
+    "killY": 6
+  },
+  "boundary": {
+    "visible": false
+  },
+  "uses": [
+    "hover",
+    "quests",
+    "bosses",
+    "coins",
+    "loot"
+  ],
+  "loadout": {
+    "weapons": [
+      "weapon.far-reach.fan"
+    ],
+    "tools": [
+      "tool.hoverboard"
+    ],
+    "start": [
+      "weapon.far-reach.fan",
+      "tool.hoverboard"
+    ],
+    "held": "weapon.far-reach.fan"
+  },
+  "species": [
+    "driftRay",
+    "skyGoat",
+    "galeWisp",
+    "stormRoc"
+  ],
+  "encounters": [
+    "far.roc"
+  ],
+  "fight": {
+    "telegraphed": true,
+    "input": {
+      "bufferMs": 120,
+      "coyoteMs": 100
+    }
+  },
+  "creatures": {
+    "lowPoly": true,
+    "waitForModels": false,
+    "furRim": false,
+    "tintRange": 0,
+    "oneMaterial": true
+  },
+  "tiers": {
+    "phone": {
+      "godRays": true,
+      "ao": false,
+      "aa": "fxaa",
+      "textures": "ktx2"
+    },
+    "desktop": {
+      "godRays": true,
+      "ao": false
+    }
+  },
+  "loot": {
+    "coins": true
+  },
+  "spawns": [],
+  "audio": {
+    "ambience": "none",
+    "score": "far.silent"
+  },
+  "boot": {
+    "viewmodelSets": [],
+    "shaders": {
+      "background": false
+    },
+    "audio": [],
+    "precache": []
+  },
+  "bindings": {
+    "accent": "pink",
+    "budgets": {
+      "program": true
+    },
+    "navigation": {
+      "program": true
+    },
+    "runtimeCost": {
+      "module": "./runtimeCost.json",
+      "export": "default"
+    },
+    "mapPalette": {
+      "program": true
+    },
+    "poses": {
+      "program": true
+    },
+    "audioCues": {
+      "module": "./data/cues.json",
+      "export": "default"
+    },
+    "boot": {
+      "files": {
+        "program": true
+      },
+      "sources": {
+        "program": true
+      },
+      "lateReads": {
+        "program": true
+      }
+    },
+    "render": {
+      "platform": "painted"
+    },
+    "ktx2": {
+      "program": true
+    }
+  },
+  "shardfile": "/shardfiles/far-reach/shard.json"
+}
