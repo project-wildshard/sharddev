@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- The author build reads the shard's folder and public/.
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, statSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author build reads the shard's folder and public/.
 import { resolve } from 'node:path';
 import * as v from 'valibot';
@@ -27,15 +27,27 @@ function readAudioWaiver(file: unknown, slug: string): AudioWaiver | undefined {
   return file === undefined ? undefined : new Map(v.parse(AudioWaiversSchema, file).waivers.map(row => [row.shard, row] as const)).get(slug);
 }
 
+/** NINE QA 53: a fenced `asset:` read the shard's own public/ holds is a file its page reads, so the product carries it even
+ *  when `mounts.json` left it out. A phone tier on `textures: 'img'` reads the originals whose GPU twins are mounted (Nine's
+ *  leaf atlas and dragon hook); without them the preparation client 404s them and stalls at Files. Reads the shard does not
+ *  hold (engine-hosted music and sfx) stay out. */
+function fencedOwnFiles(files: readonly string[], publicRoot: string, listed: ReadonlySet<string>): string[] {
+  const urls = files.flatMap(row => row.startsWith('asset:/assets/') ? [row.slice('asset:'.length)] : []);
+  const held = (url: string): boolean => { const file = resolve(publicRoot, url.slice(1)); return existsSync(file) && statSync(file).isFile(); };
+  return [...new Set(urls)].filter(url => !listed.has(url) && !url.split('/').includes('..') && held(url)).sort();
+}
+
 /** Read a project's cook input for one output, or nothing for a project with none. D5: the fence and packs lists are
  *  optional author data; a listed mount missing from `public/` refuses, because that file is what the shard stands on. */
 export function readCookInput(project: string, slug: string): CookInput | undefined {
   const json = (name: string): unknown => { const file = resolve(project, name); return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined; };
   const list = json('mounts.json'), fence = json('fence-reads.json'), packs = json('packs-set.json'), audioWaiver = readAudioWaiver(json('audio-waiver.json'), slug);
-  const urls = list === undefined ? [] : v.parse(MountsSchema, list).outputs[slug] ?? [];
+  const listed = list === undefined ? [] : v.parse(MountsSchema, list).outputs[slug] ?? [];
   const publicRoot = resolve(shardRepoRoot(project), 'public');
+  const files = fence === undefined ? undefined : v.parse(FenceReadsSchema, fence).files;
+  const urls = [...listed, ...fencedOwnFiles(files ?? [], publicRoot, new Set(listed))];
   const mounts = urls.map(url => ({url, bytes: readFileSync(resolve(publicRoot, url.slice(1)))}));
   const set = packs === undefined ? undefined : v.parse(PacksSetSchema, packs).set;
   if (mounts.length === 0 && fence === undefined && set === undefined && audioWaiver === undefined) return undefined;
-  return {mounts, ...(set === undefined ? {} : {packs: set}), ...(fence === undefined ? {} : {fence: v.parse(FenceReadsSchema, fence).files}), ...(audioWaiver === undefined ? {} : {audioWaiver})};
+  return {mounts, ...(set === undefined ? {} : {packs: set}), ...(files === undefined ? {} : {fence: files}), ...(audioWaiver === undefined ? {} : {audioWaiver})};
 }

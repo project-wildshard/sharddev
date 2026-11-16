@@ -1,0 +1,45 @@
+// oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
+import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+// oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
+import { tmpdir } from 'node:os';
+// oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
+import { dirname, join } from 'node:path';
+import { afterEach, expect, it } from 'vitest';
+import { readCookInput } from './cookInput';
+
+// NINE QA 53: Nine's phone (`textures: 'img'`) reads the originals of its GPU twins. `mounts.json` lists only the twins,
+// so the product must carry a fenced original the shard holds, or the preparation client 404s it and stalls at Files.
+
+const roots: string[] = [];
+afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
+
+const TWIN = '/assets/gpu/nine/organic/leaf-atlas-9658a9dd.ktx2', ORIGINAL = '/assets/nine/organic/leaf-atlas.webp';
+
+function shard(files: Record<string, unknown>, assets: readonly string[]): string {
+  const root = mkdtempSync(join(tmpdir(), 'sharddev-fenced-'));
+  roots.push(root);
+  writeFileSync(join(root, 'package.json'), '{}');
+  const project = join(root, 'src');
+  mkdirSync(project, { recursive: true });
+  for (const [name, value] of Object.entries(files)) writeFileSync(join(project, name), JSON.stringify(value));
+  for (const url of assets) { const file = join(root, 'public', url.slice(1)); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, url); }
+  return project;
+}
+
+it('mounts a fenced original the shard holds beside its listed twin', () => {
+  const project = shard({
+    'mounts.json': { version: 1, outputs: { nine: [TWIN] } },
+    'fence-reads.json': { version: 1, files: [`asset:${ORIGINAL}`, 'asset:/assets/music/piano/title.m4a', 'asset-source:src/thumbs/a.jpg', `asset:${TWIN}`] },
+  }, [TWIN, ORIGINAL]);
+  const input = readCookInput(project, 'nine');
+  expect(input?.mounts.map(row => row.url)).toEqual([TWIN, ORIGINAL]);
+  expect(new TextDecoder().decode(input?.mounts[1]?.bytes)).toBe(ORIGINAL);
+});
+
+it('leaves out fenced reads the shard does not hold and paths that leave public/', () => {
+  const project = shard({
+    'mounts.json': { version: 1, outputs: { nine: [TWIN] } },
+    'fence-reads.json': { version: 1, files: ['asset:/assets/sfx/shared/hit.m4a', 'asset:/assets/../package.json', 'asset:/assets/nine'] },
+  }, [TWIN, '/assets/nine/a.webp']);
+  expect(readCookInput(project, 'nine')?.mounts.map(row => row.url)).toEqual([TWIN]);
+});
