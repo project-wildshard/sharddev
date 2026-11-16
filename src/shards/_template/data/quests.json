@@ -181,7 +181,7 @@
               "dead:barrow-warden"
             ]
           },
-          "hint": "The Warden wakes in the barrow ring: dodge its slam, then strike",
+          "hint": "The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core",
           "markers": [
             {
               "id": "warden.marker",
@@ -302,7 +302,7 @@
           "markers": [
             {
               "id": "mosslings.marker",
-              "label": "Mossling bank",
+              "label": "Mossling meadow",
               "short": "Pack",
               "at": {
                 "poi": "world",

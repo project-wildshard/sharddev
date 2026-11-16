@@ -14,9 +14,11 @@ function strike(which:i32):void {
   if(target!=0) Do.strike(Actor.boss,which,target);
   Do.timer(Timer.open,Params.windup);
 }
+// Strike on the current beat, then move on: a fight opens with the slam (the quest hint's tell), then the sweep.
 function next():void {
-  State.beat=(State.beat+1)%(State.phase==2?3:2);
-  if(State.beat==0) strike(Strike.slam); else if(State.beat==1) strike(Strike.sweep); else strike(Strike.stone);
+  const beat=State.beat;
+  State.beat=(beat+1)%(State.phase==2?3:2);
+  if(beat==0) strike(Strike.slam); else if(beat==1) strike(Strike.sweep); else strike(Strike.stone);
 }
 // A phase change (the encounter's beat) stops and restarts the decision, and a retry restarts it at its checkpoint, so a
 // start resumes from the Warden's health rather than from phase 0 (a reset to 0 replays the threshold beat forever).
