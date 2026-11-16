@@ -90,9 +90,11 @@ export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMP
     dependencies[name] = spec;
   }
   const sorted = Object.fromEntries(Object.entries(dependencies).sort(([a], [b]) => a.localeCompare(b)));
+  // AP22: a scene-module repo gets `pnpm watch` (each saved edit swapped into the running page); the Template has no scene to watch.
+  const scripts = template === 'scene' ? { check: 'wildshard check .', watch: 'wildshard watch .' } : { check: 'wildshard check .' };
   // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
   return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
-    engines: { node: sdk.node }, scripts: { check: 'wildshard check .' }, [template === 'blender' ? 'devDependencies' : 'dependencies']: sorted }, null, 2)}\n`;
+    engines: { node: sdk.node }, scripts, [template === 'blender' ? 'devDependencies' : 'dependencies']: sorted }, null, 2)}\n`;
 }
 
 const TSCONFIG = `${JSON.stringify({

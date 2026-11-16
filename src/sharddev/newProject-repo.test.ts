@@ -58,6 +58,8 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(JSON.parse(readFileSync(resolve(repo, 'src/identity.json'), 'utf8'))).toMatchObject({ slug: 'my-scene', name: 'my-scene' });
     expect(readFileSync(resolve(repo, 'src/generators/shard.ts'), 'utf8')).not.toContain('mossgate');
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('--template scene');
+    // AP22: the scene repo runs `pnpm watch`.
+    expect((JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { scripts: Record<string, string> }).scripts).toEqual({ check: 'wildshard check .', watch: 'wildshard watch .' });
     const { shard } = await import(resolve(repo, 'src/generators/shard.ts')) as { shard: { describe: () => { identity: { slug: string } } } };
     expect(shard.describe().identity.slug).toBe('my-scene');
   });
