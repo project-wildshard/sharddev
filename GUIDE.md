@@ -165,6 +165,36 @@ content change, `wildshard hero . --stamp-existing` re-stamps the images already
 refuses rather than shoot the spawn view over them. A new version still needs a new picture (`hero-unchanged`): swap
 the art, then `--stamp-existing`. Remove `curated` to capture again.
 
+### The proof tape
+
+`proof.json` is a tape the server plays headlessly, one row of commands per tick, then checks what happened.
+`wildshard check` plays it; `wildshard prove . proof.json` plays it alone and prints the report.
+
+```json
+{
+  "version": 1,
+  "checkpointTick": 120,
+  "requiredFacts": ["honey.thief"],
+  "requiredItems": { "honeycomb": 3, "smoker": 1 },
+  "tape": [
+    [{ "kind": "player", "moveX": 0, "moveZ": 1, "yaw": 0 }],
+    [{ "kind": "interact", "id": "wren" }],
+    [{ "kind": "interact", "id": "wren:accept" }],
+    []
+  ]
+}
+```
+
+- **`player`** moves the player this tick (`moveX`, `moveZ` from -1 to 1, `yaw` in radians).
+- **`interact`** presses E. Its `id` is one of `targets.interactions`, or a talk: `"wren"` presses E on the talk
+  `wren` (it closes a line with no choices), and `"wren:accept"` picks the choice `accept` of the node the player
+  stands at. The player must be within the talk's `radius`, as on the page. An `id` that names nothing refuses with
+  the tick and every id the tape could name there.
+- **`requiredFacts`** are the quest facts (`onComplete.fact`) the tape must file. **`requiredItems`** (optional) are
+  the stacks the player's pack must hold when the tape ends, at least this many of each.
+- The report's `inventory` lists every pack's stacks when the tape ends; `ledger.facts` lists the facts filed.
+- `checkpointTick` is where the proof saves, unloads and restores the shard mid-tape; it must fall inside the tape.
+
 ### Uploading
 
 An upload sends one shard file to the API (`https://api.wildshard.io`) and names its channel. Do these in order,
