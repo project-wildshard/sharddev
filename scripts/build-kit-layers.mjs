@@ -1,9 +1,13 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parseRows } from '@wildshard/format/rows';
-import { legacyCreatureProfile } from '../packages/kit/src/legacySpecies.ts';
-import { abilities } from '../packages/kit/src/abilities.ts';
+import { installFormatHook } from '@wildshard/format/formatHook';
+
+installFormatHook();
+
+const { parseRows } = await import('@wildshard/format/rows');
+const { legacyCreatureProfile } = await import('../packages/kit/src/legacySpecies.ts');
+const { abilities } = await import('../packages/kit/src/abilities.ts');
 
 const root = fileURLToPath(new URL('../packages/kit/', import.meta.url));
 const catalogue = JSON.parse(readFileSync(resolve(root, 'content/animated/catalogue.json'), 'utf8'));
