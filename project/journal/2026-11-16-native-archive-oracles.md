@@ -73,3 +73,22 @@ These source-archive proofs do not claim published source pins or a
 retired runtime table. Keep the old pending-save cases when removing
 implicit content: old snapshots omit resolved drops, so their current
 fallback must be replaced by admitted content before deleting tables.
+
+## Final native motion replay
+
+Engine cd0d73157d (resolved M1, normal land active) runs both immutable
+old products and both final look-candidate products for 3,600 actual
+world ticks. Every entity id, position, yaw, state, health and alive flag
+is hashed at every tick; seven independent checkpoints also agree.
+Pine sees164 bodies/11 moving; Driftwood sees34/10 moving. The player
+follows the same four-phase movement input, with no random replacement.
+
+Complete histories, equal before/after:
+
+- Pine:0792f478f759805f98ed32e08b4232933f10a61a93aeb9eaffe251d1c303e835
+- Driftwood:6eb005a36d73b0acb117a51e6562657746e36a00d8276ce9a7b18f74e3c3b370
+
+Exact product and loaded source hashes, checkpoints and receipts stay
+in engine tmp/codex-te2e/native-final-motion-*.json. Native source and
+archive identities are the earlier fixed inputs in this journal and
+native-look-bases.md. This proves simulation parity, not appearance.
