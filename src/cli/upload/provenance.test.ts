@@ -199,6 +199,15 @@ test('an untracked file, such as the packed tarball, is not dirt', async (contex
 
 test('needs --commit outside a git checkout', async (context: TestContext): Promise<void> => {
   const dir = await scratch(context)
+  const previousCeiling = process.env['GIT_CEILING_DIRECTORIES']
+  process.env['GIT_CEILING_DIRECTORIES'] = path.dirname(dir)
+  context.after((): void => {
+    if (previousCeiling === undefined) {
+      delete process.env['GIT_CEILING_DIRECTORIES']
+    } else {
+      process.env['GIT_CEILING_DIRECTORIES'] = previousCeiling
+    }
+  })
 
   await assert.rejects(
     resolveProvenance({ cwd: dir, version: '0.0.1' }),
