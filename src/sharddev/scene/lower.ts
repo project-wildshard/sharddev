@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { isSolid, motionOf, paintedPixels, Water, type ShardWorld } from './author';
+import { isSolid, motionOf, paintedPixels, Water, type ShardWorld, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -184,7 +184,7 @@ function refuseGraphMotion(path: string, key: string, tables: Tables, what: stri
       : 'Move it in the graph: vertex: { offset } over graphInputs.windTime (sway) or a uv over time (uvScroll), or draw it with a MeshStandardMaterial');
 }
 
-function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
+function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   const visit = (object: Object3D): void => {
     // AP32c: a world.detail mesh is its layer's, never copies in a tile
@@ -267,7 +267,26 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
   }
   hash.json(sprites).json(lights).json(colliders).json(water.map((w) => ({ ...w, triangles: [...w.triangles] })));
   for (const cloud of points) hash.text(cloud.material).bytes(cloud.positions).json(cloud.motion);
-  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), draws, sprites, points, lights, colliders, water, materials, textures, geometries };
+  const touch = touchable === undefined ? undefined : touchOf(root, touchable);
+  if (touch !== undefined) hash.json(touch);
+  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), draws, sprites, points, lights, colliders, water, materials, textures, geometries };
+}
+
+/** SS9d: a touchable panel's body, fitted round the part's world bounds (each half extent at most 8 m, the format's). */
+function touchOf(root: Object3D, options: TouchableOptions): SceneTouch {
+  const box = new Box3().setFromObject(root);
+  if (box.isEmpty()) throw new SceneRefusalError(root.name, 'a touchable part has no bounds', 'Give it a mesh');
+  const centre = box.getCenter(new Vector3()), half = box.getSize(new Vector3()).multiplyScalar(0.5);
+  const fit = (n: number): number => Math.round(Math.min(Math.max(n, 0.005), 8) * 1e4) / 1e4;
+  if (Math.max(half.x, half.y, half.z) > 8) throw new SceneRefusalError(root.name, 'a touchable part is over 16 m across', 'Make the touchable part smaller');
+  const kind = options.shape ?? 'box';
+  const shape: SceneTouch['shape'] = kind === 'ball' ? { ball: fit(Math.max(half.x, half.y, half.z)) }
+    : kind === 'cylinder' ? { cylinder: { radius: fit(Math.max(half.x, half.z)), halfHeight: fit(half.y) } }
+      : { cuboid: { x: fit(half.x), y: fit(half.y), z: fit(half.z) } };
+  const round = (n: number): number => Math.round(n * 1e4) / 1e4;
+  return { at: [round(centre.x), round(centre.y), round(centre.z)], shape, material: options.material,
+    ...(options.density === undefined ? {} : { density: options.density }), ...(options.friction === undefined ? {} : { friction: options.friction }),
+    ...(options.restitution === undefined ? {} : { restitution: options.restitution }), ...(options.damping === undefined ? {} : { damping: options.damping }) };
 }
 
 function groundHash(heightAt: (x: number, z: number) => number, colourAt: SceneGround['colourAt']): string {
@@ -355,7 +374,7 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
 
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
-  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>();
+  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>();
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
@@ -379,6 +398,11 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (panel !== undefined && panels.size >= 64) throw new SceneRefusalError(name, 'a shard has at most 64 panels', 'Merge panels that hide together');
       const group = new Group(); group.name = name; parts.push(group); scene.add(group);
       if (panel !== undefined) panels.set(group, panel);
+      // SS9d: a touchable part is a panel (its GLB is what moves), and the format holds at most 64 bodies (one a panel)
+      if (options.touchable !== undefined) {
+        if (panel === undefined) throw new SceneRefusalError(name, 'a touchable part is a panel', 'Give it a panel id too: world.part(name, build, { panel, touchable })');
+        touchables.set(group, options.touchable);
+      }
       fill(group); return group;
     },
     ground: (heightAt, options = {}) => {
@@ -427,7 +451,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
     details: new Set(detailRequests.map((request) => request.mesh)) };
-  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root)));
+  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root), touchables.get(root)));
   const details = detailRequests.map((request) => lowerDetail(request, tables));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;

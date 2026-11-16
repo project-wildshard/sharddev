@@ -153,10 +153,23 @@ export interface SceneWater {
   readonly triangles: Float32Array;
 }
 
+/** SS9d: one touchable panel's body, in the cell's frame. */
+export interface SceneTouch {
+  readonly at: readonly [number, number, number];
+  readonly shape: { readonly ball: number } | { readonly cylinder: { readonly radius: number; readonly halfHeight: number } } | { readonly cuboid: { readonly x: number; readonly y: number; readonly z: number } };
+  readonly material: 'wood' | 'stone' | 'grass' | 'sand' | 'rock' | 'metal' | 'earth' | 'felt';
+  readonly density?: number;
+  readonly friction?: number;
+  readonly restitution?: number;
+  readonly damping?: number;
+}
+
 export interface ScenePart {
   readonly name: string;
   /** AP16: the panel id when the part is one (`world.part(name, build, { panel })`): one hideable GLB and one collider */
   readonly panel?: string;
+  /** SS9d: a touchable panel's body (format `props.bodies`): its rest at the part's bounds, the shape fitted round them */
+  readonly touch?: SceneTouch;
   /** content hash of everything below and of the materials, textures and geometries it uses */
   readonly hash: string;
   readonly draws: readonly SceneDraw[];

@@ -1,0 +1,6 @@
+# Touchable parts (meta SHARD-SOURCE SS9d), opus-ss16m
+
+- `world.part(name, build, { panel, touchable: { material, shape?, density?, ... } })` lowers to one format `props.bodies`
+  row naming the panel: its rest the part's bounds centre, the shape (box, ball, cylinder) fitted round them. The panel's
+  solids are the body, so no static collider of that id. A touchable part that is not a panel, or has no bounds, refuses.
+- Needs the format pin on 0.12.0 (props.bodies); `touch.test.ts` fails "Invalid key bodies" until then.

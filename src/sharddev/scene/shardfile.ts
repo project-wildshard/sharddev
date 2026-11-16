@@ -740,7 +740,13 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
   const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort()];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  // SS9d: a touchable panel is its own body (format `props.bodies`): its solids are the body, never a static collider
+  const bodies = scene.parts.flatMap((part) => part.touch === undefined || part.panel === undefined ? [] : [{
+    id: part.panel, panel: part.panel, at: { x: part.touch.at[0], y: part.touch.at[1], z: part.touch.at[2] }, yaw: 0, shape: part.touch.shape, material: part.touch.material,
+    ...(part.touch.density === undefined ? {} : { density: part.touch.density }), ...(part.touch.friction === undefined ? {} : { friction: part.touch.friction }),
+    ...(part.touch.restitution === undefined ? {} : { restitution: part.touch.restitution }),
+    ...(part.touch.damping === undefined ? {} : { linearDamping: part.touch.damping, angularDamping: part.touch.damping }) }]);
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   const lights = scene.parts.flatMap((part) => part.lights);
@@ -753,7 +759,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     look: { ...sceneLook(scene, lights, lookMaterials), ...(details.length === 0 ? {} : { details }) }, spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],
-    props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
+    props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(bodies.length === 0 ? {} : { bodies }), ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
     ...(water.length === 0 ? {} : { water }),
     // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
     items: STARTER_ITEMS,

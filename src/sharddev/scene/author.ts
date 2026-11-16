@@ -14,6 +14,21 @@ import type { Rgb, SceneMotion, ScenePost } from './description';
 export interface PartOptions {
   /** a panel id (`brasscap.gate`): the part's meshes are one hideable GLB and its solids one collider, both of this id */
   readonly panel?: string;
+  /** SHARD-SOURCE SS9d: a panel players push (a crate, a barrel): one dynamic body the server keeps, drawn where it is */
+  readonly touchable?: TouchableOptions;
+}
+
+/** How a touchable panel's body is made. Its rest is the part's bounds: centred there, the shape fitted round them. */
+export interface TouchableOptions {
+  /** the body's shape round the part's bounds (default `box`) */
+  readonly shape?: 'box' | 'ball' | 'cylinder';
+  /** the surface its contacts sound and slide as */
+  readonly material: 'wood' | 'stone' | 'grass' | 'sand' | 'rock' | 'metal' | 'earth' | 'felt';
+  /** kg/m³ (default the engine's 500) */
+  readonly density?: number;
+  readonly friction?: number;
+  readonly restitution?: number;
+  readonly damping?: number;
 }
 
 export interface ShardWorld {
