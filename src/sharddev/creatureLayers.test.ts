@@ -6,7 +6,7 @@ import { expect, test, vi } from 'vitest';
 import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from './author';
-import { expandCreatureLayers, assertCreatureTemperaments } from './creatureLayers';
+import { expandCreatureLayers, assertCreatureDeclarations } from './creatureLayers';
 import { buildProject } from './project';
 import { checkProject } from './checkProject';
 import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
@@ -38,7 +38,7 @@ test('four old source kinds expand once while explicit author layers and origina
     expect(built.rows.species[0]?.body).toEqual({ size: 'medium', scale: 1, look: 'fixture.look' });
     expect(built.rows.species[0]?.temperament?.reaction).toBe('aggressive');
     expect(built.rows.species[0]?.abilities?.[0]).toMatchObject({ use: 'fixture.strike', weight: 3, damage: 12 });
-    assertCreatureTemperaments(built.rows);
+    assertCreatureDeclarations(built.rows);
     expect(expandCreatureLayers(built, line => { warnings.push(line); })).toBe(built);
     expect(warnings).toHaveLength(1);
     if (kind === 'boar') expect(built.rows.species[0]?.temperament?.tuning).toMatchObject(boar.tuning);
@@ -104,5 +104,27 @@ test('hand-held JSON expands in generated output and leaves the authored section
     expect(readFileSync(resolve(input, section.path))).toEqual(before);
     expect(warnings.mock.calls.some(([line]) => typeof line === 'string' && line.includes('expanded kit layers'))).toBe(true);
     expect(() => settleHandwrittenCreatureLayers(input, input)).toThrow('separate from its authored source');
+  } finally { warnings.mockRestore(); rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('normal check names a missing look and explicit body looks must belong to their species', async () => {
+  const parent = resolve(process.env['VITEST_TMP_ROOT'] ?? 'tmp/vitest'); mkdirSync(parent, { recursive: true });
+  const root = mkdtempSync(resolve(parent, 'creature-look-check-'));
+  const warnings = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    const source = fixture(); source.rows.looks = [];
+    writeFileSync(resolve(root, 'shard.config.ts'), "import input from './data.json' with { type: 'json' };\nexport default input;\n");
+    writeFileSync(resolve(root, 'data.json'), JSON.stringify(source));
+    const result = await checkProject(root, resolve(root, 'checked'));
+    expect(result.verdict).toBe('fail');
+    expect(result.refusals.some(row => row.message === 'species `fixture.species` has no look: add one, or use a kit creature')).toBe(true);
+    const valid = expandCreatureLayers(fixture(), () => undefined); assertCreatureDeclarations(valid.rows);
+    const species = valid.rows.species[0]; if (species?.body === undefined) throw new Error('Missing fixture body');
+    species.body.look = 'fixture.other';
+    const [look] = valid.rows.looks; if (look === undefined) throw new Error('Missing fixture look');
+    valid.rows.looks.push({ ...look, id: 'fixture.other', species: 'other.species' });
+    expect(() => assertCreatureDeclarations(valid.rows)).toThrow('species `fixture.species` has no look');
+    delete species.body; assertCreatureDeclarations(valid.rows);
   } finally { warnings.mockRestore(); rmSync(root, { recursive: true, force: true }); }
 });

@@ -24,7 +24,7 @@ import { authorErrorText } from './authorError';
 import { refusalCode } from '../../packages/upload/src/sharddev/refusals';
 import { DRAFT_SDK, draftMessage } from '../../packages/upload/src/sharddev/draft';
 import { authorLintPlan } from './authorLint';
-import { assertCreatureTemperaments } from './creatureLayers';
+import { assertCreatureDeclarations } from './creatureLayers';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -59,7 +59,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
   const project = resolve(projectPath);
   let output = outputPath === undefined ? undefined : resolve(outputPath), admitted: Admitted | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
-    assertCreatureTemperaments(shard.rows);
+    assertCreatureDeclarations(shard.rows);
     admitted = { check: await checkShardfile(shard, assets, {sections, policy}) };
   };
   // SA16 (J314): a hand-written source (`--template blender`) has nothing to build: format's pack settles it into the

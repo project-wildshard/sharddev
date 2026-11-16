@@ -50,8 +50,12 @@ export function expandCreatureLayers(source: Shardfile, warn: (message: string) 
 }
 
 /** Check the final assembled rows, after source sections have contributed their declarations. */
-export function assertCreatureTemperaments(rows: Shardfile['rows']): void {
+export function assertCreatureDeclarations(rows: Shardfile['rows']): void {
   for (const row of rows.species) if (row.temperament === undefined) {
     throw new Error(`species \`${row.id}\` has no temperament: declare one, or use a kit creature`);
+  }
+  for (const row of rows.species) {
+    const look = rows.looks.find(entry => entry.species === row.id && (row.body === undefined || entry.id === row.body.look));
+    if (look === undefined) throw new Error(`species \`${row.id}\` has no look: add one, or use a kit creature`);
   }
 }
