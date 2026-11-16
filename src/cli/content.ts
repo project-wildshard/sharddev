@@ -78,8 +78,11 @@ function section(dir: string, name: string): Json {
         readFileSync(resolve(dir, 'sections', `${name}.json`), 'utf8'),
       ),
     )
-  } catch {
-    return {}
+  } catch (error: unknown) {
+    if (error instanceof Error && 'code' in error && error.code === 'ENOENT') {
+      return {}
+    }
+    throw error
   }
 }
 

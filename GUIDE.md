@@ -59,6 +59,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). The first run fetches engine's dev client once ("Walking your shard") |
 | `wildshard watch <source>` | For a shard written as a three.js scene (`@wildshard/sdk/scene/shard`): serve it once, then swap each edited part into the running page in about a second, no reload. A look, ground or spawn edit still reloads |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
+| `wildshard content <folder> [--bar templates]` | Count the content in a built shard; the template bar lists every shortfall. `--bar=templates` also works |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
 | `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |

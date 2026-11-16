@@ -98,6 +98,7 @@ describe('every verb prints its own help (SA2)', (): void => {
       'update',
       'dev',
       'check',
+      'content',
       'hero',
       'upload',
       'account',

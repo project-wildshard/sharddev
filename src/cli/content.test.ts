@@ -1,11 +1,17 @@
 /* eslint-disable id-length, max-lines-per-function, typescript/explicit-function-return-type, typescript/prefer-readonly-parameter-types, typescript/promise-function-async, unicorn/import-style */
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
 
+import { scratchDir } from '../../scripts/scratch-dir.mjs'
 import { formatContent, readContent } from './content.ts'
 
+const lane = process.env['WS_LANE_NAME'] ?? 'content-test'
+const scratch = scratchDir(lane, 'Content CLI test fixtures', {
+  env: { ...process.env, WS_LANE_NAME: lane },
+})
 const dirs: string[] = []
 afterEach(async () => {
   await Promise.all(
@@ -16,7 +22,7 @@ afterEach(async () => {
 async function product(
   files: Readonly<Record<string, unknown>>,
 ): Promise<string> {
-  const dir = await mkdtemp(resolve('tmp', 'codex-te2e', 'content-'))
+  const dir = await mkdtemp(resolve(scratch, 'content-'))
   dirs.push(dir)
   await mkdir(resolve(dir, 'sections'), { recursive: true })
   await writeFile(
@@ -34,6 +40,37 @@ async function product(
 }
 
 describe('content bar', () => {
+  it('routes both documented bar spellings through the real bin', async () => {
+    const dir = await product({})
+    for (const options of [['--bar', 'templates'], ['--bar=templates']]) {
+      const result = spawnSync(
+        process.execPath,
+        ['bin/wildshard.mjs', 'content', dir, ...options],
+        { encoding: 'utf8' },
+      )
+      assert.equal(result.status, 3, result.stderr)
+      assert.match(result.stdout, /bar templates: fail/u)
+    }
+    const bad = spawnSync(
+      process.execPath,
+      ['bin/wildshard.mjs', 'content', dir, '--bar', 'missing'],
+      { encoding: 'utf8' },
+    )
+    assert.equal(bad.status, 1)
+  })
+
+  it('reports malformed input separately from a legitimate content shortfall', async () => {
+    const dir = await product({ 'combat/items': {} })
+    await writeFile(resolve(dir, 'sections/combat/items.json'), '{')
+    const result = spawnSync(
+      process.execPath,
+      ['bin/wildshard.mjs', 'content', dir],
+      { encoding: 'utf8' },
+    )
+    assert.equal(result.status, 2)
+    assert.match(result.stderr, /content failed/u)
+  })
+
   it('reads row-shaped sections and names every failed template threshold', async () => {
     const dir = await product({
       'combat/items': {
