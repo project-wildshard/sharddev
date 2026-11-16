@@ -18,8 +18,8 @@
         "a corrupt newly built receipt refuses before any table is published"
       ],
       "changes": "Whole original: public engine import paths, one extra SDK-relative path segment and SDK formatting only. Non-import syntax and literal values are unchanged.",
-      "state": "draft; opt-in source port; not default admitted",
-      "engineSourceCandidate": "6aa8a79ebce0fb29e467cc1ddd1803129b4369c6",
+      "state": "source verified on main; blocking/default admission and paired removal still owed",
+      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
       "localRuntime": {
         "files": 1,
         "cases": 9,
@@ -28,12 +28,26 @@
         "configuration": "vitest.ci21-source.config.ts (one file only)"
       },
       "localTypedLint": "Actual Oxlint type-aware, real inherited test/ci21-source/tsconfig.json and .oxlintrc.author.json; pass, no test suppression.",
-      "fullAuthorCompiler": {
-        "format07": "fails incompatible engine0.12 graph against forced format0.7",
-        "format12": "fails two unchanged SDK contracts: version.ts literal0.1, BrainedSpecies capExempt/harvest drift"
+      "fullAuthorCompiler": "PASS on defining format0.12 and engine8762 with both SDK drift contracts fixed; default pin0.1.31 compiler also PASS.",
+      "oracleAudit": "All11 original non-import top-level statements have identical recursive TypeScript AST node kinds, identifiers and literal values after formatting; nine runtime cases retained.",
+      "hosted": {
+        "run": 43975568967,
+        "sdk": "eb8e81045e",
+        "files": 3,
+        "cases": 21,
+        "result": "actual raw allPASS; review fixes add one model control for22cases, final refresh owed"
       },
-      "next": "Finish real SDK compatibility/source qualification after C1 exact land; retain every original case. No engine original removed.",
-      "oracleAudit": "All11 original non-import top-level statements have identical recursive TypeScript AST node kinds, identifiers and literal values after formatting; nine runtime cases retained."
+      "targetTests": [
+        "cold inputs-only generation builds the required product before emitting discovery",
+        "`changed ${file} cannot grant discovery through an old receipt`",
+        "a failed prerequisite never enters the discovery or boot table pass",
+        "normal and scoped generation build every required product once",
+        "ordinary manifests keep their original inputs-only and normal ordering",
+        "composed output markers are discovered without executing source or accepting executable slots",
+        "a scoped request prepares the remaining producer inputs of global discovery prerequisites",
+        "a corrupt newly built receipt refuses before any table is published"
+      ],
+      "targetSha256": "08f383b1d6c1ccd41daf4278de825f53a88da565452f924d7d6be9cb7db09046"
     },
     {
       "sourcePath": "test/model-sources.test.ts",
@@ -44,7 +58,7 @@
         "every Blender-built model keeps its source, and no script is an orphan"
       ],
       "changes": "Retain the complete original CLI assertion; port the actual checker to the SDK with caller project root and manifest-local exceptions. Add six controls for exported/real git roots, missing files, orphan scripts, stray GLBs, exceptions and blend refusal. SDK manifest contains only its owned inspection producer, no foreign shard products.",
-      "state": "source qualification; no engine removal yet",
+      "state": "source verified on main; blocking/default admission and paired removal still owed",
       "localRuntime": {
         "files": 1,
         "cases": 7,
@@ -52,7 +66,27 @@
         "result": "pass"
       },
       "localTypedLint": "Actual type-aware Oxlint with complete inherited source compiler project: pass.",
-      "subjectPath": "scripts/check-model-sources.mjs"
+      "subjectPath": "scripts/check-model-sources.mjs",
+      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
+      "fullAuthorCompiler": "Full inherited author project plus source ports passed with pinned npr TypeScript7.0.2; native typed lint pass.",
+      "hosted": {
+        "run": 43975568967,
+        "sdk": "eb8e81045e",
+        "files": 3,
+        "cases": 21,
+        "result": "actual raw allPASS; review fixes add one model control for22cases, final refresh owed"
+      },
+      "targetTests": [
+        "every Blender-built model keeps its source, and no script is an orphan",
+        "an exported project with its source and outputs passes without a parent checkout inventory",
+        "missing source scripts and named outputs refuse",
+        "orphan scripts and unowned GLBs refuse",
+        "a content repo declares its own other-pipeline model exceptions",
+        "an exported project refuses .blend inspection files",
+        "the tracked-file path refuses a staged .blend in its own checkout",
+        "nested source tmp folders retain blend and orphan refusal"
+      ],
+      "targetSha256": "7c1ec3aebba95b6307187bb281416e5d7cc559f6f7a5bd6fa5d5a1576d2e7294"
     },
     {
       "sourcePath": "test/discovery-output-placement.test.mjs",
@@ -68,7 +102,7 @@
       ],
       "changes": "All five original cases and four actual NU3 rows retained. Public engine and owning SDK imports, type annotations, one relocated native fixture path. The retired engine generation catalogue assertion reads actual SDK pushTables output paths instead; actual wrappers, physical import graph, source refusal, relocation and byte-identical no-build metadata publication remain checked. Frozen actual source/data/card/policy/native witnesses have recorded hashes; no invented plot content.",
       "fixtureProvenance": "test/fixtures/ci21-nu3/provenance.json",
-      "state": "source qualification; no engine removal yet",
+      "state": "source verified on main; blocking/default admission and paired removal still owed",
       "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
       "localRuntime": {
         "cohortFiles": 3,
@@ -76,7 +110,22 @@
         "cohortSeconds": 3.05,
         "result": "pass"
       },
-      "fullAuthorCompiler": "Complete inherited real author project plus all three source ports: pass against immutable8762a373."
+      "fullAuthorCompiler": "Full inherited author project plus source ports passed with pinned npr TypeScript7.0.2; native typed lint pass.",
+      "hosted": {
+        "run": 43975568967,
+        "sdk": "eb8e81045e",
+        "files": 3,
+        "cases": 21,
+        "result": "actual raw allPASS; review fixes add one model control for22cases, final refresh owed"
+      },
+      "targetTests": [
+        "ungrandfathered discoveries leave src while reviewed paths and authored factories remain unchanged",
+        "relative static and lazy imports move, authored data that resembles an import remains exact",
+        "all four actual NU3 wrappers keep complete code, manifest rows and physical dependency graphs",
+        "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
+        "the normal push metadata writer emits complete relocated wrappers without a product build"
+      ],
+      "targetSha256": "fcb753aa7d95f8e83d2cf9dbe3fa69ce8fe51244881d39968618cbb1647b43a8"
     }
   ]
 }

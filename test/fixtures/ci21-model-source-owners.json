@@ -1,0 +1,264 @@
+{
+  "schema": "ci21-model-source-owners/1",
+  "sourceRevision": "ffd46b0^",
+  "targets": [
+    {
+      "target": "sdk-world-fixture",
+      "ownerRepository": "project-wildshard/sharddev",
+      "originalScript": "scripts/blender/lib/world_fixture.py",
+      "disposition": "Retained SDK inspection producer with no committed model output"
+    },
+    {
+      "target": "driftwood-isle/island",
+      "ownerRepository": "project-wildshard/shard-driftwood",
+      "originalScript": "src/shards/driftwood-isle/blender/build_island.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/area-export",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": null,
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/trees",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/trees/build_trees.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/crags",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/crags/build_crags.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/crags-b",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/crags/build_crags_b.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/cave",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/crags/build_cave.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/lever-rifle",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/weapons/lever_rifle.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "pine-hollow/skinning-knife",
+      "ownerRepository": "project-wildshard/shard-pine-hollow",
+      "originalScript": "src/shards/pine-hollow/blender/weapons/skinning_knife.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "nine-dragon-stack/fp-rig",
+      "ownerRepository": "project-wildshard/shard-nine-dragon",
+      "originalScript": "src/shards/nine-dragon-stack/blender/viewmodel/hand.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "driftwood-isle/fp-arms",
+      "ownerRepository": "project-wildshard/shard-driftwood",
+      "originalScript": "src/shards/driftwood-isle/blender/fp-arms/arms.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "far-reach/roc",
+      "ownerRepository": "project-wildshard/shard-sky-reach",
+      "originalScript": "src/shards/far-reach/blender/roc/repair.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "blender-template",
+      "ownerRepository": "project-wildshard/shard-format",
+      "originalScript": "src/shards/blender-template/blender/world.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/kit",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/kit.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/bayou",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/bayou.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/cypress",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/cypress.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/peak",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/peak.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/ziggurat",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/ziggurat.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/gateway",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/gateway.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/stars",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/stars.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/clockwork",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/clockwork.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/harbour",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/harbour.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/skeleton",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/skeleton.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/airship",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/airship.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/skyport",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/skyport.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/crystal",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/crystal.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/polar",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/polar.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/racetower",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/racetower.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/race",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/race.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/obelisk",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/obelisk.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/dig",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/dig.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/fair",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/fair.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/observatory",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/observatory.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/clocktower",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/clocktower.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/monolith",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/monolith.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/alien",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/alien.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/lighthouse",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/lighthouse.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/ferris",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/ferris.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/lagoon",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/lagoon.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/hero",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/hero.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/frost",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/frost.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/ruins",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/ruins.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    },
+    {
+      "target": "open-plots/forge",
+      "ownerRepository": "project-wildshard/shard-open-plots",
+      "originalScript": "scripts/blender/open-plots/forge.py",
+      "disposition": "Content owner; SDK removes this foreign manifest row, no script or artifact deleted from its owner"
+    }
+  ]
+}

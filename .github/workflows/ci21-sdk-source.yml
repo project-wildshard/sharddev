@@ -2,6 +2,23 @@ name: ci21-sdk-source
 
 # C2 originals report outside hooks during the J186 advisory week.
 on:
+  push:
+    branches: [main]
+    paths:
+      - src/**
+      - test/ci21-source/**
+      - test/fixtures/ci21-*/**
+      - scripts/ci21-*.mjs
+      - scripts/check-model-sources.mjs
+      - scripts/gen-shards.mjs
+      - scripts/push-tables.mjs
+      - scripts/blender/**
+      - kit/scripts/bin-tools.mjs
+      - .github/workflows/ci21-sdk-source.yml
+      - package.json
+      - pnpm-lock.yaml
+  schedule:
+    - cron: '23 8 * * *'
   workflow_dispatch:
     inputs:
       engine:
@@ -19,7 +36,7 @@ jobs:
     continue-on-error: true
     env:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
-      CANDIDATE_ENGINE: ${{ inputs.engine }}
+      CANDIDATE_ENGINE: ${{ inputs.engine || '8762a373db80d2710e454a9ba699beb4547d0882' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -63,9 +80,9 @@ jobs:
       - name: Install the frozen native tool pins
         run: pnpm exec npr install --frozen
       - name: Compile the complete author project and source ports
-        run: pnpm exec tsc -p test/ci21-source/tsconfig.json
+        run: pnpm exec npr tsc -p test/ci21-source/tsconfig.json
       - name: Apply actual typed author lint
-        run: node kit/scripts/bin-tools.mjs --type-aware --tsconfig test/ci21-source/tsconfig.json -c .oxlintrc.author.json --deny-warnings test/ci21-source/*.source.ts
+        run: node scripts/ci21-source-lint.mjs
       - name: Run every source case and retain actual results
         run: |
           mkdir -p tmp/ci21-source

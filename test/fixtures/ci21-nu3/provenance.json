@@ -95,7 +95,7 @@
   ],
   "engineFiles": {
     "repository": "project-wildshard/engine",
-    "revision": "71c2fe8ae1dfb513eab9175c5297110e8c14bb27",
+    "revision": "8762a373db80d2710e454a9ba699beb4547d0882",
     "files": [
       {
         "path": "src/game/client/shard/manifest.ts",
@@ -121,6 +121,7 @@
         "sourceBlob": "d8e4581d5c9669a97f60c2d63a0db52e0de3eaf0",
         "sha256": "6731e30a563cdaf48280cada854986e8e07c717e79ea2734b1b6ad804a592b7a"
       }
-    ]
+    ],
+    "qualification": "Every sourceBlob verified identical at the exact8762 runtime candidate."
   }
 }

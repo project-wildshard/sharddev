@@ -3,7 +3,12 @@ import {spawnSync} from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture files are bounded and owned by this test.
 import {existsSync,mkdirSync,mkdtempSync,readFileSync,readdirSync,cpSync,rmSync,writeFileSync} from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve actual module edges without running shard code.
-import {dirname,resolve} from 'node:path';
+import {dirname,resolve,relative,join} from 'node:path';
+// oxlint-disable-next-line import/no-nodejs-modules -- Verify every frozen source witness before it becomes test input.
+import {createHash} from 'node:crypto';
+// oxlint-disable-next-line import/no-nodejs-modules -- Public module URLs may include spaces or encoded characters.
+import {fileURLToPath} from 'node:url';
+import provenance from '../fixtures/ci21-nu3/provenance.json' with {type:'json'};
 import ts from '@typescript/typescript6';
 import {afterAll,expect,test} from 'vitest';
 import {authoredManifestSource,productManifestPath} from '@wildshard/engine/scripts/authored-manifest.mjs';
@@ -14,7 +19,12 @@ import {pushTables} from '../../scripts/push-tables.mjs';
 // Exact source/data/card witnesses, recorded in fixtures/ci21-nu3/provenance.json.
 mkdirSync('tmp',{recursive:true});
 const root=mkdtempSync(resolve('tmp/discovery-nu3-')),policyPath='lint/generated-source-debt.json';
-cpSync(resolve('test/fixtures/ci21-nu3'),root,{recursive:true});
+const witnessRoot=resolve('test/fixtures/ci21-nu3');
+const witnesses=[...provenance.files,...provenance.engineFiles.files];
+const inventory=readdirSync(witnessRoot,{recursive:true,withFileTypes:true}).filter(entry=>!entry.isDirectory()).map(entry=>relative(witnessRoot,join(entry.parentPath,entry.name))).sort();
+expect(inventory).toEqual(['provenance.json',...witnesses.map(row=>row.path)].sort());
+for(const witness of witnesses)expect(createHash('sha256').update(readFileSync(resolve(witnessRoot,witness.path))).digest('hex'),witness.path).toBe(witness.sha256);
+cpSync(witnessRoot,root,{recursive:true});
 afterAll(()=>rmSync(root,{recursive:true,force:true}));
 type Product = ReturnType<typeof shardProducts>[number];
 type OutputProduct=Product & {output:NonNullable<Product['output']>};
@@ -70,9 +80,9 @@ test('all four actual NU3 wrappers keep complete code, manifest rows and physica
  const catalogue=readdirSync(resolve(root,'out/.app')).map(file=>`out/.app/${file}`);
  for(const row of selected){
   const source=text(row),file=productManifestPath(root,row),moved=relocateDiscoverySource(root,row,source);
-  expect(file.startsWith('out/.app/')).toBe(true);
+  expect(file).toBe(`out/.app/discovery.open-plots.${row.slug}.generated.ts`);
   expect(catalogue).toContain(file);
-  expect(catalogue).not.toContain(oldPath(row));
+  expect(existsSync(resolve(root,oldPath(row)))).toBe(false);
   expect(graph(moved,resolve(root,dirname(file)))).toBe(graph(source,resolve(root,'src/shards/open-plots')));
   expect(moved).toContain(`defineAuthoredShard(data, ${JSON.stringify(row.slug)}, rows, native,`);
   expect(composition).toContain(`../${file.slice(0,-3)}`);
@@ -93,7 +103,7 @@ test('the unchanged original all-files guard refuses actual src wrappers and acc
  put('scripts/source-generation-outputs.json',JSON.stringify({schema:'source-generation-outputs/1',producers:{}}));
  put('.push-tracked.json',JSON.stringify(['lint/no-binary-json.json',policyPath,'lint/generated-import-debt.json']));
  for(const row of selected)put(oldPath(row),text(row));
- const command=()=>spawnSync(process.execPath,[new URL(import.meta.resolve('@wildshard/engine/scripts/no-binary-json.mjs')).pathname,'--all'],{cwd:directory,encoding:'utf8'});
+ const command=()=>spawnSync(process.execPath,[fileURLToPath(import.meta.resolve('@wildshard/engine/scripts/no-binary-json.mjs')),'--all'],{cwd:directory,encoding:'utf8'});
  const red=command();expect(red.status).toBe(1);
  for(const row of selected)expect(red.stderr).toContain(`GENERATED-SOURCE ${oldPath(row)}`);
  for(const row of selected){put(productManifestPath(root,row),relocateDiscoverySource(root,row,text(row)));rmSync(resolve(directory,oldPath(row)));}

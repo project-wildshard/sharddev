@@ -80,3 +80,11 @@ test('the tracked-file path refuses a staged .blend in its own checkout', () => 
   expect(run.status).toBe(1)
   expect(run.stderr).toContain('inspection.blend: a .blend is never committed')
 }))
+
+// Only project-root scratch is outside the exported source inventory.
+test('nested source tmp folders retain blend and orphan refusal', () => fixture((root, put) => {
+  put('scripts/blender/tmp/inspection.blend', 'inspection state')
+  const run = check(root)
+  expect(run.status).toBe(1)
+  expect(run.stderr).toContain('scripts/blender/tmp/inspection.blend: a .blend is never committed')
+}))

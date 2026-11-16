@@ -41,7 +41,7 @@ function listFiles(dir) {
       for (const e of readdirSync(at(d), { withFileTypes: true })) {
         const p = d === '.' ? e.name : `${d}/${e.name}`;
         if (e.isDirectory()) {
-          if (!['node_modules', '.git', 'dist', 'tmp', '.worktrees', '__pycache__'].includes(e.name)) walk(p);
+          if (!['node_modules', '.git', 'dist', '__pycache__'].includes(e.name) && !(d === '.' && ['tmp', '.worktrees'].includes(e.name))) walk(p);
         } else {
           out.push(p);
         }
