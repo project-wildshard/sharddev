@@ -316,6 +316,7 @@
     "./entries": "./src/sharddev/entries.ts",
     "./spawns": "./src/sharddev/spawns.ts",
     "./synth": "./src/sharddev/synth.ts",
+    "./kit/creatures": "./src/sharddev/kitCreatures.ts",
     "./formatJsonSchema": "./src/sharddev/formatJsonSchema.ts",
     "./bake/rig": "./src/sharddev/bake/rig.ts",
     "./bake/skinned": "./src/sharddev/bake/skinned.ts",

@@ -166,3 +166,11 @@ these paths. Their original numeric, pose and data values are preserved.
 at its adapter without importing that host into kit. The default names
 are author strings; the starter sword keeps its concrete names. Host
 specialization retains the complete prior weapon type contract.
+
+The SDK's `@wildshard/sdk/kit/creatures` module exports `kitCreature(kind,
+{ id, look, family, strike?, skins? })`. It returns the layered species, strikes,
+look, file declarations, library roots and exact asset bytes to add to a shard.
+Choose `pbr` or `toon` explicitly. A `skins` entry maps an existing species variant
+id to a shipped body variant; aliases share their skin JSON and GLB. Unknown ids
+or bodies refuse. The table covers every gameplay variant, and every distinct
+skin passes ordinary binary admission before this helper returns.
