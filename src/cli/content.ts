@@ -162,7 +162,26 @@ function readContent(dir: string, bar?: string): ContentReport {
   const nativeSpecies = array(get(nativePrograms, 'species')).map(record)
   const allSpecies = [...species, ...nativeSpecies]
   const nativeBodies = array(section(dir, 'sim/bodies'))
-  const questNpcs = [...npcs, ...array(get(host, 'npcs')).map(record)]
+  // A talk is an NPC too: a row-authored shard's NPCs are its `targets.talks` (Mossgate's Lamplighter and Pond Hermit)
+  const talks = array(get(uiTargets, 'talks')).map(record)
+  const questNpcs = [...npcs, ...array(get(host, 'npcs')).map(record), ...talks]
+  // A placed pickup is a prompt whose scene hands over or refills an item (a rack's sword, a chest's oil)
+  const itemActionScenes = new Set(
+    [
+      ...array(get(targetRows, 'itemActions')),
+      ...array(get(uiTargets, 'itemActions')),
+    ]
+      .map(record)
+      .map(row => text(get(row, 'scene')))
+      .filter(Boolean),
+  )
+  const itemPrompts = array(get(uiTargets, 'interactions'))
+    .map(record)
+    .filter(row => itemActionScenes.has(text(get(row, 'scene'))))
+  // A brain's own strike (a ram, a dive) is its species' strike as much as a spawn's
+  const brainStrikes = new Map(
+    brains.map(row => [text(get(row, 'id')), text(get(row, 'strike'))]),
+  )
   const dialogue = [
     ...array(get(host, 'dialogue')).map(record),
     ...array(get(questData, 'dialogue')).map(record),
@@ -182,7 +201,8 @@ function readContent(dir: string, bar?: string): ContentReport {
     pickups:
       array(get(itemData, 'pickups')).length +
       array(get(targetRows, 'itemScenes')).length +
-      array(get(targetRows, 'loot')).length,
+      array(get(targetRows, 'loot')).length +
+      itemPrompts.length,
     hostileSpecies: allSpecies.filter(
       row => get(row, 'aggressive') === true || get(row, 'hostile') === true,
     ).length,
@@ -194,7 +214,11 @@ function readContent(dir: string, bar?: string): ContentReport {
     creatureStrikes:
       new Set(
         spawns
-          .filter(row => text(get(row, 'strike')) !== '')
+          .filter(
+            row =>
+              text(get(row, 'strike')) !== '' ||
+              (brainStrikes.get(text(get(row, 'brain'))) ?? '') !== '',
+          )
           .map(row => text(get(row, 'species'))),
       ).size ||
       new Set(

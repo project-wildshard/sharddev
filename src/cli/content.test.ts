@@ -164,4 +164,40 @@ describe('content bar', () => {
     const report = readContent(dir, 'templates')
     assert.deepEqual(report.short, [])
   })
+
+  it('counts talks as NPCs, item prompts as pickups and brain strikes (TC-M, Mossgate rows)', async () => {
+    const dir = await product({
+      'actors/creatures': {
+        creatures: {
+          brains: [
+            { id: 'ram', kind: 'ram-grazer', strike: 'sow.ram' },
+            { id: 'chase', kind: 'pursue' },
+          ],
+          spawns: [
+            { species: 'blob', brain: 'chase', strike: 'blob.bump' },
+            { species: 'sow', brain: 'ram' },
+            { species: 'wisp', brain: 'chase' },
+          ],
+        },
+      },
+      'ui/ui': {
+        targets: {
+          interactions: [
+            { id: 'rack.use', scene: 'rack.take' },
+            { id: 'chest.use', scene: 'chest.open' },
+            { id: 'door.use', scene: 'door.toggle' },
+          ],
+          itemActions: [
+            { action: 3, item: 'weapon.sword', scene: 'rack.take' },
+            { action: 4, item: 'tool.lantern', scene: 'chest.open' },
+          ],
+          talks: [{ id: 'hermit.talk' }],
+        },
+      },
+    })
+    const { counts } = readContent(dir, 'templates')
+    assert.equal(counts.npcs, 1)
+    assert.equal(counts.pickups, 2)
+    assert.equal(counts.creatureStrikes, 2)
+  })
 })

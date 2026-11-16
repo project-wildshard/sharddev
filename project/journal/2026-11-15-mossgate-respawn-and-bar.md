@@ -10,3 +10,5 @@ wisps, the Greyback and the Warden stay dead.
 counted quest-host NPCs, `items.pickups`, and spawn-row strikes. A talk is an NPC, a prompt whose scene hands over or
 refills an item (the rack's sword, the chest's oil) is a placed pickup, and a brain's own strike (the sow's ram, the
 wisp's dive) counts for its species. Both templates now fall short only on movers, which wait on engine TC-E5b.
+
+The counter change is its own commit: `src/cli/content.ts` with a case in `src/cli/content.test.ts`.
