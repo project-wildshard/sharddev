@@ -126,14 +126,13 @@ function serverOf(args: CliArgs): string {
   return args.server ?? ENV['WILDSHARD_API_URL'] ?? ''
 }
 
-/** What stops upload before any request: the server, or either key. */
+/** What stops upload before any request: the server or account credential. */
 function credentialsRefusal(
   server: string,
-  privateKey: string,
   apiKey: string | undefined,
 ): string | undefined {
-  if (server === '' || privateKey === '') {
-    return 'upload needs --server (or WILDSHARD_API_URL) and WILDSHARD_CREATOR_PRIVATE_KEY'
+  if (server === '') {
+    return 'upload needs --server (or WILDSHARD_API_URL)'
   }
   return uploadKeyRefusal(server, apiKey)
 }
@@ -149,18 +148,18 @@ function connectionOf(
 ): Connection | string {
   const level = parseLevel(args.level)
   const server = serverOf(args)
-  const privateKey = ENV['WILDSHARD_CREATOR_PRIVATE_KEY'] ?? ''
+  const privateKey = ENV['WILDSHARD_CREATOR_PRIVATE_KEY']?.trim()
   if (level === undefined) {
     return `invalid --level ${String(args.level)}`
   }
-  const refusal = credentialsRefusal(server, privateKey, apiKey)
+  const refusal = credentialsRefusal(server, apiKey)
   if (refusal !== undefined || apiKey === undefined) {
     return refusal ?? ''
   }
   return {
     server,
     apiKey,
-    privateKey,
+    ...(privateKey === undefined || privateKey === '' ? {} : { privateKey }),
     level,
     report: reportLine,
     ...bypassOption(),

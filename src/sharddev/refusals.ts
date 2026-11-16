@@ -165,7 +165,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'upload-channel', anchor: 'upload-channel', steps: ['upload'], match: /upload needs --channel/u,
     fix: 'Add `--channel staging` (try it there first) or `--channel prod`.' },
   { id: 'upload-credentials', anchor: 'upload-credentials', steps: ['upload'], match: /upload needs --server/u,
-    fix: 'Set WILDSHARD_API_URL (or pass --server) and WILDSHARD_CREATOR_PRIVATE_KEY in your shell.' },
+    fix: 'Set WILDSHARD_API_URL in your shell, or pass --server.' },
   // the account key (meta SHARD-DELETE DEL6): upload sends it on the ticket and the commit; account and whoami
   { id: 'account-key-missing', anchor: 'account-key-missing', steps: ['upload', 'account', 'delete'], match: /needs an account key|^no account key/u,
     fix: 'Run `wildshard account <email>` once, or set WILDSHARD_API_KEY to your account key.' },

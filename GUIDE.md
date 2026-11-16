@@ -133,15 +133,15 @@ before every upload:
    engine's release at the SDK's engine pin (about 310 MB, kept in `~/.cache/wildshard/dev-client`), so no engine
    checkout is needed. Then `wildshard build public/shardfiles/<slug>` writes the prepared shard file. Done when
    prepare prints `{"slug":…,"programs":…}` and build prints the shard file line.
-5. **Keys.** Set `WILDSHARD_API_URL=https://api.wildshard.io` (or pass `--server`) and
-   `WILDSHARD_CREATOR_PRIVATE_KEY`, the base64 creator key upload signs with. There is one Wildshard creator key and
-   no per-author creator keys yet: ask the Wildshard team for it, and never commit it. Upload also sends your
+5. **Account.** Set `WILDSHARD_API_URL=https://api.wildshard.io` (or pass `--server`). Upload needs only your
    **account key**, which says whose shard it is: the first upload of a slug makes it yours, and nobody else's key can
    upload to it. Make the account once with `wildshard account you@example.com`: it saves the key to
    `~/.config/wildshard/sharddev-key` (only you can read it) and the API never shows it again, so keep that file. An
    email that has an account already is refused (`account-exists`); a lost key needs an operator reset by the
    Wildshard team. In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
-   upload will send and whose it is. Done when `wildshard whoami` prints `key wsk_…` and `account <your email>`.
+   upload will send and whose it is. `WILDSHARD_CREATOR_PRIVATE_KEY` is optional: when set, upload also signs the
+   bytes, and the server verifies that signature. Never commit either key. Done when `wildshard whoami` prints
+   `key wsk_…` and `account <your email>`.
 6. **Upload,** with a version `X.Y.Z` higher than the last one uploaded (`0.0.1` the first time). Upload reads
    `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--version`:
 
@@ -654,7 +654,7 @@ No `--channel`, or one that is not `staging` or `prod` (section 5).
 
 #### upload-credentials
 
-`WILDSHARD_API_URL` (or `--server`) or `WILDSHARD_CREATOR_PRIVATE_KEY` is not set ("Uploading", step 5).
+`WILDSHARD_API_URL` (or `--server`) is not set ("Uploading", step 5).
 
 #### upload-level
 

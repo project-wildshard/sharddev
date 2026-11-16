@@ -9,7 +9,7 @@ import {
 } from './wire.ts'
 
 import type { Provenance } from './provenance.ts'
-import type { SignedShardfile } from './signature.ts'
+import type { UploadIdentity } from './signature.ts'
 import type {
   CatalogueShard,
   CommitAnswer,
@@ -92,9 +92,9 @@ async function replyOf<Schema extends AnySchema>(
   return parsed.output
 }
 
-async function postSigned<Schema extends AnySchema>(
+async function postUpload<Schema extends AnySchema>(
   options: ApiOptions,
-  call: Readonly<{ path: string; signature: string; body: object }>,
+  call: Readonly<{ path: string; signature: string | undefined; body: object }>,
   schema: Schema,
 ): Promise<InferOutput<Schema>> {
   const reply = await fetch(new URL(call.path, options.server), {
@@ -103,7 +103,9 @@ async function postSigned<Schema extends AnySchema>(
       ...apiHeaders(options),
       'content-type': 'application/json',
       authorization: `Bearer ${options.apiKey}`,
-      [SIGNATURE_HEADER]: call.signature,
+      ...(call.signature === undefined
+        ? {}
+        : { [SIGNATURE_HEADER]: call.signature }),
     },
     body: JSON.stringify(call.body),
   })
@@ -143,9 +145,9 @@ async function findCatalogued(
 async function requestTicket(
   options: ApiOptions,
   request: UploadRequest,
-  signature: string,
+  signature: string | undefined,
 ): Promise<DirectUploadTicket> {
-  return await postSigned(
+  return await postUpload(
     options,
     { path: '/api/shardfiles/uploads', signature, body: request },
     DirectUploadTicketSchema,
@@ -209,12 +211,12 @@ interface CommitBody extends Provenance {
  */
 async function commitUpload(
   options: ApiOptions,
-  signed: SignedShardfile,
+  signed: UploadIdentity,
   body: CommitBody,
 ): Promise<CommitAnswer> {
   const { contentEncoding, version, commit, channel, place } = body
   const { sharddev, engine, shardFormat } = body
-  return await postSigned(
+  return await postUpload(
     options,
     {
       path: `/api/shardfiles/uploads/${signed.hash}/commit`,

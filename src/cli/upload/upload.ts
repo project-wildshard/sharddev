@@ -11,13 +11,13 @@ import {
 } from './api.ts'
 import { storedForm } from './compress.ts'
 import { placementLines } from './placement.ts'
-import { signTarball } from './signature.ts'
+import { hashTarball, signTarball } from './signature.ts'
 import { validateShardfile } from './validate.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
 import type { StoredForm } from './compress.ts'
 import type { Provenance } from './provenance.ts'
-import type { SignedShardfile } from './signature.ts'
+import type { UploadIdentity } from './signature.ts'
 import type { CommitAnswer } from './wire.ts'
 
 // `sharddev upload` (J60, J96): check the shardfile here, compress it here,
@@ -47,7 +47,7 @@ interface UploadOptions extends ApiOptions, Provenance {
   /** False for `--no-place` (SA32): the commit sends `place: false`. */
   readonly place?: boolean
   /** Base64 PKCS#8: WILDSHARD_CREATOR_PRIVATE_KEY. */
-  readonly privateKey: string
+  readonly privateKey?: string
   /** Brotli quality. */
   readonly level: number
   /** Receives one line per step. */
@@ -89,7 +89,7 @@ function secondsSince(start: number): string {
  */
 async function held(
   options: UploadOptions,
-  signed: SignedShardfile,
+  signed: UploadIdentity,
   tarballBytes: number,
 ): Promise<boolean> {
   const listed = await findStored(options, signed.hash)
@@ -123,7 +123,7 @@ async function compressed(
 async function deliver(
   options: UploadOptions,
   tarball: Readonly<Uint8Array>,
-  signed: SignedShardfile,
+  signed: UploadIdentity,
 ): Promise<Encoding> {
   const { body, contentEncoding } = await compressed(options, tarball)
   const ticket = await requestTicket(
@@ -158,7 +158,7 @@ function echoOf(answer: CommitAnswer): string {
 /** The commit, always: the API names the version that holds the bytes (V1). */
 async function commit(
   options: UploadOptions,
-  signed: SignedShardfile,
+  signed: UploadIdentity,
   contentEncoding: Encoding,
 ): Promise<UploadOutcome> {
   const { channel, sharddev, engine, shardFormat } = options
@@ -176,7 +176,7 @@ async function commit(
   const { hash, shard, revision, signedBy, created, staged, notified } = answer
   const { version, formatVersion, migrations } = answer
   options.report(
-    `signed by ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(notified)}`,
+    `${options.privateKey === undefined ? 'authorized by' : 'signed by'} ${signedBy}, created: ${String(created)}, staged: ${String(staged)}, notified: ${String(notified)}`,
   )
   options.report(
     `sent: channel ${channel}, sharddev ${sharddev}, engine ${engine}, shardFormat ${shardFormat}`,
@@ -257,7 +257,10 @@ async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
   const tarball = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length)
   await checkHero(options, await validated(options, tarball))
-  const signed = signTarball(options.privateKey, tarball)
+  const signed =
+    options.privateKey === undefined
+      ? hashTarball(tarball)
+      : signTarball(options.privateKey, tarball)
   const encoding = (await held(options, signed, tarball.length))
     ? undefined
     : await deliver(options, tarball, signed)

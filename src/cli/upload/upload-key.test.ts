@@ -68,6 +68,44 @@ test('sends the account key on the ticket and the commit only', async (context: 
   assert.equal(onlyPut(run).headers['authorization'], undefined)
 })
 
+function assertAccountOnly(run: Run): void {
+  const bearer = `Bearer ${run.server.apiKey}`
+  const authenticated = run.server.state.apiRequests.filter(
+    (request: IncomingMessage): boolean => request.method === 'POST',
+  )
+  assert.equal(authenticated.length, 2)
+  for (const request of authenticated) {
+    assert.equal(request.headers.authorization, bearer)
+    assert.equal(request.headers['x-wildshard-signature'], undefined)
+  }
+  assert.equal(onlyPut(run).headers['authorization'], undefined)
+  assert.equal(run.server.state.revisions.size, 1)
+}
+
+test('the real CLI uploads with only its saved account key and no creator key', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  const result = await runCli(
+    [
+      'upload',
+      run.file,
+      '--server',
+      run.server.url,
+      '--channel',
+      'staging',
+      '--version',
+      VERSION,
+      '--commit',
+      COMMIT,
+    ],
+    { HOME: await scratchHome(context, run.server.apiKey) },
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.match(result.stdout, /committed:/u)
+  assert.match(result.stdout, /authorized by/u)
+  assertAccountOnly(run)
+})
+
 test('a key the API does not know is refused at the ticket', async (context: TestContext): Promise<void> => {
   const run = await open(context)
   const options = {

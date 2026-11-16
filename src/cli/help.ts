@@ -69,8 +69,8 @@ const VERBS: Readonly<Record<string, string>> = {
          [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place]
                        Check a shard file (an unprepared draft, sdk 0.2,
                        is refused before anything is sent), compress it
-                       (Brotli level <n>, default ${LEVEL}), sign it with the
-                       creator key and upload it to the API. The channel
+                       (Brotli level <n>, default ${LEVEL}) and upload it
+                       with your account credential. The channel
                        is required: staging flips the preview and staging
                        pointers, prod flips all three (production too).
                        Sends the shard source version (default: the shard
@@ -95,7 +95,8 @@ const VERBS: Readonly<Record<string, string>> = {
                        the file wildshard account saved; with neither it
                        refuses before anything is sent). Reads
                        WILDSHARD_API_URL when --server is absent,
-                       WILDSHARD_CREATOR_PRIVATE_KEY, and
+                       optionally signs with WILDSHARD_CREATOR_PRIVATE_KEY,
+                       and reads
                        VERCEL_AUTOMATION_BYPASS_SECRET for a protected
                        preview`,
   account: `account <email> [--server <url>] [--force]

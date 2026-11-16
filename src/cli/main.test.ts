@@ -111,11 +111,11 @@ describe('the upload command', (): void => {
     )
   })
 
-  it('needs a server and a key to upload', (): void => {
+  it('needs a server to upload', (): void => {
     const run = cli(['upload', 'shard.tar', ...CHANNEL])
 
     assert.equal(run.status, 1)
-    assert.match(run.stderr, /WILDSHARD_CREATOR_PRIVATE_KEY/u)
+    assert.match(run.stderr, /upload needs --server/u)
   })
 
   it('refuses a level Brotli does not have', (): void => {

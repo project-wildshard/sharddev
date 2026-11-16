@@ -71,6 +71,18 @@ function signedBy(
   )
 }
 
+/** Account auth is checked first; a supplied signature must still verify. */
+function uploadAuthorized(
+  key: KeyObject,
+  hash: string,
+  request: IncomingMessage,
+): boolean {
+  return (
+    request.headers[SIGNATURE_HEADER] === undefined ||
+    signedBy(key, hash, request)
+  )
+}
+
 function makeAccount(
   accounts: Accounts,
   exchange: Exchange,
@@ -157,4 +169,4 @@ function answerAccount(
   return false
 }
 
-export { type Accounts, answerAccount, newAccounts, signedBy }
+export { type Accounts, answerAccount, newAccounts, signedBy, uploadAuthorized }

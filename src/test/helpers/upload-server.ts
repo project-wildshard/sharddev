@@ -9,7 +9,7 @@ import { brotliDecompressSync } from 'node:zlib'
 
 import { literal, number, object, optional, parse, string } from 'valibot'
 
-import { newAccounts, signedBy } from './auth-double.ts'
+import { newAccounts, uploadAuthorized } from './auth-double.ts'
 import { answerKeyed, newDeletions } from './delete-double.ts'
 import { close, listen, sendJson } from './http-double.ts'
 import {
@@ -113,7 +113,7 @@ function commitRefusal(
 ): Refusal | undefined {
   const { key, state } = double
   const stored = state.puts.at(-1)
-  if (!signedBy(key, hash, request)) {
+  if (!uploadAuthorized(key, hash, request)) {
     return { status: 401, error: 'not signed' }
   }
   if (stored === undefined) {
@@ -181,7 +181,9 @@ function ticket(double: Double, exchange: Exchange, body: string): void {
     )
     return
   }
-  const status = signedBy(double.key, hash, exchange.request) ? 200 : 401
+  const status = uploadAuthorized(double.key, hash, exchange.request)
+    ? 200
+    : 401
   sendJson(exchange.response, status, {
     stored: false,
     method: 'PUT',
