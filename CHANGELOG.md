@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.4 (2026-11-16)
+
+- Upload with the account credential saved by wildshard account, without a creator private key (MU2).
+- Bound prepare's headless WebKit startup and explain the installer fallback before fetching its client (MU3).
+- Capture a scene shard's hero without requiring a manifest (MU1).
+- Return to the shard after a dev save, and allow the same tab to re-enter without a missing packs book (MU4).
+- Boot the watch page and show part edits without reloading, including with a capped frame rate (MU5).
+
 ## v0.3.3 (2026-11-16)
 
 - `wildshard hero` works on a scene shard with no manifest.json; the next build's card wears the capture.
