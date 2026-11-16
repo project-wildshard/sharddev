@@ -30,7 +30,9 @@
     "test/output-runtime.test.ts",
     "src/sharddev/bake/script-v2-radial.test.ts",
     "test/schema-code-memory.test.ts",
+    "test/world-scene-graph-pages.test.ts",
     "test/fixtures/productFile.ts",
-    "test/fixtures/ci21sdk-tail/frozen.ts"
+    "test/fixtures/ci21sdk-tail/frozen.ts",
+    "test/fixtures/defined-json-value.ts"
   ]
 }

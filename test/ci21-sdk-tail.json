@@ -121,10 +121,35 @@
           "revision": "34598b14577c8ff8a4ea6eb6e57d7de7c6fde07e"
         }
       ]
+    },
+    {
+      "sourcePath": "test/world-scene-graph-pages.test.ts",
+      "targetPath": "test/world-scene-graph-pages.test.ts",
+      "sourceBlob": "a07c98048c6362d11573a9661d6a4f789edee3ca",
+      "originalTests": [
+        "native variants reconstruct from shared nodes with independent member identities",
+        "page admission checks unselected native graphs and refuses malformed transport",
+        "packing preserves the authored wire order before native parser defaults",
+        "page metadata fits the product index while local references retain node constraints",
+        "native pages keep the aggregate JSON ceiling and complete defining provenance"
+      ],
+      "changes": "All five author/format cases and original page/member/transport/byte-owner/schema/cap assertions retained. The first-case private native admitWorldSceneModelGraphs result assertion is retained in the engine companion using exact captured SDK-produced page bytes, catalogue and expected graphs; no private export or fake consumer.",
+      "assertionCompanions": [
+        {
+          "repository": "project-wildshard/engine",
+          "targetPath": "test/world-scene-graph-pages.test.ts",
+          "branch": "plan/ci21sdk-tail",
+          "originalTests": [
+            "native variants reconstruct from shared nodes with independent member identities"
+          ],
+          "scope": "Actual private native catalogue admission of both independent graph members; exact SDK producer snapshot plus malformed-byte negative control."
+        }
+      ]
     }
   ],
   "supportPaths": [
     "test/fixtures/productFile.ts",
-    "test/fixtures/ci21sdk-tail/frozen.ts"
+    "test/fixtures/ci21sdk-tail/frozen.ts",
+    "test/fixtures/defined-json-value.ts"
   ]
 }
