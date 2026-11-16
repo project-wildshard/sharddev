@@ -192,6 +192,18 @@ wildshard upload public/shardfiles/my-shard.shardfile --channel staging --versio
 Upload checks the shard file as the API will, checks the hero, signs, compresses and sends it, then prints the
 version and what moved. Uploading the same bytes again sends nothing.
 
+**First-party shards upload from GitHub Actions.** A `project-wildshard/shard-*` repo carries repo-kit's
+`.github/workflows/publish.yml`, which does steps 3, 4 and 6 on a hosted runner with the org's secrets, so no laptop
+needs a key. Commit and push the hero first (steps 1 and 2), wait for `ci` on `main` to go green, then:
+
+```sh
+gh workflow run publish.yml -R project-wildshard/shard-dunes -f channel=staging
+```
+
+It refuses before uploading when `main`'s `ci` or newest Ring 2 run is red. `-f version=X.Y.Z` overrides the version
+(default: one patch above the catalogue's), and `-f rehearse=true` on any branch builds and prepares without uploading.
+The run summary prints `committed:`, the grid line and the engine pin command.
+
 ### Deleting a shard
 
 `wildshard delete my-shard` deletes a shard you uploaded, with the same account key: only the key that first uploaded
