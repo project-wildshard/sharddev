@@ -285,9 +285,9 @@
       "aggressive": true,
       "lockable": true,
       "dims": {
-        "bodyY": 1.0,
-        "bodyHalfLen": 0.32,
-        "bodyRadius": 0.5,
+        "bodyY": 0.85,
+        "bodyHalfLen": 0.2,
+        "bodyRadius": 0.75,
         "headRadius": 0.22,
         "legLen": 0.47,
         "feet": [],
