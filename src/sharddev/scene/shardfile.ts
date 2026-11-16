@@ -11,6 +11,7 @@ import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, ShardScene } from './description';
 import { SceneRefusalError } from './lower';
+import { budgetReport, partBudgets } from './budget';
 import { hashOf } from './hash';
 
 /**
@@ -35,7 +36,7 @@ import { hashOf } from './hash';
  *   `motion`, a mesh's `sway` to its entry's `sway` plus a `_SWAY` channel (metres, growing with the square of the height
  *   over the mesh's own bounds), a mesh's `uvScroll` to its entry's `uvScroll`.
  *
- * Phone tile caps are reported, not enforced (J338: this shard may use up to 50 MB): AP9 turns them into a per-part table.
+ * Phone tile caps are reported, not enforced (J338: this shard may use up to 50 MB), as AP9a's per-part table (`budget.ts`).
  */
 
 export interface ShardfileOptions {
@@ -443,9 +444,8 @@ export function compileShardfile(scene: ShardScene, ctx: ProjectGenerationContex
   const { shard, assets, report } = sceneShardfile(scene, options);
   for (const [hash, bytes] of assets) if (ctx.asset(bytes) !== hash) throw new Error('scene: an asset hash differs from the product store');
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
-  // AP8: draws are a view's budget now (the engine draws a material once across tiles; format VIEW_DRAWS), not a tile's
-  const over = report.tiles.filter((t) => t.triangles > 40_000);
-  if (over.length > 0) console.info(`scene: ${over.length} tiles are over the phone tile triangle cap (J338; AP9 turns this into a per-part table): ${over.map((t) => `${t.tile} ${t.triangles} tris ${t.draws} draws`).join(', ')}`);
+  // AP9a: the per-part budget table, each tier's overruns named by tile and part (reported, J338; AP8: draws are a view's)
+  for (const line of budgetReport(partBudgets(scene), report.tiles)) console.info(`scene: ${line}`);
   return Promise.resolve({ shard, output: {} });
 }
 

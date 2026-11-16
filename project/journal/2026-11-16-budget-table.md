@@ -1,0 +1,10 @@
+# Budgets are a report (SHARD-SOURCE AP9a)
+
+> Written by: Claude (opus-ss16g), 2026-11-16
+
+A scene shard's `build` and `check` now print one budget table (`src/sharddev/scene/budget.ts`): each part's
+triangles, materials (its view draws) and the fine tile it fills most, against each tier's caps (format `CONTENT_CAPS`,
+`VIEW_DRAWS`), then every tile over a tier's cap with the parts that fill it, largest first. It replaces the one-line
+"N tiles are over the phone tile triangle cap" notice. Reported, not enforced (J338). Mossgate: hut, walls and arena are
+over the phone tile cap; tile 0/3/3 is 364,625 triangles, hut 188,084 of them. The desktop tier has no tile cap until
+AP9b (format); AP9c (simplified L1 and far copies) is the fix side.
