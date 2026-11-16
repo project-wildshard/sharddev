@@ -89,6 +89,17 @@
         "visibleWhenMatched": true,
         "colliders": [],
         "activeWhenMatched": true
+      },
+      {
+        "panel": "template.south-gate",
+        "scope": "shared",
+        "fieldId": 105,
+        "equals": 1,
+        "visibleWhenMatched": false,
+        "colliders": [
+          "template.south-gate"
+        ],
+        "activeWhenMatched": false
       }
     ],
     "itemActions": [
@@ -166,5 +177,10 @@
     "id": "template.rack.use",
     "radius": 2,
     "scene": "template.rack.take"
+  },
+  "lever": {
+    "id": "template.lever.use",
+    "radius": 2,
+    "scene": "template.lever.pull"
   }
 }

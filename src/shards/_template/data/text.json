@@ -10,5 +10,6 @@
     "Light brazier C"
   ],
   "chest": "Open the old chest (lantern oil)",
-  "rack": "Take the iron sword"
+  "rack": "Take the iron sword",
+  "lever": "Pull the gate lever"
 }

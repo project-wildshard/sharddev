@@ -39,6 +39,8 @@ export function measureBox(w: number, h: number, d: number, role: MeasureRole): 
 export const STONE = 0x8c867a, HUT_STONE = 0x9a9080, MOSS = 0x5b7a30, MOSS_LIGHT = 0x76963c, WOOD = 0x86592f, WOOD_DARK = 0x5e3d22, IRON = 0x3a3634, CAP_RED = 0xb23a26, STEM = 0xd6cbb2, SLAB = 0x9a9488;
 /** The moss gate's opening half width and pillar size: the yard's west wall stops at the pillars' outer faces. */
 export const GATE_GAP = 1.5, GATE_PILLAR = 1.35;
+/** TC-M4: half the south gate's opening in the yard's south wall, at the lever's x (layout.LEVER). */
+export const SOUTH_GAP = 1.9;
 /** M2: the moss bridge's six stones span the pond's long axis, their centres this far either side of its middle. */
 export const BRIDGE_STONES = 6, BRIDGE_REACH = 5.2;
 /** The arena's way in, as an angle round `layout.ARENA`: M2's arch faces west, toward the yard's east gap. */
@@ -138,6 +140,12 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const arena = arenaRing(heightAt);
   ctx.root.add(arena.wall); ctx.piece({ id: 'template.arena-wall', name: 'Arena wall', category: 'buildings', file, object: arena.wall, colliders: arena.wallColliders, surface: 'stone' });
   ctx.root.add(arena.gate); ctx.piece({ id: 'template.arena-gate', name: 'Arena gate', category: 'buildings', file, object: arena.gate, colliders: arena.gateColliders, active: () => true });
+  // TC-M4 (TEMPLATE-E2E): the lever by the south wall swings the south gate (shared field 105): a plank gate in the wall's
+  // gap, a panel and collider the field hides, and the lever, a post with its handle. The gate opens the short way out to
+  // the south road and the mossling meadow.
+  const southGate = southGateAndLever(heightAt);
+  ctx.root.add(southGate.gate); ctx.piece({ id: 'template.south-gate', name: 'South gate', category: 'buildings', file, object: southGate.gate, colliders: southGate.gateColliders, active: () => true });
+  ctx.root.add(southGate.lever); ctx.piece({ id: 'template.gate-lever', name: 'Gate lever', category: 'props', file, object: southGate.lever, colliders: southGate.leverColliders, surface: 'wood' });
   // LF1-9: the arena's checker floor, moss drips and rim braziers (its own piece, so the coarse L1 tiles skip it)
   const arenaDress = new Group(); arenaDressing(arenaDress, heightAt);
   ctx.root.add(arenaDress); ctx.piece({ id: 'template.arena-dressing', name: 'Arena floor, moss and rim braziers', category: 'buildings', file, object: arenaDress });
@@ -303,6 +311,19 @@ function drape(x: number, y: number, z: number, len: number, yaw: number, h: num
   const geometry = new BufferGeometry().setAttribute('position', new Float32BufferAttribute(out, 3)); geometry.computeVertexNormals();
   const mesh = new Mesh(foliageUv(geometry, 2), foliageMaterial(DRAPE)); mesh.position.set(x, y, z); return mesh;
 }
+/** TC-M4: the south gate (planks across the south wall's gap, the field hides it) and its lever (a post and a handle). */
+export function southGateAndLever(heightAt: (x: number, z: number) => number): { gate: Group; gateColliders: Colliders; lever: Group; leverColliders: Colliders } {
+  const gx = layout.LEVER.x, gy = heightAt(gx, YZ0) - 0.25, w = SOUTH_GAP * 2, h = 1.9;
+  const gate = new Group();
+  for (const dy of [0.45, 1.05, 1.65]) { const plank = cube(w, 0.42, 0.12, WOOD_DARK); plank.position.set(gx, gy + dy, YZ0); gate.add(plank); }
+  for (const dx of [-SOUTH_GAP + 0.25, SOUTH_GAP - 0.25]) { const brace = cube(0.16, h, 0.16, WOOD, 2); brace.position.set(gx + dx, gy + h / 2, YZ0 + 0.1); gate.add(brace); }
+  const gateColliders: Colliders = [BoxCollider.fromData({ kind: 'box', x: gx, y: gy + h / 2, z: YZ0, hx: SOUTH_GAP, hy: h / 2, hz: 0.2, yaw: -0, surface: 'wood' }).toColliderData()];
+  const lx = layout.LEVER.x, lz = layout.LEVER.z, ly = heightAt(lx, lz);
+  const lever = new Group(), post = cube(0.3, 1.1, 0.3, WOOD_DARK); post.position.set(lx, ly + 0.55, lz); lever.add(post);
+  const handle = cube(0.08, 0.7, 0.08, IRON, 2); handle.position.set(lx, ly + 1.3, lz); handle.rotation.x = 0.5; lever.add(handle);
+  const leverColliders: Colliders = [BoxCollider.fromData({ kind: 'box', x: lx, y: ly + 0.55, z: lz, hx: 0.15, hy: 0.55, hz: 0.15, yaw: -0, surface: 'wood' }).toColliderData()];
+  return { gate, gateColliders, lever, leverColliders };
+}
 /**
  * TEMPLATES-CLEANROOM M2: the yard's walls (layout.YARD), the cleanroom's: low coursed stone runs with fat moss caps, hanging
  * moss under the caps and ivy down both faces; open at the moss gate (west) and toward the arena arch (east). The pond garden's
@@ -312,7 +333,7 @@ export function yardWalls(heightAt: (x: number, z: number) => number): { object:
   const root = new Group(), colliders: Colliders = [], T = 0.75, SINK = 0.25;
   const gx = layout.MOSSGATE, g = GATE_GAP + GATE_PILLAR - 0.05, px = POND.x - POND.hx - 7;
   const runs: [number, number, number, number, number, [number, number][]][] = [
-    [YX0, YZ0, YX1, YZ0, 1.45, []], [YX1, YZ0, YX1, YZ1, 1.45, [[layout.ARENA.z - 1.9, layout.ARENA.z + 1.9]]], [YX0, YZ1, YX1, YZ1, 1.2, []],
+    [YX0, YZ0, YX1, YZ0, 1.45, [[layout.LEVER.x - SOUTH_GAP, layout.LEVER.x + SOUTH_GAP]]], [YX1, YZ0, YX1, YZ1, 1.45, [[layout.ARENA.z - 1.9, layout.ARENA.z + 1.9]]], [YX0, YZ1, YX1, YZ1, 1.2, []],
     [YX0, YZ0, YX0, YZ1, 1.45, [[gx.z - g, gx.z + g]]], [px, -9, YX0 - T / 2, -9, 1.2, []], [px, 9, YX0 - T / 2, 9, 1.2, []], [px, -9, px, 9, 1.2, []],
   ];
   let seed = 0;

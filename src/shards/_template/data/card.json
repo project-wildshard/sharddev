@@ -112,6 +112,13 @@
       "r": 3
     },
     {
+      "id": "lever",
+      "name": "Gate lever",
+      "x": 8.5,
+      "z": -16.6,
+      "r": 2
+    },
+    {
       "id": "mossling-meadow",
       "name": "Mossling meadow",
       "x": 36.0,

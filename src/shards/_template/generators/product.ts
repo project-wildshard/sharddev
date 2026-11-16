@@ -53,6 +53,8 @@ const M2_MASONRY_RESIDENT = 300_000;
  *  LF1-9's five-cone flames. Measured on the build: passes at 15 000 resident and 8 000 compressed, refuses at 0; these
  *  leave a margin. */
 const M410_FLAMES = { resident: 30_000, compressed: 16_000 } as const;
+/** TEMPLATE-E2E TC-M4: the south gate's panel (five planks and braces) in the library. */
+const TC_M4_GATE = { resident: 20_000, compressed: 8_000 } as const;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
 const TEMPLATE_ROWS = parseRows(rows);
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone draws in the look's plain `pbr` (M2: no measure layer); the red
@@ -76,7 +78,8 @@ const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: terrain.sites.door }, 
 const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: terrain.sites.door, label: text.door }, ...targets.braziers.map((row, i) => {
   const at = terrain.sites.braziers[i], label = text.braziers[i]; if (at === undefined || label === undefined) throw new Error(`${row.id} needs a pad in layout.BRAZIERS and a label`);
   return { id: row.id, radius: row.radius, scene: row.scene, unless: row.unless, at, label };
-}), { ...targets.chest, at: terrain.sites.chest, label: text.chest }, { ...targets.rack, at: terrain.sites.rack, label: text.rack }],
+}), { ...targets.chest, at: terrain.sites.chest, label: text.chest }, { ...targets.rack, at: terrain.sites.rack, label: text.rack },
+  { ...targets.lever, at: terrain.sites.lever, label: text.lever }],
   // MH-5: the Lamplighter (TE-ENG3's `targets.talks`), on the ground east of the spawn-to-hut path; the engine draws its stand-in
   talks: [{ ...targets.talk, at: terrain.sites.lamplighter }, { ...hermit.npc.talk, at: terrain.sites.hermit }] };
 const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });
@@ -99,7 +102,7 @@ const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as con
 // Retain the old producer's JSON boundary, including signed-zero normalization.
 // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
-  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
+  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
   look: TEMPLATE_LOOK, spawn: SPAWN, rows: { ...TEMPLATE_ROWS, looks: TEMPLATE_SKIN_LOOKS }, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
   terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,

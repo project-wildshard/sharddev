@@ -21,3 +21,12 @@ group home and the quest marker follows. In chain order (rack, hut, blob, the La
 the hermit and the pack and back) the stations are 412 m apart in straight lines, before the yard and pond-garden walls
 add their detours (`generators/route.test.ts`). The sword rack, inside 25 m of spawn since TC-M5b, gets the POI the yard
 test asks for.
+
+## TC-M4a: a lever and a second gate
+
+Mossgate's lever (J361's "a lever that opens a second door") stands just inside the yard's south wall, `layout.LEVER`
+(8.5, -16.6). Its prompt's scene (event 205) reaches `behaviour/door.as`, which flips shared field 105
+(`template.south-gate.open`); a plank gate in a new gap of the south wall is a panel with a collider that stand while the
+field is 0, so the lever opens the short way out to the south road and the mossling meadow. The field is declared in id
+order (after 104) because the script reads shared fields by place. An engine-side run on the built product pulled the
+lever twice (gate 0, 1, 0) and the hut door still toggled on its own. The lift and its ledge wait on engine TC-E5b.

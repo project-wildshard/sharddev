@@ -24,6 +24,12 @@
         "scope": "shared",
         "fieldId": 104,
         "equals": 1
+      },
+      {
+        "id": "template.south-gate.open",
+        "scope": "shared",
+        "fieldId": 105,
+        "equals": 1
       }
     ],
     "scenes": [
@@ -66,6 +72,11 @@
         "id": "template.rack.take",
         "type": 102,
         "value": 3
+      },
+      {
+        "id": "template.lever.pull",
+        "type": 205,
+        "value": 1
       }
     ]
   },
@@ -98,6 +109,13 @@
       {
         "id": 104,
         "name": "template.brazier-c",
+        "type": "bool",
+        "privacy": "public",
+        "default": false
+      },
+      {
+        "id": 105,
+        "name": "template.south-gate.open",
         "type": "bool",
         "privacy": "public",
         "default": false
