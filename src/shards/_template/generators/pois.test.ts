@@ -29,6 +29,9 @@ const STATIONS: Readonly<Record<string, [number, number]>> = {
   rack: [layout.RACK.x, layout.RACK.z],
   // TC-M4: the south gate's lever
   lever: [layout.LEVER.x, layout.LEVER.z],
+  // TC-M4b: the lift to the ledge cache
+  lift: [layout.LIFT.x, layout.LIFT.z],
+  ledge: [layout.LEDGE.x, layout.LEDGE.z],
 };
 
 interface Pose { x: number; y: number; z: number; yaw: number }

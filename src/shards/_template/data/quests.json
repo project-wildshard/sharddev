@@ -17,6 +17,8 @@
     "template.warden.paid",
     "template.chest.opened",
     "template.chest.paid",
+    "template.ledge.found",
+    "template.ledge.paid",
     "template.hermit.accepted",
     "template.hermit.reported",
     "template.hermit.done",
@@ -271,6 +273,27 @@
       }
     },
     {
+      "id": "template.ledge",
+      "title": "The ledge cache",
+      "track": false,
+      "completeFlag": "template.ledge.paid",
+      "steps": [
+        {
+          "id": "ledge",
+          "objective": "Ride the lift up to the ledge cache",
+          "done": {
+            "all": [
+              "template.ledge.found"
+            ]
+          }
+        }
+      ],
+      "onComplete": {
+        "fact": "template.ledge",
+        "coins": 15
+      }
+    },
+    {
       "id": "template.hermit",
       "title": "The pond hermit's pests",
       "completeFlag": "template.hermit.done",
@@ -410,6 +433,14 @@
       "x": -8.2,
       "z": -7.6,
       "radius": 1.6
+    },
+    {
+      "id": "template.ledge.near",
+      "kind": "region",
+      "flag": "template.ledge.found",
+      "x": 8.5,
+      "z": 6.4,
+      "radius": 1.4
     }
   ],
   "dialogue": [

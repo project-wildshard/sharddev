@@ -25,6 +25,8 @@ import targets from '../data/targets.json' with { type: 'json' };
 import skins from '../data/skins.json' with { type: 'json' };
 import CARD from '../data/card.json' with { type: 'json' };
 import idle from '../data/clientScripts.json' with { type: 'json' };
+import { liftMover } from './lift';
+import { templateHeightAt } from './landscape';
 
 // Skin projections belong to this build-time declaration, with no runtime wrapper.
 const TEMPLATE_SKIN_LOOKS = skins.map(entry => ({ id: entry.look, species: entry.species, recipe: 'platform.skin', material: null, parameters: { skin: entry.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }));
@@ -55,6 +57,8 @@ const M2_MASONRY_RESIDENT = 300_000;
 const M410_FLAMES = { resident: 30_000, compressed: 16_000 } as const;
 /** TEMPLATE-E2E TC-M4: the south gate's panel (five planks and braces) in the library. */
 const TC_M4_GATE = { resident: 20_000, compressed: 8_000 } as const;
+/** TEMPLATE-E2E TC-M4b: the lift's deck and the ledge, two panels in the library (measured 37 032 resident, 19 808 compressed). */
+const TC_M4_LIFT = { resident: 40_000, compressed: 21_000 } as const;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
 const TEMPLATE_ROWS = parseRows(rows);
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone draws in the look's plain `pbr` (M2: no measure layer); the red
@@ -102,11 +106,13 @@ const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as con
 // Retain the old producer's JSON boundary, including signed-zero normalization.
 // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
-  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
+  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident + TC_M4_LIFT.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed + TC_M4_LIFT.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
   look: TEMPLATE_LOOK, spawn: SPAWN, rows: { ...TEMPLATE_ROWS, looks: TEMPLATE_SKIN_LOOKS }, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
   terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,
   library: [...props.library, ...TEMPLATE_SKIN_LIBRARY, CLIENT_IDLE_HASH], far: props.far, props: { ...props.props, materials: TEMPLATE_PROP_MATERIALS }, items: ITEMS, targets: TEMPLATE_TARGETS, clientScripts,
+  // TC-M4b: the lift (lift.ts), stepped by the server and drawn as its panel
+  movers: [liftMover(templateHeightAt())],
   critical: [...terrain.critical, door.hash, itemModule], water: TEMPLATE_WATER, creatures: CREATURES, encounters: ENCOUNTERS.encounters,
   quests: TEMPLATE_QUESTS, directors: TEMPLATE_DIRECTORS, ledger: TEMPLATE_LEDGER, audio: TEMPLATE_AUDIO, state: hooks.state, hooks: hooks.hooks,
   sim: { ...base.sim, scriptTickDivisor: 1, scripts: [door.hash, itemModule], bindings: [{ module: door.hash, entity: playerHandle, actorId: 'actor.player', kind: 'server' }] },

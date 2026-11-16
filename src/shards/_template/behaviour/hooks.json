@@ -133,6 +133,13 @@
         "type": "bool",
         "privacy": "public",
         "default": false
+      },
+      {
+        "id": 112,
+        "name": "template.ledge.standing",
+        "type": "bool",
+        "privacy": "public",
+        "default": true
       }
     ],
     "player": [

@@ -119,6 +119,20 @@
       "r": 2
     },
     {
+      "id": "lift",
+      "name": "Lift and ledge",
+      "x": 8.5,
+      "z": 3.75,
+      "r": 3
+    },
+    {
+      "id": "ledge",
+      "name": "Ledge cache",
+      "x": 8.5,
+      "z": 6.4,
+      "r": 2
+    },
+    {
       "id": "mossling-meadow",
       "name": "Mossling meadow",
       "x": 36.0,

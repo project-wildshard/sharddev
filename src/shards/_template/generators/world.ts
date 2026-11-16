@@ -6,6 +6,7 @@ import layout from '../data/layout.json' with { type: 'json' };
 import { POND, pondEdge, pondSDF } from './landscape';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { coursedBox, lumpyCrown, surfaceBox, weather } from './weather';
+import { ledge, liftDeck } from './lift';
 
 /**
  * Build-time only (SHARD-PLATFORM SF16): the template's grey-box shapes as the props baker
@@ -146,6 +147,11 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
   const southGate = southGateAndLever(heightAt);
   ctx.root.add(southGate.gate); ctx.piece({ id: 'template.south-gate', name: 'South gate', category: 'buildings', file, object: southGate.gate, colliders: southGate.gateColliders, active: () => true });
   ctx.root.add(southGate.lever); ctx.piece({ id: 'template.gate-lever', name: 'Gate lever', category: 'props', file, object: southGate.lever, colliders: southGate.leverColliders, surface: 'wood' });
+  // TC-M4b (TEMPLATE-E2E): the ledge in the yard's north-east corner and the lift beside it (lift.ts); the lift's deck is a
+  // panel the mover poses, so its collider is the mover's box, not a piece's
+  const ledgeParts = ledge(heightAt), deck = liftDeck(heightAt);
+  ctx.root.add(ledgeParts.object); ctx.piece({ id: 'template.ledge', name: 'Lift ledge', category: 'buildings', file, object: ledgeParts.object, colliders: ledgeParts.colliders, surface: 'stone' });
+  ctx.root.add(deck); ctx.piece({ id: 'template.lift', name: 'Lift', category: 'props', file, object: deck });
   // LF1-9: the arena's checker floor, moss drips and rim braziers (its own piece, so the coarse L1 tiles skip it)
   const arenaDress = new Group(); arenaDressing(arenaDress, heightAt);
   ctx.root.add(arenaDress); ctx.piece({ id: 'template.arena-dressing', name: 'Arena floor, moss and rim braziers', category: 'buildings', file, object: arenaDress });
