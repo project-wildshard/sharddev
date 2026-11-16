@@ -29,7 +29,7 @@ permissions:
 
 env:
   APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
-  COOKED_ENGINE_CANDIDATE: ${{ inputs.engine || '475353b11d10cd0f5d218d602c112dc435026070' }}
+  COOKED_ENGINE_CANDIDATE: ${{ inputs.engine || 'dc0a043e3077817ef05ca8a30d4f96edcd468a3c' }}
   COOKED_REPORT_DIR: tmp/cooked-templates
 
 jobs:

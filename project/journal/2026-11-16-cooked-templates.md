@@ -35,7 +35,7 @@ Before world construction, each extracted product must refuse missing,
 truncated and same-size-corrupt actual server Wasm. Restore the exact
 original bytes between controls, then open and play that same product.
 
-The actual engine public API candidate is475353b1 (full SHA in the
+The actual engine public API candidate isdc0a043e (full SHA in the
 workflow), stacked on the prepared Pine repair and TC40. Its source
 plays all18plots and all3SDKtemplates with exact whole-world restore
 and five suffixes, without a loader overlay. Full compiler, typed
