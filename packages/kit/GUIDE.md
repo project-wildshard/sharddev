@@ -14,6 +14,12 @@ their declarations. New species declare their own temperament; an unknown label
 does not select an implicit profile. A body using its own GLB may omit the kit
 skeleton name; kit posers name their skeleton contract explicitly.
 
+`bakeSpecies` also copies the kit's exact hunting numbers when old native source
+uses one of its known hunting labels without tuning. It warns and leaves an
+existing tuning declaration unchanged. Another label receives no implicit
+profile. The emitted declaration therefore carries its numbers into the product
+before the engine's old preset selection is removed.
+
 The temperament helper returns temperament and senses together:
 
 ```ts

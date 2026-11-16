@@ -9,6 +9,7 @@ import * as THREE from 'three'
 
 import bear from '../../content/species/bear.json' with { type: 'json' }
 import boar from '../../content/species/boar.json' with { type: 'json' }
+import { legacyCreatureProfile } from '../legacySpecies.ts'
 import { createBearLook } from './bear.ts'
 import { createBoarLook } from './boar.ts'
 
@@ -675,7 +676,24 @@ export function bakeSpecies(
   fields['variants'] = row.variants.map(variant)
   if (row.spawnOnly !== undefined)
     fields['spawnOnly'] = row.spawnOnly.map(variant)
-  return readSpecies(fields)
+  let copiedTuning = false
+  const kind = fields['kind']
+  if (fields['tuning'] === undefined && typeof kind === 'string') {
+    const profile = legacyCreatureProfile(kind)
+    if (
+      profile?.temperament.brain === 'hunt' &&
+      profile.temperament.tuning !== undefined
+    ) {
+      fields['tuning'] = profile.temperament.tuning
+      copiedTuning = true
+    }
+  }
+  const result = readSpecies(fields)
+  if (copiedTuning)
+    console.warn(
+      `species \`${speciesId}\` uses old kind \`${String(kind)}\`: copied kit hunting tuning; declare it explicitly`,
+    )
+  return result
 }
 
 /** Derive callback-free author data, preserving inherited fields and the original tuning merge. */

@@ -34,3 +34,10 @@ the actual section hashes again; the authored bytes remain unchanged.
 The candidate proof links point only to this lane's engine/format/kit M1
 branches so every type and runtime uses one defining contract. Final release
 pins and frozen installation remain CC2b2; no M1 branch was pushed or landed.
+
+CC4b2 preparation: the frozen Pine product's native deer row has no tuning or
+variant health. The author extractor now copies the kit's exact grazer numbers
+into such old native source before it leaves the build, with a warning. This
+does not touch shard source files, change existing explicit tuning, inject a
+profile for another label or select any content in the engine. Removing the
+engine guess must follow this producer update and its rebuilt-product proofs.
