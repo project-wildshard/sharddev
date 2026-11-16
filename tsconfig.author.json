@@ -26,6 +26,8 @@
     "test/named-json-admission.test.ts",
     "test/registered-json.test.ts",
     "test/world-assembly-schema.test.ts",
-    "test/carried-terrain-ports.test.ts"
+    "test/carried-terrain-ports.test.ts",
+    "test/fixtures/productFile.ts",
+    "test/fixtures/ci21sdk-tail/frozen.ts"
   ]
 }

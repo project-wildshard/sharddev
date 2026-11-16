@@ -37,7 +37,9 @@ test('a paced named read pauses between its steps and compiles each schema once'
   pauses = 0;
   expect(await fixtureNativeJson({ ...schema }, encode(value), pause)).toEqual(value);
   expect(pauses).toBe(2); // the same schema text reuses its compiled validator
-  expect(await fixtureNativeJson(schema, encode(value))).toEqual(value);
+  pauses = 0;
+  expect(await fixtureNativeJson(schema, encode(value), pause)).toEqual(value);
+  expect(pauses).toBe(2); // a warm read still pauses after parse and before validation
   await expect(fixtureNativeJson(schema, encode([[1]]), pause)).rejects.toThrow('refuses its schema');
   await expect(fixtureNativeJson(schema, new TextEncoder().encode('[[-0]]'), pause)).rejects.toThrow('canonical numbers');
   await expect(fixtureNativeJson({ ...schema, $schema: 'x' }, encode(value), pause)).rejects.toThrow('bounded draft-07');

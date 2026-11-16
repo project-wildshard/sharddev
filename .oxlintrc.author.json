@@ -273,5 +273,5 @@
       "rules": { "import/unambiguous": "off" } // ambient module declarations have no import/export by design
     }
   ],
-  "ignorePatterns": ["**/*.generated.*", "test/fixtures/", ".tsc-layers/", "dist/", "dist-native/", "ios/", "android/", ".native-build/", "node_modules/", "public/", "progress/", "art/", "sources/", "docs/"]
+  "ignorePatterns": ["**/*.generated.*", ".tsc-layers/", "dist/", "dist-native/", "ios/", "android/", ".native-build/", "node_modules/", "public/", "progress/", "art/", "sources/", "docs/"]
 }

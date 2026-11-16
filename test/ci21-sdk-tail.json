@@ -14,7 +14,7 @@
         "paced named validation preserves cancellation and async refusal",
         "named disk schemas refuse corrupt UTF8, external code and unknown checks"
       ],
-      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained. Private synchronous-driver coverage remains with the retained engine source until its paired disposition is settled."
     },
     {
       "sourcePath": "test/named-json-admission.test.ts",
@@ -26,7 +26,7 @@
         "each inline schema keeps the existing independent plain-JSON cap",
         "a first-party build's named JSON parses without its schema; an external product's validates"
       ],
-      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained. Private synchronous-driver coverage remains with the retained engine source until its paired disposition is settled."
     },
     {
       "sourcePath": "test/registered-json.test.ts",
@@ -41,7 +41,7 @@
         "retired private documents refuse their old checked bridge and keep missing-file refusal",
         "author and independent output admission enforce the registered semantic contract"
       ],
-      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained. Private synchronous-driver coverage remains with the retained engine source until its paired disposition is settled."
     },
     {
       "sourcePath": "test/world-assembly-schema.test.ts",
@@ -52,7 +52,7 @@
         "assembly emission does not grant a bridge to a foreign custom predicate",
         "arena room variants retain the original open wire and refuse mixed room resources"
       ],
-      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained. Private synchronous-driver coverage remains with the retained engine source until its paired disposition is settled."
     },
     {
       "sourcePath": "test/nalati-carried-terrain-ports.test.ts",
@@ -64,5 +64,9 @@
       ],
       "changes": "Complete hash-pinned frozen carried rows replace the shard generator import; all assertions retained."
     }
+  ],
+  "supportPaths": [
+    "test/fixtures/productFile.ts",
+    "test/fixtures/ci21sdk-tail/frozen.ts"
   ]
 }
