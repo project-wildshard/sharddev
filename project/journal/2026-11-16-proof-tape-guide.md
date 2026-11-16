@@ -3,3 +3,5 @@
 - GUIDE gains `### The proof tape`: the tape's shape, `interact` on a talk (`wren`, `wren:accept`), `requiredItems`, and the
   report's `inventory` and `ledger.facts`. The mini's Honeyknoll run (NEW-SHARD-E2E F26, F27) found none of this written
   down. It describes engine 0.1.30's tape, so it lands with the engine pin on 0.1.30. Section by opus-ss16l.
+- opus-ss16n: `requiredItems` counts a scene or data shard's pay as the `player` pack (engine `47aacdb9`, meta SHARD-SOURCE
+  SS-NE27b), and `moveZ: -1` walks forward. The keeper fixture's first tape walked backwards and never reached its lamp.

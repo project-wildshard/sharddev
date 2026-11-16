@@ -177,7 +177,7 @@ the art, then `--stamp-existing`. Remove `curated` to capture again.
   "requiredFacts": ["honey.thief"],
   "requiredItems": { "honeycomb": 3, "smoker": 1 },
   "tape": [
-    [{ "kind": "player", "moveX": 0, "moveZ": 1, "yaw": 0 }],
+    [{ "kind": "player", "moveX": 0, "moveZ": -1, "yaw": 0 }],
     [{ "kind": "interact", "id": "wren" }],
     [{ "kind": "interact", "id": "wren:accept" }],
     []
@@ -185,14 +185,18 @@ the art, then `--stamp-existing`. Remove `curated` to capture again.
 }
 ```
 
-- **`player`** moves the player this tick (`moveX`, `moveZ` from -1 to 1, `yaw` in radians).
+- **`player`** moves the player this tick (`moveX`, `moveZ` from -1 to 1, `yaw` in radians). `moveZ: -1` walks
+  forward, and at `yaw` 0 forward is −z, as W on the page.
 - **`interact`** presses E. Its `id` is one of `targets.interactions`, or a talk: `"wren"` presses E on the talk
   `wren` (it closes a line with no choices), and `"wren:accept"` picks the choice `accept` of the node the player
   stands at. The player must be within the talk's `radius`, as on the page. An `id` that names nothing refuses with
   the tick and every id the tape could name there.
 - **`requiredFacts`** are the quest facts (`onComplete.fact`) the tape must file. **`requiredItems`** (optional) are
-  the stacks the player's pack must hold when the tape ends, at least this many of each.
-- The report's `inventory` lists every pack's stacks when the tape ends; `ledger.facts` lists the facts filed.
+  the stacks the player must hold when the tape ends, at least this many of each, counted across every pack.
+- The report's `inventory` lists every pack's stacks when the tape ends; `ledger.facts` lists the facts filed. A scene
+  or data shard's player holds what the tape was paid under `player`: `coins` from quest `onComplete.coins` and kills,
+  each kill's roll off the shard's loot tables by item, and the ledger's item rewards. A native shard's own packs
+  appear under their own ids (`pack`).
 - `checkpointTick` is where the proof saves, unloads and restores the shard mid-tape; it must fall inside the tape.
 
 ### Uploading
