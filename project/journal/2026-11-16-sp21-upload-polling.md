@@ -30,7 +30,9 @@ clock verifies backoff, exact timeout, transient recovery and identity
 mismatch without sleeping. Follow-up real API/PGlite qualification is in
 test/ci/async-upload.test.mjs. It checks out API main's immutable SP18
 contract 2ad9890, installs its own frozen graph and runs the normal API
-app, migrations, account auth, presigned R2 protocol and activation. Only
+app, migrations, account auth, presigned R2 protocol and activation. The
+candidate CLI runs from pnpm pack under node_modules, through its normal
+wildshard bin and type hook, beside only its declared dependency links. Only
 the trusted cook and game acknowledgement are doubles; every status
 response is the real owner-only route. Live follows cooking/staged/live;
 refusal prints the complete report and leaves pointers alone. The stalled

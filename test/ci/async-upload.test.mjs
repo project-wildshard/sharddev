@@ -4,12 +4,18 @@ import {once} from 'node:events';
 import {mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import {text} from 'node:stream/consumers';
-import {test} from 'node:test';
+import {after,before,test} from 'node:test';
+import {installWildshard} from '../../src/test/helpers/install.ts';
 import {REPORT,TARBALL,openApi} from './async-upload-fixture.mjs';
 
 const SCRATCH=resolve('tmp/codex-wire');
 await mkdir(SCRATCH,{recursive:true});
-const CLI=resolve('src/cli/main.ts');
+let CLI,installed;
+before(async()=>{
+  installed=await mkdtemp(join(SCRATCH,'api-installed-'));
+  CLI=installWildshard(installed);
+});
+after(async()=>{if(installed!==undefined)await rm(installed,{recursive:true,force:true});});
 
 async function runCli(context,fixture,file){
   const child=spawn(process.execPath,[CLI,'upload',file,'--server',fixture.url,
