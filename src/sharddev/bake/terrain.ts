@@ -147,6 +147,20 @@ export function groundLattice(source: Pick<TerrainBakeSource, 'heightAt' | 'colo
 }
 
 /** Bake a shared 257² lattice into 64 L0 and 16 L1 tiles, with an independent whole-sim collision file. */
+/**
+ * NEW-SHARD-E2E F13: format refuses an entry road off height 0 without saying where; this names the edge, the point and its
+ * height. An edge profile (257 samples) is exactly 0 at its middle sample (format `validateTerrainAssets`) and, for a ground
+ * road, `reach` samples either side of it (format `entryways.ts`: flat across the 8 m opening, so 3 samples each way).
+ */
+export function checkEntryRoad(side: 'north' | 'east' | 'south' | 'west', samples: readonly number[], reach: number): void {
+  let worst = 128;
+  for (let i = 128 - reach; i <= 128 + reach; i++) if (Math.abs(samples[i] ?? 0) > Math.abs(samples[worst] ?? 0)) worst = i;
+  const height = samples[worst] ?? 0;
+  if (height === 0) return;
+  const p = Math.round((-250 + worst * 500 / 256) * 10) / 10, [x, z] = side === 'north' ? [p, 250] : side === 'south' ? [p, -250] : side === 'east' ? [250, p] : [-250, p];
+  throw new Error(`Terrain entry road must meet road height zero: the ground is ${String(Number(height.toPrecision(3)))} m high at (${String(x)}, ${String(z)}) on the ${side} entry road. The ground is exactly 0 m within 6 m of the middle of each cell edge, (0, ±250) and (±250, 0), where the roads cross into the next cell: fade hills and ripples to 0 before the edges`);
+}
+
 export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
   const { heights, colours } = groundLattice(source);
   const grid: TerrainTileData = { resolution: 257, x: -250, z: -250, size: 500, heights };
@@ -184,6 +198,7 @@ export function bakeTerrain(source: TerrainBakeSource): BakedTerrain {
       const x = side === 'east' ? 256 : side === 'west' ? 0 : i, z = side === 'north' ? 256 : side === 'south' ? 0 : i, at = z * 257 + x;
       samples.push(heights[at] ?? 0); rgb.push([colours[at * 3] ?? 0, colours[at * 3 + 1] ?? 0, colours[at * 3 + 2] ?? 0]);
     }
+    checkEntryRoad(side, samples, 0);
     return { heights: samples, colours: rgb, roadHeight: 0 };
   };
   const critical = [collider];

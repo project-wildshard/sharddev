@@ -36,6 +36,10 @@ if (verbHelp) {
   const script = resolve(import.meta.dirname, '../scripts/build-shardfiles.mjs');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
+} else if (command === 'grid') {
+  const script = resolve(import.meta.dirname, '../src/cli/grid/command.ts');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
 } else if (command === 'content') {
   const script = resolve(import.meta.dirname, '../src/cli/content-command.ts');
   process.argv.splice(1, 2, script);

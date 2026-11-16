@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI accepts filesystem project/output paths.
-import { basename, dirname, resolve } from 'node:path';
+import { basename, dirname, relative, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
 import { buildProject, readProjectAssets, validateProject } from './project';
@@ -123,6 +123,10 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     const template = templateNamed(templates[0] ?? 'sdk');
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
     writeShardRepo(resolve(input), slug, { template, empty: empty === 1 });
+    // NEW-SHARD-E2E F8: say what was made and what to run next, never exit silently
+    const shown = relative(process.cwd(), resolve(input)) || '.';
+    console.info(`wildshard new: made ${shown}/, shard ${slug} (${template === 'scene' ? 'a three.js scene shard' : empty === 1 ? 'a bare shard source' : 'the reference world'}) at ${shown}/src/`);
+    console.info(`next: cd ${shown} && pnpm install && pnpm exec wildshard check .${template === 'scene' ? ', then pnpm exec wildshard watch . to see each save' : ''} (GUIDE.md is the guide)`);
     return;
   }
   if (command === 'watch') {

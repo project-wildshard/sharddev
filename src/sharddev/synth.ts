@@ -29,7 +29,9 @@ export async function synthProject(project: string): Promise<SynthResult> {
   const wrapper = `import * as input from ${JSON.stringify(entry)};
 import { Object3D } from 'three';
 import { readScene } from ${JSON.stringify(reader)};
-if (!(input.scene instanceof Object3D)) throw new Error('Scene config must export a real three.js scene');
+if (!(input.scene instanceof Object3D)) throw new Error(typeof input.default?.describe === 'function'
+  ? 'synth takes the older scene form (shard.config.ts exports scene, a three.js Scene, and identity); this one is a defineShard shard, which needs no synth: wildshard check . builds it and wildshard watch . shows it'
+  : 'Scene config must export a real three.js scene (export const scene) and its identity (export const identity)');
 if (typeof input.identity?.slug !== 'string') throw new Error('Scene config must export identity.slug');
 export default { scene: readScene(input.scene), slug: input.identity.slug };`;
   const result = await build({ configFile: false, publicDir: false, logLevel: 'silent',

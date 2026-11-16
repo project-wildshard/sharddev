@@ -2,7 +2,7 @@
 
 > Written by: Claude
 
-> **State:** living, 2026-11-13, sharddev `@wildshard/sdk` 0.2.x (SHARD-AUTHORING SA13). This file ships in the
+> **State:** living, 2026-11-16, `@wildshard/sdk` 0.3.x (SHARD-AUTHORING SA13; SHARD-SOURCE SS-NE rows). This file ships in the
 > package and `wildshard new` copies it into every new project. Steps marked **not built yet** name the plan row
 > (meta repo `docs/plans/SHARD-AUTHORING-PLAN.md`) that builds them; until then, do what that step says instead.
 
@@ -18,10 +18,10 @@ production) each one moves. The **hero** is the shard's card: three images (thum
 landscape) shown on SHARD SELECT. A **budget** is a limit on what the shard costs a player (section 3). A **refusal**
 is a command stopping with a rule id, a fix and a link into section 6.
 
-**Running `wildshard` today.** Install the published SDK with `pnpm add @wildshard/sdk`, then run
-`pnpm exec wildshard <verb>`. The intended npm command is `npm install @wildshard/sdk`, but the current release
-fails with `EUNSUPPORTEDPROTOCOL`: npm prepares its git-hosted engine dependency and cannot read engine's `link:`
-devDependency. Use pnpm until NPM-PUBLISH NP7 publishes the dependency switch.
+**Running `wildshard` today.** Install the published SDK with `pnpm add @wildshard/sdk` or
+`npm install @wildshard/sdk`, then run `pnpm exec wildshard <verb>` (or `npx wildshard <verb>`). Both work from 0.3.
+Run either in a folder with its own `package.json` (`npm init -y` makes one): in a folder without one, npm installs
+into the nearest folder above that has one, maybe your home folder. `new` writes a pnpm project, so use pnpm inside it.
 This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
 `wildshard <verb> --help` prints one. `wildshard --version` prints the sdk, engine, shard-format and `three` versions.
 `new` writes a `package.json` that pins `@wildshard/sdk`, shard-format, engine and `three` exactly;
@@ -36,7 +36,7 @@ repo's one `src/shards/<slug>/`).
 
 | # | Step | Command | Today |
 |---|---|---|---|
-| 1 | Start | `wildshard new my-shard` | Works. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide, the four `wildshard` skills and the agent files (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`) |
+| 1 | Start | `wildshard new my-shard`, or `wildshard new my-shard --template scene` for a shard written as a three.js scene (section 2b) | Works, and prints the folder it made and what to run next. Writes a shard repo in `my-shard/`: the reference world (Template 1, Mossgate) as its shard source at `src/`, plus `package.json`, `tsconfig.json`, `.gitignore`, `.npmrc`, a README, this guide, the four `wildshard` skills and the agent files (`AGENTS.md`, `CLAUDE.md`, `.agents/skills/`) |
 | 2 | Walk it | `wildshard dev .` | Works. The first run fetches engine's dev client once. See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
@@ -64,12 +64,13 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
 | `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |
 | `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file), show its first characters, and print its account's email and how many slugs it owns (`--server` or `WILDSHARD_API_URL`) |
+| `wildshard grid [--channel staging\|prod\|preview]` | Print the world grid on a channel: each taken cell and its shard, then the free cells. No key needed (section 5) |
 | `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> [--base <url>]` | Record the built folder in phone WebKit against engine's preparation client (or the exact engine preview `--base` names), which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
-| `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened |
-| `wildshard synth <source>` | Run `shard.config.ts`'s scene exports and write the scene as data |
+| `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened ("Proof tapes" below) |
+| `wildshard synth <source>` | Run `shard.config.ts`'s `scene` and `identity` exports (an older scene form) and write the scene as data. A `defineShard` scene shard (section 2b) needs no synth: `check` builds it and `watch` shows it |
 | `wildshard schema [list\|shardfile\|<root>] [pointer]` | Print the JSON Schema of the shard file, or of one section or field |
 | `wildshard serve` | The sharddev web app on localhost (tools for this repo, not for your shard) |
 | `wildshard build-shards` | Build every shard source in the repo: its `src/` (a single-shard repo) and each `src/shards/<folder>/` (repos holding several shards) |
@@ -88,6 +89,45 @@ is kept, so run it again.
 
 `dev` serves this shard alone: no other shards, no grid and no other players. To see it beside the rest of the
 world, upload it to staging once the Wildshard team has placed it on the grid (section 5).
+
+### Proof tapes
+
+A proof tape is `src/proof.json`: player input, tick by tick, and the quest facts it must earn. `wildshard check .`
+plays it (the `prove` step; with no tape, prove is skipped), and `wildshard prove . src/proof.json` plays it alone and
+prints what happened as JSON. The shape:
+
+```json
+{
+  "version": 1,
+  "tape": [
+    [{ "kind": "player", "moveX": 0, "moveZ": -1, "yaw": 0 }],
+    [{ "kind": "player", "moveX": 0, "moveZ": -1, "yaw": 0, "jump": true }],
+    [{ "kind": "player", "moveX": 0, "moveZ": 0, "yaw": 0 }]
+  ],
+  "checkpointTick": 2,
+  "requiredFacts": ["meadow.visit"]
+}
+```
+
+- **`tape`**: one list per tick, 1 to 4,096 ticks (the simulation runs 60 ticks a second), each with that tick's
+  commands (at most 1,024). A `player` command is the stick (`moveX`, `moveZ`, each -1 to 1) and the facing (`yaw`, in
+  radians), plus a press this tick: `jump: true`, `dodge: true`, or `attack: { "targetId": "<id>" }`. An `interact`
+  command uses one of the shard's `targets.interactions` (a `world.interact` id, section 2b). `wildshard schema`
+  does not print the tape; this list is its whole shape for authors.
+- **`checkpointTick`**: the tick, from 1 to the tape's length, where prove saves the cell, unloads it and loads it
+  again. The player must come back where they stood, and the rest of the tape must play as it would have.
+- **`requiredFacts`**: the facts the run must file, each a quest's `onComplete.fact`, at least one, no repeats.
+
+Write a long tape with a few lines of code rather than by hand, for example 300 ticks of walking:
+
+```sh
+node -e 'const walk=[{kind:"player",moveX:0,moveZ:-1,yaw:0}];require("fs").writeFileSync("src/proof.json",JSON.stringify({version:1,tape:Array.from({length:300},()=>walk),checkpointTick:150,requiredFacts:["meadow.visit"]}))'
+```
+
+**Known, sdk 0.3.x:** a valid tape can still fail in the engine's save step (`traveler pose changed on restore` on a
+scene shard, `Import signature outside ABI` on the reference world), and a tape cannot yet talk to an NPC or choose a
+dialogue line. Both are being fixed (meta NEW-SHARD-E2E F27); until then a failing prove is not your tape's fault if
+those are its words.
 
 ### The hero
 
@@ -234,6 +274,61 @@ fields), [`SCRIPT-ABI.md`](https://github.com/project-wildshard/shard-format/blo
 scripts) and [`PLATFORM-FILE-FAMILIES.md`](https://github.com/project-wildshard/shard-format/blob/main/docs/PLATFORM-FILE-FAMILIES.md)
 (the named files). `wildshard schema list` prints the section roots from your installed copy.
 
+## 2b. A scene shard
+
+A shard can also be one three.js scene, written in TypeScript: `wildshard new my-shard --template scene` makes one
+(Mossgate Hollow, under your slug). It is the same shard format as section 2; only the source is shorter. It needs no
+`manifest.json` and no `data/` rows: `defineShard` takes the slug and name, the scene builds the world, and build
+writes the rest. `wildshard check .` builds it, `wildshard watch .` shows each saved edit in a running page, and
+`wildshard synth` is not for it (synth takes the older scene form only).
+
+The smallest one, `src/shard.config.ts`:
+
+```ts
+import * as THREE from 'three';
+import { defineShard } from '@wildshard/sdk/scene/shard';
+import { solid } from '@wildshard/sdk/scene/author';
+
+export default defineShard({ slug: 'meadow', name: 'Meadow' }, (world) => {
+  // a low knoll, flat (height 0) from 120 m out, so every entry road meets the next cell at 0
+  world.ground((x, z) => 6 * Math.max(0, 1 - Math.hypot(x, z) / 120) ** 2, { colourAt: () => [0.32, 0.5, 0.2] });
+  const stone = new THREE.MeshStandardMaterial({ color: '#8a8378', roughness: 0.9 });
+  const hut = world.part('hut', (part) => {
+    const walls = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), stone));
+    walls.position.set(0, 7.5, -20);
+    part.add(walls);
+  });
+  world.trigger('meadow.hut', hut.children[0]!, { radius: 8, flag: 'meadow.hut' });
+  world.spawn(0, 6, 10, 0); // yaw 0 faces -z, towards the hut
+});
+```
+
+**Coordinates.** The cell is 500 m square: x and z run from -250 to 250, with the cell's middle at (0, 0). North is
++z. `y` is height in metres. A yaw of 0 faces -z. Put the spawn at least 1 m above the ground under it.
+
+**The entry roads.** Players walk in from the next cell by a road at the middle of each cell edge. Within 6 m of the
+middle of each edge the ground must be exactly 0 m high, so the road meets the next cell; check refuses a shard
+whose ground is not ("Terrain entry road must meet road height zero").
+
+**What `world` takes.**
+
+| Call | What it makes |
+|---|---|
+| `world.ground(heightAt, { colourAt, material, detail })` | The ground's height everywhere in the cell, and its colour |
+| `world.part(name, build)` | A named piece of the world; `watch` swaps one part at a time. Wrap a mesh in `solid(...)` and players collide with it |
+| `world.sky(colour)`, `world.post({...})` | The sky (a TSL colour) and the post-processing numbers |
+| `world.spawn(x, y, z, yaw)` | Where a player enters |
+| `world.trigger(id, object, { radius, flag })` | Entering `radius` metres of `object` sets quest flag `flag` |
+| `world.interact(id, object, { label, radius, scene })` | A use prompt that runs a shard scene |
+| `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
+
+From `@wildshard/sdk/scene/author`: `solid` (collides), `paint` (a texture from a function), `Water` (a water
+surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uvScroll`.
+
+**Items and quests.** Every player starts with the Template's iron sword (`weapon.sword-iron`), so a scene shard
+needs no item rows to fight. To add quests, items or any other section, pass `{ extend: (shard) => ({ ...shard,
+quests: ... }) }` as `defineShard`'s third argument; `wildshard schema list` names every section and its shape.
+
 ## 3. Budgets
 
 A budget is a limit on what your shard costs a player's phone or desktop: bytes to download, memory, draw calls,
@@ -282,8 +377,10 @@ There is no default: upload without `--channel` refuses. Upload to staging; once
 shard (below), walk it there; then upload the next version with `--channel prod`. The same bytes cannot go to staging
 and then to prod: production needs a new version, and a new version needs a new hero (J306).
 
-**The grid.** The world is a grid of cells, one shard per cell, and players walk from cell to cell. Today it is 5×5,
-and only the Wildshard team places a shard on it. An uploaded shard with no cell is recorded on its channels, but no
+**The grid.** The world is a grid of cells, one shard per cell, and players walk from cell to cell. It is 7×7 (x and z
+from -3 to 3), and the inner 5×5 is full. Only the Wildshard team places a shard on it. `wildshard grid [--channel
+staging|prod|preview]` prints which cells are taken and which are free, from the public
+`GET /api/catalogue.json?channel=<channel>` (no key). An uploaded shard with no cell is recorded on its channels, but no
 player can reach it there yet.
 
 **What upload says about the grid (SA32).** After the `committed:` line, upload prints one grid line, then the
@@ -461,7 +558,8 @@ If a fresh, unedited build still fails, report it with the message.
 
 #### proof-tape-invalid
 
-`proof.json` does not have the proof tape's shape. Fix it where the message says.
+`proof.json` does not have the proof tape's shape. Fix it where the message says; the shape, with an example, is in
+"Proof tapes" (section 1) and `wildshard prove --help`.
 
 #### proof-failed
 

@@ -42,8 +42,9 @@ const VERBS: Readonly<Record<string, string>> = {
                        every edit`,
   watch: `watch <source> [port]
                        For a shard written as a three.js scene
-                       (@wildshard/sdk/scene): serve it, then swap each
-                       edited part into the running page, no reload`,
+                       (defineShard from @wildshard/sdk/scene/shard; GUIDE
+                       section 2b): serve it, then swap each edited part
+                       into the running page, no reload`,
   check: `check <source> [folder] [--json]
                        Lint, build, validate, prove (with the shard
                        source's proof.json) and read the report card, then
@@ -114,6 +115,13 @@ const VERBS: Readonly<Record<string, string>> = {
                        key's account: its email and how many slugs it
                        owns. Reads WILDSHARD_API_URL when --server is
                        absent`,
+  grid: `grid [--channel staging|prod|preview] [--server <url>]
+                       Print the world grid on a channel (default
+                       staging): each taken cell (x,z) and its shard, then
+                       the free cells. Reads the public
+                       GET /api/catalogue.json?channel=<channel> (prod is
+                       production); no key. Reads WILDSHARD_API_URL when
+                       --server is absent, else https://api.wildshard.io`,
   delete: `delete <slug> [--yes] [--server <url>]
                        Delete your shard: it leaves the catalogue, every
                        channel and the grid at once. Prints what it would
@@ -160,10 +168,28 @@ const VERBS: Readonly<Record<string, string>> = {
                        headlessly against its budgets`,
   prove: `prove <source | folder | shard.json> <proof.json>
                        Play the proof tape headlessly and print what
-                       happened as JSON`,
+                       happened as JSON. check plays src/proof.json the
+                       same way. A tape is
+                       { "version": 1,
+                         "tape": [[tick 0's commands], [tick 1's], ...],
+                         "checkpointTick": 60,
+                         "requiredFacts": ["<a quest's onComplete.fact>"] }
+                       60 ticks a second, up to 4096 ticks. A command is
+                       { "kind": "player", "moveX": 0, "moveZ": -1,
+                         "yaw": 0 } (the stick from -1 to 1, the facing in
+                       radians; add "jump": true, "dodge": true or
+                       "attack": { "targetId": "<id>" } for a press), or
+                       { "kind": "interact", "id": "<interaction id>" }.
+                       At checkpointTick prove saves, unloads and reloads
+                       the cell; every required fact must be filed by the
+                       end. GUIDE.md "Proof tapes" has the rest`,
   synth: `synth <source>
-                       Run shard.config.ts's scene and identity exports in
-                       Node and write the scene they describe as data`,
+                       Run shard.config.ts's scene and identity exports
+                       (export const scene, a three.js Scene, and export
+                       const identity) in Node and write the scene they
+                       describe as data. A defineShard shard
+                       (@wildshard/sdk/scene/shard) needs no synth: check
+                       builds it and watch shows it`,
   schema: `schema [list|shardfile|<root>] [JSON-pointer]
                        Print the JSON Schema of shard.json (\`shardfile\`) or
                        of one section (<root>), or of the part at a JSON

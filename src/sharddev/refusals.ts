@@ -83,7 +83,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Rebuild with `wildshard check`; if a fresh build of unedited output still fails, report it with this message.' },
   // prove
   { id: 'proof-tape-invalid', anchor: 'proof-tape-invalid', steps: ['prove'], match: /^[^\s/]+\.json: /u,
-    fix: 'Fix the proof tape (proof.json) where the message says; its shape is the author proof plan.' },
+    fix: 'Fix the proof tape (proof.json) where the message says; GUIDE.md "Proof tapes" and wildshard prove --help show its shape.' },
   { id: 'proof-failed', anchor: 'proof-failed', steps: ['prove'],
     fix: 'Walk the quest in `wildshard dev`, then fix the data or the tape step that did not happen.' },
   // the report card (budgets, J303): shard-format's PerformanceIssue codes

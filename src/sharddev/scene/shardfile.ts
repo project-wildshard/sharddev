@@ -6,7 +6,7 @@ import { parseGlb, parseKtx2 } from '../assets';
 import { hashImmutableBytes } from '../immutable';
 import type { GeneratedProject, ProjectGenerationContext } from '../projectGeneration';
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
-import { bakeTerrain, groundLattice } from '../bake/terrain';
+import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, ShardScene } from './description';
@@ -45,6 +45,21 @@ export interface ShardfileOptions {
   /** extra rows merged into the generated shardfile (manifest, card, quests...) */
   readonly extend?: (shard: Shardfile) => Shardfile;
 }
+
+/**
+ * NEW-SHARD-E2E F23: the starter sword every scene shard's player holds unless `extend` writes its own `items` (a whole
+ * section replaces this one). The Template's iron sword: the engine's kit melee swing (`kit.sword`), no script.
+ */
+export const STARTER_SWORD = {
+  id: 'weapon.sword-iron', kind: 'weapon', family: 'kit.melee', slot: 'declared.weapon.sword-iron', context: 'weapon.melee',
+  ui: { name: 'Iron sword', icon: 'sword', swapIcon: '\u2694', blurb: 'The shared iron sword.' },
+  view: { recipe: 'kit.sword', colour: '#888888', position: [0.2, -0.35, -0.6], rotation: [0, 0, 0] }, hook: null,
+  light: { id: 'sword.light', damage: 28, cooldown: 0.08, range: 2.2, width: 1.2, tags: ['actor.player', 'weapon.sword-iron', 'dmg.melee'], effect: null },
+  heavy: { id: 'sword.heavy', damage: 56, cooldown: 0.08, range: 2.2, width: 1.2, tags: ['actor.player', 'weapon.sword-iron', 'dmg.melee'], effect: null },
+  charge: 0.45,
+} as const;
+/** NEW-SHARD-E2E F23: a scene shard's `items` before `extend`: the starter sword in hand. */
+export const STARTER_ITEMS = { version: 1, rows: [STARTER_SWORD], contexts: [], loadout: { primary: STARTER_SWORD.id, secondary: null, tools: [] } } as const;
 
 const TILE = 62.5, HALF = 250;
 /** AP15: how far an instanced copy may hang past the cell's edge (format `props.overhang`, at most 1 m). */
@@ -485,6 +500,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // ground (AP4): the declared height field, or a flat cell
   const ground = scene.ground;
   const terrain = bakeTerrain({ ...groundSource(scene), family: GROUND_MATERIAL });
+  // NEW-SHARD-E2E F13: a scene's four roads are ground roads, flat across their width; say where one is not
+  for (const side of ['north', 'east', 'south', 'west'] as const) checkEntryRoad(side, terrain.edge[side].heights, 3);
   for (const [hash, bytes] of terrain.assets) assets.set(hash, bytes);
   files.push(...terrain.files);
 
@@ -737,6 +754,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],
     props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
     ...(water.length === 0 ? {} : { water }),
+    // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
+    items: STARTER_ITEMS,
   };
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));

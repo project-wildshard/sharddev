@@ -44,10 +44,21 @@ async function load(source: string, project: string): Promise<unknown> {
     // bundle a second time. Only the tiny import expression is compiled here;
     // Node's native ESM loader evaluates the original file, just as the former
     // data URL did. Never evaluate the bundle as a script or change its code.
-    const loader = new Script(`import(${JSON.stringify(pathToFileURL(file).href)})`, {
-      filename: file, importModuleDynamically: constants.USE_MAIN_CONTEXT_DEFAULT_LOADER,
-    });
-    const loaded: unknown = loader.runInThisContext();
+    // Node names the loader experimental on every first use; an author sees that warning on each build and takes it
+    // for a fault (meta NEW-SHARD-E2E F9), so this one warning is dropped while the loader compiles and runs.
+    const warn = process.emitWarning;
+    process.emitWarning = ((warning: string | Error, ...rest: unknown[]): void => {
+      const text = typeof warning === 'string' ? warning : warning.message;
+      if (text.includes('USE_MAIN_CONTEXT_DEFAULT_LOADER')) return;
+      (warn as (...args: unknown[]) => void).call(process, warning, ...rest);
+    }) as typeof process.emitWarning;
+    let loaded: unknown;
+    try {
+      const loader = new Script(`import(${JSON.stringify(pathToFileURL(file).href)})`, {
+        filename: file, importModuleDynamically: constants.USE_MAIN_CONTEXT_DEFAULT_LOADER,
+      });
+      loaded = loader.runInThisContext();
+    } finally { process.emitWarning = warn; }
     return await loaded;
   } finally {
     await rm(directory, { recursive: true, force: true });
