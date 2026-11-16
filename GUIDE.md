@@ -689,6 +689,16 @@ limits are first guesses that wait on measurements from real phones, so check an
 reference world itself sits over several (its biggest tiles' downloads and resident memory), so a new repo checks with
 about six of these warnings. Bring a number under its cap when you can; nothing else is needed.
 
+#### check-execution
+
+The simulation or entry walk failed. Fix the route or gameplay named in the full report, then run `wildshard check`
+again. An entry route must remain traversable; this failure is separate from the performance budgets.
+
+#### check-infrastructure
+
+The check could not run with the available runtime dependency or resource. Restore what the report names and retry;
+keep the shard and its budgets unchanged while diagnosing the host failure.
+
 #### budget-over
 
 A budget not named above is over its limit. The message names it; `wildshard check . --json` lists each.

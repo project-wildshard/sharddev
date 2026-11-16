@@ -1,5 +1,6 @@
 import { safeParse } from 'valibot'
 
+import { readStatusBody } from './status-body.ts'
 import {
   CatalogueSchema,
   CommitAnswerSchema,
@@ -95,7 +96,11 @@ async function replyOf<Schema extends AnySchema>(
   reply: Response,
   schema: Schema,
 ): Promise<InferOutput<Schema>> {
-  const body = jsonOf(await reply.text())
+  const body = jsonOf(
+    await (path.startsWith('/api/shardfiles/uploads/')
+      ? readStatusBody(reply)
+      : reply.text()),
+  )
   if (!reply.ok) {
     throw refusal(path, reply.status, body)
   }

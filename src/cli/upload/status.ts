@@ -52,8 +52,13 @@ function reportStatus(
 }
 
 function requireSuccess(status: UploadStatus): void {
-  if (status.status === 'refused' || status.status === 'stalled') {
-    throw new Error(`upload ${status.uploadId}: ${status.status}`)
+  if (status.status === 'stalled') {
+    throw new Error(
+      `upload ${status.uploadId}: stalled; it may still settle; read it later with wildshard upload status ${status.uploadId}`,
+    )
+  }
+  if (status.status === 'refused') {
+    throw new Error(`upload ${status.uploadId}: refused`)
   }
 }
 

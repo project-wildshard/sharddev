@@ -14,6 +14,7 @@
 //
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 import type { IssueCode } from '@wildshard/format/issue-codes';
+import type { ShardfileCheckFailure } from '@wildshard/engine/game/shardfile/checkReport';
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
 export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'update' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
@@ -24,7 +25,7 @@ export interface RefusalRule {
   readonly anchor: string;
   readonly fix: string;
   readonly steps: readonly RefusalStep[] | 'any';
-  readonly codes?: readonly IssueCode[];
+  readonly codes?: readonly (IssueCode | ShardfileCheckFailure['code'])[];
   readonly match?: RegExp;
 }
 /** What a refusal carries besides its words: oxlint's code and help, or shard-format's issue code. */
@@ -106,6 +107,10 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   // TC-NE6: report's warnings, each a provisional or report-only cap over its limit; nothing refuses them yet.
   { id: 'budget-report-only', anchor: 'budget-report-only', steps: ['report'], match: /\(a report-only cap: upload still takes it\)$/u,
     fix: 'Nothing blocks: a report-only cap warns until it is measured on devices. Bring the number under it if you can (GUIDE.md says which caps these are).' },
+  { id: 'check-execution', anchor: 'check-execution', steps: 'any', codes: ['check-execution'],
+    fix: 'Fix the simulation or entry route named in the report, then run `wildshard check` again.' },
+  { id: 'check-infrastructure', anchor: 'check-infrastructure', steps: 'any', codes: ['check-infrastructure'],
+    fix: 'Restore the missing runtime dependency or resource named in the report, then retry the check.' },
   { id: 'budget-over', anchor: 'budget-over', steps: ['report'],
     fix: 'Run `wildshard check`: its report step names each budget over its limit and the row here for each.' },
   // `Performance report refused` is sharddev's own words (cli.ts); the two codes are shard-format's preflight of the same.

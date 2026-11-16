@@ -104,7 +104,7 @@ test('SP21 a stalled upload exits without waiting again', async (): Promise<void
       { id: ID, hash: HASH, report: fixture.report },
       fixture.ports,
     ),
-    /stalled/u,
+    /stalled; it may still settle;.*wildshard upload status upload-fixture/u,
   )
   assert.deepEqual(fixture.delays, [])
 })

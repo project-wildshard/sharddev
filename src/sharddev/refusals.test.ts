@@ -66,6 +66,7 @@ describe('the refusal table (SA21)', () => {
       'perf-tile-triangles': 'budget-triangles', 'perf-playing-memory': 'budget-memory', 'perf-script-cpu': 'budget-script-cpu',
       'perf-script-fuel': 'budget-script-fuel', 'perf-script-samples-missing': 'budget-unmeasured', 'perf-native-resident-unmeasured': 'budget-unmeasured',
       'perf-script-sample-invalid': 'budget-unmeasured',
+      'check-execution': 'check-execution', 'check-infrastructure': 'check-infrastructure',
     };
     // The code names the rule; the metric's words do not (`far draws` words a draws row, the code a download one here).
     for (const [code, rule] of Object.entries(metrics)) expect(refusalNote('report', 'far draws: 9 over 1', { code }).rule, code).toBe(rule);
@@ -79,8 +80,8 @@ describe('the refusal table (SA21)', () => {
 
   // SA41: shard-format gives every issue a stable code; each one must name a rule, so a code added upstream with no row
   // here fails this test (and GUIDE.md's anchor test covers the row's heading).
-  it('names every shard-format issue code, from every step, by exactly one row', () => {
-    const codes = issueCodeRows().map(row => row.code);
+  it('names every format and engine-check issue code, from every step, by exactly one row', () => {
+    const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure'];
     expect(codes.length).toBeGreaterThanOrEqual(53);
     expect(codes).toContain('audio-container');
     const named = REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row.id] as const));

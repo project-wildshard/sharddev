@@ -21,7 +21,7 @@ function queued(
 ): Completion {
   if (accepted.status === 'refused' || accepted.status === 'stalled') {
     throw new Error(
-      `upload ${accepted.uploadId}: ${accepted.status}; read verdict with wildshard upload status ${accepted.uploadId}`,
+      `upload ${accepted.uploadId}: ${accepted.status}; ${accepted.status === 'stalled' ? 'it may still settle; ' : ''}read verdict with wildshard upload status ${accepted.uploadId}`,
     )
   }
   return { ...accepted, gridReport: [] }
@@ -29,10 +29,14 @@ function queued(
 
 function announce(
   options: CompletionOptions,
-  accepted: Readonly<{ uploadId: string; status: UploadState }>,
-): void {
+  accepted: Readonly<{ uploadId: string; status: UploadState | undefined }>,
+): Readonly<{ uploadId: string; status: UploadState }> {
+  if (accepted.status === undefined) {
+    throw new Error('the API accepted an upload without its status')
+  }
   options.report(`checked: API format accepted (upload ${accepted.uploadId})`)
   options.report(`upload ${accepted.uploadId}: ${accepted.status}`)
+  return { uploadId: accepted.uploadId, status: accepted.status }
 }
 
 /** Legacy servers finish at commit; the async protocol finishes at live. */
@@ -44,18 +48,24 @@ async function completeUpload(
   if (answer.uploadId === undefined) {
     return { gridReport: placementLines(answer, placing) }
   }
-  if (answer.status === undefined) {
-    throw new Error('the API accepted an upload without its status')
+  const accepted = announce(options, {
+    uploadId: answer.uploadId,
+    status: answer.status,
+  })
+  if (options.wait === false && accepted.status === 'live') {
+    return {
+      ...accepted,
+      gridReport: placementLines(answer, placing),
+    }
   }
-  announce(options, { uploadId: answer.uploadId, status: answer.status })
   if (options.wait === false) {
-    return queued({ uploadId: answer.uploadId, status: answer.status })
+    return queued(accepted)
   }
   const status = await waitForUpload(options, {
     id: answer.uploadId,
     hash: answer.hash,
     report: options.report,
-    status: answer.status,
+    status: accepted.status,
   })
   return {
     uploadId: answer.uploadId,

@@ -13,6 +13,7 @@ import {
   open,
   uploadWith,
 } from '../../test/helpers/upload-run.ts'
+import { readUploadStatus } from './api.ts'
 
 import type { Run } from '../../test/helpers/upload-run.ts'
 
@@ -25,6 +26,21 @@ const PROVENANCE = [
   '--channel',
   'staging',
 ]
+
+test('SP21 an oversized authenticated HTTP status reply refuses before parsing', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.async.enabled = true
+  const queued = await uploadWith(run, { wait: false })
+  run.server.state.async.sequence = ['refused']
+  run.server.state.async.report = 'x'.repeat(17 * 1024 * 1024)
+  await assert.rejects(
+    readUploadStatus(
+      { server: run.server.url, apiKey: run.server.apiKey },
+      queued.uploadId ?? 'missing',
+    ),
+    /status response exceeds the 16 MiB limit/u,
+  )
+})
 
 async function cli(
   context: TestContext,
