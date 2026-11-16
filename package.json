@@ -185,7 +185,6 @@
       "@typescript/typescript-freebsd-arm64",
       "@typescript/typescript-freebsd-x64",
       "@typescript/typescript-linux-arm",
-      "@typescript/typescript-linux-arm64",
       "@typescript/typescript-linux-loong64",
       "@typescript/typescript-linux-mips64el",
       "@typescript/typescript-linux-ppc64",
