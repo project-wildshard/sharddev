@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.6 (2026-11-16)
+
+- A scene shard's lanterns can hang and swing (`hang`), and a touchable part is a body players push, like Mossgate's crate by the gate.
+- A proof tape can talk to an NPC, pick a choice and check what the player carries (`requiredItems`); the GUIDE shows how.
+- A shard config that imports the sdk's boot inventory builds again (it split into two modules on 0.3.4 and 0.3.5).
+- Built on engine 0.1.31 and shard format 0.12.0.
+
 ## v0.3.5 (2026-11-16)
 
 - GUIDE section 2b shows how to write a scene shard, and the GUIDE explains uploading from a shard repo's Actions.
