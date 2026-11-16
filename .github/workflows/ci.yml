@@ -92,8 +92,8 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm test:kit
-      # SP21: an exact landed API contract, real PGlite/account/R2 routes and
-      # the candidate CLI; only the cook and game acknowledgement are doubles.
+      # SP21's output controls name their cook/game doubles. SP20c3 also
+      # composes the actual sandboxed cook, signed parent and local game host.
       - name: Check out the async API contract
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -107,7 +107,7 @@ jobs:
       - name: Prove async upload with the real API and PGlite
         env:
           WILDSHARD_API_SOURCE: tmp/codex-wire/api-contract-source
-        run: node --test test/ci/async-upload.test.mjs
+        run: node --experimental-transform-types --test --test-concurrency=1 test/ci/async-upload.test.mjs test/ci/async-upload-parent.test.mjs
       - run: pnpm check:asks
       # The agent hook scripts are shellchecked at this exact version
       # (.agents/hooks/test/shellcheck.test.mjs refuses any other on CI).

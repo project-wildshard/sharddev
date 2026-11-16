@@ -26,3 +26,14 @@ The installed engine for these checks is a packed candidate under
 tmp/codex-wire, not a claim about released engine 0.1.29. Update the declared
 engine pin and hosted API contract pin before landing or publishing. Hosted
 qualification and serialized shipment remain open; do not tick SP19/SP21 yet.
+
+The composed refusal now uses valid statically admitted bytes with a flooded
+pool beyond the 15 m socket footprint. The actual 50 m entry walk refuses it;
+the signed parent delivers the full report and the packed CLI exits nonzero.
+No pointer or cell appears. The real maintenance sweep stalls a missing verdict
+once at 30 minutes, the CLI reports it, and the protected parent still discovers
+and settles that late upload with the same immutable refusal. Exact replay is
+harmless. These cases are wired into hosted CI; the final API pin still waits
+for its land, and the engine pin waits for the serialized engine release.
+The real author-facing full check also reads those same admitted bytes and
+returns a deeply equal complete refusal to the credential-free child.

@@ -13,11 +13,15 @@ import {setTimeout as delay} from 'node:timers/promises';
 import {pathToFileURL} from 'node:url';
 import {test} from 'node:test';
 import {installWildshard} from '../../src/test/helpers/install.ts';
-import {COOK_KEY,TARBALL,openApi,migratePending} from './async-upload-fixture.mjs';
+import {COOK_KEY,TARBALL,openApi,migratePending,blockedEntryTarball,maintainUploads} from './async-upload-fixture.mjs';
 
 const root=dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
 await import(pathToFileURL(join(root,'scripts/bake-loader.mjs')).href);
 const engine=path=>import(pathToFileURL(join(root,path)).href);
+const [{readTar},{validateShardfileFolder},{checkShardfile}]=await Promise.all([
+  import('@wildshard/format/tar'),import('@wildshard/format/shardfileValidation'),
+  import('@wildshard/engine/host/checkShardfile'),
+]);
 const [{cookApi,pendingSource,uploadDelivery,VerdictOutbox,activationDelivery,gameActivationClient},
   {createCookWorker,apiSource},{folderStore},{uploadActivator,uploadActivationReceiver},
   {readPlacementFile},{readPackProduct},{World},{memoryPlayerSaves},{runCells},
@@ -89,4 +93,48 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
   assert.ok(output.includes(`upload ${fixture.id}: live`),output);
   assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).hash,fixture.hash);
   context.diagnostic(`same upload id ${fixture.id}, cooked hash ${fixture.hash}, exact pack preloaded, placement=${place}, packed CLI live`);
+});
+
+for(const late of [false,true])test(`SP20c3 real entry refusal and packed CLI, late=${late}`,{timeout:90_000},async context=>{
+  const scratch=resolve('tmp/codex-wire');await mkdir(scratch,{recursive:true});
+  const work=await mkdtemp(join(scratch,'composed-refusal-'));context.after(()=>rm(work,{recursive:true,force:true}));
+  const clock={now:Date.now()},alarms=[];
+  const fixture=await openApi(context,'manual',{now:()=>new Date(clock.now),errors:{report:async(error)=>{alarms.push(error.message);}}});
+  const cli=installWildshard(join(work,'installed')),file=join(work,'blocked.tar');await writeFile(file,await blockedEntryTarball());
+  const args=['upload',file,'--server',fixture.url,'--version','0.1.0','--commit','a'.repeat(40),'--channel','staging'];
+  const child=spawn(process.execPath,[cli,...args],{env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
+  context.after(()=>{if(child.exitCode===null)child.kill('SIGTERM');});
+  const stdout=text(child.stdout),stderr=text(child.stderr),closed=once(child,'close');
+  const deadline=Date.now()+30_000;
+  while(fixture.id===undefined&&child.exitCode===null&&Date.now()<deadline)await delay(20);
+  assert.ok(fixture.id,'valid original must reach cooking before the actual entry proof refuses it');
+  if(late){
+    clock.now+=30*60_000;await maintainUploads(fixture.deps);await maintainUploads(fixture.deps);
+    assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'stalled');
+    assert.equal(alarms.length,1);await closed;
+    assert.equal(child.exitCode,3,await stderr);assert.ok((await stdout).includes(`upload ${fixture.id}: stalled`));
+  }
+  const client=cookApi(fixture.url,COOK_KEY,fetch,()=>clock.now),source=pendingSource(client,apiSource(fixture.url));
+  const build='async-refusal',worker=createCookWorker({build,store:folderStore(join(work,'packs')),source,serverPacks:join(work,'server'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:join(root,'scripts/bake-loader.mjs'),script:join(root,'scripts/cook-job.mjs'),wrap:process.platform==='darwin'?['sandbox-exec','-p','(version 1)(allow default)(deny network*)']:['sudo','-n','unshare','--net','--','setpriv',`--reuid=${process.getuid()}`,`--regid=${process.getgid()}`,'--init-groups','--reset-env'],limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
+  const outbox=new VerdictOutbox(join(work,'outbox')),delivery=uploadDelivery({api:client,source,worker,outbox,build,log:line=>context.diagnostic(line)});
+  await delivery.sweep();await delivery.idle();
+  const settled=await fixture.catalogue.uploads.byHash(fixture.hash);
+  assert.equal(settled.status,'refused');assert.equal(settled.report.pass,false);
+  assert.ok(settled.report.failures.some(row=>/Submerged edge entry north/u.test(row.message)));
+  const files=readTar(await readFile(file));
+  const product=validateShardfileFolder({paths:()=>files.keys(),read:path=>files.get(path)},
+    {hash:bytes=>createHash('sha256').update(bytes).digest('hex')});
+  const author=await checkShardfile(product.shard,product.assets,{sections:product.sections});
+  assert.deepEqual(settled.report,author,'the actual author and credential-free cook keep the same full entry refusal');
+  assert.equal(outbox.rows().length,0);
+  const before=await fixture.sql.query('select name,pointers from channels order by name');
+  assert.ok(before.rows.every(row=>!Object.values(row.pointers).includes(fixture.hash)));
+  assert.equal((await fixture.sql.query("select slug from grid_cells where slug='async-sdk-isle'")).rows.length,0);
+  await client.verdict(fixture.id,JSON.stringify({hash:fixture.hash,result:'refused',report:settled.report}));
+  assert.deepEqual((await fixture.sql.query('select name,pointers from channels order by name')).rows,before.rows);
+  if(!late){
+    await closed;assert.equal(child.exitCode,3,await stderr);
+    const output=await stdout;assert.ok(output.includes(`upload ${fixture.id}: refused`));
+    assert.deepEqual(JSON.parse(output.slice(output.indexOf('{\n')).trim()),settled.report);
+  }
 });

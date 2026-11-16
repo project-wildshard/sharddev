@@ -14,14 +14,38 @@ const root=resolve(SOURCE);
 const load=path=>import(pathToFileURL(resolve(root,path)).href);
 const [{createApp},{openPglite},{applyMigrations},{createCatalogueStore},
   {depsFromEnv},{createR2ObjectStore},{startS3Double},{makeShardfile},
-  {runMigrateJob},{doubles},{activateUpload,uploadActivator}]=await Promise.all([
+  {runMigrateJob},{doubles},{activateUpload,uploadActivator},{maintainUploads}]=await Promise.all([
   load('src/server/app.ts'),load('src/server/catalogue/pglite.ts'),
   load('src/server/catalogue/migrations.ts'),load('src/server/catalogue/catalogue-store.ts'),
   load('src/server/env.ts'),load('src/server/storage/r2-object-store.ts'),
   load('src/test/helpers/s3-double.ts'),load('src/test/helpers/shardfile.ts'),
   load('src/server/migrate/run-job.ts'),load('src/test/helpers/migrate.ts'),
   load('src/server/uploads/activate.ts'),
+  load('src/server/uploads/maintain.ts'),
 ]);
+
+export {maintainUploads};
+
+/** Valid static admission, but a real 50 m entry walk reaches this flooded pool
+ * beyond the 15 m socket footprint. No validator, execution or cook double. */
+export async function blockedEntryTarball(){
+  const [{shardfileFiles},{prepare,sha256,jsonOf},{makeTar},
+    {assembleOutputShardfile,parseOutputIndex},{validationSourceBytes}]=await Promise.all([
+    load('src/test/helpers/shardfile.ts'),load('src/test/helpers/preparation.ts'),
+    load('src/test/helpers/tar.ts'),import('@wildshard/format/outputIndex'),
+    import('@wildshard/format/validationReceipt'),
+  ]);
+  const files=await shardfileFiles({slug:'async-sdk-isle'}),index=parseOutputIndex(jsonOf(files,'shard.json'));
+  const water=index.sections.find(row=>row.name==='world/water');
+  const bytes=validationSourceBytes({water:[{id:'blocked-route',kind:'pool',level:1,shape:{kind:'circle',x:0,z:205,radius:3}}]});
+  files.set(water.path,bytes);water.hash=sha256(bytes);water.bytes=bytes.length;
+  for(const pack of index.packs)files.delete(pack.path);
+  index.packs=[];
+  const sections=new Map(index.sections.map(row=>[row.name,jsonOf(files,row.path)]));
+  index.build.sourceHash=sha256(validationSourceBytes(assembleOutputShardfile(index,sections)));
+  files.delete('cook.json');await prepare(files,index);
+  return makeTar(files);
+}
 
 export const REPORT={failures:[{path:'entries',reason:'portal walk refused',detail:{cell:[1,-2]}}]};
 export const TARBALL=await makeShardfile({slug:'async-sdk-isle'});
@@ -101,9 +125,9 @@ export async function openApi(context,mode,extraPorts={}){
   const store=createR2ObjectStore(s3);
   const catalogue=createCatalogueStore(sql);
   const fixture={sql,store,catalogue,ack:false,states:[],id:undefined,hash:undefined};
-  const deps=depsFromEnv({GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin',COOK_SIGNING_KEY:COOK_KEY},
+  const deps={...depsFromEnv({GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin',COOK_SIGNING_KEY:COOK_KEY},
     {version:'api-contract-2ad9890',store,records:store,presigner:store,catalogue,
-      notifier:{notify:async()=>fixture.ack},...extraPorts});
+      notifier:{notify:async()=>fixture.ack}}),...extraPorts};
   fixture.deps=deps;
   const app=createApp(deps);
   fixture.app=app;
