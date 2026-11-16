@@ -1,0 +1,160 @@
+name: cooked-templates-contract
+
+# New cases report for one week. Actual JSON receipts, not the green
+# continue-on-error wrapper, qualify the current change before land.
+on:
+  push:
+    branches: [main, 'plan/**']
+    paths:
+      - src/**
+      - public/**
+      - test/ci/cooked-template-play.proof.mjs
+      - scripts/assert-candidate-engine.mjs
+      - scripts/select-candidate.mjs
+      - .github/workflows/cooked-templates-contract.yml
+      - package.json
+      - pnpm-lock.yaml
+  workflow_dispatch:
+    inputs:
+      engine:
+        description: Exact engine commit with public cooked intake
+        type: string
+        default: ''
+  schedule:
+    - cron: '35 8 * * *'
+
+permissions:
+  contents: read
+  actions: read
+
+env:
+  APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+  COOKED_ENGINE_CANDIDATE: ${{ inputs.engine || 'bc0571718fbac9be5b3b7407459687746f1545a2' }}
+  COOKED_REPORT_DIR: tmp/cooked-templates
+
+jobs:
+  producer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+      # Private org git dependencies (github:project-wildshard/...): mint a
+      # read-only token from the org app (meta repo P0.2, J34) and point
+      # every github.com URL form at it. pnpm-lock.yaml records them as
+      # git@github.com:..., and git clones them, so the rewrite covers it.
+      # Skipped where the secrets don't reach (fork PRs, Dependabot).
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        if: env.APP_CLIENT_ID != ''
+        with:
+          client-id: ${{ env.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: project-wildshard
+          permission-contents: read
+      - name: Read private org repos with the app token
+        if: steps.app-token.outputs.token != ''
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          base="https://x-access-token:${TOKEN}@github.com/"
+          git config --global url."$base".insteadOf "https://github.com/"
+          git config --global --add url."$base".insteadOf "git@github.com:"
+          git config --global --add url."$base".insteadOf "ssh://git@github.com/"
+      - name: Install the declared producer graph
+        run: pnpm install --frozen-lockfile --config.ci=false
+      - name: Prove the pinned producer before building
+        run: node scripts/assert-candidate-engine.mjs --producer
+      - name: Build all three authored templates once
+        run: pnpm build:shards
+      - name: Carry the immutable producer output and provenance
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cooked-templates-source-${{ github.sha }}
+          path: |
+            out/
+            tmp/cooked-templates/producer.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 2
+
+  cook-play:
+    needs: producer
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+      # Private org git dependencies (github:project-wildshard/...): mint a
+      # read-only token from the org app (meta repo P0.2, J34) and point
+      # every github.com URL form at it. pnpm-lock.yaml records them as
+      # git@github.com:..., and git clones them, so the rewrite covers it.
+      # Skipped where the secrets don't reach (fork PRs, Dependabot).
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        if: env.APP_CLIENT_ID != ''
+        with:
+          client-id: ${{ env.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: project-wildshard
+          permission-contents: read
+      - name: Read private org repos with the app token
+        if: steps.app-token.outputs.token != ''
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          base="https://x-access-token:${TOKEN}@github.com/"
+          git config --global url."$base".insteadOf "https://github.com/"
+          git config --global --add url."$base".insteadOf "git@github.com:"
+          git config --global --add url."$base".insteadOf "ssh://git@github.com/"
+      - name: Restore this run's actual producer bytes
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: cooked-templates-source-${{ github.sha }}
+          path: .
+      - name: Select exact candidate runtime after the build
+        env:
+          CANDIDATE_ENGINE: ${{ env.COOKED_ENGINE_CANDIDATE }}
+        run: node scripts/select-candidate.mjs
+      - name: Install candidate runtime
+        run: pnpm install --no-frozen-lockfile --config.ci=false
+      - name: Prove actual runtime provenance
+        run: node scripts/assert-candidate-engine.mjs
+      - name: Check explicit proof syntax
+        run: node --check test/ci/cooked-template-play.proof.mjs
+      - name: Cold cook and play this measured partition
+        env:
+          COOKED_PART: 1/1
+        run: node --test --test-concurrency=1 test/ci/cooked-template-play.proof.mjs
+      - name: Retain actual receipts even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: cooked-templates-contract
+          path: tmp/cooked-templates/*.json
+          if-no-files-found: error
+          retention-days: 14
