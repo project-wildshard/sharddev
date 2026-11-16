@@ -88,7 +88,7 @@ if (selected.some(file => !admitted.includes(file))) throw new Error('CI21 lint 
 const paths = selected.length === 0 ? admitted : selected;
 process.stdout.write(`CI21 typed lint: ${targets.length} recorded tests, ${manifest.supportPaths.length} support files; linting ${paths.length} paths\n`);
 // Explicit admission includes only the recorded boundary helpers, alongside the port tests.
-const run = spawnSync('node_modules/.bin/oxlint', ['--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...paths], {
+const run = spawnSync(process.execPath, ['kit/scripts/bin-tools.mjs', '--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...paths], {
   stdio: 'inherit', env: { ...process.env, WILDSHARD_RATCHET_FILE: 'lint/ratchet.json' },
 });
 if (run.error !== undefined) throw run.error;

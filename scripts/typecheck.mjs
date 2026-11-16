@@ -5,10 +5,10 @@ import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const compiler = resolve(root, 'node_modules/.bin/tsc');
+const compiler = resolve(root, 'node_modules/.bin/npr');
 const projects = ['src/tsconfig.json', 'src/web/tsconfig.json', 'tsconfig.author.json'];
 const results = await Promise.all(projects.map(project => new Promise(done => {
-  const child = spawn(compiler, ['-p', project], { cwd: root, stdio: 'inherit' });
+  const child = spawn(compiler, ['tsc', '-p', project], { cwd: root, stdio: 'inherit' });
   child.on('error', error => { process.stderr.write([project, ': ', error.message, '\n'].join('')); done(1); });
   child.on('close', code => done(code ?? 1));
 })));

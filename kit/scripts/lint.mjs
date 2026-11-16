@@ -13,6 +13,7 @@
 // them; with no paths each run lints its whole tree.
 import { spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
+import { lintEnvironment } from './bin-tools.mjs';
 
 const VALUED = new Set(['--ignore-pattern', '-c', '--config', '--tsconfig', '-A', '-D', '-W', '--allow', '--deny', '--warn']);
 const flags = [];
@@ -37,8 +38,9 @@ const runs = !hasSrc
   : paths.length === 0
     ? [[KIT, ['--ignore-pattern', 'src/**']], [SRC, ['src']]]
     : [[KIT, paths.filter((path) => !inSrc(path))], [SRC, paths.filter(inSrc)]].filter(([, owned]) => owned.length > 0);
+const env = lintEnvironment();
 for (const [config, owned] of runs) {
-  const run = spawnSync('pnpm', ['exec', 'oxlint', '-c', config, ...(hasSrc ? split : flags), ...owned], { stdio: 'inherit' });
+  const run = spawnSync('pnpm', ['exec', 'oxlint', '-c', config, ...split, ...owned], { stdio: 'inherit', env });
   if (run.error !== undefined) throw run.error;
   if (run.status !== 0) {
     process.exitCode = run.status ?? 1;

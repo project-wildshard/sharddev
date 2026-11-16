@@ -44,13 +44,13 @@ importers:
         version: 6.0.2
       '@valibot/to-json-schema':
         specifier: 1.8.0
-        version: 1.8.0(valibot@1.5.0(typescript@7.0.2))
+        version: 1.8.0(valibot@1.5.0(typescript@6.0.3))
       '@wildshard/engine':
         specifier: 0.1.31
-        version: 0.1.31(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        version: 0.1.31(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.12.0
-        version: '@wildshard/shard-format@0.12.0(typescript@7.0.2)'
+        version: '@wildshard/shard-format@0.12.0(typescript@6.0.3)'
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -77,7 +77,7 @@ importers:
         version: 0.4.1(@types/three@0.186.0)(three@0.186.0)
       oxlint:
         specifier: 1.89.0
-        version: 1.89.0(oxlint-tsgolint@7.0.2004)
+        version: 1.89.0
       playwright:
         specifier: 1.65.0
         version: 1.65.0
@@ -92,7 +92,7 @@ importers:
         version: 0.35.5(@types/node@24.3.1)
       valibot:
         specifier: 1.5.0
-        version: 1.5.0(typescript@7.0.2)
+        version: 1.5.0(typescript@6.0.3)
       vite:
         specifier: 8.3.0
         version: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
@@ -112,18 +112,12 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
-      oxfmt:
-        specifier: 0.74.0
-        version: 0.74.0
-      oxlint-tsgolint:
-        specifier: 7.0.2004
-        version: 7.0.2004
+      npm-bin-deps:
+        specifier: 2.1.0
+        version: 2.1.0
       three:
         specifier: 0.186.0
         version: 0.186.0
-      typescript:
-        specifier: 7.0.2
-        version: 7.0.2
 
 packages:
 
@@ -378,29 +372,6 @@ packages:
   '@oxc-project/types@0.156.0':
     resolution: {integrity: sha512-1Duyg48TdJNdyhEB8Xn1L36bT9Pv6GUtlKjHxOys8xkaF/rQq3XJE+bAurSK/AgIz5mGFsb77cn9Pb20+WCScw==}
 
-  '@oxfmt/binding-darwin-arm64@0.74.0':
-    resolution: {integrity: sha512-TfmNKBD30dGyMu9GCLiaw2rt/z7fms9LS+5cKcNOyWst0QgAs8oZs6wPxMbVaaDVE0/PCdCosgWM1vbu6f5NUg==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@oxfmt/binding-linux-x64-gnu@0.74.0':
-    resolution: {integrity: sha512-4kYIQK53yJXrxwxSzx8H2bojlf6/KezLGYLRXzV9QCCkoiCsvBTCid9Bg83dUPTLPa3g9K0730f6MKDbck1+OA==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    cpu: [x64]
-    os: [linux]
-    libc: [glibc]
-
-  '@oxlint-tsgolint/darwin-arm64@7.0.2004':
-    resolution: {integrity: sha512-uJk3ttju7Lz+Nv8WG4CsLyewoL1qf/Ny8S8OksJ7Bm/F14Tc9gMfW6arM1PCc57IzH/X/I79YsCWTgxX1FKibQ==}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@oxlint-tsgolint/linux-x64@7.0.2004':
-    resolution: {integrity: sha512-LPunZvm6ZbWPfHMAyfZf9ci3HHvNEzLejO8zdqO3GoVGoSEHqqufHUD7+OgeatVSaJP7uXDJ2HaNOHIoH7go4Q==}
-    cpu: [x64]
-    os: [linux]
-
   '@oxlint/binding-darwin-arm64@1.89.0':
     resolution: {integrity: sha512-Z/oxOPiIqiS7fItRdxaaOEC+6GD3OpGi0IxoR0dMefzQHolsKLzScw2DNcu/5gUPok3tv+G9mslvYB5bo3i0qg==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -603,24 +574,6 @@ packages:
 
   '@types/ws@8.18.2':
     resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
-
-  '@typescript/typescript-darwin-arm64@7.0.2':
-    resolution: {integrity: sha512-gowzar9MwS/aRWp6f3a4KUqzRjAZjOsmGNCM6LcTgXum+dBfgsBVMN+AgvOCCbguXyick6LJhpBszxMebJ8syA==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [darwin]
-
-  '@typescript/typescript-linux-arm64@7.0.2':
-    resolution: {integrity: sha512-Qh4eU4/y3yDjnfjjyPYihMj5/ODIlmt+Bzu17OI+fiSRDW57QmU5SiN63exPRNJPKUzcc1INa1NXdrJ+MqHjUQ==}
-    engines: {node: '>=16.20.0'}
-    cpu: [arm64]
-    os: [linux]
-
-  '@typescript/typescript-linux-x64@7.0.2':
-    resolution: {integrity: sha512-EYdf2cNg7rgCWJnxCdJ+F3V39O8ihb37eHAu1LK8oAFizgTQbPOK7zHHXbPt8rX24COqODXeI3sIf0fCXG7H/A==}
-    engines: {node: '>=16.20.0'}
-    cpu: [x64]
-    os: [linux]
 
   '@typescript/typescript6@6.0.2':
     resolution: {integrity: sha512-mbCddXd+jm7hfx7w2YU64/Av4/NqqeG3GoRZgxPcgoTxYjhrcfJRw9ULch71SS4G+Q3bOXFhRvPqjguN0Hyp5w==}
@@ -904,29 +857,14 @@ packages:
   ndarray@1.1.1:
     resolution: {integrity: sha512-AsE8w/M2MS+0pD3nP5qbRRtJFeJJJaJ+qXZaZr0XjVGXhy6LIj2TERTlkpdK2AI3WufoOP+pwPk3q2ilAJcZ9g==}
 
+  npm-bin-deps@2.1.0:
+    resolution: {integrity: sha512-lHzsAszPtclbMFnS+9J/N7KwGpo/vYeA6nMT9lxA8X72SLyEOcaY0F95PSeC9Yo7D8SvXMC9WJH+PQdDBgEQxQ==}
+    engines: {node: '>=20'}
+    hasBin: true
+
   obug@2.2.1:
     resolution: {integrity: sha512-XrsrhT5sybtKI6wakr2SPOlGZWWYbUXZ7a0jT8/QOeAPau+1X/bSegNe5YR75oJmEZQbKningirmGOEJCIk61Q==}
     engines: {node: '>=12.20.0'}
-
-  oxfmt@0.74.0:
-    resolution: {integrity: sha512-G4OP7FgwGYZR5ttRpCOOfJdyRsSyvtn34vSXnjDq6Oqed5Dufg5mB44mank+51nAdHOKuTJ0lj0mksY7L+N61A==}
-    engines: {node: ^20.19.0 || >=22.12.0}
-    hasBin: true
-    peerDependencies:
-      '@astrojs/compiler-rs': ^0.4.0 || ^0.5.0
-      svelte: ^5.0.0
-      vite-plus: '*'
-    peerDependenciesMeta:
-      '@astrojs/compiler-rs':
-        optional: true
-      svelte:
-        optional: true
-      vite-plus:
-        optional: true
-
-  oxlint-tsgolint@7.0.2004:
-    resolution: {integrity: sha512-vQ9WDF3fiZJvRdSDosNOflerOCOpwol6vWzVDxW76RcU19cjTh7engvkHLvmv+tzedR8fAiJUVUGr6IVZdkzXQ==}
-    hasBin: true
 
   oxlint@1.89.0:
     resolution: {integrity: sha512-a25hkfo61okGPvJz432fRIPoxlKtNnOVy9w4rzrmGgNm4iVTPwpSQlmdqNWnp6p9QyyPVfAZRgnf5XvSBZFk/A==}
@@ -1091,21 +1029,12 @@ packages:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
 
-  tinypool@2.2.0:
-    resolution: {integrity: sha512-jBrmx4lYmaC9k/mgPbylxs7kBUxHtD8256up+HjLaDFfXScKJQyil+SWXSvhAtT7XHo+yTVlpB81PGmHP8oLSQ==}
-    engines: {node: ^20.0.0 || >=22.0.0}
-
   tslib@2.9.1:
     resolution: {integrity: sha512-a4Ux9VKuIMHsOS7ENbEq6hK2ZGYIT27Rtl0E4eD9KqwxhKiQeMZE/9xb3IdYwWaSOyIBQLExhQgXDTYoiCxnWA==}
 
   typescript@6.0.3:
     resolution: {integrity: sha512-y2TvuxSZPDyQakkFRPZHKFm+KKVqIisdg9/CZwm9ftvKXLP8NRWj38/ODjNbr43SsoXqNuAisEf1GdCxqWcdBw==}
     engines: {node: '>=14.17'}
-    hasBin: true
-
-  typescript@7.0.2:
-    resolution: {integrity: sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA==}
-    engines: {node: '>=16.20.0'}
     hasBin: true
 
   undici-types@7.10.0:
@@ -1544,18 +1473,6 @@ snapshots:
 
   '@oxc-project/types@0.156.0': {}
 
-  '@oxfmt/binding-darwin-arm64@0.74.0':
-    optional: true
-
-  '@oxfmt/binding-linux-x64-gnu@0.74.0':
-    optional: true
-
-  '@oxlint-tsgolint/darwin-arm64@7.0.2004':
-    optional: true
-
-  '@oxlint-tsgolint/linux-x64@7.0.2004':
-    optional: true
-
   '@oxlint/binding-darwin-arm64@1.89.0':
     optional: true
 
@@ -1707,22 +1624,13 @@ snapshots:
     dependencies:
       '@types/node': 24.3.1
 
-  '@typescript/typescript-darwin-arm64@7.0.2':
-    optional: true
-
-  '@typescript/typescript-linux-arm64@7.0.2':
-    optional: true
-
-  '@typescript/typescript-linux-x64@7.0.2':
-    optional: true
-
   '@typescript/typescript6@6.0.2':
     dependencies:
       '@typescript/old': typescript@6.0.3
 
-  '@valibot/to-json-schema@1.8.0(valibot@1.5.0(typescript@7.0.2))':
+  '@valibot/to-json-schema@1.8.0(valibot@1.5.0(typescript@6.0.3))':
     dependencies:
-      valibot: 1.5.0(typescript@7.0.2)
+      valibot: 1.5.0(typescript@6.0.3)
 
   '@vitest/mocker@5.0.1(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
@@ -1735,7 +1643,7 @@ snapshots:
 
   '@vitest/spy@5.0.1': {}
 
-  '@wildshard/engine@0.1.31(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@7.0.2)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
+  '@wildshard/engine@0.1.31(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.5(hono@4.13.13)
@@ -1743,9 +1651,9 @@ snapshots:
       '@sentry/browser': 11.0.0
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
-      '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@7.0.2))
-      '@wildshard/format': '@wildshard/shard-format@0.12.0(typescript@7.0.2)'
-      '@wildshard/wire': 0.1.0(typescript@7.0.2)
+      '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@6.0.3))
+      '@wildshard/format': '@wildshard/shard-format@0.12.0(typescript@6.0.3)'
+      '@wildshard/wire': 0.1.0(typescript@6.0.3)
       ajv: 6.15.0
       fflate: 0.8.3
       hono: 4.13.13
@@ -1755,7 +1663,7 @@ snapshots:
       postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       preact: 11.1.1
       three: 0.186.0
-      valibot: 1.5.0(typescript@7.0.2)
+      valibot: 1.5.0(typescript@6.0.3)
       vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
       ws: 8.22.0
     optionalDependencies:
@@ -1769,16 +1677,16 @@ snapshots:
       - typescript
       - utf-8-validate
 
-  '@wildshard/shard-format@0.12.0(typescript@7.0.2)':
+  '@wildshard/shard-format@0.12.0(typescript@6.0.3)':
     dependencies:
       meshoptimizer: 1.2.0
-      valibot: 1.5.0(typescript@7.0.2)
+      valibot: 1.5.0(typescript@6.0.3)
     transitivePeerDependencies:
       - typescript
 
-  '@wildshard/wire@0.1.0(typescript@7.0.2)':
+  '@wildshard/wire@0.1.0(typescript@6.0.3)':
     dependencies:
-      valibot: 1.5.0(typescript@7.0.2)
+      valibot: 1.5.0(typescript@6.0.3)
     transitivePeerDependencies:
       - typescript
 
@@ -1974,25 +1882,14 @@ snapshots:
       iota-array: 1.0.0
       is-buffer: 1.1.6
 
+  npm-bin-deps@2.1.0: {}
+
   obug@2.2.1: {}
 
-  oxfmt@0.74.0:
-    dependencies:
-      tinypool: 2.2.0
-    optionalDependencies:
-      '@oxfmt/binding-darwin-arm64': 0.74.0
-      '@oxfmt/binding-linux-x64-gnu': 0.74.0
-
-  oxlint-tsgolint@7.0.2004:
-    optionalDependencies:
-      '@oxlint-tsgolint/darwin-arm64': 7.0.2004
-      '@oxlint-tsgolint/linux-x64': 7.0.2004
-
-  oxlint@1.89.0(oxlint-tsgolint@7.0.2004):
+  oxlint@1.89.0:
     optionalDependencies:
       '@oxlint/binding-darwin-arm64': 1.89.0
       '@oxlint/binding-linux-x64-gnu': 1.89.0
-      oxlint-tsgolint: 7.0.2004
 
   pg-cloudflare@1.4.1:
     optional: true
@@ -2148,17 +2045,9 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.7)
       picomatch: 4.0.7
 
-  tinypool@2.2.0: {}
-
   tslib@2.9.1: {}
 
   typescript@6.0.3: {}
-
-  typescript@7.0.2:
-    optionalDependencies:
-      '@typescript/typescript-darwin-arm64': 7.0.2
-      '@typescript/typescript-linux-arm64': 7.0.2
-      '@typescript/typescript-linux-x64': 7.0.2
 
   undici-types@7.10.0: {}
 
@@ -2170,9 +2059,9 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  valibot@1.5.0(typescript@7.0.2):
+  valibot@1.5.0(typescript@6.0.3):
     optionalDependencies:
-      typescript: 7.0.2
+      typescript: 6.0.3
 
   vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2):
     dependencies:
