@@ -1,18 +1,26 @@
 /* eslint-disable id-length, max-lines-per-function, typescript/explicit-function-return-type, typescript/prefer-readonly-parameter-types, typescript/promise-function-async, unicorn/import-style */
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+import { randomUUID } from 'node:crypto'
 import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
-import { afterEach, describe, it } from 'node:test'
+import { after, afterEach, describe, it } from 'node:test'
 
 import { scratchDir } from '../../scripts/scratch-dir.mjs'
 import { formatContent, readContent } from './content.ts'
 
 const lane = process.env['WS_LANE_NAME'] ?? 'content-test'
-const scratch = scratchDir(lane, 'Content CLI test fixtures', {
-  env: { ...process.env, WS_LANE_NAME: lane },
-})
+const scratch = scratchDir(
+  `content-test-${randomUUID()}`,
+  'Content CLI test fixtures',
+  {
+    env: { ...process.env, WS_LANE_NAME: lane },
+  },
+)
 const dirs: string[] = []
+after(async () => {
+  await rm(scratch, { recursive: true, force: true })
+})
 afterEach(async () => {
   await Promise.all(
     dirs.splice(0).map(dir => rm(dir, { recursive: true, force: true })),
