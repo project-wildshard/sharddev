@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest';
-import { budgetReport, partBudgets } from './budget';
+import { TILE_TRIANGLES } from '@wildshard/format/viewDraws';
+import { budgetReport, partBudgets, TIER_CAPS } from './budget';
 import type { SceneDraw, ScenePart, ShardScene } from './description';
 
 const IDENTITY = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
@@ -21,10 +22,17 @@ test('the budget table names each part, and a tile over the phone cap names its 
   const parts = partBudgets(scene);
   expect(parts.map((p) => [p.part, p.triangles, p.materials, p.tiles.get('0/4/4')])).toEqual([['grass', 50_000, 1, 50_000], ['hut', 4000, 2, 2000]]);
   const lines = budgetReport(parts, [{ tile: '0/4/4', triangles: 52_000, draws: 3 }, { tile: '0/7/7', triangles: 2000, draws: 1 }]);
-  expect(lines[0]).toMatch(/^budget \(AP9\): 2 parts; caps phone 40,000 tris a tile, 150 draws a view; desktop no tile cap, 400 draws a view/u);
+  expect(lines[0]).toMatch(/^budget \(AP9\): 2 parts; caps phone 40,000 tris a tile, 150 draws a view; desktop 400,000 tris a tile, 400 draws a view/u);
   expect(lines.find((l) => l.includes('grass'))).toMatch(/grass\s+50,000\s+1\s+0\/4\/4 50,000\s+over: tile tris\s+ok/u);
   expect(lines.find((l) => l.includes(' hut '))).toMatch(/hut\s+4,000\s+2\s+0\/4\/4 2,000\s+ok\s+ok/u);
   expect(lines.filter((l) => l.startsWith('over '))).toEqual(['over phone: tile 0/4/4 52,000 tris > 40,000: grass 50,000, hut 2,000']);
+});
+
+test('the desktop tier reads its tile triangle cap from the format (AP9b)', () => {
+  expect(TIER_CAPS.desktop.tileTriangles).toBe(TILE_TRIANGLES.desktop);
+  expect(TIER_CAPS.phone.tileTriangles).toBe(TILE_TRIANGLES.phone);
+  const lines = budgetReport([], [{ tile: '0/4/4', triangles: 450_000, draws: 3 }]);
+  expect(lines.filter((l) => l.startsWith('over '))).toEqual(['over phone: tile 0/4/4 450,000 tris > 40,000: ', 'over desktop: tile 0/4/4 450,000 tris > 400,000: ']);
 });
 
 test('a part with more materials than a view may draw is over on that tier only', () => {

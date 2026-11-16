@@ -1,9 +1,9 @@
 // SHARD-SOURCE AP9a: budgets are a report. `wildshard build` and `check` print one table for a scene shard: each part's
 // triangles, materials (its view draws: the engine draws a material once across tiles, AP8) and the fine tile it fills
 // most, against each tier's caps; every tile over a tier's cap is named with the parts that fill it, the largest first.
-// Caps are reported, not enforced (J338). The desktop tier has no tile triangle cap until AP9b gives the format one.
+// Caps are reported, not enforced (J338). The desktop tier's tile triangle cap is the format's (AP9b, `TILE_TRIANGLES`).
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
-import { VIEW_DRAWS } from '@wildshard/format/viewDraws';
+import { TILE_TRIANGLES, VIEW_DRAWS } from '@wildshard/format/viewDraws';
 import type { ShardScene } from './description';
 
 /** A tier's caps: triangles in one fine (L0) tile, and the draws one view may cost. `null`: no cap on that tier yet. */
@@ -11,7 +11,7 @@ export interface TierCaps { readonly tileTriangles: number | null; readonly view
 /** The caps each tier is reported against (format `CONTENT_CAPS` and `VIEW_DRAWS`). */
 export const TIER_CAPS: Readonly<Record<'phone' | 'desktop', TierCaps>> = {
   phone: { tileTriangles: CONTENT_CAPS.l0.triangles, viewDraws: VIEW_DRAWS.phone },
-  desktop: { tileTriangles: null, viewDraws: VIEW_DRAWS.desktop },
+  desktop: { tileTriangles: TILE_TRIANGLES.desktop, viewDraws: VIEW_DRAWS.desktop },
 };
 
 /** One part's share of the budget. Tile triangles are counted at each mesh or instance's origin, so a share is close. */
