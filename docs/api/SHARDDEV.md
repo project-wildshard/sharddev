@@ -114,7 +114,7 @@
 | `FAR_IMPOSTOR_BAKE` | const | @wildshard/sdk/bake/farImpostor | G539 (Jake: *"we need to have a different far layout rendering option for really distant things"*): the far tier's |
 | `FarImpostorBake` | interface | @wildshard/sdk/bake/farImpostor | One baked impostor: its row (without its file reference), the PNG and its GPU texels (RGBA 5551). |
 | `FarImpostorFamily` | type | @wildshard/sdk/bake/farImpostor | The proxy's look family: toon draws flat facets, the others their vertex normals. |
-| `bakeForestPlacements` | function | @wildshard/sdk/bake/forest | Bake the existing forest algorithm from trusted explicit policy and native samplers. |
+| `bakeForestPlacements` | function | @wildshard/sdk/bake/forest | Bake the existing forest algorithm from legacy explicit policy and native samplers. |
 | `bakePlantedForest` | function | @wildshard/sdk/bake/forest | — |
 | `forestDefaultTreeSpecs` | function | @wildshard/sdk/bake/forest | Native ordered default tree geometry traits used by forest placement. |
 | `NativeForestPlacements` | interface | @wildshard/sdk/bake/forest | A build's ordered trees and the original padded trunk query over those same owned records. |
@@ -179,9 +179,9 @@
 | `AuthorGraphStages` | type | @wildshard/sdk/bake/materialGraph | Original material, fog and post stage outputs. |
 | `AuthorPostGraphLook` | type | @wildshard/sdk/bake/materialGraph | Complete authored post look, including ordered pass topology and resource wiring. |
 | `AuthorScaledPost` | type | @wildshard/sdk/bake/materialGraph | Data-only scaled post pass topology and resource wiring. |
-| `checkAuthorGraph` | function | @wildshard/sdk/bake/materialGraph | Validate an offline author's complete graph under the existing trusted author budget. |
+| `checkAuthorGraph` | function | @wildshard/sdk/bake/materialGraph | Validate an offline author's complete graph under the existing legacy author budget. |
 | `colourLutSampleTransform` | function | @wildshard/sdk/bake/materialGraph | Map clamped display-sRGB to cube texel centres, preserving native graph arithmetic order. |
-| `bakeMeadowField` | function | @wildshard/sdk/bake/meadow | Bake all original four-metre meadow corners from trusted explicit native samplers. |
+| `bakeMeadowField` | function | @wildshard/sdk/bake/meadow | Bake all original four-metre meadow corners from legacy explicit native samplers. |
 | `NativeMeadowField` | interface | @wildshard/sdk/bake/meadow | An owned eight-channel native lattice snapshot and the original query state that produced it. |
 | `NativeLatticeAttribute` | interface | @wildshard/sdk/bake/nativeLattice | A native vertex channel. Values are interpolated linearly at cuts, without renormalising normals or splat weights. |
 | `NativeLatticeSource` | interface | @wildshard/sdk/bake/nativeLattice | Exact native terrain mesh, including its original diagonal, holes and vertex channels. Collision is not rebuilt here. |
@@ -276,7 +276,7 @@
 | `gridPositions` | function | @wildshard/sdk/bake/props | A partition's float positions as unnormalized Int16 on `grid` (within half its step). |
 | `objectSpaceLooks` | function | @wildshard/sdk/bake/props | The look graphs (id -> `{ nodes: { [id]: { op } } }`) that read a vertex's object-space position (`positionLocal` / |
 | `partitionWholeGeometry` | function | @wildshard/sdk/bake/props | Partition triangles without clipping or rounding any source channel; world transforms affect ownership only. |
-| `PropsBakeSource` | interface | @wildshard/sdk/bake/props | Trusted static content. Named panels remain separate, and coarse/far replacements are optional build-time inputs. |
+| `PropsBakeSource` | interface | @wildshard/sdk/bake/props | Legacy static content. Named panels remain separate, and coarse/far replacements are optional build-time inputs. |
 | `PropScatter` | interface | @wildshard/sdk/bake/props | A reusable scatter shape and its world-local positive TRS matrices; generators run only at build time. |
 | `PropWhole` | interface | @wildshard/sdk/bake/props | A mesh kept whole in its own frame, never cut at a tile seam: one GLB node named `id` (a loader-safe identifier) at |
 | `WholeGeometryPart` | interface | @wildshard/sdk/bake/props | One exact subset of a whole geometry. Ordinals address the original vertices and triangles, not clipped fragments. |
@@ -350,7 +350,7 @@
 | `readNativeTerrain` | function | @wildshard/sdk/bake/terrain | Admit bounded original WSTR bytes for author placements, keeping native samples, clamping and arithmetic exact. |
 | `readNativeTriangleField` | function | @wildshard/sdk/bake/terrain | Admit original author collision samples without transposing or resampling them. |
 | `readTerrainTileSource` | function | @wildshard/sdk/bake/terrain | Read an owned WTT source using its original native triangular sampling law. |
-| `TerrainBakeSource` | interface | @wildshard/sdk/bake/terrain | Trusted generator inputs. These closures run only while baking and never enter shard.json or the client. |
+| `TerrainBakeSource` | interface | @wildshard/sdk/bake/terrain | Legacy generator inputs. These closures run only while baking and never enter shard.json or the client. |
 | `TerrainOverride` | interface | @wildshard/sdk/bake/terrain | An ordered build-time patch, blended across a circular footprint; it changes rendering and collision together. |
 | `bakeColourTexture` | function | @wildshard/sdk/bake/texture | Bake PNG colour pixels to mipmapped sRGB UASTC KTX2; the engine's existing loader transcodes these blocks to ASTC. |
 | `bakeRawColourTexture` | function | @wildshard/sdk/bake/texture | Store bounded PNG/JPEG/WebP pixels byte-exact in a single-level Zstd RGBA8 KTX2. |
@@ -421,7 +421,7 @@
 | `roamingCombatRows` | function | @wildshard/sdk/bossProfiles | Admit complete combat policy, projection and presentation without installing runtime systems. |
 | `roamingEncounterRows` | function | @wildshard/sdk/bossProfiles | Admit encounter resources against the caller's original boss profile, without a fight owner. |
 | `roamingProjectionRows` | function | @wildshard/sdk/bossProfiles | Admit complete rig/effect projection data with the native strict field and numeric rules. |
-| `BehaviourBuildSchema` | const | @wildshard/sdk/buildBehaviour | Author-only generation declarations for compiled modules consumed by a trusted native plugin. No wire format changes. |
+| `BehaviourBuildSchema` | const | @wildshard/sdk/buildBehaviour | Author-only generation declarations for compiled modules consumed by a legacy native plugin. No wire format changes. |
 | `buildBehaviourProject` | function | @wildshard/sdk/buildBehaviour | Generate explicitly declared native modules before a project build. Missing declarations produce no writes. |
 | `compileBehaviourModule` | function | @wildshard/sdk/buildBehaviour | Compile retained AssemblyScript author source with the pinned SDK compiler and name its immutable bytes by SHA256. |
 | `buildDecisionScripts` | function | @wildshard/sdk/buildDecisionScripts | Project entry for the same virtual compiler, with no generated file writes or hidden policy reads. |
@@ -455,7 +455,7 @@
 | `compileScriptV2` | function | @wildshard/sdk/compileScriptV2 | Source exports the H0b signatures, including the final i32 fuel parameter |
 | `assertConfigBoundary` | function | @wildshard/sdk/configBoundary | Diagnose executable file/compiler dependencies before a bundled declaration is evaluated as a data URL. |
 | `flock` | function | @wildshard/sdk/crowds | Admit finite crowd tuning before any world construction, setup draws or callback registration. |
-| `FlockData` | type | @wildshard/sdk/crowds | Stable ordered flock declaration with seeded placement and trusted native terrain/view/prey recipes. |
+| `FlockData` | type | @wildshard/sdk/crowds | Stable ordered flock declaration with seeded placement and legacy native terrain/view/prey recipes. |
 | `decisionBindingMap` | function | @wildshard/sdk/decisionBindingMap | SDK compatibility entry; allocation and refusal live in the renderer-free format. |
 | `DecisionBindingMap` | type | @wildshard/sdk/decisionBindingMap | Generated labels and numeric constants use the format's defining map. |
 | `DecisionRegistries` | type | @wildshard/sdk/decisionBindingMap | Authoritative registries shared with the production resolver. |
@@ -500,7 +500,7 @@
 | `EntryCrawlPorts` | interface | @wildshard/sdk/entryReads | — |
 | `EntryCrawlRegion` | interface | @wildshard/sdk/entryReads | Build-owned entry addresses. A crawl runs the same native entry read adapter |
 | `entryDemandUrls` | function | @wildshard/sdk/entryReads | The product files and `/assets/` URLs an entry demanded, in first-demand order. Metadata sections are already |
-| `executeBundle` | function | @wildshard/sdk/executeBundle | Execute one trusted single-chunk build bundle. Its non-builtin imports must |
+| `executeBundle` | function | @wildshard/sdk/executeBundle | Execute one legacy single-chunk build bundle. Its non-builtin imports must |
 | `parseFindsCatalogue` | function | @wildshard/sdk/finds | Admit bounded sticker counters, prize rows and saved-flag identities with the runtime's defining schema. |
 | `authorCatalogueRows` | function | @wildshard/sdk/formatJsonSchema | Admit every explicitly named catalogue member through its defining format. |
 | `authorFormatRows` | function | @wildshard/sdk/formatJsonSchema | Admit author data through its original defining validator, preserving defaults, |
@@ -661,7 +661,7 @@
 | `PlumbingSchema` | const | @wildshard/sdk/plumbing | Validate declared input contexts, tier knobs and Debug choices for an author project. |
 | `admitProduct` | function | @wildshard/sdk/productOutput | Admit declared costs and actual immutable bytes through the browser's defining contracts, without a config loader. |
 | `assertBuildSides` | function | @wildshard/sdk/productOutput | Refuse a build whose sections carry a side refusal: each line is printed, then the build fails with them all. |
-| `assertProductTargets` | function | @wildshard/sdk/productOutput | Refuse the same target overages as the author CLI; warning policy belongs only to trusted checkout callers. |
+| `assertProductTargets` | function | @wildshard/sdk/productOutput | Refuse the same target overages as the author CLI; warning policy belongs only to legacy checkout callers. |
 | `namedJsonReader` | function | @wildshard/sdk/productOutput | A reader of a build's named JSON files by name, from its named-file rows and asset bytes: `undefined` when absent or not JSON. |
 | `readmitted` | function | @wildshard/sdk/productOutput | CI6: the product this very call chain just admitted, handed straight back to a writer that would admit it again: the same |
 | `rememberAdmitted` | function | @wildshard/sdk/productOutput | Record a product format validation just admitted, so a writer handed that same object does not admit it twice. |
@@ -684,7 +684,7 @@
 | `createProjectGeneration` | function | @wildshard/sdk/projectGeneration | Bundled steps carry their own lexical recipe identity. Direct callers retain |
 | `finishProjectGeneration` | function | @wildshard/sdk/projectGeneration | Seal completed generation's current keys, release its lease and schedule G430. |
 | `GeneratedProject` | interface | @wildshard/sdk/projectGeneration | A build may return output metadata alongside the declaration it describes. Neither is written into source. |
-| `isProjectGenerator` | function | @wildshard/sdk/projectGeneration | Build entries are trusted functions; their returned declaration still crosses normal shardfile admission. |
+| `isProjectGenerator` | function | @wildshard/sdk/projectGeneration | Build entries are legacy functions; their returned declaration still crosses normal shardfile admission. |
 | `OutputProgramResult` | interface | @wildshard/sdk/projectGeneration | GR9: a multi-output folder's build program for one output (`programs[slug]` beside `outputs` in shard.config.ts), run |
 | `ProjectGenerationContext` | interface | @wildshard/sdk/projectGeneration | Build-only capabilities. No cache filename or intermediate source file enters a product. |
 | `ProjectGenerationInputRoot` | interface | @wildshard/sdk/projectGeneration | Explicit filesystem capability for authored public assets; never inferred from a shard name or parent path. |
@@ -727,7 +727,7 @@
 | `questStoryRows` | function | @wildshard/sdk/quests | Admit saved-state chapter presentation with its native bounded data grammar. |
 | `Rng` | class | @wildshard/sdk/random | Build-only Mulberry32 with draws, forks and saved continuations identical to the engine RNG. |
 | `RngState` | interface | @wildshard/sdk/random | Mulberry32 continuation, including fork seed and the legacy scrambled-fork mode. |
-| `PerformanceObservations` | type | @wildshard/sdk/reportCard | Trusted native tick observations used by the author CLI, separate from declared costs. |
+| `PerformanceObservations` | type | @wildshard/sdk/reportCard | Legacy native tick observations used by the author CLI, separate from declared costs. |
 | `performanceReport` | function | @wildshard/sdk/reportCard | Evaluate complete performance with refusal by default; author identity never selects legacy warnings. |
 | `PerformanceReport` | type | @wildshard/sdk/reportCard | Author-facing report: declared bounds, measured scripts and explicit cold-network assumptions. |
 | `performanceReportLines` | function | @wildshard/sdk/reportCard | Format every measured or estimated report field without claiming it is a phone reading. |
@@ -906,7 +906,7 @@
 | `SpeciesData` | type | @wildshard/sdk/species | Gameplay-only species fields; the defining declaration lives in the format layer. |
 | `speciesFieldReader` | function | @wildshard/sdk/species | Prepare a strict reader for selected defining species fields. Only native |
 | `speciesProgramRows` | function | @wildshard/sdk/species | Admit complete native species, strike and module declarations before compiling actors. |
-| `strike` | function | @wildshard/sdk/species | Validate a serializable native strike before its trusted engine adapter is constructed. |
+| `strike` | function | @wildshard/sdk/species | Validate a serializable native strike before its legacy engine adapter is constructed. |
 | `StrikeData` | type | @wildshard/sdk/species | Serializable native strike accepted by the SDK, without an authored callback. |
 | `StrikeSchema` | const | @wildshard/sdk/species | The same strict portable strike admission used by native and page population rows. |
 | `ClipCase` | interface | @wildshard/sdk/species/clips | One case of a clip row: the first whose `when` holds sets the channel to the sum of `sum` (an empty sum is 0). |
@@ -1372,7 +1372,7 @@ profiles neither spawn nor tame a creature. Grapple profiles neither invent
 anchors nor grant targets/floors. Native player/body/input owners must bind these
 controls, and full admission proves their world/entry references.
 
-### Weapon profiles and trusted weaponFamily
+### Weapon profiles and legacy weaponFamily
 
 An optional weapon item's `profile` carries one `family` discriminator: `melee`,
 `bow`, `firearm`, `thrown` or the additional `lash` contact profile. The item
@@ -1416,7 +1416,7 @@ Lash declares ordered unroll/second/show timing, pulls/stagger and named moves.
 Views, audio, contacts, aim, ammunition and native continuations retain their
 real owners. Profiles are not arbitrary new weapon algorithms.
 
-Only a trusted `runtime/` imports
+Only a legacy `runtime/` imports
 `@wildshard/engine/game/plugin/weaponFamily.registerWeaponFamily`. It registers an
 existing weapon constructor in a caller-owned session registry, with a bounded
 shard-local name; duplicate/reserved names and tool constructors refuse. Signal
@@ -1482,7 +1482,7 @@ phase thresholds, modes, attacks, rewards and continuation; the host must bind
 that exact pattern. Script bosses wrap an admitted elite-script module, slots,
 contacts and action order. A held boss keeps its actual body identity; a spawned
 boss explicitly owns creation/checkpoint shares. Unsupported one-shard laws
-remain trusted tails: Sky's phased-raptor is not silently a phased-flyer, and
+remain legacy tails: Sky's phased-raptor is not silently a phased-flyer, and
 Pine's animated hit timing/weather gaps are not closed by a schema parse.
 
 ### Shared content from kit
@@ -1509,12 +1509,12 @@ export function kitContentExample() {
 ## Data-only herds and divers
 
 The ordinary client and `HeadlessSimulation` install herd/grazer-herd and orbit/patrol-diver recipes for
-a shard with no trusted runtime. Declare real species/variants, ordered group members and a sphere strike.
+a shard with no legacy runtime. Declare real species/variants, ordered group members and a sphere strike.
 No `runtime/` installer or game import is needed. The recipe reads native world LOS and ground slope,
 the player's measured speed, the host's shared `ai` RNG and attack authorization; the existing flight motor
 and strike/contact pipeline move and damage. Per-host motion and policy clocks restore with the world.
 There is no inferred cover, wind/scent, taming, pack interaction or audible cue binding; those need their
-explicit owners. Trusted injected recipes retain precedence. Pack, burst and other specialized recipes still
+explicit owners. Legacy injected recipes retain precedence. Pack, burst and other specialized recipes still
 refuse when no native owner is supplied. This example declares no rendered rig; creature view proof is separate.
 
 ```ts

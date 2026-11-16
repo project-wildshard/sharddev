@@ -284,14 +284,14 @@
 | `BowVariantSchema` | const | @wildshard/shard-format/bowVariantRows | Build-only admission of the held variant; its native bow and actor owner stay charged. |
 | `GuardianPatternsSchema` | const | @wildshard/shard-format/brains | One home/perch guardian archetype; each branch keeps the exact legacy bounds, defaults and predicate. |
 | `guardianPreset` | function | @wildshard/shard-format/brains | Canonical old row, including parsed field order, for existing native adapters and saved policy strings. |
-| `GuardianSchema` | const | @wildshard/shard-format/brains | Interior guardian policy; native floor and rise/sink recipes publish completion through trusted ports. |
+| `GuardianSchema` | const | @wildshard/shard-format/brains | Interior guardian policy; native floor and rise/sink recipes publish completion through legacy ports. |
 | `parseGuardian` | function | @wildshard/shard-format/brains | Validate guardian decisions before selecting the existing native motion and strike recipes. |
 | `parseGuardianPattern` | function | @wildshard/shard-format/brains | Validate a pattern without allocating an actor or executing its native recipes. |
 | `parsePerchHunter` | function | @wildshard/shard-format/brains | Validate policy data while retaining the loader's authority over perches, projectiles and tokens. |
-| `parseScriptBrain` | function | @wildshard/shard-format/brains | Validate a custom policy before module admission, trusted actor binding or physics allocation. |
+| `parseScriptBrain` | function | @wildshard/shard-format/brains | Validate a custom policy before module admission, legacy actor binding or physics allocation. |
 | `parseSkirmisher` | function | @wildshard/shard-format/brains | Reject unknown fields, nonfinite tuning and invalid radii before installing an actor policy. |
 | `parseStalker` | function | @wildshard/shard-format/brains | Admit a stalker row before any actor, native recipe or callback is allocated. |
-| `PerchHunterSchema` | const | @wildshard/shard-format/brains | Perch hunting decisions; native perch selection, vertical completion and shared attack RNG remain trusted host ports. |
+| `PerchHunterSchema` | const | @wildshard/shard-format/brains | Perch hunting decisions; native perch selection, vertical completion and shared attack RNG remain legacy host ports. |
 | `ScriptBrainSchema` | const | @wildshard/shard-format/brains | Custom author policy over bounded host queries; actor identity and observation provenance are injected by the loader. |
 | `ShardGuardian` | type | @wildshard/shard-format/brains | — |
 | `ShardGuardianInput` | type | @wildshard/shard-format/brains | — |
@@ -352,8 +352,8 @@
 | `parseBuildingLifeLook` | function | @wildshard/shard-format/buildings | — |
 | `parseBuildingLifeRows` | function | @wildshard/shard-format/buildings | — |
 | `Xyz` | type | @wildshard/shard-format/buildings | — |
-| `builtIndexHash` | function | @wildshard/shard-format/builtIndexes | Build-owned address for one first-party index. The complete digest remains |
-| `builtIndexHashes` | function | @wildshard/shard-format/builtIndexes | The exact first-party index hashes this client build validated; null for an unbundled client or a build with none. |
+| `builtIndexHash` | function | @wildshard/shard-format/builtIndexes | Build-owned address for one legacy index. The complete digest remains |
+| `builtIndexHashes` | function | @wildshard/shard-format/builtIndexes | The exact legacy index hashes this client build validated; null for an unbundled client or a build with none. |
 | `CatalogueEconomy` | type | @wildshard/shard-format/catalogueEconomy | — |
 | `CatalogueEconomyInput` | type | @wildshard/shard-format/catalogueEconomy | — |
 | `CatalogueEconomyRegistrationRows` | type | @wildshard/shard-format/catalogueEconomy | — |
@@ -413,8 +413,8 @@
 | `NumericPoseRows` | interface | @wildshard/shard-format/clientChannels | — |
 | `NumericPoseRowsInput` | interface | @wildshard/shard-format/clientChannels | — |
 | `NumericPoseSchema` | const | @wildshard/shard-format/clientChannels | Numeric creature-pose wire rows; the game retains joint evaluation and scalar admission. |
-| `parseClientChannelInputs` | function | @wildshard/shard-format/clientChannels | Admit only bounded paths; trusted owners are supplied separately and are never writable channels. |
-| `parseClientChannels` | function | @wildshard/shard-format/clientChannels | Strictly parse detached author data before the trusted view owner binds it. |
+| `parseClientChannelInputs` | function | @wildshard/shard-format/clientChannels | Admit only bounded paths; legacy owners are supplied separately and are never writable channels. |
+| `parseClientChannels` | function | @wildshard/shard-format/clientChannels | Strictly parse detached author data before the legacy view owner binds it. |
 | `parseHeldMeleePhase` | function | @wildshard/shard-format/clientChannels | Admit a detached scheduling row; function ports and authoritative state are not data. |
 | `parsePrivateScene` | function | @wildshard/shard-format/clientChannels | Admit authored private scene rows; functions and unknown properties cannot cross this boundary. |
 | `parseWorldScene` | function | @wildshard/shard-format/clientChannels | Validate every import and hierarchy before any host constructor runs. |
@@ -478,7 +478,7 @@
 | `ClientScriptContent` | interface | @wildshard/shard-format/clientScripts | Minimal format view for admission and projection, independent of rendering and author callbacks. |
 | `clientScriptRules` | function | @wildshard/shard-format/clientScripts | Refuse hidden fields, undeclared targets, competing writers and modules outside the admitted render library. |
 | `ClientScriptsSchema` | const | @wildshard/shard-format/clientScripts | Presentation bytecode binds visual targets and selected numeric state; it never joins the authoritative script lane. |
-| `ClientScriptTarget` | type | @wildshard/shard-format/clientScripts | A declared visual anchor resolved by trusted composition, never by a bytecode physics query. |
+| `ClientScriptTarget` | type | @wildshard/shard-format/clientScripts | A declared visual anchor resolved by legacy composition, never by a bytecode physics query. |
 | `clientScriptViewCost` | function | @wildshard/shard-format/clientScripts | Charge the bounded particle pool: 56 CPU bytes and 32 GPU bytes per live slot. |
 | `parseClientScripts` | function | @wildshard/shard-format/clientScripts | Parse detached strict data before host composition allocates any guest instance. |
 | `ShardClientScripts` | type | @wildshard/shard-format/clientScripts | — |
@@ -561,7 +561,7 @@
 | `HORIZON_RADIUS` | const | @wildshard/shard-format/contentBounds | Painted horizon radius in metres, shared by the renderer and authored water fades. |
 | `MEMORY_GATES` | const | @wildshard/shard-format/contentBounds | The one memory switch (src/format/memoryGates.json, G433): the Explorer / loading caps and whether memory checks refuse |
 | `textureMipBytes` | function | @wildshard/shard-format/contentBounds | Exact LDR mip residency, including padded 4x4 ASTC/BC7 blocks at the smallest mip levels. |
-| `TextureTranscodeSupport` | interface | @wildshard/shard-format/contentBounds | Trusted GPU/transcoder capabilities, never authored shard data. |
+| `TextureTranscodeSupport` | interface | @wildshard/shard-format/contentBounds | Legacy GPU/transcoder capabilities, never authored shard data. |
 | `contentCost` | function | @wildshard/shard-format/contentCost | Estimated resident cost, calibrated against the Simulator template census. |
 | `ContentCostInput` | interface | @wildshard/shard-format/contentCost | Shared resident-cost input: dependency-deduplicated category bytes, including persistent CPU and GPU data. |
 | `contentEstimate` | function | @wildshard/shard-format/contentCost | Predict component costs without an accuracy pass/fail or a native-budget verdict. |
@@ -666,7 +666,7 @@
 | `CrowdWeaponTargetRows` | type | @wildshard/shard-format/crowds | — |
 | `CrowdWeaponTargetRowsInput` | type | @wildshard/shard-format/crowds | — |
 | `CrowdWeaponTargetSchema` | const | @wildshard/shard-format/crowds | Native combat projection over a crowd member; no per-hit content handler. |
-| `FlockSchema` | const | @wildshard/shard-format/crowds | Ordered instanced flock declaration; terrain, native view, prey and distance scheduling remain trusted ports. |
+| `FlockSchema` | const | @wildshard/shard-format/crowds | Ordered instanced flock declaration; terrain, native view, prey and distance scheduling remain legacy ports. |
 | `parseFlock` | function | @wildshard/shard-format/crowds | Refuse malformed tuning before constructing a native view or consuming setup randomness. |
 | `ShardFlock` | type | @wildshard/shard-format/crowds | — |
 | `ShardFlockInput` | type | @wildshard/shard-format/crowds | Admitted data contracts, independent of validator implementation metadata. |
@@ -721,8 +721,8 @@
 | `DetailMoss` | interface | @wildshard/shard-format/detail-layer | Moss on up-facing faces. |
 | `DetailMossSchema` | const | @wildshard/shard-format/detail-layer | — |
 | `acceptsShardfileCost` | function | @wildshard/shard-format/deviceMemoryCost | Apply the existing total-memory policy to declared or measured costs. |
-| `acceptValidatedCost` | function | @wildshard/shard-format/deviceMemoryCost | Reapply the current trusted memory policy to a previously validated exact declaration. |
-| `deviceLibraryCostSteps` | function | @wildshard/shard-format/deviceMemoryCost | Trusted device's exact library projection, with all existing conservative neighbour and fallback ceilings retained. |
+| `acceptValidatedCost` | function | @wildshard/shard-format/deviceMemoryCost | Reapply the current legacy memory policy to a previously validated exact declaration. |
+| `deviceLibraryCostSteps` | function | @wildshard/shard-format/deviceMemoryCost | Legacy device's exact library projection, with all existing conservative neighbour and fallback ceilings retained. |
 | `textureLibrarySource` | function | @wildshard/shard-format/deviceMemoryCost | Device cost projection after byte admission; source ceilings retain their full RGBA fallback. A KTX2 file's declared |
 | `DirectorData` | type | @wildshard/shard-format/director | — |
 | `DirectorDataInput` | type | @wildshard/shard-format/director | Admitted data contracts, independent of validator implementation metadata. |
@@ -737,7 +737,7 @@
 | `directorDayRange` | function | @wildshard/shard-format/directorStages | Decode a half-open normalized day interval [from, to); unrelated owner bindings return null. |
 | `DirectorsData` | type | @wildshard/shard-format/directorStages | — |
 | `DirectorsDataInput` | type | @wildshard/shard-format/directorStages | — |
-| `DirectorsSchema` | const | @wildshard/shard-format/directorStages | Root-owned pacing rows with distinct identities; an AS handler is installed only through explicit trusted bindings. |
+| `DirectorsSchema` | const | @wildshard/shard-format/directorStages | Root-owned pacing rows with distinct identities; an AS handler is installed only through explicit legacy bindings. |
 | `DirectorStagesData` | type | @wildshard/shard-format/directorStages | — |
 | `DirectorStagesDataInput` | type | @wildshard/shard-format/directorStages | — |
 | `DirectorStagesDefinition` | type | @wildshard/shard-format/directorStages | Author input before empty action arrays and a null script are filled by admission. |
@@ -937,7 +937,7 @@
 | `FixedDrawRowsSchema` | const | @wildshard/shard-format/fixedDraws | — |
 | `BurstFlyerRows` | type | @wildshard/shard-format/flyers | — |
 | `BurstFlyerRowsInput` | type | @wildshard/shard-format/flyers | — |
-| `BurstFlyerSchema` | const | @wildshard/shard-format/flyers | Small-circle drift and telegraphed chest dart; contact shove is declared data and applied only by a trusted port. |
+| `BurstFlyerSchema` | const | @wildshard/shard-format/flyers | Small-circle drift and telegraphed chest dart; contact shove is declared data and applied only by a legacy port. |
 | `diverPreset` | function | @wildshard/shard-format/flyers | Exact historical preset spelling for body ports and serialized contracts; no tuning or cadence changes. |
 | `DiverSchema` | const | @wildshard/shard-format/flyers | One diver archetype; each flight pattern retains the existing bounds, home and named sphere strike. |
 | `OrbitDiverRows` | type | @wildshard/shard-format/flyers | — |
@@ -952,7 +952,7 @@
 | `PatrolDiverSchema` | const | @wildshard/shard-format/flyers | Near-player circling, distant home patrol, low swoop and timed climb with a declared held-memory field. |
 | `ShardBurstFlyer` | type | @wildshard/shard-format/flyers | Admitted drift/dart policy whose authorized contact impulse remains native to the player host. |
 | `ShardDiver` | type | @wildshard/shard-format/flyers | Admitted diver row; native flight and contact authority remain loader-owned. |
-| `ShardOrbitDiver` | type | @wildshard/shard-format/flyers | Admitted orbit/dive policy; native flight, token and contact execution remain trusted host ports. |
+| `ShardOrbitDiver` | type | @wildshard/shard-format/flyers | Admitted orbit/dive policy; native flight, token and contact execution remain legacy host ports. |
 | `ShardPatrolDiver` | type | @wildshard/shard-format/flyers | Admitted patrol/swoop policy with stable home, strike and held-field bindings. |
 | `ForestNativeInputs` | interface | @wildshard/shard-format/forestNativeInputs | The complete native forest input document. Its maintained fixture lends |
 | `ForestNativeInputsSchema` | const | @wildshard/shard-format/forestNativeInputs | Every field of the emitted envelope, retaining the native radius/tree |
@@ -1182,7 +1182,7 @@
 | `ItemEquipmentSchema` | const | @wildshard/shard-format/items | The existing native equipment descriptor, also used by complete scene sources. |
 | `ItemFamilyNameRows` | type | @wildshard/shard-format/items | — |
 | `ItemFamilyNameRowsInput` | type | @wildshard/shard-format/items | Admitted item data independent of validator implementation metadata. |
-| `ItemFamilyNameSchema` | const | @wildshard/shard-format/items | The bounded authored family/context name, also checked by the trusted family installer. |
+| `ItemFamilyNameSchema` | const | @wildshard/shard-format/items | The bounded authored family/context name, also checked by the legacy family installer. |
 | `itemRules` | function | @wildshard/shard-format/items | Local references plus optional script catalogue checks; global format composition supplies admitted module ids. |
 | `ItemsSchema` | const | @wildshard/shard-format/items | JSON-only admission rejects closures before serialisation and checks all item/loadout references. |
 | `NativeSweptMeleeBinding` | interface | @wildshard/shard-format/items | Admitted numeric phases and item profiles, detached from renderer or actor authority. |
@@ -1427,7 +1427,7 @@
 | `ToonMaterialParamsInput` | interface | @wildshard/shard-format/materialFamilies | — |
 | `ToonMaterialSchema` | const | @wildshard/shard-format/materialFamilies | One toon surface: flat-shaded, vertex-coloured facets by default (no textures). |
 | `DEFAULT_GRAPH_BUDGET` | const | @wildshard/shard-format/materialGraph | the default ceilings (a starter graph: the measure preset is ≈ 60 nodes, ≈ 170 instructions) |
-| `GRAPH_ADMISSION_LIMITS` | const | @wildshard/shard-format/materialGraph | Raw graph JSON bounds, enforced before typing or compiler work; trusted presets supply their own node budget. |
+| `GRAPH_ADMISSION_LIMITS` | const | @wildshard/shard-format/materialGraph | Raw graph JSON bounds, enforced before typing or compiler work; legacy presets supply their own node budget. |
 | `GRAPH_ARRAY_MAX` | const | @wildshard/shard-format/materialGraph | Maximum elements in one fixed-capacity numeric uniform list. |
 | `GRAPH_ARRAY_SLOTS_MAX` | const | @wildshard/shard-format/materialGraph | Total padded vector slots across a graph's uniform lists. |
 | `GRAPH_ATTRIBUTE_NAME` | const | @wildshard/shard-format/materialGraph | an `attribute` node's name: `a` and a capital (`aSeed`), so it never names one of three's own attributes |
@@ -1459,7 +1459,7 @@
 | `GraphVertexOffset` | interface | @wildshard/shard-format/materialGraph | the vertex stage: an object-space offset; shadow:true also applies it and the surface mask to shadow depth |
 | `GraphVertexPosition` | interface | @wildshard/shard-format/materialGraph | Absolute post-instance model-space position, replacing the ordinary vertex. |
 | `LOOP_MAX` | const | @wildshard/shard-format/materialGraph | the most iterations a `loop` node may run |
-| `MAX_GRAPH_BUDGET` | const | @wildshard/shard-format/materialGraph | Hard ceilings for a trusted declaration; loop trips remain charged to the estimated cost. |
+| `MAX_GRAPH_BUDGET` | const | @wildshard/shard-format/materialGraph | Hard ceilings for a legacy declaration; loop trips remain charged to the estimated cost. |
 | `PostInputs` | interface | @wildshard/shard-format/materialGraph | the scene inputs a post graph reads (SF59 (2b)): each is one sampler in its cost; `normal` also needs the engine's |
 | `SUN_CASCADES` | const | @wildshard/shard-format/materialGraph | the directional lights a `sun` sub-graph is built for by default: the sky rig's three CSM cascades |
 | `SUN_CASCADES_MAX` | const | @wildshard/shard-format/materialGraph | the most cascades a validation may count (three's CSM tops out at four here) |
@@ -1490,7 +1490,7 @@
 | `MaterialCurvesSchema` | const | @wildshard/shard-format/materials | State-bound material curves (`look.curves`): per catalogue family entry, numbers that move with a declared public numeric |
 | `MaterialEntry` | type | @wildshard/shard-format/materials | An admitted catalogue entry. |
 | `materialExists` | function | @wildshard/shard-format/materials | Resolve authored surface IDs or the four platform default material IDs. |
-| `materialGraphIr` | function | @wildshard/shard-format/materials | A graph material's IR (D74: graph files): a graph file's JSON, its bytes from `file`, validated under the trusted budget |
+| `materialGraphIr` | function | @wildshard/shard-format/materials | A graph material's IR (D74: graph files): a graph file's JSON, its bytes from `file`, validated under the legacy budget |
 | `materialGraphRules` | function | @wildshard/shard-format/materials | Check graph uniform bindings against admitted day channels and public numeric state declarations. A preset reference |
 | `MaterialsRows` | type | @wildshard/shard-format/materials | — |
 | `MaterialsRowsInput` | type | @wildshard/shard-format/materials | Admitted data contracts, independent of validator implementation metadata. |
@@ -1504,7 +1504,7 @@
 | `TextureSamplersSchema` | const | @wildshard/shard-format/materials | A look texture's sampler, one row per texture ref of the material catalogue (absent row: the loader's sampler, as before). |
 | `AdmissionMeasurement` | interface | @wildshard/shard-format/memoryAdmission | A measured opaque runtime retains both rulers and the evidence used to derive its full claim. All bytes are decimal. |
 | `MemoryAdmission` | class | @wildshard/shard-format/memoryAdmission | G216: Developer may exceed the total memory envelope while keeping truthful accounting. Public callers still refuse. |
-| `MemoryAdmissionRequest` | interface | @wildshard/shard-format/memoryAdmission | Trusted callers report only the total-memory envelope here. Parser, hash, script and content-understatement guards are separate. |
+| `MemoryAdmissionRequest` | interface | @wildshard/shard-format/memoryAdmission | Legacy callers report only the total-memory envelope here. Parser, hash, script and content-understatement guards are separate. |
 | `MemoryAdmissionWarning` | interface | @wildshard/shard-format/memoryAdmission | G216's visible warning / G217 loading-screen read port: full claims and original caps, never a discounted allocation. |
 | `CollisionSource` | interface | @wildshard/shard-format/meshCollision | Renderer-neutral references checked before immutable asset admission. |
 | `meshCollisionRules` | function | @wildshard/shard-format/meshCollision | Check critical roots and target identities without reading any asset or creating a collider. |
@@ -1647,7 +1647,7 @@
 | `AdventurePersistenceRows` | type | @wildshard/shard-format/namedJsonContracts | — |
 | `AdventurePersistenceRowsInput` | type | @wildshard/shard-format/namedJsonContracts | — |
 | `AdventurePersistenceSchema` | const | @wildshard/shard-format/namedJsonContracts | — |
-| `HEADLESS_ASSEMBLY_JSON_SCHEMA` | const | @wildshard/shard-format/namedJsonContracts | Draft-07 wire contract for the trusted assembly language. Constants and |
+| `HEADLESS_ASSEMBLY_JSON_SCHEMA` | const | @wildshard/shard-format/namedJsonContracts | Draft-07 wire contract for the legacy assembly language. Constants and |
 | `PageReturnRows` | type | @wildshard/shard-format/namedJsonContracts | — |
 | `PageReturnRowsInput` | type | @wildshard/shard-format/namedJsonContracts | — |
 | `PageReturnRowsSchema` | const | @wildshard/shard-format/namedJsonContracts | — |
@@ -1681,8 +1681,8 @@
 | `parseNativeAssembly` | function | @wildshard/shard-format/nativeAssembly | No module URL, callback, fallback or independent simulation owner is admitted. |
 | `NativeGround` | type | @wildshard/shard-format/nativeGround | — |
 | `NativeGroundInput` | type | @wildshard/shard-format/nativeGround | Admitted data contracts, independent of validator implementation metadata. |
-| `nativeGroundRules` | function | @wildshard/shard-format/nativeGround | Native ground is an independent critical root with one trusted collision owner, never another compiled collider. |
-| `NativeGroundSchema` | const | @wildshard/shard-format/nativeGround | Original native WSTR terrain retained by a trusted world-only hybrid; this declaration never installs collision. |
+| `nativeGroundRules` | function | @wildshard/shard-format/nativeGround | Native ground is an independent critical root with one legacy collision owner, never another compiled collider. |
+| `NativeGroundSchema` | const | @wildshard/shard-format/nativeGround | Original native WSTR terrain retained by a legacy world-only legacy; this declaration never installs collision. |
 | `NativeGroundSource` | interface | @wildshard/shard-format/nativeGround | Structural native-ground reference inputs, independent of the native byte decoder. |
 | `validateNativeGround` | function | @wildshard/shard-format/nativeGroundAssets | Parse the same original payload as the live terrain after bounding its header, then witness every native sample and entry. |
 | `BodyLaunchRows` | type | @wildshard/shard-format/nativeItems | — |
@@ -1726,14 +1726,14 @@
 | `parseNativeRuntimePlan` | function | @wildshard/shard-format/nativeRuntimePlan | No module URL, callback, fallback or independent simulation owner is admitted. |
 | `describeNavigation` | function | @wildshard/shard-format/navigation | Build the declaration from original bytes without resampling, re-encoding or sorting tiles/layers. |
 | `Navigation` | type | @wildshard/shard-format/navigation | — |
-| `NavigationContent` | type | @wildshard/shard-format/navigation | Trusted level transport: admitted product bytes or the manifest's declared immutable URL. |
+| `NavigationContent` | type | @wildshard/shard-format/navigation | Legacy level transport: admitted product bytes or the manifest's declared immutable URL. |
 | `NavigationInput` | type | @wildshard/shard-format/navigation | Admitted data contracts, independent of validator implementation metadata. |
 | `navigationRules` | function | @wildshard/shard-format/navigation | Navigation is an independent critical binary root, charged before creature pathing starts. |
 | `NavigationSchema` | const | @wildshard/shard-format/navigation | Exact immutable WSNM layout, global bounds and per-agent voxel/tile grids. |
 | `NavmeshGroundRows` | type | @wildshard/shard-format/navigation | — |
 | `NavmeshGroundRowsInput` | type | @wildshard/shard-format/navigation | — |
 | `NavmeshGroundSchema` | const | @wildshard/shard-format/navigation | Offline terrain-triangle exclusion only; no live navigation or collider policy. |
-| `parseNavigation` | function | @wildshard/shard-format/navigation | Validate a declaration supplied by a trusted manifest or author boundary before any transport read. |
+| `parseNavigation` | function | @wildshard/shard-format/navigation | Validate a declaration supplied by a legacy manifest or author boundary before any transport read. |
 | `readNavigation` | function | @wildshard/shard-format/navigation | Admission compares every declared bound and grid value with the bounded original stream. |
 | `validateNavigationAssets` | function | @wildshard/shard-format/navigation | Validate already hash-admitted navigation; no runtime or query allocation occurs here. |
 | `decodeNavigation` | function | @wildshard/shard-format/navigationBytes | Bound the complete stream before constructing any runtime navigation mesh. |
@@ -2012,7 +2012,7 @@
 | `QuestGraphRowInput` | type | @wildshard/shard-format/questGraph | Admitted data contracts, independent of validator implementation metadata. |
 | `QuestGraphSchema` | const | @wildshard/shard-format/questGraph | A quest graph's runtime row (SHARD-PLATFORM SF27): the `script` command actor that carries its interaction rows, the |
 | `parseQuestHost` | function | @wildshard/shard-format/questHost | Compile the bounded graph, command and stage composition without installing runtime services. |
-| `questHostBindingRules` | function | @wildshard/shard-format/questHost | Root admission binds a native quest host to declared flags and its existing hybrid quest owner. |
+| `questHostBindingRules` | function | @wildshard/shard-format/questHost | Root admission binds a native quest host to declared flags and its existing legacy quest owner. |
 | `QuestHostRow` | type | @wildshard/shard-format/questHost | — |
 | `QuestHostRowInput` | type | @wildshard/shard-format/questHost | — |
 | `questHostRules` | function | @wildshard/shard-format/questHost | Refuse dangling routes, observations, continuations and stage requests before a native host installs anything. |
@@ -2255,14 +2255,14 @@
 | `RuntimeDeclarationInput` | type | @wildshard/shard-format/runtime | — |
 | `RuntimeSchema` | const | @wildshard/shard-format/runtime | A shard's runtime declaration: only the compiled client plan (LD9 retired the copied-runtime `entry` arm). |
 | `hasDeclaredClientPage` | function | @wildshard/shard-format/runtimeBinds | Typed page declarations select a data owner; disk admission must also prove |
-| `RUNTIME_BOUND_SECTIONS` | const | @wildshard/shard-format/runtimeBinds | The behaviour sections a trusted hybrid runtime may bind (SHARD-PLATFORM M3, the runtime-owner binding, E435). A hybrid |
+| `RUNTIME_BOUND_SECTIONS` | const | @wildshard/shard-format/runtimeBinds | The behaviour sections a legacy legacy runtime may bind (SHARD-PLATFORM M3, the runtime-owner binding, E435). A legacy |
 | `RuntimeBindsRows` | type | @wildshard/shard-format/runtimeBinds | — |
 | `RuntimeBindsRowsInput` | type | @wildshard/shard-format/runtimeBinds | Admitted data contracts, independent of validator implementation metadata. |
 | `RuntimeBindsSchema` | const | @wildshard/shard-format/runtimeBinds | `runtime.binds`: the declared capability that replaces the implicit "empty apart from audio, edges and colliders" rule. |
-| `RuntimeBoundSection` | type | @wildshard/shard-format/runtimeBinds | One section a trusted runtime binds rather than the data client. |
+| `RuntimeBoundSection` | type | @wildshard/shard-format/runtimeBinds | One section a legacy runtime binds rather than the data client. |
 | `MemoryMeasurementRows` | type | @wildshard/shard-format/runtimeCost | — |
 | `MemoryMeasurementRowsInput` | type | @wildshard/shard-format/runtimeCost | Admitted data contracts, independent of validator implementation metadata. |
-| `MemoryMeasurementSchema` | const | @wildshard/shard-format/runtimeCost | Reviewed trusted-runtime measurements, kept with their shard rather than presenting an empty data budget as its cost. |
+| `MemoryMeasurementSchema` | const | @wildshard/shard-format/runtimeCost | Reviewed legacy-runtime measurements, kept with their shard rather than presenting an empty data budget as its cost. |
 | `RegionalSimCost` | type | @wildshard/shard-format/runtimeCost | — |
 | `RegionalSimCostInput` | type | @wildshard/shard-format/runtimeCost | — |
 | `RegionalSimCostSchema` | const | @wildshard/shard-format/runtimeCost | SF57: a reviewed reading of what one admitted regional shardfile sim really keeps resident (JS heap, its buffers and its |
@@ -2276,7 +2276,7 @@
 | `RuntimeHomeRow` | type | @wildshard/shard-format/runtimeSpawns | One declared home row. |
 | `RuntimeSpawns` | type | @wildshard/shard-format/runtimeSpawns | — |
 | `RuntimeSpawnsInput` | type | @wildshard/shard-format/runtimeSpawns | Admitted data contracts, independent of validator implementation metadata. |
-| `RuntimeSpawnsSchema` | const | @wildshard/shard-format/runtimeSpawns | A trusted hybrid runtime's creatures as declared rows (SHARD-PLATFORM M3 / SF50-p, E435), the `spawns` section of |
+| `RuntimeSpawnsSchema` | const | @wildshard/shard-format/runtimeSpawns | A legacy legacy runtime's creatures as declared rows (SHARD-PLATFORM M3 / SF50-p, E435), the `spawns` section of |
 | `decodeScalarStorage` | function | @wildshard/shard-format/scalarChannel | Interpret one bounded native channel after the caller admits its metadata and resolves its compressed block. |
 | `ScalarChannelRows` | interface | @wildshard/shard-format/scalarChannel | Little-endian IEEE scalars in a zlib stream. Count bounds the decoder's |
 | `ScalarChannelSchema` | const | @wildshard/shard-format/scalarChannel | — |
@@ -2289,7 +2289,7 @@
 | `PostStorage` | type | @wildshard/shard-format/scaledPost | Select only when the executor's actual render target storage matches; omitted rows run on both. |
 | `ScaledPostProgram` | interface | @wildshard/shard-format/scaledPost | — |
 | `ScaledPostRow` | interface | @wildshard/shard-format/scaledPost | — |
-| `parseScaledPostRow` | function | @wildshard/shard-format/scaledPostContract | Complete native post preflight. Graphs keep the executor's trusted budget; |
+| `parseScaledPostRow` | function | @wildshard/shard-format/scaledPostContract | Complete native post preflight. Graphs keep the executor's legacy budget; |
 | `CardMotion` | type | @wildshard/shard-format/scene-render | A card's declared motion. |
 | `CardMotionSchema` | const | @wildshard/shard-format/scene-render | — |
 | `CORNER_CHANNEL` | const | @wildshard/shard-format/scene-render | The vertex channel a card reads (GLB application attribute `_CORNER`, two floats, metres in view space). |
@@ -2359,7 +2359,7 @@
 | `SCRIPT_ABI` | const | @wildshard/shard-format/scriptAbi | Core numeric script ABI v0. Compiler/instrumenter revisions are part of this contract. |
 | `SCRIPT_EXPORTS` | const | @wildshard/shard-format/scriptAbi | Required export signatures; parameter types followed by the numeric result, or zero for void. |
 | `SCRIPT_IMPORTS` | const | @wildshard/shard-format/scriptAbi | Import signatures: parameter types followed by a single result, or zero for void. |
-| `SCRIPT_PARAMETER_QUERY` | const | @wildshard/shard-format/scriptAbi | Read-only declared numeric parameters; the host supplies the trusted calling entity to the query adapter. |
+| `SCRIPT_PARAMETER_QUERY` | const | @wildshard/shard-format/scriptAbi | Read-only declared numeric parameters; the host supplies the legacy calling entity to the query adapter. |
 | `SCRIPT_V1_COMMANDS` | const | @wildshard/shard-format/scriptAbiV1 | Command ids; view commands occupy a disjoint range and may not run in a simulation binding. |
 | `SCRIPT_V1_EVENTS` | const | @wildshard/shard-format/scriptAbiV1 | ABI-v1 numeric transport. These ids are shared by admission, generated bindings and the decision host. |
 | `SCRIPT_V1_EXPORTS` | const | @wildshard/shard-format/scriptAbiV1 | Required decision entry points: arguments followed by the result, zero for void. |
@@ -2527,7 +2527,7 @@
 | `parseGlb` | function | @wildshard/shard-format/shardfileAssets | Parse self-contained GLB 2 without following URLs or allocating accessor-sized arrays. |
 | `PerformanceIssue` | interface | @wildshard/shard-format/shardfileAssets | A report issue distinguishes tradeable memory targets from enforceable complete totals and execution budgets. |
 | `PerformanceObservations` | interface | @wildshard/shard-format/shardfileAssets | Native offline observations; script execution is timed separately from physics and checkpoint/IPC work. |
-| `performanceReport` | function | @wildshard/shard-format/shardfileAssets | Report deterministic declared bounds and measured native execution; the caller supplies trusted provenance policy. |
+| `performanceReport` | function | @wildshard/shard-format/shardfileAssets | Report deterministic declared bounds and measured native execution; the caller supplies legacy provenance policy. |
 | `PerformanceReport` | interface | @wildshard/shard-format/shardfileAssets | Build-time estimates retain units, their scope, and the measured execution samples they use. |
 | `performanceReportLines` | function | @wildshard/shard-format/shardfileAssets | Human-readable card keeps estimates visibly distinct from measurements and prints every enforced limit. |
 | `performanceTargetIssues` | function | @wildshard/shard-format/shardfileAssets | Cheap target grading before asset reads; format integrity and total-memory admission remain separate. |
@@ -2677,7 +2677,7 @@
 | `SocketRigCreatureRows` | type | @wildshard/shard-format/socketRigCreature | — |
 | `SocketRigCreatureRowsInput` | type | @wildshard/shard-format/socketRigCreature | — |
 | `SocketRigCreatureSchema` | const | @wildshard/shard-format/socketRigCreature | — |
-| `publishedSourceResidency` | function | @wildshard/shard-format/sourceResidency | Exact existing source/wire claim, computed once by the publisher for first-party clients. |
+| `publishedSourceResidency` | function | @wildshard/shard-format/sourceResidency | Exact existing source/wire claim, computed once by the publisher for legacy clients. |
 | `shardfileWireBytes` | function | @wildshard/shard-format/sourceResidency | The wire a product claim holds: every file's and pinned common's compressed bytes. No residency figure is below it. |
 | `SpawnCombat` | type | @wildshard/shard-format/spawnCombat | — |
 | `SpawnCombatInput` | type | @wildshard/shard-format/spawnCombat | Admitted data contracts, independent of validator implementation metadata. |
@@ -2886,7 +2886,7 @@
 | `ForestRowsSchema` | const | @wildshard/shard-format/terrain | — |
 | `GroundRows` | type | @wildshard/shard-format/terrain | — |
 | `GroundRowsInput` | type | @wildshard/shard-format/terrain | — |
-| `GroundRowsSchema` | const | @wildshard/shard-format/terrain | A hybrid shard's declared ground (G4): its baked terrain by key and seed, the trails, pads and pond its terrain metadata |
+| `GroundRowsSchema` | const | @wildshard/shard-format/terrain | A legacy shard's declared ground (G4): its baked terrain by key and seed, the trails, pads and pond its terrain metadata |
 | `PondClipRows` | type | @wildshard/shard-format/terrain | — |
 | `PondClipRowsInput` | type | @wildshard/shard-format/terrain | — |
 | `PondClipSchema` | const | @wildshard/shard-format/terrain | A declared clip (the manifest's `pondClip`, G4): the pond surface's grid (`segs` cells a side of `cell` m from its corner |
@@ -2960,13 +2960,13 @@
 | `UploadResultSchema` | const | @wildshard/shard-format/uploadWire | — |
 | `builtShardfilePostCost` | function | @wildshard/shard-format/validationReceipt | Static post cost is validated with the published graph bytes, never recosted at entry. |
 | `builtShardfileResidency` | function | @wildshard/shard-format/validationReceipt | Lookup of a build-stamped number, not a client cost/preflight calculation. |
-| `builtValidationReceipt` | function | @wildshard/shard-format/validationReceipt | Only the client build's own validated first-party catalogue can skip a first asset-header validation. |
-| `readValidationReceipt` | function | @wildshard/shard-format/validationReceipt | Cache metadata is trusted local storage, but stale or malformed verdicts are never accepted. |
+| `builtValidationReceipt` | function | @wildshard/shard-format/validationReceipt | Only the client build's own validated legacy catalogue can skip a first asset-header validation. |
+| `readValidationReceipt` | function | @wildshard/shard-format/validationReceipt | Cache metadata is legacy local storage, but stale or malformed verdicts are never accepted. |
 | `ValidationReceipt` | interface | @wildshard/shard-format/validationReceipt | Build-owned verdict. It is never read from authored shardfile data or a network sidecar. |
 | `validationRevision` | function | @wildshard/shard-format/validationReceipt | The build hashes the engine/game validator sources; unbundled clients always validate in full. |
 | `validationSourceBytes` | function | @wildshard/shard-format/validationReceipt | Sorted JSON makes the build and browser hash exactly the same admitted declaration. js-heap H9: written directly, in |
 | `validationSourceBytesPaced` | function | @wildshard/shard-format/validationReceipt | Exact receipt bytes (validationSourceBytes') with the caller's paint policy and wall clock between slices of at most |
-| `SHARDFILE_VERSION` | const | @wildshard/shard-format/version | Canonical format/script-ABI wire revision. The format stays 0.x; every breaking revision migrates first-party data. |
+| `SHARDFILE_VERSION` | const | @wildshard/shard-format/version | Canonical format/script-ABI wire revision. The format stays 0.x; every breaking revision migrates legacy data. |
 | `shardfileRevision` | function | @wildshard/shard-format/version | Parse the decimal revision as a safe integer, never as a floating-point version (0.10 follows 0.9). |
 | `VertexWearRow` | type | @wildshard/shard-format/vertexWear | — |
 | `VertexWearRowInput` | type | @wildshard/shard-format/vertexWear | Admitted data contracts, independent of validator implementation metadata. |
@@ -3048,7 +3048,7 @@
 | `MeleeContactData` | type | @wildshard/shard-format/weaponProfiles | — |
 | `MeleeContactDataInput` | type | @wildshard/shard-format/weaponProfiles | — |
 | `MeleeContactRow` | type | @wildshard/shard-format/weaponProfiles | Literal authored rows accept readonly arrays; the engine retains their declared vector/tag ownership. |
-| `MeleeContactRowSchema` | const | @wildshard/shard-format/weaponProfiles | Ordered cone/lane contacts, with authority supplied by the trusted owner rather than JSON. |
+| `MeleeContactRowSchema` | const | @wildshard/shard-format/weaponProfiles | Ordered cone/lane contacts, with authority supplied by the legacy owner rather than JSON. |
 | `MeleeContactsRows` | type | @wildshard/shard-format/weaponProfiles | — |
 | `MeleeContactsRowsInput` | type | @wildshard/shard-format/weaponProfiles | — |
 | `MeleeContactsSchema` | const | @wildshard/shard-format/weaponProfiles | Optional item attachment, bounded before the shared contact controller allocates its moves. |

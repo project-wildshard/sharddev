@@ -265,7 +265,7 @@ export async function buildProject(project: string, output?: string, options: { 
   // SERVER-PARITY SS8: a kind or script whose side has no half to run it refuses here, one plain line each, before any write.
   assertBuildSides(outputPlatformPayloads(loaded.output.platform, SIDE_SECTIONS), namedJsonReader(loaded.output.namedFiles ?? [], assets));
   // G348: a shardfile with a terrain gets its far and near placeholders from its own terrain, tiles and look (`wildshard
-  // build` asks for them; the first-party product builds keep theirs in the repo bake until the grid reads `near`)
+  // build` asks for them; existing product builds keep theirs in the repo bake until the grid reads `near`)
   // a static import: the author CLI must bundle to one module (scripts/wildshard.mjs); the bakers' closure stays
   // renderer-free (the Node sim proofs import this module under the renderer-denying loader)
   const expanded = expandCreatureLayers(loaded.shard);

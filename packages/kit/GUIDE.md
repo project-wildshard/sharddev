@@ -20,6 +20,12 @@ existing tuning declaration unchanged. Another label receives no implicit
 profile. The emitted declaration therefore carries its numbers into the product
 before the engine's old preset selection is removed.
 
+A complete old species-program section with an explicit hunt owner also copies
+the prior numbers for its existing aggressive flag into native, page and policy
+rows. Each custom policy keeps its own parameters. A section without that hunt
+owner receives no hunting numbers. The SDK rehashes changed section bytes before
+admission; no content is selected in the engine.
+
 The temperament helper returns temperament and senses together:
 
 ```ts

@@ -1,6 +1,7 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import ts from '@typescript/typescript6';
+import { documentationProse } from './wording.mjs';
 
 const HERE = import.meta.dirname;
 const directive = /<!-- example: ([a-z][a-z-]*) -->/gu;
@@ -18,7 +19,7 @@ export function authoringExamples(directory = HERE) {
 /** Render the exact tested example bytes into the generated SDK guide. No generated example has a separate manual copy. */
 export function authoringGuide(directory = HERE) {
   const examples = new Map(authoringExamples(directory).map(example => [example.name, example.source]));
-  return readFileSync(resolve(directory, 'authoring-guide.md'), 'utf8').replaceAll(directive, (_match, name) => {
+  return documentationProse(readFileSync(resolve(directory, 'authoring-guide.md'), 'utf8')).replaceAll(directive, (_match, name) => {
     const source = examples.get(name);
     if (source === undefined) throw new Error(`Missing authoring example ${name}`);
     return `\`\`\`ts\n${source.trimEnd()}\n\`\`\``;

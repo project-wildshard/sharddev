@@ -41,3 +41,15 @@ into such old native source before it leaves the build, with a warning. This
 does not touch shard source files, change existing explicit tuning, inject a
 profile for another label or select any content in the engine. Removing the
 engine guess must follow this producer update and its rebuilt-product proofs.
+
+The producer bridge now handles complete old sections with an explicit hunt
+owner, including Driftwood's custom policy rows. The real frozen Pine and
+Driftwood section hashes were verified; after expansion, every field except
+inserted tuning serializes identically. One Pine species and four Driftwood
+policies need the copied numbers. Normal output preparation verifies and
+rehashes the section before decision compilation or admission. It leaves a
+section without that owner unchanged.
+
+Generated API prose now follows J364 without changing public identifiers,
+inline wire literals or any checked example bytes. Its vocabulary is measured
+by the same one-way source inventory before the final source pins advance.

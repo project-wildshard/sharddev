@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import { packageApiDocuments, packageApiSurface, publicModules } from '../scripts/docs/package-api.mjs';
 import { authoringExamples } from '../scripts/docs/authoring-reference.mjs';
+import { documentationProse } from '../scripts/docs/wording.mjs';
 
 test('SDK docs read moved kit bindings and exact checked examples without engine context files', () => {
   const root = resolve(import.meta.dirname, '..');
@@ -21,4 +22,11 @@ test('SDK docs read moved kit bindings and exact checked examples without engine
   for (const example of authoringExamples()) expect(documents['docs/api/SHARDDEV.md']).toContain(example.source.trimEnd());
   expect(documents['docs/api/KIT.md']).toContain('commonSpeciesRows');
   expect(documents['docs/api/FORMAT.md']).toContain('readSpecies');
+});
+
+test('current prose preserves exact code examples and public literals', () => {
+  const prose = documentationProse('A trusted data shard. `first-party`\n```ts\nconst value = "trusted";\n```');
+  expect(prose).toBe('A legacy shard. `first-party`\n```ts\nconst value = "trusted";\n```');
+  expect(documentationProse('Trusted prose [link](./trusted.md) https://example.test/trusted/runtime'))
+    .toBe('Legacy prose [link](./trusted.md) https://example.test/trusted/runtime');
 });

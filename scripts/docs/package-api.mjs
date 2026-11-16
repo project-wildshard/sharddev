@@ -3,6 +3,7 @@ import { existsSync, globSync, mkdirSync, readFileSync, writeFileSync } from 'no
 import { dirname, relative, resolve } from 'node:path';
 import ts from '@typescript/typescript6';
 import { authoringGuide, checkAuthoringExamples } from './authoring-reference.mjs';
+import { documentationProse } from './wording.mjs';
 
 /** Concrete public source modules, including wildcard exports and conditional type targets. */
 export function publicModules(folder) {
@@ -46,7 +47,7 @@ export function packageApiSurface(root) {
       if (symbol === undefined) throw new Error(`Cannot read public module ${relative(root, file)}`);
       return checker.getExportsOfModule(symbol).map(binding => {
         const target = binding.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(binding) : binding;
-        return { name: binding.getName(), kind: kindOf(target), from, doc: firstLine(ts.displayPartsToString(target.getDocumentationComment(checker))) };
+        return { name: binding.getName(), kind: kindOf(target), from, doc: documentationProse(firstLine(ts.displayPartsToString(target.getDocumentationComment(checker)))) };
       });
     }).sort((a, b) => a.from.localeCompare(b.from) || a.name.localeCompare(b.name));
   }
