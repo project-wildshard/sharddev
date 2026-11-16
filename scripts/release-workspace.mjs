@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
-import { join, resolve } from 'node:path'
+import { join, posix, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
@@ -62,6 +62,29 @@ if (command === 'stamp' && destination === undefined) {
         .trim()
         .split('\n'),
     )
+    for (const file of files) {
+      if (!/(?:^|\/)tsconfig(?:\.[^/]+)?\.json$/u.test(file)) continue
+      const config = JSON.parse(
+        execFileSync('tar', ['-xOf', archive, file], {
+          encoding: 'utf8',
+        }),
+      )
+      const parents = Array.isArray(config.extends)
+        ? config.extends
+        : [config.extends]
+      for (const parent of parents) {
+        if (typeof parent !== 'string' || !parent.startsWith('.')) continue
+        const target = posix.normalize(posix.join(posix.dirname(file), parent))
+        const candidates = target.endsWith('.json')
+          ? [target]
+          : [target, target + '.json']
+        if (!candidates.some(candidate => files.has(candidate))) {
+          throw new Error(
+            'Missing packed tsconfig parent ' + pkg.name + ' ' + target,
+          )
+        }
+      }
+    }
     const targets = []
     const visit = value =>
       typeof value === 'string'

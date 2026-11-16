@@ -29,7 +29,8 @@
     "!scripts/docs",
     "lint",
     "!lint/**/*.test.*",
-    "tsconfig*.json"
+    "tsconfig*.json",
+    "kit/tsconfig.json"
   ],
   "type": "module",
   "bin": {
