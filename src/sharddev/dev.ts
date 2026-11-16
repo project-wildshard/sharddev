@@ -16,7 +16,7 @@ const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees',
 
 /** DK23: each dev process owns output inside the project's lane folder. */
 export function createDevScratch(source: string): string {
-  const session = process.env['CLAUDE_SESSION_ID'] ?? process.env['CLAUDE_CODE_SESSION_ID'] ?? process.env['CODEX_THREAD_ID'];
+  const session = process.env['CODEX_THREAD_ID'] ?? process.env['CLAUDE_SESSION_ID'] ?? process.env['CLAUDE_CODE_SESSION_ID'];
   const named = process.env['WS_LANE_NAME'] ?? `dev-${(session ?? String(process.pid)).replaceAll(/[^\w-]/gu, '-').slice(0, 80)}`;
   if (!/^[a-zA-Z0-9_-][a-zA-Z0-9._-]{0,99}$/u.test(named) || named.includes('..')) throw new Error('Invalid dev lane name');
   const root = shardRepoRoot(source), env = { ...process.env, WS_LANE_NAME: named };
