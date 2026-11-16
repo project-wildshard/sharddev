@@ -6,6 +6,7 @@ on:
     branches: [main]
     paths:
       - src/**
+      - lint/**
       - test/ci21-source/**
       - test/fixtures/ci21-*/**
       - scripts/ci21-*.mjs

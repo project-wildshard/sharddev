@@ -126,6 +126,31 @@
         "the normal push metadata writer emits complete relocated wrappers without a product build"
       ],
       "targetSha256": "fcb753aa7d95f8e83d2cf9dbe3fa69ce8fe51244881d39968618cbb1647b43a8"
+    },
+    {
+      "sourcePath": "test/template-source-layout.test.ts",
+      "targetPath": "test/ci21-source/template-source-layout.source.ts",
+      "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
+      "sourceBlob": "d23633e148d4e1c426c89a4b45d2326afe16999a",
+      "originalTests": [
+        "Template author modules and temporary discovery have zero P0 and sim violations",
+        "legacy map layout remains the fallback until a source map exists"
+      ],
+      "changes": "Preserve both complete original cases with public engine lint/build imports and the actual SDK boundary checker. Replace the foreign far-reach map assertions with the SDK-owned pastel-plain as mapped. Own source-layout policy retains all defining engine rules and admits only registered SDK hero.json and card source names.",
+      "state": "source verified locally; blocking/default admission and paired removal owed",
+      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
+      "localRuntime": {
+        "files": 1,
+        "cases": 2,
+        "seconds": 0.212,
+        "result": "pass"
+      },
+      "fullAuthorCompiler": "Complete inherited author project/source ports passes with pinned TypeScript7; actual native typed author lint pass.",
+      "targetTests": [
+        "Template author modules and temporary discovery have zero P0 and sim violations",
+        "legacy map layout remains the fallback until a source map exists"
+      ],
+      "targetSha256": "e4c9436c4a7d0a3c6ef784f0f5143e03d33c0575c729843607afbeb965ab07bd"
     }
   ]
 }
