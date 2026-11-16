@@ -1,6 +1,7 @@
 // Real api-server app, SQL migrations, account auth and R2 protocol. Only the
 // cook and game acknowledgement are doubles; every status response is real.
 import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
 import {once} from 'node:events';
 import {readFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -24,6 +25,22 @@ const [{createApp},{openPglite},{applyMigrations},{createCatalogueStore},
 
 export const REPORT={failures:[{path:'entries',reason:'portal walk refused',detail:{cell:[1,-2]}}]};
 export const TARBALL=await makeShardfile({slug:'async-sdk-isle'});
+const COOK_KEY='fixture-cook-signing-key-with-32-bytes';
+
+async function acknowledgeGame(fixture,upload){
+  if(typeof fixture.catalogue.uploads.cook?.acknowledge!=='function'){
+    fixture.ack=true;await activateUpload(fixture.deps,upload.hash);return;
+  }
+  const path=`/api/shardfiles/uploads/${upload.uploadId}/ack`, time=String(Date.now());
+  const current=await fixture.catalogue.uploads.byHash(upload.hash);
+  const body=JSON.stringify({hash:upload.hash,channels:current.activation.channels});
+  const signed=['wildshard-cook-v1','POST',path,time,body].join('\n');
+  const response=await fixture.app.request(path,{method:'POST',body,headers:{
+    'x-wildshard-cook-time':time,
+    'x-wildshard-cook-signature':createHmac('sha256',COOK_KEY).update(signed).digest('hex'),
+  }});
+  assert.equal(response.status,200,await response.text());
+}
 
 async function recordCook(fixture,id,hash,result){
   const status=await fixture.catalogue.uploads.verdict(id,{
@@ -70,8 +87,7 @@ async function afterResponse(fixture,request,response,mode){
     fixture.states.push(upload.status);
     if(mode==='live'&&upload.status==='cooking')await stage(fixture,upload);
     if(mode==='live'&&upload.status==='staged'){
-      fixture.ack=true;
-      await activateUpload(fixture.deps,upload.hash);
+      await acknowledgeGame(fixture,upload);
     }
   }
 }
@@ -85,11 +101,12 @@ export async function openApi(context,mode){
   const store=createR2ObjectStore(s3);
   const catalogue=createCatalogueStore(sql);
   const fixture={sql,store,catalogue,ack:false,states:[],id:undefined,hash:undefined};
-  const deps=depsFromEnv({GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin'},
+  const deps=depsFromEnv({GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin',COOK_SIGNING_KEY:COOK_KEY},
     {version:'api-contract-2ad9890',store,records:store,presigner:store,catalogue,
       notifier:{notify:async()=>fixture.ack}});
   fixture.deps=deps;
   const app=createApp(deps);
+  fixture.app=app;
   const account=await app.request('/api/accounts',{method:'POST',
     body:JSON.stringify({email:'sdk-contract@example.test'})});
   assert.equal(account.status,201);
