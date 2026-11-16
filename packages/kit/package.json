@@ -24,6 +24,7 @@
     "./body": "./src/body.ts",
     "./temperament": "./src/temperament.ts",
     "./abilities": "./src/abilities.ts",
+    "./species": "./src/species.ts",
     "./content/*": "./content/*"
   },
   "scripts": {

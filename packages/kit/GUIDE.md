@@ -50,3 +50,8 @@ The package root exports these helpers and their option/result types. The
 body, temperament and abilities subpaths expose them separately. Plain JSON
 is available under the content subpath, including content/temperaments.json,
 content/tuning/*.json and content/abilities/*.json.
+
+commonSpeciesRows reads fresh complete boar/bear gameplay metadata with an
+authored species id. The species subpath and content/species/*.json expose
+these same values for existing bake callers. These compatibility definitions
+preserve current bytes; OF3 supplies the layered species and GLB body assets.
