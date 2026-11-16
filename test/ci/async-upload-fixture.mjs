@@ -42,7 +42,12 @@ async function stage(fixture,upload){
     originals:fixture.store, activate:uploadActivator(fixture.deps),
   });
   for(const job of await fixture.catalogue.ledger.jobsFor(upload.hash)){
-    await assert.rejects(runMigrateJob(deps,job),/not acknowledged/u);
+    try { await runMigrateJob(deps,job); }
+    catch(error) {
+      // The minimum landed API contract threw for a pending acknowledgement;
+      // SP20 treats the same durable staged state as a normal async outcome.
+      assert.match(String(error),/not acknowledged/u);
+    }
   }
   assert.equal((await fixture.catalogue.uploads.byHash(upload.hash)).status,'staged');
 }
