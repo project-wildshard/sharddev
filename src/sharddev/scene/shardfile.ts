@@ -378,7 +378,7 @@ export function lampRows(lights: readonly SceneLight[], swings = false): { at: [
     if (l.decay !== 2) row.decay = round(clamp01(l.decay / 2) * 2, 3);
     // AP12: the light's declared flicker, played by the engine's lamps (format `lamps[].flicker`)
     if (l.motion?.kind === 'flicker') row.flicker = { rate: round(Math.min(30, l.motion.rate), 3), amount: round(clamp01(l.motion.amount), 3) };
-    // SS8d: a hung lamp's swing (numbered across the shard; a watched part's numbers are its own, so it sends none)
+    // SS8d: a hung lamp's swing (numbered across the shard, or in its part for a watched part: SS8f)
     if (swings && l.swing !== undefined) row.swing = l.swing;
     rows.push(row);
   }

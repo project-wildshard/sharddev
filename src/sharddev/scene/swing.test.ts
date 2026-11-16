@@ -53,3 +53,15 @@ test('a hung body in a panel, or 33 of them, refuses', () => {
   });
   expect(() => sceneShardfile(many)).toThrow(SceneRefusalError);
 });
+
+test('SS8f: a watched part sends its swings, numbered in the part, on its draws, cards and lamps', async () => {
+  const { encodePart } = await import('../watch/protocol');
+  const { lampRows } = await import('./shardfile');
+  const part = yard.parts.find((p) => p.name === 'posts');
+  if (part === undefined) throw new Error('no posts part');
+  const wire = encodePart(yard, part, { lamps: lampRows(part.lights, true), water: [] });
+  expect(wire.swings).toEqual([{ pivot: [3.4, 2.8, 3], length: 0.6, rate: 0.7, amount: 0.12, reach: 0.5 }]);
+  expect(wire.draws.map((d) => d.swing)).toEqual([undefined, 0]);
+  expect((wire.sprites as { swing?: number }[]).map((s) => s.swing)).toEqual([0]);
+  expect((wire.lamps as { swing?: number }[])[0]?.swing).toBe(0);
+});

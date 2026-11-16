@@ -94,12 +94,17 @@ export interface WatchPart {
   readonly textures: readonly { readonly key: string; readonly width: number; readonly height: number; readonly colourSpace: 'srgb' | 'linear' }[];
   readonly geometries: readonly string[];
   readonly draws: readonly { readonly geometry: string; readonly material: string; readonly matrix: readonly number[]; readonly castShadow: boolean; readonly receiveShadow: boolean;
-    readonly instances: { readonly count: number; readonly matrices: readonly number[]; readonly colours: readonly number[] | null } | null }[];
+    readonly instances: { readonly count: number; readonly matrices: readonly number[]; readonly colours: readonly number[] | null } | null; readonly swing?: number }[];
   readonly sprites: readonly unknown[];
   readonly lamps: readonly unknown[];
   readonly water: readonly unknown[];
+  /** SS8f: the part's hung bodies, numbered in the part (its draws', sprites' and lamps' `swing`); absent when none */
+  readonly swings?: readonly { readonly pivot: readonly number[]; readonly length: number; readonly rate: number; readonly amount: number; readonly reach: number }[];
   readonly colliders: readonly { readonly centre: readonly number[]; readonly half: readonly number[]; readonly rotation: readonly number[] }[];
 }
+
+/** a swing row's number as the shardfile rounds it (sceneLook) */
+const milli = (n: number): number => Math.round(n * 1000) / 1000;
 
 /** One part as the page's `WatchPart` JSON. Lamps and water are the shardfile's own rows (`lampRows`, `waterRows`). */
 export function encodePart(scene: ShardScene, part: ScenePart, rows: { lamps: readonly unknown[]; water: readonly unknown[] }): WatchPart {
@@ -111,10 +116,13 @@ export function encodePart(scene: ShardScene, part: ScenePart, rows: { lamps: re
     textures: part.textures.map((key) => { const t = scene.textures[key]; if (t === undefined) throw new Error(`watch: part ${part.name} names texture ${key} the scene lacks`); return { key, width: t.width, height: t.height, colourSpace: t.colourSpace }; }),
     geometries: part.geometries,
     draws: part.draws.map((d) => ({ geometry: d.geometry, material: d.material, matrix: d.matrix, castShadow: d.castShadow, receiveShadow: d.receiveShadow,
-      instances: d.instances === null ? null : { count: d.instances.count, matrices: Array.from(d.instances.matrices), colours: d.instances.colours === null ? null : Array.from(d.instances.colours) } })),
-    sprites: [...part.sprites.map((s) => ({ material: s.material, position: s.position, scale: s.scale, center: s.center })),
+      instances: d.instances === null ? null : { count: d.instances.count, matrices: Array.from(d.instances.matrices), colours: d.instances.colours === null ? null : Array.from(d.instances.colours) },
+      ...(d.swing === undefined ? {} : { swing: d.swing }) })),
+    sprites: [...part.sprites.map((s) => ({ material: s.material, position: s.position, scale: s.scale, center: s.center, ...(s.swing === undefined ? {} : { swing: s.swing }) })),
       ...part.points.flatMap((cloud) => { const size = ((scene.materials[cloud.material]?.pointSize ?? 0) * 0.7265); const out = []; for (let i = 0; i < cloud.positions.length; i += 3) out.push({ material: cloud.material, position: [cloud.positions[i] ?? 0, cloud.positions[i + 1] ?? 0, cloud.positions[i + 2] ?? 0], scale: [size, size], center: [0.5, 0.5] }); return out; })],
     lamps: rows.lamps, water: rows.water,
+    // SS8f: the engine's watch hook swings them as a built page does (engine devScene/hook.ts `DevPart.swings`)
+    ...((part.swings?.length ?? 0) === 0 ? {} : { swings: (part.swings ?? []).map(({ pivot, length, rate, amount, reach }) => ({ pivot: pivot.map(milli), length: milli(length), rate: milli(rate), amount: milli(amount), reach: milli(reach) })) }),
     colliders: part.colliders.map((c) => ({ centre: c.centre, half: c.half, rotation: c.rotation })),
   };
 }

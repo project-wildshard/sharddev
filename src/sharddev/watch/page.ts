@@ -145,7 +145,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     for (const part of fetched) {
       const owner = scope.child(`watch.part.${part.name}@${part.hash}`), old = parts.get(part.name);
       try {
-        const devPart = { materials: part.materials, sprites: part.sprites, lamps: part.lamps, water: part.water, draws: part.draws,
+        const devPart = { materials: part.materials, sprites: part.sprites, lamps: part.lamps, water: part.water, draws: part.draws, ...(part.swings === undefined ? {} : { swings: part.swings }),
           geometries: part.geometries.map((key) => hold(geometries, key, owner)),
           textures: part.textures.map((t) => ({ ...t, rgba: hold(textures, t.key, owner) })) };
         if (old === undefined) live.addPart(part.name, devPart); else live.replacePart(part.name, devPart);

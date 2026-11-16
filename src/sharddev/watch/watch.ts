@@ -253,7 +253,7 @@ export async function watchProject(project: string, options: { port?: number; cl
     const changed = scene.parts.filter((part) => parts.find((live) => live.name === part.name)?.hash !== part.hash).map((part) => part.name);
     for (const part of scene.parts) {
       if (encodedParts.has(part.hash)) continue;
-      encodedParts.set(part.hash, new TextEncoder().encode(JSON.stringify(encodePart(scene, part, { lamps: lampRows(part.lights), water: waterRows(part) }))));
+      encodedParts.set(part.hash, new TextEncoder().encode(JSON.stringify(encodePart(scene, part, { lamps: lampRows(part.lights, true), water: waterRows(part) }))));
       for (const g of part.geometries) { const geometry = scene.geometries[g]; if (!geometries.has(g) && geometry !== undefined) geometries.set(g, encodeGeometry(geometry)); }
       for (const t of part.textures) { const texture = scene.textures[t]; if (!textures.has(t) && texture !== undefined) textures.set(t, texture.rgba); }
     }
