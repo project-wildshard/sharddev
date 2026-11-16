@@ -34,6 +34,25 @@
       },
       "next": "Finish real SDK compatibility/source qualification after C1 exact land; retain every original case. No engine original removed.",
       "oracleAudit": "All11 original non-import top-level statements have identical recursive TypeScript AST node kinds, identifiers and literal values after formatting; nine runtime cases retained."
+    },
+    {
+      "sourcePath": "test/model-sources.test.ts",
+      "targetPath": "test/ci21-source/model-sources.source.ts",
+      "sourceRevision": "837a27a33788600ba5520b02bc6338d44396860c",
+      "sourceBlob": "480160bd3e6f783f74048ce8690ddbcc5df5e040",
+      "originalTests": [
+        "every Blender-built model keeps its source, and no script is an orphan"
+      ],
+      "changes": "Retain the complete original CLI assertion; port the actual checker to the SDK with caller project root and manifest-local exceptions. Add six controls for exported/real git roots, missing files, orphan scripts, stray GLBs, exceptions and blend refusal. SDK manifest contains only its owned inspection producer, no foreign shard products.",
+      "state": "source qualification; no engine removal yet",
+      "localRuntime": {
+        "files": 1,
+        "cases": 7,
+        "durationSeconds": 0.932,
+        "result": "pass"
+      },
+      "localTypedLint": "Actual type-aware Oxlint with complete inherited source compiler project: pass.",
+      "subjectPath": "scripts/check-model-sources.mjs"
     }
   ]
 }

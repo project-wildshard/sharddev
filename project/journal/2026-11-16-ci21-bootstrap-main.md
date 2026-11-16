@@ -12,3 +12,10 @@ The J186 advisory source job is outside hooks. Its actual raw results,
 not the continue-on-error wrapper, qualify C2 before any engine removal.
 Default promotion/publication stays with C11. Actual source identity and
 complete case counts will be recorded in the manifest after qualification.
+
+The first next family ports the actual model-source CLI with the full
+original repository assertion and six positive/negative controls. Its
+root is the caller's project, its exceptions belong to that project's
+manifest, and nested exported fixtures cannot borrow a parent's git
+inventory. The SDK manifest now contains only its inspection build;
+foreign shard targets keep their owners' manifests. No Blender runs.
