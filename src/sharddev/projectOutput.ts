@@ -18,6 +18,7 @@ import { outputDecisionScripts, outputScriptAdmissionRows, type OutputProductOpt
 import { prepareProjectDecisions, replacedDecisionBlob, decisionBlobNames } from './projectDecisions';
 import type { DecisionBuildOptions } from './buildDecisionScripts';
 import { expandNativeHuntSections } from './nativeHuntSource';
+import { expandNativeLookSections } from './nativeLookSource';
 
 const bytes = v.custom<Uint8Array>(value => value instanceof Uint8Array);
 const assetMap = v.map(v.string(), bytes);
@@ -89,7 +90,7 @@ function riggedHullLate(platform: EmittedSections | undefined, files: readonly O
 export async function prepareProjectOutput(project: string, input: unknown, decisions?: { source: Shardfile; options: DecisionBuildOptions }): Promise<PreparedProjectOutput> {
   let parsed = v.parse(output, input === undefined ? {} : input);
   if (parsed.platform !== undefined) {
-    const platform = expandNativeHuntSections(parsed.platform);
+    const platform = expandNativeLookSections(expandNativeHuntSections(parsed.platform));
     if (platform !== parsed.platform) parsed = { ...parsed, platform: v.parse(emitted, platform) };
   }
   const blobs: NamedBlob[] = [], overlays: OutputFile[] = [];

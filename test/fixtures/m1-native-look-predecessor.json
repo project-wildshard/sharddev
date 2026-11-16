@@ -1,0 +1,1040 @@
+{
+  "source": "engine b270a0393c242d4359c96eacf2401659e64025cc",
+  "refs": {
+    "boar": {
+      "id": "fixture.native.boar",
+      "kind": "boar",
+      "label": "Boar",
+      "variants": [
+        {
+          "id": "boar",
+          "label": "Boar",
+          "weight": 49,
+          "rarity": "common",
+          "scale": [
+            0.95,
+            1.1
+          ]
+        },
+        {
+          "id": "sow",
+          "label": "Sow",
+          "weight": 26,
+          "rarity": "common",
+          "scale": [
+            0.8,
+            0.9
+          ],
+          "hp": 70,
+          "traits": {
+            "tuskScale": 0.6
+          }
+        },
+        {
+          "id": "black",
+          "label": "Black boar",
+          "weight": 10,
+          "rarity": "uncommon",
+          "scale": [
+            1,
+            1.15
+          ],
+          "tint": {
+            "base": [
+              0.1,
+              0.09,
+              0.085
+            ],
+            "grizzle": [
+              0.24,
+              0.22,
+              0.2
+            ],
+            "dark": [
+              0.05,
+              0.045,
+              0.04
+            ],
+            "black": [
+              0.03,
+              0.03,
+              0.03
+            ],
+            "cheek": [
+              0.17,
+              0.15,
+              0.13
+            ],
+            "snout": [
+              0.1,
+              0.07,
+              0.07
+            ]
+          },
+          "traits": {
+            "tuskScale": 1.6
+          }
+        },
+        {
+          "id": "big",
+          "label": "Big boar",
+          "weight": 8,
+          "rarity": "uncommon",
+          "scale": [
+            1.25,
+            1.25
+          ],
+          "hp": 140,
+          "traits": {
+            "tuskScale": 1.3
+          }
+        },
+        {
+          "id": "scarback",
+          "label": "Scarback",
+          "weight": 3,
+          "rarity": "rare",
+          "scale": [
+            1.3,
+            1.3
+          ],
+          "hp": 180,
+          "mods": {
+            "chargeDist": 1.6,
+            "chargeDamage": 32
+          },
+          "tint": {
+            "base": [
+              0.34,
+              0.31,
+              0.27
+            ],
+            "grizzle": [
+              0.6,
+              0.56,
+              0.5
+            ],
+            "dark": [
+              0.15,
+              0.135,
+              0.12
+            ],
+            "cheek": [
+              0.46,
+              0.43,
+              0.38
+            ],
+            "tusk": [
+              0.86,
+              0.8,
+              0.66
+            ]
+          },
+          "traits": {
+            "tuskScale": 1.8,
+            "scar": 1
+          }
+        },
+        {
+          "id": "ironhide",
+          "label": "Old Ironhide",
+          "weight": 1,
+          "rarity": "legendary",
+          "scale": [
+            1.5,
+            1.5
+          ],
+          "hp": 300,
+          "mods": {
+            "speed": 1.05,
+            "chargeDist": 1.8,
+            "damageTaken": 0.6,
+            "chargeDamage": 40,
+            "relentless": true
+          },
+          "tint": {
+            "base": [
+              0.28,
+              0.29,
+              0.31
+            ],
+            "grizzle": [
+              0.52,
+              0.54,
+              0.56
+            ],
+            "dark": [
+              0.12,
+              0.125,
+              0.14
+            ],
+            "black": [
+              0.05,
+              0.05,
+              0.06
+            ],
+            "cheek": [
+              0.4,
+              0.41,
+              0.42
+            ],
+            "snout": [
+              0.12,
+              0.1,
+              0.1
+            ],
+            "tusk": [
+              0.8,
+              0.78,
+              0.7
+            ],
+            "hoof": [
+              0.08,
+              0.08,
+              0.085
+            ]
+          },
+          "traits": {
+            "tuskScale": 2.2
+          },
+          "fur": {
+            "rim": [
+              0.75,
+              0.78,
+              0.85
+            ],
+            "sheenColor": [
+              0.4,
+              0.42,
+              0.46
+            ]
+          }
+        }
+      ],
+      "aggressive": true,
+      "walkSpeed": 1.1,
+      "chargeSpeed": 7.5,
+      "chargeDamage": 25,
+      "chargeWindup": 0.55,
+      "ringRadius": 6.5,
+      "trampleRadius": 0.45,
+      "tuning": {
+        "hp": 100,
+        "sightRange": 22,
+        "sightRangeGraze": 14,
+        "sightCone": 1.0471975511965976,
+        "hearStill": 4,
+        "hearCrouch": 7,
+        "hearWalk": 14,
+        "hearSprint": 28,
+        "noticeRate": 0.5,
+        "forgetRate": 0.2,
+        "alertAt": 0.35,
+        "boltAt": 1,
+        "freezeMin": 1.5,
+        "freezeMax": 2.8,
+        "relaxAfter": 4,
+        "panicDist": 10,
+        "runSpeed": 6.8,
+        "trotSpeed": 3.6,
+        "fleeMinTime": 2,
+        "fleeUntil": 40,
+        "fleeUntilMax": 60,
+        "fleeMaxTime": 10,
+        "lookBack": 2,
+        "waryTime": 20,
+        "waryBoost": 1.5,
+        "herdAlertRadius": 12,
+        "herdBoltDelayMin": 0.2,
+        "herdBoltDelayMax": 0.7,
+        "impactSpook": 7,
+        "impactAlert": 18
+      },
+      "sounds": {
+        "call": "boar_grunt",
+        "hurt": "boar_squeal"
+      },
+      "lockable": true,
+      "fur": {
+        "texSeed": 202,
+        "tex": {
+          "contrast": 1,
+          "grizzle": 0.6,
+          "normalStrength": 2.2,
+          "bristle": 0.6,
+          "strandLen": 12,
+          "root": 0.24
+        },
+        "roughness": 0.88,
+        "sheen": 0.15,
+        "sheenColor": [
+          0.35,
+          0.3,
+          0.24
+        ],
+        "envMapIntensity": 0.9,
+        "rim": [
+          0.9,
+          0.7,
+          0.45
+        ],
+        "shellLen": 0.065,
+        "shag": 0.016
+      },
+      "rigContract": {
+        "skeleton": "boar.v1",
+        "clips": [],
+        "sockets": [
+          "body",
+          "head"
+        ]
+      },
+      "pose": {
+        "grazeNeck": 0.3,
+        "gallopTail": 0.5
+      },
+      "body": {
+        "bones": [
+          {
+            "name": "body",
+            "parent": null,
+            "pos": [
+              0,
+              0.62,
+              -0.02
+            ]
+          },
+          {
+            "name": "neck1",
+            "parent": "body",
+            "pos": [
+              0,
+              0.69,
+              0.55
+            ]
+          },
+          {
+            "name": "neck2",
+            "parent": "neck1",
+            "pos": [
+              0,
+              0.7,
+              0.66
+            ]
+          },
+          {
+            "name": "head",
+            "parent": "neck2",
+            "pos": [
+              0,
+              0.7,
+              0.78
+            ]
+          },
+          {
+            "name": "earL",
+            "parent": "head",
+            "pos": [
+              0.09,
+              0.85,
+              0.82
+            ]
+          },
+          {
+            "name": "earR",
+            "parent": "head",
+            "pos": [
+              -0.09,
+              0.85,
+              0.82
+            ]
+          },
+          {
+            "name": "tail",
+            "parent": "body",
+            "pos": [
+              0,
+              0.71,
+              -0.62
+            ]
+          },
+          {
+            "name": "belly",
+            "parent": "body",
+            "pos": [
+              0,
+              0.5,
+              0
+            ]
+          },
+          {
+            "name": "FL_shoulder",
+            "parent": "body",
+            "pos": [
+              0.14,
+              0.58,
+              0.42
+            ]
+          },
+          {
+            "name": "FL_carpus",
+            "parent": "FL_shoulder",
+            "pos": [
+              0.14,
+              0.3,
+              0.42
+            ]
+          },
+          {
+            "name": "FL_fetlock",
+            "parent": "FL_carpus",
+            "pos": [
+              0.14,
+              0.1,
+              0.42
+            ]
+          },
+          {
+            "name": "BL_hip",
+            "parent": "body",
+            "pos": [
+              0.13,
+              0.58,
+              -0.45
+            ]
+          },
+          {
+            "name": "BL_stifle",
+            "parent": "BL_hip",
+            "pos": [
+              0.14,
+              0.36,
+              -0.36
+            ]
+          },
+          {
+            "name": "BL_hock",
+            "parent": "BL_stifle",
+            "pos": [
+              0.14,
+              0.24,
+              -0.48
+            ]
+          },
+          {
+            "name": "FR_shoulder",
+            "parent": "body",
+            "pos": [
+              -0.14,
+              0.58,
+              0.42
+            ]
+          },
+          {
+            "name": "FR_carpus",
+            "parent": "FR_shoulder",
+            "pos": [
+              -0.14,
+              0.3,
+              0.42
+            ]
+          },
+          {
+            "name": "FR_fetlock",
+            "parent": "FR_carpus",
+            "pos": [
+              -0.14,
+              0.1,
+              0.42
+            ]
+          },
+          {
+            "name": "BR_hip",
+            "parent": "body",
+            "pos": [
+              -0.13,
+              0.58,
+              -0.45
+            ]
+          },
+          {
+            "name": "BR_stifle",
+            "parent": "BR_hip",
+            "pos": [
+              -0.14,
+              0.36,
+              -0.36
+            ]
+          },
+          {
+            "name": "BR_hock",
+            "parent": "BR_stifle",
+            "pos": [
+              -0.14,
+              0.24,
+              -0.48
+            ]
+          }
+        ],
+        "furParts": [],
+        "hardParts": [],
+        "eyeParts": [],
+        "dims": {
+          "bodyY": 0.62,
+          "bodyHalfLen": 0.65,
+          "bodyRadius": 0.33,
+          "headRadius": 0.2,
+          "legLen": 0.58,
+          "feet": [
+            [
+              0.145,
+              0.445
+            ],
+            [
+              -0.145,
+              0.445
+            ],
+            [
+              0.145,
+              -0.44
+            ],
+            [
+              -0.145,
+              -0.44
+            ]
+          ],
+          "halfWidth": 0.29
+        }
+      }
+    },
+    "bear": {
+      "id": "fixture.native.bear",
+      "kind": "bear",
+      "label": "Bear",
+      "variants": [
+        {
+          "id": "black",
+          "label": "Black bear",
+          "weight": 37,
+          "rarity": "common",
+          "scale": [
+            1.3,
+            1.4
+          ],
+          "hp": 220,
+          "traits": {
+            "grizzle": 0.3
+          }
+        },
+        {
+          "id": "black-blaze",
+          "label": "Black bear",
+          "weight": 18,
+          "rarity": "common",
+          "scale": [
+            1.3,
+            1.4
+          ],
+          "hp": 220,
+          "traits": {
+            "grizzle": 0.3,
+            "blaze": 1
+          }
+        },
+        {
+          "id": "brown",
+          "label": "Brown bear",
+          "weight": 30,
+          "rarity": "uncommon",
+          "scale": [
+            1.6,
+            1.75
+          ],
+          "hp": 320,
+          "mods": {
+            "damageTaken": 0.85,
+            "chargeDamage": 45,
+            "relentless": true
+          },
+          "tint": {
+            "base": [
+              0.36,
+              0.25,
+              0.155
+            ],
+            "tip": [
+              0.68,
+              0.56,
+              0.4
+            ],
+            "dark": [
+              0.16,
+              0.115,
+              0.08
+            ],
+            "muzzle": [
+              0.5,
+              0.4,
+              0.29
+            ],
+            "nose": [
+              0.06,
+              0.045,
+              0.04
+            ],
+            "claw": [
+              0.55,
+              0.48,
+              0.38
+            ],
+            "pad": [
+              0.16,
+              0.12,
+              0.1
+            ]
+          },
+          "traits": {
+            "hump": 1,
+            "grizzle": 0.6
+          },
+          "fur": {
+            "rim": [
+              0.95,
+              0.8,
+              0.55
+            ],
+            "sheenColor": [
+              0.42,
+              0.34,
+              0.24
+            ]
+          }
+        },
+        {
+          "id": "black-old",
+          "label": "Old Blackpaw",
+          "weight": 10,
+          "rarity": "rare",
+          "scale": [
+            1.65,
+            1.65
+          ],
+          "hp": 330,
+          "mods": {
+            "chargeDist": 1.2,
+            "chargeDamage": 42,
+            "relentless": true
+          },
+          "tint": {
+            "base": [
+              0.06,
+              0.05,
+              0.045
+            ],
+            "tip": [
+              0.26,
+              0.17,
+              0.11
+            ],
+            "dark": [
+              0.028,
+              0.025,
+              0.024
+            ],
+            "muzzle": [
+              0.5,
+              0.44,
+              0.36
+            ],
+            "nose": [
+              0.035,
+              0.03,
+              0.03
+            ]
+          },
+          "traits": {
+            "grizzle": 0.45,
+            "hump": 0.3
+          }
+        },
+        {
+          "id": "brown-old",
+          "label": "Grizzled Sow",
+          "weight": 5,
+          "rarity": "rare",
+          "scale": [
+            2,
+            2
+          ],
+          "hp": 480,
+          "mods": {
+            "speed": 1.05,
+            "chargeDist": 1.3,
+            "damageTaken": 0.8,
+            "chargeDamage": 55,
+            "relentless": true
+          },
+          "tint": {
+            "base": [
+              0.38,
+              0.3,
+              0.22
+            ],
+            "tip": [
+              0.78,
+              0.72,
+              0.62
+            ],
+            "dark": [
+              0.18,
+              0.14,
+              0.11
+            ],
+            "muzzle": [
+              0.62,
+              0.56,
+              0.48
+            ],
+            "nose": [
+              0.07,
+              0.06,
+              0.055
+            ],
+            "claw": [
+              0.6,
+              0.54,
+              0.44
+            ],
+            "pad": [
+              0.18,
+              0.14,
+              0.12
+            ]
+          },
+          "traits": {
+            "hump": 1.3,
+            "grizzle": 1
+          },
+          "fur": {
+            "rim": [
+              0.95,
+              0.9,
+              0.78
+            ],
+            "sheenColor": [
+              0.5,
+              0.46,
+              0.4
+            ]
+          }
+        }
+      ],
+      "aggressive": true,
+      "walkSpeed": 1,
+      "chargeSpeed": 9,
+      "chargeDamage": 35,
+      "chargeWindup": 0.65,
+      "ringRadius": 7.5,
+      "trampleRadius": 0.75,
+      "tuning": {
+        "hp": 220,
+        "sightRange": 45,
+        "sightRangeGraze": 30,
+        "sightCone": 1.2217304763960306,
+        "hearStill": 6,
+        "hearCrouch": 12,
+        "hearWalk": 25,
+        "hearSprint": 45,
+        "noticeRate": 0.8,
+        "forgetRate": 0.15,
+        "alertAt": 0.3,
+        "boltAt": 0.6,
+        "freezeMin": 1,
+        "freezeMax": 2,
+        "relaxAfter": 3,
+        "panicDist": 14,
+        "runSpeed": 7,
+        "trotSpeed": 3.5,
+        "fleeMinTime": 3,
+        "fleeUntil": 60,
+        "fleeUntilMax": 90,
+        "fleeMaxTime": 12,
+        "lookBack": 2,
+        "waryTime": 30,
+        "waryBoost": 1.3,
+        "herdAlertRadius": 20,
+        "herdBoltDelayMin": 0.3,
+        "herdBoltDelayMax": 1,
+        "impactSpook": 20,
+        "impactAlert": 80,
+        "stalk": {
+          "detect": 40,
+          "speed": 2.5,
+          "giveUp": 60,
+          "rechargeCd": 1.5,
+          "huffMin": 1.8,
+          "huffMax": 3.2,
+          "roar": "bear_roar",
+          "fleeBelowHp": 0.2,
+          "fleeChance": 0.5
+        }
+      },
+      "sounds": {
+        "call": "bear_growl",
+        "hurt": "bear_hurt"
+      },
+      "lockable": true,
+      "fur": {
+        "texSeed": 303,
+        "tex": {
+          "contrast": 0.9,
+          "grizzle": 0.45,
+          "normalStrength": 2.4,
+          "bristle": 0.3,
+          "strandLen": 16,
+          "root": 0.3
+        },
+        "roughness": 0.92,
+        "sheen": 0.12,
+        "sheenColor": [
+          0.3,
+          0.24,
+          0.18
+        ],
+        "envMapIntensity": 0.85,
+        "rim": [
+          0.85,
+          0.66,
+          0.42
+        ],
+        "shellLen": 0.095,
+        "shag": 0.028
+      },
+      "rigContract": {
+        "skeleton": "bear.v1",
+        "clips": [],
+        "sockets": [
+          "body",
+          "head"
+        ]
+      },
+      "pose": {
+        "grazeNeck": 0.55,
+        "gallopTail": 0.2
+      },
+      "body": {
+        "bones": [
+          {
+            "name": "body",
+            "parent": null,
+            "pos": [
+              0,
+              0.66,
+              -0.05
+            ]
+          },
+          {
+            "name": "neck1",
+            "parent": "body",
+            "pos": [
+              0,
+              0.72,
+              0.52
+            ]
+          },
+          {
+            "name": "neck2",
+            "parent": "neck1",
+            "pos": [
+              0,
+              0.75,
+              0.66
+            ]
+          },
+          {
+            "name": "head",
+            "parent": "neck2",
+            "pos": [
+              0,
+              0.78,
+              0.78
+            ]
+          },
+          {
+            "name": "earL",
+            "parent": "head",
+            "pos": [
+              0.1,
+              0.96,
+              0.77
+            ]
+          },
+          {
+            "name": "earR",
+            "parent": "head",
+            "pos": [
+              -0.1,
+              0.96,
+              0.77
+            ]
+          },
+          {
+            "name": "tail",
+            "parent": "body",
+            "pos": [
+              0,
+              0.73,
+              -0.76
+            ]
+          },
+          {
+            "name": "belly",
+            "parent": "body",
+            "pos": [
+              0,
+              0.5,
+              -0.05
+            ]
+          },
+          {
+            "name": "FL_shoulder",
+            "parent": "body",
+            "pos": [
+              0.17,
+              0.62,
+              0.4
+            ]
+          },
+          {
+            "name": "FL_carpus",
+            "parent": "FL_shoulder",
+            "pos": [
+              0.18,
+              0.32,
+              0.41
+            ]
+          },
+          {
+            "name": "FL_fetlock",
+            "parent": "FL_carpus",
+            "pos": [
+              0.18,
+              0.12,
+              0.42
+            ]
+          },
+          {
+            "name": "BL_hip",
+            "parent": "body",
+            "pos": [
+              0.16,
+              0.64,
+              -0.5
+            ]
+          },
+          {
+            "name": "BL_stifle",
+            "parent": "BL_hip",
+            "pos": [
+              0.17,
+              0.4,
+              -0.4
+            ]
+          },
+          {
+            "name": "BL_hock",
+            "parent": "BL_stifle",
+            "pos": [
+              0.17,
+              0.2,
+              -0.51
+            ]
+          },
+          {
+            "name": "FR_shoulder",
+            "parent": "body",
+            "pos": [
+              -0.17,
+              0.62,
+              0.4
+            ]
+          },
+          {
+            "name": "FR_carpus",
+            "parent": "FR_shoulder",
+            "pos": [
+              -0.18,
+              0.32,
+              0.41
+            ]
+          },
+          {
+            "name": "FR_fetlock",
+            "parent": "FR_carpus",
+            "pos": [
+              -0.18,
+              0.12,
+              0.42
+            ]
+          },
+          {
+            "name": "BR_hip",
+            "parent": "body",
+            "pos": [
+              -0.16,
+              0.64,
+              -0.5
+            ]
+          },
+          {
+            "name": "BR_stifle",
+            "parent": "BR_hip",
+            "pos": [
+              -0.17,
+              0.4,
+              -0.4
+            ]
+          },
+          {
+            "name": "BR_hock",
+            "parent": "BR_stifle",
+            "pos": [
+              -0.17,
+              0.2,
+              -0.51
+            ]
+          }
+        ],
+        "furParts": [],
+        "hardParts": [],
+        "eyeParts": [],
+        "dims": {
+          "bodyY": 0.66,
+          "bodyHalfLen": 0.72,
+          "bodyRadius": 0.36,
+          "headRadius": 0.21,
+          "legLen": 0.62,
+          "feet": [
+            [
+              0.18,
+              0.48
+            ],
+            [
+              -0.18,
+              0.48
+            ],
+            [
+              0.17,
+              -0.4
+            ],
+            [
+              -0.17,
+              -0.4
+            ]
+          ],
+          "halfWidth": 0.31
+        }
+      }
+    }
+  }
+}
