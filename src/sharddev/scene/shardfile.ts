@@ -12,6 +12,7 @@ import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, ShardScene } from './description';
 import { SceneRefusalError } from './lower';
 import { budgetReport, partBudgets } from './budget';
+import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
 
 /**
@@ -121,6 +122,26 @@ function mergeDraws(key: string, draws: readonly SceneDraw[], scene: ShardScene,
 interface InstancedGroup { key: string; geometry: BufferGeometry; matrices: Matrix4[]; colours: Color[] | null; castShadow: boolean; box: Box3 }
 /** The fewest copies a draw needs to stay instanced (below it the merge is as small). */
 const INSTANCE_MIN = 2, INSTANCE_CAP = 10_000;
+/**
+ * AP9c: the coarse (L1) copies the back end writes itself, so no author keeps a hand coarse list. An L1 tile (two by two
+ * fine tiles) draws past the fine ring, from about 150 m: its still meshes are simplified to a quarter of their triangles
+ * within half a metre, and an instanced shape smaller than COARSE_MIN_SIZE across (grass, flowers) stays near-only.
+ */
+const COARSE_RATIO = 0.25, COARSE_ERROR = 0.5, COARSE_MIN_SIZE = 2;
+/** A simplified geometry with only the vertices its index still names (the simplifier keeps every vertex). */
+function compacted(source: BufferGeometry): BufferGeometry {
+  const index = source.getIndex(); if (index === null) return source;
+  const remap = new Map<number, number>(), order: number[] = [], next: number[] = [];
+  for (const at of index.array) { let to = remap.get(at); if (to === undefined) { to = order.length; remap.set(at, to); order.push(at); } next.push(to); }
+  const out = new BufferGeometry();
+  for (const [name, attribute] of Object.entries(source.attributes)) {
+    const size = attribute.itemSize, values = new Float32Array(order.length * size);
+    order.forEach((from, i) => { for (let c = 0; c < size; c++) values[i * size + c] = attribute.getComponent(from, c); });
+    out.setAttribute(name, new BufferAttribute(values, size));
+  }
+  out.setIndex(next);
+  return out;
+}
 
 /** A copy the engine's loader can place: translation, rotation and a positive scale, no shear (the loader reads instance
  *  TRS rows; an exact `_MATRIX` row loads as the identity there). */
@@ -517,7 +538,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   }
   lookMaterials[GROUND_MATERIAL] = groundEntry(scene);
   const shardTiles = terrain.tiles.map((t) => ({ ...t, files: [...t.files], bounds: { min: [...t.bounds.min] as [number, number, number], max: [...t.bounds.max] as [number, number, number] } }));
-  const propTiles: { lod: 0; x: number; z: number; file: string }[] = [], tileReport: { tile: string; triangles: number; draws: number; bytes: number }[] = [];
+  const propTiles: { lod: 0 | 1; x: number; z: number; file: string }[] = [], tileReport: { tile: string; triangles: number; draws: number; bytes: number }[] = [];
   const addresses = [...new Set([...tiles.keys(), ...instanced.keys()])].sort((a, b) => a.localeCompare(b));
   for (const address of addresses) {
     const merges = tiles.get(address) ?? new Map<string, Merge>();
@@ -579,6 +600,56 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     }
     const row = { triangles: rows.reduce((n, f) => n + f.triangles, 0), draws: rows.reduce((n, f) => n + f.draws, 0), compressed: rows.reduce((n, f) => n + f.compressed, 0) };
     tileReport.push({ tile: `0/${x}/${z}`, triangles: row.triangles, draws: row.draws, bytes: row.compressed });
+  }
+  // AP9c: each L1 tile carries a simplified copy of its four fine tiles' still meshes and of their larger instanced shapes;
+  // cards and moving entries stay near-only. The engine draws an L1 tile where its fine tiles are not resident.
+  const coarseShapes = new Map<BufferGeometry, BufferGeometry>();
+  const coarseShape = (geometry: BufferGeometry): BufferGeometry => {
+    const found = coarseShapes.get(geometry); if (found !== undefined) return found;
+    const made = compacted(coarseGeometry(geometry, COARSE_RATIO, COARSE_ERROR, { sloppy: true })); coarseShapes.set(geometry, made); return made;
+  };
+  for (let x = 0; x < 4; x++) for (let z = 0; z < 4; z++) {
+    const children = [[0, 0], [0, 1], [1, 0], [1, 1]].map(([dx = 0, dz = 0]) => `${String(x * 2 + dx)}/${String(z * 2 + dz)}`);
+    const byKey = new Map<string, Merge>();
+    for (const child of children) {
+      for (const [key, merge] of [...(tiles.get(child) ?? new Map<string, Merge>())].sort(([p], [q]) => p.localeCompare(q))) {
+        const entry = entries.get(key); if (entry === undefined || entry.card || entry.motion !== null || merge.position.length === 0) continue;
+        const whole = byKey.get(key) ?? emptyMerge(); appendMerge(whole, merge); byKey.set(key, whole);
+      }
+    }
+    const primitives: GlbPrimitive[] = [], dependencies = new Set<string>(), drawn = new Box3();
+    for (const [key, merge] of [...byKey].sort(([p], [q]) => p.localeCompare(q))) {
+      const entry = entries.get(key); if (entry === undefined) continue;
+      for (const primitive of primitivesOf(merge, entry, glbNames.get(key) ?? key, false)) {
+        const geometry = compacted(coarseGeometry(primitive.geometry, COARSE_RATIO, COARSE_ERROR, { sloppy: true }));
+        if ((geometry.getIndex()?.count ?? 0) === 0) continue;
+        primitives.push({ ...primitive, geometry });
+      }
+      const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
+    }
+    for (const child of children) for (const group of instanced.get(child) ?? []) {
+      const entry = entries.get(group.key); if (entry === undefined) continue;
+      group.geometry.computeBoundingBox(); const box = group.geometry.boundingBox;
+      if (box === null || box.max.x - box.min.x < COARSE_MIN_SIZE && box.max.y - box.min.y < COARSE_MIN_SIZE && box.max.z - box.min.z < COARSE_MIN_SIZE) continue;
+      const geometry = coarseShape(group.geometry), material = glbMaterial(glbNames.get(group.key) ?? group.key, entry.material);
+      for (let from = 0; from < group.matrices.length; from += INSTANCE_CAP) {
+        const colours = group.colours?.slice(from, from + INSTANCE_CAP);
+        primitives.push({ geometry, material, castShadow: false, instances: group.matrices.slice(from, from + INSTANCE_CAP), ...(colours === undefined ? {} : { instanceColours: colours }) });
+      }
+      drawn.union(group.box);
+      const file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map); if (file !== undefined) dependencies.add(file.hash);
+    }
+    if (primitives.length === 0) continue;
+    for (const primitive of primitives) if (primitive.instances === undefined) { primitive.geometry.computeBoundingBox(); if (primitive.geometry.boundingBox !== null) drawn.union(primitive.geometry.boundingBox); }
+    const row = store(staticGlb(primitives, `scene.l1.${String(x)}.${String(z)}`), 'glb', [...dependencies].sort());
+    propTiles.push({ lod: 1, x, z, file: row.hash });
+    const tile = shardTiles.find((t) => t.lod === 1 && t.x === x && t.z === z);
+    if (tile === undefined) throw new Error(`scene: no terrain tile 1/${String(x)}/${String(z)}`);
+    const textures = [...dependencies].map((hash) => files.find((f) => f.hash === hash)).filter((f) => f !== undefined);
+    tile.files.push(row.hash, ...textures.map((f) => f.hash).filter((hash) => !tile.files.includes(hash)));
+    tile.compressed += row.compressed + textures.reduce((n, f) => n + f.compressed, 0); tile.decoded += row.decoded + textures.reduce((n, f) => n + f.decoded, 0);
+    tile.gpu += row.gpu + textures.reduce((n, f) => n + f.gpu, 0); tile.triangles += row.triangles; tile.draws += row.draws;
+    if (!drawn.isEmpty()) { tile.bounds.min[1] = Math.min(tile.bounds.min[1], drawn.min.y); tile.bounds.max[1] = Math.max(tile.bounds.max[1], drawn.max.y); }
   }
   // panels (AP16): one library GLB each, its texture slots as dependencies
   const panels = panelParts.map(({ id, merges, shadows }) => {

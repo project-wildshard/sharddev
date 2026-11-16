@@ -63,3 +63,17 @@ test('the pond trigger is the bank node\'s, typed once, and builds the row it wa
   expect(shard.quests.triggers).toEqual([{ id: 'slice.pond', kind: 'region', flag: 'slice.pond', x: -10.4, z: 0.3, radius: 4 }]);
   expect(shard.quests.quests[0]?.id).toBe('slice.walk');
 });
+
+// AP9c: the back end writes the L1 copies itself (the slice keeps no hand coarse list): each L1 tile over still meshes
+// carries a simplified copy of its four fine tiles, far fewer triangles than they hold.
+test('every L1 tile over the slice\'s meshes gets a generated coarse copy (AP9c)', () => {
+  const { shard } = sceneShardfile(slice.describe());
+  const coarse = shard.props.tiles.filter((t) => t.lod === 1), tiles = shard.tiles;
+  expect(coarse.length).toBeGreaterThan(0);
+  for (const row of coarse) {
+    const l1 = tiles.find((t) => t.lod === 1 && t.x === row.x && t.z === row.z), fine = tiles.filter((t) => t.lod === 0 && Math.floor(t.x / 2) === row.x && Math.floor(t.z / 2) === row.z);
+    expect(l1?.files).toContain(row.file);
+    const fineTriangles = fine.reduce((n, t) => n + t.triangles, 0);
+    expect(l1?.triangles ?? Infinity).toBeLessThan(fineTriangles / 2);
+  }
+});
