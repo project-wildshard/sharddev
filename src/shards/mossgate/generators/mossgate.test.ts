@@ -30,4 +30,6 @@ test('Mossgate whole lowers with every section', () => {
   const swings = shard.parts.flatMap((p) => p.swings ?? []);
   expect(swings).toHaveLength(11);
   expect(shard.parts.flatMap((p) => p.lights).filter((l) => l.swing !== undefined)).toHaveLength(11);
+  // SS9e: the crate inside the yard gate is a touchable panel, its body fitted round it
+  expect(part('crate')?.touch).toMatchObject({ material: 'wood', density: 250, shape: { cuboid: { x: expect.closeTo(0.41, 2), y: expect.closeTo(0.4, 2), z: expect.closeTo(0.41, 2) } } });
 });

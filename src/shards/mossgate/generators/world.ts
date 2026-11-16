@@ -25,6 +25,8 @@ export const LAYOUT = {
   ARENA: { x: 25.5, z: -2, r: 9.5 },
   ARCH: { x: 16, z: -2 },
   YARD: { x0: -10, x1: 12.5, z0: -18.6, z1: 8 },
+  /** SS9e: the touchable crate inside the yard gate (square to the axes: its body is fitted round its bounds) */
+  CRATE: { x: -6.4, z: 1.9, yaw: 0 },
 };
 
 /** The quest state the shard shows (the cleanroom's `?lit=A`): stage 6 makes it live. */
@@ -574,6 +576,20 @@ function barrel(part: THREE.Group, k: Kit, M: Materials, x: number, z: number): 
   k.collider({ x, y: 0.39, z, hx: 0.31, hy: 0.39, hz: 0.31, rotY: 0 });
 }
 
+/**
+ * SHARD-SOURCE SS9e: a crate inside the yard gate that players push (format `props.bodies`): its own panel part, a
+ * planked box with iron corner bands, one body the server keeps and every player sees move the same way.
+ */
+export function crate(part: THREE.Group, M: Materials): void {
+  const { x, z, yaw } = LAYOUT.CRATE, gy = groundHeight(x, z), size = 0.8;
+  const box = solid(new THREE.Mesh(new RoundedBoxGeometry(size, size, size, 2, 0.03), M.wood)); box.position.set(x, gy + size / 2, z); box.rotation.y = yaw; box.castShadow = true; part.add(box);
+  for (const [cx, cz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
+    const band = new THREE.Mesh(new THREE.BoxGeometry(0.06, size, 0.06), M.iron);
+    const ox = cx * (size / 2 - 0.02), oz = cz * (size / 2 - 0.02);
+    band.position.set(x + ox * Math.cos(yaw) + oz * Math.sin(yaw), gy + size / 2, z - ox * Math.sin(yaw) + oz * Math.cos(yaw)); band.rotation.y = yaw; part.add(band);
+  }
+}
+
 /** The sign post at the fork (cleanroom world.js 566-575). */
 export function signpost(part: THREE.Group, M: Materials, tex: Textures): void {
   const k = kit(part, 566, M, tex), { x, z } = LAYOUT.SIGN;
@@ -999,6 +1015,7 @@ export function buildMossgate(world: ShardWorld): void {
   world.part('braziers', (part) => { braziers(part, M, tex); });
   world.part('hut', (part) => { hut(part, M, tex); });
   world.part('sign', (part) => { signpost(part, M, tex); });
+  world.part('crate', (part) => { crate(part, M); }, { panel: 'mossgate.crate', touchable: { material: 'wood', density: 250 } });
   world.part('gate', (part) => { gate(part, M, tex); });
   world.part('lamplighter', (part) => { lamplighter(part, M, tex); });
   world.part('pond', (part) => { pond(part, M, tex); });
