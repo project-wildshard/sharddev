@@ -1,21 +1,24 @@
 import { expect, test } from 'vitest';
-import conditionalSchema from './fixtures/schema-conditionals.json' with { type: 'json' };
+import conditionalSchema from './fixtures/ci21sdk-tail/schema-conditionals.json' with { type: 'json' };
 import { fixtureNativeJson } from './fixtures/productFile';
 import originalDressing from './fixtures/ci21sdk-tail/nalati-dressing-phone.json' with { type: 'json' };
 import { verifyCi21Fixture } from './fixtures/ci21sdk-tail/frozen';
 
 import { validateDefinedJson } from '../src/sharddev/sections';
 import { namedJsonSchema } from '../src/sharddev/formatJsonSchema';
+import { namedJsonSchema as nativeNamedJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { encodeCanonicalJson } from '@wildshard/engine/host/immutable';
 import { SceneDressingSchema } from '@wildshard/format/sceneDressing';
 
 verifyCi21Fixture('nalati-dressing-phone.json', originalDressing);
+verifyCi21Fixture('schema-conditionals.json', conditionalSchema);
 
 const encode = (value: unknown): Uint8Array => new TextEncoder().encode(encodeCanonicalJson(value));
 const accepts = (work: () => unknown): boolean => { try { work(); return true; } catch { return false; } };
 
 test('real dressing retains author/runtime acceptance and nested refusal without schema mutation', async () => {
   const schema = namedJsonSchema(SceneDressingSchema), original = encodeCanonicalJson(schema), schemaBytes = encode(schema);
+  expect(encodeCanonicalJson(nativeNamedJsonSchema(SceneDressingSchema))).toBe(original);
   const rows = originalDressing, layer = rows.layers[0], first = rows.statics[0];
   if (layer === undefined || first === undefined) throw new Error('Missing actual dressing rows');
   const candidates = [rows,
@@ -40,7 +43,6 @@ test('data-valued keywords and existing reference bases retain their original me
   expect(await fixtureNativeJson(schema, encode(data))).toEqual(data);
   await expect(fixtureNativeJson(schema, encode({ ...data, note: 'changed' }))).rejects.toThrow('refuses its schema');
   // Private factoring's reserved-reference passthrough remains in the engine companion.
-
 });
 
 test('factored tuple, dependency, conditional and disjunction rules match the author validator', async () => {

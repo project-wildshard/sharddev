@@ -106,7 +106,7 @@
         "data-valued keywords and existing reference bases retain their original meanings",
         "factored tuple, dependency, conditional and disjunction rules match the author validator"
       ],
-      "changes": "SDK author/native admission comparisons retain all original candidate values, full dressing wire, schema immutability, data-valued keywords and conditional refusals. Actual native private factoring size, const identity, reserved reference passthrough and synchronous-driver assertions are retained in the engine companion at the same source path, with the same three case names. No assertion retired.",
+      "changes": "SDK author/native admission comparisons retain all original candidate values, full dressing wire, schema immutability, data-valued keywords and conditional refusals. Actual native private factoring size, const identity, reserved reference passthrough and synchronous-driver assertions are retained in the engine companion at the same source path, with the same three case names. No assertion retired. The complete admitted frozen dressing pin input substitutes for unavailable dressingScene generator output; no claim is made that this is the old generator output at de22e1a. Every original candidate mutation/verdict is unchanged. Both public/local schema emitters must emit the same complete canonical schema.",
       "assertionCompanions": [
         {
           "repository": "project-wildshard/engine",
@@ -117,7 +117,8 @@
             "data-valued keywords and existing reference bases retain their original meanings",
             "factored tuple, dependency, conditional and disjunction rules match the author validator"
           ],
-          "scope": "All native synchronous checks plus factored-size, const-reference identity and reserved-reference passthrough; no SDK imports. Destination source uses the same original blob."
+          "scope": "All native synchronous checks plus factored-size, const-reference identity and reserved-reference passthrough; no SDK imports. Destination source uses the same original blob.",
+          "revision": "34598b14577c8ff8a4ea6eb6e57d7de7c6fde07e"
         }
       ]
     }
