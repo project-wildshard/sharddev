@@ -43,3 +43,13 @@ J206 follow-up ci21-template-generation-followup-0549: no MUST-FIX.
 Original source/fixture assertions unchanged; source parsing belongs to
 the same SDK entry used by normal project generation. Additional
 malformed-state regression suggested, not required for this port.
+
+Post-land continuation, November16: rebased onto original batch main
+4d25fcda with frozen format0.7 install. Real compiler/typed lint and
+5case Template cohort pass11.29s. Fresh first builds before/after match
+all175asset names/lengths/bytes, shard/output/map and card hashes. The
+baseline hero is fresh; successor source hash is stale. Supported
+stamp-existing explicitly refuses changed source stamps. No source
+stamp or image bypass made; actual fresh capture remains a MacBook step.
+Original hosted43853379256 packaging refusal stays retained and valid.
+The original five-branch GO is complete; this successor stays held.
