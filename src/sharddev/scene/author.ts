@@ -218,3 +218,25 @@ export const rise = (o: { rate: number; height: number; spread?: number }): Scen
 /** `amount`: metres the top of the mesh moves; it grows with the square of the height over the mesh's own bounds. */
 export const sway = (o: { rate: number; amount: number; direction?: readonly [number, number] }): SceneMotion => ({ kind: 'sway', rate: o.rate, amount: o.amount, direction: o.direction ?? [0.8, 0.6] });
 export const uvScroll = (u: number, v: number): SceneMotion => ({ kind: 'uvScroll', u, v });
+
+/** SHARD-SOURCE SS8d: how a hung body swings (format `look.light.swings`). */
+export interface HangOptions {
+  /** about how many swings a second (0.05 to 4) */
+  readonly rate: number;
+  /** radians it leans at full gust (0 to 0.6); 0 hangs still in the wind but still swings when bumped */
+  readonly amount: number;
+  /** metres round its body at which a passing player or creature bumps it (0 to 3; default 0.3, 0 never) */
+  readonly reach?: number;
+}
+const HANG = new WeakMap<Object3D, Required<HangOptions>>();
+/**
+ * `hang(group, { rate, amount, reach })` (SHARD-SOURCE SS8d): `group` hangs from its own origin (the pivot: a rope's top, a
+ * bracket's hook) and swings there: it leans in the wind and swings when a body brushes it. Every mesh, sprite and point
+ * light under it in its part swings with it, beside any motion they declare (a hung lantern's light still flickers).
+ */
+export function hang<T extends Object3D>(object: T, options: HangOptions): T { HANG.set(object, { rate: options.rate, amount: options.amount, reach: options.reach ?? 0.3 }); return object; }
+/** The hung body `object` swings with (itself or its nearest hung ancestor under `root`), or null. */
+export function hungOf(object: Object3D, root: Object3D): { readonly node: Object3D; readonly options: Required<HangOptions> } | null {
+  for (let node: Object3D | null = object; node !== null; node = node.parent) { const options = HANG.get(node); if (options !== undefined) return { node, options }; if (node === root) break; }
+  return null;
+}

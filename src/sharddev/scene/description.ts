@@ -92,6 +92,8 @@ export interface SceneDraw {
   readonly receiveShadow: boolean;
   /** AP12: `sway` or `uvScroll`, declared on the mesh or an ancestor in its part; null: still */
   readonly motion: SceneMotion | null;
+  /** SS8d: the part's `swings` row it hangs from; absent: it does not swing */
+  readonly swing?: number;
 }
 
 /** A `Sprite`: a camera-facing card at a world point. */
@@ -103,6 +105,8 @@ export interface SceneSprite {
   readonly center: readonly [number, number];
   /** AP12: `pulse`, `drift` or `rise`; null: still */
   readonly motion: SceneMotion | null;
+  /** SS8d: the part's `swings` row it hangs from; absent: it does not swing */
+  readonly swing?: number;
 }
 
 /** AP11: a `Points` cloud: each point a camera-facing card `pointSize` across, its seat in world space. */
@@ -130,6 +134,18 @@ export interface SceneLight {
   readonly castShadow: boolean;
   /** AP12: a point light's `flicker`; null: steady */
   readonly motion: SceneMotion | null;
+  /** SS8d: the part's `swings` row it hangs from; absent: it does not swing */
+  readonly swing?: number;
+}
+
+/** SS8d: one `hang(group, ...)` body: its pivot (world), the distance down to its body's middle, rate, gust lean, reach. */
+export interface SceneSwing {
+  readonly path: string;
+  readonly pivot: Vec3;
+  readonly length: number;
+  readonly rate: number;
+  readonly amount: number;
+  readonly reach: number;
 }
 
 /** A solid box, said once by `solid(mesh)`: the mesh's own bounds in its world frame. */
@@ -178,6 +194,8 @@ export interface ScenePart {
   readonly lights: readonly SceneLight[];
   readonly colliders: readonly SceneCollider[];
   readonly water: readonly SceneWater[];
+  /** SS8d: the part's hung bodies; a draw, sprite or light's `swing` is a row of this list */
+  readonly swings?: readonly SceneSwing[];
   readonly materials: readonly string[];
   readonly textures: readonly string[];
   readonly geometries: readonly string[];

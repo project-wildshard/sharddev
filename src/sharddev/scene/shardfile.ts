@@ -9,7 +9,7 @@ import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, SceneSwing, ShardScene } from './description';
 import { SceneRefusalError } from './lower';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
@@ -75,9 +75,10 @@ const lookId = (key: string): string => `scene.${key}`;
 /** A point's card width per metre of `PointsMaterial.size` (three's size attenuation at the cleanrooms' 72° view: tan 36°). */
 const POINT_CARD = 0.7265;
 /** One merge's material: the scene material, the motion its draws declare, and whether it is a card. */
-interface Entry { readonly material: SceneMaterial; readonly motion: SceneMotion | null; readonly card: boolean }
-const entryKey = (material: string, motion: SceneMotion | null, card = false): string =>
-  motion === null && !card ? material : `${material}${card ? '.card' : ''}${motion === null ? '' : `.${hashOf((h) => h.json(motion))}`}`;
+interface Entry { readonly material: SceneMaterial; readonly motion: SceneMotion | null; readonly card: boolean; readonly swing?: boolean }
+/** SS8d: a hung draw is its own entry (`swing: true`, the `_SWING` channel), so a still copy of its material draws as before. */
+const entryKey = (material: string, motion: SceneMotion | null, card = false, swing = false): string =>
+  motion === null && !card && !swing ? material : `${material}${card ? '.card' : ''}${swing ? '.swing' : ''}${motion === null ? '' : `.${hashOf((h) => h.json(motion))}`}`;
 const luminance = ([r, g, b]: Rgb): number => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
 const round = (value: number, digits = 4): number => { const k = 10 ** digits; const out = Math.round(value * k) / k; return out === 0 ? 0 : out; };
@@ -95,13 +96,13 @@ export const GROUND_MATERIAL = 'scene.ground';
 
 /** One tile's growing merge for one material: world-space vertices and an index (a copy inside one tile keeps its
  *  own index; a triangle cut at a tile seam adds its clipped corners). */
-interface Merge { position: number[]; normal: number[]; uv: number[]; colour: number[]; index: number[]; sway: number[]; corner: number[] }
-const emptyMerge = (): Merge => ({ position: [], normal: [], uv: [], colour: [], index: [], sway: [], corner: [] });
+interface Merge { position: number[]; normal: number[]; uv: number[]; colour: number[]; index: number[]; sway: number[]; corner: number[]; swing: number[] }
+const emptyMerge = (): Merge => ({ position: [], normal: [], uv: [], colour: [], index: [], sway: [], corner: [], swing: [] });
 
 /** The tiles a world box touches, by L0 address. */
 const tileOf = (value: number): number => Math.min(7, Math.max(0, Math.floor((value + HALF) / TILE)));
 
-interface Vertex { p: Vector3; n: Vector3; u: number; v: number; c: Vector3; s: number }
+interface Vertex { p: Vector3; n: Vector3; u: number; v: number; c: Vector3; s: number; w: number }
 function clipToTile(triangle: readonly Vertex[], x: number, z: number): Vertex[] {
   const x0 = -HALF + x * TILE, z0 = -HALF + z * TILE;
   let polygon = [...triangle];
@@ -111,14 +112,14 @@ function clipToTile(triangle: readonly Vertex[], x: number, z: number): Vertex[]
       const a = input[i], b = input[(i + 1) % input.length]; if (a === undefined || b === undefined) continue;
       const da = (a.p[axis] - limit) * direction, db = (b.p[axis] - limit) * direction;
       if (da >= 0) polygon.push(a);
-      if ((da < 0) !== (db < 0)) { const t = da / (da - db); polygon.push({ p: a.p.clone().lerp(b.p, t), n: a.n.clone().lerp(b.n, t).normalize(), u: a.u + (b.u - a.u) * t, v: a.v + (b.v - a.v) * t, c: a.c.clone().lerp(b.c, t), s: a.s + (b.s - a.s) * t }); }
+      if ((da < 0) !== (db < 0)) { const t = da / (da - db); polygon.push({ p: a.p.clone().lerp(b.p, t), n: a.n.clone().lerp(b.n, t).normalize(), u: a.u + (b.u - a.u) * t, v: a.v + (b.v - a.v) * t, c: a.c.clone().lerp(b.c, t), s: a.s + (b.s - a.s) * t, w: a.w }); }
     }
   }
   return polygon;
 }
 
 /** Expand every draw of one entry into per-tile world triangles. */
-function mergeDraws(key: string, draws: readonly SceneDraw[], scene: ShardScene, tiles: Map<string, Map<string, Merge>>): void {
+function mergeDraws(key: string, draws: readonly SceneDraw[], scene: ShardScene, tiles: Map<string, Map<string, Merge>>, swingOf: (draw: SceneDraw) => number = () => 0): void {
   const p = new Vector3(), n = new Vector3(), world = new Matrix4(), local = new Matrix4(), normalMatrix = new Matrix3();
   for (const draw of draws) {
     const geometry = scene.geometries[draw.geometry], material = scene.materials[draw.material];
@@ -129,7 +130,7 @@ function mergeDraws(key: string, draws: readonly SceneDraw[], scene: ShardScene,
       normalMatrix.getNormalMatrix(world);
       const flip = world.determinant() < 0;
       const tint = draw.instances?.colours ? new Vector3(draw.instances.colours[copy * 3] ?? 1, draw.instances.colours[copy * 3 + 1] ?? 1, draw.instances.colours[copy * 3 + 2] ?? 1) : new Vector3(1, 1, 1);
-      appendCopy(geometry, material, world, normalMatrix, flip, tint, key, tiles, p, n, draw.motion?.kind === 'sway' ? draw.motion.amount : 0);
+      appendCopy(geometry, material, world, normalMatrix, flip, tint, key, tiles, p, n, draw.motion?.kind === 'sway' ? draw.motion.amount : 0, swingOf(draw));
     }
   }
 }
@@ -205,7 +206,7 @@ function instanceGroups(key: string, draw: SceneDraw, scene: ShardScene): Map<st
   return groups;
 }
 
-function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Matrix4, normalMatrix: Matrix3, flip: boolean, tint: Vector3, key: string, tiles: Map<string, Map<string, Merge>>, p: Vector3, n: Vector3, sway = 0): void {
+function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Matrix4, normalMatrix: Matrix3, flip: boolean, tint: Vector3, key: string, tiles: Map<string, Map<string, Merge>>, p: Vector3, n: Vector3, sway = 0, swing = 0): void {
   const count = geometry.index?.length ?? geometry.position.length / 3;
   // AP12: sway grows with the square of the height over the geometry's own bounds (0 at its root)
   let low = Infinity, high = -Infinity;
@@ -216,7 +217,7 @@ function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Mat
     n: n.fromArray(geometry.normal, at * 3).applyMatrix3(normalMatrix).normalize().clone(),
     u: (geometry.uv?.[at * 2] ?? 0) * material.repeat[0] + material.offset[0], v: (geometry.uv?.[at * 2 + 1] ?? 0) * material.repeat[1] + material.offset[1],
     c: (material.vertexColours && geometry.colour !== null ? new Vector3().fromArray(geometry.colour, at * 3) : new Vector3(1, 1, 1)).multiply(tint),
-    s: swayAt(at),
+    s: swayAt(at), w: swing,
   });
   const mergeOf = (tile: string): Merge => {
     const merges = tiles.get(tile) ?? new Map<string, Merge>(); tiles.set(tile, merges);
@@ -225,7 +226,7 @@ function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Mat
   };
   const push = (merge: Merge, corner: Vertex): number => {
     merge.position.push(corner.p.x, corner.p.y, corner.p.z); merge.normal.push(corner.n.x, corner.n.y, corner.n.z);
-    merge.uv.push(corner.u, corner.v); merge.colour.push(corner.c.x, corner.c.y, corner.c.z); merge.sway.push(corner.s);
+    merge.uv.push(corner.u, corner.v); merge.colour.push(corner.c.x, corner.c.y, corner.c.z); merge.sway.push(corner.s); merge.swing.push(corner.w);
     return merge.position.length / 3 - 1;
   };
   const vertexCount = geometry.position.length / 3, corners = Array.from({ length: vertexCount }, (_, at) => vertex(at));
@@ -254,12 +255,12 @@ function appendCopy(geometry: SceneGeometry, material: SceneMaterial, world: Mat
 }
 
 /** AP11: one camera-facing quad per card, into its seat's tile: `position` the seat, `_CORNER` the view-space offset. */
-function appendCard(key: string, seat: readonly [number, number, number], size: readonly [number, number], centre: readonly [number, number], tiles: Map<string, Map<string, Merge>>): void {
+function appendCard(key: string, seat: readonly [number, number, number], size: readonly [number, number], centre: readonly [number, number], tiles: Map<string, Map<string, Merge>>, swing = 0): void {
   const tile = `${tileOf(seat[0])}/${tileOf(seat[2])}`, merges = tiles.get(tile) ?? new Map<string, Merge>(); tiles.set(tile, merges);
   const merge = merges.get(key) ?? emptyMerge(); merges.set(key, merge);
   const base = merge.position.length / 3;
   for (const [u, v] of [[0, 0], [1, 0], [1, 1], [0, 1]] as const) {
-    merge.position.push(seat[0], seat[1], seat[2]); merge.normal.push(0, 0, 1); merge.uv.push(u, v); merge.colour.push(1, 1, 1); merge.sway.push(0);
+    merge.position.push(seat[0], seat[1], seat[2]); merge.normal.push(0, 0, 1); merge.uv.push(u, v); merge.colour.push(1, 1, 1); merge.sway.push(0); merge.swing.push(swing);
     merge.corner.push((u - centre[0]) * size[0], (v - centre[1]) * size[1]);
   }
   merge.index.push(base, base + 1, base + 2, base, base + 2, base + 3);
@@ -284,9 +285,12 @@ function primitivesOf(merge: Merge, entry: Entry, name: string, castShadow: bool
       .setAttribute('uv', new Float32BufferAttribute(chunk.uv, 2)).setAttribute('color', new BufferAttribute(new Float32Array(chunk.colour), 3)).setIndex(chunk.index);
     if (entry.card) geometry.setAttribute('corner', new Float32BufferAttribute(chunk.corner, 2));
     if (swaying) geometry.setAttribute('sway', new Float32BufferAttribute(chunk.sway, 1));
+    if (entry.swing === true) geometry.setAttribute('swing', new Float32BufferAttribute(chunk.swing, 1));
     const material = glbMaterial(name, entry.material);
     const primitive: GlbPrimitive = { geometry, material, castShadow: entry.card ? false : castShadow };
-    if (entry.card) primitive.customAttributes = { _CORNER: 'corner' }; else if (swaying) primitive.customAttributes = { _SWAY: 'sway' };
+    // SS8d: a hung surface or card's swing number + 1 rides `_SWING` beside its corner or sway
+    const channels = { ...(entry.card ? { _CORNER: 'corner' } : swaying ? { _SWAY: 'sway' } : {}), ...(entry.swing === true ? { _SWING: 'swing' } : {}) };
+    if (Object.keys(channels).length > 0) primitive.customAttributes = channels;
     return primitive;
   });
 }
@@ -300,7 +304,7 @@ function glbBytes(primitive: GlbPrimitive): number {
 function appendMerge(into: Merge, from: Merge): void {
   const base = into.position.length / 3;
   // element by element: a spread of a large merge overflows the call stack
-  for (const channel of ['position', 'normal', 'uv', 'colour', 'sway', 'corner'] as const) for (const value of from[channel]) into[channel].push(value);
+  for (const channel of ['position', 'normal', 'uv', 'colour', 'sway', 'corner', 'swing'] as const) for (const value of from[channel]) into[channel].push(value);
   for (const at of from.index) into.index.push(at + base);
 }
 
@@ -337,7 +341,7 @@ function chunks(merge: Merge, limit = 200_000): Merge[] {
         to = current.position.length / 3; remap.set(from, to);
         current.position.push(...merge.position.slice(from * 3, from * 3 + 3)); current.normal.push(...merge.normal.slice(from * 3, from * 3 + 3));
         current.uv.push(...merge.uv.slice(from * 2, from * 2 + 2)); current.colour.push(...merge.colour.slice(from * 3, from * 3 + 3));
-        current.sway.push(merge.sway[from] ?? 0); current.corner.push(...merge.corner.slice(from * 2, from * 2 + 2));
+        current.sway.push(merge.sway[from] ?? 0); current.swing.push(merge.swing[from] ?? 0); current.corner.push(...merge.corner.slice(from * 2, from * 2 + 2));
       }
       current.index.push(to);
     }
@@ -364,7 +368,7 @@ function boxRow(collider: SceneCollider): { kind: 'box'; x: number; y: number; z
 }
 
 /** Point lights as the look's lamp rows (`look.light.lamps`): what a baked shard and a watched part (the dev hook) both draw. */
-export function lampRows(lights: readonly SceneLight[]): { at: [number, number, number]; colour: [number, number, number]; intensity: number; distance: number; decay?: number; flicker?: { rate: number; amount: number } }[] {
+export function lampRows(lights: readonly SceneLight[], swings = false): { at: [number, number, number]; colour: [number, number, number]; intensity: number; distance: number; decay?: number; flicker?: { rate: number; amount: number }; swing?: number }[] {
   type LampRow = ReturnType<typeof lampRows>[number];
   const rows: LampRow[] = [];
   for (const l of lights) {
@@ -374,6 +378,8 @@ export function lampRows(lights: readonly SceneLight[]): { at: [number, number, 
     if (l.decay !== 2) row.decay = round(clamp01(l.decay / 2) * 2, 3);
     // AP12: the light's declared flicker, played by the engine's lamps (format `lamps[].flicker`)
     if (l.motion?.kind === 'flicker') row.flicker = { rate: round(Math.min(30, l.motion.rate), 3), amount: round(clamp01(l.motion.amount), 3) };
+    // SS8d: a hung lamp's swing (numbered across the shard; a watched part's numbers are its own, so it sends none)
+    if (swings && l.swing !== undefined) row.swing = l.swing;
     rows.push(row);
   }
   return rows;
@@ -393,7 +399,7 @@ export function waterRows(part: ScenePart): { id: string; kind: 'pool'; level: n
 /** The look a scene declares (AP3), over the format's day-key model fixed at one time of day. The engine sets its
  *  hemisphere light's intensity to the ambient key's (engine `dataLook.ts`), so the key is the HemisphereLight's own
  *  number (ss4d: it was x pi, a ground three times brighter than its cleanroom's). */
-export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: Record<string, unknown>): Shardfile['look'] {
+export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], materials: Record<string, unknown>, swings: readonly SceneSwing[] = []): Shardfile['look'] {
   const directional = lights.filter((l) => l.kind === 'directional').sort((a, b) => b.intensity - a.intensity);
   const sun = directional[0], hemisphere = lights.find((l) => l.kind === 'hemisphere'), ambient = lights.find((l) => l.kind === 'ambient');
   const lamps = lights.filter((l) => l.kind === 'point').sort((a, b) => b.intensity - a.intensity).slice(0, 16);
@@ -417,7 +423,9 @@ export function sceneLook(scene: ShardScene, lights: readonly SceneLight[], mate
       fog: fog?.kind === 'linear' ? { colour: rgb01(fog.colour), density: 0, near: fog.near, far: fog.far } : { colour: rgb01(fogColour), density: round(fog?.kind === 'exp2' ? fog.density : 0, 5) },
       sun: { colour: rgb01(sun?.colour ?? [1, 1, 1]), intensity: round(sun?.intensity ?? 0, 3) },
       ambient: { sky: rgb01(skyColour), ground: rgb01(groundColour), intensity: round(hemisphere?.intensity ?? ambient?.intensity ?? 0.5, 3) } }],
-    light: { ...(lamps.length === 0 ? {} : { lamps: lampRows(lamps) }),
+    light: { ...(lamps.length === 0 ? {} : { lamps: lampRows(lamps, swings.length > 0) }),
+      // SS8d: the hung bodies a swinging surface's `_SWING` and a lamp's `swing` name
+      ...(swings.length === 0 ? {} : { swings: swings.map(({ pivot, length, rate, amount, reach }) => ({ pivot: [round(pivot[0], 3), round(pivot[1], 3), round(pivot[2], 3)], length: round(length, 3), rate: round(rate, 3), amount: round(amount, 3), reach: round(reach, 3) })) }),
       ...(sky?.environment === null || sky === null ? {} : { environment: { intensity: round(Math.min(4, sky.environment.intensity), 3), ground: rgb01(sky.environment.ground) } }) },
   } as Shardfile['look'];
 }
@@ -441,7 +449,13 @@ function cardMotion(motion: SceneMotion | null): Record<string, unknown> {
  * A look.materials entry for one scene material (AP2, AP10 to AP12): pbr for lit surfaces (with their own glow, alpha,
  * decal offset, sway and uv scroll), emissive for unlit ones, an emissive card for a sprite or a point.
  */
-function materialEntry({ material, motion, card }: Entry): Record<string, unknown> {
+function materialEntry(entry: Entry): Record<string, unknown> {
+  const base = baseMaterialEntry(entry);
+  // SS8d: a hung surface or card turns round its swing's pivot, read per vertex from `_SWING`
+  return entry.swing === true ? { ...base, swing: true } : base;
+}
+
+function baseMaterialEntry({ material, motion, card }: Entry): Record<string, unknown> {
   const doubleSided = material.side === 'double' ? { doubleSided: true } : {};
   if (material.entry !== null) return { ...material.entry };
   if (card) {
@@ -517,24 +531,31 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   }
   // static parts (AP2): merged per entry (a material and the motion its draws declare) per tile
   const draws = scene.parts.filter((part) => part.panel === undefined).flatMap((part) => part.draws), byEntry = new Map<string, SceneDraw[]>(), entries = new Map<string, Entry>();
-  const entryOf = (material: string, motion: SceneMotion | null, card = false): string | null => {
+  const entryOf = (material: string, motion: SceneMotion | null, card = false, swing = false): string | null => {
     const found = scene.materials[material]; if (found === undefined) return null;
-    const key = entryKey(material, motion, card); if (!entries.has(key)) entries.set(key, { material: found, motion, card }); return key;
+    const key = entryKey(material, motion, card, swing); if (!entries.has(key)) entries.set(key, { material: found, motion, card, ...(swing ? { swing } : {}) }); return key;
   };
+  // SS8d: every part's hung bodies, numbered across the shard; a draw, card or lamp's channel is its number + 1
+  const { swings, swingBase } = shardSwings(scene.parts);
+  const swingChannel = new Map<SceneDraw, number>();
+  for (const part of scene.parts) for (const draw of part.draws) if (draw.swing !== undefined) swingChannel.set(draw, (swingBase.get(part) ?? 0) + draw.swing + 1);
   const instanced = new Map<string, InstancedGroup[]>();
   for (const draw of draws) {
-    const key = entryOf(draw.material, draw.motion); if (key === null) continue;
+    const key = entryOf(draw.material, draw.motion, false, draw.swing !== undefined); if (key === null) continue;
     // AP15: a still InstancedMesh stays instanced, its copies in the tiles of their seats
-    const groups = draw.motion === null && (draw.instances?.count ?? 0) >= INSTANCE_MIN ? instanceGroups(key, draw, scene) : null;
+    const groups = draw.motion === null && draw.swing === undefined && (draw.instances?.count ?? 0) >= INSTANCE_MIN ? instanceGroups(key, draw, scene) : null;
     if (groups !== null) { for (const [tile, group] of groups) { const list = instanced.get(tile) ?? []; list.push(group); instanced.set(tile, list); } continue; }
     const list = byEntry.get(key) ?? []; list.push(draw); byEntry.set(key, list);
   }
   const tiles = new Map<string, Map<string, Merge>>();
-  for (const [key, list] of byEntry) mergeDraws(key, list, scene, tiles);
+  for (const [key, list] of byEntry) mergeDraws(key, list, scene, tiles, (draw) => swingChannel.get(draw) ?? 0);
   // cards (AP11): every sprite and every point a camera-facing quad in its seat's tile
   let cards = 0;
   for (const part of scene.parts) {
-    for (const sprite of part.sprites) { const key = entryOf(sprite.material, sprite.motion, true); if (key === null) continue; appendCard(key, sprite.position, sprite.scale, sprite.center, tiles); cards++; }
+    for (const sprite of part.sprites) {
+      const key = entryOf(sprite.material, sprite.motion, true, sprite.swing !== undefined); if (key === null) continue;
+      appendCard(key, sprite.position, sprite.scale, sprite.center, tiles, sprite.swing === undefined ? 0 : (swingBase.get(part) ?? 0) + sprite.swing + 1); cards++;
+    }
     for (const cloud of part.points) {
       const key = entryOf(cloud.material, cloud.motion, true), size = (scene.materials[cloud.material]?.pointSize ?? 0) * POINT_CARD; if (key === null) continue;
       for (let i = 0; i < cloud.positions.length; i += 3) { appendCard(key, [cloud.positions[i] ?? 0, cloud.positions[i + 1] ?? 0, cloud.positions[i + 2] ?? 0], [size, size], [0.5, 0.5], tiles); cards++; }
@@ -551,7 +572,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     return { id: part.panel ?? part.name, merges, shadows };
   });
   const names = new Map<string, string>(), glbNames = new Map([...entries].map(([key, entry]) => [key, glbName({ ...entry.material, key, name: entry.card || entry.motion !== null ? `${entry.material.name}-${key.slice(entry.material.key.length + 1)}` : entry.material.name }, names)]));
-  const casts = new Map<string, boolean>(); for (const draw of draws) { const key = entryKey(draw.material, draw.motion); casts.set(key, (casts.get(key) ?? false) || draw.castShadow); }
+  const casts = new Map<string, boolean>(); for (const draw of draws) { const key = entryKey(draw.material, draw.motion, false, draw.swing !== undefined); casts.set(key, (casts.get(key) ?? false) || draw.castShadow); }
   const lookMaterials: Record<string, unknown> = {}, propMaterials: Record<string, unknown> = {};
   for (const [key, entry] of entries) {
     const name = glbNames.get(key) ?? key, file = entry.material.map === null ? undefined : textureFiles.get(entry.material.map);
@@ -749,14 +770,15 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
-  const lights = scene.parts.flatMap((part) => part.lights);
+  // SS8d: a hung lamp names its swing by its number across the shard
+  const lights = scene.parts.flatMap((part) => part.lights.map((light) => light.swing === undefined ? light : { ...light, swing: (swingBase.get(part) ?? 0) + light.swing }));
   const base = emptyShardfile({ slug: scene.identity.slug, name: scene.identity.name, author: scene.identity.author ?? 'Wildshard', revision: scene.identity.revision ?? 1, seed: scene.identity.seed ?? 1 });
   const [sx, sy, sz] = scene.spawn.position;
   const spawnY = Math.max(sy, (ground?.heightAt(sx, sz) ?? 0) + 1);
   const product = {
     ...base, budgets: { ...base.budgets, library: libraryCost(files, library), sim: { resident: SIM_CEILING, compressed: libraryCost(files, terrain.critical).compressed } },
     serverBudget: { ...base.serverBudget, tickMicros: SERVER_TICK_MICROS, memory: SIM_CEILING },
-    look: { ...sceneLook(scene, lights, lookMaterials), ...(details.length === 0 ? {} : { details }) }, spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
+    look: { ...sceneLook(scene, lights, lookMaterials, swings), ...(details.length === 0 ? {} : { details }) }, spawn: { x: round(sx, 3), y: round(spawnY, 3), z: round(sz, 3), yaw: round(scene.spawn.yaw, 4) },
     terrain: { ...terrain.terrain, shadow: { cast: true, receive: true }, follow: 5 }, tiles: shardTiles, files: files.sort((a, b) => a.hash.localeCompare(b.hash)), edge: terrain.edge,
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],
     props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(bodies.length === 0 ? {} : { bodies }), ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
@@ -846,4 +868,12 @@ function groundSource(scene: ShardScene): Parameters<typeof bakeTerrain>[0] {
 /** AP18: the scene's whole ground as one terrain tile's wire bytes (heights and colours), what a watched page's hook swaps in. */
 export function sceneGroundBytes(scene: ShardScene): Uint8Array {
   return encodeTerrainTile(groundLattice(groundSource(scene)));
+}
+
+/** SS8d: every part's hung bodies in one list (format `look.light.swings`, at most 32), and where each part's rows start. */
+export function shardSwings(parts: readonly ScenePart[]): { swings: SceneSwing[]; swingBase: Map<ScenePart, number> } {
+  const swings: SceneSwing[] = [], swingBase = new Map<ScenePart, number>();
+  for (const part of parts) { swingBase.set(part, swings.length); swings.push(...(part.swings ?? [])); }
+  if (swings.length > 32) throw new SceneRefusalError(swings[32]?.path ?? 'scene', `the shard hangs ${swings.length} bodies, over the 32 a look swings`, 'Hang fewer lanterns, or hang several from one group');
+  return { swings, swingBase };
 }

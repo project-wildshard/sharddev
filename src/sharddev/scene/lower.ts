@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { isSolid, motionOf, paintedPixels, Water, type ShardWorld, type TouchableOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type ShardWorld, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -184,8 +184,26 @@ function refuseGraphMotion(path: string, key: string, tables: Tables, what: stri
       : 'Move it in the graph: vertex: { offset } over graphInputs.windTime (sway) or a uv over time (uvScroll), or draw it with a MeshStandardMaterial');
 }
 
+/** SS8d: a hung body's swing row: its pivot is the group's origin, its length the drop to the middle of what it holds. */
+function swingRow(path: string, node: Object3D, options: Required<HangOptions>): SceneSwing {
+  const pivot = node.getWorldPosition(new Vector3()), box = new Box3().setFromObject(node);
+  const middle = box.isEmpty() ? pivot.y - 0.5 : (box.min.y + box.max.y) / 2;
+  const clamp = (value: number, low: number, high: number): number => Math.min(high, Math.max(low, value));
+  return { path, pivot: v3(pivot), length: clamp(pivot.y - middle, 0.05, 10), rate: clamp(options.rate, 0.05, 4), amount: clamp(options.amount, 0, 0.6), reach: clamp(options.reach, 0, 3) };
+}
+
 function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
+  // SS8d: the part's hung bodies, each a row the first time something under it lowers
+  const swings: SceneSwing[] = [], swingIndex = new Map<Object3D, number>();
+  const swingOf = (object: Object3D, path: string): { swing?: number } => {
+    const hung = hungOf(object, root);
+    if (hung === null) return {};
+    if (panel !== undefined) throw new SceneRefusalError(path, 'a panel part cannot swing', 'Hang it in a part of its own');
+    let at = swingIndex.get(hung.node);
+    if (at === undefined) { at = swings.length; swings.push(swingRow(pathOf(hung.node, root), hung.node, hung.options)); swingIndex.set(hung.node, at); }
+    return { swing: at };
+  };
   const visit = (object: Object3D): void => {
     // AP32c: a world.detail mesh is its layer's, never copies in a tile
     if (tables.details.has(object)) return;
@@ -220,20 +238,21 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
       } else if (isSolid(object)) {
         object.geometry.computeBoundingBox(); colliders.push(colliderOf(path, object.matrixWorld, object.geometry.boundingBox ?? new Box3()));
       }
-      const motion = fitMotion(object, root, path, MESH_MOTIONS, 'mesh');
+      const motion = fitMotion(object, root, path, MESH_MOTIONS, 'mesh'), swing = swingOf(object, path);
       if (motion !== null) refuseGraphMotion(path, material, tables, motion.kind);
-      draws.push({ path, geometry, material, matrix: [...object.matrixWorld.elements], instances, castShadow: object.castShadow, receiveShadow: object.receiveShadow, motion });
+      if (swing.swing !== undefined) refuseGraphMotion(path, material, tables, 'swing');
+      draws.push({ path, geometry, material, matrix: [...object.matrixWorld.elements], instances, castShadow: object.castShadow, receiveShadow: object.receiveShadow, motion, ...swing });
     } else if (object instanceof Sprite) {
       const material = lowerMaterial(object.material, path, tables), scale = new Vector3().setFromMatrixScale(object.matrixWorld);
       refuseGraphMotion(path, material, tables, 'card');
-      sprites.push({ path, material, position: v3(new Vector3().setFromMatrixPosition(object.matrixWorld)), scale: [scale.x, scale.y], center: [object.center.x, object.center.y], motion: fitMotion(object, root, path, CARD_MOTIONS, 'Sprite') });
+      sprites.push({ path, material, position: v3(new Vector3().setFromMatrixPosition(object.matrixWorld)), scale: [scale.x, scale.y], center: [object.center.x, object.center.y], motion: fitMotion(object, root, path, CARD_MOTIONS, 'Sprite'), ...swingOf(object, path) });
     } else if (object instanceof PointLight || object instanceof DirectionalLight || object instanceof HemisphereLight || object instanceof AmbientLight) {
       const position = v3(new Vector3().setFromMatrixPosition(object.matrixWorld));
       const kind: SceneLight['kind'] = object instanceof PointLight ? 'point' : object instanceof DirectionalLight ? 'directional' : object instanceof HemisphereLight ? 'hemisphere' : 'ambient';
       lights.push({ path, kind, colour: rgb(object.color), groundColour: object instanceof HemisphereLight ? rgb(object.groundColor) : null, intensity: object.intensity,
         distance: object instanceof PointLight ? object.distance : 0, decay: object instanceof PointLight ? object.decay : 0, position,
         target: object instanceof DirectionalLight ? v3(object.target.getWorldPosition(new Vector3())) : null, castShadow: object.castShadow,
-        motion: object instanceof PointLight ? fitMotion(object, root, path, LIGHT_MOTIONS, 'light') : null });
+        motion: object instanceof PointLight ? fitMotion(object, root, path, LIGHT_MOTIONS, 'light') : null, ...(object instanceof PointLight ? swingOf(object, path) : {}) });
     } else if (object instanceof SpotLight) {
       throw new SceneRefusalError(path, 'SpotLight has no lowering yet', 'Use a PointLight; spot lamps are an engine row after M1');
     } else if (object instanceof Points) {
@@ -265,11 +284,11 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
     hash.text(draw.geometry).text(draw.material).numbers(draw.matrix).numbers([draw.castShadow ? 1 : 0, draw.receiveShadow ? 1 : 0]).json(draw.motion);
     if (draw.instances !== null) { hash.bytes(draw.instances.matrices); if (draw.instances.colours !== null) hash.bytes(draw.instances.colours); }
   }
-  hash.json(sprites).json(lights).json(colliders).json(water.map((w) => ({ ...w, triangles: [...w.triangles] })));
+  hash.json(sprites).json(lights).json(colliders).json(swings).json(draws.map((d) => d.swing ?? -1)).json(water.map((w) => ({ ...w, triangles: [...w.triangles] })));
   for (const cloud of points) hash.text(cloud.material).bytes(cloud.positions).json(cloud.motion);
   const touch = touchable === undefined ? undefined : touchOf(root, touchable);
   if (touch !== undefined) hash.json(touch);
-  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), draws, sprites, points, lights, colliders, water, materials, textures, geometries };
+  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), draws, sprites, points, lights, colliders, water, ...(swings.length === 0 ? {} : { swings }), materials, textures, geometries };
 }
 
 /** SS9d: a touchable panel's body, fitted round the part's world bounds (each half extent at most 8 m, the format's). */
