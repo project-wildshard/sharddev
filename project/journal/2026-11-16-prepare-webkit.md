@@ -23,3 +23,9 @@ an unresponsive launcher refuses in 51.8 seconds including Playwright's
 30-second graceful shutdown allowance, and a real headless phone page
 opens. The hung child is gone and draft bytes/cache remain unchanged.
 Ten focused preview/recorder/download cases, strict lint and types pass.
+
+Read-only Opus review found two MUSTs in error reporting. Both are fixed:
+preserve the launch reason/cause, retain the recorder stderr tail and
+recognize every Error subtype/code plus the process deadline. Explicit
+debug mode preserves full diagnostics; normal refusals stay concise.
+The process test also kills its own stub in failure cleanup.

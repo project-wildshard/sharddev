@@ -108,12 +108,13 @@ export async function prepareProduct(dir,base,inline=false){
     const run=await new Promise(done=>{
       const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,...(inline?['--inline']:[]),index.identity.slug],{stdio:['inherit','inherit','pipe'],timeout:300000});
       let stderr='';
-      child.stderr.on('data',bytes=>{if(stderr.length<16384)stderr+=String(bytes).slice(0,16384-stderr.length);});
+      const debug=process.env.WILDSHARD_PREPARATION_DEBUG==='1'||process.env.DEBUG?.includes('pw:');
+      child.stderr.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-16384);if(debug)process.stderr.write(bytes);});
       child.once('error',error=>{done({error,status:null,stderr});});
-      child.once('close',status=>{done({error:undefined,status,stderr});});
+      child.once('close',(status,signal)=>{done({error:undefined,status,stderr,timedOut:child.killed&&signal==='SIGTERM'});});
     });
     if(run.error!==undefined||run.status!==0){
-      const detail=run.stderr.split('\n').find(line=>/^(?:Error|TimeoutError): /u.test(line))?.replace(/^(?:Error|TimeoutError): /u,'');
+      const detail=run.timedOut?'Recorder exceeded its 300 second limit':run.error?.message??run.stderr.split('\n').reverse().find(line=>/^[A-Za-z]*Error(?: \[[^\]]+\])?: /u.test(line))??`Recorder exited ${run.status??'without a status'}; rerun with WILDSHARD_PREPARATION_DEBUG=1 for details`;
       throw new Error(detail?.includes('Candidate left as a draft.')?detail:`Phone WebKit preparation did not pass${detail===undefined?'':`: ${detail}`}; candidate left as a draft`);
     }
     return await finishPreparation(dir,json(scratch,'recording.json'),header);
@@ -124,5 +125,9 @@ if(process.argv[1]!==undefined&&resolve(process.argv[1])===fileURLToPath(import.
   const [dir,flag,base]=process.argv.slice(2);
   if(dir===undefined||(flag!==undefined&&(flag!=='--base'||base===undefined)))throw new Error('usage: wildshard prepare <folder> [--base <exact-preview-url>]');
   try{console.log(JSON.stringify(await prepareProduct(resolve(dir),base)));}
-  catch(error){console.error(`wildshard prepare: ${error instanceof Error?error.message:String(error)}`);process.exitCode=1;}
+  catch(error){
+    if(process.env.WILDSHARD_PREPARATION_DEBUG==='1')console.error(error);
+    else console.error(`wildshard prepare: ${error instanceof Error?error.message:String(error)}`);
+    process.exitCode=1;
+  }
 }

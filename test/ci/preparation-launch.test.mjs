@@ -1,4 +1,4 @@
-// MU3: real Playwright processes, explicit CI-only browser proof (outside hooks).
+// MU3: real Playwright processes, explicit browser proof outside hooks.
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
@@ -11,12 +11,13 @@ const root=resolve(import.meta.dirname,'../..');
 function refusal(hang){
   const parent=join(root,'tmp/codex-netlag');mkdirSync(parent,{recursive:true});
   const dir=mkdtempSync(join(parent,'launch-'));
+  const pidFile=join(dir,'browser.pid');
+  let clean=false;
   try{
     const candidate=join(dir,'candidate'),browsers=join(dir,'browsers'),cache=join(dir,'client');
     mkdirSync(candidate);mkdirSync(browsers);
     const original='{"sdk":"0.2","untouched":true}\n';
     writeFileSync(join(candidate,'shard.json'),original);
-    const pidFile=join(dir,'browser.pid');
     if(hang){
       const folder=join(browsers,basename(dirname(webkit.executablePath())));mkdirSync(folder);
       writeFileSync(join(folder,'pw_run.sh'),`#!/bin/sh\nprintf '%s' "$$" > "$F30_PID"\nexec "${process.execPath}" -e 'setInterval(()=>{},1000)'\n`,{mode:0o755});
@@ -27,8 +28,8 @@ function refusal(hang){
     assert.equal(run.status,1);
     assert.equal(run.stdout,'');
     assert.equal(run.stderr.trim().split('\n').length,1);
-    assert.match(run.stderr,/Phone WebKit .*Playwright .*pnpm dlx playwright@.* install webkit.*another macOS\/Linux machine.*Candidate left as a draft/u);
-    assert.doesNotMatch(run.stderr,/at |fetching|TimeoutError|node:internal/u);
+    assert.match(run.stderr,/Phone WebKit .*Playwright .*npx playwright@.* install webkit.*another macOS\/Linux machine.*Candidate left as a draft/u);
+    assert.doesNotMatch(run.stderr,/\n\s+at |fetching|TimeoutError|node:internal/u);
     assert.equal(readFileSync(join(candidate,'shard.json'),'utf8'),original);
     assert.equal(existsSync(cache),false);
     if(hang){
@@ -38,8 +39,15 @@ function refusal(hang){
       assert.ok(Date.now()-at<60000);
       const pid=Number(readFileSync(pidFile,'utf8'));
       assert.throws(()=>process.kill(pid,0),{code:'ESRCH'});
+      clean=true;
     }
-  }finally{rmSync(dir,{recursive:true,force:true});}
+  }finally{
+    if(!clean&&existsSync(pidFile)){
+      try{process.kill(Number(readFileSync(pidFile,'utf8')),'SIGKILL');}
+      catch(error){if(error.code!=='ESRCH')throw error;}
+    }
+    rmSync(dir,{recursive:true,force:true});
+  }
 }
 test('missing WebKit refuses before downloading and leaves the draft untouched',()=>refusal(false));
 test('unresponsive WebKit is killed at the bounded launch and emits one fallback',{timeout:70000},()=>refusal(true));

@@ -11,8 +11,9 @@ export const PREPARATION_LAUNCH_TIMEOUT=20000;
 export async function launchPreparationBrowser(){
   try{return await webkit.launch({headless:true,timeout:PREPARATION_LAUNCH_TIMEOUT});}
   catch(error){
-    const reason=error instanceof Error&&error.name==='TimeoutError'?'did not start within 20 seconds (up to 30 seconds more for process cleanup)':'could not start';
-    throw new Error(`Phone WebKit ${reason} (Playwright ${version}). Run pnpm dlx playwright@${version} install webkit, then retry. If it still fails, run prepare on another macOS/Linux machine with working WebKit; --base also needs local WebKit. Candidate left as a draft.`);
+    const detail=String(error instanceof Error?error.message:error).split('\n').find(line=>line.trim()!=='')?.trim();
+    const reason=error instanceof Error&&error.name==='TimeoutError'?`did not start within ${PREPARATION_LAUNCH_TIMEOUT/1000} seconds (up to 30 seconds more for process cleanup)`:`could not start: ${detail??'unknown launch failure'}`;
+    throw new Error(`Phone WebKit ${reason} (Playwright ${version}). Run npx playwright@${version} install webkit, then retry. If it still fails, run prepare on another macOS/Linux machine with working WebKit; --base also needs local WebKit. Candidate left as a draft.`,{cause:error});
   }
 }
 

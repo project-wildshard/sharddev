@@ -145,6 +145,8 @@ macOS/Linux machine with working WebKit. `--base` changes the preview,
 and still needs local WebKit. No failed preflight modifies the draft or
 downloads a client. The download's HTTP size is printed before its body
 is read when the server supplies Content-Length.
+Set `WILDSHARD_PREPARATION_DEBUG=1` for full recorder stderr and error
+causes; Playwright's `DEBUG=pw:browser*` recorder logs also pass through.
 
 Run the explicit browser proof outside hooks:
 `node --test test/ci/preparation-launch.test.mjs`. It tests a missing
