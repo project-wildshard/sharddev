@@ -17,7 +17,7 @@ import { expandCombatSource } from './combatSource';
 export function settleHandwrittenCreatureLayers(source: string, output: string): ReturnType<typeof validateOutputProduct> {
   if (resolve(source) === resolve(output)) throw new Error('Creature expansion output must be separate from its authored source');
   settleHandwritten(source, output);
-  const checked = validateOutputProduct(output), layers = expandCombatSource(expandHarvestSource(expandCreatureLayers(checked.shard)));
+  const checked = validateOutputProduct(output), layers = expandCombatSource(expandHarvestSource(expandCreatureLayers(checked.shard)), console.warn, checked.sections);
   const journal = expandJournalIconSource(layers);
   if (journal.shard === checked.shard) return checked;
   const merged = mergeProjectBlobs(journal.shard, checked.assets, journal.blobs, checked.index.files.filter(file => file.name !== undefined));

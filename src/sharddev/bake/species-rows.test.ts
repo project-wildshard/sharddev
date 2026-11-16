@@ -46,3 +46,14 @@ test('old native source copies exact grazer numbers before leaving the author bu
     expect(bakeSpecies({ ...source, kind: 'own.policy' }, 'author.custom').tuning).toBeUndefined();
   } finally { warnings.mockRestore(); }
 });
+
+test.each(['boar', 'bear'] as const)('legacy %s extraction copies only native hunting fields', kind => {
+  const expected = commonSpeciesRows(kind, `author.${kind}`), source = { ...expected };
+  delete source.tuning;
+  const before = JSON.stringify(source), warnings = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    expect(bakeSpecies(source, expected.id)).toStrictEqual(expected);
+    expect(JSON.stringify(source)).toBe(before);
+    expect(warnings).toHaveBeenCalledTimes(1);
+  } finally { warnings.mockRestore(); }
+});

@@ -8,6 +8,8 @@ import { IRON_MELEE_PROFILE } from '@wildshard/kit/geometry/starterCombat';
 import { parseRows } from '@wildshard/format/rows';
 import { parseItems } from '@wildshard/format/items';
 import { parseShardfile } from '@wildshard/format/shardSchema';
+import { readSpeciesPrograms } from '@wildshard/format/speciesPrograms';
+import { hashImmutableBytes } from './immutable';
 import { emptyShardfile } from './author';
 import { expandCombatSource } from './combatSource';
 import { buildProject } from './project';
@@ -64,4 +66,24 @@ test('normal SDK and handwritten source builds emit the same complete admitted c
     expect(settled.shard.rows.species).toEqual(built.shard.rows.species); expect(settled.shard.items).toEqual(built.shard.items);
     expect(readFileSync(resolve(root, 'data.json'), 'utf8')).toBe(text);
   } finally { warning.mockRestore(); rmSync(root, { recursive: true, force: true }); }
+});
+
+test('original Driftwood native swords retain their complete contact policy until their targets migrate', () => {
+  const frozen = JSON.parse(readFileSync(resolve('test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
+  const sections = new Map<string, unknown>();
+  for (const row of frozen.sections) {
+    const bytes = new TextEncoder().encode(row.wire);
+    expect(bytes.length).toBe(row.bytes); expect(hashImmutableBytes(bytes)).toBe(row.hash);
+    sections.set(row.name, JSON.parse(row.wire));
+  }
+  const source = emptyShardfile({ slug: 'native-combat', name: 'Native combat', author: 'Test', revision: 1, seed: 17 });
+  const payload = sections.get('combat/items') as { items: unknown };
+  source.items = parseItems(payload.items);
+  const native = readSpeciesPrograms(sections.get('actors/species-programs'));
+  expect(native.program?.species.filter(row => row.kind === 'crab' || row.kind === 'sailor').map(row => row.id)).toEqual(['creature.crab', 'creature.sailor']);
+  const before = JSON.stringify(source.items), warnings: string[] = [];
+  const expanded = expandCombatSource(source, message => { warnings.push(message); }, sections);
+  expect(expanded.items).toStrictEqual(source.items);
+  expect(JSON.stringify(source.items)).toBe(before);
+  expect(warnings.join(' ')).toContain('native contact policy');
 });

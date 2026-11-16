@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
+import { execPath } from 'node:process'
 import { test } from 'node:test'
+import { fileURLToPath } from 'node:url'
 
 import bear from '../content/species/bear.json' with { type: 'json' }
 import boar from '../content/species/boar.json' with { type: 'json' }
@@ -41,6 +44,7 @@ test('layered kit creatures retain source gameplay values and ordered variants',
       ringRadius: original.ringRadius,
       trampleRadius: original.trampleRadius,
     })
+    assert.deepEqual(species.harvest, original.harvest)
     assert.deepEqual(species.presentation?.sounds, original.sounds)
     assert.equal(strikes[0]?.speed, original.chargeSpeed)
     assert.equal(strikes[0]?.damage, original.chargeDamage)
@@ -68,4 +72,14 @@ test('copied creature calls isolate nested gameplay content and reject invalid i
   assert.throws(() =>
     commonCreature('boar', { id: 'invalid id', look: 'author.skin' }),
   )
+})
+
+test('regeneration preserves the committed creature declarations and explicit drops', () => {
+  const root = new URL('../../../', import.meta.url)
+  const result = spawnSync(
+    execPath,
+    [fileURLToPath(new URL('scripts/build-kit-layers.mjs', root)), '--check'],
+    { cwd: root, encoding: 'utf8', timeout: 9500 },
+  )
+  assert.equal(result.status, 0, result.stdout + result.stderr)
 })

@@ -684,7 +684,11 @@ export function bakeSpecies(
       profile?.temperament.brain === 'hunt' &&
       profile.temperament.tuning !== undefined
     ) {
-      fields['tuning'] = profile.temperament.tuning
+      fields['tuning'] = Object.fromEntries(
+        Object.entries(profile.temperament.tuning).filter(
+          ([name]) => name !== 'motion',
+        ),
+      )
       copiedTuning = true
     }
   }

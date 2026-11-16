@@ -39,8 +39,8 @@ const wrapped = {
 // J366 restores kit as a public content package. Validate its actual export map
 // before accepting its name; unknown subpaths must still refuse.
 function kitExports(source) {
-  if (!source.startsWith('@wildshard/kit/')) return false;
-  const sub = `.${source.slice('@wildshard/kit'.length)}`;
+  if (source !== '@wildshard/kit' && !source.startsWith('@wildshard/kit/')) return false;
+  const sub = source === '@wildshard/kit' ? '.' : `.${source.slice('@wildshard/kit'.length)}`;
   const root = resolve(process.cwd(), 'node_modules/@wildshard/kit');
   if (sub.includes('..') || !existsSync(resolve(root, 'package.json'))) return false;
   const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));

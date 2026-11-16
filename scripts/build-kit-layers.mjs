@@ -24,9 +24,12 @@ for (const kind of ['boar', 'bear']) {
       variants: original.variants.map(variant => ({ ...variant, hp: variant.hp ?? original.tuning.hp,
         mods: { speed: 1, chargeDist: 1, damageTaken: 1, chargeDamage: original.chargeDamage, relentless: false, ...variant.mods } })),
       ...profile, dims: shape.dims, body: { skeleton: 'quadruped', size: 'medium', scale: 1, look },
-      abilities: [{ ...ability, damage: strike.damage, speed: strike.speed, windup: strike.windup }] }],
+      abilities: [{ ...ability, damage: strike.damage, speed: strike.speed, windup: strike.windup }],
+      ...(original.harvest === undefined ? {} : { harvest: original.harvest }) }],
     looks: [{ id: look, species: id, recipe: 'platform.skin', material: null, parameters: {}, animation: { recipe: 'platform.clips', parameters: {} } }] });
-  const content = { species: rows.species[0], strikes: rows.strikes };
+  // Keep the additive harvest declaration last, preserving the committed content bytes.
+  const { harvest, ...species } = rows.species[0];
+  const content = { species: { ...species, ...(harvest === undefined ? {} : { harvest }) }, strikes: rows.strikes };
   const file = resolve(root, `content/creatures/${kind}.json`), bytes = `${JSON.stringify(content, null, 2)}\n`;
   if (process.argv.includes('--check')) {
     if (readFileSync(file, 'utf8') !== bytes) throw new Error(`Stale kit creature layers: ${kind}`);
