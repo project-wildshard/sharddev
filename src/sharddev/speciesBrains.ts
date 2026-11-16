@@ -5,7 +5,6 @@
 import type * as v from 'valibot';
 import type { BorrowedDecision } from '@wildshard/format/decisionScripts';
 import type { ScriptSpeciesSchema } from '@wildshard/format/speciesScripts';
-import type { HarvestDrop } from '@wildshard/format/harvestRows';
 import type { CreatureBodyRecipe } from '@wildshard/format/creatures';
 import type { HarvestDrop } from '@wildshard/format/harvestRows';
 import type { GrazerSchema, ChallengeGrazerSchema } from '@wildshard/format/grazers';
@@ -87,8 +86,6 @@ export interface SpeciesFlight {
 
 /** Species gameplay data with an optional `brain`; a row without one keeps its runtime's own policy. */
 export interface BrainedSpecies {
-  harvest?: readonly HarvestDrop[];
-  capExempt?: boolean;
   id: string; kind: string; label: string;
   variants: SpeciesVariant[]; spawnOnly?: SpeciesVariant[];
   aggressive?: boolean; walkSpeed?: number; chargeSpeed?: number; chargeDamage?: number;
