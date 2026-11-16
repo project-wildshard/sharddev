@@ -58,6 +58,21 @@ describe('wildshard dev on a signal', () => {
       expect(existsSync(join(directory, '.owner'))).toBe(true);
     } finally { if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL'); }
   }, 60_000);
+  // NEW-SHARD-E2E F18, F19: a rebuild reopens the page under a new devrev (never location.reload, which the engine reads as
+  // the player's own reload and sends to the title), and the page's service worker takes nothing and unregisters itself.
+  it('serves a page that reopens under a new devrev and a service worker that removes itself', async () => {
+    const { child, url } = await startDev();
+    try {
+      const page = await (await fetch(new URL('/', url))).text();
+      expect(page).toContain('searchParams.set("devrev"');
+      expect(page).not.toContain('location.reload()');
+      const worker = await fetch(new URL('/sw.js', url));
+      expect(worker.headers.get('content-type')).toBe('text/javascript');
+      const code = await worker.text();
+      expect(code).toContain('registration.unregister()');
+      expect(code).not.toContain('fetch');
+    } finally { child.kill('SIGKILL'); }
+  }, 60_000);
   it.each([
     ['SIGINT', false], ['SIGTERM', false], ['SIGINT', true],
   ] as const)('%s ends it and frees the port within 2 s (page open: %s)', async (signal, pageOpen) => {

@@ -9,7 +9,11 @@ import { shardRepoRoot } from './shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '../../scripts/scratch-dir.mjs';
 
-const POLL = '<script>let wsRevision=WS_REVISION;setInterval(async()=>{try{const r=await fetch("/__wildshard_dev_revision",{cache:"no-store"});const s=await r.json();if(s.error){console.error(s.error);return}if(s.revision!==wsRevision)location.reload()}catch{}},500)</script>';
+// NEW-SHARD-E2E F18: a new build opens the same page under a new `devrev`, not location.reload(): Chromium reports a reload
+// (or a same-URL replace) as navigation type `reload`, which engine's lastEnd reads as the player's own reload and sends to the title.
+const POLL = '<script>let wsRevision=WS_REVISION;setInterval(async()=>{try{const r=await fetch("/__wildshard_dev_revision",{cache:"no-store"});const s=await r.json();if(s.error){console.error(s.error);return}if(s.revision!==wsRevision){const u=new URL(location.href);u.searchParams.set("devrev",String(s.revision));location.replace(u.href)}}catch{}},500)</script>';
+/** A dev page's service worker: it answers no request and removes itself (NEW-SHARD-E2E F19). */
+export const DEV_SERVICE_WORKER = "self.addEventListener('install',()=>{self.skipWaiting()});self.addEventListener('activate',(e)=>{e.waitUntil(self.registration.unregister())});\n";
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
 // .worktrees: a shard repo's plan worktrees (DEV-SPEED DS11) are other checkouts, never this project's source.
 const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees', 'tmp']);
@@ -91,6 +95,11 @@ export async function devProject(project: string, options: { decisionLegacyLines
         response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ revision, error })); return;
       }
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
+      // NEW-SHARD-E2E F19: no service worker on a dev page. Once one controls the tab, the next load of the page (a rebuild's
+      // reload, or the URL typed again) is answered from its cache with the app's own shell, not this build's page with its
+      // inline shard, and that shell's level download asks for a packs book a dev build never writes (404). The page's
+      // `sw.js` is one that takes nothing and unregisters itself (and a worker an older `dev` left on this port).
+      if (path === '/sw.js') { response.setHeader('Content-Type', 'text/javascript'); response.end(DEV_SERVICE_WORKER); return; }
       // SD-2: the page's in-page server reads the shard where a release serves it, `/shardfiles/<slug>/`; here that is
       // the product's own root.
       const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
