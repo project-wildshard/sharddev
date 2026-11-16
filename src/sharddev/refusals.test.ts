@@ -148,13 +148,13 @@ describe('a seeded set of bad shards through the real check (SA21)', () => {
     expectNamed(await check(seeded('syntax', project => { writeFileSync(resolve(project, 'shard.config.ts'), 'export const = ;\n'); })), ['source-syntax']);
     expectNamed(await check(seeded('json', project => {
       writeFileSync(resolve(project, 'data/extra.json'), '{ "rows": [');
-      writeFileSync(resolve(project, 'data/card.ts'), `import extra from './extra.json' with { type: 'json' };\nexport const EXTRA = extra;\n${readFileSync(resolve(project, 'data/card.ts'), 'utf8')}`);
+      writeFileSync(resolve(project, 'generators/card.ts'), `import extra from '../data/extra.json' with { type: 'json' };\nexport const EXTRA = extra;\n${readFileSync(resolve(project, 'generators/card.ts'), 'utf8')}`);
     })), ['json-syntax']);
   });
 
   it('a field the schema refuses and a broken proof tape', async () => {
     expectNamed(await check(seeded('slug', project => {
-      const card = resolve(project, 'data/card.ts');
+      const card = resolve(project, 'generators/card.ts');
       writeFileSync(card, readFileSync(card, 'utf8').replaceAll('"isle"', '"Bad Slug!"'));
     })), ['source-schema']);
     expectNamed(await check(seeded('proof', project => { writeFileSync(resolve(project, 'proof.json'), '{ "steps": 3 }'); })), ['proof-tape-invalid']);

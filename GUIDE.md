@@ -852,7 +852,9 @@ message says which.
 
 `check` lints the shard source with the sdk's rules. Each wildshard lint rule keeps a shard to data and build-time
 code; its printed fix says what to change. In a shard repo it runs the repo's own `.oxlintrc.author.json` from the repo
-root, as the repo's `pnpm lint` does (with its `lint/ratchet.json`); a repo without one skips lint and says so.
+root, as the repo's `pnpm lint` does (with its `lint/ratchet.json`). `wildshard new` writes one (the sdk's own rules, its plugins
+under `node_modules/@wildshard/sdk/lint/`; oxlint comes with the sdk), so a new repo lints from its first check; a repo
+without one skips lint and says so.
 
 #### lint-not-run
 

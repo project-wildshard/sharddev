@@ -75,6 +75,9 @@ importers:
       navcat:
         specifier: 0.4.1
         version: 0.4.1(@types/three@0.186.0)(three@0.186.0)
+      oxlint:
+        specifier: 1.89.0
+        version: 1.89.0(oxlint-tsgolint@7.0.2004)
       playwright:
         specifier: 1.65.0
         version: 1.65.0
@@ -112,9 +115,6 @@ importers:
       oxfmt:
         specifier: 0.74.0
         version: 0.74.0
-      oxlint:
-        specifier: 1.89.0
-        version: 1.89.0(oxlint-tsgolint@7.0.2004)
       oxlint-tsgolint:
         specifier: 7.0.2004
         version: 7.0.2004

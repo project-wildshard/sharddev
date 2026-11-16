@@ -6,6 +6,7 @@ import { encodeCanonicalJson } from './immutable';
 import { authorCard } from './authorManifest';
 import { writeHandwrittenSource } from './handwritten';
 import { syncAgentFiles } from './agentFiles';
+import { AUTHOR_LINT_CONFIG } from './authorLint';
 
 /**
  * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
@@ -160,6 +161,29 @@ ${layout}
 `;
 }
 
+/** The sdk's own author lint config (shipped in the package), and where a shard repo finds the sdk's lint plugins. */
+const SDK_AUTHOR_LINT: string = resolve(import.meta.dirname, '../../.oxlintrc.author.json');
+const REPO_LINT_PLUGINS = './node_modules/@wildshard/sdk/lint/';
+
+/**
+ * TEMPLATE-E2E TC-NE4 (NEW-SHARD-E2E F4): a new repo carries `.oxlintrc.author.json`, so `wildshard check .` lints from
+ * the first command instead of skipping. It is the sdk's own config with the plugin paths under the installed sdk and the
+ * Template's `src/shards/<slug>/` globs at `src/`; oxlint comes with the sdk (`authorLintPlan` finds it there).
+ */
+export function repoAuthorLint(): string {
+  let text = readFileSync(SDK_AUTHOR_LINT, 'utf8');
+  const swap = (from: string | RegExp, to: string): void => {
+    const next = text.replaceAll(from, to);
+    if (next === text) throw new Error(`new: the sdk's ${AUTHOR_LINT_CONFIG} no longer holds ${String(from)}`);
+    text = next;
+  };
+  // Its schema lives in the sdk's own oxlint, which a repo does not list.
+  swap(/^\s*"\$schema": [^\n]*\n/gmu, '');
+  swap('"./lint/', `"${REPO_LINT_PLUGINS}`);
+  swap('src/shards/*/', 'src/');
+  return text;
+}
+
 /** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, and the agent files
  * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
 function writeRepoFiles(project: string, slug: string, template: RepoShape, empty: boolean): void {
@@ -170,6 +194,7 @@ function writeRepoFiles(project: string, slug: string, template: RepoShape, empt
   writeFileSync(resolve(project, '.npmrc'), NPMRC);
   writeFileSync(resolve(project, 'README.md'), repoReadme(slug, template, empty));
   writeInstallScriptPolicy(project);
+  if (template !== 'blender' || empty) writeFileSync(resolve(project, AUTHOR_LINT_CONFIG), repoAuthorLint());
   syncAgentFiles(project);
 }
 
@@ -193,7 +218,9 @@ function writeReferenceSource(source: string, slug: string): void {
   writeFileSync(resolve(source, 'manifest.json'), manifest);
   writeFileSync(resolve(source, 'data/card.json'), manifest);
   writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
-  writeFileSync(resolve(source, 'shard.config.ts'), `import { generate as reference } from './generators/generate';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\nimport identity from './data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
+  // TC-NE4: the identity merge is a generator; shard.config.ts stays declaration-only, as the author lint requires.
+  writeFileSync(resolve(source, 'generators/identity.ts'), `import identity from '../data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\nimport { generate as reference } from './generate';\n\n/** The reference world under this project's identity (\`data/identity.json\`). */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n`);
+  writeFileSync(resolve(source, 'shard.config.ts'), `import { generate as project } from './generators/identity';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport const generate: typeof project = project;\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
 }
 
 /** AP37a: copy Mossgate Hollow's scene module (AP15) into `source` under this project's identity. Its only source is
@@ -212,11 +239,11 @@ function writeSceneSource(source: string, slug: string): void {
 function writeEmptySource(source: string, slug: string): void {
   for (const folder of ['generators', 'data', 'behaviour', 'assets']) mkdirSync(resolve(source, folder), { recursive: true });
   const identity = encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 1 }).trim();
-  writeFileSync(resolve(source, 'data/card.ts'), `/** Build-time identity; add authored level metadata here as the world grows. */\nexport const IDENTITY = ${identity};\n`);
-  writeFileSync(resolve(source, 'data/world.ts'), `import { emptyShardfile } from '@wildshard/sdk/author';\nimport { IDENTITY } from './card';\n\n/** Build-only declaration; the CLI emits its platform sections as JSON. */\nexport const WORLD = emptyShardfile(IDENTITY);\n`);
-  writeFileSync(resolve(source, 'generators/product.ts'), `import { WORLD } from '../data/world';\n\n// oxlint-disable-next-line import/no-default-export -- The documented build entry imports this declaration.\nexport default WORLD;\n`);
+  // TC-NE4: build-time TypeScript lives in generators/ (the author lint refuses it in data/, which holds JSON rows).
+  writeFileSync(resolve(source, 'generators/card.ts'), `/** Build-time identity; add authored level metadata here as the world grows. */\nexport const IDENTITY = ${identity};\n`);
+  writeFileSync(resolve(source, 'generators/product.ts'), `import { emptyShardfile } from '@wildshard/sdk/author';\nimport { IDENTITY } from './card';\n\n/** Build-only declaration; the CLI emits its platform sections as JSON. */\nconst WORLD = emptyShardfile(IDENTITY);\n// oxlint-disable-next-line import/no-default-export -- The documented build entry imports this declaration.\nexport default WORLD;\n`);
   writeFileSync(resolve(source, 'generators/output.ts'), `import type { ProjectOutput } from '@wildshard/sdk/projectOutput';\n\n/** Build-only named blobs and platform sections, read automatically by the CLI. */\nexport const output = {} satisfies ProjectOutput;\n`);
-  writeFileSync(resolve(source, 'shard.config.ts'), `import product from './generators/product';\n\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
+  writeFileSync(resolve(source, 'shard.config.ts'), `import declared from './generators/product';\n\n/** The build entry: the bare shard file \`generators/product.ts\` declares. */\nexport const product: typeof declared = declared;\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
 }
 
 /** The bare shard source alone at `source`, with no repo around it (sdk API; tests build it in place). */
