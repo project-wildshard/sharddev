@@ -58,7 +58,7 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
   await delivery.sweep();await delivery.idle();
   assert.equal(outbox.rows().length,0);
   await migratePending(fixture);
-  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'staged');
+  assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'staged',JSON.stringify(worker.rows()));
   const held=await fixture.catalogue.uploads.byHash(fixture.hash),report=held.report;
   assert.equal(report.pass,true);assert.equal(report.slug,'async-sdk-isle');
   const rapier=await loadRapier(await readFile(createRequire(join(root,'package.json')).resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm')));
@@ -119,7 +119,7 @@ for(const late of [false,true])test(`SP20c3 real entry refusal and packed CLI, l
   const outbox=new VerdictOutbox(join(work,'outbox')),delivery=uploadDelivery({api:client,source,worker,outbox,build,log:line=>context.diagnostic(line)});
   await delivery.sweep();await delivery.idle();
   const settled=await fixture.catalogue.uploads.byHash(fixture.hash);
-  assert.equal(settled.status,'refused');assert.equal(settled.report.pass,false);
+  assert.equal(settled.status,'refused',JSON.stringify(worker.rows()));assert.equal(settled.report.pass,false);
   assert.ok(settled.report.failures.some(row=>/Submerged edge entry north/u.test(row.message)));
   const files=readTar(await readFile(file));
   const product=validateShardfileFolder({paths:()=>files.keys(),read:path=>files.get(path)},
