@@ -63,10 +63,6 @@ export interface ShardWorld {
   detail: (id: string, mesh: InstancedMesh, options: { cell: number; radius: number; sway?: { amount: number; rate: number }; shadow?: boolean }) => void;
 }
 
-const DETAIL = new WeakSet<Object3D>();
-/** AP32c: an InstancedMesh handed to `world.detail`: the walker leaves it (and anything under it) out of its part. */
-export const markDetail = (mesh: Object3D): void => { DETAIL.add(mesh); };
-export const isDetail = (object: Object3D): boolean => DETAIL.has(object);
 
 /** AP14: the view ray through a sky pixel (unit, world axes, y up): the dome is centred on the camera. */
 export const skyRay: ReturnType<typeof positionLocal.normalize> = positionLocal.normalize();

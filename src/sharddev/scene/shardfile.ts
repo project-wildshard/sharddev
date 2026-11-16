@@ -491,7 +491,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // textures (AP2): RGBA8 KTX2, one file per painted raster
   const textureFiles = new Map<string, Shardfile['files'][number]>();
   // only the textures a drawn material or a card samples
-  const sampled = new Set(scene.parts.flatMap((part) => [...part.draws.map((d) => d.material), ...part.sprites.map((c) => c.material), ...part.points.map((c) => c.material)].map((key) => scene.materials[key]?.map)).filter((key) => typeof key === 'string'));
+  const sampled = new Set([...scene.parts.flatMap((part) => [...part.draws.map((d) => d.material), ...part.sprites.map((c) => c.material), ...part.points.map((c) => c.material)]), ...(scene.details ?? []).map((layer) => layer.material)]
+    .map((key) => scene.materials[key]?.map).filter((key) => typeof key === 'string'));
   for (const texture of Object.values(scene.textures).filter((t) => sampled.has(t.key))) {
     const bytes = bakeRawColourPixels({ width: texture.width, height: texture.height, pixels: new Uint8ClampedArray(texture.rgba) }, { colourSpace: texture.colourSpace });
     textureFiles.set(texture.key, store(bytes, 'ktx2'));
@@ -547,14 +548,19 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     if (!assets.has(hash)) { assets.set(hash, bytes); files.push({ hash, kind: 'binary', compressed: bytes.length, decoded: bytes.length, gpu, triangles, draws: triangles > 0 ? 1 : 0, dependencies: [], critical: false }); }
     return hash;
   };
+  const detailTextures = new Set<string>();
   const details = (scene.details ?? []).map((layer) => {
     const material = scene.materials[layer.material], geometry = scene.geometries[layer.geometry];
     if (material === undefined || geometry === undefined) throw new SceneRefusalError(layer.path, 'its card did not lower', 'Give world.detail an InstancedMesh with a geometry and a MeshStandardMaterial');
     const look = lookId(`${layer.material}.detail`);
     const entry = materialEntry({ material, motion: null, card: false });
     entry['vertexColours'] = false;
+    // AP32d: a textured card's map is its look entry's colour map (a library KTX2, as the tiles' own), its uvs carrying the
+    // map's repeat and offset as a tile merge's do
+    const map = material.map === null ? undefined : textureFiles.get(material.map);
+    if (map !== undefined) { entry['maps'] = { colour: map.hash, normal: null, orm: null }; detailTextures.add(map.hash); }
     lookMaterials[look] = entry;
-    const mesh = detailMeshFile(geometry), { region } = layer;
+    const mesh = detailMeshFile(geometry, material), { region } = layer;
     const faults = detailFileFaults({ id: layer.id, mesh: { file: '', vertices: mesh.vertices, triangles: mesh.triangles }, region }, { mesh: mesh.bytes, mask: layer.mask, heights: layer.heights });
     if (faults.length > 0) throw new SceneRefusalError(layer.path, faults.join('; '), 'Report this: the sdk wrote a detail file the format refuses');
     const row: Record<string, unknown> = {
@@ -714,7 +720,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
   });
   // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
-  const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights])];
+  const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort()];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)
   const colliders = scene.parts.filter((part) => part.colliders.length > 0).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
@@ -791,12 +797,15 @@ export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(
  * AP32c: a detail card in the format's mesh file layout (`look-details-bytes.ts`): f32 positions, normals and uvs (zero
  * when the card has none), then u16 indices (in order when it has no index).
  */
-export function detailMeshFile(geometry: SceneGeometry): { bytes: Uint8Array; vertices: number; triangles: number } {
+export function detailMeshFile(geometry: SceneGeometry, material?: Pick<SceneMaterial, 'repeat' | 'offset'>): { bytes: Uint8Array; vertices: number; triangles: number } {
   const vertices = geometry.position.length / 3, triangles = geometry.triangles;
   const indices = Uint16Array.from(geometry.index ?? Array.from({ length: triangles * 3 }, (_, i) => i));
   const floats = new Float32Array(vertices * 8);
   floats.set(geometry.position, 0); floats.set(geometry.normal, vertices * 3);
-  if (geometry.uv !== null) floats.set(geometry.uv, vertices * 6);
+  if (geometry.uv !== null) {
+    const [ru, rv] = material?.repeat ?? [1, 1], [ou, ov] = material?.offset ?? [0, 0];
+    for (let at = 0; at < vertices; at++) { floats[vertices * 6 + at * 2] = (geometry.uv[at * 2] ?? 0) * ru + ou; floats[vertices * 6 + at * 2 + 1] = (geometry.uv[at * 2 + 1] ?? 0) * rv + ov; }
+  }
   const bytes = new Uint8Array(detailMeshBytes(vertices, triangles));
   bytes.set(new Uint8Array(floats.buffer), 0); bytes.set(new Uint8Array(indices.buffer), floats.byteLength);
   return { bytes, vertices, triangles };

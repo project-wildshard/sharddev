@@ -100,5 +100,34 @@ test('world.detail lowers 9,000 clumps to one row: the same count per cell, unde
 test('world.detail refuses what the format cannot hold, by id', () => {
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.detail('grass', meadow(10), { cell: 0.1, radius: 40 }); })).toThrow(/detail grass: its cell 0.1 m/u);
   expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { world.detail('Grass', meadow(10), { cell: 2, radius: 40 }); })).toThrow(/a detail id is not a look id/u);
-  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const mesh = meadow(10); mesh.material = new THREE.MeshStandardMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1) }); world.detail('grass', mesh, { cell: 2, radius: 40 }); })).toThrow(/map has no lowering yet/u);
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const mesh = meadow(10); mesh.material = new THREE.MeshStandardMaterial({ map: new THREE.DataTexture(new Uint8Array(4), 1, 1) }); world.detail('grass', mesh, { cell: 2, radius: 40 }); })).not.toThrow();
+  expect(() => lowerShard({ slug: 's', name: 's' }, (world) => { const mesh = meadow(10); mesh.material = new THREE.MeshBasicMaterial(); world.detail('grass', mesh, { cell: 2, radius: 40 }); })).toThrow(/detail grass: its card's MeshBasicMaterial has no detail lowering/u);
+});
+
+test('world.detail takes the format\'s widest grid, and its mark lasts one lowering only', () => {
+  // 512 × 512 cells of 0.5 m: two clumps at opposite corners
+  const wide = meadow(2), m = new THREE.Matrix4();
+  wide.setMatrixAt(0, m.makeTranslation(0.1, 0, 0.1)); wide.setMatrixAt(1, m.makeTranslation(255.9, 0, 255.9));
+  const scene = lowerShard({ slug: 's', name: 's' }, (world) => { world.detail('grass', wide, { cell: 0.5, radius: 40 }); });
+  expect([scene.details?.[0]?.region.columns, scene.details?.[0]?.region.rows]).toEqual([512, 512]);
+  // the same mesh in a later lowering, in a part and never handed to world.detail, is drawn
+  const again = lowerShard({ slug: 's', name: 's' }, (world) => { world.part('field', (part) => { part.add(wide); }); });
+  expect(again.parts[0]?.draws.length).toBeGreaterThan(0);
+});
+
+test('a textured detail card draws its map: the look entry\'s colour map, a library KTX2, the uvs carrying its repeat (AP32d)', () => {
+  const mesh = meadow(200), map = new THREE.DataTexture(new Uint8Array([90, 140, 60, 255, 80, 120, 50, 0, 90, 140, 60, 255, 80, 120, 50, 0]), 2, 2);
+  map.repeat.set(2, 1); map.needsUpdate = true;
+  mesh.material = new THREE.MeshStandardMaterial({ map, alphaTest: 0.35, side: THREE.DoubleSide });
+  const { shard, assets } = sceneShardfile(lowerShard({ slug: 'fronds', name: 'Fronds' }, (world) => { world.detail('ferns', mesh, { cell: 2, radius: 30 }); }));
+  const row = shard.look.details?.[0], entry = row === undefined ? undefined : shard.look.materials[row.material];
+  const colour = entry !== undefined && entry.family === 'pbr' ? entry.maps.colour : null;
+  expect(entry).toMatchObject({ family: 'pbr', alphaCutoff: 0.35, doubleSided: true, vertexColours: false });
+  expect(colour).toMatch(/^[a-f0-9]{64}$/u);
+  expect(shard.files.find((f) => f.hash === colour)?.kind).toBe('ktx2');
+  expect(shard.library).toContain(colour);
+  // the card's uvs: u spans 0 to 2 (repeat 2), v 0 to 1
+  const bytes = assets.get(row?.mesh.file ?? ''), vertices = row?.mesh.vertices ?? 0;
+  const uv = bytes === undefined ? new Float32Array() : new Float32Array(bytes.buffer, bytes.byteOffset + vertices * 6 * 4, vertices * 2);
+  expect(Math.max(...uv.filter((_, i) => i % 2 === 0))).toBeCloseTo(2); expect(Math.max(...uv.filter((_, i) => i % 2 === 1))).toBeCloseTo(1);
 });

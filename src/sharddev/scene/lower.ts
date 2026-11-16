@@ -6,7 +6,7 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { isDetail, isSolid, markDetail, motionOf, paintedPixels, Water, type ShardWorld } from './author';
+import { isSolid, motionOf, paintedPixels, Water, type ShardWorld } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
   SceneDetailScatter, SceneWater, ShardIdentityInput, ShardScene, Vec3,
@@ -34,6 +34,8 @@ const v3 = (v: Vector3): Vec3 => [v.x, v.y, v.z];
 interface Tables {
   materials: Map<string, SceneMaterial>; textures: Map<string, SceneTexture>; geometries: Map<string, SceneGeometry>;
   geometryKeys: WeakMap<BufferGeometry, string>; materialKeys: WeakMap<Material, string>; textureKeys: WeakMap<Texture, string>;
+  /** AP32c: this lowering's world.detail meshes, which the walker leaves out (per call: a mesh reused later draws) */
+  details: ReadonlySet<Object3D>;
 }
 
 function floats(attribute: BufferAttribute | InterleavedBufferAttribute, width: number): Float32Array {
@@ -186,7 +188,7 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   const visit = (object: Object3D): void => {
     // AP32c: a world.detail mesh is its layer's, never copies in a tile
-    if (isDetail(object)) return;
+    if (tables.details.has(object)) return;
     const path = pathOf(object, root);
     if (!object.visible) {
       // an invisible solid is a collider only: said once, drawn never
@@ -290,8 +292,8 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
   const { id, mesh, cell } = request, path = `detail ${id}`;
   if (Array.isArray(mesh.material)) throw new SceneRefusalError(path, 'its mesh has several materials', 'Give a detail card one material');
   const material = lowerMaterial(mesh.material, path, tables), entry = tables.materials.get(material);
-  if (entry?.map !== null && entry?.map !== undefined) throw new SceneRefusalError(path, 'a detail card\'s map has no lowering yet (a layer has no texture binding)', 'Colour the card with its material and instanceColor; a textured card is an sdk row after AP32d');
   if (entry?.entry !== null && entry?.entry !== undefined) throw new SceneRefusalError(path, 'a graph material on a detail card has no lowering yet', 'Draw the card with a MeshStandardMaterial');
+  if (entry?.kind !== 'standard') throw new SceneRefusalError(path, `its card's ${mesh.material.type} has no detail lowering (a layer draws lit PBR cards)`, 'Draw the card with a MeshStandardMaterial');
   const geometry = lowerGeometry(mesh.geometry, path, tables), card = tables.geometries.get(geometry);
   const vertices = (card?.position.length ?? 0) / 3, triangles = card?.triangles ?? 0;
   if (triangles > DETAIL_LIMITS.triangles || vertices > DETAIL_LIMITS.vertices) throw new SceneRefusalError(path, `its card has ${triangles} triangles and ${vertices} vertices, over ${DETAIL_LIMITS.triangles} and ${DETAIL_LIMITS.vertices}`, 'Draw the clump as a few crossed cards');
@@ -326,7 +328,8 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
     const c = Math.min(columns - 1, Math.floor(((xs[i] ?? 0) - corner[0]) / cell)), r = Math.min(rows - 1, Math.floor(((zs[i] ?? 0) - corner[1]) / cell)), at = r * columns + c;
     counts[at] = (counts[at] ?? 0) + 1; sums[at] = (sums[at] ?? 0) + (ys[i] ?? 0);
   }
-  const clumps = Math.max(...counts);
+  let clumps = 0;
+  for (const n of counts) clumps = Math.max(clumps, n);
   if (clumps > DETAIL_LIMITS.clumps) throw new SceneRefusalError(path, `its fullest ${cell} m cell holds ${clumps} copies, over ${DETAIL_LIMITS.clumps}`, 'Use a smaller cell, or fewer, bigger clumps');
   let low = Infinity, high = -Infinity;
   for (let at = 0; at < counts.length; at++) if ((counts[at] ?? 0) > 0) { const mean = (sums[at] ?? 0) / (counts[at] ?? 1); low = Math.min(low, mean); high = Math.max(high, mean); }
@@ -358,7 +361,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
-  const anchor =(kind: string, id: string): void => {
+  const anchor = (kind: string, id: string): void => {
     if (!/^[a-z][a-zA-Z0-9.-]{0,127}$/u.test(id)) throw new SceneRefusalError(id, `a ${kind} id is not a shardfile id`, 'Name it like `slice.pond`: a lower-case letter, then letters, digits, dots and dashes');
     if (anchorIds.has(`${kind}:${id}`)) throw new SceneRefusalError(id, `two ${kind}s share this id`, `Give every world.${kind} its own id`);
     anchorIds.add(`${kind}:${id}`);
@@ -412,7 +415,6 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (detailRequests.some((d) => d.id === id)) throw new SceneRefusalError(id, 'two detail layers share this id', 'Give every world.detail its own id');
       if (detailRequests.length >= DETAIL_LIMITS.layers) throw new SceneRefusalError(id, `a look holds at most ${DETAIL_LIMITS.layers} detail layers`, 'Merge layers that share a card');
       if (!(mesh instanceof InstancedMesh)) throw new SceneRefusalError(id, 'world.detail takes an InstancedMesh', 'Build the clumps as one InstancedMesh of a small card');
-      markDetail(mesh);
       detailRequests.push({ id, mesh, cell: options.cell, radius: options.radius, sway: options.sway ?? null, shadow: options.shadow ?? false });
     },
   };
@@ -423,7 +425,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   for (const child of scene.children.slice()) if (!parts.includes(child as Group)) loose.add(child);
   const roots = loose.children.length > 0 ? [...parts, loose] : parts;
   scene.add(loose); scene.updateMatrixWorld(true);
-  const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap() };
+  const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
+    details: new Set(detailRequests.map((request) => request.mesh)) };
   const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root)));
   const details = detailRequests.map((request) => lowerDetail(request, tables));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
