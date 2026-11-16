@@ -25,3 +25,8 @@ build and complete normal compiler pass; source draft remains a draft.
 Final source cohort5files/30cases passes4.90s with exact body/title
 checks, pinned TypeScript7 compiler and actual native typed lint. Four
 whole originals24cases remain distinct from the partial SDK6case slice.
+
+The normal push gate refused the new root Vitest config: synchronous
+JSON loading and unsafe inferred fields. Replace it with a static
+typed JSON import and readonly callback; actual owning kit typed lint
+passes with every rule retained. No bypass; retry the normal full gate.
