@@ -176,6 +176,7 @@
     "./commons/scripts/course.as": "scripts",
     "./test/scriptScenario": "internal",
     "./scripts/*": "internal",
-    "./math/portableMath": "bake kit"
+    "./math/portableMath": "bake kit",
+    "./kit/creatures": "bake kit"
   }
 }

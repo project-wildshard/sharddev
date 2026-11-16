@@ -102,6 +102,12 @@ describe('wildshard update --pins (SA18)', () => {
     expect(engines.moves.map(move => move.name)).toEqual(['@wildshard/sdk', 'engines.node']);
   });
 
+  it('moves a direct kit pin to the kit version carried by the SDK release', () => {
+    const moved = movePins(JSON.stringify({ dependencies: { '@wildshard/sdk': '0.4.0', '@wildshard/kit': '0.1.0' } }),
+      { ...NEXT, pins: { ...NEXT.pins, '@wildshard/kit': '0.2.0' } });
+    expect(JSON.parse(moved.text).dependencies).toEqual({ '@wildshard/sdk': '9.9.9', '@wildshard/kit': '0.2.0' });
+  });
+
   it('moves the sdk listed as @wildshard/sharddev, an npm alias or exact version, and keeps its name and form', () => {
     for (const [from, to] of [['npm:@wildshard/sdk@0.2.4', 'npm:@wildshard/sdk@9.9.9'], ['0.2.4', '9.9.9']] as const) {
       const moved = movePins(JSON.stringify({ dependencies: { '@wildshard/sharddev': from, '@wildshard/format': 'x' } }), NEXT);
@@ -299,7 +305,9 @@ describe('wildshard update --pins (SA18)', () => {
   });
 
   it('every shipped codemod is named for a version, exports a function, and leaves a new repo as it was', async () => {
-    const folder = resolve(ROOT, CODEMODS_FOLDER), files = readdirSync(folder);
+    const folder = resolve(ROOT, CODEMODS_FOLDER), entries = readdirSync(folder);
+    for (const file of entries.filter(name => name.endsWith('.d.mts'))) expect(entries).toContain(file.replace('.d.mts', '.mjs'));
+    const files = entries.filter(name => !name.endsWith('.d.mts'));
     expect(files.length).toBeGreaterThan(0);
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { empty: true });

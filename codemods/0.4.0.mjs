@@ -21,6 +21,8 @@ export function rewriteKitImports(source) {
 // oxlint-disable-next-line import/no-default-export -- update --pins loads release codemods by their default export.
 export default function codemod({ project, to }) {
   if (!/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/u.test(to)) throw new Error('Kit migration needs the installed SDK version');
+  const kit = JSON.parse(readFileSync(new URL('../package.json', import.meta.resolve('@wildshard/kit')), 'utf8'));
+  if (kit.name !== '@wildshard/kit' || !/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/u.test(kit.version)) throw new Error('Kit migration needs an installed kit release');
   const root = resolve(project), changes = [];
   let usesKit = false;
   const visit = folder => {
@@ -44,10 +46,10 @@ export default function codemod({ project, to }) {
     const existing = fields.find(field => pkg[field]?.['@wildshard/kit'] !== undefined);
     const sdk = fields.find(field => ['@wildshard/sdk', '@wildshard/sharddev'].some(name => pkg[field]?.[name] !== undefined));
     const field = existing ?? sdk ?? 'devDependencies';
-    if (pkg[field]?.['@wildshard/kit'] !== to) {
-      pkg[field] = { ...pkg[field], '@wildshard/kit': to };
+    if (pkg[field]?.['@wildshard/kit'] !== kit.version) {
+      pkg[field] = { ...pkg[field], '@wildshard/kit': kit.version };
       writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
-      changes.push(`package.json: pin @wildshard/kit ${to}`);
+      changes.push(`package.json: pin @wildshard/kit ${kit.version}`);
     }
   }
   return changes;
