@@ -53,3 +53,17 @@ section without that owner unchanged.
 Generated API prose now follows J364 without changing public identifiers,
 inline wire literals or any checked example bytes. Its vocabulary is measured
 by the same one-way source inventory before the final source pins advance.
+
+## M1 simulation fixtures, 2026-11-16
+
+CC4c now has reproducible producer helpers. one-format-expand reads a verified
+original product and uses the normal SDK writer to emit a fresh admitted draft
+with explicit layers and native hunting numbers. All immutable assets and
+server files retain their bytes. one-format-legacy writes the old author
+fixture and then its explicit source for ordinary wildshard CLI builds.
+
+The two real CLI builds produce identical output indices. Their 60-second
+engine histories match, as do both corpus fixtures, Pine and Brasscap against
+the before-engine source. The engine keeps the runner and complete compact
+receipt in test/proof/one-format/. These are simulation proofs; preparation,
+released dependency pins and staging rendering remain their separate rows.
