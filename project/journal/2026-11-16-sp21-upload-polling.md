@@ -24,8 +24,19 @@ This does not implement draft SDK package splitting or author build
 changes. Polling, completion and HTTP validation have separate bounded
 modules, with no background process left after the command finishes.
 
-Local controls cover the actual CLI process, HTTP credential propagation,
+Initial local controls cover the actual CLI process, HTTP credential propagation,
 live/refused/stalled exit behavior, no-wait and status-only calls. A fake
 clock verifies backoff, exact timeout, transient recovery and identity
-mismatch without sleeping. Real API/PGlite integration and hosted CI
-remain pending SP20; this source is not yet a completed SP21 row.
+mismatch without sleeping. Follow-up real API/PGlite qualification is in
+test/ci/async-upload.test.mjs. It checks out API main's immutable SP18
+contract 2ad9890, installs its own frozen graph and runs the normal API
+app, migrations, account auth, presigned R2 protocol and activation. Only
+the trusted cook and game acknowledgement are doubles; every status
+response is the real owner-only route. Live follows cooking/staged/live;
+refusal prints the complete report and leaves pointers alone. The stalled
+fixture seeds that existing API status; API SP20a owns its actual timer.
+
+The same test is wired into the existing hosted check job, with no extra
+matrix/job. Hosted CI remains pending the SDK milestone; this source is
+not yet a completed SP21 row. Actual signed cook-parent and game transport
+qualification remains SP20c, and real staging shipment SP22.

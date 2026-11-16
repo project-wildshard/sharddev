@@ -92,6 +92,22 @@ jobs:
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm test:kit
+      # SP21: an exact landed API contract, real PGlite/account/R2 routes and
+      # the candidate CLI; only the cook and game acknowledgement are doubles.
+      - name: Check out the async API contract
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: project-wildshard/api-server
+          ref: 2ad98906654bbd5a22e88742c514e444beb5f108
+          path: tmp/codex-wire/api-contract-source
+          token: ${{ steps.app-token.outputs.token || github.token }}
+          persist-credentials: false
+      - name: Install the pinned API contract
+        run: pnpm --dir tmp/codex-wire/api-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
+      - name: Prove async upload with the real API and PGlite
+        env:
+          WILDSHARD_API_SOURCE: tmp/codex-wire/api-contract-source
+        run: node --test test/ci/async-upload.test.mjs
       - run: pnpm check:asks
       # The agent hook scripts are shellchecked at this exact version
       # (.agents/hooks/test/shellcheck.test.mjs refuses any other on CI).
