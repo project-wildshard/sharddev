@@ -101,13 +101,17 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     env.overlay?.([`watch: revision ${report.revision}, ${named}${report.kind === null || report.kind === 'nothing' || report.kind === 'reload' ? '' : took}`,
       ...report.serverError === null ? [] : [`refused: ${report.serverError}`], ...report.build === null ? ['full build: once edits rest 5 s'] : budgetLines(report.build)]);
   };
+  // NEW-SHARD-E2E F17: one frame asked for each landed revision, never one every frame. A page frame cap that runs one
+  // animation-frame callback a frame (an agent's 60 fps cap) ran this script's request first every frame, and the engine's
+  // boot, waiting on its own frames, stalled at "Application modules".
+  let frameAsked = false;
   const tick = (): void => {
+    frameAsked = false;
     if (scope.disposed) return;
     report.frames++;
     if (pendingFrame !== null) { report.framedRevision = pendingFrame; report.framedAt = env.now(); pendingFrame = null; show(); }
-    env.frame(tick);
   };
-  env.frame(tick);
+  const askFrame = (): void => { if (!frameAsked && !scope.disposed) { frameAsked = true; env.frame(tick); } };
 
   const fail = (message: string): void => { report.error = message; env.log(`wildshard watch: ${message}`); };
   const get = async (path: string): Promise<{ json: () => Promise<unknown>; arrayBuffer: () => Promise<ArrayBuffer> }> => {
@@ -224,7 +228,7 @@ export function startWatchPage(env: WatchPageEnv): { readonly report: WatchPageR
     report.revision = state.revision;
     // the timing counts a revision only once all its parts landed
     report.steps.swapped = env.now();
-    if (landed) pendingFrame = state.revision;
+    if (landed) { pendingFrame = state.revision; askFrame(); }
   };
 
   // one sync at a time; a revision announced while one runs waits, and only the newest one runs

@@ -28,10 +28,13 @@ const page = startWatchPage({
   hook: () => window.__wildshardDevHook,
   fetch: (url) => fetch(url, { cache: 'no-store' }),
   socket: (url) => socketOf(new WebSocket(url)),
-  frame: (run) => { timers.raf(run); },
+  // the next frame, or 250 ms if a page frame cap holds this script's frame back (NEW-SHARD-E2E F17)
+  frame: (run) => { let done = false; const once = (): void => { if (!done) { done = true; run(); } }; timers.raf(once); timers.timeout(250, once); },
   wait: (ms, run) => { timers.timeout(ms, run); },
-  // the address the page opened at (`?skipintro`): the engine rewrites it once it boots, and a plain reload would land on the title
-  reload: () => { location.replace(entry); },
+  // the address the page opened at (`?skipintro`): the engine rewrites it once it boots, and a plain reload would land on the title.
+  // NEW-SHARD-E2E F18: under a new `devrev` too, since Chromium counts a same-URL replace as a reload, which the engine reads as
+  // the player's own and sends to the title
+  reload: () => { const next = new URL(entry); next.searchParams.set('devrev', String(Date.now())); location.replace(next.href); },
   reshell: () => { void fetch(`${location.origin}${WATCH_RESHELL}`, { method: 'POST' }).catch((cause: unknown) => { console.error('wildshard watch: reshell', cause); }); },
   now: () => Date.now(),
   log: (message) => { console.error(message); },
