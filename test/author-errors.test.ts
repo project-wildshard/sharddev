@@ -54,7 +54,7 @@ test('a misspelt section is named', async () => {
 
 test('a bad top-level field is named', async () => {
   output('export const output = {};\n');
-  writeFileSync(resolve(project, 'data/world.ts'), `import { emptyShardfile } from '@wildshard/engine/host/author';\nimport { IDENTITY } from './card';\n\nexport const WORLD = { ...emptyShardfile(IDENTITY), identity: 'here' };\n`);
+  writeFileSync(resolve(project, 'generators/product.ts'), `import { emptyShardfile } from '@wildshard/engine/host/author';\nimport { IDENTITY } from './card';\n\nconst WORLD = { ...emptyShardfile(IDENTITY), identity: 'here' };\nexport default WORLD;\n`);
 
   await expect(build()).rejects.toThrow('identity');
 });
