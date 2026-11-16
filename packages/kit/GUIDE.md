@@ -112,8 +112,26 @@ Regenerate with `node scripts/build-kit-bodies.mjs`, or verify every byte
 with `node scripts/build-kit-bodies.mjs --check` from the SDK checkout.
 The GLBs preserve position, normal, UV, colour, skin indices, weights and
 fur-length channels. Three body parts keep their geometry separate.
-These body files contain no animation clips; the admitted animation
-binding and layered fixture are the next integration step (OF3b).
+These body files contain no animation clips.
+
+## Animated body files
+
+`content/animated/catalogue.json` lists every variant's animated GLB and
+skin binding in both styles, with hashes, sizes, rest bones and dimensions.
+`geometry/export` provides `exportAnimatedCommonBody`. The same body channels
+are merged into one admitted skin mesh; the original body files stay exact.
+
+`content/clips/quadruped.json` holds the existing six quadruped clips and
+periodic pose tables. `clips` provides `quadrupedClips(bones)`, which maps
+named chains and translates source rest offsets, and `quadrupedBinding(id)`,
+which returns fresh binding data. Missing chains refuse before export.
+Scene-root motion remains actor-owned, as in the existing skin driver.
+
+From the SDK checkout, `node scripts/extract-kit-clips.mjs --check` verifies
+the immutable original content. `node scripts/build-kit-creatures.mjs --check`
+compares every animated asset and admits its clip/binding contracts. Omit
+`--check` to regenerate. Variant selection and the layered fixture are
+OF3b2/OF3b3; the visual comparison is OF3c.
 
 ## Shared builders and tables
 

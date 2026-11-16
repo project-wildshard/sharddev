@@ -67,3 +67,24 @@ engine histories match, as do both corpus fixtures, Pine and Brasscap against
 the before-engine source. The engine keeps the runner and complete compact
 receipt in test/proof/one-format/. These are simulation proofs; preparation,
 released dependency pins and staging rendering remain their separate rows.
+
+## Admitted kit animation content, 2026-11-16
+
+OF3b1 extracts the existing six quadruped clips and periodic pose tables from
+the immutable SDK asset at main ancestor 81d8fc527fcc6332c755aa8cb078d189e5dc1dd3.
+The kit owns plain data and a named-bone rest-offset retargeter, with no engine
+imports. Scene-root motion remains with the actor, matching the existing skin
+driver's bone-only playback.
+
+All eleven boar/bear variants in both styles now also have admitted animated
+GLBs and bindings: 22 bodies, 16,269,415 bytes. The first attempt's three mesh
+nodes correctly failed skin admission. The animated path now merges the exact
+typed channels into one mesh and rebases the original triangle indices. The
+original plain body exports retain every byte.
+
+Independent decoding proves all channels, indices and rest bones, and every
+clip's timing, rotations and rest-relative translations against the original
+GLB. All 22 skins pass actual format admission; regeneration matches every
+asset; full kit tests, kit/root types and author lint pass. The package archive
+contains the assets. Variant selection and the full fixture remain OF3b2/3,
+and visual judgement remains OF3c.
