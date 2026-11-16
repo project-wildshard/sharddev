@@ -126,7 +126,7 @@ export async function openApi(context,mode,extraPorts={}){
   const catalogue=createCatalogueStore(sql);
   const fixture={sql,store,catalogue,ack:false,states:[],id:undefined,hash:undefined};
   const deps={...depsFromEnv({ASYNC_UPLOAD_CHANNELS:'staging',GRID_AUTOPLACE:'staging',ADMIN_TOKEN:'fixture-grid-admin',COOK_SIGNING_KEY:COOK_KEY},
-    {version:'api-contract-2ad9890',store,records:store,presigner:store,catalogue,
+    {version:'api-contract-d0264bf',store,records:store,presigner:store,catalogue,
       notifier:{notify:async()=>fixture.ack}}),...extraPorts};
   fixture.deps=deps;
   const app=createApp(deps);
