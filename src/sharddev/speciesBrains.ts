@@ -6,6 +6,7 @@ import type * as v from 'valibot';
 import type { BorrowedDecision } from '@wildshard/format/decisionScripts';
 import type { ScriptSpeciesSchema } from '@wildshard/format/speciesScripts';
 import type { CreatureBodyRecipe } from '@wildshard/format/creatures';
+import type { HarvestDrop } from '@wildshard/format/harvestRows';
 import type { GrazerSchema, ChallengeGrazerSchema } from '@wildshard/format/grazers';
 import type { DiverSchema, PatrolDiverSchema } from '@wildshard/format/flyers';
 import type { StalkerSchema, GuardianPatternsSchema, SkirmisherSchema, GuardianSchema, PerchHunterSchema } from '@wildshard/format/brains';
@@ -88,6 +89,10 @@ export interface BrainedSpecies {
   id: string; kind: string; label: string;
   variants: SpeciesVariant[]; spawnOnly?: SpeciesVariant[];
   aggressive?: boolean; walkSpeed?: number; chargeSpeed?: number; chargeDamage?: number;
+  /** Not counted against the world's creature cap (engine `SpeciesRow.capExempt`, 0.1.31). */
+  capExempt?: boolean;
+  /** What a kill of this species drops, per variant (engine `SpeciesRow.harvest`, 0.1.31). */
+  harvest?: readonly HarvestDrop[];
   /** s / m / m: the charge's wind-up, the ring a charger circles on, the grass track it flattens */
   chargeWindup?: number; ringRadius?: number; trampleRadius?: number;
   tuning?: HuntTuning;
