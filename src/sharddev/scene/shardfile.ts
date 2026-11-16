@@ -50,16 +50,17 @@ export interface ShardfileOptions {
  * NEW-SHARD-E2E F23: the starter sword every scene shard's player holds unless `extend` writes its own `items` (a whole
  * section replaces this one). The Template's iron sword: the engine's kit melee swing (`kit.sword`), no script.
  */
-export const STARTER_SWORD = {
+type StarterItems = NonNullable<Shardfile['items']>;
+export const STARTER_SWORD: StarterItems['rows'][number] = {
   id: 'weapon.sword-iron', kind: 'weapon', family: 'kit.melee', slot: 'declared.weapon.sword-iron', context: 'weapon.melee',
   ui: { name: 'Iron sword', icon: 'sword', swapIcon: '\u2694', blurb: 'The shared iron sword.' },
   view: { recipe: 'kit.sword', colour: '#888888', position: [0.2, -0.35, -0.6], rotation: [0, 0, 0] }, hook: null,
   light: { id: 'sword.light', damage: 28, cooldown: 0.08, range: 2.2, width: 1.2, tags: ['actor.player', 'weapon.sword-iron', 'dmg.melee'], effect: null },
   heavy: { id: 'sword.heavy', damage: 56, cooldown: 0.08, range: 2.2, width: 1.2, tags: ['actor.player', 'weapon.sword-iron', 'dmg.melee'], effect: null },
   charge: 0.45,
-} as const;
+};
 /** NEW-SHARD-E2E F23: a scene shard's `items` before `extend`: the starter sword in hand. */
-export const STARTER_ITEMS = { version: 1, rows: [STARTER_SWORD], contexts: [], loadout: { primary: STARTER_SWORD.id, secondary: null, tools: [] } } as const;
+export const STARTER_ITEMS: StarterItems = { version: 1, rows: [STARTER_SWORD], contexts: [], loadout: { primary: STARTER_SWORD.id, secondary: null, tools: [] } };
 
 const TILE = 62.5, HALF = 250;
 /** AP15: how far an instanced copy may hang past the cell's edge (format `props.overhang`, at most 1 m). */
