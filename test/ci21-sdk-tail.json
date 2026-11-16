@@ -142,7 +142,8 @@
           "originalTests": [
             "native variants reconstruct from shared nodes with independent member identities"
           ],
-          "scope": "Actual private native catalogue admission of both independent graph members; exact SDK producer snapshot plus malformed-byte negative control."
+          "scope": "Actual private native catalogue admission of both independent graph members; exact SDK producer snapshot plus malformed-byte negative control.",
+          "revision": "23aa1d14f5f0952d5eceb2731ca87163ab84cc22"
         }
       ]
     }
