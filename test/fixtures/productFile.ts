@@ -11,3 +11,8 @@ export function fixtureProductFile(name: string, file: ProductFile): ProductFile
   const jsonSchema = registeredJsonSchema(name);
   return jsonSchema === undefined ? file : { ...file, jsonSchema };
 }
+
+/** Exercise the public native checker, including its real paced cache and cancellation. */
+export function fixtureNativeJson(schema: Readonly<Record<string, unknown>>, bytes: Uint8Array, pause: () => Promise<void> = () => Promise.resolve()): Promise<unknown> {
+  return nodeNamedJsonCheck(schema, bytes, pause);
+}

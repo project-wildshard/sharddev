@@ -1,0 +1,12 @@
+{
+  "schema": "ci21-sdk-tail-fixtures/1",
+  "writtenBy": "Codex",
+  "source": "engine@de22e1a170f7b1cff4069ef6623145d6180a6990",
+  "files": {
+    "carried-quest.json": {
+      "sourcePath": "test/fixtures/frozen/carried-quest.json",
+      "sha256": "793707b1f09380d5eb349dcaa5c061cf3f7f8a29c4efea886f8c7a71ced5491e",
+      "bytes": 4718
+    }
+  }
+}

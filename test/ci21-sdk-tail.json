@@ -1,0 +1,68 @@
+{
+  "schema": "ci21-sdk-tail/1",
+  "writtenBy": "Codex",
+  "sourceRepository": "project-wildshard/engine",
+  "sourceRevision": "de22e1a170f7b1cff4069ef6623145d6180a6990",
+  "files": [
+    {
+      "sourcePath": "test/defined-sections.test.ts",
+      "targetPath": "test/defined-sections.test.ts",
+      "sourceBlob": "1eaf0996615dc0ab98d3d2e82ebdc03010c8ad22",
+      "originalTests": [
+        "custom definition and emission APIs are absent",
+        "named build and native validators retain strict shape and numeric checks",
+        "paced named validation preserves cancellation and async refusal",
+        "named disk schemas refuse corrupt UTF8, external code and unknown checks"
+      ],
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+    },
+    {
+      "sourcePath": "test/named-json-admission.test.ts",
+      "targetPath": "test/named-json-admission.test.ts",
+      "sourceBlob": "1f07c315f69f0d13f716921f01f7d67bfc8fdb70",
+      "originalTests": [
+        "named JSON retains its byte-bound contract above the custom-section node cap",
+        "a paced named read pauses between its steps and compiles each schema once",
+        "each inline schema keeps the existing independent plain-JSON cap",
+        "a first-party build's named JSON parses without its schema; an external product's validates"
+      ],
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+    },
+    {
+      "sourcePath": "test/registered-json.test.ts",
+      "targetPath": "test/registered-json.test.ts",
+      "sourceBlob": "9a431ded34032e0d1bedf1c766fbf896754543c1",
+      "originalTests": [
+        "registered names use exact defining format schemas without changing the old schema document",
+        "defining validation preserves the owned value and original semantic refusals",
+        "a registered read refuses missing or foreign metadata before reading any bytes",
+        "external reads retain schema admission, defining semantic checks, identity and optional freezing",
+        "trusted built reads keep canonical parsing and do not invoke the external checker",
+        "retired private documents refuse their old checked bridge and keep missing-file refusal",
+        "author and independent output admission enforce the registered semantic contract"
+      ],
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+    },
+    {
+      "sourcePath": "test/world-assembly-schema.test.ts",
+      "targetPath": "test/world-assembly-schema.test.ts",
+      "sourceBlob": "c46643aa0cc484736405de1dbc3dfe4ca7a336cc",
+      "originalTests": [
+        "the defining assembly root emits structural rows and retains its explicit admission checks",
+        "assembly emission does not grant a bridge to a foreign custom predicate",
+        "arena room variants retain the original open wire and refuse mixed room resources"
+      ],
+      "changes": "SDK-owned schema emission and author helpers; native checks use public nodeNamedJsonCheck, await its real paced result; all accepted/refused values and assertions retained."
+    },
+    {
+      "sourcePath": "test/nalati-carried-terrain-ports.test.ts",
+      "targetPath": "test/carried-terrain-ports.test.ts",
+      "sourceBlob": "2dbe0713c3a67d3df2c09ba92ed56cf649ecd619",
+      "originalTests": [
+        "carried quest admission retains full native output and continuation refusals",
+        "terrain authors receive the exact native channel layout, sizes and fills"
+      ],
+      "changes": "Complete hash-pinned frozen carried rows replace the shard generator import; all assertions retained."
+    }
+  ]
+}

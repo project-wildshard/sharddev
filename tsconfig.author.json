@@ -20,5 +20,12 @@
     "src/sharddev/**/*.test.ts",
     "src/sharddev/test",
     "src/commons/**/*.test.ts"
+  ],
+  "files": [
+    "test/defined-sections.test.ts",
+    "test/named-json-admission.test.ts",
+    "test/registered-json.test.ts",
+    "test/world-assembly-schema.test.ts",
+    "test/carried-terrain-ports.test.ts"
   ]
 }

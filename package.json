@@ -47,7 +47,7 @@
     "drafts:deploy": "bash drafts/tools/deploy.sh",
     "drafts:test": "tsc -p drafts/tsconfig.json && tsc -p drafts/tools/tsconfig.json && vitest run drafts/test && node drafts/tools/atlas.ts --check",
     "typecheck": "node scripts/typecheck.mjs",
-    "lint": "node scripts/lint-dispatch.mjs --ignore-pattern 'scripts/chromium-keychain*' --ignore-pattern 'test/tooling/chrome-keychain.test.mjs'",
+    "lint": "node scripts/lint-dispatch.mjs",
     "lint:kit": "node kit/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'tmp/**' --ignore-pattern 'vitest.config.ts' --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --ignore-pattern 'public/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'drafts/**' --ignore-pattern 'lint/**' --ignore-pattern 'vite/**' --ignore-pattern 'bin/**' --no-error-on-unmatched-pattern",
     "lint:fix": "node kit/scripts/lint.mjs --type-aware --fix --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'scripts/agent-parity.mjs' --ignore-pattern 'scripts/agent-sync.mjs' --ignore-pattern 'tmp/**' --ignore-pattern 'vitest.config.ts' --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --ignore-pattern 'public/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'drafts/**' --ignore-pattern 'lint/**' --ignore-pattern 'vite/**' --ignore-pattern 'bin/**'",
     "format": "oxfmt -c kit/.oxfmtrc.json kit src",
@@ -71,7 +71,8 @@
     "test:kit": "node --test 'src/cli/**/*.test.ts' 'src/server/*.test.ts' 'src/test/**/*.test.ts'",
     "test:author": "vitest run",
     "build:shards": "node scripts/publish-public.mjs && node bin/wildshard.mjs build-shards",
-    "pack:shards": "node scripts/pack-all.mjs"
+    "pack:shards": "node scripts/pack-all.mjs",
+    "lint:ci21": "node scripts/ci21-sdk-tail-lint.mjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
