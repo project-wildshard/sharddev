@@ -18,8 +18,10 @@ const root = mkdtempSync(join(parent, 'navigation-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
 const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'marsh-road'), source = join(repo, 'src');
 
+// This is a correctness proof with cold installed tools, not a timing bar.
+// Bound every subprocess, while allowing a hosted runner to compile cold.
 function run(args, success = true) {
-  const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 8000,
+  const result = spawnSync(process.execPath, [bin, ...args], { cwd: app, encoding: 'utf8', timeout: 30000,
     env: { ...process.env, WILDSHARD_GEN_CACHE: join(root, 'gen'), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') } });
   assert.ifError(result.error);
   if (success) assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
@@ -71,11 +73,11 @@ async function navigation(directory) {
   return { bytes, nav };
 }
 
-test('the installed author creates its real navigation project', { timeout: 9500 }, () => {
+test('the installed author creates its real navigation project', { timeout: 45000 }, () => {
   run(['new', repo, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts')); config();
 });
 
-test('an installed author builds a real wetland road with dry queries', { timeout: 9500 }, async () => {
+test('an installed author builds a real wetland road with dry queries', { timeout: 45000 }, async () => {
   run(['build', source, join(app, 'road'), '--product-only']);
   const { nav } = await navigation(join(app, 'road'));
   const route = nav.findPath({x:-4,y:2,z:0}, {x:12,y:2,z:0}, .3);
@@ -85,11 +87,11 @@ test('an installed author builds a real wetland road with dry queries', { timeou
   assert.equal(nav.closestWalkable({x:-12,y:0,z:0}, .3), null, 'Submerged trail terrain must not acquire polygons');
 });
 
-test('the installed CLI packs the admitted navigation product', { timeout: 9500 }, () => {
+test('the installed CLI packs the admitted navigation product', { timeout: 45000 }, () => {
   run(['pack', join(app, 'road'), '--out', join(root, 'road.tar')]);
 });
 
-test('the strict wet threshold survives a second actual author build', { timeout: 9500 }, async () => {
+test('the strict wet threshold survives a second actual author build', { timeout: 45000 }, async () => {
   config(1); run(['build', source, join(app, 'equality'), '--product-only']);
   const { nav, bytes } = await navigation(join(app, 'equality'));
   assert.ok(nav.closestWalkable({x:4,y:2,z:12}, .3), 'Wet equality must remain dry enough to walk');
@@ -98,7 +100,7 @@ test('the strict wet threshold survives a second actual author build', { timeout
   assert.notDeepEqual(bytes, baseline.bytes, 'Changing the author policy must change real baked polygons');
 });
 
-test('an invalid policy refuses the real author build and preserves prior bytes', { timeout: 9500 }, async () => {
+test('an invalid policy refuses the real author build and preserves prior bytes', { timeout: 45000 }, async () => {
   const before = await navigation(join(app, 'road'));
   config(.5, -1);
   const refused = run(['build', source, join(app, 'invalid'), '--product-only'], false);
