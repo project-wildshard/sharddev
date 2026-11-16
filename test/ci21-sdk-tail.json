@@ -384,6 +384,17 @@
         "words": "Test today’s Warden (Recommended)",
         "scope": "CI21 Template boss current-product oracle update"
       }
+    },
+    {
+      "sourcePath": "test/template-generation.test.ts",
+      "targetPath": "test/template-generation.test.ts",
+      "sourceBlob": "37a45eb198c9f59ffad7e77058e69c17f955dccd",
+      "originalTests": [
+        "template direct generation and a cache hit retain every original world row and asset byte",
+        "the actual template build closure bundles and executes through the unchanged config boundary",
+        "Template boss and output sources use the unchanged SDK-only author import surface"
+      ],
+      "changes": "Only owner imports rewritten. The generator import checker is the defining SDK lint/sdk-plugin.mjs (SA6/SA38, J319) used by normal author lint; actual current Template source and existing source fixture compile without source copies. Every original assertion and test title retained. Real source closure now typechecked: admit raw authored state with its defining field schema inside SDK compileDeclaredDecisionScripts alongside creatures/rows; boss.ts stays byte-identical to predecessor, narrow material arrays for cleanup and use bracket index-signature access. Original full-row/asset equality catches wall seed retained across world builds; reset it at the synchronous build entry. Removing only that reset fails original case1 while cases2/3 pass; healed3/3."
     }
   ],
   "supportPaths": [
@@ -392,6 +403,7 @@
     "test/fixtures/defined-json-value.ts",
     "test/fixtures/return-group.ts",
     "src/sharddev/test/scriptScenario.ts",
-    "src/sharddev/test/diskScriptScenario.ts"
+    "src/sharddev/test/diskScriptScenario.ts",
+    "test/fixtures/templateSource.ts"
   ]
 }

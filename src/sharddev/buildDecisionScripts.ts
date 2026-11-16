@@ -8,6 +8,7 @@ import { buildDecisionRegistries, type DecisionRegistries } from '@wildshard/for
 import { parseActorMoves } from '@wildshard/format/actorMoves';
 import { CreaturesSchema } from '@wildshard/format/creatures';
 import { parseRows } from '@wildshard/format/rows';
+import { parseShardfileField } from '@wildshard/format/shardSchema';
 import * as v from 'valibot';
 import { compileScript } from './bake/compileScript';
 import { generateDecisionBindings } from './decisionScriptBindings';
@@ -55,8 +56,8 @@ export async function compileDecisionScripts(input: unknown, registries: Decisio
   return { rows: compiled, blobs: [...blobs.values()], generated, lines, ceiling };
 }
 /** Compile from validated author registry rows and actual move data; no format/compiler import enters a build program. */
-export function compileDeclaredDecisionScripts(input: unknown, source: Omit<Parameters<typeof buildDecisionRegistries>[0], 'creatures' | 'rows'> & { creatures: unknown; rows: unknown }, moves: unknown, authored: ReadonlyMap<string, string>, options: DecisionBuildOptions): ReturnType<typeof compileDecisionScripts> {
-  return compileDecisionScripts(input, buildDecisionRegistries({ ...source, creatures: v.parse(CreaturesSchema, source.creatures), rows: parseRows(source.rows) }, parseActorMoves(moves)), authored, options);
+export function compileDeclaredDecisionScripts(input: unknown, source: Omit<Parameters<typeof buildDecisionRegistries>[0], 'creatures' | 'rows' | 'state'> & { creatures: unknown; rows: unknown; state: unknown }, moves: unknown, authored: ReadonlyMap<string, string>, options: DecisionBuildOptions): ReturnType<typeof compileDecisionScripts> {
+  return compileDecisionScripts(input, buildDecisionRegistries({ ...source, creatures: v.parse(CreaturesSchema, source.creatures), rows: parseRows(source.rows), state: parseShardfileField('state', source.state) }, parseActorMoves(moves)), authored, options);
 }
 /** Read every authored .as (including unreferenced files) for the budget, refusing symlinks and escapes. */
 export function readDecisionSources(project: string): ReadonlyMap<string, string> {

@@ -119,7 +119,7 @@ export function coursedBox(w: number, h: number, d: number, seed = 0): BufferGeo
 /** The coarse tiles and the far proxy keep a coursed wall as its plain box (`userData.plainBox`), so their caps hold. */
 export function plainWalls(root: Object3D): void {
   root.traverse((node) => {
-    const size: unknown = node.userData.plainBox;
+    const size: unknown = node.userData['plainBox'];
     if (!(node instanceof Mesh) || !Array.isArray(size)) return;
     const [w = 1, h = 1, d = 1] = size as number[], g = new BoxGeometry(w, h, d), n = g.getAttribute('position').count;
     g.setAttribute('color', new Float32BufferAttribute(new Float32Array(n * 3).fill(0.85), 3));

@@ -74,7 +74,7 @@ let walls = 0;
 const shape = (w: number, h: number, d: number, stone: boolean): BufferGeometry => (stone && h >= 1.2 && Math.max(w, d) >= 1.8 && Math.min(w, d) <= 1.6 ? coursedBox(w, h, d, walls++) : surfaceBox(w, h, d));
 const cube = (w: number, h: number, d: number, color?: number, role: MeasureRole = 1): Mesh => {
   const geometry = shape(w, h, d, color === undefined || color === STONE || color === HUT_STONE), mesh = new Mesh(geometry, new MeshStandardMaterial({ color: color ?? (role === 2 ? MOSS : STONE), flatShading: true }));
-  if (geometry.getAttribute('position').count > 24) mesh.userData.plainBox = [w, h, d];
+  if (geometry.getAttribute('position').count > 24) mesh.userData['plainBox'] = [w, h, d];
   return mesh;
 };
 /** What the shapes need: a root, a scope that owns their buffers, the registry sink, the seeded RNG and the ground height. */
@@ -94,6 +94,7 @@ export interface TemplateWorldPorts {
 }
 /** The hut, door, ramp, `propCount` scattered cubes and the pool disc, under `root`, each a registry piece as the runtime registered it. */
 export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): void {
+  walls = 0; // Each generation starts from the same authored wall seed.
   const { heightAt } = ctx, file = 'src/shards/_template/generators/world.ts';
   const y = heightAt(layout.HUT.x, layout.HUT.z);
   const hut = new Group(); hut.position.set(layout.HUT.x, y, layout.HUT.z);
