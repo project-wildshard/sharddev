@@ -7,7 +7,7 @@ import { biped, quadruped } from './body.ts'
 import { temperament } from './temperament.ts'
 
 import type { AbilityHelper } from './abilities.ts'
-import type { TemperamentHelper } from './temperament.ts'
+import type { PresetName, TemperamentHelper } from './temperament.ts'
 
 async function plain(folder: string, name: string): Promise<string> {
   const file =
@@ -79,4 +79,27 @@ test('invalid authored numeric overrides refuse through the format contract', ()
   assert.throws((): void => {
     quadruped({ look: 'fixture.look', scale: 0 })
   })
+})
+
+test('every profile keeps the full numbers of its canonical tuning document', async (): Promise<void> => {
+  const sources: readonly (readonly [PresetName, string])[] = [
+    ['passive', 'deer'],
+    ['skittish', 'deer'],
+    ['neutral', 'boar'],
+    ['aggressive', 'bear'],
+    ['pack', 'boar'],
+    ['territorial', 'boar'],
+    ['ambush', 'bear'],
+    ['flee', 'deer'],
+    ['pursue', 'pursue'],
+  ]
+  await Promise.all(
+    sources.map(
+      async ([name, source]: readonly [PresetName, string]): Promise<void> => {
+        const expected = await plain('tuning', source)
+        const actual = temperament[name]().temperament.tuning
+        assert.equal(JSON.stringify(actual), expected)
+      },
+    ),
+  )
 })

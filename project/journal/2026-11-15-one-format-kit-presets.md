@@ -29,3 +29,7 @@ subpaths. A packed 0.1.0 archive contains the plain JSON and helper sources,
 excludes tests, and emits declarations. Its declared production dependencies
 are format 0.6 and valibot. Workspace lock/integration, copied-row build proof
 and publication are still pending; packing is not a claim of a release.
+
+A permanent cross-document case checks every profile's full tuning against
+its canonical tuning document, so a later catalogue edit cannot silently
+diverge from the copied source numbers.
