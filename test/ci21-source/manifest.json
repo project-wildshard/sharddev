@@ -1,0 +1,39 @@
+{
+  "schema": "ci21-sdk-source/1",
+  "writtenBy": "Codex",
+  "files": [
+    {
+      "sourcePath": "test/program-discovery-bootstrap.test.ts",
+      "targetPath": "test/ci21-source/program-discovery-bootstrap.source.ts",
+      "sourceRevision": "ca166bd644fc9578a0f4983c9209bbec88256d50",
+      "sourceBlob": "9c06d0b22ea6a48cd6f32921655400f2120e3d81",
+      "originalTests": [
+        "cold inputs-only generation builds the required product before emitting discovery",
+        "`changed ${file} cannot grant discovery through an old receipt`",
+        "a failed prerequisite never enters the discovery or boot table pass",
+        "normal and scoped generation build every required product once",
+        "ordinary manifests keep their original inputs-only and normal ordering",
+        "composed output markers are discovered without executing source or accepting executable slots",
+        "a scoped request prepares the remaining producer inputs of global discovery prerequisites",
+        "a corrupt newly built receipt refuses before any table is published"
+      ],
+      "changes": "Whole original: public engine import paths, one extra SDK-relative path segment and SDK formatting only. Non-import syntax and literal values are unchanged.",
+      "state": "draft; opt-in source port; not default admitted",
+      "engineSourceCandidate": "6aa8a79ebce0fb29e467cc1ddd1803129b4369c6",
+      "localRuntime": {
+        "files": 1,
+        "cases": 9,
+        "durationSeconds": 3.3,
+        "result": "pass",
+        "configuration": "vitest.ci21-source.config.ts (one file only)"
+      },
+      "localTypedLint": "Actual Oxlint type-aware, real inherited test/ci21-source/tsconfig.json and .oxlintrc.author.json; pass, no test suppression.",
+      "fullAuthorCompiler": {
+        "format07": "fails incompatible engine0.12 graph against forced format0.7",
+        "format12": "fails two unchanged SDK contracts: version.ts literal0.1, BrainedSpecies capExempt/harvest drift"
+      },
+      "next": "Finish real SDK compatibility/source qualification after C1 exact land; retain every original case. No engine original removed.",
+      "oracleAudit": "All11 original non-import top-level statements have identical recursive TypeScript AST node kinds, identifiers and literal values after formatting; nine runtime cases retained."
+    }
+  ]
+}
