@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { outputSectionPayloads } from '@wildshard/format/outputFields';
 import { expandCreatureLayers } from './creatureLayers';
+import { expandHarvestSource } from './harvestSource';
 import { settleHandwritten } from './handwritten';
 import { encodeCanonicalJson } from './immutable';
 import { validateOutputProduct } from './outputProduct';
@@ -12,12 +13,14 @@ import { validateOutputProduct } from './outputProduct';
 export function settleHandwrittenCreatureLayers(source: string, output: string): ReturnType<typeof validateOutputProduct> {
   if (resolve(source) === resolve(output)) throw new Error('Creature expansion output must be separate from its authored source');
   settleHandwritten(source, output);
-  const checked = validateOutputProduct(output), expanded = expandCreatureLayers(checked.shard);
+  const checked = validateOutputProduct(output), expanded = expandHarvestSource(expandCreatureLayers(checked.shard));
   if (expanded === checked.shard) return checked;
-  const section = checked.index.sections.find(row => row.name === 'actors/species');
-  const payload = outputSectionPayloads(expanded).get('actors/species');
-  if (section === undefined || payload === undefined) throw new Error('Missing admitted species section for source expansion');
-  writeFileSync(resolve(output, section.path), encodeCanonicalJson(payload));
+  const payloads = outputSectionPayloads(expanded);
+  for (const name of ['actors/species', 'combat/items']) {
+    const section = checked.index.sections.find(row => row.name === name), payload = payloads.get(name);
+    if (section === undefined || payload === undefined) throw new Error('Missing admitted section for source expansion');
+    writeFileSync(resolve(output, section.path), encodeCanonicalJson(payload));
+  }
   // Format's pack owns measurement, receipts, closure and admission. The authored folder stays unchanged.
   settleHandwritten(output, output);
   return validateOutputProduct(output);

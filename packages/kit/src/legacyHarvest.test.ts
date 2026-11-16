@@ -1,7 +1,10 @@
 import assert from 'node:assert/strict'
 import { mock, test } from 'node:test'
 
-import { legacyHarvest } from './legacyHarvest.ts'
+import { HarvestDropsSchema } from '@wildshard/shard-format/harvestRows'
+import { parse } from 'valibot'
+
+import { legacyHarvest, legacyHarvestItems } from './legacyHarvest.ts'
 
 // Independent prior-law results: engine ec71dd0365, src/shared/game/harvest.ts.
 // Conditional extra drops are listed literally rather than recomputing kit selectors.
@@ -88,7 +91,7 @@ test('the build helper preserves unknown labels and refuses malformed rosters', 
   assert.throws(() =>
     legacyHarvest(
       'boar',
-      Array.from({ length: 65 }, (_, index) => `variant-${index}`),
+      Array.from({ length: 129 }, (_, index) => `variant-${index}`),
     ),
   )
   assert.throws(() => legacyHarvest('boar', ['not a variant']))
@@ -96,4 +99,34 @@ test('the build helper preserves unknown labels and refuses malformed rosters', 
     { item: 'venison', count: 1 },
     { item: 'deer-hide', count: 1 },
   ])
+})
+
+test('a full native roster is chunked without duplicate delivery and metadata stays source-owned', () => {
+  const roster = Array.from({ length: 128 }, (_, index) => `stag-${index}`)
+  const rows = legacyHarvest('deer', roster)
+  assert.ok(rows)
+  assert.deepEqual(parse(HarvestDropsSchema, rows), rows)
+  for (const variant of roster) {
+    assert.deepEqual(
+      rows
+        .filter(
+          row => row.variants === undefined || row.variants.includes(variant),
+        )
+        .map(row => row.item),
+      ['venison', 'deer-hide', 'antlers'],
+    )
+  }
+  const items = legacyHarvestItems(['crab-shell', 'boar-tusk', 'crab-shell'])
+  assert.deepEqual(items, [
+    { id: 'crab-shell', label: 'Reef shell', icon: 'shell', travels: false },
+    { id: 'boar-tusk', label: 'Boar tusk', icon: 'tusk', travels: false },
+  ])
+  const first = items[0]
+  assert.ok(first)
+  first.label = 'changed'
+  assert.equal(legacyHarvestItems(['crab-shell'])[0]?.label, 'Reef shell')
+  assert.throws(
+    () => legacyHarvestItems(['own.trophy']),
+    /Missing kit harvest item/u,
+  )
 })

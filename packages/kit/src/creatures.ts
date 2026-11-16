@@ -6,6 +6,9 @@ import {
 
 import bear from '../content/creatures/bear.json' with { type: 'json' }
 import boar from '../content/creatures/boar.json' with { type: 'json' }
+import { legacyHarvestItems } from './legacyHarvest.ts'
+
+import type { ShardItems } from '@wildshard/shard-format/items'
 
 type CommonCreatureKind = 'boar' | 'bear'
 interface CreatureOptions {
@@ -16,6 +19,7 @@ interface CreatureOptions {
 interface CreatureContent {
   species: SpeciesRow
   strikes: StrikeRows[]
+  items: NonNullable<ShardItems['catalogue']>
 }
 const plain = { boar, bear }
 
@@ -61,7 +65,11 @@ function commonCreature(
   })
   const [species] = rows.species
   if (species === undefined) throw new Error('Missing kit creature row')
-  return { species, strikes: rows.strikes }
+  return {
+    species,
+    strikes: rows.strikes,
+    items: legacyHarvestItems((species.harvest ?? []).map(row => row.item)),
+  }
 }
 
 export { commonCreature }

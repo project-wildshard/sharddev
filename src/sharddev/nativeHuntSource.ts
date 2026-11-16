@@ -1,17 +1,21 @@
 import { readSpeciesPrograms, type SpeciesData } from '@wildshard/format/speciesPrograms';
 import { legacyHuntTuning } from '@wildshard/kit/legacySpecies';
+import { legacyHarvest } from '@wildshard/kit/legacyHarvest';
 import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import type { EmittedSections } from './sections';
 
 /** Expand the old native hunt owner, including its custom policies, without changing policy parameters or callbacks. */
 export function expandNativeHuntSource(input: unknown, warn: (message: string) => void = console.warn): unknown {
   const source = readSpeciesPrograms(input);
-  if (source.hunt === undefined) return input;
   const messages = new Set<string>();
   const fill = <T extends SpeciesData>(row: T): T => {
-    if (row.tuning !== undefined) return row;
-    messages.add(`species \`${row.id}\` uses the old native hunt owner: copied kit tuning from its explicit aggressive flag`);
-    return { ...row, tuning: legacyHuntTuning(row.aggressive === true) };
+    const tuning = source.hunt !== undefined && row.tuning === undefined ? legacyHuntTuning(row.aggressive === true) : undefined;
+    const variants = [...new Set([...row.variants, ...row.spawnOnly ?? []].map(variant => variant.id))];
+    const harvest = row.harvest === undefined ? legacyHarvest(row.kind, variants) : undefined;
+    if (tuning === undefined && harvest === undefined) return row;
+    if (tuning !== undefined) messages.add(`species \`${row.id}\` uses the old native hunt owner: copied kit tuning from its explicit aggressive flag`);
+    if (harvest !== undefined) messages.add(`species \`${row.id}\` uses the old harvest law: copied explicit drops for its complete variant roster`);
+    return { ...row, ...(tuning === undefined ? {} : { tuning }), ...(harvest === undefined ? {} : { harvest }) };
   };
   const expanded = { ...source, native: source.native.map(fill), page: source.page.map(fill),
     ...(source.program === undefined ? {} : { program: { ...source.program, species: source.program.species.map(fill) } }) };

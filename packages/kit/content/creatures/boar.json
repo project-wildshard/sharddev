@@ -228,7 +228,28 @@
         "call": "boar_grunt",
         "hurt": "boar_squeal"
       }
-    }
+    },
+    "harvest": [
+      {
+        "item": "boar-meat",
+        "count": 1
+      },
+      {
+        "item": "boar-hide",
+        "count": 1
+      },
+      {
+        "item": "boar-tusk",
+        "count": 1,
+        "variants": [
+          "boar",
+          "black",
+          "big",
+          "scarback",
+          "ironhide"
+        ]
+      }
+    ]
   },
   "strikes": [
     {

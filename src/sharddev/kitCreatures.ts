@@ -16,6 +16,7 @@ export interface KitCreatureOptions {
   readonly skins?: Readonly<Record<string, string>>;
 }
 export interface KitCreatureProduct {
+  readonly items: NonNullable<Shardfile['items']['catalogue']>;
   readonly species: ShardRows['species'][number];
   readonly strikes: ShardRows['strikes'];
   readonly look: ShardRows['looks'][number];
@@ -54,5 +55,5 @@ export async function kitCreature(kind: CommonCreatureKind, options: KitCreature
   const [look] = rows.looks;
   if (look === undefined) throw new Error('Kit creature has no look');
   validateSkinAssets({ rows, files: [...files.values()], look: { materials: {} } }, assets);
-  return { species: content.species, strikes: content.strikes, look, files: [...files.values()], library: [skin, hash], assets };
+  return { species: content.species, strikes: content.strikes, items: content.items, look, files: [...files.values()], library: [skin, hash], assets };
 }

@@ -221,7 +221,17 @@
         "call": "bear_growl",
         "hurt": "bear_hurt"
       }
-    }
+    },
+    "harvest": [
+      {
+        "item": "bear-pelt",
+        "count": 1
+      },
+      {
+        "item": "bear-claw",
+        "count": 1
+      }
+    ]
   },
   "strikes": [
     {

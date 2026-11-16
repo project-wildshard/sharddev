@@ -164,9 +164,18 @@ for a label with no former harvest law. It consumes no randomness.
 `content/harvest.json` preserves the six former source tables. Selectors
 run only while building; the output contains explicit variant ids.
 
-The normal producer integration and format-owned output type are
-OF31b2b, after the harvest format release. This helper alone does not
-change an existing shard's output or its pack policy.
+`legacyHarvestItems(ids)` copies only referenced item metadata, using
+the original labels, icons and travel flags. Existing authored catalogue
+entries take precedence during compatibility expansion. The helper's
+output type is the format's `HarvestDrop`; release and pin proof remain
+OF31b2b/CC2b2 while this candidate is unlanded.
+
+Kit boar/bear helpers include explicit harvest and return the corresponding
+`items` catalogue rows. Merge these rows into `items.catalogue` with the
+species/strikes. Compatibility expansion copies missing declarations for
+older sources; explicit `harvest: []` remains empty and pack policy is
+unchanged. Selectors can cover all 128 regular/spawn-only native variants
+and are emitted in bounded non-overlapping groups.
 
 ## Module migration
 

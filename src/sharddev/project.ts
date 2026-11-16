@@ -51,6 +51,7 @@ import { lowerMaterialGraphs } from './materialGraphFiles';
 import { parseDiscoveryValues, type DiscoveryValues } from '@wildshard/format/discoveryValues';
 import { diagnosticNow } from './diagnosticClock';
 import { expandCreatureLayers } from './creatureLayers';
+import { expandHarvestSource } from './harvestSource';
 
 /** Stable JSON encoding: sorted object keys, no timestamps or host paths. */
 export function canonicalJson(value: unknown): string { return encodeCanonicalJson(value); }
@@ -268,7 +269,7 @@ export async function buildProject(project: string, output?: string, options: { 
   // build` asks for them; existing product builds keep theirs in the repo bake until the grid reads `near`)
   // a static import: the author CLI must bundle to one module (scripts/wildshard.mjs); the bakers' closure stays
   // renderer-free (the Node sim proofs import this module under the renderer-denying loader)
-  const expanded = expandCreatureLayers(loaded.shard);
+  const expanded = expandHarvestSource(expandCreatureLayers(loaded.shard));
   const shard = validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform));
   phase('asset-admission');
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.

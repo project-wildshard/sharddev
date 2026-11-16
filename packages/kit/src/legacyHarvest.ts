@@ -1,3 +1,4 @@
+import { ItemsSchema, type ShardItems } from '@wildshard/shard-format/items'
 import {
   array,
   check,
@@ -15,17 +16,17 @@ import {
   string,
 } from 'valibot'
 
+import itemContent from '../content/harvest-items.json' with { type: 'json' }
 import content from '../content/harvest.json' with { type: 'json' }
 
-/** Build-only output shape; producer admission uses the released harvest format in OF31b2b. */
-export interface HarvestContentRow {
-  item: string
-  count: number
-  variants?: string[]
-}
+import type { HarvestDrop } from '@wildshard/shard-format/harvestRows'
+
+/** The one admitted harvest declaration, copied by the kit's source compatibility helper. */
+export type HarvestContentRow = HarvestDrop
 const MAX_ROWS = 64
+const MAX_VARIANTS = 128
 const id = pipe(string(), regex(/^[a-z][a-zA-Z0-9.:-]*$/u), maxLength(128))
-const names = pipe(array(id), maxLength(MAX_ROWS))
+const names = pipe(array(id), maxLength(MAX_VARIANTS))
 const rule = pipe(
   strictObject({
     item: id,
@@ -42,6 +43,30 @@ const rule = pipe(
   ),
 )
 const rules = parse(record(id, pipe(array(rule), maxLength(MAX_ROWS))), content)
+const items = parse(ItemsSchema, {
+  version: 1,
+  rows: [],
+  contexts: [],
+  catalogue: itemContent,
+  loadout: { primary: null, secondary: null, tools: [] },
+}).catalogue
+
+/** Copy only referenced old item metadata; an author's existing catalogue remains its own. */
+export function legacyHarvestItems(
+  identities: readonly string[],
+): NonNullable<ShardItems['catalogue']> {
+  return [...new Set(identities)].map(identity => {
+    const row = items?.find(item => item.id === identity)
+    if (row === undefined)
+      throw new Error(`Missing kit harvest item: ${identity}`)
+    return {
+      id: row.id,
+      label: row.label,
+      icon: row.icon,
+      travels: row.travels,
+    }
+  })
+}
 
 /** Copy the former source law over an explicit roster. No kit selector is shipped to the engine. */
 export function legacyHarvest(
@@ -66,8 +91,14 @@ export function legacyHarvest(
           ? row.contains?.some(part => variant.includes(part))
           : !row.except.includes(variant)),
     )
-    return selected.length === 0
-      ? []
-      : [{ item: row.item, count: row.count, variants: selected }]
+    const drops: HarvestContentRow[] = []
+    for (let start = 0; start < selected.length; start += MAX_ROWS) {
+      drops.push({
+        item: row.item,
+        count: row.count,
+        variants: selected.slice(start, start + MAX_ROWS),
+      })
+    }
+    return drops
   })
 }
