@@ -15,11 +15,13 @@ import { scenario as diskScenario } from '../../src/sharddev/test/scriptScenario
 import { scriptScenarioReceipt } from '@wildshard/engine/scripts/script-scenario-metrics.mjs';
 
 let directory: string;
+// Hosted full-suite source preparation exceeded10s (mini3.6s); fence only this fixture at30s.
+// The real native scenario keeps its original2s cap.
 beforeAll(async () => {
   mkdirSync('tmp',{recursive:true});directory=mkdtempSync(resolve('tmp/template-boss-'));
   const product=await readProjectAssets(resolve('src/shards/_template'));
   writeOutputProduct(product.shard,product.assets,directory,product.output);
-});
+},30_000);
 afterAll(()=>{if(directory!==undefined)rmSync(directory,{recursive:true,force:true});});
 
 test('Template boss runs published Wasm decisions and resumes a logical save', async () => {
