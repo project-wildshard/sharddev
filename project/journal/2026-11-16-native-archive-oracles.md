@@ -55,3 +55,21 @@ under J373. Exact source and candidate archive identities:
   "canonicalFormatDependency": "@wildshard/shard-format@0.11.0"
 }
 ```
+
+## Real native drop and save comparison
+
+The same immutable baseline/candidate products also run through engine
+M1 b270a039's real headless host and physics. Pine's boar and Driftwood's
+crab retain identical pack payouts between old and new products. Each
+pending save restores and pays once; consumed saves cannot pay again.
+A pre-change product's pending save also restores on the new product
+and pays the same pack, with no duplicate claim. Exact baseline and
+candidate pending-save bytes are retained in engine tmp/codex-te2e,
+with their hashes in native-archive-save-identities.json. The direct
+branch proof script/result/log are native-archive-harvest.mjs,
+native-archive-harvest-result.json and native-archive-harvest-direct.log.
+
+These source-archive proofs do not claim published source pins or a
+retired runtime table. Keep the old pending-save cases when removing
+implicit content: old snapshots omit resolved drops, so their current
+fallback must be replaced by admitted content before deleting tables.
