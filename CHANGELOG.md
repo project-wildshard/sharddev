@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.5 (2026-11-16)
+
+- GUIDE section 2b shows how to write a scene shard, and the GUIDE explains uploading from a shard repo's Actions.
+- `wildshard grid` prints which grid cells are taken and which are free on a channel.
+- A scene shard's player starts with the iron sword; the scene template's grass and ferns are detail layers.
+- `prove --help`, the GUIDE and the proof-tape refusal show a tape's shape.
+- `new` prints its next command, `check` prints no Node warning, and the road, synth and manifest refusals say what to change.
+
 ## v0.3.4 (2026-11-16)
 
 - Upload with the account credential saved by wildshard account, without a creator private key (MU2).
