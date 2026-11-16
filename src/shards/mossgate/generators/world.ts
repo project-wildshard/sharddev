@@ -9,7 +9,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { animate, drift, flicker, pulse, rise, solid, Water, type ShardWorld } from '@wildshard/sdk/scene/author';
+import { animate, drift, flicker, hang, pulse, rise, solid, Water, type HangOptions, type ShardWorld } from '@wildshard/sdk/scene/author';
 import * as T from './textures';
 import { sunsetSky } from './sky';
 
@@ -96,6 +96,10 @@ const FLAME_PULSE = pulse({ rate: 1.4, amount: 0.14 });
 const glowMats = new Map<string, THREE.SpriteMaterial>(), decalMats = new Map<string, THREE.MeshStandardMaterial>();
 const sparkMats = new Map<string, THREE.PointsMaterial>();
 let flameMat: THREE.SpriteMaterial | null = null;
+/** SS8e: how a post's rope lantern and a bracket's lantern swing (rate in swings a second, gust lean in radians, bump reach in metres). */
+const POST_SWING: HangOptions = { rate: 0.6, amount: 0.08, reach: 0.35 };
+const BRACKET_SWING: HangOptions = { rate: 0.8, amount: 0.05, reach: 0.3 };
+
 function glowMat(tex: Textures, colour: string, opacity: number): THREE.SpriteMaterial {
   const key = `${colour}/${opacity}`;
   let m = glowMats.get(key);
@@ -154,7 +158,12 @@ function kit(part: THREE.Group, seed: number, M: Materials, tex: Textures) {
     g.rotateY(rotY); g.translate(x, y, z);
     ivyGeos.push(g);
   }
-  function lantern(x: number, y: number, z: number, { on = true, scale = 1, light = true } = {}): THREE.Group {
+  // SHARD-SOURCE SS8e: a hung lantern swings from `pivot` (its rope's top or its bracket's hook), the lantern, its light
+  // and its halo with it; `extra` meshes (the rope) hang there too, placed in the world.
+  function lantern(x: number, y: number, z: number, { on = true, scale = 1, light = true, pivot, extra = [] }: { on?: boolean; scale?: number; light?: boolean; pivot?: { y: number; swing: HangOptions }; extra?: THREE.Object3D[] } = {}): THREE.Group {
+    const holder: THREE.Object3D = pivot === undefined ? part : hang(new THREE.Group(), pivot.swing);
+    if (pivot !== undefined) { holder.position.set(x, pivot.y, z); part.add(holder); for (const e of extra) { e.position.x -= x; e.position.y -= pivot.y; e.position.z -= z; holder.add(e); } }
+    const at = pivot === undefined ? { x, y, z } : { x: 0, y: y - pivot.y, z: 0 };
     const g = new THREE.Group();
     const glass = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.26, 0.2), on ? M.lampGlass : M.lampOff);
     const cap = new THREE.Mesh(new THREE.ConeGeometry(0.21, 0.15, 4), M.iron); cap.position.y = 0.22; cap.rotation.y = Math.PI / 4;
@@ -164,20 +173,20 @@ function kit(part: THREE.Group, seed: number, M: Materials, tex: Textures) {
     for (const [bx, bz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
       const b = new THREE.Mesh(new THREE.BoxGeometry(0.035, 0.32, 0.035), M.iron); b.position.set(bx * 0.11, 0, bz * 0.11); g.add(b);
     }
-    g.position.set(x, y, z); g.scale.setScalar(scale);
-    part.add(g);
+    g.position.set(at.x, at.y, at.z); g.scale.setScalar(scale);
+    holder.add(g);
     if (on) {
       if (light) {
         const l = new THREE.PointLight('#ffa850', 3.4 * scale, 6, 1.7);
-        l.position.set(x, y, z); part.add(animate(l, LAMP_FLICKER));
+        l.position.set(at.x, at.y, at.z); holder.add(animate(l, LAMP_FLICKER));
       }
-      halo(x, y, z, 1.1 * scale, '#ffb466', 0.5);
+      halo(at.x, at.y, at.z, 1.1 * scale, '#ffb466', 0.5, holder);
     }
     return g;
   }
-  function halo(x: number, y: number, z: number, size: number, colour: string, opacity: number): void {
+  function halo(x: number, y: number, z: number, size: number, colour: string, opacity: number, into: THREE.Object3D = part): void {
     const s = new THREE.Sprite(glowMat(tex, colour, opacity));
-    s.scale.setScalar(size); s.position.set(x, y, z); part.add(s);
+    s.scale.setScalar(size); s.position.set(x, y, z); into.add(s);
   }
   // A gallows post: a squared timber with an arm, a rope and a hanging lantern.
   function lanternPost(x: number, z: number, rotY = 0, { h = 2.7, on = true, stoneBase = false } = {}): void {
@@ -194,9 +203,10 @@ function kit(part: THREE.Group, seed: number, M: Materials, tex: Textures) {
     brace.position.set(x + ax * 0.2, gy + h - 0.36, z + az * 0.2); brace.rotation.set(0, rotY, 0); brace.rotateX(0.75); part.add(brace);
     const lx = x + ax * 0.74, lz = z + az * 0.74;
     const rope = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.018, 0.42, 5), M.rope);
-    rope.position.set(lx, gy + h - 0.4, lz); part.add(rope);
+    rope.position.set(lx, gy + h - 0.4, lz);
     const coil = new THREE.Mesh(new THREE.TorusGeometry(0.07, 0.03, 6, 12), M.rope); coil.position.set(lx, gy + h - 0.12, lz); coil.rotation.y = rotY; part.add(coil);
-    lantern(lx, gy + h - 0.82, lz, { on, scale: 1.25 });
+    // SS8e: the rope and its lantern hang from the coil, a 0.7 m pendulum (about 0.6 swings a second)
+    lantern(lx, gy + h - 0.82, lz, { on, scale: 1.25, pivot: { y: gy + h - 0.12, swing: POST_SWING }, extra: [rope] });
     collider({ x, y: gy + h / 2, z, hx: 0.12, hy: h / 2, hz: 0.12, rotY: 0 });
   }
   // A wall bracket lamp: an iron arm out of a stone face.
@@ -204,7 +214,8 @@ function kit(part: THREE.Group, seed: number, M: Materials, tex: Textures) {
     const ax = Math.sin(rotY), az = Math.cos(rotY);
     const arm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.5), M.iron); arm.position.set(x + ax * 0.22, y + 0.42, z + az * 0.22); arm.rotation.y = rotY; part.add(arm);
     const plate = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.3, 0.04), M.iron); plate.position.set(x, y + 0.36, z); plate.rotation.y = rotY; part.add(plate);
-    lantern(x + ax * 0.44, y, z + az * 0.44, { on, scale: 1.05 });
+    // SS8e: the lantern hangs from the arm's hook, a short stiff swing
+    lantern(x + ax * 0.44, y, z + az * 0.44, { on, scale: 1.05, pivot: { y: y + 0.42, swing: BRACKET_SWING } });
   }
   // Fire: three flame cards breathing (normal blending, so overlapping tongues stay orange), a flickering light, a halo,
   // and 36 sparks climbing 2.6 m (the cleanroom's (s0 + t sp 0.4) % 1).

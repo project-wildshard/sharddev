@@ -26,4 +26,8 @@ test('Mossgate whole lowers with every section', () => {
   expect(layer('ferns')?.shadow).toBe(true);
   expect(shard.look.sky?.graph.kind).toBe('material');
   expect(shard.ground).not.toBeNull();
+  // SS8e: the gallows-post and bracket lanterns hang (5 posts, 6 brackets), each lamp with its lantern's swing
+  const swings = shard.parts.flatMap((p) => p.swings ?? []);
+  expect(swings).toHaveLength(11);
+  expect(shard.parts.flatMap((p) => p.lights).filter((l) => l.swing !== undefined)).toHaveLength(11);
 });
