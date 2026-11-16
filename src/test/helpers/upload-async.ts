@@ -12,6 +12,7 @@ interface AsyncUploads {
   enabled: boolean
   sequence: UploadState[]
   report: unknown
+  replyId?: string
   readonly uploads: Map<string, string>
   readonly reads: IncomingMessage[]
 }
@@ -64,7 +65,7 @@ function answerStatus(
   } else {
     const status = state.sequence.shift() ?? 'live'
     sendJson(exchange.response, 200, {
-      uploadId: id,
+      uploadId: state.replyId ?? id,
       hash,
       status,
       createdAt: 1,

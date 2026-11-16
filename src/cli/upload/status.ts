@@ -60,6 +60,8 @@ function requireSuccess(status: UploadStatus): void {
 function retryable(error: unknown): boolean {
   return (
     error instanceof TypeError ||
+    (error instanceof Error &&
+      (error.name === 'TimeoutError' || error.name === 'AbortError')) ||
     (error instanceof ApiRefusalError &&
       (error.status >= SERVER_ERROR || error.status === TOO_MANY_REQUESTS))
   )
@@ -69,10 +71,11 @@ async function readMatching(
   session: Polling,
   remaining: number,
 ): Promise<UploadStatus> {
+  const timeout = Math.ceil(Math.min(remaining, REQUEST_TIMEOUT_MS))
   const status = await session.ports.read(
     session.options,
     session.id,
-    AbortSignal.timeout(Math.ceil(remaining)),
+    AbortSignal.timeout(timeout),
   )
   if (status.uploadId !== session.id || status.hash !== session.hash) {
     throw new Error('upload status does not match the accepted upload')
@@ -88,11 +91,11 @@ async function observe(session: Polling): Promise<UploadStatus | undefined> {
   try {
     return await readMatching(session, remaining)
   } catch (error: unknown) {
-    if (session.ports.now() >= session.deadline) {
-      throw timedOut(session.id)
-    }
     if (!retryable(error)) {
       throw error
+    }
+    if (session.ports.now() >= session.deadline) {
+      throw timedOut(session.id)
     }
     return undefined
   }
@@ -157,6 +160,9 @@ async function printUploadStatus(
     id,
     AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   )
+  if (status.uploadId !== id) {
+    throw new Error('upload status does not match the requested upload')
+  }
   reportStatus(status, report)
   requireSuccess(status)
   return status

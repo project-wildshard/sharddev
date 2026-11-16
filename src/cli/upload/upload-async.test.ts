@@ -127,3 +127,21 @@ test(
     assert.equal(run.server.state.async.reads.length, 1)
   },
 )
+
+test(
+  'SP21 the status command rejects a response for another upload',
+  { timeout: 10_000 },
+  async (context: TestContext): Promise<void> => {
+    const run = await open(context)
+    run.server.state.async.enabled = true
+    const queued = await uploadWith(run, { wait: false })
+    run.server.state.async.replyId = 'another-upload'
+    const done = await cli(context, run, [
+      'status',
+      queued.uploadId ?? 'missing',
+    ])
+    assert.equal(done.status, 3)
+    assert.match(done.stderr, /does not match the requested upload/u)
+    assert.doesNotMatch(done.stdout, /: live/u)
+  },
+)

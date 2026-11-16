@@ -20,7 +20,9 @@ function queued(
   accepted: Readonly<{ uploadId: string; status: UploadState }>,
 ): Completion {
   if (accepted.status === 'refused' || accepted.status === 'stalled') {
-    throw new Error(`upload ${accepted.uploadId}: ${accepted.status}`)
+    throw new Error(
+      `upload ${accepted.uploadId}: ${accepted.status}; read verdict with wildshard upload status ${accepted.uploadId}`,
+    )
   }
   return { ...accepted, gridReport: [] }
 }

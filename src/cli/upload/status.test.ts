@@ -165,3 +165,41 @@ test('SP21 rejects a status bound to another hash', async (): Promise<void> => {
     /does not match/u,
   )
 })
+
+test('SP21 a single timed-out read retries within the overall verdict deadline', async (): Promise<void> => {
+  const fixture = clocked([
+    new DOMException('request timed out', 'TimeoutError'),
+    new DOMException('body read aborted by request timeout', 'AbortError'),
+    { ...BASE, status: 'live' },
+  ])
+  const result = await waitForUpload(
+    OPTIONS,
+    { id: ID, hash: HASH, report: fixture.report },
+    fixture.ports,
+  )
+  assert.equal(result.status, 'live')
+  assert.deepEqual(fixture.delays, [2000, 4000])
+})
+
+test('SP21 a late authorization refusal retains its real cause', async (): Promise<void> => {
+  const clock = { expired: false }
+  const fixture = clocked([])
+  const ports: PollPorts = {
+    ...fixture.ports,
+    now: (): number => (clock.expired ? 1_200_001 : 0),
+    read: async (): Promise<UploadStatus> => {
+      clock.expired = true
+      await Promise.resolve()
+      throw new ApiRefusalError('no account key', 401)
+    },
+  }
+  await assert.rejects(
+    waitForUpload(
+      OPTIONS,
+      { id: ID, hash: HASH, report: fixture.report },
+      ports,
+    ),
+    /no account key/u,
+  )
+  assert.deepEqual(fixture.delays, [])
+})

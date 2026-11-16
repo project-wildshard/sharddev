@@ -47,3 +47,13 @@ The full CLI suite caught a glossary regression in upload help. Help now
 describes progress and validation in the author's vocabulary; runtime
 progress still prints the actual checked/cooking/staged/live states.
 The glossary guard remains unchanged.
+
+Each individual status request has a 15-second cap inside the unchanged
+20-minute overall deadline. A transient request timeout retries with the
+same backoff; it cannot consume the entire wait in one hung request.
+
+The read-only review found no MUST issues. Follow-up controls bind the
+one-shot status command's returned id and retain a late authorization
+failure instead of masking it as timeout. A known no-wait refusal names
+the status command for reading its report, without adding a status GET.
+The overall deadline remains strict: no new request starts after expiry.
