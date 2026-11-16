@@ -4,7 +4,6 @@
 import {createHash} from 'node:crypto';
 import {spawn} from 'node:child_process';
 import {readFileSync,writeFileSync,mkdirSync,mkdtempSync,rmSync,readdirSync,statSync,lstatSync} from 'node:fs';
-import {tmpdir} from 'node:os';
 import {join,resolve,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import '@wildshard/format/formatHook';
@@ -95,7 +94,9 @@ export async function prepareProduct(dir,base,inline=false){
     try{return await prepareProduct(dir,preview.url,true);}finally{await preview.close();}
   }
   const header=readFileSync(join(dir,'shard.json')),index=parseOutputIndex(JSON.parse(header));
-  const scratch=mkdtempSync(join(tmpdir(),'wildshard-prepare-'));
+  // SA17: the recording lands under the project's own tmp/ (git-ignored by `new`), never the system temp dir.
+  const parent=join(process.cwd(),'tmp');mkdirSync(parent,{recursive:true});
+  const scratch=mkdtempSync(join(parent,'wildshard-prepare-'));
   try{
     const out=join(scratch,'recording.json');
     const script=fileURLToPath(new URL('./bake-entry-programs.mjs',import.meta.url));
