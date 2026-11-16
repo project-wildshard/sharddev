@@ -19,3 +19,7 @@ open. This does not claim an appearance verdict.
 Retain the admitted optional capExempt field in the SDK species-brain
 contract as engine OF31d2a consumes it. Root types and author lint pass
 with the unchanged exact SDK/engine type comparison.
+
+Kit melee moves retain admitted target-species debris, matching the
+engine's move contract for OF31d2b. Root types, strict author lint and
+the generated API pages pass.

@@ -7,6 +7,8 @@ import { parse } from 'valibot'
 
 import { SWORD_WOOD } from './starterMeleeProfile.ts'
 
+import type { StrikeDebrisPolicy } from '@wildshard/shard-format/strikeDebris'
+
 /** Numeric camera lag, bob and sway parameters, independent of a particular weapon model. */
 export interface ViewmodelFeel {
   lag: {
@@ -148,6 +150,7 @@ export interface MeleeTrail {
 }
 /** A complete authored contact window and its three hand keys. */
 export interface MeleeMove {
+  debris?: StrikeDebrisPolicy
   name: 'slash' | 'backhand' | 'finisher' | 'heavy' | 'pass-left' | 'pass-right'
   keys: [MeleeKey, MeleeKey, MeleeKey]
   windup: number
