@@ -102,3 +102,23 @@ jobs:
         run: node --test --test-concurrency=1 test/ci/author-inputs.test.mjs
       - name: Installed warm author build with OS networking denied
         run: node --test --test-concurrency=1 test/ci/offline-author.test.mjs
+      # TC14: report for one real week before explicit blocking admission.
+      # Cold published client download + native browser are Ring 2, never hooks.
+      - name: Observe packed outside-author browser boot
+        timeout-minutes: 4
+        if: always()
+        continue-on-error: true
+        env:
+          WS_PROOF_SCRATCH: ${{ github.workspace }}/tmp/outside-browser
+          WS_BROWSER_REPORT: ${{ github.workspace }}/tmp/outside-browser-report
+        run: |
+          pnpm exec playwright install --with-deps chromium
+          node --test test/ci/outside-browser.proof.mjs
+      - name: Retain outside-author browser observation
+        continue-on-error: true
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: outside-author-browser
+          path: tmp/outside-browser-report
+          if-no-files-found: warn
