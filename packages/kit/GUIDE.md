@@ -205,3 +205,9 @@ boar, elk or bear. The same bytes ship in `content/journal-icons.json`.
 This is source compatibility content for compilation to admitted images;
 new journal icons may use any admitted image. Unknown and prototype names
 refuse. No engine import is needed to read the content.
+
+The matching 128-square PNG alpha images ship in
+`content/journal-icons/<name>.png`. `node scripts/build-kit-journal-icons.mjs
+--check` verifies their exact regeneration from those SVG strings. Source
+compatibility compilation copies them into the charged image library and
+sets `tint: 'currentColor'`, preserving the sticker's inherited CSS paint.
