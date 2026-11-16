@@ -60,7 +60,7 @@ const TC_M4_GATE = { resident: 20_000, compressed: 8_000 } as const;
 /** TEMPLATE-E2E TC-M4b: the lift's deck and the ledge, two panels in the library (measured 37 032 resident, 19 808 compressed). */
 const TC_M4_LIFT = { resident: 40_000, compressed: 21_000 } as const;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
-const TEMPLATE_ROWS = parseRows(rows);
+const TEMPLATE_ROWS = parseRows({ ...rows, looks: TEMPLATE_SKIN_LOOKS });
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone draws in the look's plain `pbr` (M2: no measure layer); the red
  *  mushroom caps draw in the look's emissive `mossgate.mushroom-cap` (LF1-2: it keeps its colour under the measure look). */
 const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME }, [TEMPLATE_TELL]: { id: TEMPLATE_TELL } };
@@ -108,7 +108,7 @@ const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as con
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
   budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident + TC_M4_LIFT.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed + TC_M4_LIFT.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
-  look: TEMPLATE_LOOK, spawn: SPAWN, rows: { ...TEMPLATE_ROWS, looks: TEMPLATE_SKIN_LOOKS }, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
+  look: TEMPLATE_LOOK, spawn: SPAWN, rows: TEMPLATE_ROWS, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
   terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,
   library: [...props.library, ...TEMPLATE_SKIN_LIBRARY, CLIENT_IDLE_HASH], far: props.far, props: { ...props.props, materials: TEMPLATE_PROP_MATERIALS }, items: ITEMS, targets: TEMPLATE_TARGETS, clientScripts,
   // TC-M4b: the lift (lift.ts), stepped by the server and drawn as its panel

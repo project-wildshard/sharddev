@@ -362,10 +362,75 @@
             "relentless": false
           }
         }
-      ]
+      ],
+      "type": "beast",
+      "body": {
+        "skeleton": "quadruped",
+        "size": "medium",
+        "scale": 1,
+        "look": "pastel.look.boar"
+      },
+      "temperament": {
+        "brain": "none",
+        "reaction": "aggressive",
+        "leash": 60,
+        "assist": 12,
+        "home": {
+          "speed": 3.6,
+          "stop": 1.5
+        }
+      },
+      "senses": {
+        "notice": 22,
+        "sight": {
+          "range": 22,
+          "cone": 1.0471975511965976,
+          "graze": 14
+        },
+        "hearing": {
+          "still": 4,
+          "crouch": 7,
+          "walk": 14,
+          "sprint": 28
+        }
+      },
+      "abilities": [
+        {
+          "use": "boar.charge",
+          "range": 10,
+          "cooldown": 2,
+          "weight": 1,
+          "damage": 25,
+          "speed": 7.5,
+          "windup": 0.55
+        }
+      ],
+      "presentation": {
+        "blood": true,
+        "sounds": {
+          "call": "boar_grunt",
+          "hurt": "boar_squeal"
+        }
+      }
     }
   ],
-  "looks": [],
+  "looks": [
+    {
+      "id": "pastel.look.boar",
+      "species": "boar",
+      "recipe": "platform.skin",
+      "material": null,
+      "parameters": {
+        "skin": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e"
+      },
+      "animation": {
+        "recipe": "platform.clips",
+        "parameters": {
+          "attackSpan": 1
+        }
+      }
+    }
+  ],
   "compendiums": [
     {
       "id": "pastel.compendium",

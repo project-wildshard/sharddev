@@ -28,13 +28,13 @@ import type { pastelTerrain } from './terrain';
 import type { PastelBehaviour } from './behaviour';
 
 /** Pure template declarations (data/rows.json); SF16 binds these through the normal shardfile loader. */
-const PASTEL_ROWS = parseRows(rows);
 /** The template's creature looks (SF16): the SF9c exported grey blob and boar, drawn by `platform.skin` and animated from
  *  the creature's state (`platform.clips`); `scripts/bake/template-skins.mjs` writes `skins.json` and the files. */
 const PASTEL_SKIN_LOOKS = skins.map((entry) => ({ id: entry.look, species: entry.species, recipe: 'platform.skin', material: null,
   parameters: { skin: entry.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }));
 const PASTEL_SKIN_FILES = skins.flatMap((entry) => entry.files), PASTEL_SKIN_LIBRARY = skins.map((entry) => entry.skin);
 const PASTEL_SKIN_COST = PASTEL_SKIN_FILES.reduce((sum, file) => ({ resident: sum.resident + file.decoded + file.gpu, compressed: sum.compressed + file.compressed }), { resident: 0, compressed: 0 });
+const PASTEL_ROWS = parseRows({ ...rows, looks: PASTEL_SKIN_LOOKS });
 /** Assemble the original declaration from this invocation's producer rows and compiled bytes. */
 export function pastelProduct(terrain: Omit<ReturnType<typeof pastelTerrain>, 'assets'>, props: BakedProps, behaviour: PastelBehaviour): Shardfile {
 const door = behaviour.door;
@@ -70,7 +70,7 @@ const tiles = terrain.tiles.map((tile) => {
 return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'lime',
   budgets: { library: { resident: 100_000 + PASTEL_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280, compressed: 100_000 + CLIENT_IDLE_BYTES + PASTEL_SKIN_COST.compressed }, sim: { resident: 16_000_000, compressed: 2_000_000 }, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
-  look: { ...look, materials: { ...look.materials, rock: { ...look.materials.rock, graph: rock } } }, spawn, rows: { ...PASTEL_ROWS, looks: PASTEL_SKIN_LOOKS }, plumbing: parsePlumbing(plumbing), ui: PASTEL_UI,
+  look: { ...look, materials: { ...look.materials, rock: { ...look.materials.rock, graph: rock } } }, spawn, rows: PASTEL_ROWS, plumbing: parsePlumbing(plumbing), ui: PASTEL_UI,
   terrain: terrain.terrain, tiles, files: [...terrain.files, ...props.files, ...PASTEL_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,
   library: [...props.library, ...PASTEL_SKIN_LIBRARY, CLIENT_IDLE_HASH], far: props.far, props: props.props, items: ITEMS, targets: PASTEL_TARGETS, clientScripts: PASTEL_CLIENT_SCRIPTS,
   critical: [...terrain.critical, door.hash, itemModule], water, creatures, encounters: encounters.encounters,

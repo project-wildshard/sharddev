@@ -6,12 +6,13 @@
 import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
+import { templateKitCreatures } from './template-kit-creatures.mjs';
 
 const root = resolve(import.meta.dirname, '../..'), source = resolve(root, 'public/assets/baked/skin-fixture'), project = resolve(root, 'src/shards/_template');
 const rows = JSON.parse(readFileSync(resolve(source, 'skins.json'), 'utf8')), bindings = JSON.parse(readFileSync(resolve(source, 'bindings.json'), 'utf8'));
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex');
 // the template's species ids and the exported skin that draws each (the look ids are the legacy look rows')
-const species = [{ species: 'grey-blob', look: 'template.look.greyBlob', skin: 'grey-blob' }, { species: 'boar', look: 'template.look.boar', skin: 'boar' }];
+const species = [{ species: 'grey-blob', look: 'template.look.greyBlob', skin: 'grey-blob' }];
 mkdirSync(resolve(project, 'assets'), { recursive: true });
 const out = species.map(({ species: id, look, skin }) => {
   const { motion: _motion, materialNote: _note, ...row } = rows.find((entry) => entry.id === skin) ?? {};
@@ -34,3 +35,5 @@ const path = resolve(project, 'data/skins.json'), made = new Set(out.map((entry)
 const kept = (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : []).filter((entry) => !made.has(entry.species));
 writeFileSync(path, `${JSON.stringify([...out, ...kept], null, 2)}\n`);
 console.info(`template skins: ${out.map((entry) => `${entry.species} ${entry.skin.slice(0, 8)}`).join(', ')}${kept.length === 0 ? '' : `; kept ${kept.map((entry) => entry.species).join(', ')}`}`);
+
+templateKitCreatures();

@@ -8,14 +8,16 @@ function declaredTemperament(source: Shardfile, row: SpeciesRow, preset: Creatur
   const spawns = source.creatures.spawns.filter(spawn => spawn.species === row.id);
   if (spawns.length === 0) return preset;
   const ids = new Set(spawns.map(spawn => spawn.brain));
-  if (ids.size !== 1) throw new Error(`species \`${row.id}\` uses several spawn brains: declare its temperament explicitly`);
   const reference = (brain: string): CreatureTemperament => {
     const result = { ...preset, brain };
     delete result.tuning;
     return result;
   };
+  // Several explicit spawn policies have no species-wide owner; preserve each declaration unchanged.
+  if (ids.size !== 1) return reference('none');
   const [id] = ids;
   if (id === null) return reference('none');
+  if (source.creatures.groups.some(group => group.id === id)) return reference('none');
   const brain = source.creatures.brains.find(entry => entry.id === id);
   if (brain === undefined) throw new Error(`species \`${row.id}\` has an unknown spawn brain`);
   // Existing spawn policies remain their exact declarations; the layer references the admitted policy by id.

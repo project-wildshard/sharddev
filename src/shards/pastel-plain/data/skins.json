@@ -34,33 +34,34 @@
   {
     "species": "boar",
     "look": "pastel.look.boar",
-    "skin": "bfa4dfc9c18979f904557ee8deab0058b8a399be10266f5fb1578b403f482fd4",
-    "glb": "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6",
+    "skin": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e",
+    "glb": "880cc1f436542a66a488c6046e69135307c67171effe34f828dcd305274039e4",
     "files": [
       {
-        "hash": "bfa4dfc9c18979f904557ee8deab0058b8a399be10266f5fb1578b403f482fd4",
+        "hash": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e",
         "kind": "json",
-        "compressed": 349221,
-        "decoded": 698442,
+        "compressed": 349256,
+        "decoded": 698512,
         "gpu": 0,
         "triangles": 0,
         "draws": 0,
         "dependencies": [
-          "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6"
+          "880cc1f436542a66a488c6046e69135307c67171effe34f828dcd305274039e4"
         ],
         "critical": false
       },
       {
-        "hash": "b4fbde0422e125b498c3dc8b9a5cc2516c8598f09e9d0e5f6b639b32f98179e6",
+        "hash": "880cc1f436542a66a488c6046e69135307c67171effe34f828dcd305274039e4",
         "kind": "glb",
-        "compressed": 486444,
-        "decoded": 1668238,
-        "gpu": 381444,
+        "compressed": 355400,
+        "decoded": 1754390,
+        "gpu": 222028,
         "triangles": 1164,
         "draws": 2,
         "dependencies": [],
         "critical": false
       }
-    ]
+    ],
+    "kit": "@wildshard/kit/content/animated/boar/toon/boar.glb"
   }
 ]

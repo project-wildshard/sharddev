@@ -65,7 +65,9 @@ test('expansion preserves exact explicit spawn policies, authored senses and pre
     phases: [{ at: 1, name: 'Phase', caption: 'Phase', speed: 0, stopDistance: 1, turnRate: 1 }] }];
   expect(expandCreatureLayers(source, () => undefined).rows.species[0]?.temperament?.brain).toBe('none');
   source.creatures.spawns.push({ ...spawn, id: 'fixture.other', brain: 'my-pursuit' });
-  expect(() => expandCreatureLayers(source, () => undefined)).toThrow('declare its temperament explicitly');
+  const mixed = expandCreatureLayers(source, () => undefined);
+  expect(mixed.rows.species[0]?.temperament?.brain).toBe('none');
+  expect(mixed.creatures).toEqual(source.creatures);
 });
 
 test('the real build emits explicit layers and check names a missing custom temperament', async () => {
@@ -127,4 +129,17 @@ test('normal check names a missing look and explicit body looks must belong to t
     expect(() => assertCreatureDeclarations(valid.rows)).toThrow('species `fixture.species` has no look');
     delete species.body; assertCreatureDeclarations(valid.rows);
   } finally { warnings.mockRestore(); rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('a source group remains the only controller when the compatibility layer is added', () => {
+  const source = fixture();
+  source.creatures = { brains: [], spawns: [{ id: 'fixture.actor', species: 'fixture.species', variant: 'plain', brain: 'fixture.herd', strike: null,
+    seed: 1, scale: 1, at: [0, 0, 0], yaw: 0 }], groups: [{ id: 'fixture.herd', kind: 'herd', members: ['fixture.actor'], thinkDivisor: 6,
+    walkSpeed: 1, trotSpeed: 3, gallopSpeed: 7, chargeSpeed: 6, sightRadius: 30, grazingSightRadius: 12, coneAngle: 1, hearing: [1, 2, 4, 8],
+    alertThreshold: 0.4, flightMinDistance: 20, flightMaxDistance: 35, stallionVariant: 'plain', foalPrefix: 'kid', snortCue: 'snort', neighCue: 'neigh', squealCue: 'squeal' }] };
+  const expanded = expandCreatureLayers(source, () => undefined);
+  expect(expanded.rows.species[0]?.temperament?.brain).toBe('none');
+  expect(expanded.rows.species[0]?.temperament?.tuning).toBeUndefined();
+  expect(expanded.creatures).toEqual(source.creatures);
 });
