@@ -9,7 +9,13 @@ import {
   CHARGE_BLEND,
 } from './starterMoves.ts'
 
-import type { MeleeProfile } from './meleeTypes.ts'
+import type { MeleeProfile as AuthoredMeleeProfile } from './meleeProfile.ts'
+
+type MeleeProfile = AuthoredMeleeProfile<
+  'sword',
+  'sword' | 'sword-iron',
+  'melee'
+>
 
 type EquipmentRow = Pick<
   MeleeProfile,

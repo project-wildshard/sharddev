@@ -7,10 +7,10 @@ import {
   bakeCommonBody,
   commonBodyVariants,
   type CommonBodyKind,
-} from './common.ts'
-import { withBodyGeometry } from './loft.ts'
-
-import type { AnimalDims, BoneDef } from './types.ts'
+  withBodyGeometry,
+  type AnimalDims,
+  type BoneDef,
+} from './species.ts'
 
 /** Plain metadata beside a body GLB. Animation/admission bindings are separate content. */
 export interface BodyExport {

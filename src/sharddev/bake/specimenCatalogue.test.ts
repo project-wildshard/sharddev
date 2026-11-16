@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { parse } from 'valibot';
 import { PickupCatalogueSchema } from '@wildshard/format/specimenCatalogue';
 import original from '@wildshard/engine/game/data/pickupCatalogue' with { type: 'json' };
-import { sharedPickupCatalogue } from './specimenCatalogue';
+import { sharedPickupCatalogue } from '@wildshard/kit/bake/specimenCatalogue';
 
 test('offline pickup metadata preserves the complete shared catalogue', () => {
   expect(sharedPickupCatalogue()).toEqual(parse(PickupCatalogueSchema, original));

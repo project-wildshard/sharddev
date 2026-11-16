@@ -58,7 +58,7 @@ preserve current bytes; OF3 supplies the layered species and GLB body assets.
 
 ## Body builders
 
-`@wildshard/kit/geometry/common` exports `bakeCommonBody`,
+`@wildshard/kit/bake/species` exports `bakeCommonBody`,
 `commonBodyVariants`, `BOAR_LOOK`, `BEAR_LOOK` and `withBodyGeometry`.
 The builders use the SDK random/noise exports and Three geometry types;
 the kit contains no engine import. The SDK is a peer during its package
@@ -66,7 +66,7 @@ split. Runtime pages read the built content copied into the shard file.
 
 ```ts
 import { Rng } from '@wildshard/sdk/random'
-import { bakeCommonBody, commonBodyVariants, withBodyGeometry } from '@wildshard/kit/geometry/common'
+import { bakeCommonBody, commonBodyVariants, withBodyGeometry } from '@wildshard/kit/bake/species'
 
 const variant = commonBodyVariants('boar')[0]
 if (variant === undefined) throw new Error('No boar variant')
@@ -79,8 +79,7 @@ const baked = withBodyGeometry(false, {}, () =>
 shape and shag context on return or failure. The PBR and low-poly builders
 preserve every original typed channel, bone, dimension and random draw
 across all eleven variants. SDK's loft helpers now live in
-`@wildshard/kit/geometry/loft`; structural body types live in
-`@wildshard/kit/geometry/types`. The package exports each defining module.
+`@wildshard/kit/bake/species`, alongside their structural body types. The package exports each defining module.
 
 ## Plain body files
 
@@ -109,3 +108,15 @@ plain JSON in `content/shared`.
 The SDK's corresponding helpers now consume these kit modules. Portable
 math belongs to the SDK library at `@wildshard/sdk/math/portableMath`.
 The practice course is parked and remains outside this kit release.
+
+## Module migration
+
+The six defining modules now belong to kit: `bake/species`,
+`bake/riderArms`, `bake/specimenCatalogue`, `bake/nativeInteractionFacts`,
+`weapons/meleeProfile` and `weapons/bowProfile`. SDK no longer exports
+these paths. Their original numeric, pose and data values are preserved.
+
+`MeleeProfile<Icon, Slot, Touch>` lets a host specialize its UI vocabulary
+at its adapter without importing that host into kit. The default names
+are author strings; the starter sword keeps its concrete names. Host
+specialization retains the complete prior weapon type contract.

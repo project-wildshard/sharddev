@@ -6,7 +6,7 @@ import type {
   MeleeKey as Key,
   MeleeMove as Move,
   MeleeMoveSet,
-} from './meleeTypes.ts'
+} from './meleeProfile.ts'
 
 type SweptBladeRig = MeleeMoveSet & {
   chargeBlend: number

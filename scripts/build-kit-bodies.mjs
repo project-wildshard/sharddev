@@ -5,7 +5,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { exportCommonBody } from '@wildshard/kit/geometry/export';
-import { commonBodyVariants, BOAR_LOOK, BEAR_LOOK } from '@wildshard/kit/geometry/common';
+import { commonBodyVariants, BOAR_LOOK, BEAR_LOOK } from '@wildshard/kit/bake/species';
 
 const root = fileURLToPath(new URL('../packages/kit/content/creatures/', import.meta.url));
 const check = process.argv.includes('--check');

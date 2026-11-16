@@ -6,10 +6,7 @@ import { loft as nativeLoft, skinPlain as nativeSkin, S as nativeStation, isLowP
 import { BEAR_LOOK } from '@wildshard/engine/game/systems/species/view/bear';
 import { BOAR_LOOK } from '@wildshard/engine/game/systems/species/view/boar';
 import type { AnimalDims as NativeDims, AnimalSpecies as NativeBody, BoneDef as NativeBone } from '@wildshard/engine/entities/species/registry';
-import { bakeCommonBody, commonBodyVariants, withBodyGeometry } from '@wildshard/kit/geometry/common';
-import { loft, skinPlain, S, type Paint } from '@wildshard/kit/geometry/loft';
-import type { AnimalDims, AnimalSpecies, BoneDef } from '@wildshard/kit/geometry/types';
-import { withSpeciesGeometry } from './species';
+import { bakeCommonBody, commonBodyVariants, withBodyGeometry,loft,skinPlain,S,type Paint,withSpeciesGeometry, type AnimalDims, type AnimalSpecies, type BoneDef } from '@wildshard/kit/bake/species';
 
 test('owned species geometry types retain the complete native data contract', () => {
   expectTypeOf<AnimalDims>().toEqualTypeOf<NativeDims>();

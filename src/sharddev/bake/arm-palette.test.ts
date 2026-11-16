@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { armPalette } from '@wildshard/engine/player/firstPersonArms';
 import { lin } from '@wildshard/engine/math/color';
-import { bakeArmColour, bakeArmPalette, type bakeGloveFist } from './riderArms';
+import { bakeArmColour, bakeArmPalette, type bakeGloveFist } from '@wildshard/kit/bake/riderArms';
 
 const style: Parameters<typeof bakeGloveFist>[0] = {
   leather: 0x785534, leatherLight: 0x887455, leatherDark: 0x291808, leatherEdge: 0x9a8877,

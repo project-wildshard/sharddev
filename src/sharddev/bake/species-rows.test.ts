@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { deriveSpecies } from '@wildshard/engine/ai/species';
 import { BOAR } from '@wildshard/engine/game/systems/species/boar';
 import { BEAR } from '@wildshard/engine/game/systems/species/bear';
-import { bakeSpecies, commonSpeciesRows, deriveSpeciesRows } from './species';
+import { bakeSpecies, commonSpeciesRows, deriveSpeciesRows } from '@wildshard/kit/bake/species';
 
 test('shared author species preserve every original gameplay field and ordered variant', () => {
   expect(commonSpeciesRows('boar', 'author.boar')).toEqual(bakeSpecies(BOAR, 'author.boar'));

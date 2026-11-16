@@ -6,12 +6,12 @@ import STARTER_BOW from '@wildshard/engine/game/weapons/starterBow.json' with { 
 import PICKUPS from '@wildshard/engine/game/data/pickupCatalogue' with { type: 'json' };
 import { TREE_SPECS } from '@wildshard/engine/world/forest/treeSpec';
 import { BARREL_BODY } from '@wildshard/engine/world/interact/barrel';
-import { sharedMeleeAuthorBase } from '../weapons/meleeProfile';
-import { sharedBowAuthorBase } from '../weapons/bowProfile';
-import { sharedPickupCatalogue } from './specimenCatalogue';
+import { sharedMeleeAuthorBase } from '@wildshard/kit/weapons/meleeProfile';
+import { sharedBowAuthorBase } from '@wildshard/kit/weapons/bowProfile';
+import { sharedPickupCatalogue } from '@wildshard/kit/bake/specimenCatalogue';
 import { forestDefaultTreeSpecs } from './forest';
-import { puzzleBarrelBody } from './nativeInteractionFacts';
-import { bakeGloveFist, bakeRiderArm, bakeForearm } from './riderArms';
+import { puzzleBarrelBody } from '@wildshard/kit/bake/nativeInteractionFacts';
+import { bakeGloveFist, bakeRiderArm, bakeForearm } from '@wildshard/kit/bake/riderArms';
 
 const style: Parameters<typeof gloveFist>[0] = {
   leather: 0x785534, leatherLight: 0x887455, leatherDark: 0x291808, leatherEdge: 0x9a8877,

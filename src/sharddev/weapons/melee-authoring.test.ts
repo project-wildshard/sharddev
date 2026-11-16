@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { key } from '@wildshard/engine/game/weapons/starterMoves';
 import { lin } from '@wildshard/engine/math/color';
 import { Rng } from '../random';
-import { meleeKey, meleeColour } from './meleeProfile';
+import { meleeKey, meleeColour } from '@wildshard/kit/weapons/meleeProfile';
 
 test('author melee keys retain every original quaternion and position component', () => {
   const rng = new Rng(412);

@@ -1,7 +1,7 @@
 export { abilities } from './abilities.ts'
 export { biped, quadruped } from './body.ts'
 export { temperament } from './temperament.ts'
-export { commonSpeciesRows } from './species.ts'
+export { commonSpeciesRows } from './geometry/species.ts'
 
 export type {
   AbilityHelper,
@@ -10,7 +10,7 @@ export type {
   AbilityTemplate,
 } from './abilities.ts'
 export type { BodyOptions } from './body.ts'
-export type { CommonSpeciesKind } from './species.ts'
+export type { CommonSpeciesKind } from './geometry/species.ts'
 export type {
   PresetName,
   TemperamentHelper,

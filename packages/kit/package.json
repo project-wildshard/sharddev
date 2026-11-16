@@ -24,13 +24,18 @@
     "./body": "./src/body.ts",
     "./temperament": "./src/temperament.ts",
     "./abilities": "./src/abilities.ts",
-    "./species": "./src/species.ts",
     "./content/*": "./content/*",
     "./geometry/*": "./src/geometry/*.ts",
     "./arms": "./src/geometry/arms.ts",
     "./sharedSpecs": "./src/geometry/sharedSpecs.ts",
     "./weapons/starterMeleeProfile": "./src/geometry/starterMeleeProfile.ts",
-    "./weapons/starterMoves": "./src/geometry/starterMoves.ts"
+    "./weapons/starterMoves": "./src/geometry/starterMoves.ts",
+    "./bake/species": "./src/geometry/species.ts",
+    "./bake/riderArms": "./src/geometry/riderArms.ts",
+    "./bake/specimenCatalogue": "./src/geometry/specimenCatalogue.ts",
+    "./bake/nativeInteractionFacts": "./src/geometry/nativeInteractionFacts.ts",
+    "./weapons/meleeProfile": "./src/geometry/meleeProfile.ts",
+    "./weapons/bowProfile": "./src/geometry/bowProfile.ts"
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",

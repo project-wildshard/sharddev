@@ -13,9 +13,12 @@ import { prepareGlbCost, parseGlbData } from '@wildshard/shard-format/glbCost'
 import { MeshoptDecoder } from 'meshoptimizer'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
-import { bakeCommonBody, commonBodyVariants } from './common.ts'
 import { exportCommonBody } from './export.ts'
-import { withBodyGeometry } from './loft.ts'
+import {
+  bakeCommonBody,
+  commonBodyVariants,
+  withBodyGeometry,
+} from './species.ts'
 
 const channels = {
   position: 'POSITION',

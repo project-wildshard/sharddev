@@ -11,9 +11,12 @@ import type * as Clips from '@wildshard/sdk/species/clips';
 import type * as Kit from '@wildshard/sdk/kit/bakedGeometry';
 import type * as PhasedBoss from '@wildshard/sdk/phasedBoss';
 import type * as SpeciesBrains from '@wildshard/sdk/speciesBrains';
-import type * as BowProfile from '@wildshard/sdk/weapons/bowProfile';
-import type * as MeleeProfile from '@wildshard/sdk/weapons/meleeProfile';
+import type * as BowProfile from '@wildshard/kit/weapons/bowProfile';
+import type * as MeleeProfile from '@wildshard/kit/weapons/meleeProfile';
+import type { EquipmentIcon, WeaponId, EquipmentTouchMap } from '@wildshard/engine/combat/Equipment';
 import { expectTypeOf, test } from 'vitest';
+
+type HostMeleeProfile = MeleeProfile.MeleeProfile<EquipmentIcon, WeaponId, keyof EquipmentTouchMap>;
 
 test('the SDK clip row types equal the engine animation types', () => {
   expectTypeOf<Clips.ClipClock>().toEqualTypeOf<Animation.ClipClock>();
@@ -52,14 +55,14 @@ test('the SDK species row and brain equal the engine brain types', () => {
   expectTypeOf<SpeciesBrains.BrainedSpecies>().branded.toEqualTypeOf<Brain.BrainedSpecies>();
 });
 
-test('the SDK weapon types equal the engine weapon types', () => {
+test('host-specialized kit weapon types equal the engine weapon types', () => {
   expectTypeOf<BowProfile.BowStyle>().toEqualTypeOf<Bow.BowStyle>();
   expectTypeOf<MeleeProfile.ViewmodelFeel>().toEqualTypeOf<Melee.ViewmodelFeel>();
   // The engine row also carries the host's `pickup` factory (runtime, not author data): every other field is the SDK's.
-  expectTypeOf<MeleeProfile.MeleeProfile>().branded.toEqualTypeOf<Omit<Melee.MeleeProfile, 'pickup'>>();
+  expectTypeOf<HostMeleeProfile>().branded.toEqualTypeOf<Omit<Melee.MeleeProfile, 'pickup'>>();
   // And a profile passes either way: an author's row to the engine, the engine's starter row back to an author. These two
   // assignments are the check; tsc refuses this file when either way breaks.
-  const toEngine = (row: MeleeProfile.MeleeProfile): Melee.MeleeProfile => row;
-  const toAuthor = (row: Melee.MeleeProfile): MeleeProfile.MeleeProfile => row;
+  const toEngine = (row: HostMeleeProfile): Melee.MeleeProfile => row;
+  const toAuthor = (row: Melee.MeleeProfile): HostMeleeProfile => row;
   void [toEngine, toAuthor];
 });
