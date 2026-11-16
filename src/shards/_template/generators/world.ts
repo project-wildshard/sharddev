@@ -112,7 +112,7 @@ export function buildTemplateWorld(ctx: TemplateWorldPorts, propCount: number): 
     colliders: [BoxCollider.fromData({ kind: 'box', x: layout.HUT.x, y: (y + 2.5 + y) / 2, z: layout.HUT.doorZ, hx: 0.9, hy: Math.max(0.005, (y + 2.5 - y) / 2), hz: 0.1, yaw: -0, surface: 'wood' }).toColliderData()], active: () => true });
   // Braziers A, B and C on lettered pads where the story puts them (TEMPLATES-CLEANROOM M2, the goldens' composition): A heads
   // the row at the back of the yard, B waits across the moss bridge, C stands by the arena arch. The row's two beacons
-  // (layout.ROW) light with B and C. Unlit until their fields say so.
+  // (layout.ROW) light with C (TC-M4: the B beacon's own draw went to the south gate). Unlit until their fields say so.
   const braziers = new Group(), stands: NonNullable<TemplatePart['colliders']> = [];
   for (const [x, z] of [...layout.BRAZIERS, ...layout.ROW]) {
     if (x === undefined || z === undefined) continue;
@@ -356,6 +356,9 @@ export function yardWalls(heightAt: (x: number, z: number) => number): { object:
         }
       }
     }
+    // TC-M4: the south gate's gap cut the south run from six stones to five. The runs after it keep the moss and ivy
+    // seeds and the coursed-stone numbers they had before the gap, so their tiles bake to the same bytes.
+    if (x0 === YX0 && z0 === YZ0 && z1 === YZ0) { const before = Math.ceil((YX1 - YX0) / 4.2); walls += before - seed; seed = before; }
   }
   return { object: root, colliders };
 }
@@ -485,8 +488,6 @@ export function hutLamp(heightAt: (x: number, z: number) => number): { mesh: Mes
 export function brazierFlame(heightAt: (x: number, z: number) => number, which = 0): Group {
   const flame = new Group(), [x = 0, z = 0] = layout.BRAZIERS[which] ?? [];
   flameCones(flame, x, heightAt(x, z) + 1.5, z);
-  // M2: brazier B's field also lights the row's B beacon at the back of the yard
-  if (which === 1) { const [bx = 0, bz = 0] = layout.ROW[0] ?? []; flameCones(flame, bx, heightAt(bx, bz) + 1.5, bz); }
   return flame;
 }
 /**
@@ -823,9 +824,12 @@ export function rimFlames(heightAt: (x: number, z: number) => number): Group {
     const [x, y, z] = rimBrazier(heightAt, k);
     flameCones(flames, x, y + 0.99, z, 0.8);
   });
-  // M2: brazier C's field also lights the row's C beacon at the back of the yard; M4.10: and brazier C's own bowl
-  const [bx = 0, bz = 0] = layout.ROW[1] ?? [], [cx = 0, cz = 0] = layout.BRAZIERS[2] ?? [];
-  flameCones(flames, bx, heightAt(bx, bz) + 1.5, bz); flameCones(flames, cx, heightAt(cx, cz) + 1.5, cz);
+  // M2: brazier C's field also lights the row's two beacons at the back of the yard; M4.10: and brazier C's own bowl.
+  // TC-M4 (TEMPLATE-E2E): the B beacon lit with brazier B until the south gate came; its flame in brazier B's panel was a
+  // second draw in L0 tile 0/4/3, which the gate's panel now spends (the tile holds 10). Both beacons light as the arena opens.
+  const [cx = 0, cz = 0] = layout.BRAZIERS[2] ?? [];
+  for (const [bx = 0, bz = 0] of layout.ROW) flameCones(flames, bx, heightAt(bx, bz) + 1.5, bz);
+  flameCones(flames, cx, heightAt(cx, cz) + 1.5, cz);
   return flames;
 }
 /**
