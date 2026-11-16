@@ -66,15 +66,37 @@ async function shoot(browser, url, live, after = []) {
       live, { timeout: 180_000, polling: 500 });
     await page.evaluate(() => {
       const w = window.__wildshard.world, camera = w.game.camera;
+      const lampUpdates = new WeakMap();
       if (w.animals) w.animals.calm = true;
       // the camera leaves the player (whose body stands where colliders put it, which this test does not compare): each
       // frame it is set to the shot's eye, one field of view, no viewmodel
       w.freeCamera = true;
       w.game.onLate(() => {
         const eye = window.__ap20Eye;
+        // Sample this static material fixture at one presentation instant.
+        // Capture mode holds the tier's render scale; pause holds scheduled
+        // systems. Water and lamp accumulators need their own explicit sample.
+        let water = 0, lamps = 0;
+        w.game.rootScene.traverse((object) => {
+          if (object.name.startsWith('water:') && object.material?.uniforms?.uTime !== undefined) {
+            object.material.uniforms.uTime.value = 5; water++;
+          }
+          if (object.name === 'look-light-lamps' && typeof object.update === 'function') {
+            let update = lampUpdates.get(object);
+            if (update === undefined) {
+              update = object.update.bind(object); lampUpdates.set(object, update);
+              // The built look updates after late; watch holds the original
+              // callback, so both the property and this late sample are needed.
+              object.update = () => { update(5); };
+            }
+            update(5); lamps++;
+          }
+        });
+        window.__ap20Phases = { water, lamps };
         for (const child of camera.children) child.visible = false;
         if (Math.abs(camera.fov - 72) > 0.01) { camera.fov = 72; camera.updateProjectionMatrix(); }
         if (eye !== undefined) { camera.position.set(eye[0], eye[1], eye[2]); camera.rotation.set(eye[4], eye[3], 0, 'YXZ'); camera.updateMatrixWorld(true); }
+        w.game.app.clock.restore({ version: 1, elapsed: 5, wall: 5, frames: 300, captureFps: 60, paused: true, scale: 1 });
       }, 'ap20.camera');
     });
     // the watch panel's timings and build table change from run to run: they are not the scene
@@ -86,6 +108,8 @@ async function shoot(browser, url, live, after = []) {
       for (const [id, x, z, yaw, pitch] of CAMERAS) {
         await page.evaluate((eye) => { window.__ap20Eye = eye; }, [x, EYE, z, yaw, pitch]);
         await page.waitForTimeout(2500);
+        const phases = await page.evaluate(() => window.__ap20Phases);
+        if (phases === undefined || phases.water < 1 || phases.lamps < 1) throw new Error('Parity scene lacks its controlled water or lamp presentation');
         frames.push({ id, png: await page.screenshot() });
       }
       sets.push(frames);
