@@ -1,0 +1,2146 @@
+{
+  "why": "SF88g (G538/G539/G541/G542): the open-plots source shard emits one output per idea row (scripts/shard-outputs.mjs). The generator and shard.config.ts read idea, name and accent; manifest overrides merge into manifest.json. Each idea's inputs live in public/assets/open-plots/<idea>/. A row's `lookKeys` replaces the shared look key (data/source.json look.keys) for that idea alone (D111: Night Market's violet dusk, its fill 1.4).",
+  "outputs": [
+    {
+      "slug": "open-plot-showcase-template",
+      "idea": "showcase-template",
+      "name": "Showcase Template",
+      "accent": "tangerine",
+      "layout": "showcase-template",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.04,
+              0.3,
+              0.9
+            ],
+            "horizon": [
+              0.7,
+              0.82,
+              0.95
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.86,
+              0.88,
+              0.92
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.95,
+              0.86
+            ],
+            "intensity": 2.5
+          },
+          "ambient": {
+            "sky": [
+              0.72,
+              0.78,
+              0.9
+            ],
+            "ground": [
+              0.86,
+              0.82,
+              0.76
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.44,
+          "maxElevation": 58,
+          "azimuth": 115
+        },
+        "dayOverride": 0.44
+      },
+      "manifest": {
+        "name": "Open Plot · Showcase Template",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: the template's worked example, every shared kit family in a warm orange and cool grey workshop town of canals, gardens and stalls round a clock-and-beacon obelisk.",
+        "bindings": {
+          "accent": "tangerine",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/showcase-template/**",
+          "public/assets/sfx/showcase-template/**"
+        ],
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/showcase-template.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/showcase-template-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/showcase-template-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/showcase-template.jpg",
+            "models": "/src/shards/open-plots/thumbs/showcase-template.jpg",
+            "sets": "/src/shards/open-plots/thumbs/showcase-template.jpg",
+            "practice": "/src/shards/open-plots/thumbs/showcase-template.jpg"
+          }
+        },
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.showcase-template",
+          "score": "score.showcase-template",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-thin-ice",
+      "idea": "thin-ice",
+      "name": "Thin Ice",
+      "accent": "azure",
+      "layout": "thin-ice",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.06,
+              0.42,
+              0.95
+            ],
+            "horizon": [
+              0.72,
+              0.9,
+              1.0
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.78,
+              0.9,
+              1.0
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.98,
+              0.94
+            ],
+            "intensity": 2.5
+          },
+          "ambient": {
+            "sky": [
+              0.74,
+              0.86,
+              1.0
+            ],
+            "ground": [
+              0.9,
+              0.94,
+              0.98
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.08,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.5,
+          "maxElevation": 55,
+          "azimuth": 95
+        },
+        "dayOverride": 0.5
+      },
+      "manifest": {
+        "name": "Open Plot · Thin Ice",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a frozen lake at a pale cyan noon, aqua ice with fishing holes, snowy pines and igloos round a giant ice crystal.",
+        "bindings": {
+          "accent": "azure",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/thin-ice.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/thin-ice-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/thin-ice-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/thin-ice.jpg",
+            "models": "/src/shards/open-plots/thumbs/thin-ice.jpg",
+            "sets": "/src/shards/open-plots/thumbs/thin-ice.jpg",
+            "practice": "/src/shards/open-plots/thumbs/thin-ice.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/thin-ice/**",
+          "public/assets/sfx/thin-ice/**",
+          "public/assets/sfx/mosslight-ruins/ambience-9f3d73f4df4b.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.thin-ice",
+          "score": "score.thin-ice",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-frostline-peaks",
+      "idea": "frostline-peaks",
+      "name": "Frostline Peaks",
+      "accent": "periwinkle",
+      "manifest": {
+        "name": "Open Plot · Frostline Peaks",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "Frostline Peaks: shared-kit template; landmark and theme dressing are unfinished.",
+        "bindings": {
+          "accent": "periwinkle",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/frostline-peaks.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/frostline-peaks-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/frostline-peaks-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/frostline-peaks.jpg",
+            "models": "/src/shards/open-plots/thumbs/frostline-peaks.jpg",
+            "sets": "/src/shards/open-plots/thumbs/frostline-peaks.jpg",
+            "practice": "/src/shards/open-plots/thumbs/frostline-peaks.jpg"
+          }
+        },
+        "pois": [],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.frostline-peaks",
+          "score": "score.frostline-peaks",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/frostline-peaks/**",
+          "public/assets/sfx/frostline-peaks/**"
+        ]
+      },
+      "layout": "frostline-peaks",
+      "scaffold": true,
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.0,
+              0.03,
+              0.3
+            ],
+            "horizon": [
+              0.12,
+              0.3,
+              0.75
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.3,
+              0.48,
+              0.85
+            ],
+            "density": 0,
+            "near": 300,
+            "far": 1400
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.95,
+              0.86
+            ],
+            "intensity": 2.2
+          },
+          "ambient": {
+            "sky": [
+              0.8,
+              0.86,
+              0.97
+            ],
+            "ground": [
+              0.92,
+              0.93,
+              0.95
+            ],
+            "intensity": 2.2
+          }
+        }
+      ],
+      "worldMaterials": {
+        "Paving": "paving",
+        "Kit": "kit",
+        "Glow": "glow",
+        "Pool": "pool",
+        "Landmark": "landmark",
+        "Water": "water",
+        "Poster": "billboard"
+      }
+    },
+    {
+      "slug": "open-plot-ember-forge",
+      "idea": "ember-forge",
+      "name": "Ember Forge",
+      "accent": "ember",
+      "layout": "ember-forge",
+      "water": "lava",
+      "landmarkLight": "dusk",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.004,
+              0.006,
+              0.02
+            ],
+            "horizon": [
+              0.015,
+              0.022,
+              0.055
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.012,
+              0.018,
+              0.04
+            ],
+            "density": 0,
+            "near": 300,
+            "far": 1600
+          },
+          "sun": {
+            "colour": [
+              0.65,
+              0.75,
+              1.0
+            ],
+            "intensity": 2.5
+          },
+          "ambient": {
+            "sky": [
+              0.55,
+              0.62,
+              1.0
+            ],
+            "ground": [
+              0.75,
+              0.4,
+              0.25
+            ],
+            "intensity": 6
+          }
+        }
+      ],
+      "manifest": {
+        "name": "Open Plot · Ember Forge",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a dwarven foundry at deep-blue night, black basalt halls and cold blue lamps round a furnace hall, molten lava the only warm light.",
+        "bindings": {
+          "accent": "ember",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/ember-forge.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/ember-forge-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/ember-forge-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/ember-forge.jpg",
+            "models": "/src/shards/open-plots/thumbs/ember-forge.jpg",
+            "sets": "/src/shards/open-plots/thumbs/ember-forge.jpg",
+            "practice": "/src/shards/open-plots/thumbs/ember-forge.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Ember Forge hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.ember-forge",
+          "score": "score.ember-forge",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/ember-forge/**",
+          "public/assets/sfx/ember-forge/**"
+        ]
+      }
+    },
+    {
+      "slug": "open-plot-lantern-bayou",
+      "idea": "lantern-bayou",
+      "name": "Lantern Bayou",
+      "accent": "marigold",
+      "layout": "lantern-bayou",
+      "landmarkLight": "dusk",
+      "kitGround": "planks",
+      "pool": "streaks",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.05,
+              0.13,
+              0.17
+            ],
+            "horizon": [
+              0.2,
+              0.34,
+              0.36
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.16,
+              0.3,
+              0.32
+            ],
+            "density": 0,
+            "near": 220,
+            "far": 1100
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.84,
+              0.66
+            ],
+            "intensity": 0.9
+          },
+          "ambient": {
+            "sky": [
+              0.42,
+              0.6,
+              0.64
+            ],
+            "ground": [
+              0.22,
+              0.28,
+              0.24
+            ],
+            "intensity": 1.35
+          }
+        }
+      ],
+      "manifest": {
+        "name": "Open Plot · Lantern Bayou",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a stilt-house village on a mirror-dark swamp at blue-green dusk, round a giant moss-draped cypress hung with lanterns.",
+        "bindings": {
+          "accent": "marigold",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/lantern-bayou.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/lantern-bayou-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/lantern-bayou-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/lantern-bayou.jpg",
+            "models": "/src/shards/open-plots/thumbs/lantern-bayou.jpg",
+            "sets": "/src/shards/open-plots/thumbs/lantern-bayou.jpg",
+            "practice": "/src/shards/open-plots/thumbs/lantern-bayou.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Lantern Bayou hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.lantern-bayou",
+          "score": "score.lantern-bayou",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/lantern-bayou/**",
+          "public/assets/sfx/lantern-bayou/**"
+        ]
+      }
+    },
+    {
+      "slug": "open-plot-sky-harbor",
+      "idea": "sky-harbor",
+      "name": "Sky Harbor",
+      "accent": "cornflower",
+      "layout": "sky-harbor",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.0,
+              0.22,
+              0.9
+            ],
+            "horizon": [
+              0.5,
+              0.74,
+              0.96
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.62,
+              0.8,
+              0.98
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.97,
+              0.9
+            ],
+            "intensity": 2.5
+          },
+          "ambient": {
+            "sky": [
+              0.62,
+              0.74,
+              0.92
+            ],
+            "ground": [
+              0.86,
+              0.84,
+              0.8
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.46,
+          "maxElevation": 62,
+          "azimuth": 95
+        },
+        "dayOverride": 0.46
+      },
+      "manifest": {
+        "name": "Open Plot · Sky Harbor",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a bright timber harbour of cornflower basins, rowboats and dock cranes round an airship moored to its tower.",
+        "bindings": {
+          "accent": "cornflower",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/sky-harbor.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/sky-harbor-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/sky-harbor-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/sky-harbor.jpg",
+            "models": "/src/shards/open-plots/thumbs/sky-harbor.jpg",
+            "sets": "/src/shards/open-plots/thumbs/sky-harbor.jpg",
+            "practice": "/src/shards/open-plots/thumbs/sky-harbor.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/sky-harbor/**",
+          "public/assets/sfx/sky-harbor/**",
+          "public/assets/sfx/coral-drift/ambience-86a1a1de8737.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.sky-harbor",
+          "score": "score.sky-harbor",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-coral-drift",
+      "idea": "coral-drift",
+      "name": "Coral Drift",
+      "accent": "coral",
+      "layout": "coral-drift",
+      "landmarkLight": "noon",
+      "water": "lagoon",
+      "kitGround": "planks",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.0,
+              0.15,
+              0.96
+            ],
+            "horizon": [
+              0.06,
+              0.44,
+              0.98
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.24,
+              0.56,
+              0.97
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.98,
+              0.98
+            ],
+            "intensity": 2.6
+          },
+          "ambient": {
+            "sky": [
+              0.6,
+              0.75,
+              0.95
+            ],
+            "ground": [
+              0.88,
+              0.88,
+              0.88
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.5,
+          "maxElevation": 68,
+          "azimuth": 71
+        },
+        "dayOverride": 0.5
+      },
+      "manifest": {
+        "name": "Open Plot · Coral Drift",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a lagoon village at tropical noon, blue-roofed huts on stilts over turquoise pools, palms on white sand, round a giant faceted coral arch.",
+        "bindings": {
+          "accent": "coral",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/coral-drift.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/coral-drift-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/coral-drift-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/coral-drift.jpg",
+            "models": "/src/shards/open-plots/thumbs/coral-drift.jpg",
+            "sets": "/src/shards/open-plots/thumbs/coral-drift.jpg",
+            "practice": "/src/shards/open-plots/thumbs/coral-drift.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Coral Drift hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.coral-drift",
+          "score": "score.coral-drift",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/coral-drift/**",
+          "public/assets/sfx/coral-drift/**"
+        ]
+      }
+    },
+    {
+      "slug": "open-plot-clockwork-canyon",
+      "idea": "clockwork-canyon",
+      "name": "Clockwork Canyon",
+      "accent": "tangerine",
+      "layout": "clockwork-canyon",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.28,
+              0.6,
+              0.66
+            ],
+            "horizon": [
+              0.74,
+              0.86,
+              0.84
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.66,
+              0.8,
+              0.78
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2000
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.9,
+              0.76
+            ],
+            "intensity": 2.2
+          },
+          "ambient": {
+            "sky": [
+              0.7,
+              0.82,
+              0.82
+            ],
+            "ground": [
+              0.72,
+              0.58,
+              0.52
+            ],
+            "intensity": 1.5
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.08,
+        "contrast": 1.04,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.42,
+          "maxElevation": 52,
+          "azimuth": 120
+        },
+        "dayOverride": 0.42
+      },
+      "manifest": {
+        "name": "Open Plot · Clockwork Canyon",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a brass-and-verdigris works town of pink sandstone terraces, steaming boilers and waterwheels turning in turquoise canals round a great clock tower, under a pale teal steam sky.",
+        "bindings": {
+          "accent": "tangerine",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/clockwork-canyon.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/clockwork-canyon-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/clockwork-canyon-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/clockwork-canyon.jpg",
+            "models": "/src/shards/open-plots/thumbs/clockwork-canyon.jpg",
+            "sets": "/src/shards/open-plots/thumbs/clockwork-canyon.jpg",
+            "practice": "/src/shards/open-plots/thumbs/clockwork-canyon.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Clockwork Canyon hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/clockwork-canyon/**",
+          "public/assets/sfx/clockwork-canyon/**"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.clockwork-canyon",
+          "score": "score.clockwork-canyon",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-starfall-observatory",
+      "idea": "starfall-observatory",
+      "name": "Starfall Observatory",
+      "accent": "iris",
+      "layout": "starfall-observatory",
+      "landmarkLight": "dusk",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.02,
+              0.025,
+              0.16
+            ],
+            "horizon": [
+              0.09,
+              0.12,
+              0.36
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.06,
+              0.08,
+              0.24
+            ],
+            "density": 0,
+            "near": 420,
+            "far": 1800
+          },
+          "sun": {
+            "colour": [
+              0.72,
+              0.8,
+              1
+            ],
+            "intensity": 1.3
+          },
+          "ambient": {
+            "sky": [
+              0.52,
+              0.6,
+              0.92
+            ],
+            "ground": [
+              0.3,
+              0.32,
+              0.42
+            ],
+            "intensity": 1.8
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.05,
+        "contrast": 1.06,
+        "lut": null
+      },
+      "manifest": {
+        "name": "Open Plot · Starfall Observatory",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a white-stone garden town under a deep indigo starry night, blue-roofed houses and lamplit canals round a domed observatory, its telescope trained on the sky.",
+        "bindings": {
+          "accent": "iris",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/starfall-observatory.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/starfall-observatory-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/starfall-observatory-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/starfall-observatory.jpg",
+            "models": "/src/shards/open-plots/thumbs/starfall-observatory.jpg",
+            "sets": "/src/shards/open-plots/thumbs/starfall-observatory.jpg",
+            "practice": "/src/shards/open-plots/thumbs/starfall-observatory.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Starfall Observatory hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/starfall-observatory/**",
+          "public/assets/sfx/starfall-observatory/**",
+          "public/assets/sfx/lantern-bayou/ambience-799970aa04d0.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.starfall-observatory",
+          "score": "score.starfall-observatory",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-mosslight-ruins",
+      "idea": "mosslight-ruins",
+      "name": "Mosslight Ruins",
+      "accent": "moss",
+      "layout": "mosslight-ruins",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.045,
+              0.07,
+              0.075
+            ],
+            "horizon": [
+              0.15,
+              0.22,
+              0.23
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.13,
+              0.19,
+              0.2
+            ],
+            "density": 0,
+            "near": 300,
+            "far": 1700
+          },
+          "sun": {
+            "colour": [
+              0.95,
+              1.0,
+              0.92
+            ],
+            "intensity": 2.2
+          },
+          "ambient": {
+            "sky": [
+              0.75,
+              0.88,
+              0.8
+            ],
+            "ground": [
+              0.45,
+              0.5,
+              0.38
+            ],
+            "intensity": 3
+          }
+        }
+      ],
+      "manifest": {
+        "name": "Open Plot · Mosslight Ruins",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a ruined stone city under a grey-green overcast, ivy on every arch, emerald pools glowing round a broken moss-lit tower.",
+        "bindings": {
+          "accent": "moss",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/mosslight-ruins.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/mosslight-ruins-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/mosslight-ruins-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/mosslight-ruins.jpg",
+            "models": "/src/shards/open-plots/thumbs/mosslight-ruins.jpg",
+            "sets": "/src/shards/open-plots/thumbs/mosslight-ruins.jpg",
+            "practice": "/src/shards/open-plots/thumbs/mosslight-ruins.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Mosslight Ruins hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.mosslight-ruins",
+          "score": "score.mosslight-ruins",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/mosslight-ruins/**",
+          "public/assets/sfx/mosslight-ruins/**"
+        ]
+      }
+    },
+    {
+      "slug": "open-plot-alien-plain",
+      "idea": "alien-plain",
+      "name": "Pastel Alien Plain",
+      "accent": "lilac",
+      "layout": "alien-plain",
+      "landmarkLight": "dusk",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.05,
+              0.02,
+              0.16
+            ],
+            "horizon": [
+              0.2,
+              0.1,
+              0.4
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.14,
+              0.08,
+              0.28
+            ],
+            "density": 0,
+            "near": 420,
+            "far": 1800
+          },
+          "sun": {
+            "colour": [
+              0.78,
+              0.7,
+              1.0
+            ],
+            "intensity": 1.3
+          },
+          "ambient": {
+            "sky": [
+              0.6,
+              0.5,
+              0.95
+            ],
+            "ground": [
+              0.3,
+              0.4,
+              0.3
+            ],
+            "intensity": 1.8
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.06,
+        "lut": null
+      },
+      "manifest": {
+        "name": "Open Plot · Pastel Alien Plain",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a violet colony on an alien plain under a green-violet night, faceted dome habitats and beds of glowing crystals between lime lamps, round a dark monolith split by acid-lime cracks.",
+        "bindings": {
+          "accent": "lilac",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/alien-plain.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/alien-plain-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/alien-plain-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/alien-plain.jpg",
+            "models": "/src/shards/open-plots/thumbs/alien-plain.jpg",
+            "sets": "/src/shards/open-plots/thumbs/alien-plain.jpg",
+            "practice": "/src/shards/open-plots/thumbs/alien-plain.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "hologram",
+            "name": "Pastel Alien Plain hologram",
+            "r": 12,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "billboard",
+            "name": "Billboard",
+            "r": 14,
+            "x": 0,
+            "z": 26
+          }
+        ],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/alien-plain/**",
+          "public/assets/sfx/alien-plain/**",
+          "public/assets/sfx/frostline-peaks/ambience-23fc4ad528b0.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.alien-plain",
+          "score": "score.alien-plain",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-desert-ruin",
+      "idea": "desert-ruin",
+      "name": "Desert Ruin",
+      "accent": "sand",
+      "manifest": {
+        "name": "Open Plot · Desert Ruin",
+        "blurb": "Desert Ruin: a sandstone temple gateway over a paved cross, deep blue oasis pools ringed by palms, blue-awning tents along the avenues and broken ruins round the edge.",
+        "bindings": {
+          "accent": "sand"
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/desert-ruin.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/desert-ruin-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/desert-ruin-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/desert-ruin.jpg",
+            "models": "/src/shards/open-plots/thumbs/desert-ruin.jpg",
+            "sets": "/src/shards/open-plots/thumbs/desert-ruin.jpg",
+            "practice": "/src/shards/open-plots/thumbs/desert-ruin.jpg"
+          }
+        },
+        "pois": [],
+        "shardSelect": false,
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.desert-ruin",
+          "score": "score.desert-ruin",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/desert-ruin/**",
+          "public/assets/sfx/desert-ruin/**"
+        ]
+      },
+      "layout": "desert-ruin",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "water": "lagoon",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.05,
+              0.3,
+              0.78
+            ],
+            "horizon": [
+              0.86,
+              0.84,
+              0.74
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.9,
+              0.86,
+              0.74
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2400
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.96,
+              0.84
+            ],
+            "intensity": 2.8
+          },
+          "ambient": {
+            "sky": [
+              0.62,
+              0.74,
+              0.92
+            ],
+            "ground": [
+              0.86,
+              0.76,
+              0.56
+            ],
+            "intensity": 1.5
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.08,
+        "contrast": 1.06,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.5,
+          "maxElevation": 72,
+          "azimuth": 71
+        },
+        "dayOverride": 0.5
+      }
+    },
+    {
+      "slug": "open-plot-night-market",
+      "idea": "night-market",
+      "name": "Night Market",
+      "accent": "pink",
+      "manifest": {
+        "name": "Night Market · Open Plot Pilot",
+        "status": "experimental",
+        "shardSelect": false,
+        "blurb": "The open-plot pilot (G633): a Night Market of house courts, canals, stall rows and gardens round a pagoda gate, a world still to be built.",
+        "bindings": {
+          "accent": "pink",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/night-market.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/night-market-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/night-market-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/night-market.jpg",
+            "models": "/src/shards/open-plots/thumbs/night-market.jpg",
+            "sets": "/src/shards/open-plots/thumbs/night-market.jpg",
+            "practice": "/src/shards/open-plots/thumbs/night-market.jpg"
+          }
+        },
+        "pois": [
+          {
+            "id": "gate",
+            "name": "Pagoda gate",
+            "r": 22,
+            "x": 0,
+            "z": 0
+          },
+          {
+            "id": "plaza-poster",
+            "name": "Plaza poster",
+            "r": 12,
+            "x": -22,
+            "z": -40
+          },
+          {
+            "id": "north-poster",
+            "name": "North entry poster",
+            "r": 8,
+            "x": -12.5,
+            "z": 247
+          },
+          {
+            "id": "south-poster",
+            "name": "South entry poster",
+            "r": 8,
+            "x": 12.5,
+            "z": -247
+          },
+          {
+            "id": "west-poster",
+            "name": "West entry poster",
+            "r": 8,
+            "x": 247,
+            "z": 12.5
+          },
+          {
+            "id": "east-poster",
+            "name": "East entry poster",
+            "r": 8,
+            "x": -247,
+            "z": -12.5
+          }
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.night-market",
+          "score": "score.night-market",
+          "bed": "none"
+        },
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/night-market/**",
+          "public/assets/sfx/night-market/**"
+        ]
+      },
+      "layout": "night-market",
+      "landmarkLight": "crimson",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.06,
+              0.05,
+              0.62
+            ],
+            "horizon": [
+              1,
+              0.3,
+              0.26
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.95,
+              0.3,
+              0.3
+            ],
+            "density": 0,
+            "near": 600,
+            "far": 1800
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.82,
+              0.68
+            ],
+            "intensity": 1.5
+          },
+          "ambient": {
+            "sky": [
+              0.66,
+              0.62,
+              0.86
+            ],
+            "ground": [
+              0.55,
+              0.36,
+              0.24
+            ],
+            "intensity": 1.4
+          }
+        }
+      ]
+    },
+    {
+      "slug": "open-plot-sky-race",
+      "idea": "sky-race",
+      "name": "Floating Island Race",
+      "accent": "mint",
+      "layout": "sky-race",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.0,
+              0.16,
+              0.88
+            ],
+            "horizon": [
+              0.36,
+              0.62,
+              0.98
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.5,
+              0.7,
+              1.0
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.98,
+              0.94
+            ],
+            "intensity": 2.6
+          },
+          "ambient": {
+            "sky": [
+              0.6,
+              0.72,
+              0.95
+            ],
+            "ground": [
+              0.84,
+              0.84,
+              0.86
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.12,
+        "contrast": 1.06,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.5,
+          "maxElevation": 66,
+          "azimuth": 95
+        },
+        "dayOverride": 0.5
+      },
+      "manifest": {
+        "name": "Open Plot · Floating Island Race",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a race circuit at a cobalt high noon, kart loops with red-and-white kerbs, grandstands, paddocks of race cars and pit garages round the race tower and its start arch.",
+        "bindings": {
+          "accent": "mint",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/sky-race/**",
+          "public/assets/sfx/sky-race/**"
+        ],
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/sky-race.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/sky-race-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/sky-race-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/sky-race.jpg",
+            "models": "/src/shards/open-plots/thumbs/sky-race.jpg",
+            "sets": "/src/shards/open-plots/thumbs/sky-race.jpg",
+            "practice": "/src/shards/open-plots/thumbs/sky-race.jpg"
+          }
+        },
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.sky-race",
+          "score": "score.sky-race",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-fossil-badlands",
+      "idea": "fossil-badlands",
+      "name": "Fossil Badlands",
+      "accent": "apricot",
+      "layout": "fossil-badlands",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.16,
+              0.14,
+              0.52
+            ],
+            "horizon": [
+              0.92,
+              0.56,
+              0.66
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.62,
+              0.5,
+              0.72
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2000
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.74,
+              0.62
+            ],
+            "intensity": 1.2
+          },
+          "ambient": {
+            "sky": [
+              0.66,
+              0.6,
+              0.9
+            ],
+            "ground": [
+              0.6,
+              0.42,
+              0.4
+            ],
+            "intensity": 1.45
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.08,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "manifest": {
+        "name": "Open Plot · Fossil Badlands",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a palaeontology dig in oxblood and mustard badlands at the lavender blue hour, roped trenches, hand cranes and canvas camps round a giant skeleton.",
+        "bindings": {
+          "accent": "apricot",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/fossil-badlands.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/fossil-badlands-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/fossil-badlands-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/fossil-badlands.jpg",
+            "models": "/src/shards/open-plots/thumbs/fossil-badlands.jpg",
+            "sets": "/src/shards/open-plots/thumbs/fossil-badlands.jpg",
+            "practice": "/src/shards/open-plots/thumbs/fossil-badlands.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/fossil-badlands/**",
+          "public/assets/sfx/fossil-badlands/**",
+          "public/assets/sfx/night-market/ambience-1c3c9230fa9b.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.fossil-badlands",
+          "score": "score.fossil-badlands",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-patchwork-fairground",
+      "idea": "patchwork-fairground",
+      "name": "Patchwork Fairground",
+      "accent": "citron",
+      "layout": "patchwork-fairground",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.05,
+              0.3,
+              0.92
+            ],
+            "horizon": [
+              0.72,
+              0.8,
+              0.9
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.98,
+              0.86,
+              0.6
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.94,
+              0.82
+            ],
+            "intensity": 2.4
+          },
+          "ambient": {
+            "sky": [
+              0.74,
+              0.76,
+              0.84
+            ],
+            "ground": [
+              0.86,
+              0.8,
+              0.68
+            ],
+            "intensity": 1.5
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.38,
+          "maxElevation": 56,
+          "azimuth": 115
+        },
+        "dayOverride": 0.38
+      },
+      "manifest": {
+        "name": "Open Plot · Patchwork Fairground",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a toy-box travelling fair on a quilt of square fields under a buttermilk morning, carousels and striped big tops round a giant Ferris wheel.",
+        "bindings": {
+          "accent": "citron",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/patchwork-fairground.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/patchwork-fairground-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/patchwork-fairground-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/patchwork-fairground.jpg",
+            "models": "/src/shards/open-plots/thumbs/patchwork-fairground.jpg",
+            "sets": "/src/shards/open-plots/thumbs/patchwork-fairground.jpg",
+            "practice": "/src/shards/open-plots/thumbs/patchwork-fairground.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/patchwork-fairground/**",
+          "public/assets/sfx/patchwork-fairground/**"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.patchwork-fairground",
+          "score": "score.patchwork-fairground",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-saltwind-lighthouse",
+      "idea": "saltwind-lighthouse",
+      "name": "Saltwind Lighthouse",
+      "accent": "rose",
+      "layout": "saltwind-lighthouse",
+      "landmarkLight": "dusk",
+      "coarseLandmark": "lit",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.055,
+              0.065,
+              0.075
+            ],
+            "horizon": [
+              0.24,
+              0.27,
+              0.29
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.15,
+              0.17,
+              0.18
+            ],
+            "density": 0,
+            "near": 220,
+            "far": 1400
+          },
+          "sun": {
+            "colour": [
+              0.86,
+              0.92,
+              1
+            ],
+            "intensity": 1.4
+          },
+          "ambient": {
+            "sky": [
+              0.62,
+              0.7,
+              0.76
+            ],
+            "ground": [
+              0.3,
+              0.32,
+              0.33
+            ],
+            "intensity": 2.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 0.9,
+        "contrast": 1.08,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.7,
+          "maxElevation": 30,
+          "azimuth": -110
+        },
+        "dayOverride": 0.7
+      },
+      "manifest": {
+        "name": "Open Plot · Saltwind Lighthouse",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a northern fishing harbour on black basalt in a passing squall, whitewashed cottages round slate-green basins and moored boats, one red-banded lighthouse at its heart.",
+        "bindings": {
+          "accent": "rose",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/saltwind-lighthouse.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/saltwind-lighthouse-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/saltwind-lighthouse-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/saltwind-lighthouse.jpg",
+            "models": "/src/shards/open-plots/thumbs/saltwind-lighthouse.jpg",
+            "sets": "/src/shards/open-plots/thumbs/saltwind-lighthouse.jpg",
+            "practice": "/src/shards/open-plots/thumbs/saltwind-lighthouse.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/saltwind-lighthouse/**",
+          "public/assets/sfx/saltwind-lighthouse/**",
+          "public/assets/sfx/coral-drift/ambience-86a1a1de8737.m4a"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.saltwind-lighthouse",
+          "score": "score.saltwind-lighthouse",
+          "bed": "none"
+        }
+      }
+    },
+    {
+      "slug": "open-plot-jungle-ziggurat",
+      "idea": "jungle-ziggurat",
+      "name": "Jungle Ziggurat",
+      "accent": "jade",
+      "layout": "jungle-ziggurat",
+      "landmarkLight": "noon",
+      "coarseLandmark": "lit",
+      "water": "lagoon",
+      "lookKeys": [
+        {
+          "time": 0,
+          "sky": {
+            "zenith": [
+              0.0,
+              0.2,
+              0.62
+            ],
+            "horizon": [
+              0.52,
+              0.76,
+              0.9
+            ]
+          },
+          "fog": {
+            "colour": [
+              0.5,
+              0.72,
+              0.86
+            ],
+            "density": 0,
+            "near": 500,
+            "far": 2200
+          },
+          "sun": {
+            "colour": [
+              1,
+              0.95,
+              0.86
+            ],
+            "intensity": 2.4
+          },
+          "ambient": {
+            "sky": [
+              0.55,
+              0.75,
+              0.8
+            ],
+            "ground": [
+              0.6,
+              0.7,
+              0.5
+            ],
+            "intensity": 1.6
+          }
+        }
+      ],
+      "lookGrade": {
+        "exposure": 0,
+        "saturation": 1.1,
+        "contrast": 1.05,
+        "lut": null
+      },
+      "lookDay": {
+        "day": {
+          "minutes": 12,
+          "start": 0.6,
+          "maxElevation": 58,
+          "azimuth": 71
+        },
+        "dayOverride": 0.6
+      },
+      "manifest": {
+        "name": "Open Plot · Jungle Ziggurat",
+        "status": "earlyAccess",
+        "shardSelect": false,
+        "blurb": "An open plot of the grid: a freshly painted temple town after a tropical rain, jade pools fed by stepped waterfalls, thatched stilt houses and painted steles round a cinnabar step pyramid.",
+        "bindings": {
+          "accent": "jade",
+          "boot": {
+            "files": {
+              "module": "./data/nightMarketBootFiles.json",
+              "export": "default"
+            },
+            "sources": {
+              "module": "./data/nightMarketBootSources.json",
+              "export": "default"
+            }
+          }
+        },
+        "card": {
+          "thumb": "/src/shards/open-plots/thumbs/jungle-ziggurat.jpg",
+          "portrait": "/src/shards/open-plots/thumbs/jungle-ziggurat-portrait.jpg",
+          "landscape": "/src/shards/open-plots/thumbs/jungle-ziggurat-landscape.jpg"
+        },
+        "explore": {
+          "art": {
+            "world": "/src/shards/open-plots/thumbs/jungle-ziggurat.jpg",
+            "models": "/src/shards/open-plots/thumbs/jungle-ziggurat.jpg",
+            "sets": "/src/shards/open-plots/thumbs/jungle-ziggurat.jpg",
+            "practice": "/src/shards/open-plots/thumbs/jungle-ziggurat.jpg"
+          }
+        },
+        "pois": [],
+        "assetGlobs": [
+          "public/assets/open-plots/**",
+          "public/assets/music/jungle-ziggurat/**",
+          "public/assets/sfx/jungle-ziggurat/**"
+        ],
+        "audio": {
+          "catalogue": true,
+          "ambience": "ambience.jungle-ziggurat",
+          "score": "score.jungle-ziggurat",
+          "bed": "none"
+        }
+      }
+    }
+  ]
+}

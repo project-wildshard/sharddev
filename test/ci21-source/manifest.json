@@ -53,6 +53,30 @@
       },
       "localTypedLint": "Actual type-aware Oxlint with complete inherited source compiler project: pass.",
       "subjectPath": "scripts/check-model-sources.mjs"
+    },
+    {
+      "sourcePath": "test/discovery-output-placement.test.mjs",
+      "targetPath": "test/ci21-source/discovery-output-placement.source.ts",
+      "sourceRevision": "8f0e3ab7aac0833f448b3dea32764f870a9aec34",
+      "sourceBlob": "49c4645f67ad117bfd06db4f43cd2f0eac928bc3",
+      "originalTests": [
+        "ungrandfathered discoveries leave src while reviewed paths and authored factories remain unchanged",
+        "relative static and lazy imports move, authored data that resembles an import remains exact",
+        "all four actual NU3 wrappers keep complete code, manifest rows and physical dependency graphs",
+        "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
+        "the normal push metadata writer emits complete relocated wrappers without a product build"
+      ],
+      "changes": "All five original cases and four actual NU3 rows retained. Public engine and owning SDK imports, type annotations, one relocated native fixture path. The retired engine generation catalogue assertion reads actual SDK pushTables output paths instead; actual wrappers, physical import graph, source refusal, relocation and byte-identical no-build metadata publication remain checked. Frozen actual source/data/card/policy/native witnesses have recorded hashes; no invented plot content.",
+      "fixtureProvenance": "test/fixtures/ci21-nu3/provenance.json",
+      "state": "source qualification; no engine removal yet",
+      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
+      "localRuntime": {
+        "cohortFiles": 3,
+        "cohortCases": 21,
+        "cohortSeconds": 3.05,
+        "result": "pass"
+      },
+      "fullAuthorCompiler": "Complete inherited real author project plus all three source ports: pass against immutable8762a373."
     }
   ]
 }

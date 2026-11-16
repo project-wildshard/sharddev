@@ -1,0 +1,28 @@
+{
+  "tiers": {
+    "phone": {
+      "sky": [],
+      "baked": [],
+      "terrain": [],
+      "trees": [],
+      "physics": [],
+      "cabins": [],
+      "props": [],
+      "art": [],
+      "music": [],
+      "sfx": []
+    },
+    "desktop": {
+      "sky": [],
+      "baked": [],
+      "terrain": [],
+      "trees": [],
+      "physics": [],
+      "cabins": [],
+      "props": [],
+      "art": [],
+      "music": [],
+      "sfx": []
+    }
+  }
+}

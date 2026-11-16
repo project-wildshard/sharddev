@@ -1,0 +1,126 @@
+{
+  "repository": "project-wildshard/shard-open-plots",
+  "revision": "e4efc56514f3df9e231ec77300fc5204b2816718",
+  "files": [
+    {
+      "path": "src/shards/open-plots/manifest.json",
+      "sourceBlob": "c0f3e82c4c64ad5b1073ef12169547279db74ad1",
+      "sha256": "82bb718a62d7b9f17853c4c099b35a6f2c1289c23e122735959ac3fc270ce4e8"
+    },
+    {
+      "path": "src/shards/open-plots/outputs.json",
+      "sourceBlob": "a4d85da8dbd602871a527883a65dcfced7adb5b1",
+      "sha256": "16cb373b9afda026b8a8bd204506f7e466cc0081ffee32c84fb596be2e2d827e"
+    },
+    {
+      "path": "src/shards/open-plots/data/budgets.json",
+      "sourceBlob": "daf460fd2d4a0d4341af1b75625c1be9f784d372",
+      "sha256": "6761fe688f520f7deb02bc55361f8a8b2cae96972e78403ecbbd695d75cb77b4"
+    },
+    {
+      "path": "src/shards/open-plots/data/nightMarketBootFiles.json",
+      "sourceBlob": "fe51488c7066f6687ef680d6bfaa4f7768ef205c",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570"
+    },
+    {
+      "path": "src/shards/open-plots/data/nightMarketBootSources.json",
+      "sourceBlob": "359e00e50fe02523b2cff78d2c5225270ee096ca",
+      "sha256": "35d619e92b3537c58afb2fd0fa24a858617162729520b68d38b973ea7cf385ab"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/fossil-badlands.jpg",
+      "sourceBlob": "bdf1756ab50b4d90da4ab66ddcd39de4a0068c50",
+      "sha256": "e33414e0592bdd8c43c99242b72e6406a3f81c2b96a9e424a6bb47ca60799305"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/fossil-badlands-portrait.jpg",
+      "sourceBlob": "537fa860a613462902fa9f4c37b06ecffee7d362",
+      "sha256": "ccdd521b6ef974723f8a5912aef5a5e3198ddc1516a2885d00379a87ae114af1"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/fossil-badlands-landscape.jpg",
+      "sourceBlob": "13c82a327523a0288ca8b46b149ced47acffaf4b",
+      "sha256": "5f4ec6ecd20c6a54c29fc313a62ce651365e10c5b16230d7353d5c4075a9e8b6"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/jungle-ziggurat.jpg",
+      "sourceBlob": "8662d4b8736f591141555bc3fe0c567d71cceef7",
+      "sha256": "7939417e4a2f6de03c55d26a3fd88e831d8f346bef7ea4f8dab4ae780e798c24"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/jungle-ziggurat-portrait.jpg",
+      "sourceBlob": "f331eb3b83d86e21d77681e9255ad4c9d5f40c0c",
+      "sha256": "8f7a3cf512e6d153a6fd87f406b8b96eae4346a91c7e406190a33e95badbc854"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/jungle-ziggurat-landscape.jpg",
+      "sourceBlob": "f4d6e4beaa5e29294e9fa05de8c7cd81a724dfc5",
+      "sha256": "16cb150342baa54353503c8e9a39130dd8d49ff2ce9033bcdb83b657fde78050"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/patchwork-fairground.jpg",
+      "sourceBlob": "585faf7d9cf64c5bd520e6039f16e3a2fcd5c97f",
+      "sha256": "2d0d2b22f53146dbaf59fa55eb0e4360c9dfa5568fa8804b18f85775241aa1ec"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/patchwork-fairground-portrait.jpg",
+      "sourceBlob": "f50fc004ffb853cd0538c0fb16bcf341c78d579c",
+      "sha256": "4a7526859d14332675cc5106c51b604510eacec6171c6384af75a66b0a31045b"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/patchwork-fairground-landscape.jpg",
+      "sourceBlob": "fe9c19bae3728ec61853c9f16655edd845325172",
+      "sha256": "fcfc2619771379a87562bc3bc7c9c9c3d2acd45f74837c9a7a18ca755ae05caa"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/saltwind-lighthouse.jpg",
+      "sourceBlob": "a4b2469f0be7c3bbc3b8e4b7b38995fe06ab889d",
+      "sha256": "4557dbd1b83446ecfe85f9c4b33de1154d4f110d2a85874038a09eeb6b938f4c"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/saltwind-lighthouse-portrait.jpg",
+      "sourceBlob": "75adc793a0f4b79986c9edf9ecec0c6ae8d4558a",
+      "sha256": "ca6a694813102b87f8c90205fe6c09775440ba68c1574847d50d83ee35b46145"
+    },
+    {
+      "path": "src/shards/open-plots/thumbs/saltwind-lighthouse-landscape.jpg",
+      "sourceBlob": "e6e9041a6605e92d115b47b83221c93fa994c2c2",
+      "sha256": "fdc31303cf7b42d8d0732e0b2ef3abce0f639ccad806ad842a53425c8b324a51"
+    },
+    {
+      "path": "src/shards/open-plots/data/map.json",
+      "sourceBlob": "9409fbf162ccaa66a9a083471d0432d956af4e63",
+      "sha256": "b41c3763a56779bb57fbc614d1ac1eec638291b7872ff307cc83943f0e14cfe9"
+    }
+  ],
+  "engineFiles": {
+    "repository": "project-wildshard/engine",
+    "revision": "71c2fe8ae1dfb513eab9175c5297110e8c14bb27",
+    "files": [
+      {
+        "path": "src/game/client/shard/manifest.ts",
+        "sourcePath": "src/client/game/shard/manifest.ts",
+        "sourceBlob": "26229aea9d93a053aeff129e3f60948c6046df4f",
+        "sha256": "a18ccce21edd31847494d4736e0269c6df5c24515b0f9f92b3bf0fd1c3c8ab77"
+      },
+      {
+        "path": "lint/no-binary-json.json",
+        "sourcePath": "lint/no-binary-json.json",
+        "sourceBlob": "4c5691682bd11cc72924a0607bd4dc833ec32e42",
+        "sha256": "e96daf2d1bdf5df0813bac6ae101c7124f230a78486bebb6da5473b75bbc3413"
+      },
+      {
+        "path": "lint/generated-source-debt.json",
+        "sourcePath": "lint/generated-source-debt.json",
+        "sourceBlob": "04df68724fe13b484b7331d7c2436d287f28370e",
+        "sha256": "5d5ce6028c3efed31fffd4ad00a9735e13eae888af38061868c3bfffdd741b19"
+      },
+      {
+        "path": "lint/generated-import-debt.json",
+        "sourcePath": "lint/generated-import-debt.json",
+        "sourceBlob": "d8e4581d5c9669a97f60c2d63a0db52e0de3eaf0",
+        "sha256": "6731e30a563cdaf48280cada854986e8e07c717e79ea2734b1b6ad804a592b7a"
+      }
+    ]
+  }
+}

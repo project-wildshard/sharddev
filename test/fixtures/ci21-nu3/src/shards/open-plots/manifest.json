@@ -1,0 +1,170 @@
+{
+  "api": 1,
+  "assetGlobs": [
+    "public/assets/open-plots/**"
+  ],
+  "atmosphere": {
+    "fogDistDensity": 0,
+    "fogHeight": -20,
+    "fogHeightDensity": 0,
+    "fogHeightFalloff": 0,
+    "volumetricSunColor": [
+      1,
+      1,
+      1
+    ]
+  },
+  "audio": {
+    "ambience": "none",
+    "score": "none"
+  },
+  "bindings": {
+    "accent": "ember",
+    "budgets": {
+      "module": "./data/budgets.json",
+      "export": "default"
+    }
+  },
+  "biome": "Open plot · coming soon",
+  "blurb": "An open plot of the grid, a world still to be built.",
+  "boundary": {
+    "visible": false
+  },
+  "card": {
+    "thumb": "/src/shards/open-plots/thumbs/card.jpg",
+    "portrait": "/src/shards/open-plots/thumbs/card.jpg",
+    "landscape": "/src/shards/open-plots/thumbs/card.jpg"
+  },
+  "explore": {
+    "art": {
+      "world": "/src/shards/open-plots/thumbs/card.jpg",
+      "models": "/src/shards/open-plots/thumbs/card.jpg",
+      "sets": "/src/shards/open-plots/thumbs/card.jpg",
+      "practice": "/src/shards/open-plots/thumbs/card.jpg"
+    }
+  },
+  "grade": {
+    "bloomIntensity": 0.5,
+    "bloomThreshold": 0.9,
+    "brightness": 0,
+    "contrast": 0,
+    "gain": [
+      1,
+      1,
+      1
+    ],
+    "gamma": 1,
+    "highTint": [
+      1,
+      1,
+      1
+    ],
+    "lift": [
+      0,
+      0,
+      0
+    ],
+    "saturation": 0,
+    "shadowTint": [
+      1,
+      1,
+      1
+    ]
+  },
+  "ground": {
+    "paths": "plugin",
+    "structures": true
+  },
+  "hands": "toon",
+  "horizon": {
+    "cloudSea": false,
+    "rings": []
+  },
+  "hoverSpeedClass": "road",
+  "kitLook": "pbr",
+  "label": "(+2, −1)",
+  "loadout": {
+    "start": [],
+    "tools": [],
+    "weapons": []
+  },
+  "minimap": {
+    "image": "/assets/open-plots/map/top.webp"
+  },
+  "name": "Open Plots",
+  "order": 11,
+  "pois": [
+    {
+      "id": "hologram",
+      "name": "Ember Forge hologram",
+      "r": 12,
+      "x": 0,
+      "z": 0
+    },
+    {
+      "id": "billboard",
+      "name": "Billboard",
+      "r": 14,
+      "x": 0,
+      "z": 26
+    }
+  ],
+  "seed": 541,
+  "shardfile": "/shardfiles/open-plots/shard.json",
+  "sky": {
+    "bgIntensity": 1,
+    "cloudSunColor": [
+      1,
+      1,
+      1
+    ],
+    "envIntensity": 0.5,
+    "fogSunColor": [
+      1,
+      1,
+      1
+    ],
+    "hemiGround": 9067066,
+    "hemiIntensity": 1,
+    "hemiSky": 11116744,
+    "sun": {
+      "azimuth": 35,
+      "elevation": 45
+    },
+    "sunColor": [
+      1,
+      1,
+      1
+    ],
+    "sunIntensity": 1.5
+  },
+  "slug": "open-plots",
+  "spawn": {
+    "x": 0,
+    "y": 0.1,
+    "yaw": 3.141592653589793,
+    "z": -45
+  },
+  "spawns": [],
+  "species": [],
+  "status": "hidden",
+  "shardSelect": false,
+  "style": "greybox",
+  "tiers": {
+    "desktop": {
+      "ao": false,
+      "godRays": false
+    },
+    "phone": {
+      "ao": false,
+      "godRays": false
+    }
+  },
+  "treeCount": 0,
+  "trees": {
+    "factory": "none",
+    "noun": "trees"
+  },
+  "uses": [],
+  "weapon": "custom"
+}

@@ -60,10 +60,12 @@ jobs:
         run: node scripts/select-candidate.mjs
       - name: Install candidate graph
         run: pnpm install --no-frozen-lockfile --config.ci=false
+      - name: Install the frozen native tool pins
+        run: pnpm exec npr install --frozen
       - name: Compile the complete author project and source ports
         run: pnpm exec tsc -p test/ci21-source/tsconfig.json
       - name: Apply actual typed author lint
-        run: pnpm exec oxlint --type-aware --tsconfig test/ci21-source/tsconfig.json -c .oxlintrc.author.json --deny-warnings test/ci21-source/*.source.ts
+        run: node kit/scripts/bin-tools.mjs --type-aware --tsconfig test/ci21-source/tsconfig.json -c .oxlintrc.author.json --deny-warnings test/ci21-source/*.source.ts
       - name: Run every source case and retain actual results
         run: |
           mkdir -p tmp/ci21-source
