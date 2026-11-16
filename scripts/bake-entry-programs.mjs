@@ -9,7 +9,8 @@
 //   client); it enters at `?skipintro` as `wildshard dev` does, with the page's service worker off (`sw=0`), so every read
 //   reaches the recorder from the network.
 // Run through scripts/browser-lane.sh.
-import {webkit,devices} from 'playwright';
+import {devices} from 'playwright';
+import {launchPreparationBrowser} from './preparation-browser.mjs';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
@@ -101,7 +102,7 @@ async function record(browser,slug){
   }finally{await context.close();}
 }
 
-const browser=await webkit.launch({headless:true});
+const browser=await launchPreparationBrowser();
 try{
   for(const slug of slugs){
     const {build,renderer,pairs,reads,hashes}=await record(browser,slug),file=output??`public/programs/${slug}.json`;

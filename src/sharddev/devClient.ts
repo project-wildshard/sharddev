@@ -103,6 +103,8 @@ async function fetchClient(options: { pin?: string; cache?: string; url?: string
   progress(`wildshard ${kind.verb}: fetching engine's ${kind.label} (${tag}) once, into ${cache}`);
   const response = await fetch(url);
   if (!response.ok) throw new Error(`wildshard ${kind.verb}: engine release ${tag} has no ${kind.asset} (${url}: ${String(response.status)})`);
+  const announced = Number(response.headers.get('content-length'));
+  if (Number.isSafeInteger(announced) && announced > 0) progress(`wildshard ${kind.verb}: downloading ${(announced / 1e6).toFixed(1)} MB (first use only)`);
   const bytes = Buffer.from(await response.arrayBuffer());
   mkdirSync(cache, { recursive: true });
   const part = join(cache, `${tag}${kind.suffix}.part-${String(process.pid)}`), archive = `${part}.tar.gz`;

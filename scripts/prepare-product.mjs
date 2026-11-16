@@ -15,6 +15,7 @@ import {entryFileSteps} from '@wildshard/format/tierSelection';
 import {validationSourceBytes} from '@wildshard/format/validationReceipt';
 import {prepareAssetDecoders} from '@wildshard/format/shardfileAssets';
 import {validateShardfileFolder as validateShardfileProduct} from '@wildshard/format/shardfileValidation';
+import {checkPreparationBrowser} from './preparation-browser.mjs';
 
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 const json=(dir,name)=>JSON.parse(readFileSync(join(dir,name),'utf8'));
@@ -88,6 +89,7 @@ async function ownPreview(dir){
 }
 
 export async function prepareProduct(dir,base,inline=false){
+  if(!inline)await checkPreparationBrowser();
   if(base===undefined){
     const preview=await ownPreview(dir);
     console.error(`wildshard prepare: serving engine's preparation client at ${preview.url}`);
@@ -104,11 +106,16 @@ export async function prepareProduct(dir,base,inline=false){
     // engine browser-lane wrapper. Do not acquire a second nested browser slot.
     // Not spawnSync: with no --base this process serves the preview the recorder reads (SA43).
     const run=await new Promise(done=>{
-      const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,...(inline?['--inline']:[]),index.identity.slug],{stdio:'inherit',timeout:300000});
-      child.once('error',error=>{done({error,status:null});});
-      child.once('exit',status=>{done({error:undefined,status});});
+      const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,...(inline?['--inline']:[]),index.identity.slug],{stdio:['inherit','inherit','pipe'],timeout:300000});
+      let stderr='';
+      child.stderr.on('data',bytes=>{if(stderr.length<16384)stderr+=String(bytes).slice(0,16384-stderr.length);});
+      child.once('error',error=>{done({error,status:null,stderr});});
+      child.once('close',status=>{done({error:undefined,status,stderr});});
     });
-    if(run.error!==undefined||run.status!==0)throw new Error('Phone WebKit preparation did not pass; candidate left as a draft');
+    if(run.error!==undefined||run.status!==0){
+      const detail=run.stderr.split('\n').find(line=>/^(?:Error|TimeoutError): /u.test(line))?.replace(/^(?:Error|TimeoutError): /u,'');
+      throw new Error(detail?.includes('Candidate left as a draft.')?detail:`Phone WebKit preparation did not pass${detail===undefined?'':`: ${detail}`}; candidate left as a draft`);
+    }
     return await finishPreparation(dir,json(scratch,'recording.json'),header);
   }finally{rmSync(scratch,{recursive:true,force:true});}
 }
@@ -116,5 +123,6 @@ export async function prepareProduct(dir,base,inline=false){
 if(process.argv[1]!==undefined&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){
   const [dir,flag,base]=process.argv.slice(2);
   if(dir===undefined||(flag!==undefined&&(flag!=='--base'||base===undefined)))throw new Error('usage: wildshard prepare <folder> [--base <exact-preview-url>]');
-  console.log(JSON.stringify(await prepareProduct(resolve(dir),base)));
+  try{console.log(JSON.stringify(await prepareProduct(resolve(dir),base)));}
+  catch(error){console.error(`wildshard prepare: ${error instanceof Error?error.message:String(error)}`);process.exitCode=1;}
 }

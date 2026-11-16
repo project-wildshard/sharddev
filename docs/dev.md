@@ -135,6 +135,22 @@ hero until the next content change.
 
 ## J198 preparation
 
+`prepare` checks its pinned Playwright headless WebKit before downloading
+the preparation client. Both the preflight and recorder launches have a
+20-second limit, plus up to 30 seconds for Playwright's process cleanup;
+WebKit keeps its own default arguments. A failed launch
+prints one refusal with the exact pinned browser installation command.
+If reinstalling does not help, prepare the same product on another
+macOS/Linux machine with working WebKit. `--base` changes the preview,
+and still needs local WebKit. No failed preflight modifies the draft or
+downloads a client. The download's HTTP size is printed before its body
+is read when the server supplies Content-Length.
+
+Run the explicit browser proof outside hooks:
+`node --test test/ci/preparation-launch.test.mjs`. It tests a missing
+browser, an unresponsive real child and its process cleanup, and an
+installed headless phone page.
+
 Build, prepare, upload, in that order. `wildshard build` (and `check`)
 writes a **draft**: its `shard.json` says `sdk: "0.2"` with a mounts-only
 cook, by design. Only `wildshard prepare <folder> --base <url>` turns it

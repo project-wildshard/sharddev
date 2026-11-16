@@ -1,4 +1,4 @@
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 // oxlint-disable-next-line import/no-nodejs-modules -- The test owns a bounded local release server and cache.
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Packs the stand-in release asset the way engine's script does.
@@ -92,4 +92,26 @@ test('the preparation client is a preparation-only production build, kept beside
       await expect(fetchPreparationClient({ pin: '0.1.17', cache: join(other, 'cache'), url: refused.url })).rejects.toThrow(/preparation-only production build/u);
     } finally { await refused.close(); }
   }
+});
+
+test('preparation announces the download size before receiving the archive body', async () => {
+  const root = scratch(), bytes = readFileSync(archive(root, { devserver: false }, { preparationOnly: true }));
+  let announced = false, sent = false;
+  let release: (() => void) | undefined;
+  const progress = vi.spyOn(console, 'error').mockImplementation((message: unknown) => {
+    if (String(message).includes('downloading')) { announced = !sent; release?.(); }
+  });
+  const server = createServer((_request, response) => {
+    response.writeHead(200, { 'Content-Length': bytes.length }); response.flushHeaders();
+    const timer = setTimeout(() => { sent = true; response.end(bytes); }, 1000);
+    release = (): void => { clearTimeout(timer); sent = true; response.end(bytes); };
+  });
+  await new Promise<void>((_resolve) => { server.listen(0, '127.0.0.1', _resolve); });
+  const address = server.address();
+  if (address === null || typeof address === 'string') throw new Error('no address');
+  try {
+    await fetchPreparationClient({ pin: '0.1.17', cache: join(root, 'cache'), url: `http://127.0.0.1:${String(address.port)}/client` });
+    expect(announced).toBe(true);
+    expect(sent).toBe(true);
+  } finally { progress.mockRestore(); await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); }); }
 });
