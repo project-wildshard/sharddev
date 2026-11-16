@@ -44,7 +44,8 @@ test('a shard migration pins kit, leaves generated/foreign files alone and is id
     expect(codemod({ project: root, from: '0.3.2', to: '0.4.0' })).toHaveLength(2);
     expect(readFileSync(join(root, 'src/creatures.ts'), 'utf8')).toContain('@wildshard/kit/bake/species');
     const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')) as { devDependencies: Record<string, string> };
-    expect(pkg.devDependencies['@wildshard/kit']).toBe('0.1.0');
+    const sdk = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { version: string };
+    expect(pkg.devDependencies['@wildshard/kit']).toBe(sdk.version);
     expect(readFileSync(join(outside, 'foreign.ts'), 'utf8')).toBe(source);
     for (const folder of ['node_modules', '.git', 'tmp', 'dist']) expect(readFileSync(join(root, folder, 'skip.ts'), 'utf8')).toBe(source);
     expect(codemod({ project: root, from: '0.3.2', to: '0.4.0' })).toEqual([]);

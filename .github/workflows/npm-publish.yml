@@ -38,6 +38,9 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: package.json
@@ -47,37 +50,28 @@ jobs:
           node -e 'const [a,b,c]=process.argv[1].split(".").map(Number);process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)' "$(npm --version)" ||
             npm install --global npm@11.16.0
           npm --version
-      - name: The tag matches package.json, and every bin and export is in the tarball
+      - name: Pack and verify both packages from the exact tag
+        env:
+          RELEASE_TAG: ${{ github.ref_name }}
         run: |
-          # shellcheck disable=SC2016 # the quoted script is JavaScript with template literals
-          node -e '
-          const { execFileSync } = require("node:child_process");
-          const pkg = JSON.parse(require("node:fs").readFileSync("package.json", "utf8"));
-          const version = process.argv[1].replace(/^v/, "");
-          if (pkg.version !== version) throw new Error(`tag says ${version}, package.json says ${pkg.version}`);
-          if (pkg.private) throw new Error(`${pkg.name} is private`);
-          const packed = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json", "--ignore-scripts"], { encoding: "utf8", maxBuffer: 1 << 28 }))[0];
-          const files = new Set(packed.files.map((file) => file.path));
-          const targets = [];
-          const walk = (value) => typeof value === "string" ? targets.push(value) : Object.values(value ?? {}).forEach(walk);
-          walk(pkg.exports); walk(pkg.bin);
-          const missing = [...new Set(targets)].filter((target) => !target.includes("*")).map((target) => target.replace(/^\.\//, "")).filter((target) => !files.has(target));
-          if (missing.length > 0) throw new Error(`not in the tarball: ${missing.join(", ")}`);
-          console.log(`${pkg.name}@${pkg.version}: ${files.size} files, ${packed.size} bytes packed, every bin and export inside`);
-          ' "$GITHUB_REF_NAME"
-      - name: Publish, unless this is the package's first version or it is already out
+          # shellcheck disable=SC2016 # The quoted JavaScript reads the environment itself.
+          node -e 'if (process.env.RELEASE_TAG !== `v${require("./package.json").version}`) throw new Error("Tag and package version differ")'
+          node scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+      - name: Publish kit, then SDK
         run: |
-          name=$(node -p 'require("./package.json").name')
-          version=$(node -p 'require("./package.json").version')
-          if ! npm view "$name" version >/dev/null 2>&1; then
-            echo "::notice::$name is not on npm yet: npm trusts a publisher only on a package that exists, so publish a placeholder and run npm trust first (NPM-PUBLISH NP5)."
-            exit 0
-          fi
-          if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "::notice::$name@$version is already on npm."
-            exit 0
-          fi
-          npm publish --provenance --access public --ignore-scripts
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import { readFileSync } from 'node:fs';
+          import { join } from 'node:path';
+          const artifacts = JSON.parse(readFileSync(join(process.env.RUNNER_TEMP, 'workspace-release/release-artifacts.json'), 'utf8'));
+          for (const item of artifacts) {
+            try { execFileSync('npm', ['view', item.name, 'version'], { stdio: 'pipe' }); }
+            catch { throw new Error(`${item.name} needs its initial package and npm publisher configuration before this release`); }
+            try { execFileSync('npm', ['view', `${item.name}@${item.version}`, 'version'], { stdio: 'pipe' }); console.log(`${item.name}@${item.version} already published`); continue; }
+            catch {}
+            execFileSync('npm', ['publish', item.archive, '--provenance', '--access', 'public', '--ignore-scripts'], { stdio: 'inherit' });
+          }
+          NODE
 
   placeholder:
     # Only main's copy of this file: the trusted publisher is bound to the file name, not the branch.
@@ -88,6 +82,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - name: '@wildshard/kit'
+            description: 'Shared creature content and helpers for the one shard format.'
           - name: '@wildshard/sdk'
             description: 'The Wildshard author SDK and the wildshard CLI for building shards.'
     env:
