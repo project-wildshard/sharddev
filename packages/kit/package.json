@@ -24,6 +24,7 @@
     "./creatures": "./src/creatures.ts",
     "./body": "./src/body.ts",
     "./legacySpecies": "./src/legacySpecies.ts",
+    "./legacyHarvest": "./src/legacyHarvest.ts",
     "./temperament": "./src/temperament.ts",
     "./abilities": "./src/abilities.ts",
     "./clips": "./src/clips.ts",

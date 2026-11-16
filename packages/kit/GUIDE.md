@@ -155,6 +155,19 @@ The SDK's corresponding helpers now consume these kit modules. Portable
 math belongs to the SDK library at `@wildshard/sdk/math/portableMath`.
 The practice course is parked and remains outside this kit release.
 
+## Harvest compatibility content
+
+`@wildshard/kit/legacyHarvest` exports `legacyHarvest(kind, variants)`.
+Supply the complete variant id roster of an older source; the helper
+returns fresh ordered item/count/variant declarations, or `undefined`
+for a label with no former harvest law. It consumes no randomness.
+`content/harvest.json` preserves the six former source tables. Selectors
+run only while building; the output contains explicit variant ids.
+
+The normal producer integration and format-owned output type are
+OF31b2b, after the harvest format release. This helper alone does not
+change an existing shard's output or its pack policy.
+
 ## Module migration
 
 The six defining modules now belong to kit: `bake/species`,

@@ -1,0 +1,31 @@
+{
+  "deer": [
+    { "item": "venison", "count": 1 },
+    { "item": "deer-hide", "count": 1 },
+    { "item": "antlers", "count": 1, "contains": ["stag", "ghost"] }
+  ],
+  "boar": [
+    { "item": "boar-meat", "count": 1 },
+    { "item": "boar-hide", "count": 1 },
+    { "item": "boar-tusk", "count": 1, "except": ["sow"] }
+  ],
+  "elk": [
+    { "item": "elk-meat", "count": 1 },
+    { "item": "elk-hide", "count": 1 },
+    { "item": "antlers", "count": 1, "contains": ["bull", "imperial"] }
+  ],
+  "bear": [
+    { "item": "bear-pelt", "count": 1 },
+    { "item": "bear-claw", "count": 1 }
+  ],
+  "crab": [
+    { "item": "crab-meat", "count": 1 },
+    { "item": "crab-claw", "count": 1 },
+    { "item": "crab-shell", "count": 1, "oneOf": ["big"] }
+  ],
+  "monkey": [
+    { "item": "coconut", "count": 1 },
+    { "item": "silver-fur", "count": 1, "oneOf": ["elder"] },
+    { "item": "monkey-fur", "count": 1, "except": ["elder"] }
+  ]
+}
