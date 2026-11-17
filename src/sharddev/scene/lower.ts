@@ -300,6 +300,8 @@ function moveOf(root: Object3D, colliders: readonly SceneCollider[], options: Mo
   if (colliders.length === 0) throw new SceneRefusalError(root.name, 'a mover part has no solid to stand on', 'Mark its deck solid: solid(mesh)');
   if (colliders.length > 128) throw new SceneRefusalError(root.name, `a mover part has ${colliders.length} solids, over the 128 a mover holds`, 'Merge its solids into fewer boxes');
   if (options.path.length === 0 || options.path.length > 9) throw new SceneRefusalError(root.name, `a mover's path has ${options.path.length} points, not 1 to 9`, 'Give world.part\'s mover 1 to 9 points after where it is built');
+  if (options.start !== undefined && options.start !== 'stand' && options.start !== 'always') throw new SceneRefusalError(root.name, `a mover's start ${String(options.start)} is not stand or always`, 'Give it start: \'stand\' or \'always\'');
+  if (options.loop !== undefined && !['pingpong', 'once', 'repeat'].includes(options.loop)) throw new SceneRefusalError(root.name, `a mover's loop ${String(options.loop)} is not pingpong, once or repeat`, 'Give it one of the three loops');
   if (!(options.seconds >= 0.1 && options.seconds <= 3600)) throw new SceneRefusalError(root.name, `a mover's ${options.seconds} seconds is outside 0.1 to 3600`, 'Give it the seconds from its start to its last point');
   const round = (n: number): number => Math.round(n * 1e4) / 1e4;
   const centre = box.getCenter(new Vector3()), at: Vec3 = [round(centre.x), round(centre.y), round(centre.z)];

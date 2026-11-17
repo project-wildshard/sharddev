@@ -816,6 +816,8 @@ export function moverRow(id: string, move: SceneMove, entity: number): Record<st
   let run = 0;
   const times = [0, ...legs.map((leg) => { run += leg; return Math.round(run / total * move.seconds * 1e4) / 1e4; })];
   times[times.length - 1] = move.seconds;
+  // a leg too short for its share of the time to show at 0.1 ms would key two points at one time
+  if (times.some((t, i) => i > 0 && t <= (times[i - 1] ?? t))) throw new SceneRefusalError(id, 'a mover\'s path has a leg too short beside the rest', 'Drop the point that nearly repeats its neighbour');
   const motion: MoverMotion = {
     driver: { kind: 'track' }, trigger: move.start === 'always' ? { kind: 'always' } : { kind: 'stand', delay: 0 },
     track: { clip: 'ride', duration: move.seconds, loop: move.loop, speed: 1, times, position: move.path.map(([x, y, z]): [number, number, number] => [x, y, z]) },

@@ -6,3 +6,5 @@
 - Entities from 9101 (Brasscap's hand-placed side door is 9201).
 - Found on the dev page: engine installs declared movers only beside a script lane, so a script-free shard's
   raft never moved (`posed 0`); fixed in engine on `plan/ss10c`.
+- Review (claude -p, no MUST): refuse unknown start/loop and a leg too short to key; tests for a repeated point,
+  10 points, an unknown loop and two movers' entities (9101, 9102).

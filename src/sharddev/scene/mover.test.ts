@@ -36,6 +36,14 @@ test('an always mover that runs once keeps its options', () => {
   expect(row).toMatchObject({ trigger: { kind: 'always' }, track: { loop: 'once', times: [0, 5] } });
 });
 
+test('two movers take their own entities', () => {
+  const two = lowerShard({ slug: 't', name: 'T' }, (world) => {
+    world.part('raft', raft, { panel: 'fen.raft', mover: { path: [[10, 0.2, 6]], seconds: 5 } });
+    world.part('ferry', (part) => { const deck = solid(new THREE.Mesh(new THREE.BoxGeometry(3, 0.4, 2), wood)); deck.position.set(-10, 0.2, 0); part.add(deck); }, { panel: 'fen.ferry', mover: { path: [[-10, 0.2, 9]], seconds: 5, loop: 'repeat' } });
+  });
+  expect(sceneShardfile(two).shard.movers.map((m) => [m.id, m.entity])).toEqual([['fen.raft', 9101], ['fen.ferry', 9102]]);
+});
+
 test('a mover part that is not a panel, is touchable too, has no solid or a bad path refuses by name', () => {
   const build = (options: PartOptions, fill = raft) =>
     () => lowerShard({ slug: 's', name: 's' }, (world) => { world.part('raft', fill, options); });
@@ -45,4 +53,7 @@ test('a mover part that is not a panel, is touchable too, has no solid or a bad 
   expect(build({ panel: 'r.a', mover: { path: [], seconds: 3 } })).toThrow(/0 points/u);
   expect(build({ panel: 'r.a', mover: { path: [[400, 0, 0]], seconds: 3 } })).toThrow(/leaves the 500 m cell/u);
   expect(build({ panel: 'r.a', mover: { path: [[1, 1, 1]], seconds: 0 } })).toThrow(SceneRefusalError);
+  expect(build({ panel: 'r.a', mover: { path: [[10, 0.2, 6], [10, 0.2, 6]], seconds: 3 } })).toThrow(/stands still/u);
+  expect(build({ panel: 'r.a', mover: { path: Array.from({ length: 10 }, (_, i): [number, number, number] => [i, 0, 0]), seconds: 3 } })).toThrow(/10 points/u);
+  expect(build({ panel: 'r.a', mover: { path: [[1, 1, 1]], seconds: 3, loop: 'ping' as 'once' } })).toThrow(/loop ping/u);
 });
