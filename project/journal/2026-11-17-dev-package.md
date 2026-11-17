@@ -22,5 +22,7 @@
   rolldown external. Vite stays only for the build's bundles until SP9b.
 - Land fix: SP8b had moved the CI21 discovery port `discovery-output-placement.source.ts` into `packages/dev`, where
   no manifest lists it and no step runs it, so hosted CI's sdk CI21 lint refused a missing port. It is back under the
-  sdk harness (importing dev's `gen-shards` and `push-tables` by path), and the Template and pastel-plain maps stop
-  naming `projectEntryProof.ts`, which SP8a moved to dev.
+  sdk harness (importing dev's `gen-shards` and `push-tables` by path). The Template and pastel-plain maps still name
+  `projectEntryProof.ts` (SP8a moved it to dev): dropping it changes the Template's content and its hero stamp, which
+  only a served capture renews, so the map-inputs port ignores a declared input that no longer exists (map-hash never
+  reads one). The Template drops the name at its next hero capture.

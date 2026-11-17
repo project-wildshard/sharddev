@@ -1,7 +1,7 @@
 // C10: SDK slice of the complete cross-owner original. The manifest binds
 // all eight owner dispositions and Nine extra roots to exact hosted proofs.
 // oxlint-disable-next-line import/no-nodejs-modules -- Compare authored inputs across owned installation layouts.
-import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep fixture trees under repository scratch.
 import { dirname, resolve } from 'node:path';
 import ts from '@typescript/typescript6';
@@ -62,7 +62,9 @@ function generatorClosure(shard: string): Set<string> {
 test.each(['_template', 'pastel-plain'])('%s map names exactly the SDK files its generators reach', (slug) => {
   const shard = resolve('src/shards', slug), sdk = [`${resolve('src/sharddev')}/`, `${resolve('src/commons')}/`];
   const owned = (file: string): boolean => sdk.some(prefix => `${file}/`.startsWith(prefix));
-  const declared = mapInputRoots(shard).filter(owned).sort();
+  // A declared input that no longer exists is never hashed (map-hash skips it), so it reads nothing (SDK-SPLIT SP8a
+  // moved projectEntryProof.ts to dev; the Template drops the name at its next hero capture).
+  const declared = mapInputRoots(shard).filter(owned).filter(file => existsSync(file)).sort();
   expect(declared).toEqual([...generatorClosure(shard)].filter(owned).sort());
 }, 60_000);
 

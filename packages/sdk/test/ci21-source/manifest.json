@@ -183,7 +183,7 @@
         "SDK-owned maps declare their program and its defining raster inputs",
         "%s map declarations invalidate on raster and scene edits"
       ],
-      "targetSha256": "f20b7e1609501d4d74a4c17f9c479a3999e10064c43998b17b1e83fc2aa78b42",
+      "targetSha256": "992afdac95fcf90cc5ea2a868a3145955de731fce13f6c2e3f32bfecc13229a4",
       "ownerProofs": [
         {
           "owner": "driftwood-isle",
