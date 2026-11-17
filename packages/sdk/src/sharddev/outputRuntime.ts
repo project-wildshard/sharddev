@@ -2,7 +2,7 @@
 import { existsSync, lstatSync, readdirSync, realpathSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Runtime inventory paths are local project-relative paths.
 import { dirname, relative, resolve, sep } from 'node:path';
-import { parseSync } from 'vite';
+import { parseSync } from 'rolldown/utils';
 import { runtimeMirrorIssues, type RuntimeMirror } from './runtimeMirrors';
 import type { OutputIndex } from '@wildshard/format/outputIndex';
 

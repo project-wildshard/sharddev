@@ -17,3 +17,6 @@
   sdk and dev runs `wildshard --version`, `new`, `build` and `check` with every dependency found inside the install.
   Until SP10, `newProject` takes the engine pin from the sdk's dev dependency and `update --pins` runs the repo's
   `@wildshard/dev` bin when the sdk has none.
+- SP9a: the sdk's four parser users (`runtimeImports`, `outputRuntime` and two author lint rules) take `parseSync`
+  from `rolldown/utils`, the parser vite re-exported, pinned at vite's rolldown (1.2.16); the CLI bundle keeps
+  rolldown external. Vite stays only for the build's bundles until SP9b.

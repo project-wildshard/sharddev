@@ -5,7 +5,7 @@ import { createRequire } from 'node:module';
 import { dirname, resolve, sep } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Confirm a relative import names an inventoried TypeScript file.
 import { existsSync } from 'node:fs';
-import { parseSync } from 'vite';
+import { parseSync } from 'rolldown/utils';
 
 const resolver = createRequire(resolve(import.meta.dirname,'package.json'));
 /** Exact package families: public engine/game/SDK/format exports, three's

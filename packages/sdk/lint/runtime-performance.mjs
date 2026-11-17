@@ -1,5 +1,5 @@
 // SF62: one syntax-only pass. No TypeScript program or renderer is created by this guard.
-import { parseSync } from 'vite';
+import { parseSync } from 'rolldown/utils';
 import { createHash } from 'node:crypto';
 
 const FUNCTIONS = new Set(['FunctionDeclaration', 'FunctionExpression', 'ArrowFunctionExpression']);
