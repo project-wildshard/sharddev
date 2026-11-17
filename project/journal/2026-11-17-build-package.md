@@ -29,3 +29,7 @@
   products job now runs before the author tests). build-shards' recorded builds (`--input-receipt`) and
   `--behaviour-only` stay on the author bundle, whose rolldown bridge records inputs. Cold Brasscap (fresh generation and
   compiler caches): 6.2 s and 5.5 s on the author bundle, 4.3 s and 4.1 s compiled; out/ and shard file byte-identical.
+- SP10 (opus-sdksplit5): `packages/cli` (`@wildshard/cli`) is the `wildshard` command: it depends on build, upload and
+  dev, sends `build <source>` straight to build's compiled bin (no dev, no engine) and loads dev's CLI for every other
+  verb. `new` pins `@wildshard/cli` at the sdk's version instead of the engine. Proof from packed tarballs: a repo with
+  only the cli runs build, dev and `upload --help`; a repo with only build builds the same Template bytes, no engine.

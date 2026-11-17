@@ -67,11 +67,9 @@ function sdkPackage(): SdkPackage {
     || !('dependencies' in parsed) || typeof parsed.dependencies !== 'object' || parsed.dependencies === null) throw new Error('new: the installed @wildshard/sdk has no package.json version');
   const dependencies: Record<string, string> = {};
   for (const [name, spec] of Object.entries(parsed.dependencies)) if (typeof spec === 'string') dependencies[name] = spec;
-  // SDK-SPLIT SP8c: the engine left the sdk's dependencies for @wildshard/dev; the sdk keeps it as its parity oracle
-  // (a dev dependency at dev's exact pin, test/dev-engine-pin), and a new repo pins it from there until SP10's
-  // newProject writes @wildshard/cli instead of the engine.
-  const devPins: unknown = 'devDependencies' in parsed ? parsed.devDependencies : undefined;
-  if (typeof devPins === 'object' && devPins !== null && '@wildshard/engine' in devPins && typeof devPins['@wildshard/engine'] === 'string') dependencies['@wildshard/engine'] ??= devPins['@wildshard/engine'];
+  // SDK-SPLIT SP10: a new repo pins @wildshard/cli (the `wildshard` command, which brings build, upload, dev and the
+  // engine) at the sdk's own version (D5, one release version), never the engine directly.
+  dependencies['@wildshard/cli'] = parsed.version;
   // SA8: `three` is the sdk's peer, pinned exact; a repo lists it at that pin like the others (dependencies win, as in updatePins).
   const peers: unknown = 'peerDependencies' in parsed ? parsed.peerDependencies : undefined;
   if (typeof peers === 'object' && peers !== null) for (const [name, spec] of Object.entries(peers)) if (typeof spec === 'string') dependencies[name] ??= spec;
@@ -79,17 +77,19 @@ function sdkPackage(): SdkPackage {
   if (node === undefined) throw new Error('new: the installed @wildshard/sdk names no Node engine');
   return { version: parsed.version, node, dependencies };
 }
-/** What a shard repo lists besides the sdk (grill Q12, Q13): shard-format, `three` (sdk's peer), and engine until
- * SHARD-COMPAT's engine zero. Each is pinned exactly as the installed sdk pins it, so the repo installs one copy. */
-export const REPO_DEPENDENCIES = ['@wildshard/engine', '@wildshard/format', 'three'] as const;
+/** What a shard repo lists besides the sdk library (grill Q12, Q13; SDK-SPLIT SP10): the CLI, shard-format and `three`
+ * (sdk's peer). Each is pinned exactly as the installed sdk pins it, so the repo installs one copy. The engine comes in
+ * through the CLI (dev's local game and sim tests); the repo never pins it. */
+export const REPO_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format', 'three'] as const;
 
-/** What a hand-written repo lists (J314): no code imports anything, so only the CLI (`@wildshard/sdk`, for `wildshard
- * check` and `upload`) and shard-format (`shard-format pack` and `validate`), as dev dependencies; no engine, no three. */
-export const HANDWRITTEN_DEPENDENCIES = ['@wildshard/format'] as const;
+/** What a hand-written repo lists (J314): no code imports anything, so only the CLI (`@wildshard/cli`, for `wildshard
+ * check` and `upload`) and shard-format (`shard-format pack` and `validate`), as dev dependencies; no sdk library, no
+ * three. */
+export const HANDWRITTEN_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format'] as const;
 
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
 export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE): string {
-  const sdk = sdkPackage(), dependencies: Record<string, string> = { '@wildshard/sdk': sdk.version };
+  const sdk = sdkPackage(), dependencies: Record<string, string> = template === 'blender' ? {} : { '@wildshard/sdk': sdk.version };
   for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
     const spec = sdk.dependencies[name];
     if (spec === undefined) throw new Error(`new: the installed @wildshard/sdk does not pin ${name}`);
@@ -128,9 +128,9 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
   runs \`shard-format pack\`, which settles every hash and size the sections
   measure, and validates the whole folder. A changed blob is a new file under
   its new hash, with every row that names it updated.
-- \`package.json\` pins \`@wildshard/sdk\` (the CLI) and shard-format exactly;
-  nothing here imports code, so no engine and no three.js. Its \`version\` is
-  the version \`wildshard upload\` sends.`;
+- \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command) and
+  shard-format exactly; nothing here imports code, so no sdk library and no
+  three.js. Its \`version\` is the version \`wildshard upload\` sends.`;
 
 function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
@@ -140,8 +140,9 @@ function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
     ? '`identity.json` (the slug and name)\n  and `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save)'
     : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
-- \`package.json\` pins \`@wildshard/sdk\`, shard-format, engine and \`three\`
-  exactly; its \`version\` is the version \`wildshard upload\` sends.`;
+- \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
+  \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`
+  is the version \`wildshard upload\` sends.`;
   return `# ${slug}
 
 A Wildshard **shard source**, started by \`wildshard new\` from ${world}.
