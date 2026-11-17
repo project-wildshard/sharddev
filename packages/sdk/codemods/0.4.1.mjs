@@ -1,7 +1,8 @@
 // SDK-SPLIT SP13: a shard repo moves onto the split packages (meta docs/plans/SDK-SPLIT-PLAN.md, Q36). `update --pins`
 // runs it after 0.4.0's kit move (see 0.2.5.mjs for the hook's shape).
-// - The modules that left the sdk move to their new homes: the watch page, the script scenario, the map rest, the native raster and the boot
-//   inventory to @wildshard/dev, the project builder to @wildshard/build; the repo pins each home it now imports.
+// - The modules that left the sdk move to their new homes: the watch page, the script scenario, the map rest, the native raster, the boot
+//   inventory and every `scripts/` file the sdk no longer ships to @wildshard/dev, the project builder and synth to
+//   @wildshard/build; the repo pins each home it now imports.
 // - The repo pins @wildshard/cli (the `wildshard` command) beside the sdk, at the release version (D5).
 // - The engine is no longer the repo's to pin for the build: a repo whose code imports it (sim tests) keeps it as a dev
 //   dependency at the engine the release's dev runs; a repo that never imports it drops the pin and its override.
@@ -11,7 +12,9 @@ import { join, relative, resolve } from 'node:path';
 
 const SKIP = new Set(['.git', '.worktrees', 'node_modules', 'tmp', 'out', 'dist', 'build', 'public']);
 const HOMES = new Map([['bake/mapRest', 'dev'], ['watch/watch', 'dev'], ['watch/page', 'dev'], ['test/scriptScenario', 'dev'],
-  ['bootInventory', 'dev'], ['bake/nativeRaster', 'dev'], ['project', 'build']]);
+  ['bootInventory', 'dev'], ['bake/nativeRaster', 'dev'], ['project', 'build'], ['synth', 'build']]);
+/** The sdk's own folder: a `scripts/` path the installed sdk no longer has moved to dev's `scripts/` (SP8). */
+const SDK_ROOT = new URL('../', import.meta.url);
 const LITERAL = /(["'`])@wildshard\/(?:sdk|sharddev)\/([^"'`\s]+)\1/gu;
 const ENGINE = /["'`]@wildshard\/engine(?:\/[^"'`\s]*)?["'`]/u;
 const VERSION = /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/u;
@@ -21,6 +24,7 @@ const FIELDS = ['dependencies', 'devDependencies'];
 export function rewriteSplitImports(source) {
   return source.replaceAll(LITERAL, (whole, quote, path) => {
     const query = path.indexOf('?'), subpath = query === -1 ? path : path.slice(0, query);
+    if (subpath.startsWith('scripts/') && !existsSync(new URL(subpath, SDK_ROOT))) return `${quote}@wildshard/dev/${path}${quote}`;
     const home = HOMES.get(subpath);
     return home === undefined ? whole : `${quote}@wildshard/${home}/${path}${quote}`;
   });
@@ -86,8 +90,10 @@ export default function codemod({ project, to }) {
     if (overrides !== undefined) delete overrides['@wildshard/engine'];
     changes.push('package.json: drop the engine pin (nothing imports it; the cli brings it)');
   }
-  const indent = /^\{\r?\n([ \t]+)"/u.exec(readFileSync(file, 'utf8'))?.[1] ?? 2;
-  const text = `${JSON.stringify(pkg, null, indent)}\n`;
-  if (text !== readFileSync(file, 'utf8')) writeFileSync(file, text);
+  // Only a run that changed a pin rewrites package.json, so a no-op run leaves its bytes (and the lock) alone.
+  if (changes.some(line => line.startsWith('package.json: '))) {
+    const indent = /^\{\r?\n([ \t]+)"/u.exec(readFileSync(file, 'utf8'))?.[1] ?? 2;
+    writeFileSync(file, `${JSON.stringify(pkg, null, indent)}\n`);
+  }
   return changes;
 }

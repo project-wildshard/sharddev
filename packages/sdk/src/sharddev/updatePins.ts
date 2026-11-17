@@ -264,7 +264,7 @@ const LAST_UPDATE_WITHOUT_SHARDDEV = '0.2.5';
 /** pnpm view: the release a spec names, with the specs it pins. */
 function pnpmView(spec: string, cwd: string): SdkRelease {
   let out: string;
-  try { out = execFileSync('pnpm', ['view', `@wildshard/sdk@${spec}`, 'version', 'dependencies', 'peerDependencies', 'engines', '--json'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
+  try { out = execFileSync('pnpm', ['view', `@wildshard/sdk@${spec}`, 'version', 'dependencies', 'peerDependencies', 'devDependencies', 'engines', '--json'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
   catch (error) { throw new Error(`update --pins: pnpm view @wildshard/sdk@${spec} failed: ${error instanceof Error ? error.message.split('\n')[0] ?? '' : String(error)}`, { cause: error }); }
   if (out.trim() === '') throw new Error(`update --pins: npm has no @wildshard/sdk@${spec}`);
   const parsed: unknown = JSON.parse(out);
@@ -277,6 +277,10 @@ function pnpmView(spec: string, cwd: string): SdkRelease {
     const listed = record[key];
     if (isRecord(listed)) for (const [name, value] of Object.entries(listed)) if (typeof value === 'string') pins[name] = value;
   }
+  // SDK-SPLIT SP13: the split sdk keeps the engine only as a dev dependency, at dev's exact pin (test/dev-engine-pin), so
+  // a repo's engine pin (sim tests) and its override still move with each release.
+  const dev = record['devDependencies'], engine = isRecord(dev) ? stringAt(dev, '@wildshard/engine') : undefined;
+  if (engine !== undefined && SEMVER.test(engine)) pins['@wildshard/engine'] ??= engine;
   const engines = record['engines'], node = isRecord(engines) ? stringAt(engines, 'node') : undefined;
   return { version, pins, ...(node === undefined ? {} : { node }) };
 }

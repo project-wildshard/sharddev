@@ -16,6 +16,10 @@ test('moved modules go to dev and build under both package names; the rest stay'
     expect(rewriteSplitImports(`import type { Project } from '@wildshard/${prefix}/project';`)).toBe("import type { Project } from '@wildshard/build/project';");
     expect(rewriteSplitImports(`import { bundleNativeRaster } from '@wildshard/${prefix}/bake/nativeRaster';`)).toBe("import { bundleNativeRaster } from '@wildshard/dev/bake/nativeRaster';");
   }
+  expect(rewriteSplitImports("import { synthScene } from '@wildshard/sdk/synth';")).toBe("import { synthScene } from '@wildshard/build/synth';");
+  // A scripts/ file the sdk no longer ships moved to dev; one it still ships stays.
+  expect(rewriteSplitImports("import { ground } from '@wildshard/sharddev/scripts/bake/navmeshGround.ts';")).toBe("import { ground } from '@wildshard/dev/scripts/bake/navmeshGround.ts';");
+  expect(rewriteSplitImports("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';")).toBe("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';");
   for (const source of ["'@wildshard/sdk/projectGeneration'", "'@wildshard/sdk/rows'", "'@wildshard/sdk/project/x'", "'@wildshard/engine/sim'"])
     expect(rewriteSplitImports(source)).toBe(source);
 });
@@ -36,7 +40,9 @@ test('a repo that imports the engine keeps it as a dev pin at dev\'s engine; the
     expect(pkg['dependencies']).toEqual({ '@wildshard/sharddev': 'npm:@wildshard/sdk@0.4.1', '@wildshard/cli': '0.4.1', '@wildshard/dev': '0.4.1' });
     expect(pkg['devDependencies']).toEqual({ '@wildshard/engine': ENGINE });
     expect(pkg['pnpm']).toEqual({ overrides: { '@wildshard/engine': ENGINE } });
+    const bytes = readFileSync(join(root, 'package.json'), 'utf8');
     expect(codemod({ project: root, from: '0.3.9', to: '0.4.1' })).toEqual([]);
+    expect(readFileSync(join(root, 'package.json'), 'utf8')).toBe(bytes);
   } finally { rmSync(root, { recursive: true }); }
 });
 
