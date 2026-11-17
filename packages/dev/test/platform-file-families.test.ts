@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PLATFORM_FILE_FAMILIES, platformFileFamily, validatePlatformFile } from '@wildshard/format/platformFileFamilies';
 import { parseOutputIndex } from '@wildshard/format/outputIndex';
-import { registeredJsonSchema, namedFormatJsonSchemas } from '@wildshard/engine/host/formatJsonSchema';
+import { registeredJsonSchema, namedFormatJsonSchemas } from '@wildshard/sdk/formatJsonSchema';
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { outputSections } from '@wildshard/engine/scripts/output-reader.mjs';
 import { namedJsonRoutes, productSectionEntries, sectionInventory } from '../scripts/section-inventory';
