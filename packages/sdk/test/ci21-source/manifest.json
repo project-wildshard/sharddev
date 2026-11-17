@@ -125,7 +125,7 @@
         "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
         "the normal push metadata writer emits complete relocated wrappers without a product build"
       ],
-      "targetSha256": "fcb753aa7d95f8e83d2cf9dbe3fa69ce8fe51244881d39968618cbb1647b43a8"
+      "targetSha256": "b360e5275cdc44523841c28ddba5e9c06393b2c0d4f339a4bb7bf323f6eabd34"
     },
     {
       "sourcePath": "test/template-source-layout.test.ts",

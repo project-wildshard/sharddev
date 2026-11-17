@@ -112,7 +112,6 @@
     "../../sharddev/productOutput.ts",
     "../../sharddev/projectCompilerIdentity.ts",
     "../../sharddev/projectDecisions.ts",
-    "../../sharddev/projectEntryProof.ts",
     "../../sharddev/projectGeneration.ts",
     "../../sharddev/projectInputFiles.ts",
     "../../sharddev/projectOutput.ts",
