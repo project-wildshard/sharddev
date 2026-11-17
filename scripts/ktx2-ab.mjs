@@ -17,7 +17,7 @@ import { readShards } from '@wildshard/engine/scripts/shards.mjs';
 import { mkdirSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 
-const { chromium, devices } = await import('playwright');
+const { chromium, devices } = await import("./browser-playwright.mjs");
 const argv = process.argv.slice(2);
 const flag = (n, d) => { const a = argv.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : d; };
 const URL_BASE = flag('url', 'http://localhost:4760');

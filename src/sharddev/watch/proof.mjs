@@ -17,7 +17,7 @@
 // --draws   at each camera, the frame's draws (Game.lastFrame.calls, every pass) and the same with the shadow map held,
 //           so view and shadow draws split, plus the props' distinct materials in the scene and the fps (SHARD-SOURCE AP8)
 // --throttle N  slows the page's CPU N times (a phone stand-in: --url '<page>?tier=phone' --throttle 4)
-import { chromium } from 'playwright';
+import { chromium } from "../../../scripts/browser-playwright.mjs";
 // oxlint-disable-next-line import/no-nodejs-modules -- a node script: it writes the shots and the timing beside the source edit.
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- a node script resolves its output folder.

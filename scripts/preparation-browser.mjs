@@ -1,6 +1,6 @@
 // MU3/F30: test the installed phone browser before fetching a large client.
 // WebKit uses its own defaults: Chromium's Metal/keychain flags do not apply.
-import {webkit} from 'playwright';
+import {webkit} from "./browser-playwright.mjs";
 import {createRequire} from 'node:module';
 
 const require=createRequire(import.meta.url);

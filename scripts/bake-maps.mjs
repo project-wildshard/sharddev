@@ -12,7 +12,7 @@ import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // Bake rules (art/maps/round-1-baked-map-style/README.md): the engine renders with autoClear off, so colour and depth are
 // cleared before every tile; the pixels are read straight after each draw; movers are drawn at rest (each mover runtime's
 // `showRest`, in the same task as the draws).
-import { chromium } from 'playwright';
+import { chromium } from "./browser-playwright.mjs";
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';

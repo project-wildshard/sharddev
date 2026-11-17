@@ -1,5 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import { devices } from 'playwright';
+import { devices } from "../../../scripts/browser-playwright.mjs";
 import { openNativeRaster, openNativeRasterPage } from './nativeRaster';
 
 function fixture() {

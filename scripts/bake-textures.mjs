@@ -40,7 +40,7 @@ const chunks = (Array.isArray(bundle) ? bundle : [bundle]).flatMap((b) => ('outp
 const code = chunks.find((c) => c.type === 'chunk')?.code;
 if (code === undefined) throw new Error('bake-textures: the bake page did not bundle');
 
-const { chromium, devices } = await import('playwright');
+const { chromium, devices } = await import("./browser-playwright.mjs");
 const browser = await chromium.launch({ headless: true, args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--enable-gpu', '--ignore-gpu-blocklist'] });
 try {
   const page = await (await browser.newContext(devices['iPhone 16 Pro'])).newPage();

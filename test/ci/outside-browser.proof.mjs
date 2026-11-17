@@ -7,7 +7,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
-import { chromium } from '@playwright/test';
+import { chromium } from '../../scripts/browser-playwright.mjs';
 import { installWildshard } from '../../src/test/helpers/install.ts';
 
 function observation() {

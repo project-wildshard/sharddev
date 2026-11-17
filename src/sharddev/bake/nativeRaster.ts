@@ -2,7 +2,7 @@ import { KEYCHAIN_ARGS } from '../../../scripts/chromium-keychain.mjs';
 import { build } from 'vite';
 // oxlint-disable-next-line import/no-nodejs-modules -- The explicit author bundler converts file URLs on its native host.
 import { fileURLToPath } from 'node:url';
-import { devices, webkit, chromium, type BrowserContextOptions, type Page } from 'playwright';
+import { devices, webkit, chromium, type BrowserContextOptions, type Page } from "../../../scripts/browser-playwright.mjs";
 
 /** Setup operations required from a native reference page. */
 export interface NativeRasterPage {

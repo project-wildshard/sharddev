@@ -9,7 +9,7 @@
 //   client); it enters at `?skipintro` as `wildshard dev` does, with the page's service worker off (`sw=0`), so every read
 //   reaches the recorder from the network.
 // Run through scripts/browser-lane.sh.
-import {devices} from 'playwright';
+import {devices} from "./browser-playwright.mjs";
 import {launchPreparationBrowser} from './preparation-browser.mjs';
 import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';

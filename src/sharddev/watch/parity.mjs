@@ -26,7 +26,7 @@ import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- its flags.
 import { parseArgs } from 'node:util';
-import { chromium } from 'playwright';
+import { chromium } from "../../../scripts/browser-playwright.mjs";
 import sharp from 'sharp';
 
 const ROOT = resolve(import.meta.dirname, '../../..');

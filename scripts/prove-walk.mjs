@@ -35,7 +35,7 @@ export async function proveWalk(source, walk, given, { log = console.info } = {}
   if (typeof play !== 'function') throw new WalkProofError(`${walk}: export default async function ({ talk, choose, expectFlags, ... }) { ... }`);
   if (!(await isDevServer(base))) throw new WalkProofError(`${given} is not a \`wildshard dev\` page (no /__wildshard_dev_revision); run \`wildshard dev ${source}\` and pass the URL it prints`);
   const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([
-    import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
+    import("./browser-playwright.mjs"), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
   const started = Date.now(), errors = [];
   const browser = await chromium.launch({ headless: true, args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
   let report;

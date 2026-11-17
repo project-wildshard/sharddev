@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
 import {mkdtempSync,mkdirSync,writeFileSync,readFileSync,existsSync,rmSync} from 'node:fs';
 import {join,resolve,basename,dirname} from 'node:path';
-import {webkit} from 'playwright';
+import {webkit} from "../../scripts/browser-playwright.mjs";
 import {launchPreparationBrowser} from '../../scripts/preparation-browser.mjs';
 
 const root=resolve(import.meta.dirname,'../..');

@@ -9,7 +9,7 @@ import { createServer } from 'node:http';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { brotliDecompressSync } from 'node:zlib';
 import { extname, join, resolve as resolvePath } from 'node:path';
-import { chromium, devices, webkit } from 'playwright';
+import { chromium, devices, webkit } from "./browser-playwright.mjs";
 import { readTar } from '@wildshard/format/tar';
 
 const flag = name => process.argv.find(row => row.startsWith(`--${name}=`))?.slice(name.length + 3);

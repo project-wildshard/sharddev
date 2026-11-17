@@ -108,7 +108,7 @@ export async function captureHero(shard, given, { name, log = console.info } = {
   const base = servedRoot(given);
   // Loaded here, so --stamp-existing needs no browser or engine to resolve.
   const [{ chromium }, { NAME_ASKED, saveFixture }, { KEYCHAIN_ARGS }] = await Promise.all([
-    import('playwright'), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
+    import("./browser-playwright.mjs"), import('@wildshard/engine/scripts/debug-settings.mjs'), import('./chromium-keychain.mjs')]);
   // A `data:` slot (new's generated card) is captured to card/<slot>.jpg and named in both card files after; any other
   // slot must already name a file in the shard folder.
   // F28: a scene shard (no manifest) wears a generated card, so every slot it has not captured yet is a new card/<slot>.jpg

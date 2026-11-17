@@ -24,7 +24,7 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { deflateSync, crc32 } from 'node:zlib';
-import { chromium } from 'playwright';
+import { chromium } from "./browser-playwright.mjs";
 import { build } from 'vite';
 import { browserBakeBytes } from '@wildshard/engine/scripts/bake-output.mjs';
 

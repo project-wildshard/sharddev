@@ -7,7 +7,7 @@ import { KEYCHAIN_ARGS } from '../chromium-keychain.mjs';
 // Vite plugin, constructor shortcut, admission root or readiness claim is used.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-import { chromium, devices, type Browser, type BrowserContext, type Page } from 'playwright';
+import { chromium, devices, type Browser, type BrowserContext, type Page } from "../browser-playwright.mjs";
 import * as v from 'valibot';
 import { crawlEntryReadSet, entryDemandUrls, type EntryCrawlDemand, type EntryCrawlRegion } from '@wildshard/sdk/entryReads';
 import { hashImmutableBytes } from '@wildshard/sdk/immutable';
