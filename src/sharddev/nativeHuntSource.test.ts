@@ -23,12 +23,12 @@ test('only an explicit old hunt owner copies former numbers, preserving its poli
   expect(expanded.program?.strikes).toEqual(source.program.strikes);
   expect(expanded.native[0]?.variants).toEqual(source.native[0]?.variants);
   expect(expanded.hunt).toEqual({ ...source.hunt, fight: { capExemptTags: [] } });
-  expect(expanded.native[0]?.capExempt).toBe(false);
-  expect(expanded.program?.species[0]?.capExempt).toBe(false);
-  expect(warnings).toHaveLength(5);
+  expect(expanded.native[0]?.capExempt).toBeUndefined();
+  expect(expanded.program?.species[0]?.capExempt).toBeUndefined();
+  expect(warnings).toHaveLength(3);
   expect(JSON.stringify(source)).toBe(before);
   expect(expandNativeHuntSource(expanded, line => { warnings.push(line); })).toBe(expanded);
-  expect(warnings).toHaveLength(5);
+  expect(warnings).toHaveLength(3);
   const { hunt: _hunt, ...withoutOwner } = source;
   expect(expandNativeHuntSource(withoutOwner, () => { throw new Error('Unexpected expansion'); })).toBe(withoutOwner);
 });
@@ -66,4 +66,10 @@ test('native cap policy preserves dynamic tags and explicit overrides', () => {
 test('native policy admission refuses inconsistent declarations before rewriting', () => {
   const source = fixture();
   expect(() => expandNativeHuntSource({ ...source, hunt: { ...source.hunt, fight: { capExempt: ['bear'], capExemptTags: [] } } })).toThrow();
+});
+
+test('an empty hunt list cannot negate an exemption owned by the level fight', () => {
+  const result = readSpeciesPrograms(expandNativeHuntSource(fixture(), () => undefined));
+  expect([...result.page, ...result.native, ...result.program?.species ?? []].map(row => row.capExempt))
+    .toEqual([undefined, undefined, undefined]);
 });

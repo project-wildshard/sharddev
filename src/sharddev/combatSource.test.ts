@@ -1,3 +1,4 @@
+import { expandNativeHuntSource } from './nativeHuntSource';
 // oxlint-disable-next-line import/no-nodejs-modules -- Exercise real immutable source and generated products.
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture output stays beneath the lane's repository scratch.
@@ -129,4 +130,23 @@ test('ordinary cap compilation keeps conditional request tags and authored overr
   expect(result.manifest?.fight?.capExemptTags).toEqual(['creature.crab', 'state.rage', 'creature.state.rage', 'effect.hot', 'creature.effect.hot']);
   expect(JSON.stringify(admitted)).toBe(before);
   expect(expandCombatSource(result, () => { throw new Error('Repeated policy expansion'); })).toBe(result);
+});
+
+test('the original captain keeps the level cap exemption when native hunt has no cap list', () => {
+  const frozen = JSON.parse(readFileSync(resolve('test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
+  const row = frozen.sections.find(section => section.name === 'actors/species-programs');
+  if (row === undefined) throw new Error('Missing immutable native fixture');
+  const bytes = new TextEncoder().encode(row.wire);
+  expect(bytes.length).toBe(row.bytes); expect(hashImmutableBytes(bytes)).toBe(row.hash);
+  const native = readSpeciesPrograms(expandNativeHuntSource(JSON.parse(row.wire), () => undefined));
+  expect(native.hunt?.fight.capExempt).toBeUndefined();
+  const captain = native.program?.species.find(species => species.kind === 'captain');
+  expect(captain).toBeDefined(); expect(captain?.capExempt).toBeUndefined();
+  const source = fixture(), metadata = JSON.parse(readFileSync(resolve('src/shards/_template/manifest.json'), 'utf8'));
+  source.manifest = { ...metadata, fight: { maxHitDamage: 20, capExempt: ['captain'] } };
+  const sections = new Map([['actors/species-programs', native]]);
+  const result = expandCombatSource(parseShardfile(source, sections), () => undefined, sections);
+  expect(result.manifest?.fight?.capExemptTags).toEqual(['creature.captain']);
+  expect(result.manifest?.fight?.maxHitDamage).toBe(20);
+  expect(captain?.capExempt).toBeUndefined();
 });

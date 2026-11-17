@@ -16,12 +16,10 @@ export function expandNativeHuntSource(input: unknown, warn: (message: string) =
     const tuning = source.hunt !== undefined && row.tuning === undefined ? legacyHuntTuning(row.aggressive === true) : undefined;
     const variants = [...new Set([...row.variants, ...row.spawnOnly ?? []].map(variant => variant.id))];
     const harvest = row.harvest === undefined ? legacyHarvest(row.kind, variants) : undefined;
-    const capExempt = source.hunt !== undefined && row.capExempt === undefined && capExemptTags.length === 0 ? false : undefined;
-    if (tuning === undefined && harvest === undefined && capExempt === undefined) return row;
+    if (tuning === undefined && harvest === undefined) return row;
     if (tuning !== undefined) messages.add(`species \`${row.id}\` uses the old native hunt owner: copied kit tuning from its explicit aggressive flag`);
     if (harvest !== undefined) messages.add(`species \`${row.id}\` uses the old harvest law: copied explicit drops for its complete variant roster`);
-    if (capExempt !== undefined) messages.add(`species \`${row.id}\` uses the old native hunt owner: copied its source cap policy`);
-    return { ...row, ...(tuning === undefined ? {} : { tuning }), ...(harvest === undefined ? {} : { harvest }), ...(capExempt === undefined ? {} : { capExempt }) };
+    return { ...row, ...(tuning === undefined ? {} : { tuning }), ...(harvest === undefined ? {} : { harvest }) };
   };
   const expanded = { ...source,
     ...(compileFight && source.hunt !== undefined ? { hunt: { ...source.hunt, fight: { ...source.hunt.fight, capExemptTags } } } : {}), native: source.native.map(fill), page: source.page.map(fill),
