@@ -7,29 +7,48 @@
   "engines": {
     "node": ">=24.18.0"
   },
+  "bin": {
+    "wildshard-build": "./dist/build.mjs"
+  },
   "files": [
+    "dist",
     "src",
     "scripts/*.mjs",
     "scripts/*.d.mts",
+    "!scripts/compile.mjs",
     "!src/**/*.test.*"
   ],
   "scripts": {
     "lint:kit": "node ../../kit/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern 'src/sharddev/**' --no-error-on-unmatched-pattern src",
     "lint:author": "WILDSHARD_RATCHET_FILE=lint/ratchet.json node ../../kit/scripts/bin-tools.mjs -c .oxlintrc.author.json --deny-warnings src/sharddev",
     "test": "pnpm test:author",
-    "test:author": "vitest run"
+    "test:author": "vitest run",
+    "compile": "node scripts/compile.mjs",
+    "prepack": "node scripts/compile.mjs"
   },
   "dependencies": {
+    "@gltf-transform/core": "4.5.0",
+    "@gltf-transform/extensions": "4.5.0",
+    "@gltf-transform/functions": "4.5.0",
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
+    "@valibot/to-json-schema": "1.8.0",
     "@wildshard/format": "npm:@wildshard/shard-format@0.23.0",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",
+    "ajv": "6.15.0",
+    "assemblyscript": "0.28.20",
+    "binaryen": "132.0.0",
+    "fflate": "0.8.3",
+    "meshoptimizer": "1.2.0",
+    "rolldown": "1.2.16",
+    "sharp": "0.35.5",
     "valibot": "1.5.0"
   },
   "devDependencies": {
     "@types/node": "24.3.1",
     "@wildshard/kit": "workspace:*",
+    "esbuild": "0.28.2",
     "three": "0.186.0",
     "vite": "8.3.0",
     "vitest": "5.0.3"
@@ -49,7 +68,8 @@
     "./scripts/decision-legacy-lines.mjs": {
       "types": "./scripts/decision-legacy-lines.d.mts",
       "default": "./scripts/decision-legacy-lines.mjs"
-    }
+    },
+    "./buildMain": "./src/sharddev/buildMain.ts"
   },
   "repository": {
     "type": "git",

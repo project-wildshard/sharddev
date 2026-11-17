@@ -216,4 +216,14 @@ describe('dep-guard', () => {
     for (const name of LEAN) assert.ok(report.some(row => row.name === name), name)
     assert.deepEqual(guardFailures(report), [])
   })
+  it('pins build\'s run-time packages at the sdk\'s versions (SP9d2)', () => {
+    // The compiled build (packages/build/dist/build.mjs) inlines the sdk, upload, kit and format and imports the sdk's
+    // own dependencies from beside it, so build declares each at the sdk's pin.
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const read = path => JSON.parse(readFileSync(join(repo, path), 'utf8'))
+    const sdk = read('packages/sdk/package.json').dependencies,
+      build = read('packages/build/package.json').dependencies
+    for (const [name, specifier] of Object.entries(build))
+      if (sdk[name] !== undefined && !specifier.startsWith('workspace:')) assert.equal(specifier, sdk[name], name)
+  })
 })

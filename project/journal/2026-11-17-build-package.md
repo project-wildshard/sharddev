@@ -16,3 +16,11 @@
   in the production tree, a source file importing the engine, or an export reaching it exits 1 (dev and the root only
   report). Proof: with `vite` moved into build's dependencies the CI step (`node --test test/ci/dep-guard.test.mjs &&
   node scripts/dep-guard.mjs`) exits 1.
+- SP9d2 (opus-sdksplit4): `@wildshard/build` has its own bin, `wildshard-build` (`src/sharddev/buildMain.ts`: the same
+  verb and options dev's `scripts/wildshard.mjs` gives `build`). `scripts/compile.mjs` (esbuild, at `prepack`) bundles it
+  to `dist/build.mjs` with format, sdk, upload and kit inlined, so Node strips no TypeScript under `node_modules`; each
+  inlined `import.meta.dirname/filename/url` points at that module's place in its installed package. The validator
+  revision is the pinned engine's, taken at compile time. Build declares the sdk's run-time packages at the sdk's pins
+  (tested). Proof: a clean `npm install` of the packed build, sdk, upload and kit (no engine, vite or playwright in the
+  tree) runs `wildshard-build` on the installed sdk's Template: 229 `out/` files and the shard file byte-identical to
+  dev's `wildshard build`.
