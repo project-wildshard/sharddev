@@ -5,6 +5,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
+import { Vector3 } from 'three';
 const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
 const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
@@ -51,6 +52,13 @@ for (const row of owner.products) test(`${row.slug}: evict and re-enter with kit
         if (held !== undefined) adapter.restore({ ...state, held, swap: null });
       }
     }
+    // This snapshot fixture seeds quest progress directly. Apply matching
+    // native death too: a living respawn body clears its death flag.
+    for (const actor of first.host.entities.values()) {
+      if (!first.host.flags.has(`dead:${actor.entityId}`) || !actor.alive) continue;
+      actor.applyFinalDamage(actor.maxHp * 2, actor.position.clone(), new Vector3(1, 0, 0));
+      assert.equal(actor.alive, false, `Quest fixture needs dead body ${actor.entityId}`);
+    }
     saved = decodeSimSnapshot(serializeSimSnapshot(snapshotSimHost(first.host)));
   } finally { first.dispose(); }
   const again = native ? await createTrustedHeadlessResident(preparation, saved) : {
@@ -61,7 +69,7 @@ for (const row of owner.products) test(`${row.slug}: evict and re-enter with kit
     const restored = snapshotSimHost(again.host);
     for (const field of ['flags', 'quests', 'slots', 'adapters']) assert.deepEqual(restored[field], saved[field], field);
     again.host.step(); assert.equal(again.host.state.tick, saved.state.tick + 1);
-    for (const flag of saved.flags) assert.equal(again.host.flags.has(flag), true);
+    for (const flag of saved.flags) assert.equal(again.host.flags.has(flag), true, `Saved flag lost after one restored tick: ${flag}`);
   } finally { again.dispose(); }
 });
 
