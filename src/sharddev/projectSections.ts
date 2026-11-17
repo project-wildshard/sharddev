@@ -5,7 +5,7 @@ import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { encodeCanonicalJson } from './immutable';
 
 /** CLI-only root-mapped section declarations. Existing nonempty fields cannot be overridden. */
-export function mergeProjectSections(source: Shardfile, input: unknown): Shardfile {
+export function mergeProjectSections(source: Shardfile, input: unknown, sections?: ReadonlyMap<string, unknown>): Shardfile {
   if (input === undefined) return source;
   if (!isJsonData(input) || input === null || typeof input !== 'object' || Array.isArray(input)
     || Object.keys(input).length > 256 || new TextEncoder().encode(encodeCanonicalJson(input)).length > SHARDFILE_ADMISSION_LIMITS.sourceBytes) throw new Error('Invalid authored section inventory');
@@ -23,5 +23,5 @@ export function mergeProjectSections(source: Shardfile, input: unknown): Shardfi
       for (const [field, data] of Object.entries(value)) set(target, field, data);
     } else set(result, key, value);
   }
-  return parseShardfile(result);
+  return parseShardfile(result, sections);
 }

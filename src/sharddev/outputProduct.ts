@@ -54,7 +54,7 @@ function cookRow(input: CookInput | undefined, emitted: Map<string,Uint8Array>, 
   return {path:COOK_DATA_PATH,hash:hashAssetBytes(bytes),bytes:bytes.length};
 }
 /** Read the named canonical platform payloads, each only after checking its emitted hash and size. */
-export function outputPlatformPayloads(platform: EmittedSections | undefined, names: readonly string[] = HEADLESS_CONTEXT_SECTIONS): ReadonlyMap<string, unknown> {
+export function outputPlatformPayloads(platform: EmittedSections | undefined, names: readonly string[] = [...HEADLESS_CONTEXT_SECTIONS, 'actors/species-programs']): ReadonlyMap<string, unknown> {
   const payloads = new Map<string, unknown>();
   for (const entry of platform?.sections ?? []) {
     if (!names.includes(entry.name)) continue;
@@ -77,7 +77,7 @@ export function outputScriptAdmissionRows(platform?: EmittedSections): ScriptAdm
 export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Uint8Array>, destination: string, options: OutputProductOptions = {}): OutputIndex {
   if (Object.hasOwn(options, 'custom')) throw new Error('Custom output extensions are retired');
   // the product buildProject admitted a moment ago is not admitted twice in memory (readmitted); the written folder always is
-  const scripts = outputScriptAdmissionRows(options.platform), source = readmitted(input,assets,'warn',scripts) ?? admitProduct(input,assets,'warn',scripts);
+  const scripts = outputScriptAdmissionRows(options.platform), context = outputPlatformPayloads(options.platform), source = readmitted(input,assets,'warn',scripts,context) ?? admitProduct(input,assets,'warn',scripts,context);
   const targetEntry = options.platform?.sections.find(row => row.name === 'world/targets');
   if (targetEntry !== undefined) {
     const bytes = options.platform?.files.get(targetEntry.path);
@@ -181,7 +181,7 @@ export function validateOutputProduct(destination: string, prior?: ReadonlyMap<s
     definedJson: (schemaBytes, bytes, name) => { validateDefinedJson(schemaBytes, bytes, name); },
     runtimeImports: (path, source) => { validateRuntimeImports(destination, path, source); },
   });
-  rememberAdmitted(checked.shard, checked.assets, 'warn', checked.scripts);
+  rememberAdmitted(checked.shard, checked.assets, 'warn', checked.scripts, checked.sections);
   return checked;
 }
 /** Clear only a caller-owned generated product before a fresh emission. */

@@ -60,7 +60,7 @@ export function farSources(world: Pick<NormalizedWorld, 'static' | 'undrawn' | '
  * Existing compiled world sections refuse rather than being silently replaced.
  * Vacant L0 squares have zero-cost metadata without fabricated GLBs or model rows.
  * No repository bake script is needed. */
-export async function bakeAuthoredWorld(input: unknown, bytes: Uint8Array, graphFiles: (hash: string) => Uint8Array | undefined = () => undefined): Promise<AuthoredWorldProduct> {
+export async function bakeAuthoredWorld(input: unknown, bytes: Uint8Array, graphFiles: (hash: string) => Uint8Array | undefined = () => undefined, sections?: ReadonlyMap<string, unknown>): Promise<AuthoredWorldProduct> {
   const source = record(input), { world: declaration, ...data } = source, authored = parseWorldSource(declaration);
   for (const key of ['terrain', 'meshCollision', 'props', 'far', 'runtime']) if (data[key] !== undefined && data[key] !== null) throw new Error(`Authored world cannot replace compiled ${key}`);
   if (Array.isArray(data['tiles']) && data['tiles'].length > 0) throw new Error('Authored world cannot replace compiled tiles');
@@ -177,7 +177,7 @@ export async function bakeAuthoredWorld(input: unknown, bytes: Uint8Array, graph
       serverBudget: { ...server, memory: v.parse(v.number(), server['memory']) + criticalResident },
       props: { ...baked.props, panels, far: farFile.hash }, library: [...new Set([...oldLibrary, ...library])], critical: [...new Set([...oldCritical, ...baked.critical])],
       meshCollision: { version: 1, tiles: collision.tiles.map(({ x, z, file }) => ({ x, z, file })), panels: panelCollision },
-      far: { bounds: { min: farBox.min.toArray(), max: farBox.max.toArray() }, files: [farFile.hash], compressed: farFile.compressed, decoded: farFile.decoded, gpu: farFile.gpu, triangles: farFile.triangles, draws: farFile.draws }, edge: edges(world) });
+      far: { bounds: { min: farBox.min.toArray(), max: farBox.max.toArray() }, files: [farFile.hash], compressed: farFile.compressed, decoded: farFile.decoded, gpu: farFile.gpu, triangles: farFile.triangles, draws: farFile.draws }, edge: edges(world) }, sections);
     // NM5: its own near view from its coarse tiles (a first-party product builds with no placeholders)
     // its light (additive pools, unlit or emissive glows) has no lit vertex-colour form: the near view draws it in its own
     // additive light layer (NM13, `coarseNearView`)

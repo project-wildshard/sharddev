@@ -6,7 +6,7 @@ import { hashAssetBytes } from './assetHandle';
 export interface ProjectMap { readonly bytes: Uint8Array; readonly tilesHash: string }
 
 /** Pack a bounded still image once into the charged library, retaining the exact authored pixels. */
-export function packProjectMap(source: Shardfile, map: ProjectMap): { shard: Shardfile; hash: string } {
+export function packProjectMap(source: Shardfile, map: ProjectMap, sections?: ReadonlyMap<string, unknown>): { shard: Shardfile; hash: string } {
   const hash = hashAssetBytes(map.bytes), cost = assetCost('image', map.bytes);
   if (source.map !== undefined && (source.map.image !== hash || source.map.tilesHash !== map.tilesHash)) throw new Error('Build map differs from the declared map');
   const existing = source.files.find(file => file.hash === hash);
@@ -19,7 +19,7 @@ export function packProjectMap(source: Shardfile, map: ProjectMap): { shard: Sha
       ...(source.budgets.library.downloadAllowance === undefined ? {} : { downloadAllowance: source.budgets.library.downloadAllowance + (included ? 0 : map.bytes.length) }),
       compressed: source.budgets.library.compressed + (included ? 0 : map.bytes.length),
       resident: source.budgets.library.resident + (included ? 0 : cost.decoded + cost.gpu) } },
-  }) };
+  }, sections) };
 }
 
 /** Encode the source program's fixed 1000-square RGBA lattice through the original lossless map codec.

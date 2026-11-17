@@ -5,7 +5,7 @@ import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { nameBlob, type NamedBlob } from './blobs';
 
 /** Compile the former glyph names to ordinary charged images; preserve selectors and inherited sticker paint. */
-export function expandJournalIconSource(source: Shardfile): { shard: Shardfile; blobs: readonly NamedBlob[] } {
+export function expandJournalIconSource(source: Shardfile, sections?: ReadonlyMap<string, unknown>): { shard: Shardfile; blobs: readonly NamedBlob[] } {
   const blobs = new Map<string, NamedBlob>();
   const compendiums = source.rows.compendiums.map(row => {
     if (!('kind' in row) || row.kind !== 'journal' || row.icons.every(icon => 'image' in icon)) return row;
@@ -32,6 +32,6 @@ export function expandJournalIconSource(source: Shardfile): { shard: Shardfile; 
   return { shard: parseShardfile({ ...source, files, library: [...library], rows: { ...source.rows, compendiums },
     budgets: { ...source.budgets, library: { ...source.budgets.library,
       compressed: source.budgets.library.compressed + compressed, resident: source.budgets.library.resident + resident,
-      ...(source.budgets.library.downloadAllowance === undefined ? {} : { downloadAllowance: source.budgets.library.downloadAllowance + compressed }) } } }),
+      ...(source.budgets.library.downloadAllowance === undefined ? {} : { downloadAllowance: source.budgets.library.downloadAllowance + compressed }) } } }, sections),
     blobs: [...blobs.values()] };
 }

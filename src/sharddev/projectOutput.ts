@@ -14,7 +14,7 @@ import { encodeCanonicalJson } from './immutable';
 import { copyAssetBytes, hashAssetBytes } from './assetHandle';
 import { defineMirror, type RuntimeMirror } from './runtimeMirrors';
 import type { EmittedSections } from './sections';
-import { outputDecisionScripts, outputScriptAdmissionRows, type OutputProductOptions } from './outputProduct';
+import { outputDecisionScripts, outputPlatformPayloads, outputScriptAdmissionRows, type OutputProductOptions } from './outputProduct';
 import { prepareProjectDecisions, replacedDecisionBlob, decisionBlobNames } from './projectDecisions';
 import type { DecisionBuildOptions } from './buildDecisionScripts';
 import { expandNativeHuntSections } from './nativeHuntSource';
@@ -86,13 +86,32 @@ function riggedHullLate(platform: EmittedSections | undefined, files: readonly O
     .map(hash => ({ hash }));
 }
 
-/** Parse the optional output export and compile project-contained inputs (including glTF) into immutable blobs. */
-export async function prepareProjectOutput(project: string, input: unknown, decisions?: { source: Shardfile; options: DecisionBuildOptions }): Promise<PreparedProjectOutput> {
+type PreparedOutputInput = v.InferOutput<typeof output>;
+const preparedInputs = new WeakMap<object, PreparedOutputInput>();
+
+/** Normalize the one producer result before source parsing and decision work.
+ * Reusing this owned result preserves preparation and expansion order without
+ * rerunning an authored callback or traversing its values twice. */
+export function prepareProjectOutputInput(input: unknown): PreparedOutputInput {
+  const prepared = typeof input === 'object' && input !== null ? preparedInputs.get(input) : undefined;
+  if (prepared !== undefined) return prepared;
   let parsed = v.parse(output, input === undefined ? {} : input);
   if (parsed.platform !== undefined) {
     const platform = expandNativeLookSections(expandNativeHuntSections(parsed.platform));
     if (platform !== parsed.platform) parsed = { ...parsed, platform: v.parse(emitted, platform) };
   }
+  preparedInputs.set(parsed, parsed);
+  return parsed;
+}
+
+/** Verify the declared native namespace before parsing item targets. */
+export function projectOutputContext(input: PreparedOutputInput): ReadonlyMap<string, unknown> {
+  return outputPlatformPayloads(input.platform, ['actors/species-programs']);
+}
+
+/** Parse the optional output export and compile project-contained inputs (including glTF) into immutable blobs. */
+export async function prepareProjectOutput(project: string, input: unknown, decisions?: { source: Shardfile; options: DecisionBuildOptions }): Promise<PreparedProjectOutput> {
+  let parsed = prepareProjectOutputInput(input);
   const blobs: NamedBlob[] = [], overlays: OutputFile[] = [];
   if (decisions !== undefined) {
     const built = await prepareProjectDecisions(project, decisions.source, parsed.platform, decisions.options);
@@ -191,8 +210,8 @@ function conflictingBytes(previous: Uint8Array, blob: NamedBlob): boolean {
 
 /** Admit named bytes once. Existing declarations, conservative costs and names win when content is reused;
  * new content becomes a library root and charges only the newly reachable closure. Inputs are never mutated. */
-export function mergeProjectBlobs(input: Shardfile, inputAssets: ReadonlyMap<string, Uint8Array>, blobs: readonly NamedBlob[], namedFiles: readonly OutputFile[] = [], late: readonly LateFile[] = []): { shard: Shardfile; assets: Map<string, Uint8Array>; namedFiles: readonly OutputFile[] } {
-  const source = parseShardfile(input), before = libraryCost(source), assets = new Map(inputAssets);
+export function mergeProjectBlobs(input: Shardfile, inputAssets: ReadonlyMap<string, Uint8Array>, blobs: readonly NamedBlob[], namedFiles: readonly OutputFile[] = [], late: readonly LateFile[] = [], sections?: ReadonlyMap<string, unknown>): { shard: Shardfile; assets: Map<string, Uint8Array>; namedFiles: readonly OutputFile[] } {
+  const source = parseShardfile(input, sections), before = libraryCost(source), assets = new Map(inputAssets);
   const files = new Map(source.files.map(file => [file.hash, file]));
   const named = new Map<string, OutputFile>(), names = new Map<string, string>();
   for (const file of v.parse(OutputIndexSchema.entries.files, namedFiles)) {
@@ -244,5 +263,5 @@ export function mergeProjectBlobs(input: Shardfile, inputAssets: ReadonlyMap<str
   const after = libraryCost(source), budget = source.budgets.library;
   budget.compressed += after.compressed - before.compressed; budget.resident += after.resident - before.resident;
   if (budget.downloadAllowance !== undefined) budget.downloadAllowance += after.compressed - before.compressed;
-  return { shard: parseShardfile(source), assets, namedFiles: [...named.values()] };
+  return { shard: parseShardfile(source, sections), assets, namedFiles: [...named.values()] };
 }

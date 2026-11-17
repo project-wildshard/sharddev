@@ -40,7 +40,7 @@ import { audioEncodeLine, encodeMountAudio, readStereoMarks } from './audioEncod
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from './authorManifest';
 import { discoveryDocument, discoveryUrl } from './discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from './outputProduct';
-import { prepareProjectOutput, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from './projectOutput';
+import { prepareProjectOutput, prepareProjectOutputInput, projectOutputContext, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from './projectOutput';
 import type { RuntimeMirror } from './runtimeMirrors';
 import { proveRuntimeData, writeRuntimeFiles } from './outputRuntime';
 import { readManifestSource, type ProjectManifestSource } from './projectManifest';
@@ -61,9 +61,9 @@ export function canonicalJson(value: unknown): string { return encodeCanonicalJs
 export function contentHash(bytes: Uint8Array): string { return hashImmutableBytes(bytes); }
 
 /** Validate graph closure costs and actual bytes through the same admission used by the browser loader. */
-export function validateProject(input: unknown, assets: ReadonlyMap<string, Uint8Array>, project?: string, scripts: ScriptAdmissionRows = []): Shardfile {
-  const source = parseShardfile(input);
-  return admitProduct(source, assets, projectPerformancePolicy(project, source), scripts);
+export function validateProject(input: unknown, assets: ReadonlyMap<string, Uint8Array>, project?: string, scripts: ScriptAdmissionRows = [], sections?: ReadonlyMap<string, unknown>): Shardfile {
+  const source = parseShardfile(input, sections);
+  return admitProduct(source, assets, projectPerformancePolicy(project, source), scripts, sections);
 }
 
 async function authorModule(project: string, file: string): Promise<{ exports: Record<string, unknown>; hash: string; mapHash: string }> {
@@ -152,17 +152,6 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
     declaration = compiled.declaration;
     for (const [hash, bytes] of compiled.assets) baked.set(hash, bytes);
   }
-  // D74: inline material graphs become content-addressed graph files of the closure before any admission reads them
-  const lowered = lowerMaterialGraphs(declaration);
-  declaration = lowered.declaration;
-  for (const [hash, bytes] of lowered.assets) baked.set(hash, bytes);
-  if (typeof declaration === 'object' && declaration !== null && 'world' in declaration) {
-    const world = parseWorldSource(declaration.world);
-    const product = await bakeAuthoredWorld(declaration, programWorld ?? readBoundedFile(sourcePath(world.glb), 256_000_000), hash => baked.get(hash));
-    shard = product.shard;
-    for (const [hash, bytes] of product.assets) baked.set(hash, bytes);
-  } else shard = parseShardfile(declaration);
-  checkProjectRuntime(project, projectPerformancePolicy(project, shard), undefined, shard.identity);
   const sidecar = sidecarModule?.exports;
   if (sidecar !== undefined && ('output' in loaded || !('output' in sidecar))) throw new Error('Output sidecar requires one unambiguous output export');
   if (generatedOutput !== undefined && (sidecar !== undefined || 'output' in loaded)) throw new Error('Generated project requires one unambiguous output declaration');
@@ -172,6 +161,19 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
     if (!isProjectGenerator(prepareOutput) || sidecarModule === undefined) throw new Error('Output preparation must be a build function');
     sidecarOutput = await prepareOutput(generation);
   }
+  const outputInput = prepareProjectOutputInput(generatedOutput ?? (sidecar === undefined ? loaded['output'] : sidecarOutput));
+  const sections = projectOutputContext(outputInput);
+  // D74: inline material graphs become content-addressed graph files of the closure before any admission reads them
+  const lowered = lowerMaterialGraphs(declaration);
+  declaration = lowered.declaration;
+  for (const [hash, bytes] of lowered.assets) baked.set(hash, bytes);
+  if (typeof declaration === 'object' && declaration !== null && 'world' in declaration) {
+    const world = parseWorldSource(declaration.world);
+    const product = await bakeAuthoredWorld(declaration, programWorld ?? readBoundedFile(sourcePath(world.glb), 256_000_000), hash => baked.get(hash), sections);
+    shard = product.shard;
+    for (const [hash, bytes] of product.assets) baked.set(hash, bytes);
+  } else shard = parseShardfile(declaration, sections);
+  checkProjectRuntime(project, projectPerformancePolicy(project, shard), undefined, shard.identity);
   // GR6: an output sidecar may also build the project's map lattice (`prepareMap(ctx)` → `{ pixels, name? }`), as a
   // source program returning `map` does; one producer of the map only
   const prepareMap = sidecar?.['prepareMap'];
@@ -187,8 +189,8 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
     if (discovery !== undefined) throw new Error('Generated project declares its discovery twice');
     discovery = parseDiscoveryValues(await prepareDiscovery(generation));
   }
-  shard = mergeProjectSections(shard, sidecar?.['sections']);
-  const output = await prepareProjectOutput(project, generatedOutput ?? (sidecar === undefined ? loaded['output'] : sidecarOutput), { source: shard, options: projectDecisionOptions(loaded['buildOptions'], projectDecisionBudget(project, decisionLegacyLines)) });
+  shard = mergeProjectSections(shard, sidecar?.['sections'], sections);
+  const output = await prepareProjectOutput(project, outputInput, { source: shard, options: projectDecisionOptions(loaded['buildOptions'], projectDecisionBudget(project, decisionLegacyLines)) });
   // The CLI-only sidecar may declare the runtime/const.ts mirrors too (a browser config cannot import data/ values).
   if (sidecar !== undefined && 'mirrors' in loaded && 'mirrors' in sidecar) throw new Error('Runtime mirrors declared by both the config and its output sidecar');
   const mirrors = projectMirrors('mirrors' in loaded ? loaded['mirrors'] : sidecar !== undefined && 'mirrors' in sidecar ? sidecar['mirrors'] : undefined);
@@ -207,13 +209,14 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
     if (previous !== undefined && hashAssetBytes(previous) !== hashAssetBytes(bytes)) throw new Error('Output asset conflicts with baked input');
     pinned.set(hash, bytes);
   }
+  const sections = outputPlatformPayloads(loaded.output.options.platform);
   const level = manifestSource === undefined || manifestSource.file === undefined && loaded.shard.manifest === undefined ? undefined : await readManifestSource(manifestSource, loaded.shard.manifest, loaded.map?.map.bytes);
   if (level !== undefined && loaded.shard.manifest !== undefined && canonicalJson(loaded.shard.manifest) !== canonicalJson(level.authored)) throw new Error('Authored manifest differs from configured level metadata');
-  const source = level === undefined ? loaded.shard : parseShardfile({ ...loaded.shard, manifest: level.manifest });
+  const source = level === undefined ? loaded.shard : parseShardfile({ ...loaded.shard, manifest: level.manifest }, sections);
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
-  const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap);
+  const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
-  const journal = expandJournalIconSource(packed?.shard ?? source), shard = journal.shard;
+  const journal = expandJournalIconSource(packed?.shard ?? source, sections), shard = journal.shard;
   printSpawnWarnings(shard);
   const mapBlobs = loaded.map?.name === undefined ? [] : [nameBlob(loaded.map.name, 'image', loaded.map.map.bytes)];
   // Explicit authored hints retain their positions; automatic UI hints never duplicate them or commons.
@@ -221,7 +224,7 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
     existingFiles = new Set(shard.files.map(row => row.hash)), libraryRoots = new Set(shard.library);
   const late = [...loaded.output.late ?? [], ...(level?.late ?? []).filter(row => !declaredLate.has(row.hash) && !shard.requires.commons.includes(row.hash)
     && (!existingFiles.has(row.hash) || libraryRoots.has(row.hash)))];
-  const merged = mergeProjectBlobs(shard, pinned, [...loaded.output.blobs, ...mapBlobs, ...journal.blobs, ...(level?.blobs ?? [])], loaded.output.options.namedFiles, late);
+  const merged = mergeProjectBlobs(shard, pinned, [...loaded.output.blobs, ...mapBlobs, ...journal.blobs, ...(level?.blobs ?? [])], loaded.output.options.namedFiles, late, sections);
   return { shard: merged.shard, assets: projectAssets(project, merged.shard, 'project', merged.assets),
     output: { ...loaded.output.options, namedFiles: merged.namedFiles, ...(loaded.discovery === undefined ? {} : { discovery: loaded.discovery }) }, mirrors: loaded.mirrors };
 }
@@ -271,9 +274,9 @@ export async function buildProject(project: string, output?: string, options: { 
   // build` asks for them; existing product builds keep theirs in the repo bake until the grid reads `near`)
   // a static import: the author CLI must bundle to one module (scripts/wildshard.mjs); the bakers' closure stays
   // renderer-free (the Node sim proofs import this module under the renderer-denying loader)
-  const expanded = expandCombatSource(expandHarvestSource(expandCreatureLayers(loaded.shard)), console.warn,
-    outputPlatformPayloads(loaded.output.platform, ['actors/species-programs']));
-  const shard = validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform));
+  const sections = outputPlatformPayloads(loaded.output.platform);
+  const expanded = expandCombatSource(expandHarvestSource(expandCreatureLayers(loaded.shard, console.warn, sections), console.warn, sections), console.warn, sections);
+  const shard = validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections);
   phase('asset-admission');
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
   await options.admit?.(shard, assets, projectPerformancePolicy(project, shard), outputPlatformPayloads(loaded.output.platform));

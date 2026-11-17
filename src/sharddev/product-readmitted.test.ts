@@ -1,9 +1,10 @@
 import { afterEach, expect, it } from 'vitest';
 // oxlint-disable-next-line import/no-nodejs-modules -- The fixture owns its generated output directory.
-import { mkdtempSync, mkdirSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, rmSync, readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture paths stay inside the owned directory.
 import { resolve } from 'node:path';
 import { emptyShardfile } from '@wildshard/sdk/author';
+import { parseShardfileField } from '@wildshard/format/shardSchema';
 import { admitProduct, readmitted } from './productOutput';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 
@@ -39,4 +40,16 @@ it('the writer still re-admits the folder it wrote, skipped middle admission or 
   const a = writeOutputProduct(product, assets, skipped), b = writeOutputProduct(structuredClone(product), assets, full);
   expect(a).toEqual(b);
   expect(validateOutputProduct(skipped).shard).toEqual(validateOutputProduct(full).shard);
+});
+
+it('native section changes invalidate the admitted product identity', () => {
+  const shard = source(), assets = new Map<string, Uint8Array>();
+  shard.items = parseShardfileField('items', JSON.parse(readFileSync(new URL('../../test/fixtures/native-contact-items.json', import.meta.url), 'utf8')));
+  const metadata = {page: [], native: [{id: 'fixture.shell', kind: 'different.kind', label: 'Shell', variants: [{id: 'plain', label: 'Plain', rarity: 'common', weight: 1, scale: [1, 1]}]}]};
+  const context = new Map<string, unknown>([['actors/species-programs', metadata]]);
+  const product = admitProduct(shard, assets, 'warn', [], context);
+  expect(readmitted(product, assets, 'warn', [], context)).toEqual(product);
+  context.set('actors/species-programs', {...metadata, native: []});
+  expect(readmitted(product, assets, 'warn', [], context)).toBeNull();
+  expect(() => admitProduct(product, assets, 'warn', [], context)).toThrow();
 });

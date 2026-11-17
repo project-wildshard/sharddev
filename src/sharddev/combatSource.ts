@@ -32,7 +32,7 @@ export function expandCombatSource(source: Shardfile, warn: (message: string) =>
   });
   for (const id of retained) warn(`item ${id}: retained native contact policy until its target rows migrate`);
   if (copied.size === 0) return source;
-  const expanded = parseShardfile({ ...source, rows: { ...source.rows, species }, items: { ...source.items, rows } });
+  const expanded = parseShardfile({ ...source, rows: { ...source.rows, species }, items: { ...source.items, rows } }, sections);
   for (const name of copied) warn(`${name}: copied original source combat policy; declare it explicitly`);
   return expanded;
 }

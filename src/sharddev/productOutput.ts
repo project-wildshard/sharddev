@@ -81,18 +81,18 @@ export function assertBuildSides(sections: ReadonlyMap<string, unknown>, named: 
 
 /** Each product admitProduct returned: the assets map, policy and script rows it was admitted with, and its exact JSON then
  *  (by object identity only: a different object, even an equal one, is admitted in full) */
-const admitted = new WeakMap<object, { readonly assets: ReadonlyMap<string, Uint8Array>; readonly policy: 'warn' | 'refuse'; readonly scripts: string; readonly snapshot: string }>();
+const admitted = new WeakMap<object, { readonly assets: ReadonlyMap<string, Uint8Array>; readonly policy: 'warn' | 'refuse'; readonly scripts: string; readonly sections: string; readonly snapshot: string }>();
 
 /** Admit declared costs and actual immutable bytes through the browser's defining contracts, without a config loader. */
-export function admitProduct(input: unknown, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse' = 'refuse', scripts: ScriptAdmissionRows = []): Shardfile {
-  const product = admitShardfileProduct(input, assets, hashAssetBytes, policy, scripts);
-  rememberAdmitted(product, assets, policy, scripts);
+export function admitProduct(input: unknown, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse' = 'refuse', scripts: ScriptAdmissionRows = [], sections?: ReadonlyMap<string, unknown>): Shardfile {
+  const product = admitShardfileProduct(input, assets, hashAssetBytes, policy, scripts, sections);
+  rememberAdmitted(product, assets, policy, scripts, sections);
   return product;
 }
 
 /** Record a product format validation just admitted, so a writer handed that same object does not admit it twice. */
-export function rememberAdmitted(product: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', scripts: ScriptAdmissionRows): void {
-  admitted.set(product, { assets, policy, scripts: JSON.stringify(scripts), snapshot: JSON.stringify(product) });
+export function rememberAdmitted(product: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', scripts: ScriptAdmissionRows, sections?: ReadonlyMap<string, unknown>): void {
+  admitted.set(product, { assets, policy, scripts: JSON.stringify(scripts), sections: encodeCanonicalJson([...sections ?? []]), snapshot: JSON.stringify(product) });
 }
 
 /**
@@ -101,11 +101,11 @@ export function rememberAdmitted(product: Shardfile, assets: ReadonlyMap<string,
  * to it). Its admission's own result then is a fresh parse of it; any other input (a copy, a mutated object, another map
  * or policy) returns null and takes the full admission. The written folder's own re-admission never depends on this.
  */
-export function readmitted(input: unknown, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', scripts: ScriptAdmissionRows): Shardfile | null {
+export function readmitted(input: unknown, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', scripts: ScriptAdmissionRows, sections?: ReadonlyMap<string, unknown>): Shardfile | null {
   if (typeof input !== 'object' || input === null) return null;
   const row = admitted.get(input);
-  if (row === undefined || row.assets !== assets || row.policy !== policy || row.scripts !== JSON.stringify(scripts) || row.snapshot !== JSON.stringify(input)) return null;
-  return parseShardfile(input);
+  if (row === undefined || row.assets !== assets || row.policy !== policy || row.scripts !== JSON.stringify(scripts) || row.sections !== encodeCanonicalJson([...sections ?? []]) || row.snapshot !== JSON.stringify(input)) return null;
+  return parseShardfile(input, sections);
 }
 
 /** Emit a complete product: canonical shard.json, every charged local/commons asset and the informational validation receipt.

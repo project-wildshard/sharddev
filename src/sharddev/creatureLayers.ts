@@ -25,7 +25,7 @@ function declaredTemperament(source: Shardfile, row: SpeciesRow, preset: Creatur
 }
 
 /** Expand only old source rows from kit JSON. Explicit layers and all authored physics/brain rows remain unchanged. */
-export function expandCreatureLayers(source: Shardfile, warn: (message: string) => void = console.warn): Shardfile {
+export function expandCreatureLayers(source: Shardfile, warn: (message: string) => void = console.warn, sections?: ReadonlyMap<string, unknown>): Shardfile {
   const messages: string[] = [];
   const species = source.rows.species.map(row => {
     if (row.temperament !== undefined) return row;
@@ -46,7 +46,7 @@ export function expandCreatureLayers(source: Shardfile, warn: (message: string) 
     };
   });
   if (messages.length === 0) return source;
-  const expanded = parseShardfile({ ...source, rows: parseRows({ ...source.rows, species }) });
+  const expanded = parseShardfile({ ...source, rows: parseRows({ ...source.rows, species }) }, sections);
   for (const message of messages) warn(message);
   return expanded;
 }
