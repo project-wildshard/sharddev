@@ -37,7 +37,6 @@ import { projectPlaceholders } from './bake/placeholders';
 import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from './cookInput';
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from './audioEncode';
-import { engineMusicLine } from './engineMusic';
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from './authorManifest';
 import { discoveryDocument, discoveryUrl } from './discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from './outputProduct';
@@ -288,10 +287,8 @@ export async function buildProject(project: string, output?: string, options: { 
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');
-    // AUDIO AU18: name the engine music this shard plays, derived from its audio rows (a name the engine lacks refuses).
-    const audio = descriptor.sections.find(row => row.name === 'audio/audio');
-    const music = audio === undefined ? undefined : engineMusicLine(shard.identity.slug, JSON.parse(readFileSync(resolve(destination, audio.path), 'utf8')));
-    if (music !== undefined) console.info(music);
+    // AUDIO AU18's engine music line moved to `wildshard check`'s validate step (SDK-SPLIT SP7b): naming engine music
+    // reads the engine's tables, and the build never loads the engine; the cook refuses a name the engine lacks too.
     if (runtime !== undefined) proveRuntimeData(destination, descriptor, loaded.mirrors);
     phase('runtime-proof');
   } catch (error) { clearOutputProduct(destination); throw error; }

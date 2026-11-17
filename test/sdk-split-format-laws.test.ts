@@ -38,3 +38,11 @@ test.each(ENGINE_FREE)('%s imports no engine path', file => {
 test.each(Object.entries(LAW_IMPORTS_GONE))('%s reads its format laws from shard-format', (file, gone) => {
   expect(engineImports(file).filter(path => gone.includes(path))).toEqual([]);
 });
+
+const localImports = (file: string): string[] =>
+  [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/from '(\.[^']+)'/gu)].map(m => m[1] ?? '');
+
+test('SP7b: the build names no engine music; check does, at its validate step (the cook refuses unknown names too)', () => {
+  expect(localImports('project.ts')).not.toContain('./engineMusic');
+  expect(localImports('checkProject.ts')).toContain('./engineMusic');
+});

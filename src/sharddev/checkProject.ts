@@ -16,6 +16,7 @@ import { buildProject } from './project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { handwrittenIdentity, settleHandwritten } from './handwritten';
 import { validateOutputProduct } from './outputProduct';
+import { engineMusicLine } from './engineMusic';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
@@ -94,7 +95,10 @@ export async function checkProject(projectPath: string, outputPath: string | und
     },
     validate: async (): Promise<StepOutcome> => {
       const checked = validateOutputProduct(built());
-      return await Promise.resolve({ status: 'pass', note: `${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas`, warnings: spawnWarnings(checked.shard) });
+      // AUDIO AU18 (SDK-SPLIT SP7b: here, not in the build): the engine music the shard plays; a name the engine lacks refuses.
+      const music = engineMusicLine(checked.shard.identity.slug, checked.sections.get('audio/audio'));
+      const note = `${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas${music === undefined ? '' : `; ${music}`}`;
+      return await Promise.resolve({ status: 'pass', note, warnings: spawnWarnings(checked.shard) });
     },
     prove: async (): Promise<StepOutcome> => {
       const tape = resolve(project, PROOF_FILE);
