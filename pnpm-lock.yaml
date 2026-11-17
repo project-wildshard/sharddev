@@ -651,8 +651,8 @@ packages:
     engines: {node: '>=24.18.0'}
     hasBin: true
 
-  '@wildshard/shard-format@0.13.0':
-    resolution: {integrity: sha512-j8JKMbsuzxfzMlujJQHiwX3272bxLhPEkJ5XGE1dRB+VxhGN/cc3FEMlB7wpFFZwdHhFFevp2fsHji/qHf4pdg==}
+  '@wildshard/shard-format@0.14.0':
+    resolution: {integrity: sha512-QUFo/kFXAW3081ivs9oOnZm5zMaPGfralzBS0VpSFfjrKbyPD7QEOOhkn8YteBe/qAROTzDbkzsIrYO9qhTIEQ==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -1721,7 +1721,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@wildshard/shard-format@0.13.0(typescript@6.0.3)':
+  '@wildshard/shard-format@0.14.0(typescript@6.0.3)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@6.0.3)
