@@ -626,6 +626,13 @@ run `wildshard check .` again.
 
 ### Validate
 
+#### spawn-aware-radius
+
+`wildshard check`, `wildshard validate` and `wildshard dev` warn when a creature's `awareRadius` covers the player
+spawn. The warning names its spawn id, brain, horizontal distance and radius (height does not protect an arrival).
+Move the creature or player spawn farther apart, or reduce the brain's `awareRadius`. An intentional arrival encounter
+can keep the warning: it does not fail validation or the check verdict. `check --json` retains it in `warnings`.
+
 #### validate-refused
 
 Shard-format's checks refused the built shard. The message names the check; RUNTIME-CONTRACT §8 lists what is refused.

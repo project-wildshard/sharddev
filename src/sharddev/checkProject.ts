@@ -1,3 +1,4 @@
+import { spawnWarnings } from './spawnWarnings';
 // The real steps behind `wildshard check` (SA4); check.ts runs them in order and gives the verdict.
 // oxlint-disable-next-line import/no-nodejs-modules -- Lint runs oxlint (the repo's or the SDK's) as a child process.
 import { spawnSync } from 'node:child_process';
@@ -93,7 +94,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
     },
     validate: async (): Promise<StepOutcome> => {
       const checked = validateOutputProduct(built());
-      return await Promise.resolve({ status: 'pass', note: `${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas` });
+      return await Promise.resolve({ status: 'pass', note: `${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas`, warnings: spawnWarnings(checked.shard) });
     },
     prove: async (): Promise<StepOutcome> => {
       const tape = resolve(project, PROOF_FILE);

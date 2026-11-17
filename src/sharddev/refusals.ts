@@ -79,6 +79,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Give the field at the path shown the value it expects; `wildshard schema shardfile <pointer>` prints its shape.' },
   { id: 'build-refused', anchor: 'build-refused', steps: ['build'],
     fix: 'Fix what the message names (a file, field or generator) and run `wildshard check` again.' },
+  { id: 'spawn-aware-radius', anchor: 'spawn-aware-radius', steps: 'any', codes: ['spawn-aware-radius'],
+    fix: 'Move the creature or player spawn farther apart, or reduce the brain awareRadius; an intentional arrival encounter can keep this warning.' },
   // validate
   { id: 'validate-refused', anchor: 'validate-refused', steps: ['validate'],
     fix: 'Rebuild with `wildshard check`; if a fresh build of unedited output still fails, report it with this message.' },

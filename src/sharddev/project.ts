@@ -1,3 +1,4 @@
+import { printSpawnWarnings } from './spawnWarnings';
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
@@ -210,6 +211,7 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
   const shard = packed?.shard ?? source;
+  printSpawnWarnings(shard);
   const mapBlobs = loaded.map?.name === undefined ? [] : [nameBlob(loaded.map.name, 'image', loaded.map.map.bytes)];
   // Explicit authored hints retain their positions; automatic UI hints never duplicate them or commons.
   const declaredLate = new Set([...(shard.late ?? []), ...(loaded.output.late ?? [])].map(row => row.hash)),

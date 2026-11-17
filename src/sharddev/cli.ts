@@ -1,3 +1,4 @@
+import { printSpawnWarnings } from './spawnWarnings';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI accepts filesystem project/output paths.
 import { basename, dirname, relative, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
@@ -198,6 +199,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     if (input.endsWith('.json') || existsSync(resolve(folder, 'shard.json'))) {
       // P1-F3 (a): format validation, @wildshard/format/productValidation alone (schema, inventory, hashes, budgets, admission rows).
       const checked = validateOutputProduct(folder);
+      printSpawnWarnings(checked.shard);
       // P1-F3 (b): execution proof. G491: validation.json contains static build evidence, never authority
       // for current script CPU. Execute the admitted bytes again on this host.
       await admitBuild(checked.shard, checked.assets, checked.shard.runtime === null ? 'refuse' : 'warn', checked.sections);
