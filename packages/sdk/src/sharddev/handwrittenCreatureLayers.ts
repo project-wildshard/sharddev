@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { outputSectionPayloads } from '@wildshard/format/outputFields';
 import { expandCreatureLayers } from './creatureLayers';
+import { expandCreatureHitVolumes } from './creatureHitVolumes';
 import { expandHarvestSource } from './harvestSource';
 import { settleHandwritten } from './handwritten';
 import { encodeCanonicalJson } from './immutable';
@@ -22,7 +23,8 @@ export function settleHandwrittenCreatureLayers(source: string, output: string):
   const native = sections.get('actors/species-programs');
   const expandedNative = native === undefined ? undefined : expandNativeHuntSource(native);
   if (expandedNative !== native) sections.set('actors/species-programs', expandedNative);
-  const layers = expandCombatSource(expandHarvestSource(expandCreatureLayers(checked.shard, console.warn, sections), console.warn, sections), console.warn, sections);
+  const creatures = expandCreatureHitVolumes(expandCreatureLayers(checked.shard, console.warn, sections), checked.assets);
+  const layers = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
   const journal = expandJournalIconSource(layers, sections);
   if (journal.shard === checked.shard && expandedNative === native) return checked;
   const merged = mergeProjectBlobs(journal.shard, checked.assets, journal.blobs, checked.index.files.filter(file => file.name !== undefined), [], sections);

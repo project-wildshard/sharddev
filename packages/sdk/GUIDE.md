@@ -423,6 +423,15 @@ hand-written template (`new --template blender`, a shard file folder held by han
 A repo started that way before still checks and uploads: `wildshard check .` packs and validates its `src/` folder as
 it always did.
 
+**Creature hit markers.** For a creature's `platform.skin` look, parent an empty named `hit.<part>` under a skin
+bone in Blender. Its translation becomes the bone-local offset. Export custom properties as extras: `radius`
+(default 0.3), `shape` (`sphere` or `capsule`), `halfLength`, `axis` (`y` or `z`) and `multiplier` (head defaults to 2,
+other parts to 1; 0 makes a shield). Keep marker scale positive and uniform; capsule axes align with the bone's Y
+or Z axis. Build and the handwritten pack step copy these into `body.volumes`, with at most 16 resolved parts.
+Explicit row volumes override the same named markers. Variants must resolve to the same volume rows; override a
+part explicitly when their markers differ. The GLB bytes stay unchanged. The engine clamps each final scaled
+radius to at least 0.3 metres, so a tiny authored radius remains hittable.
+
 **What a shard may declare.** The runtime contract lists every section, `client/plan` kind, named file, script rule,
 budget and limit a shard file may carry, and what validation refuses:
 [shard-format `docs/RUNTIME-CONTRACT.md`](https://github.com/project-wildshard/shard-format/blob/main/docs/RUNTIME-CONTRACT.md).
