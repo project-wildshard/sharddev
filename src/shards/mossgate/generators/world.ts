@@ -50,8 +50,9 @@ export function groundHeight(x: number, z: number): number {
   if (dp < 0.6) y -= 1.1 * (1 - sstep(dp, -1.6, 0.6));
   const da = Math.hypot(x - LAYOUT.ARENA.x, z - LAYOUT.ARENA.z);
   if (da < LAYOUT.ARENA.r) y -= 0.35;
-  // the cell edge stays at road height for the four entryways (the cleanroom had no edge)
-  const far = sstep(Math.hypot(x - 4, z + 2), 48, 95) * (1 - sstep(Math.hypot(x, z), 170, 230));
+  // Keep the outer 55m flat: the cook walks 50m entry lanes and the
+  // ground mesh interpolates between samples (the cleanroom had no edge).
+  const far = sstep(Math.hypot(x - 4, z + 2), 48, 95) * (1 - sstep(Math.hypot(x, z), 170, 195));
   y += far * (noise.fbm(x * 0.02 + 50, z * 0.02 + 50, 3) - 0.35) * 7;
   return y;
 }

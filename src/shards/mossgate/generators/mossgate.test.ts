@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { sceneSummary } from '@wildshard/sdk/scene/lower';
 import { mossgate } from './shard';
+import { groundHeight } from './world';
 
 /** SHARD-SOURCE AP15: the whole cleanroom (mossgate-cleanroom 9cb4dc6 src/world.js) lowers with no refusal, one part per
  *  section, with the colliders, lights, water and sky the cleanroom has. */
@@ -32,4 +33,18 @@ test('Mossgate whole lowers with every section', () => {
   expect(shard.parts.flatMap((p) => p.lights).filter((l) => l.swing !== undefined)).toHaveLength(11);
   // SS9e: the crate inside the yard gate is a touchable panel, its body fitted round it
   expect(part('crate')?.touch).toMatchObject({ material: 'wood', density: 250, shape: { cuboid: { x: expect.closeTo(0.41, 2), y: expect.closeTo(0.4, 2), z: expect.closeTo(0.41, 2) } } });
+});
+
+// The full cook walks all 23 lanes for 50 m. Keep the terrain samples
+// beneath those walks flat too, including the interpolation margin.
+test('Mossgate keeps every 50m edge approach at road height', () => {
+  for (let lane = 0; lane <= 22; lane++) {
+    const lateral = -3.65 + lane * 7.3 / 22;
+    for (let inward = 0; inward <= 54; inward += 0.5) {
+      const edge = 249.6 - inward;
+      for (const [x, z] of [[lateral, edge], [lateral, -edge], [edge, lateral], [-edge, lateral]] as const) {
+        expect(groundHeight(x, z), `road at ${x},${z}`).toBe(0);
+      }
+    }
+  }
 });
