@@ -124,7 +124,7 @@
     "../../sharddev/sceneTransform.ts",
     "../../sharddev/schemaValidation.ts",
     "../../sharddev/sections.ts",
-    "../../sharddev/shardSource.ts",
+    "../../../packages/upload/src/sharddev/shardSource.ts",
     "../../sharddev/sourceReader.ts",
     "../../sharddev/worldSource.ts"
   ]
