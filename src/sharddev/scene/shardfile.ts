@@ -16,6 +16,7 @@ import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
 import { detailFileFaults, detailMeshBytes } from '@wildshard/format/look-details';
+import { withSceneState } from './state';
 
 /**
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
@@ -498,13 +499,24 @@ export function groundEntry(scene: Pick<ShardScene, 'ground'>): Record<string, u
 export interface ShardfileReport { readonly cards: number; readonly lampsDropped: number; readonly tiles: readonly { tile: string; triangles: number; draws: number; bytes: number }[] }
 
 /** The shardfile back end: the description in, a generated project out. Runs at compile time. */
-export function compileShardfile(scene: ShardScene, ctx: ProjectGenerationContext, options: ShardfileOptions = {}): Promise<GeneratedProject> {
-  const { shard, assets, report } = sceneShardfile(scene, options);
+export async function compileShardfile(scene: ShardScene, ctx: ProjectGenerationContext, options: ShardfileOptions = {}): Promise<GeneratedProject> {
+  const { shard, assets, report } = await builtSceneShardfile(scene, ctx.compileScript, options);
   for (const [hash, bytes] of assets) if (ctx.asset(bytes) !== hash) throw new Error('scene: an asset hash differs from the product store');
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
   // AP9a: the per-part budget table, each tier's overruns named by tile and part (reported, J338; AP8: draws are a view's)
   for (const line of budgetReport(partBudgets(scene), report.tiles)) console.info(`scene: ${line}`);
-  return Promise.resolve({ shard, output: {} });
+  return { shard, output: {} };
+}
+
+/**
+ * `sceneShardfile` with the scene's state lane (SS-GF0): its `sets` prompts' generated script, compiled by `compile` (the
+ * build's `ctx.compileScript`) and bound.
+ */
+export async function builtSceneShardfile(scene: ShardScene, compile: ProjectGenerationContext['compileScript'], options: ShardfileOptions = {}): Promise<{ shard: Shardfile; assets: Map<string, Uint8Array>; report: ShardfileReport }> {
+  const built = sceneShardfile(scene, options), lane = await withSceneState(built.shard, scene, compile);
+  if (lane === null) return built;
+  built.assets.set(lane.module.hash, lane.module.bytes);
+  return { ...built, shard: parseShardfile(lane.shard) };
 }
 
 /** The pure half of the back end: shardfile rows and asset bytes by hash. */

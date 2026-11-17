@@ -481,6 +481,8 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 | `world.spawn(x, y, z, yaw)` | Where a player enters |
 | `world.trigger(id, object, { radius, flag })` | Entering `radius` metres of `object` sets quest flag `flag` |
 | `world.interact(id, object, { label, radius, scene })` | A use prompt that runs a shard scene |
+| `world.interact(id, object, { label, radius, sets })` | A use prompt that sets a state field, no script needed: `sets: { field, scope: 'shared' \| 'player', value }` or `{ field, scope, add, max }` (a count). A shared use's prompt goes once the field holds what it would write |
+| `world.part(name, build, { panel, shownWhen: { field, equals } })` | A panel shown (and solid) only while a field a `sets` prompt writes holds `equals`: a shrine's flame once it is lit. A `player` field shows on the server today; pages show it once SHARD-SOURCE SS-GF1a2 lands |
 | `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
 
 From `@wildshard/sdk/scene/author`: `solid` (collides), `paint` (a texture from a function), `Water` (a water

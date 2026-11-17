@@ -200,6 +200,8 @@ export interface ScenePart {
   readonly touch?: SceneTouch;
   /** SS-GF2a: a mover panel's track (format `movers`): its solids ride it, never a static collider */
   readonly move?: SceneMove;
+  /** SS-GF0: a panel shown while a state field holds a value (`world.part(..., { panel, shownWhen })`) */
+  readonly shownWhen?: { readonly field: string; readonly equals: number };
   /** content hash of everything below and of the materials, textures and geometries it uses */
   readonly hash: string;
   readonly draws: readonly SceneDraw[];
@@ -306,4 +308,15 @@ export interface SceneDetailScatter {
 export interface SceneTrigger { readonly id: string; readonly kind: 'region'; readonly flag: string; readonly x: number; readonly z: number; readonly radius: number }
 /** AP25b: a use prompt (format `targets.interactions`) at a node's world position. */
 export interface SceneInteraction { readonly id: string; readonly at: Vec3; readonly radius: number; readonly label: string; readonly scene: string; readonly unless?: string }
-export interface SceneAnchored { readonly triggers: readonly SceneTrigger[]; readonly interactions: readonly SceneInteraction[] }
+/**
+ * SS-GF0: a state field a use prompt writes (`world.interact(..., { sets })`): `use` is the interaction's id (and its
+ * scene's); `value` sets it, `add` adds up to `max`. Booleans are 0 and 1 here; `kind` is what the field holds.
+ */
+export type SceneStateWrite = { readonly use: string; readonly field: string; readonly scope: 'player' | 'shared'; readonly kind: 'bool' | 'count' }
+  & ({ readonly value: number } | { readonly add: number; readonly max: number });
+export interface SceneAnchored {
+  readonly triggers: readonly SceneTrigger[];
+  readonly interactions: readonly SceneInteraction[];
+  /** SS-GF0: the state writes of `sets` prompts, in the order they were declared; absent or empty: none */
+  readonly writes?: readonly SceneStateWrite[];
+}

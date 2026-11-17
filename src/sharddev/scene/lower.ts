@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type ShardWorld, type TouchableOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, SceneStateWrite, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -415,6 +415,8 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
+  // SS-GF0: the state writes of `sets` prompts, and the panels a field shows
+  const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>();
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
@@ -450,6 +452,11 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
         if (movers.size >= 32) throw new SceneRefusalError(name, 'a shard has at most 32 movers', 'Merge movers that travel together');
         movers.set(group, options.mover);
       }
+      // SS-GF0: a shown part is a panel (its GLB and collider are what show), read against its field once the build has run
+      if (options.shownWhen !== undefined) {
+        if (panel === undefined) throw new SceneRefusalError(name, 'a shown part is a panel', 'Give it a panel id too: world.part(name, build, { panel, shownWhen })');
+        shown.set(group, options.shownWhen);
+      }
       fill(group); return group;
     },
     ground: (heightAt, options = {}) => {
@@ -479,7 +486,12 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       anchor('interact', id);
       if (!(options.radius >= 0.1 && options.radius <= 8)) throw new SceneRefusalError(id, `a use prompt's radius ${options.radius} is outside 0.1 to 8 m`, 'Give it a reach in metres between 0.1 and 8');
       if (options.label.length === 0 || options.label.length > 128) throw new SceneRefusalError(id, 'a use prompt\'s label is 1 to 128 characters', 'Shorten the label');
-      interactions.push({ id, at, ...options });
+      const { sets, ...prompt } = options;
+      if (sets === undefined && prompt.scene === undefined) throw new SceneRefusalError(id, 'a use prompt needs a scene or sets', 'Give it the scene it runs (from extend) or the state field it sets');
+      if (sets !== undefined && prompt.scene !== undefined) throw new SceneRefusalError(id, 'a use prompt takes a scene or sets, not both', 'Drop one of the two');
+      // SS-GF0: a `sets` prompt's scene is its own id; the generated script writes its field
+      if (sets !== undefined) writes.push(stateWrite(id, sets, writes));
+      interactions.push({ id, at, label: prompt.label, radius: prompt.radius, scene: prompt.scene ?? id, ...(prompt.unless === undefined ? {} : { unless: prompt.unless }) });
     },
     detail: (id, mesh, options) => {
       if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');
@@ -498,7 +510,10 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
     details: new Set(detailRequests.map((request) => request.mesh)) };
-  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root)));
+  const lowered = roots.map((root) => {
+    const part = lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root)), when = shown.get(root);
+    return when === undefined ? part : Object.assign(part, { shownWhen: shownValue(root.name, when, writes) });
+  });
   const details = detailRequests.map((request) => lowerDetail(request, tables));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;
@@ -512,6 +527,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   };
   const r3 = (n: number): number => Math.round(n * 1000) / 1000;
   const anchored: ShardScene['anchored'] = {
+    ...(writes.length === 0 ? {} : { writes }),
     triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
     interactions: interactions.map((i) => {
       const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };
@@ -524,6 +540,41 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn, anchored,
     ...(details.length === 0 ? {} : { details }),
   };
+}
+
+const FIELD_NAME = /^[a-z][a-z0-9.-]{0,127}$/u, I32_MAX = 0x7fffffff;
+const whole = (n: unknown, low: number): n is number => typeof n === 'number' && Number.isInteger(n) && n >= low && n <= I32_MAX;
+/** SS-GF0: one `sets` as the write it lowers to; a field keeps one scope and one kind (a flag or a count) across its uses. */
+function stateWrite(use: string, sets: SetsOptions, before: readonly SceneStateWrite[]): SceneStateWrite {
+  const { field, scope } = sets;
+  if (typeof field !== 'string' || !FIELD_NAME.test(field)) throw new SceneRefusalError(use, `${String(field)} is not a state field name`, 'Name it like `glowfen.shrine.lit`: a lower-case letter, then lower case, digits, dots and dashes');
+  if (scope !== 'player' && scope !== 'shared') throw new SceneRefusalError(use, `a field's scope ${String(scope)} is not player or shared`, 'Give sets a scope: \'player\' (the user\'s own) or \'shared\' (every player\'s)');
+  let write: SceneStateWrite;
+  if ('add' in sets) {
+    if (!whole(sets.max, 1)) throw new SceneRefusalError(use, `a count's max ${String(sets.max)} is not a whole number of 1 or more`, 'Give sets the most the count reaches');
+    if (!Number.isInteger(sets.add) || sets.add === 0 || Math.abs(sets.add) > sets.max) throw new SceneRefusalError(use, `a count's add ${String(sets.add)} is not a whole number from 1 to its max (or down to -max)`, 'Add a whole number');
+    write = { use, field, scope, kind: 'count', add: sets.add, max: sets.max };
+  } else if (typeof sets.value === 'boolean') write = { use, field, scope, kind: 'bool', value: Number(sets.value) };
+  else if (whole(sets.value, 0)) write = { use, field, scope, kind: 'count', value: sets.value };
+  else throw new SceneRefusalError(use, `a field's value ${String(sets.value)} is not true, false or a whole number of 0 or more`, 'Set a flag to true or false, or a count to a whole number');
+  const earlier = before.find((w) => w.field === field);
+  if (earlier !== undefined && earlier.scope !== scope) throw new SceneRefusalError(use, `field ${field} is ${earlier.scope} at ${earlier.use}: a field takes one scope`, 'Use one scope for the field, or name another field');
+  if (earlier !== undefined && earlier.kind !== write.kind) throw new SceneRefusalError(use, `field ${field} holds true or false, or numbers, not both (${earlier.use} sets it as a ${earlier.kind === 'bool' ? 'flag' : 'count'})`, 'Set a flag with true or false only, a count with numbers only');
+  return write;
+}
+
+/** SS-GF0: a shown part's value, as the field holds it (a flag 0 or 1, a count within its bounds). */
+function shownValue(part: string, when: ShownWhen, writes: readonly SceneStateWrite[]): { field: string; equals: number } {
+  const uses = writes.filter((w) => w.field === when.field), [first] = uses;
+  if (first === undefined) throw new SceneRefusalError(part, `no use prompt sets ${String(when.field)}`, 'Show the part by a field a world.interact sets');
+  if (first.kind === 'bool' && typeof when.equals !== 'boolean') throw new SceneRefusalError(part, `${when.field} is a flag: shownWhen equals true or false`, 'Give shownWhen equals: true or false');
+  if (first.kind === 'count' && !(whole(when.equals, 0) && when.equals <= countMax(uses))) throw new SceneRefusalError(part, `${when.field} is a count from 0 to ${countMax(uses)}: shownWhen equals ${String(when.equals)} never holds`, 'Give shownWhen a whole number the count reaches');
+  return { field: when.field, equals: Number(when.equals) };
+}
+
+/** SS-GF0: the most a count field holds: the largest of its uses' `max` and set values. */
+export function countMax(uses: readonly SceneStateWrite[]): number {
+  return Math.max(0, ...uses.map((w) => 'max' in w ? w.max : w.value));
 }
 
 /** One line per part and kind: what the walker read, for logs and tests. */

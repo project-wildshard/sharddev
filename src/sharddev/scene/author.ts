@@ -18,6 +18,35 @@ export interface PartOptions {
   readonly touchable?: TouchableOptions;
   /** SHARD-SOURCE SS-GF2a: a panel that rides a track (a raft, a ferry): the server moves its solids, every page its GLB */
   readonly mover?: MoverOptions;
+  /**
+   * SHARD-SOURCE SS-GF0: a panel shown while a state field holds `equals` (a shrine's flame once it is lit), hidden
+   * otherwise, its solids with it. The field is one a use prompt's `sets` writes.
+   */
+  readonly shownWhen?: ShownWhen;
+}
+
+/** SS-GF0: when a panel part shows. `equals` is the field's value: true or false for a flag, a whole number for a count. */
+export interface ShownWhen { readonly field: string; readonly equals: boolean | number }
+
+/**
+ * SS-GF0: what a use prompt writes, with no script of the author's: a `player` field is the user's own (a socket they
+ * lit), a `shared` field every player's (a shrine's lanterns). `value` sets it (true, false or a whole number of 0 or
+ * more); `add` adds to it, never past `max` (a count, from 0). A field takes one scope and one kind across its uses.
+ */
+export type SetsOptions =
+  | { readonly field: string; readonly scope: 'player' | 'shared'; readonly value: boolean | number }
+  | { readonly field: string; readonly scope: 'player' | 'shared'; readonly add: number; readonly max: number };
+
+/** AP25b and SS-GF0: a use prompt's options. */
+export interface InteractOptions {
+  readonly label: string;
+  readonly radius: number;
+  /** the shard scene the use runs (format `hooks.scenes`, from `extend`); give this or `sets` */
+  readonly scene?: string;
+  /** names the hooks condition that spends it (a `sets` prompt on a shared field is spent once the field holds for good) */
+  readonly unless?: string;
+  /** SS-GF0: the state field the use writes, with no script of the author's */
+  readonly sets?: SetsOptions;
 }
 
 /**
@@ -83,9 +112,10 @@ export interface ShardWorld {
   trigger: (id: string, at: Object3D, options: { radius: number; flag?: string }) => void;
   /**
    * AP25b: a use prompt at `at`'s world position: within `radius` metres the player sees `label`, and using it runs the
-   * shard scene `scene` (format `targets.interactions`; `unless` names the hooks condition that spends it).
+   * shard scene `scene` (format `targets.interactions`; `unless` names the hooks condition that spends it). SS-GF0: or it
+   * `sets` a state field, which a panel part's `shownWhen` reads: the sdk writes the field, the scene and the script.
    */
-  interact: (id: string, at: Object3D, options: { label: string; radius: number; scene: string; unless?: string }) => void;
+  interact: (id: string, at: Object3D, options: InteractOptions) => void;
   /**
    * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
    * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how
