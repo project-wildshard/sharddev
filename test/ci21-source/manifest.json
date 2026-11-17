@@ -157,8 +157,8 @@
       "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
       "sourceBlob": "f6e0cf9fa1e2105919f87dffbfeb0e114a453397",
       "targetPath": "test/ci21-source/map-source-inputs.draft.ts",
-      "partial": true,
-      "engineRemovalAllowed": false,
+      "partial": false,
+      "engineRemovalAllowed": true,
       "originalTests": [
         "map keys ignore installed launchers while retaining source and lockfile bytes",
         "%s map names exactly the SDK files its generators reach",
@@ -168,18 +168,9 @@
       "delegatedOriginalTests": [
         "source-owned maps declare their program and its defining raster inputs"
       ],
-      "outstandingOwnerProofs": [
-        "blender-template/brasscap-mesa",
-        "driftwood-isle",
-        "far-reach",
-        "nalati-grasslands",
-        "nine-dragon-stack (including all extra root assertions)",
-        "open-plots",
-        "pine-hollow",
-        "sunscar-dunes"
-      ],
-      "state": "PARTIAL SDK slice only; no whole-original or engine removal credit",
-      "changes": "Six SDK cache/closure/raster-input cases pass on actual source. Eight other original owner assertions and Nine extra roots stay owed to content owners. Actual SDK bug fixed: retired src/sdk inputs replaced by exact80/85 reached SDK+commons paths; all three actual source products build.",
+      "outstandingOwnerProofs": [],
+      "state": "C10 complete cross-owner admission: SDK6 plus live owner8 cases; former Brasscap raster component retired after J342",
+      "changes": "Six SDK cache/closure/raster-input cases pass on actual source. Eight other original owner assertions and Nine extra roots stay owed to content owners. Actual SDK bug fixed: retired src/sdk inputs replaced by exact80/85 reached SDK+commons paths; all three actual source products build. C10 verifies all eight former owner partitions: seven live content repos retain8 cases including Nine roots; only absent Brasscap raster component retired by name under J232/J342.",
       "localRuntime": {
         "files": 1,
         "cases": 6,
@@ -192,7 +183,122 @@
         "SDK-owned maps declare their program and its defining raster inputs",
         "%s map declarations invalidate on raster and scene edits"
       ],
-      "targetSha256": "027fb423c1bde55fef97eeba92370f6b30ab29240f33af6eee0aaa93d052688a"
+      "targetSha256": "f20b7e1609501d4d74a4c17f9c479a3999e10064c43998b17b1e83fc2aa78b42",
+      "ownerProofs": [
+        {
+          "owner": "driftwood-isle",
+          "repository": "project-wildshard/shard-driftwood",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "c1bb6543489e2e61de4d863bc991079b9358c712",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018055746,
+          "outcome": "landed",
+          "cases": [
+            "driftwood-isle: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-driftwood.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "far-reach",
+          "repository": "project-wildshard/shard-sky-reach",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "dcb802109da6a9ae502378ca3441c5747db7e290",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018163615,
+          "outcome": "landed",
+          "cases": [
+            "far-reach: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-sky-reach.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "nine-dragon-stack",
+          "repository": "project-wildshard/shard-nine-dragon",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "0aeeb967cd46b192dc953a2f6333f8fa05a964a4",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018163834,
+          "outcome": "landed",
+          "cases": [
+            "nine-dragon-stack: source-owned maps declare their program and defining raster inputs",
+            "Nine retains every extra map source root across package relocation"
+          ],
+          "raw": "map-shard-nine-dragon.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "open-plots",
+          "repository": "project-wildshard/shard-open-plots",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "e9bffcac7d20a10e7b765a49cbc86be310ad84ef",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018293141,
+          "outcome": "landed",
+          "cases": [
+            "open-plots: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-open-plots.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "sunscar-dunes",
+          "repository": "project-wildshard/shard-dunes",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "5914cc48fd142eeafbf25a016090ae6facf47ea1",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018164777,
+          "outcome": "landed",
+          "cases": [
+            "sunscar-dunes: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-dunes.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "pine-hollow",
+          "repository": "project-wildshard/shard-pine-hollow",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "d48987f5a2640f43a5fffa118318e08914b17709",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44018295362,
+          "outcome": "landed",
+          "cases": [
+            "pine-hollow: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-pine-hollow.log",
+          "note": "Actual blocking map step PASS. Pine parent failure was unrelated native-child admission, fixed a7ce9002."
+        },
+        {
+          "owner": "nalati-grasslands",
+          "repository": "project-wildshard/shard-nalati",
+          "targetPath": "test/ci21-map-owner.test.mjs",
+          "revision": "b69a54d8d93433123fbf2e1608df78d2a8640121",
+          "targetBlob": "9f16f1c0f129f40bdc4f083b757c34ffbe6d2499",
+          "run": 44019954034,
+          "outcome": "landed",
+          "cases": [
+            "nalati-grasslands: source-owned maps declare their program and defining raster inputs"
+          ],
+          "raw": "map-shard-nalati.log",
+          "note": "Actual blocking map step PASS."
+        },
+        {
+          "owner": "brasscap-mesa",
+          "repository": "project-wildshard/shard-brasscap",
+          "targetPath": "test/ci21-map-disposition.json",
+          "revision": "151704a67f4f9e52a20b2fc26934190cd0422d05",
+          "targetBlob": "d9737fc169c7b1c04eca5677452e6d639baa88a8",
+          "run": 44020360368,
+          "outcome": "retired-case-component",
+          "decision": "J232/J342",
+          "cases": [
+            "Former Brasscap authored raster program input component"
+          ],
+          "reason": "The actual J342/SS3 normal source project has no authored map.json or map program. It declares explicit scene rows and source GLBs. Requiring the removed raster producer would test an absent feature. Only this former Brasscap component is retired; all other map-source-inputs cases and owner assertions remain live."
+        }
+      ]
     },
     {
       "sourcePath": "test/basis-glb-variant.test.ts",

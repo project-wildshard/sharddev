@@ -1,5 +1,5 @@
-// C2 PARTIAL DRAFT: eight other content-owner assertions and Nine extra roots remain owed.
-// This SDK slice grants no whole-original, blocking or engine-removal credit.
+// C10: SDK slice of the complete cross-owner original. The manifest binds
+// all eight owner dispositions and Nine extra roots to exact hosted proofs.
 // oxlint-disable-next-line import/no-nodejs-modules -- Compare authored inputs across owned installation layouts.
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep fixture trees under repository scratch.
