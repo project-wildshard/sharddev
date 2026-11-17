@@ -4,7 +4,8 @@
 // Node strips no types under node_modules, so J82's hook goes first and every import below it is dynamic.
 import '@wildshard/sdk/internal/threeGate';
 import { pathToFileURL } from 'node:url';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
+import { createRequire } from 'node:module';
 import { existsSync } from 'node:fs';
 import '@wildshard/sdk/internal/bake/format-hook';
 import { homedir } from 'node:os';
@@ -13,6 +14,12 @@ const { homeInstallWarning } = await import('../src/cli/install-home.ts');
 const homeWarning = homeInstallWarning({ sdk: resolve(import.meta.dirname, '..'), cwd: process.cwd(), home: homedir() });
 if (homeWarning !== undefined) process.stderr.write(homeWarning);
 
+/** Build's compiled bin, when this install has one (an installed build always does; a checkout after its compile). */
+function compiledBuild() {
+  if (process.argv.some(arg => arg.startsWith('--input-receipt=') || arg === '--behaviour-only')) return undefined;
+  const script = resolve(dirname(createRequire(import.meta.url).resolve('@wildshard/build/package.json')), 'dist/build.mjs');
+  return existsSync(script) ? script : undefined;
+}
 const AUTHOR = new Set(['new', 'update', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'watch', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
 // SA2: `wildshard <verb> --help` and `wildshard help [verb]` print help (src/cli/help.ts) before any verb runs.
@@ -28,6 +35,13 @@ if (verbHelp) {
 } else if (command === 'prove' && /\.m?js$/u.test(process.argv[4] ?? '')) {
   // F27: a walk proof (a script, not a tape) plays the shard on a `wildshard dev` page in headless Chromium.
   const script = resolve(import.meta.dirname, '../scripts/prove-walk.mjs');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
+} else if (command === 'build' && !builtFolder && compiledBuild() !== undefined) {
+  // SDK-SPLIT SP9d3: an author's `build` runs build's compiled bin (packages/build, dist/build.mjs from its prepack): no
+  // run-time bundle of this CLI and no engine. build-shards' recorded builds (--input-receipt) and --behaviour-only stay
+  // on the author bundle below, whose rolldown bridge records the bundles' inputs.
+  const script = compiledBuild();
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
 } else if (AUTHOR.has(command) && !builtFolder) {

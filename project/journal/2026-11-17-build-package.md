@@ -24,3 +24,8 @@
   (tested). Proof: a clean `npm install` of the packed build, sdk, upload and kit (no engine, vite or playwright in the
   tree) runs `wildshard-build` on the installed sdk's Template: 229 `out/` files and the shard file byte-identical to
   dev's `wildshard build`.
+- SP9d3 (opus-sdksplit4): dev's bin sends an author's `wildshard build <source>` to build's compiled bin when the
+  install has one (an installed build always does; a checkout after `pnpm --filter @wildshard/build compile`, which CI's
+  products job now runs before the author tests). build-shards' recorded builds (`--input-receipt`) and
+  `--behaviour-only` stay on the author bundle, whose rolldown bridge records inputs. Cold Brasscap (fresh generation and
+  compiler caches): 6.2 s and 5.5 s on the author bundle, 4.3 s and 4.1 s compiled; out/ and shard file byte-identical.

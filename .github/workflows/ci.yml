@@ -269,6 +269,9 @@ jobs:
       - run: node kit/scripts/bin-pins.mjs
       - name: Prove the installed global store layout
         run: node scripts/assert-store-layout.mjs
+      # SDK-SPLIT SP9d3: dev's `wildshard build` runs build's compiled bin (dist/build.mjs), as an installed build does.
+      - name: Compile the build bin
+        run: pnpm --filter @wildshard/build compile
       - name: Author tests
         run: pnpm test:author
       - name: Build all three owned templates
