@@ -2,7 +2,7 @@
 // Execute the workspace's author CLI without requiring a previously packed SDK or a Vite dev server.
 import { build } from 'vite';
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
-import { captureProductInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
+import { captureFolderInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { basename, dirname, resolve, sep } from 'node:path';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
@@ -71,7 +71,7 @@ export function prepareWildshard() {
 /** Bundle trusted workspace tooling once; external Vite resolves against this installed tool, not a data URL. */
 export async function runWildshard(args) {
   const receipt = args.find(arg=>arg.startsWith('--input-receipt='))?.slice('--input-receipt='.length);
-  if (receipt !== undefined) { await captureProductInputs(projectRoot(),receipt,()=>runWildshard(args.filter(arg=>!arg.startsWith('--input-receipt=')))); return; }
+  if (receipt !== undefined) { await captureFolderInputs(projectRoot(),receipt,()=>runWildshard(args.filter(arg=>!arg.startsWith('--input-receipt=')))); return; }
   runner ??= (async () => {
     const started = performance.now(), bundle = await prepareWildshard();
     recordBundle({output:[{type:'chunk',moduleIds:bundle.modules}]},{execution:true});

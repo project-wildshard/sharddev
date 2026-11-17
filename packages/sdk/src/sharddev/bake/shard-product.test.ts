@@ -1,12 +1,12 @@
 import { expect, test } from 'vitest';
 import { emptyShardfile } from '../author';
-import { absentShardProduct, createShardProduct, ProductError, type ShardProduct, type ShardProductInput } from '@wildshard/engine/game/shardfile/shardProduct';
+import { absentShardFolder, createShardFolder, FolderError, type ShardFolder, type ShardFolderInput } from '@wildshard/engine/game/shardfile/shardFolder';
 
 const shardfile = emptyShardfile({ slug: 'p2a-fixture', name: 'P2a fixture', author: 'Wildshard', revision: 3, seed: 1 });
 const wasm = new Uint8Array([0, 97, 115, 109]);
 
-function product(overrides: Partial<ShardProductInput> = {}): ShardProduct {
-  return createShardProduct({
+function product(overrides: Partial<ShardFolderInput> = {}): ShardFolder {
+  return createShardFolder({
     slug: 'p2a-fixture', revision: 3, shardfile,
     sections: new Map<string, unknown>([
       ['quests/quests', { quests: shardfile.quests }],
@@ -19,9 +19,9 @@ function product(overrides: Partial<ShardProductInput> = {}): ShardProduct {
   });
 }
 
-function refusal(read: () => unknown): ProductError {
-  try { read(); } catch (error) { if (error instanceof ProductError) return error; throw error; }
-  throw new Error('expected a ProductError');
+function refusal(read: () => unknown): FolderError {
+  try { read(); } catch (error) { if (error instanceof FolderError) return error; throw error; }
+  throw new Error('expected a FolderError');
 }
 
 test('platform sections read synchronously through their defining types', () => {
@@ -73,11 +73,11 @@ test('private named JSON refuses before reading bytes',async()=>{
   const p=product({files,read:()=>{reads++;return Promise.resolve(new TextEncoder().encode('{}'));}});
   await expect(p.json('rig.json')).rejects.toMatchObject({reason:'schema'});expect(reads).toBe(0);
   await expect(p.json('missing.json')).rejects.toMatchObject({reason:'missing-file'});
-  await expect(absentShardProduct('absent').json('rig.json')).rejects.toMatchObject({reason:'absent'});
+  await expect(absentShardFolder('absent').json('rig.json')).rejects.toMatchObject({reason:'absent'});
 });
 
 test('an entry with no built output refuses every read with the fix', async () => {
-  const p = absentShardProduct('far-reach-legacy');
+  const p = absentShardFolder('far-reach-legacy');
   expect(p.has('quests/quests')).toBe(false);
   const error = refusal(() => p.section('quests/quests'));
   expect(error.reason).toBe('absent');

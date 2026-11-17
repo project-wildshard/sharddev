@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { brotliCompressSync, constants } from 'node:zlib';
 
-const { addCookedShards, productVerdict, writeCatalogueDocument } = await import('@wildshard/engine/scripts/app-build/catalogue.ts');
+const { addCookedShards, folderVerdict, writeCatalogueDocument } = await import('@wildshard/engine/scripts/app-build/catalogue.ts');
 const { cookShard, openShardfile, servedAsIs } = await import('@wildshard/engine/game/shardCook');
 const { writeServiceWorker } = await import('@wildshard/engine/scripts/app-build/serviceWorker.ts');
 
@@ -22,7 +22,7 @@ try {
   const report = await cookShard(tarball, cooked, { now: () => performance.now(), wireBytes: (url, bytes) => servedAsIs(url, bytes) ? bytes.length : brotliCompressSync(bytes, { params: { [constants.BROTLI_PARAM_QUALITY]: 5 } }).length });
   // `dereference`: a preview's dist symlinks its folders.
   cpSync(cooked, packs === undefined ? out : resolve(packs), { recursive: true, dereference: true, force: true });
-  const proved = await productVerdict(tarball, out);
+  const proved = await folderVerdict(tarball, out);
   const header = join(out, 'shardfiles', slug);
   mkdirSync(header, { recursive: true }); writeFileSync(join(header, 'shard.json'), shard.header);
   // A shard's manifests name its document at the page's URL, loose as its header is: no part carries it.

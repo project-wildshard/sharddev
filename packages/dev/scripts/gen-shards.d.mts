@@ -1,4 +1,4 @@
-import type { ShardProduct } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import type { ShardFolder } from '@wildshard/engine/scripts/shard-outputs.mjs';
 
 export function shardFolders(root: string): string[];
 /** Every product slug (SF88g: a folder's declared outputs, else the folder itself). */
@@ -14,4 +14,4 @@ export function manifestContract(root: string, closure: Record<string, string[]>
 /** Refresh identities before any consumer imports cached discovery modules. */
 export function refreshDiscovery(root?: string): void;
 /** Preserve every physical static/lazy module target when a discovery output leaves src. */
-export function relocateDiscoverySource(root: string, product: Pick<ShardProduct, 'slug' | 'folder' | 'output'>, text: string): string;
+export function relocateDiscoverySource(root: string, product: Pick<ShardFolder, 'slug' | 'folder' | 'output'>, text: string): string;

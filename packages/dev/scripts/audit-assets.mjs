@@ -78,7 +78,7 @@ if (tier) {
   const { bootFileList, bootSourceFiles, bootLateReads } = await import('@wildshard/engine/boot/filePolicy');
   const { chunkFiles } = await import('@wildshard/engine/boot/manifest');
   const { resolveBootAudio } = await import('@wildshard/engine/boot/audioInventory');
-  const { productAudioInventory } = await import('@wildshard/engine/scripts/app-build/audioPacks.ts');
+  const { folderAudioInventory } = await import('@wildshard/engine/scripts/app-build/audioPacks.ts');
   const { bootFetches } = await import('@wildshard/engine/boot/prefetch');
   // Match the pack baker and cold boot: install shard overlays before resolving the same Auto policy and file source.
   await Promise.all(SHARDS.map((manifest) => prepareShardAssets(manifest, registerGpuFiles)));
@@ -88,7 +88,7 @@ if (tier) {
     const boot = manifest.boot;
     if (!boot?.sources) throw new Error(`audit-assets: ${manifest.slug} has no authored boot.sources`);
     // A function loads the product from the page's origin; this process has neither, so read the build output.
-    const audio = typeof boot.audio === 'function' ? await productAudioInventory(root, manifest.slug) : await resolveBootAudio(boot);
+    const audio = typeof boot.audio === 'function' ? await folderAudioInventory(root, manifest.slug) : await resolveBootAudio(boot);
     const art = boot.explore?.art ?? [];
     const shown = [];
     const pictures = (value) => {

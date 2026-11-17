@@ -7,7 +7,7 @@ import { Buffer } from 'node:buffer';
 import { expect, test } from 'vitest';
 import { writeOutputProduct, validateOutputProduct } from '../src/sharddev/outputProduct';
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
-import { readProductDescriptor } from '@wildshard/engine/game/shardfile/product';
+import { readFolderDescriptor } from '@wildshard/engine/game/shardfile/folder';
 import { outputBlobUrl } from '@wildshard/engine/game/shardfile/outputDescriptor';
 import { TEMPLATE_SOURCE, templateAssets } from './fixtures/templateSource';
 
@@ -17,7 +17,7 @@ test('Template browser tools reconstruct the real product and resolve every immu
     const assets = templateAssets();
     writeOutputProduct(structuredClone(TEMPLATE_SOURCE), assets, directory);
     const admitted = validateOutputProduct(directory), base = 'https://template.test/shard.json';
-    const source = await readProductDescriptor({ base, offline: false, firstParty: true,
+    const source = await readFolderDescriptor({ base, offline: false, firstParty: true,
       fetch: url => {
         const path = new URL(url).pathname.slice(1);
         return Promise.resolve(new Response(new Uint8Array(readFileSync(resolve(directory, path)))));

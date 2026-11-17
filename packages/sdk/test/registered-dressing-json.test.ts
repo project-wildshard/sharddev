@@ -4,7 +4,7 @@ import {registeredJsonContract,validateRegisteredJson} from '@wildshard/format/r
 import {registeredJsonSchema,namedJsonSchema} from '@wildshard/engine/host/formatJsonSchema';
 import {nameBlob} from '../src/sharddev/blobs';
 import {encodeCanonicalJson,hashImmutableBytes} from '@wildshard/engine/host/immutable';
-import {createShardProduct} from '@wildshard/engine/game/shardfile/shardProduct';
+import {createShardFolder} from '@wildshard/engine/game/shardfile/shardFolder';
 import {emptyShardfile} from '@wildshard/engine/host/author';
 import {fixtureJsonCheck} from './fixtures/productFile';
 
@@ -30,14 +30,14 @@ test.each(names.flatMap(name=>malformed.map(bad=>({name,bad}))))('$name native f
 
 test.each(names.flatMap(name=>['missing','foreign'].map(kind=>({name,kind}))))('$name metadata $kind refuses before any body read',async({name,kind})=>{
  let reads=0;const schema=registeredJsonSchema(name),metadata=kind==='missing'?undefined:{...schema,$comment:'foreign'};
- const product=createShardProduct({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
+ const product=createShardFolder({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
  files:new Map([[name,{hash:hashImmutableBytes(bytes),url:'/same',...(metadata===undefined?{}:{jsonSchema:metadata})}]]),
  read:()=>{reads++;return Promise.resolve(bytes);}});
  await expect(product.json(name)).rejects.toThrow('unregistered named JSON is retired');expect(reads).toBe(0);
 });
 
 test.each(names)('%s existing product reader retains omitted native defaults on decoded wire rows',async name=>{
- let reads=0;const product=createShardProduct({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
+ let reads=0;const product=createShardFolder({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
  files:new Map([[name,{hash:hashImmutableBytes(bytes),url:'/same',jsonSchema:registeredJsonSchema(name)}]]),
  read:()=>{reads++;return Promise.resolve(bytes);}});
  expect(await product.json(name)).toEqual(value);expect(reads).toBe(1);expect(value).not.toHaveProperty('instances');

@@ -7,8 +7,8 @@ import type { ShardContext } from '@wildshard/engine/game/shard/context';
 import { Scope } from '@wildshard/engine/app/scope';
 import { ToonLook } from '@wildshard/engine/render/families/toon';
 import { emptyShardfile } from '../author';
-import { createShardProduct } from '@wildshard/engine/game/shardfile/shardProduct';
-import * as lookCompiler from '@wildshard/engine/game/shardfile/runtimeProduct';
+import { createShardFolder } from '@wildshard/engine/game/shardfile/shardFolder';
+import * as lookCompiler from '@wildshard/engine/game/shardfile/runtimeFolder';
 import { lendLooks, lentLook, setLentTexture, type LentLooks } from '@wildshard/engine/game/shardfile/lentLooks';
 import { installClientBakedTiles, lendBakedLooks, residentBakedTiles } from '@wildshard/engine/game/shardfile/bakedTiles';
 import { parseFamilyMaterial } from '@wildshard/format/materialFamilies';
@@ -25,7 +25,7 @@ const lend = (id: string, material: MeshBasicMaterial, setTexture: LentLooks['se
 test('baked tiles lend their graph looks over an earlier presentation fallback', async () => {
   const source = emptyShardfile({ slug: 'fixture-orchard', name: 'Orchard', author: 'Fixture', revision: 1, seed: 3 });
   source.look.materials['orchard-ground'] = parseFamilyMaterial({ family: 'pbr' });
-  const product = createShardProduct({ slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map(), files: new Map(), read: () => Promise.reject(new Error('No fixture blob')) });
+  const product = createShardFolder({ slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map(), files: new Map(), read: () => Promise.reject(new Error('No fixture blob')) });
   const presentation = new Scope('presentation'), resident = new Scope('resident'), fallback = new MeshBasicMaterial(), compiled = new MeshBasicMaterial();
   const lent: string[] = [];
   lendLooks(presentation, lend('orchard-ground', fallback, () => { throw new Error('Material has no compiled graph textures'); }));
@@ -53,7 +53,7 @@ test('baked tiles draw once and tick once per world, standalone and grid entry',
   const row = parse(BakedTilesSchema, { id: 'ground', glb: { file: 'world/ground.glb' }, tiles: { phone: 'ground_', desktop: 'ground_' }, look: 'reef-ground', drop: 0,
     meshPrefix: 'baked-', sky: false, toonDay: false, lightmaps: [], sun: null, instances: null });
   const plan = parseClientPlan({ version: 1, features: [{ kind: 'world.baked', rows: [row] }] });
-  const product = () => createShardProduct({ slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map([['client/plan', plan]]),
+  const product = () => createShardFolder({ slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map([['client/plan', plan]]),
     files: new Map([['world/ground.glb', { hash: 'a'.repeat(64), url: '/fixture/ground.glb' }]]), read: () => Promise.resolve(glb) });
   const material = new MeshBasicMaterial();
   const page = () => {

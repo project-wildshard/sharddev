@@ -47,7 +47,7 @@
         "a scoped request prepares the remaining producer inputs of global discovery prerequisites",
         "a corrupt newly built receipt refuses before any table is published"
       ],
-      "targetSha256": "08f383b1d6c1ccd41daf4278de825f53a88da565452f924d7d6be9cb7db09046"
+      "targetSha256": "e59471899fbea806a5b5601f3c07e950dc72393b06863e59000051cacc73d062"
     },
     {
       "sourcePath": "test/model-sources.test.ts",
@@ -125,7 +125,7 @@
         "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
         "the normal push metadata writer emits complete relocated wrappers without a product build"
       ],
-      "targetSha256": "b360e5275cdc44523841c28ddba5e9c06393b2c0d4f339a4bb7bf323f6eabd34"
+      "targetSha256": "26f37da5c9c3bc045133112cfdce22af37c8b832019effec247ec305f4d48e74"
     },
     {
       "sourcePath": "test/template-source-layout.test.ts",

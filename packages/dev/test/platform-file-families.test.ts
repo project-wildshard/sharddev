@@ -40,7 +40,9 @@ test('shared names require the defining type and keep private neighbours custom'
   }
   // Format names a reader by its side-free identity: a retag must not need a format release.
   // v0.4.0 still names the wildlife page the feed's cut deleted. Its rows are read here until format moves at the lift.
-  const retired = new Map([['src/game/population/wildlife.ts', 'src/game/population/wildlifeFeature.ts']]);
+  // Engine SA25 (0.1.35) renamed productCreatures to folderCreatures; format still names the old reader (SHARD-SOURCE SA25b).
+  const retired = new Map([['src/game/population/wildlife.ts', 'src/game/population/wildlifeFeature.ts'],
+    ['src/game/population/productCreatures.ts', 'src/game/population/folderCreatures.ts']]);
   for (const family of PLATFORM_FILE_FAMILIES) {
     const reader = retired.get(family.reader) ?? family.reader;
     const engine = dirname(fileURLToPath(import.meta.resolve('@wildshard/engine/package.json')));

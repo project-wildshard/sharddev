@@ -13,17 +13,17 @@ import {test} from 'node:test';
 assert.equal(process.env.GITHUB_ACTIONS,'true','Cold cooking runs only in hosted Actions');
 assert.equal(process.env.RUNNER_ENVIRONMENT,'github-hosted','No self-hosted cook');
 const engine=process.env.COOKED_ENGINE_CANDIDATE;assert.match(engine??'',/^[a-f0-9]{40}$/u);
-const {loadCookedProduct,loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
-assert.equal(typeof loadCookedProduct,'function','The candidate must publish cooked-product admission before any cook');
+const {loadCookedFolder,loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
+assert.equal(typeof loadCookedFolder,'function','The candidate must publish cooked-product admission before any cook');
 const {openWorld}=await import('@wildshard/engine/host/openWorld');
 const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const {loadRapier}=await import('@wildshard/engine/physics/rapier');
 const {cookShard,servedAsIs}=await import('@wildshard/engine/game/shardCook');
 const {readServerPack,serverPackFile}=await import('@wildshard/engine/game/shardfile/serverPack');
 const {snapshotSimHostBytes,serializeSimSnapshot}=await import('@wildshard/engine/sim/snapshot');
-const {manifestFolders,shardProducts}=await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const {manifestFolders,builtShardFolders}=await import('@wildshard/engine/scripts/shard-outputs.mjs');
 const {NET_BUTTONS}=await import('@wildshard/engine/input/netButtons');
-const expected=shardProducts(process.cwd(),manifestFolders(process.cwd())).map(row=>row.slug).sort();
+const expected=builtShardFolders(process.cwd(),manifestFolders(process.cwd())).map(row=>row.slug).sort();
 assert.deepEqual(expected,['_template','ink-cel-valley','pastel-plain'],'The complete SDK template family is required');
 assert.deepEqual(readdirSync('out',{withFileTypes:true}).filter(row=>row.isDirectory()&&!row.name.startsWith('.')&&row.name!=='tars').map(row=>row.name).sort(),expected);
 const [part,parts]=(process.env.COOKED_PART??'1/1').split('/').map(Number);
@@ -52,7 +52,7 @@ for(const slug of selected)test(`${slug}: actual cold cook, room play and exact 
   const tar=join(root,`${slug}.tar`),packed=spawnSync(process.execPath,[bin,'pack',resolve('out',slug),'--out',tar],{encoding:'utf8',timeout:30_000});
   assert.ifError(packed.error);assert.equal(packed.status,0,`${packed.stdout}\n${packed.stderr}`);
   const source=readFileSync(tar);result.tarHash=digest(source);
-  const producerProduct=await loadHeadlessProduct(resolve('out',slug));result.admittedSlug=producerProduct.shardfile.identity.slug;
+  const producerProduct=await loadHeadlessFolder(resolve('out',slug));result.admittedSlug=producerProduct.shardfile.identity.slug;
   const report=await cookShard(source,cooked,{now:()=>performance.now(),wireBytes:(url,bytes)=>servedAsIs(url,bytes)?bytes.length:
    brotliCompressSync(bytes,{params:{[constants.BROTLI_PARAM_QUALITY]:4}}).length});
   assert.equal(report.slug,result.admittedSlug);assert.ok(report.parts.count>0);
@@ -76,7 +76,7 @@ for(const slug of selected)test(`${slug}: actual cold cook, room play and exact 
   // client pack and tar bytes are never passed to the room loader.
   // Refuse actual damaged server code before constructing a world. Restore
   // the extracted bytes after each control, then prove the same room opens.
-  const product=await loadHeadlessProduct(extracted);
+  const product=await loadHeadlessFolder(extracted);
   const wasm=outputDescriptor(product.shardfile)?.index.files.find(file=>file.kind==='wasm');assert.ok(wasm);
   const target=join(extracted,wasm.path),original=readFileSync(target);assert.ok(original.length>1);
   result.refusals=[];
@@ -85,10 +85,10 @@ for(const slug of selected)test(`${slug}: actual cold cook, room play and exact 
     if(mutation==='missing')rmSync(target);
     else if(mutation==='truncated')writeFileSync(target,original.subarray(0,original.length-1));
     else{const changed=Buffer.from(original);changed[changed.length-1]^=1;writeFileSync(target,changed);}
-    await assert.rejects(()=>loadCookedProduct(extracted,rapier));result.refusals.push(mutation);
+    await assert.rejects(()=>loadCookedFolder(extracted,rapier));result.refusals.push(mutation);
    }finally{writeFileSync(target,original);}
   }
-  const create=async snapshot=>openWorld(await loadCookedProduct(extracted,rapier),{room:true,...(snapshot===undefined?{}:{snapshot})});
+  const create=async snapshot=>openWorld(await loadCookedFolder(extracted,rapier),{room:true,...(snapshot===undefined?{}:{snapshot})});
   world=await create();
   const player=[...world.host.players.values()][0];assert.ok(player);
   const position=()=>[player.position.x,player.position.y,player.position.z];

@@ -1,5 +1,5 @@
 // G458: outcome progress and evidence-bound grid readiness, never task counts.
-import { representativeProduct } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { representativeFolder } from '@wildshard/engine/scripts/shard-outputs.mjs';
 import {existsSync,readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
@@ -41,7 +41,7 @@ export function gridReady(root,slug,products,{revision=null,receipts=[],reader}=
   /** @type {import('./shard-milestones.mjs').GridReady['binding']} */
   let binding;
   const result=()=>({verdict:readinessVerdict(criteria),criteria,frameFloor,...(binding===undefined?{}:{binding})});
-  const directory=resolve(products,representativeProduct(root,slug)),indexPath=resolve(directory,'shard.json'),receiptPath=resolve(directory,'validation.json');
+  const directory=resolve(products,representativeFolder(root,slug)),indexPath=resolve(directory,'shard.json'),receiptPath=resolve(directory,'validation.json');
   if(!existsSync(indexPath)||!existsSync(receiptPath))return result();
   try {
     const bytes=readFileSync(indexPath),index=outputFormat.parseOutputIndex(JSON.parse(bytes.toString('utf8'))),receipt=JSON.parse(readFileSync(receiptPath,'utf8'));

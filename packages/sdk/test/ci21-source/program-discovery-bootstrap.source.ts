@@ -13,11 +13,11 @@ import { dirname, resolve } from 'node:path'
 import { emptyShardfile } from '@wildshard/engine/host/author'
 import { authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs'
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs'
-import { productRecipe } from '@wildshard/engine/scripts/built-product.mjs'
+import { folderRecipe } from '@wildshard/engine/scripts/built-folder.mjs'
 import {
   emitProgramTables,
   generationPlan,
-  programDiscoveryProducts,
+  programDiscoveryFolders,
   programInputPlan,
 } from '@wildshard/engine/scripts/gen-programs.mjs'
 import {
@@ -25,10 +25,10 @@ import {
   usesProgramDiscovery,
 } from '@wildshard/engine/scripts/program-discovery.mjs'
 import {
-  captureProductInputs,
-  productInputKey,
-  productToolchainKey,
-  publishProductInputs,
+  captureFolderInputs,
+  folderInputKey,
+  folderToolchainKey,
+  publishFolderInputs,
   recordBundle,
 } from '@wildshard/engine/scripts/shardfile-inputs.mjs'
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs'
@@ -86,8 +86,8 @@ function fixture(actualProduct = false) {
   put('src/shards/beta/manifest.json', '{}')
   const build = async (): Promise<number> => {
     const memo = new InputHashMemo(root)
-    const toolchain = `${productToolchainKey(root, memo)}:${shardfileValidationRevision(root)}`
-    const { recipe, receipts } = productRecipe(
+    const toolchain = `${folderToolchainKey(root, memo)}:${shardfileValidationRevision(root)}`
+    const { recipe, receipts } = folderRecipe(
       root,
       'alpha',
       ['--copy-runtime'],
@@ -95,13 +95,13 @@ function fixture(actualProduct = false) {
       cacheRoot,
     )
     const receipt = resolve(root, 'receipt.json')
-    await captureProductInputs(root, receipt, async () => {
+    await captureFolderInputs(root, receipt, async () => {
       readFileSync(resolve(root, 'src/shards/alpha/shard.config.ts'))
       readFileSync(resolve(root, 'src/shards/alpha/manifest.json'))
       recordBundle({ output: [] })
       await Promise.resolve()
     })
-    const key = productInputKey(root, receipt, recipe, memo)
+    const key = folderInputKey(root, receipt, recipe, memo)
     if (key === undefined) throw new Error('Missing complete input receipt')
     const output = resolve(root, 'out/alpha')
     rmSync(output, { recursive: true, force: true })
@@ -115,7 +115,7 @@ function fixture(actualProduct = false) {
       built?.output ?? { discovery: { budgets: {} } },
     )
     put('out/alpha/.build-key', key)
-    publishProductInputs(receipts, receipt, key)
+    publishFolderInputs(receipts, receipt, key)
     return 1
   }
   const writeTables = async (): Promise<void> => {
@@ -276,7 +276,7 @@ test('composed output markers are discovered without executing source or accepti
       ],
     }),
   )
-  expect(programDiscoveryProducts(f.root)).toEqual(['alpha', 'beta-one'])
+  expect(programDiscoveryFolders(f.root)).toEqual(['alpha', 'beta-one'])
   expect(
     usesProgramDiscovery({
       bindings: { entry: { program: true }, load: { program: true } },

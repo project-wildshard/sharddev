@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { installWildshard } from '../../src/test/helpers/install.ts';
 
-const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
+const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
 const { parseNavmesh } = await import('@wildshard/engine/physics/navmesh');
 const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const parent = process.env.WS_PROOF_SCRATCH ?? tmpdir();
@@ -64,7 +64,7 @@ export default async function generate(ctx) {
 }
 
 async function navigation(directory) {
-  const product = await loadHeadlessProduct(directory), row = product.shardfile.navigation;
+  const product = await loadHeadlessFolder(directory), row = product.shardfile.navigation;
   assert.ok(row, 'The built product must admit navigation');
   const descriptor = outputDescriptor(product.shardfile), file = descriptor.index.files.find(file => file.hash === row.file);
   assert.ok(file, 'Navigation must be a charged immutable product file');

@@ -11,7 +11,7 @@ import { parseWorldTargets } from '@wildshard/format/worldTargets';
 import { admitScriptContract, decisionScriptsFromSections } from '@wildshard/format/scriptContract';
 import { SCRIPT_V1_READS, SCRIPT_V1_LISTS, type ScriptV1ReadName, type ScriptV1ListName } from '@wildshard/format/scriptAbiV1';
 import { outputDescriptor } from '@wildshard/engine/game/shardfile/outputDescriptor';
-import { loadHeadlessProduct } from '@wildshard/engine/host/headlessProduct';
+import { loadHeadlessFolder } from '@wildshard/engine/host/headlessFolder';
 import { createScriptScenario, type ScenarioActor, type DiskScenarioOptions, type DiskScriptScenario } from './scriptScenario';
 
 /** Disk admission and the game use the same defining catalogue; the fixture never allocates actor ids. */
@@ -22,7 +22,7 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   if (!existsSync(resolve(directory, 'shard.json'))) throw new Error(`Missing published scenario output ${slug}; run wildshard build first`);
   const expected = options.productDirectory === undefined ? resolve(realpathSync(root), slug) : directory;
   if (realpathSync(directory) !== expected) throw new Error('Scenario output cannot be a symlink');
-  const product = await loadHeadlessProduct(directory), shard = product.shardfile, descriptor = outputDescriptor(shard);
+  const product = await loadHeadlessFolder(directory), shard = product.shardfile, descriptor = outputDescriptor(shard);
   if (descriptor === undefined) throw new Error('Missing admitted scenario descriptor');
   const { index, sections } = descriptor;
   const rows = decisionScriptsFromSections(sections);

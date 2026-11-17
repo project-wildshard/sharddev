@@ -9,7 +9,7 @@ import { fetchDeflatedBytes } from '@wildshard/engine/core/deflate';
 import * as pacing from '@wildshard/engine/core/framePacing';
 import * as workSlices from '@wildshard/engine/core/workSlice';
 import { assembleWholeGeometryViews, fetchLaneBake, readWholeGeometry, unshuffleLanes } from '@wildshard/engine/game/plugin/geometry';
-import { provideRuntimeProduct } from '@wildshard/engine/game/shardfile/runtimeProduct';
+import { provideRuntimeFolder } from '@wildshard/engine/game/shardfile/runtimeFolder';
 import { emptyShardfile } from '../author';
 import { staticGlb } from './glb';
 import { hashImmutableBytes } from '../immutable';
@@ -36,7 +36,7 @@ function source(owner: Scope, levels = false, indexed = false): { geometry: Buff
     product.props = { version: 1, family: 'pbr', tiles: [{ lod: 0, x: 0, z: 0, file: ref }, { lod: 1, x: 0, z: 0, file: coarse }],
       panels: [], models: [], far: null, colliders: [], textures: [] };
   }
-  provideRuntimeProduct({ source: product, assets, cached: false }, owner, {
+  provideRuntimeFolder({ source: product, assets, cached: false }, owner, {
     base: 'https://test.example/shardfiles/whole-pace/', offline: false, firstParty: true,
     fetch: () => Promise.reject(new Error('All test bytes must be admitted')), hash: wire => Promise.resolve(hashImmutableBytes(wire)),
   });

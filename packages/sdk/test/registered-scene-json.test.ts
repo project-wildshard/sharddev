@@ -5,7 +5,7 @@ import {registeredJsonContract,validateRegisteredJson} from '@wildshard/format/r
 import {registeredJsonSchema,namedJsonSchema} from '@wildshard/engine/host/formatJsonSchema';
 import {nameBlob} from '../src/sharddev/blobs';
 import {emptyShardfile} from '@wildshard/engine/host/author';
-import {createShardProduct} from '@wildshard/engine/game/shardfile/shardProduct';
+import {createShardFolder} from '@wildshard/engine/game/shardfile/shardFolder';
 import {fixtureJsonCheck} from './fixtures/productFile';
 
 const rows={scene:{version:1,root:'root',nodes:[{id:'root',kind:'group',children:[]}],materials:[]},imports:[]};
@@ -37,7 +37,7 @@ test('scene admission refuses absent or foreign defining metadata before resourc
   for(const metadata of [undefined,{...schema,$comment:'foreign-contract'}]){
     let reads=0;
     const identity={slug:'scene-contract',name:'Scene',author:'Fixture',revision:1,seed:1};
-    const product=createShardProduct({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
+    const product=createShardFolder({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
       files:new Map([[name,{hash:'a'.repeat(64),url:'/same',...(metadata===undefined?{}:{jsonSchema:metadata})}]]),
       read:()=>{reads++;return Promise.resolve(bytes);}});
     await expect(product.json(name)).rejects.toThrow('unregistered named JSON is retired');expect(reads).toBe(0);
