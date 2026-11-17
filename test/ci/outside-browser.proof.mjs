@@ -104,8 +104,13 @@ async function observeAuthorBrowser(context, empty) {
     }
     cancellation.signal.throwIfAborted();
     clearTimeout(deadline); // Play is proved; artifact capture uses the reserved cleanup budget.
-    try { await page.screenshot({ path: join(report, 'outside-author.png'), timeout: 3_000 }); }
-    catch (error) { receipt.screenshotError = String(error); }
+    // SwiftShader readback can wedge shutdown after a timed-out screenshot.
+    // Real rendered-frame progress remains mandatory; PNG is optional evidence.
+    if (current.renderer?.includes('SwiftShader')) receipt.screenshotSkipped = 'software renderer readback can stall shutdown';
+    else {
+      try { await page.screenshot({ path: join(report, 'outside-author.png'), timeout: 3_000 }); }
+      catch (error) { receipt.screenshotError = String(error); }
+    }
     receipt.verdict = 'pass';
   } catch (error) {
     receipt.verdict = 'fail'; receipt.error = String(error);

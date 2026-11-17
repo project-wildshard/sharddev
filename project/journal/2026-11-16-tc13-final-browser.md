@@ -44,3 +44,11 @@ after the last real assertion, and bound optional PNG capture to3s in
 the already-reserved40s artifact/cleanup budget. Record capture failure
 without changing the play verdict; independent clean browser/dev shutdown
 remains mandatory. A screenshot is evidence, not a boot/play criterion.
+
+Hosted43986516989 again earns every play oracle, but timed-out software
+PNG readback also wedges default Chromium shutdown. Skip optional PNG
+on SwiftShader; retain mandatory real render-frame progress, all JSON
+facts and independent clean shutdown. Metal PNG is already retained.
+Restore the held browser-only manual diagnostic to verify this artifact
+change without rebaking unchanged products. Full push/nightly Ring2
+still runs every step; the diagnostic explicitly earns no full-ring credit.
