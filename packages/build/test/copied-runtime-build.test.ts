@@ -1,3 +1,4 @@
+import { FIXTURE_RUNTIME_COST } from '../../sdk/test/fixtures/clientPlanRuntime';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures own their small source and output directories.
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture paths are confined to their owned tmp root.
@@ -63,7 +64,7 @@ it('refuses a copied-runtime inventory: the index schema refuses an entry row, t
   if (typeof raw !== 'object' || raw === null) throw new Error('Missing output index');
   expect(() => parseOutputIndex({ ...raw, runtime: { entry: 'runtime/index.ts', trust: 'first-party', files: [copy], lines: 1 } })).toThrow();
   // a client-plan row that lists a copy is refused before the copy is read, whether it is missing or tampered
-  const cost = { webContentMB: 500, glMB: 100, engineBaseMB: 300, rev: 'abcdef1234', device: 'Fixture', evidence: 'progress/memory/fixture.json' };
+  const cost = FIXTURE_RUNTIME_COST;
   const listed = { ...index, runtime: { kind: 'client-plan' as const, cost, binds: [], trust: 'first-party' as const, files: [copy], lines: 0 as const } };
   expect(() => { proveRuntimeData(destination, listed, []); }).toThrow('Runtime proof requires a client-plan output with no copied TypeScript');
   mkdirSync(resolve(destination, 'runtime'), { recursive: true });
@@ -80,7 +81,7 @@ it('refuses overlapping source/output before clearing the author project', async
 
 it('compiled project builds always refuse hidden executable sources without a copy flag',async()=>{
   const {project,destination}=fixture(),shard=emptyShardfile({slug:'compiled-build',name:'Compiled build',author:'Fixture',revision:1,seed:3});
-  shard.runtime={kind:'client-plan',cost:{webContentMB:500,glMB:100,engineBaseMB:300,rev:'abcdef1234',device:'Fixture',evidence:'progress/memory/fixture.json'},binds:[]};
+  shard.runtime={kind:'client-plan',cost:FIXTURE_RUNTIME_COST,binds:[]};
   writeFileSync(resolve(project,'shard.config.ts'),`export default ${JSON.stringify(shard)};`);
   await expect(buildProject(project,destination,{client:null})).rejects.toThrow('cannot contain executable source');
   rmSync(resolve(project,'runtime'),{recursive:true});mkdirSync(resolve(project,'runtime'));

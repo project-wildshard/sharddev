@@ -14,9 +14,10 @@ import { writeRuntimeFiles } from '../src/sharddev/outputRuntime';
 import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs';
 import metadata from '../src/shards/_template/manifest.json' with {type:'json'};
+import { FIXTURE_RUNTIME_COST } from './fixtures/clientPlanRuntime';
 
 // Synthetic accounting for the current format model, not a captured runtime reading.
-const cost = { webContentMB: 500, glMB: 100, engineBaseMB: 300, epoch: 2, rev: 'abcdef1234', device: 'Fixture', evidence: 'progress/memory/fixture.json' };
+const cost = { ...FIXTURE_RUNTIME_COST };
 const row = { kind: 'client-plan', cost, binds: ['terrain', 'props', 'quests', 'state', 'movers'] };
 
 test('compiled ownership retains the exact authority and measured charge with no source entry', () => {

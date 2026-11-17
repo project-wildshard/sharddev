@@ -16,3 +16,9 @@ advanced. main-push cannot replay a merge; a normal merge retained both
 lanes without rewriting either history. The combined tree receives the
 normal full push gate, with no hook bypass. Logs live in root
 tmp/codex-te2e/cc10a2b2a-*. Meta records the exact qualified source SHA.
+
+The next gate phase also found the same old synthetic cost in the build
+fixtures. The shared clientPlanRuntime fixture now owns the current
+epoch for SDK/build/dev cases, and copied-runtime tests reuse it. Actual
+production readings are untouched; source-inventory refusal retains its
+original named guard instead of being masked by a stale synthetic cost.
