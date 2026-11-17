@@ -35,7 +35,7 @@ export async function blockedEntryTarball(){
     load('src/test/helpers/tar.ts'),import('@wildshard/format/outputIndex'),
     import('@wildshard/format/validationReceipt'),
   ]);
-  const files=await shardfileFiles({slug:'async-sdk-isle'}),index=parseOutputIndex(jsonOf(files,'shard.json'));
+  const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2'}),index=parseOutputIndex(jsonOf(files,'shard.json'));
   const water=index.sections.find(row=>row.name==='world/water');
   const bytes=validationSourceBytes({water:[{id:'blocked-route',kind:'pool',level:1,shape:{kind:'circle',x:0,z:205,radius:3}}]});
   files.set(water.path,bytes);water.hash=sha256(bytes);water.bytes=bytes.length;
@@ -43,7 +43,13 @@ export async function blockedEntryTarball(){
   index.packs=[];
   const sections=new Map(index.sections.map(row=>[row.name,jsonOf(files,row.path)]));
   index.build.sourceHash=sha256(validationSourceBytes(assembleOutputShardfile(index,sections)));
-  files.delete('cook.json');await prepare(files,index);
+  // HERO-GATE HG2: upload refuses a shard file with no hero, so the draft mounts one before it is prepared
+  const {heroImages,withHero}=await import('../../src/test/helpers/hero.ts');
+  const mounts=[...withHero(new Map(),{folder:'async-sdk-isle',images:heroImages()})].map(([path,bytes])=>{
+    files.set(path,bytes);return {url:path.slice('mounts'.length),path,hash:sha256(bytes),bytes:bytes.length};
+  }).sort((a,b)=>a.url.localeCompare(b.url));
+  files.set('cook.json',validationSourceBytes({version:1,mounts}));
+  await prepare(files,index);
   return makeTar(files);
 }
 

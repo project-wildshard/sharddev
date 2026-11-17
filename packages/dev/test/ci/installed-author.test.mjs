@@ -9,6 +9,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { after, test } from 'node:test';
 import { pathToFileURL } from 'node:url';
+import { heroImages } from '../../src/test/helpers/hero.ts';
 import { installWildshard } from '../../src/test/helpers/install.ts';
 import { openUploadServer } from '../../src/test/helpers/upload-server.ts';
 
@@ -73,6 +74,11 @@ test('the installed bin prints each verb\'s help in the glossary\'s words', { ti
 test('a packed CLI scaffolds outside its checkout and refuses overwriting it', { timeout: 9_500 }, () => {
   run(['new', repo, 'outside-isle', '--empty']);
   run(['new', repo, 'outside-isle', '--empty'], false);
+  // HERO-GATE HG2: upload refuses a shard with no hero. This author keeps curated art at the hero sizes (CI has no GPU to
+  // capture one): a scene shard's card is card/<slot>.jpg, stamped as current with no capture.
+  mkdirSync(join(source, 'card'), { recursive: true });
+  for (const [slot, image] of Object.entries(heroImages())) writeFileSync(join(source, 'card', `${slot}.jpg`), image);
+  run(['hero', source, '--stamp-existing']);
 });
 // SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
 const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
