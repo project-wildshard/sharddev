@@ -38,6 +38,28 @@ function bytes(directory, prefix = '') {
 }
 
 // SA2 (J317): the installed help speaks the glossary; src/cli/help.test.ts holds the full retired-word list.
+test('the packed SDK declares and resolves its runtime kit as a production dependency', () => {
+  const file = join(app, 'node_modules/@wildshard/sdk/package.json');
+  const manifest = JSON.parse(readFileSync(file, 'utf8'));
+  assert.match(manifest.dependencies['@wildshard/kit'] ?? '', /^\d+\.\d+\.\d+$/u,
+    'pnpm pack must rewrite the production workspace kit to its exact released version');
+  assert.equal(manifest.devDependencies?.['@wildshard/kit'], undefined);
+  assert.ok(existsSync(join(app, 'node_modules/@wildshard/kit/package.json')),
+    'The installed production graph must contain kit directly, without ancestor workspace lookup');
+  const author = createRequire(file);
+  for (const entry of ['legacySpecies', 'legacyHarvest', 'legacyCombat', 'legacyJournalIcons'])
+    assert.ok(author.resolve(`@wildshard/kit/${entry}`));
+});
+test('the packed author prepares its cold compiler before quick author commands', { timeout: 60_000 }, () => {
+  const started = performance.now();
+  const done = spawnSync(process.execPath, [bin, '--prepare-compiler'], {
+    cwd: app, encoding: 'utf8', timeout: 55_000,
+    env: { ...process.env, WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') },
+  });
+  assert.ifError(done.error);
+  assert.equal(done.status, 0, `${done.stdout}\n${done.stderr}`);
+  console.info(`packed author cold compiler: ${((performance.now() - started) / 1000).toFixed(3)} s`);
+});
 test('the installed bin prints each verb\'s help in the glossary\'s words', { timeout: 9_500 }, () => {
   const all = run(['--help']).stdout;
   assert.match(all, /^Usage: wildshard /u);
