@@ -6,7 +6,7 @@ import { expect, test, vi } from 'vitest';
 import { runCli } from './cli';
 import { checkProject } from './checkProject';
 import { buildProject, newProject } from '@wildshard/sdk/project';
-import { encodeCanonicalJson } from './immutable';
+import { encodeCanonicalJson } from '../../../sdk/src/sharddev/immutable';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
 
 test('CLI validates v2 output and refuses monolith disk inputs for validate and prove', async () => {

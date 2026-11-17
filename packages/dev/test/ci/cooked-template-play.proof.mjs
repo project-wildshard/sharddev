@@ -35,7 +35,7 @@ assert.equal(producer.complete,true);assert.match(producer.version,/^\d+\.\d+\.\
 const runtime=JSON.parse(readFileSync(join(reportRoot,'runtime.json'),'utf8'));
 assert.equal(runtime.complete,true);assert.equal(runtime.engine,engine);
 assert.equal(runtime.resolved,`https://codeload.github.com/project-wildshard/engine/tar.gz/${engine}`);
-const bin=resolve('bin/wildshard.mjs');
+const bin=resolve(import.meta.dirname,'../../bin/wildshard.mjs');
 const engineRequire=createRequire(import.meta.resolve('@wildshard/engine/package.json'));
 const rapier=await loadRapier(readFileSync(engineRequire.resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm')));
 const digest=bytes=>createHash('sha256').update(bytes).digest('hex');

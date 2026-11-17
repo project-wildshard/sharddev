@@ -5,7 +5,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import * as v from 'valibot';
 import { runNativeRecorder } from '@wildshard/engine/scripts/native-recorder-cache.mjs';
-import { cachedWitnessManifest, compareWitnessManifests } from './witness-checkpoints.mjs';
+import { cachedWitnessManifest, compareWitnessManifests } from '@wildshard/sdk/scripts/witness-checkpoints.mjs';
 
 const Payloads = v.record(v.string(), v.pipe(v.string(), v.regex(/^[0-9a-f]{64}$/u)));
 const Header = v.object({ cache: v.object({ payloads: Payloads }) });

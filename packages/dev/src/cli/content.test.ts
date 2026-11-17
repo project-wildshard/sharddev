@@ -6,7 +6,7 @@ import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import { after, afterEach, describe, it } from 'node:test'
 
-import { scratchDir } from '../../scripts/scratch-dir.mjs'
+import { scratchDir } from '../../../sdk/scripts/scratch-dir.mjs'
 import { formatContent, readContent } from './content.ts'
 
 const lane = process.env['WS_LANE_NAME'] ?? 'content-test'

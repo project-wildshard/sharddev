@@ -18,8 +18,8 @@ import {
   prepareFolder,
   sha256,
   shardfileFiles,
-} from '../../../../sdk/src/test/helpers/shardfile.ts'
-import { openUploadServer } from '../../../../sdk/src/test/helpers/upload-server.ts'
+} from '../../../../dev/src/test/helpers/shardfile.ts'
+import { openUploadServer } from '../../../../dev/src/test/helpers/upload-server.ts'
 import { uploadShardfile } from '../upload/upload.ts'
 import { writeShardfile } from './shardfile.ts'
 

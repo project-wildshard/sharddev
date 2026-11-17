@@ -2,9 +2,9 @@
 // one verdict. The loop is new, dev, check, hero, upload. `--json` prints CheckResult below and nothing else on stdout.
 // SA21: every refusal carries a rule id, a one-line fix and a GUIDE.md link, from refusals.ts.
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
-import { authorErrorText } from './authorError';
+import { authorErrorText } from '@wildshard/sdk/internal/authorError';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
-import { diagnosticNow } from './diagnosticClock';
+import { diagnosticNow } from '@wildshard/sdk/internal/diagnosticClock';
 
 /** The five steps, in the order they run. */
 export type CheckStepName = 'lint' | 'build' | 'validate' | 'prove' | 'report';

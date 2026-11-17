@@ -6,11 +6,11 @@ import type { TestContext } from 'node:test'
 import {
   runCli,
   scratchHome,
-} from '../../../../sdk/src/test/helpers/cli-run.ts'
-import { openUploadServer } from '../../../../sdk/src/test/helpers/upload-server.ts'
+} from '../../../../dev/src/test/helpers/cli-run.ts'
+import { openUploadServer } from '../../../../dev/src/test/helpers/upload-server.ts'
 
-import type { CliRun } from '../../../../sdk/src/test/helpers/cli-run.ts'
-import type { UploadServer } from '../../../../sdk/src/test/helpers/upload-server.ts'
+import type { CliRun } from '../../../../dev/src/test/helpers/cli-run.ts'
+import type { UploadServer } from '../../../../dev/src/test/helpers/upload-server.ts'
 
 // Meta SHARD-DELETE DEL10: `wildshard delete <slug>` is start, the
 // summary, the typed slug, then finalize, through the real CLI against

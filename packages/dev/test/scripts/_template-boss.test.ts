@@ -9,8 +9,8 @@ import { env } from 'node:process';
 import {resolve,dirname} from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Locate only the declared engine package.
 import {createRequire} from 'node:module';
-import {readProjectAssets} from '../../src/sharddev/project';
-import {writeOutputProduct} from '../../src/sharddev/outputProduct';
+import {readProjectAssets} from '../../../sdk/src/sharddev/project';
+import {writeOutputProduct} from '../../../sdk/src/sharddev/outputProduct';
 import { scenario as diskScenario } from '../../src/sharddev/test/scriptScenario';
 import { scriptScenarioReceipt } from '@wildshard/engine/scripts/script-scenario-metrics.mjs';
 
@@ -19,7 +19,7 @@ let directory: string;
 // The real native scenario keeps its original2s cap.
 beforeAll(async () => {
   mkdirSync('tmp',{recursive:true});directory=mkdtempSync(resolve('tmp/template-boss-'));
-  const product=await readProjectAssets(resolve('src/shards/_template'));
+  const product=await readProjectAssets(resolve(import.meta.dirname,'../../../sdk/src/shards/_template'));
   writeOutputProduct(product.shard,product.assets,directory,product.output);
 },30_000);
 afterAll(()=>{if(directory!==undefined)rmSync(directory,{recursive:true,force:true});});
@@ -83,6 +83,7 @@ test('Template boss runs published Wasm decisions and resumes a logical save', a
     let previous:number|undefined;
     for(const call of calls){expect(call.tick%6).toBe(0);expect(call.ok).toBe(true);if(previous!==undefined)expect(call.tick-previous).toBeGreaterThanOrEqual(6);previous=call.tick;}
   }
+  // oxlint-disable-next-line typescript/dot-notation -- noPropertyAccessFromIndexSignature needs the bracket (tsc TS4111)
   const receiptPath=env['WS_SCRIPT_SCENARIO_RECEIPT'];
   if(receiptPath!==undefined){
     const require=createRequire(import.meta.url),enginePackage=require.resolve('@wildshard/engine/package.json'),root=dirname(enginePackage),engineRequire=createRequire(enginePackage);

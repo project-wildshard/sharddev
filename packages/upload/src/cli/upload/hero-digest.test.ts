@@ -9,8 +9,8 @@ import { installFormatHook } from '@wildshard/format/formatHook'
 import {
   folderFiles,
   preparedFiles,
-} from '../../../../sdk/src/test/helpers/shardfile.ts'
-import { open, upload } from '../../../../sdk/src/test/helpers/upload-run.ts'
+} from '../../../../dev/src/test/helpers/shardfile.ts'
+import { open, upload } from '../../../../dev/src/test/helpers/upload-run.ts'
 import { heroHashOf } from './hero.ts'
 import { validateShardfile } from './validate.ts'
 

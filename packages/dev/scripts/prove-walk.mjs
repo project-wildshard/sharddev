@@ -10,7 +10,7 @@ import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { findShardSource } from '@wildshard/upload/sharddev/shardSource.ts';
-import { walkProof, WalkProofError } from '../src/sharddev/walkProof.ts';
+import { walkProof, WalkProofError } from '@wildshard/sdk/internal/walkProof';
 
 const USAGE = 'usage: wildshard prove <source> <walk.mjs> --base <url>  (serve the shard first: `wildshard dev .` prints its URL)';
 

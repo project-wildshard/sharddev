@@ -6,11 +6,11 @@ on:
   push:
     branches: [main]
     paths:
-      - src/**
-      - public/**
-      - test/ci/cooked-template-play.proof.mjs
-      - scripts/assert-candidate-engine.mjs
-      - scripts/select-candidate.mjs
+      - packages/sdk/src/**
+      - packages/sdk/public/**
+      - packages/dev/**
+      - packages/sdk/scripts/assert-candidate-engine.mjs
+      - packages/sdk/scripts/select-candidate.mjs
       - .github/workflows/cooked-templates-contract.yml
       - package.json
       - pnpm-lock.yaml
@@ -148,12 +148,12 @@ jobs:
         run: node scripts/assert-candidate-engine.mjs
       - name: Check explicit proof syntax
         working-directory: packages/sdk
-        run: node --check test/ci/cooked-template-play.proof.mjs
+        run: node --check ../dev/test/ci/cooked-template-play.proof.mjs
       - name: Cold cook and play this measured partition
         working-directory: packages/sdk
         env:
           COOKED_PART: 1/1
-        run: node --test --test-concurrency=1 test/ci/cooked-template-play.proof.mjs
+        run: node --test --test-concurrency=1 ../dev/test/ci/cooked-template-play.proof.mjs
       - name: Retain actual receipts even on failure
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

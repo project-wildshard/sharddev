@@ -3,15 +3,13 @@ import '@wildshard/engine/scripts/format-hook.mjs';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
-import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 const { readTar } = await import('@wildshard/format/tar');
 const { manifestFolders, shardProducts } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
-const sdk = dirname(createRequire(import.meta.url).resolve('@wildshard/sdk/package.json'));
-const bin = resolve(sdk, 'bin/wildshard.mjs');
+const bin = resolve(import.meta.dirname, '../../bin/wildshard.mjs');
 const expected = shardProducts(process.cwd(), manifestFolders(process.cwd()));
 assert.ok(expected.length, 'This checkout must declare its products');
 assert.deepEqual(readdirSync('out', { withFileTypes: true }).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars').map(row => row.name).sort(), expected.map(row => row.slug).sort());

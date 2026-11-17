@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { spawnWarnings } from './spawnWarnings';
+import { spawnWarnings } from '../../../sdk/src/sharddev/spawnWarnings';
 import { checkLines, runCheck, type CheckSteps } from './check';
 
 const layout = (distance: number, radius = 10) => ({

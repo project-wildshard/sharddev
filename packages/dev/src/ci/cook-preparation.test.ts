@@ -66,7 +66,7 @@ function finish(folder: string, file: string): number | null {
     process.execPath,
     [
       '--import',
-      path.join(root, 'src/sharddev/bake/format-hook.mjs'),
+      path.resolve(root, '../sdk/src/sharddev/bake/format-hook.mjs'),
       '--input-type=module',
       '-e',
       FINISH,
@@ -145,7 +145,7 @@ function runRecipe(work: string): {
   delete env['WILDSHARD_PREPARATION_URL']
   return spawnSync(
     process.execPath,
-    [path.join(root, 'scripts/pack-all.mjs')],
+    [path.resolve(root, '../sdk/scripts/pack-all.mjs')],
     { cwd: work, env, encoding: 'utf8' },
   )
 }

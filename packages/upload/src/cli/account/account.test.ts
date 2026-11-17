@@ -8,10 +8,10 @@ import {
   keyFileIn,
   runCli,
   scratchHome,
-} from '../../../../sdk/src/test/helpers/cli-run.ts'
-import { openUploadServer } from '../../../../sdk/src/test/helpers/upload-server.ts'
+} from '../../../../dev/src/test/helpers/cli-run.ts'
+import { openUploadServer } from '../../../../dev/src/test/helpers/upload-server.ts'
 
-import type { CliRun } from '../../../../sdk/src/test/helpers/cli-run.ts'
+import type { CliRun } from '../../../../dev/src/test/helpers/cli-run.ts'
 
 // Meta SHARD-DELETE DEL6: `wildshard account <email>` makes the account
 // (DEL4's one call) and keeps its key in ~/.config/wildshard/sharddev-key,

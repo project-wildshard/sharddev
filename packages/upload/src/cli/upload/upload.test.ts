@@ -4,7 +4,7 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
-import { sha256 } from '../../../../sdk/src/test/helpers/shardfile.ts'
+import { sha256 } from '../../../../dev/src/test/helpers/shardfile.ts'
 import {
   BUILT_WITH,
   COMMIT,
@@ -13,7 +13,7 @@ import {
   onlyPut,
   open,
   upload,
-} from '../../../../sdk/src/test/helpers/upload-run.ts'
+} from '../../../../dev/src/test/helpers/upload-run.ts'
 import { refusalNote } from '../../sharddev/refusals.ts'
 import { validateShardfile } from './validate.ts'
 

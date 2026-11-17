@@ -16,7 +16,7 @@ const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/ga
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
 const { manifestFolders, shardProducts } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
-const routes = JSON.parse(readFileSync('test/ci/walk-routes.json', 'utf8'));
+const routes = JSON.parse(readFileSync(new URL('./walk-routes.json', import.meta.url), 'utf8'));
 const products = shardProducts(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort();
 assert.ok(products.length);
 assert.deepEqual(readdirSync('out', {withFileTypes:true}).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars').map(row=>row.name).sort(), products);

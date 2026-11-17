@@ -15,17 +15,23 @@ const PACKAGES = [
   ['packages/sdk', '@wildshard/sdk'],
 ].map(([dir, name]) => ({ dir: join(root, dir), path: join(root, dir, 'package.json'), name }))
 const manifests = PACKAGES.map(pkg => ({ ...pkg, manifest: read(pkg.path) }))
+// SDK-SPLIT SP8c: @wildshard/dev (the local game and, until SP10, the bin) carries the release version too, but stays
+// private and unpacked until SP12 publishes it beside the others.
+const stampedOnly = [['packages/dev', '@wildshard/dev']].map(([dir, name]) => {
+  const path = join(root, dir, 'package.json')
+  return { dir: join(root, dir), path, name, manifest: read(path) }
+})
 const sdk = manifests.find(pkg => pkg.name === '@wildshard/sdk').manifest
 const kit = manifests.find(pkg => pkg.name === '@wildshard/kit').manifest
 const [command, destination] = process.argv.slice(2)
 if (
-  manifests.some(pkg => pkg.manifest.name !== pkg.name) ||
+  [...manifests, ...stampedOnly].some(pkg => pkg.manifest.name !== pkg.name) ||
   !/^\d+\.\d+\.\d+$/u.test(workspace.version)
 )
   throw new Error('Unexpected release workspace identities')
 
 if (command === 'stamp' && destination === undefined) {
-  for (const pkg of manifests) {
+  for (const pkg of [...manifests, ...stampedOnly]) {
     if (pkg.manifest.version === workspace.version) continue
     const before = readFileSync(pkg.path, 'utf8')
     writeFileSync(
@@ -34,7 +40,7 @@ if (command === 'stamp' && destination === undefined) {
     )
   }
   console.log(
-    `release workspace: ${manifests.map(pkg => pkg.name).join(', ')} ${workspace.version}`,
+    `release workspace: ${[...manifests, ...stampedOnly].map(pkg => pkg.name).join(', ')} ${workspace.version}`,
   )
 } else if (command === 'pack' && destination !== undefined) {
   if (manifests.some(pkg => pkg.manifest.version !== workspace.version))

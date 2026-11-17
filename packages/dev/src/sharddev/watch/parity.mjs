@@ -30,8 +30,10 @@ import { chromium } from "../../../scripts/browser-playwright.mjs";
 import sharp from 'sharp';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
+// SDK-SPLIT SP8c: the authoring slice is the sdk's sample shard; the bin is this (dev) package's.
+const SDK = resolve(ROOT, '../sdk');
 const { values } = parseArgs({ options: { source: { type: 'string' }, out: { type: 'string' }, check: { type: 'boolean' }, rebase: { type: 'boolean' } } });
-const SOURCE = resolve(values.source ?? join(ROOT, 'src/shards/authoring-slice'));
+const SOURCE = resolve(values.source ?? join(SDK, 'src/shards/authoring-slice'));
 const BASELINE = join(import.meta.dirname, 'parity-baseline.json');
 // The slice's own cameras (Mossgate cleanroom scripts/cameras.json): [id, x, z, yaw, pitch]
 const CAMERAS = [['hut-front', -3.9, -5.6, 0.03, -0.04], ['door-lamp', -4.6, -7.8, 0.03, 0.05], ['hut-back', -3.9, -10.4, 3.4, -0.05], ['pond', -10.4, 0.3, 1.571, -0.08]];
@@ -42,7 +44,7 @@ const MEAN = 0.25, SHARE = 0.005, OFF = 24;
 
 /** Start `wildshard <command> <source> 0` and resolve its page URL; `stop` kills the child. */
 function serve(command) {
-  const child = spawn(process.execPath, [join(ROOT, 'bin/wildshard.mjs'), command, SOURCE, '0'], { cwd: ROOT, stdio: ['ignore', 'pipe', 'pipe'] });
+  const child = spawn(process.execPath, [join(ROOT, 'bin/wildshard.mjs'), command, SOURCE, '0'], { cwd: SDK, stdio: ['ignore', 'pipe', 'pipe'] });
   let log = '';
   const url = new Promise((_resolve, _reject) => {
     const read = (chunk) => {

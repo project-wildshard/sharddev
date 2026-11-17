@@ -67,6 +67,11 @@ function sdkPackage(): SdkPackage {
     || !('dependencies' in parsed) || typeof parsed.dependencies !== 'object' || parsed.dependencies === null) throw new Error('new: the installed @wildshard/sdk has no package.json version');
   const dependencies: Record<string, string> = {};
   for (const [name, spec] of Object.entries(parsed.dependencies)) if (typeof spec === 'string') dependencies[name] = spec;
+  // SDK-SPLIT SP8c: the engine left the sdk's dependencies for @wildshard/dev; the sdk keeps it as its parity oracle
+  // (a dev dependency at dev's exact pin, test/dev-engine-pin), and a new repo pins it from there until SP10's
+  // newProject writes @wildshard/cli instead of the engine.
+  const devPins: unknown = 'devDependencies' in parsed ? parsed.devDependencies : undefined;
+  if (typeof devPins === 'object' && devPins !== null && '@wildshard/engine' in devPins && typeof devPins['@wildshard/engine'] === 'string') dependencies['@wildshard/engine'] ??= devPins['@wildshard/engine'];
   // SA8: `three` is the sdk's peer, pinned exact; a repo lists it at that pin like the others (dependencies win, as in updatePins).
   const peers: unknown = 'peerDependencies' in parsed ? parsed.peerDependencies : undefined;
   if (typeof peers === 'object' && peers !== null) for (const [name, spec] of Object.entries(peers)) if (typeof spec === 'string') dependencies[name] ??= spec;

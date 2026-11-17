@@ -1,5 +1,5 @@
 import type { MapBakeStamp } from '@wildshard/engine/scripts/map-hash.mjs';
-import type { MapRaster } from '../src/sharddev/bake/mapRaster';
+import type { MapRaster } from '@wildshard/sdk/bake/mapRaster';
 
 /** Existing map geometry and palette declarations, without filesystem roots. */
 export interface DataMapSettings {

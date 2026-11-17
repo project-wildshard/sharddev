@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { ScriptScenario, ScenarioWorld, scenarioCommand } from '@wildshard/sdk/test/scriptScenario';
+import { ScriptScenario, ScenarioWorld, scenarioCommand } from '@wildshard/dev/test/scriptScenario';
 import { partitionSlabGeometry, slabGeometryBytes } from '@wildshard/sdk/bake/slabChunks';
 
 test('the public test kit exposes the real scenario and slab helpers', () => {

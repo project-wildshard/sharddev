@@ -2,11 +2,11 @@ import { mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, wr
 import { createHash } from 'node:crypto';
 import { join, relative, resolve } from 'node:path';
 import { afterAll, describe, expect, it } from 'vitest';
-import { generatorImportViolation } from '../lint/sdk-plugin.mjs';
+import { generatorImportViolation } from '../../sdk/lint/sdk-plugin.mjs';
 import { servedName } from '../scripts/capture-hero.mjs';
 import { runCli } from '../src/sharddev/cli';
-import { readCookInput } from '../src/sharddev/cookInput';
-import { newProject } from '../src/sharddev/project';
+import { readCookInput } from '../../sdk/src/sharddev/cookInput';
+import { newProject } from '../../sdk/src/sharddev/project';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 
 // SHARD-AUTHORING SA44: a single-shard repo keeps its source at `src/` (J317), one folder below the repo root, where

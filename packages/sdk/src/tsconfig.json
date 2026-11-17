@@ -1,4 +1,4 @@
 {
   "extends": "../../../kit/tsconfig.json",
-  "include": ["ci", "cli", "test", "server", "shared", "tools", "e2e"]
+  "include": ["test"]
 }

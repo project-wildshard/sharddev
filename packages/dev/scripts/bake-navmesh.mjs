@@ -22,9 +22,9 @@ import { byteWriter, outputHash, jsonBytes } from '@wildshard/engine/scripts/bak
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { brotliCompressSync, gzipSync } from 'node:zlib';
-import { visitAuthoredWorld } from './bake/worldHost.mjs';
-import { prepareNativeScalarBlocks } from './bake/nativeWorld.mjs';
-import { installBakeEnvironment } from './bake/environment.mjs';
+import { visitAuthoredWorld } from '@wildshard/sdk/scripts/bake/worldHost.mjs';
+import { prepareNativeScalarBlocks } from '@wildshard/sdk/scripts/bake/nativeWorld.mjs';
+import { installBakeEnvironment } from '@wildshard/sdk/scripts/bake/environment.mjs';
 import { bakeNavigation } from '@wildshard/sdk/bake/navigation';
 import { navmeshGroundExclusion } from './bake/navmeshGround.ts';
 

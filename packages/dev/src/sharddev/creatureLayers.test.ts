@@ -5,12 +5,12 @@ import { resolve } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import { emptyShardfile } from './author';
-import { expandCreatureLayers, assertCreatureDeclarations } from './creatureLayers';
-import { buildProject } from './project';
+import { emptyShardfile } from '../../../sdk/src/sharddev/author';
+import { expandCreatureLayers, assertCreatureDeclarations } from '../../../sdk/src/sharddev/creatureLayers';
+import { buildProject } from '../../../sdk/src/sharddev/project';
 import { checkProject } from './checkProject';
-import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
-import { writeOutputProduct } from './outputProduct';
+import { settleHandwrittenCreatureLayers } from '../../../sdk/src/sharddev/handwrittenCreatureLayers';
+import { writeOutputProduct } from '../../../sdk/src/sharddev/outputProduct';
 import boar from '@wildshard/kit/content/species/boar.json' with { type: 'json' };
 
 function fixture(kind = 'boar'): Shardfile {

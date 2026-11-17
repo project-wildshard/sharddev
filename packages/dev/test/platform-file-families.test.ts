@@ -10,7 +10,7 @@ import { registeredJsonSchema, namedFormatJsonSchemas } from '@wildshard/engine/
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { outputSections } from '@wildshard/engine/scripts/output-reader.mjs';
 import { namedJsonRoutes, productSectionEntries, sectionInventory } from '../scripts/section-inventory';
-import { platformOutput } from './fixtures/platformOutputs';
+import { platformOutput } from '../../sdk/test/fixtures/platformOutputs';
 
 const source = '@wildshard/format/questSteps#QuestServiceActionsSchema';
 const name = 'quests/services.json';

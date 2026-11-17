@@ -8,7 +8,7 @@ import { execSync } from 'node:child_process';
 import { createReadStream, existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
-import { viteTmpRoot } from '../scripts/vite-tmp.mjs';
+import { viteTmpRoot } from '../../sdk/scripts/vite-tmp.mjs';
 
 const root = import.meta.dirname;
 const publicDir = join(root, 'public');

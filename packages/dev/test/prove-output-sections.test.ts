@@ -14,5 +14,5 @@ it('a stand-still tape on the Template plays to its fact check', async () => {
   const tape = join(scratch, 'still.json');
   // Checkpoint on the last tick: the tape plays all 20 ticks, saves and restores, then reads the ledger.
   writeFileSync(tape, JSON.stringify({ version: 1, tape: Array.from({ length: 20 }, () => []), checkpointTick: 20, requiredFacts: ['template.quest'] }));
-  await expect(runCli(['prove', resolve(import.meta.dirname, '../src/shards/_template'), tape])).rejects.toThrow(/native fact missing: template\.quest/u);
+  await expect(runCli(['prove', resolve(import.meta.dirname, '../../sdk/src/shards/_template'), tape])).rejects.toThrow(/native fact missing: template\.quest/u);
 }, 120_000);

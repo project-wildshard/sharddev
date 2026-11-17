@@ -23,7 +23,9 @@ after(() => rmSync(root, { recursive: true, force: true }));
 const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'map-isle'), source = join(repo, 'src');
 const author = createRequire(join(app, 'node_modules/@wildshard/sdk/package.json'));
 const { rasterSceneMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/bake/groundMap')).href);
-const { rasterDataMap } = await import(pathToFileURL(author.resolve('@wildshard/sdk/scripts/bake-data-maps.mjs')).href);
+// SDK-SPLIT SP8b: the data-map bake reads the engine, so it is @wildshard/dev's.
+const devAuthor = createRequire(join(app, 'node_modules/@wildshard/dev/package.json'));
+const { rasterDataMap } = await import(pathToFileURL(devAuthor.resolve('@wildshard/dev/scripts/bake-data-maps.mjs')).href);
 const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
 function floorFixture() {
   const original = readFileSync('test/fixtures/shard-assets/triangle.glb');

@@ -1,7 +1,7 @@
 import { Scope } from '@wildshard/engine/app/scope';
 import { installBrowserScopeEnvironment } from '@wildshard/engine/app/view/scopeEnvironment';
 import { socketOf, startWatchPage, type DevHookLike, type WatchPageReport } from './page';
-import { WATCH_RESHELL } from './protocol';
+import { WATCH_RESHELL } from '@wildshard/sdk/watch/protocol';
 
 // SHARD-SOURCE AP5: the browser entry `wildshard watch` bundles and injects into the page it serves (watch.ts `pageScript`).
 // It is its own bundle beside the engine's, so it installs its own copy of the browser scope environment (frames, timers).

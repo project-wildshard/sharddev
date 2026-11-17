@@ -8,18 +8,18 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-import { readVersion } from '../../../../sdk/src/cli/version.ts'
-import { makeShardfile } from '../../../../sdk/src/test/helpers/shardfile.ts'
+import { readVersion } from '../../../../dev/src/cli/version.ts'
+import { makeShardfile } from '../../../../dev/src/test/helpers/shardfile.ts'
 import {
   COMMIT,
   VERSION,
   open,
-} from '../../../../sdk/src/test/helpers/upload-run.ts'
+} from '../../../../dev/src/test/helpers/upload-run.ts'
 
-import type { Run } from '../../../../sdk/src/test/helpers/upload-run.ts'
+import type { Run } from '../../../../dev/src/test/helpers/upload-run.ts'
 
 const MAIN = fileURLToPath(
-  new URL('../../../../sdk/src/cli/main.ts', import.meta.url),
+  new URL('../../../../dev/src/cli/main.ts', import.meta.url),
 )
 const ROOT = new URL('../../../../sdk/', import.meta.url)
 

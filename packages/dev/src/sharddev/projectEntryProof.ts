@@ -6,7 +6,7 @@ import { loadRapier } from '@wildshard/engine/physics/rapier';
 import { Physics } from '@wildshard/engine/physics/Physics';
 import { addBakedPieces } from '@wildshard/engine/game/plugin/simulation';
 import { proveEntryways } from '@wildshard/engine/game/bake/entryways';
-import { readBoundedFile } from './sourceReader';
+import { readBoundedFile } from '@wildshard/sdk/sourceReader';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 
 /** Actual static capsule walks and transfers, never a caller-supplied receipt. */

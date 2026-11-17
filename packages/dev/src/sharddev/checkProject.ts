@@ -1,4 +1,4 @@
-import { spawnWarnings } from './spawnWarnings';
+import { spawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 // The real steps behind `wildshard check` (SA4); check.ts runs them in order and gives the verdict.
 // oxlint-disable-next-line import/no-nodejs-modules -- Lint runs oxlint (the repo's or the SDK's) as a child process.
 import { spawnSync } from 'node:child_process';
@@ -12,19 +12,19 @@ import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
 import { checkShardfile } from '@wildshard/engine/host/checkShardfile';
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import type { Shardfile } from '@wildshard/format/shardSchema';
-import { buildProject } from './project';
+import { buildProject } from '@wildshard/sdk/project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
-import { handwrittenIdentity } from './handwritten';
-import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
-import { validateOutputProduct } from './outputProduct';
+import { handwrittenIdentity } from '@wildshard/sdk/internal/handwritten';
+import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
+import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { engineMusicLine } from './engineMusic';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
-import type { ProjectManifestSource } from './projectManifest';
-import { authorErrorText } from './authorError';
+import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
+import { authorErrorText } from '@wildshard/sdk/internal/authorError';
 import { refusalCode } from '@wildshard/upload/sharddev/refusals';
 import { DRAFT_SDK, draftMessage } from '@wildshard/upload/sharddev/draft';
-import { authorLintPlan } from './authorLint';
-import { assertCreatureDeclarations } from './creatureLayers';
+import { authorLintPlan } from '@wildshard/sdk/internal/authorLint';
+import { assertCreatureDeclarations } from '@wildshard/sdk/internal/creatureLayers';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -34,7 +34,9 @@ export function readProofTape(path: string): v.InferOutput<typeof AuthorProofPla
   catch (error) { throw new Error(`${basename(path)}: ${authorErrorText(error)}`, { cause: error }); }
 }
 // The bundled CLI defines import.meta.dirname as the package's src/sharddev, so the package root is two up.
-const SDK_ROOT = resolve(import.meta.dirname, '../..');
+// SDK-SPLIT SP8c: the sdk (its lint config and oxlint) sits beside this package, in the workspace and under
+// node_modules/@wildshard alike.
+const SDK_ROOT = resolve(import.meta.dirname, '../../../sdk');
 
 /** The author lint over the project's source: its repo's `.oxlintrc.author.json`, else the SDK's (authorLint.ts). */
 function lintProject(project: string): StepOutcome {

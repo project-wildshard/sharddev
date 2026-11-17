@@ -5,14 +5,15 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { writeShardRepo } from './newProject';
-import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from './updatePins';
+import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
+import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from '../../../sdk/src/sharddev/updatePins';
 import { runCli } from './cli';
 
 // SHARD-AUTHORING SA18 (J314 Q27, J317 Q16): `wildshard update --pins` moves the pins, installs, applies the release's
 // codemods, then runs the new sdk's `update` and `check`. pnpm and the registry are stood in for here; the real move
 // (0.2.3 -> 0.2.4 from npm) is the row's proof.
-const ROOT = resolve(import.meta.dirname, '../..');
+// SDK-SPLIT SP8c: the GUIDE.md, skills and codemods `update` ships are the sdk's.
+const ROOT = resolve(import.meta.dirname, '../../../sdk');
 const NEXT: SdkRelease = { version: '9.9.9', pins: { '@wildshard/engine': 'github:project-wildshard/engine#next', '@wildshard/format': 'github:project-wildshard/shard-format#v9.0.0', three: '0.190.0', vite: '8.3.0' } };
 
 const pinsOf = (project: string): Record<string, string> => {

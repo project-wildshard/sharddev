@@ -24,7 +24,7 @@ import { makeTar } from './tar.ts'
 
 const TEMPLATE_2 = fileURLToPath(
   new URL(
-    '../../../node_modules/@wildshard/format/corpus/handwritten',
+    '../../../../sdk/node_modules/@wildshard/format/corpus/handwritten',
     import.meta.url,
   ),
 )

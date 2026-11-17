@@ -1,13 +1,13 @@
 import { expect, test } from 'vitest';
 import { BoxGeometry } from 'three';
-import { ScenarioWorld } from '@wildshard/sdk/test/scriptScenario';
+import { ScenarioWorld } from '@wildshard/dev/test/scriptScenario';
 import { slabGeometryBytes } from '@wildshard/sdk/bake/slabChunks';
 import { createShardProduct } from '@wildshard/engine/game/shardfile/shardProduct';
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { emptyShardfile } from '@wildshard/engine/host/author';
-import { fixtureJsonCheck, fixtureProductFile } from './fixtures/productFile';
-import { builtProduct } from './fixtures/builtProduct';
-import { TEMPLATE_BOSS, TEMPLATE_SOURCE, templateAssets } from './fixtures/templateSource';
+import { fixtureJsonCheck, fixtureProductFile } from '../../sdk/test/fixtures/productFile';
+import { builtProduct } from '../../sdk/test/fixtures/builtProduct';
+import { TEMPLATE_BOSS, TEMPLATE_SOURCE, templateAssets } from '../../sdk/test/fixtures/templateSource';
 
 // CI21.H5 proves the kit's public imports and actual product admission, rather
 // than merely resolving paths. Invalid bytes must still reach the native check.

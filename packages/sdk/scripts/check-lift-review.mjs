@@ -8,12 +8,13 @@ assert.equal(new Set(pending).size, pending.length, 'Duplicate pending path');
 assert.equal(new Set(review.map(row => row.file)).size, review.length, 'Duplicate review');
 assert.ok(pending.length <= 40, 'The reviewed queue must shrink');
 for (const file of pending) {
-  assert.ok(existsSync(file), `Absent pending test: ${file}`);
+  // SDK-SPLIT SP8c: one list for both packages; a test that moved with the dev package is pending there.
+  assert.ok(existsSync(file) || existsSync(`../dev/${file}`), `Absent pending test: ${file}`);
   const row = review.find(row => row.file === file);
   assert.ok(row && ['engine-candidate', 'sdk-candidate', 'graphical-owner'].includes(row.action), `Unjudged pending test: ${file}`);
   assert.ok(row.reason.length > 20, `Missing disposition: ${file}`);
 }
-for (const row of review.filter(row => row.action === 'run')) assert.ok(existsSync(row.successor), `Absent successor: ${row.file}`);
+for (const row of review.filter(row => row.action === 'run')) assert.ok(existsSync(row.successor) || existsSync(`../dev/${row.successor}`), `Absent successor: ${row.file}`);
 // A ported test is retired here: its successor runs in its owner's CI, recorded by repo, file and commit.
 for (const row of review.filter(row => row.action === 'ported')) {
   assert.ok(!pending.includes(row.file) && !existsSync(row.file), `Ported test still here: ${row.file}`);

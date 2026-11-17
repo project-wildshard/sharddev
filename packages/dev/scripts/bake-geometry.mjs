@@ -57,13 +57,13 @@ if (tierArg === undefined) {
 } else {
   if (!TIERS.includes(tierArg)) throw new Error(`bake-geometry: unknown tier ${tierArg}`);
   if (slugArg === undefined || !(slugArg in OUTPUT)) throw new Error(`bake-geometry: unknown shard ${slugArg}`);
-  const { installBakeEnvironment } = await import('./bake/environment.mjs');
+  const { installBakeEnvironment } = await import('@wildshard/sdk/scripts/bake/environment.mjs');
   const environment = installBakeEnvironment(ROOT);
   try {
     const src = (p) => import(pathToFileURL(resolve(ROOT, 'src', p)).href);
     if (tierArg !== 'desktop') (await src('engine/client/core/tier.ts')).initializeTier(tierArg); // desktop is Node's own tier (navigator 'node')
     const THREE = await import('three');
-    const { visitAuthoredWorld } = await import('./bake/worldHost.mjs');
+    const { visitAuthoredWorld } = await import('@wildshard/sdk/scripts/bake/worldHost.mjs');
     const registry = await src('game/client/shard/registry.ts');
     const { SHARDS } = await src('shards.generated.ts');
     const HF = await src('engine/shared/world/Heightfield.ts');

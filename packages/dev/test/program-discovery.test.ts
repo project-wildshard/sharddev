@@ -9,7 +9,7 @@ import { expect, test, vi } from 'vitest';
 import * as v from 'valibot';
 import { parseDiscoveryValues } from '@wildshard/format/discoveryValues';
 import { emptyShardfile } from '@wildshard/engine/host/author';
-import { writeOutputProduct } from '../src/sharddev/outputProduct';
+import { writeOutputProduct } from '../../sdk/src/sharddev/outputProduct';
 import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { parseManifestMetadata } from '@wildshard/format/minimap';
 import { readProgramDiscovery, usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
@@ -17,6 +17,9 @@ import { authoredManifestSource, shardManifestPath } from '@wildshard/engine/scr
 import { refreshDiscovery, relocateDiscoverySource } from '../scripts/gen-shards.mjs';
 import { registerGpuFiles, standIn } from '@wildshard/engine/boot/gpuFiles';
 import { TIER } from '@wildshard/engine/core/tier';
+
+/** SDK-SPLIT SP8c: the sample shards and their manifest fixtures stay in the sdk. */
+const SDK = resolve(import.meta.dirname, '../../sdk');
 
 const slug = 'discovery-fixture';
 const sha = 'a'.repeat(40);
@@ -158,7 +161,7 @@ test('emission inlines computed modes and ordered bindings without source import
 });
 
 test('authored metadata permits program values only at data binding slots', () => {
-  const original: unknown = JSON.parse(readFileSync('test/fixtures/manifests/nine-dragon-stack.json', 'utf8'));
+  const original: unknown = JSON.parse(readFileSync(resolve(SDK, 'test/fixtures/manifests/nine-dragon-stack.json'), 'utf8'));
   const row = parseManifestMetadata(original);
   const data = { ...row, bindings: { ...row.bindings, navigation: { program: true }, boot: { files: { program: true }, sources: { program: true } } } };
   expect(() => parseManifestMetadata(data)).not.toThrow();
@@ -198,7 +201,7 @@ test('a receipt-owned GPU table emits the existing native callback and registers
     expect(standIn('/discovery-test/modern.glb', 'img')).toBeUndefined();
     expect(() => authoredManifestSource(root, slug, { discovery: {} })).toThrow('ktx2');
     expect(() => authoredManifestSource(root, slug)).toThrow('ktx2');
-    const metadata = parseManifestMetadata(JSON.parse(readFileSync('test/fixtures/manifests/far-reach.json', 'utf8')));
+    const metadata = parseManifestMetadata(JSON.parse(readFileSync(resolve(SDK, 'test/fixtures/manifests/far-reach.json'), 'utf8')));
     expect(() => parseManifestMetadata({ ...metadata, bindings: { ...metadata.bindings, ktx2: { program: true } } })).not.toThrow();
     expect(() => parseManifestMetadata({ ...metadata, bindings: { ...metadata.bindings, ktx2: { program: true, module: './foreign.generated' } } })).toThrow();
   } finally { rmSync(root, { recursive: true, force: true }); }

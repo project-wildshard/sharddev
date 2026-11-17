@@ -343,7 +343,8 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
 
   // 4. GUIDE.md and the skills, by the new sdk's own `update` (SA28); 5. its `check`. An sdk up to 0.2.5 has an `update`
   // that refuses a repo listing it as @wildshard/sharddev, so for those this CLI syncs that sdk's guide and skills itself.
-  const cli = resolve(sdkRoot, 'bin/wildshard.mjs');
+  // SDK-SPLIT SP8c: an sdk from the split on ships no bin; the repo's @wildshard/dev runs `update` and `check` (SP10: cli).
+  const cli = [resolve(sdkRoot, 'bin/wildshard.mjs'), resolve(project, 'node_modules/@wildshard/dev/bin/wildshard.mjs')].find(path => existsSync(path)) ?? resolve(sdkRoot, 'bin/wildshard.mjs');
   if (pin.name === '@wildshard/sdk' || compareVersions(release.version, LAST_UPDATE_WITHOUT_SHARDDEV) > 0) {
     try { runner.run(process.execPath, [cli, 'update', project], project); }
     catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but its wildshard update failed: run pnpm exec wildshard update`, { cause: error }); }

@@ -2,7 +2,7 @@
 import { existsSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import ts from '@typescript/typescript6';
-import { hostPlayFile } from './host-files.mjs';
+import { hostPlayFile } from '@wildshard/sdk/internal/lint/host-files';
 import { formatSource } from '@wildshard/engine/scripts/format-package.mjs';
 
 const projects = new Map();

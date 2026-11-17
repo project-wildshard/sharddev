@@ -2,11 +2,14 @@
 // Each file below once imported a law the engine defined; SP4 moved the law into format and SP5 made the engine read it
 // there too. A file listed here may import no engine path at all, so the sdk's bake tree stays engine-free as SP7 and
 // SP8 move the rest (the SP1 dep-guard counts what is left).
-import { mkdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 
 const ROOT = resolve(import.meta.dirname, '..', 'src', 'sharddev');
+/** SP8b moved the dev verbs (check, watch, mapRest, the CLI) to packages/dev; their laws are still read there. */
+const DEV = resolve(import.meta.dirname, '..', '..', 'dev', 'src', 'sharddev');
+const located = (file: string): string => existsSync(resolve(ROOT, file)) ? resolve(ROOT, file) : resolve(DEV, file);
 const ENGINE_FREE = [
   'bake/nativeTerrainField.ts', 'bake/contactRows.ts', 'bake/wholePieceJoin.ts', 'bake/meadow.ts', 'bake/farImpostor.ts',
   'outputProduct.ts', 'interactions.ts', 'quests.ts', 'questGraph.ts', 'rows.ts',
@@ -32,7 +35,7 @@ const LAW_IMPORTS_GONE: Readonly<Record<string, readonly string[]>> = {
 };
 
 const engineImports = (file: string): string[] =>
-  [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/(?:from |import\()'@wildshard\/engine\/([^']+)'/gu)].map(m => m[1] ?? '');
+  [...readFileSync(located(file), 'utf8').matchAll(/(?:from |import\()'@wildshard\/engine\/([^']+)'/gu)].map(m => m[1] ?? '');
 
 test.each(ENGINE_FREE)('%s imports no engine path', file => {
   expect(engineImports(file)).toEqual([]);
@@ -43,7 +46,7 @@ test.each(Object.entries(LAW_IMPORTS_GONE))('%s reads its format laws from shard
 });
 
 const localImports = (file: string): string[] =>
-  [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/from '(\.[^']+)'/gu)].map(m => m[1] ?? '');
+  [...readFileSync(located(file), 'utf8').matchAll(/from '(\.[^']+)'/gu)].map(m => m[1] ?? '');
 
 test('SP7b: the build names no engine music; check does, at its validate step (the cook refuses unknown names too)', () => {
   expect(localImports('project.ts')).not.toContain('./engineMusic');
@@ -68,5 +71,5 @@ test('SP8a: generation never loads the portal proof itself; build alone refuses 
 });
 
 test('SP8a: the author CLI hands generation the engine portal walk (dev)', () => {
-  expect(readFileSync(resolve(ROOT, 'cli.ts'), 'utf8')).toMatch(/providePortalEntryProof\(/u);
+  expect(readFileSync(located('cli.ts'), 'utf8')).toMatch(/providePortalEntryProof\(/u);
 });

@@ -83,8 +83,8 @@ export async function finishPreparation(dir,recording,originalHeader){
 /** SA43: with no --base, serve engine's preparation client (fetched at this package's engine pin) around the candidate. */
 async function ownPreview(dir){
   const {preparationClient}=await import('../src/sharddev/devClient.ts');
-  const {clientPage}=await import('../src/sharddev/clientPage.ts');
-  const {preparationPreview}=await import('./preparation-preview.mjs');
+  const {clientPage}=await import('@wildshard/sdk/internal/clientPage');
+  const {preparationPreview}=await import('@wildshard/sdk/scripts/preparation-preview.mjs');
   return preparationPreview(await preparationClient(),dir,{clientPage});
 }
 

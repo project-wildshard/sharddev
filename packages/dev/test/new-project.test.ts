@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import { buildProject } from '@wildshard/sdk/project';
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
-import { writeNewProject } from '../src/sharddev/newProject';
+import { writeNewProject } from '../../sdk/src/sharddev/newProject';
 import { runCli } from '../src/sharddev/cli';
 test('new projects build v2 from build-only data without a custom runtime', async () => {
   mkdirSync('tmp', { recursive: true });

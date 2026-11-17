@@ -11,26 +11,27 @@ import * as THREE from 'three';
 import * as liveTsl from 'three/tsl';
 import * as liveWebgpu from 'three/webgpu';
 import { Scope } from '@wildshard/engine/app/scope';
-import { SDK_ROOT } from '../agentFiles';
-import { buildProject } from '../project';
+import { buildProject } from '@wildshard/sdk/project';
 import { projectSourceStamp } from '../dev';
-import { executeBundle } from '../executeBundle';
-import type { ShardScene } from '../scene/description';
-import * as liveAuthor from '../scene/author';
-import { PaintMemo, withPaintMemo } from '../scene/author';
-import * as liveCanvas from '../scene/canvas';
-import * as liveLower from '../scene/lower';
-import * as liveMaterials from '../materials';
-import * as liveShard from '../scene/shard';
-import * as liveShardfile from '../scene/shardfile';
-import { hashOf } from '../scene/hash';
-import { lampRows, sceneGroundBytes, sceneLook, waterRows, withAnchored, type sceneGameplay } from '../scene/shardfile';
-import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, budgetLines, budgetOf, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchBuild, type WatchState } from './protocol';
+import { executeBundle } from '@wildshard/sdk/executeBundle';
+import type { ShardScene } from '@wildshard/sdk/scene/description';
+import * as liveAuthor from '@wildshard/sdk/scene/author';
+import { PaintMemo, withPaintMemo } from '@wildshard/sdk/scene/author';
+import * as liveCanvas from '@wildshard/sdk/scene/canvas';
+import * as liveLower from '@wildshard/sdk/scene/lower';
+import * as liveMaterials from '@wildshard/sdk/materials';
+import * as liveShard from '@wildshard/sdk/scene/shard';
+import * as liveShardfile from '@wildshard/sdk/scene/shardfile';
+import { hashOf } from '@wildshard/sdk/internal/scene/hash';
+import { lampRows, sceneGroundBytes, sceneLook, waterRows, withAnchored, type sceneGameplay } from '@wildshard/sdk/scene/shardfile';
+import { DEV_SCENE_PATH, WATCH_RESHELL, WATCH_SOCKET, WATCH_WIRE, budgetLines, budgetOf, encodeGeometry, encodePart, hookMismatch, liveShell, type WatchBuild, type WatchState } from '@wildshard/sdk/watch/protocol';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 // oxlint-disable-next-line import/no-nodejs-modules -- The idle full build runs `wildshard build` in a child process.
 import { spawn, type ChildProcess } from 'node:child_process';
 import { acceptSocket, type WatchSocket } from './socket';
-import { diagnosticNow } from '../diagnosticClock';
+import { diagnosticNow } from '@wildshard/sdk/internal/diagnosticClock';
+import { DEV_ROOT } from '../devRoot';
+
 
 /**
  * SHARD-SOURCE AP5 and AP6 (J347): `wildshard watch <source> [port]`. The page boots once from a live shell (the ground,
@@ -148,7 +149,7 @@ const shellKey = (scene: ShardScene, gameplay: Gameplay): string => {
 /** The page script, bundled once per process from `pageEntry.ts` into one classic script for the page's body. */
 export async function pageScript(): Promise<string> {
   // from the sdk's root: the author CLI is one bundle whose import.meta.dirname is src/sharddev (scripts/wildshard.mjs)
-  const entry = resolve(SDK_ROOT, 'src/sharddev/watch/pageEntry.ts');
+  const entry = resolve(DEV_ROOT, 'src/sharddev/watch/pageEntry.ts');
   const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: true, lib: { entry, formats: ['iife'], name: 'wildshardWatch', fileName: 'watch' }, rolldownOptions: { output: { codeSplitting: false } } } });
   const built = Array.isArray(result) ? result[0] : result;
   const chunk = built !== undefined && 'output' in built ? built.output.find((out) => out.type === 'chunk') : undefined;
@@ -200,7 +201,7 @@ export async function watchProject(project: string, options: { port?: number; cl
     if (stopped || building !== null) return;
     const of = revision, started = diagnosticNow(), target = join(scratch, 'build');
     rmSync(target, { recursive: true, force: true });
-    const child = spawn(process.execPath, [join(SDK_ROOT, 'bin/wildshard.mjs'), 'build', source, target, '--folder-only'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WILDSHARD_SCENE_LIVE: '' } });
+    const child = spawn(process.execPath, [join(DEV_ROOT, 'bin/wildshard.mjs'), 'build', source, target, '--folder-only'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WILDSHARD_SCENE_LIVE: '' } });
     building = child;
     let output = '';
     child.stdout?.on('data', (chunk: Buffer) => { output += String(chunk); }); child.stderr?.on('data', (chunk: Buffer) => { output += String(chunk); });

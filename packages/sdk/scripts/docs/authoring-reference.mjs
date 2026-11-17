@@ -1,19 +1,25 @@
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import ts from '@typescript/typescript6';
 import { documentationProse } from './wording.mjs';
 
 const HERE = import.meta.dirname;
 const directive = /<!-- example: ([a-z][a-z-]*) -->/gu;
+/** SDK-SPLIT SP8b: an example that calls the engine (weapon-family, a trusted runtime/ registration) is checked in
+ * @wildshard/dev's scripts/docs/authoring, beside the engine; the guide still renders it. */
+const exampleDirectories = directory => [resolve(directory, 'authoring'), resolve(directory, '../../../dev/scripts/docs/authoring')].filter(folder => existsSync(folder));
 
 /** Every retained example must be referenced once; no unchecked inline TypeScript hides in the guide. */
 export function authoringExamples(directory = HERE) {
   const guide = readFileSync(resolve(directory, 'authoring-guide.md'), 'utf8');
   if (guide.includes('```')) throw new Error('Authoring guide code belongs in checked example sources');
   const names = [...guide.matchAll(directive)].map(match => match[1]);
-  const files = readdirSync(resolve(directory, 'authoring')).filter(file => file.endsWith('.ts')).map(file => file.slice(0, -3)).sort();
+  const files = exampleDirectories(directory).flatMap(folder => readdirSync(folder).filter(file => file.endsWith('.ts')).map(file => file.slice(0, -3))).sort();
   if (names.length === 0 || new Set(names).size !== names.length || JSON.stringify([...names].sort()) !== JSON.stringify(files)) throw new Error('Authoring example coverage differs from retained sources');
-  return names.map(name => ({ name, file: resolve(directory, 'authoring', `${name}.ts`), source: readFileSync(resolve(directory, 'authoring', `${name}.ts`), 'utf8') }));
+  return names.map(name => {
+    const file = exampleDirectories(directory).map(folder => resolve(folder, `${name}.ts`)).find(path => existsSync(path)) ?? resolve(directory, 'authoring', `${name}.ts`);
+    return { name, file, source: readFileSync(file, 'utf8') };
+  });
 }
 
 /** Render the exact tested example bytes into the generated SDK guide. No generated example has a separate manual copy. */

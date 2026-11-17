@@ -4,7 +4,7 @@ import { createRequire } from 'node:module';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { MapRaster } from '../src/sharddev/bake/mapRaster.ts';
+import { MapRaster } from '@wildshard/sdk/bake/mapRaster';
 import { isRepoSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
 import { readMapGeometry, stylizeMap } from '@wildshard/engine/scripts/map-painter.mjs';
 import { MAP_METRES, mapPixelHash, mapSettingsPath, mapStampPath, mapShards, mapTilesHash } from '@wildshard/engine/scripts/map-hash.mjs';
@@ -18,7 +18,7 @@ export async function rasterDataMap(settings, data, { output, glbs, label = 'map
   const painter = settings.painter;
   if (painter?.version !== 1 || settings.style === undefined) throw new Error(`${label}: missing data map painter declaration`);
   const raster = new MapRaster(1000, settings, readMapGeometry);
-  const { paintMapGeometry } = await import('../src/sharddev/bake/mapScenes.ts');
+  const { paintMapGeometry } = await import('@wildshard/sdk/internal/bake/mapScenes');
   const source = data.input;
   // A model URL is a file under the repo's public/. SA44: a caller that knows the shard's place passes `model`; the
   // default is `src/shards/<slug>/`'s, three folders below the repo root.

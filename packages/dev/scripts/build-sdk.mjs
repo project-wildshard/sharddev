@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { assertHeavyLease } from '@wildshard/engine/scripts/heavy-lane-lease.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
-import { SDK_EXTERNALS } from './sdk-externals.mjs';
+import { SDK_EXTERNALS } from '@wildshard/sdk/scripts/sdk-externals.mjs';
 
 // This package also compiles the two real app clients; acquire the build lane before generation or type emission.
 assertHeavyLease('build');

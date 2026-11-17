@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - '.github/workflows/ring-2-author.yml'
+      - 'packages/**'
       - '.github/actions/**'
       - 'src/**'
       - 'test/**'
@@ -102,19 +103,19 @@ jobs:
       - name: Ring 2 cold and relocated complete template bakes
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}
-        run: node --test --test-concurrency=1 test/ci/template-determinism.test.mjs
+        run: node --test --test-concurrency=1 ../dev/test/ci/template-determinism.test.mjs
       - name: Installed reference, door, save and real cook
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}
-        run: node --test --test-concurrency=1 test/ci/new-reference.test.mjs
+        run: node --test --test-concurrency=1 ../dev/test/ci/new-reference.test.mjs
       - name: Installed generated author inputs and maps
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}
-        run: node --test --test-concurrency=1 test/ci/author-inputs.test.mjs
+        run: node --test --test-concurrency=1 ../dev/test/ci/author-inputs.test.mjs
       - name: Installed warm author build with OS networking denied
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}
-        run: node --test --test-concurrency=1 test/ci/offline-author.test.mjs
+        run: node --test --test-concurrency=1 ../dev/test/ci/offline-author.test.mjs
       # TC14: report for one real week before explicit blocking admission.
       # Cold published client download + native browser are Ring 2, never hooks.
       - name: Observe packed outside-author browser boot
@@ -126,8 +127,8 @@ jobs:
           WS_PROOF_SCRATCH: ${{ github.workspace }}/tmp/outside-browser
           WS_BROWSER_REPORT: ${{ github.workspace }}/tmp/outside-browser-report
         run: |
-          pnpm exec playwright install --with-deps chromium
-          node --test test/ci/outside-browser.proof.mjs
+          pnpm --dir ../dev exec playwright install --with-deps chromium
+          node --test ../dev/test/ci/outside-browser.proof.mjs
       - name: Retain outside-author browser observation
         continue-on-error: true
         if: always()

@@ -4,7 +4,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { dirname, resolve } from 'node:path';
 import { createDevScratch, projectSourceStamp } from './dev';
-import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+import { closeFixtures, fixtureRoot } from '../../../sdk/src/sharddev/test/ownedScratch';
 
 const directories: string[] = [];
 afterEach(() => { for (const path of directories.splice(0)) rmSync(path, { recursive: true }); vi.unstubAllEnvs(); });

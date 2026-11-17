@@ -4,10 +4,10 @@ import { createServer } from 'node:http';
 import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, rmSync, statSync, watch, readFileSync, writeFileSync, type Dirent } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
-import { buildProject } from './project';
+import { buildProject } from '@wildshard/sdk/project';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
-import { scratchDir } from '../../scripts/scratch-dir.mjs';
+import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';
 
 // NEW-SHARD-E2E F18: a new build opens the same page under a new `devrev`, not location.reload(): Chromium reports a reload
 // (or a same-URL replace) as navigation type `reload`, which engine's lastEnd reads as the player's own reload and sends to the title.

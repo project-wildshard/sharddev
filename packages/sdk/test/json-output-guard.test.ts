@@ -17,7 +17,7 @@ import { byteWriter, jsonBytes } from '@wildshard/engine/scripts/bake-output.mjs
 const payload = 'a'.repeat(1024);
 const output = 'src/shards/example/data/output.json';
 const entry = 'src/shards/example/generators/bake-example.mjs';
-const driver = fileURLToPath(new URL('../src/sharddev/bake/json.mjs', import.meta.url));
+const driver = fileURLToPath(new URL('../../dev/src/sharddev/bake/json.mjs', import.meta.url));
 const put = (root: string, name: string, text: string): void => {
   const target = resolve(root, name); mkdirSync(resolve(target, '..'), { recursive: true }); writeFileSync(target, text);
 };

@@ -13,28 +13,34 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { threeRefusal } from './threePin.mjs';
 
 const REPO = resolve(import.meta.dirname, '../..');
-const PACKAGE = JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8')) as { readonly name: string; readonly version: string; readonly bin: Readonly<Record<string, string>>; readonly peerDependencies: { readonly three: string } };
+const PACKAGE = JSON.parse(readFileSync(join(REPO, 'package.json'), 'utf8')) as { readonly name: string; readonly version: string; readonly peerDependencies: { readonly three: string } };
+// SDK-SPLIT SP8c: the `wildshard` bin is @wildshard/dev's; its first import is this sdk's gate (`@wildshard/sdk/internal/threeGate`).
+const DEV = resolve(REPO, '../dev');
+const DEV_PACKAGE = JSON.parse(readFileSync(join(DEV, 'package.json'), 'utf8')) as { readonly bin: Readonly<Record<string, string>> };
 const PIN = PACKAGE.peerDependencies.three;
 const roots: string[] = [];
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 
-/** A project whose node_modules holds this sdk (its package.json, bin and the gate) and `three` at `three`. (A missing
+/** A project whose node_modules holds this sdk (its package.json and the gate), the dev package's bin and `three` at `three`. (A missing
  *  three is not tested here: tmp/ sits inside this repo, so the lookup reaches its own three.) */
-function project(three: string): { readonly root: string; readonly sdk: string } {
+function project(three: string): { readonly root: string; readonly sdk: string; readonly dev: string } {
   mkdirSync(join(REPO, 'tmp'), { recursive: true });
   const root = mkdtempSync(join(REPO, 'tmp', 'three-pin-'));
   roots.push(root);
   const sdk = join(root, 'node_modules/@wildshard/sdk');
   mkdirSync(join(sdk, 'src/sharddev'), { recursive: true });
   cpSync(join(REPO, 'package.json'), join(sdk, 'package.json'));
-  cpSync(join(REPO, 'bin'), join(sdk, 'bin'), { recursive: true });
   for (const file of ['threeGate.mjs', 'threePin.mjs']) cpSync(join(REPO, 'src/sharddev', file), join(sdk, 'src/sharddev', file));
   // Linking needs the entry point's other static import; reaching it means the gate let the run through.
   mkdirSync(join(sdk, 'src/sharddev/bake'), { recursive: true });
   writeFileSync(join(sdk, 'src/sharddev/bake/format-hook.mjs'), 'throw new Error("past the three gate");\n');
   mkdirSync(join(root, 'node_modules/three'), { recursive: true });
   writeFileSync(join(root, 'node_modules/three/package.json'), JSON.stringify({ name: 'three', version: three }));
-  return { root, sdk };
+  const dev = join(root, 'node_modules/@wildshard/dev');
+  mkdirSync(dev, { recursive: true });
+  cpSync(join(DEV, 'package.json'), join(dev, 'package.json'));
+  cpSync(join(DEV, 'bin'), join(dev, 'bin'), { recursive: true });
+  return { root, sdk, dev };
 }
 
 describe('three is a peer pinned exact (SA8)', () => {
@@ -59,18 +65,18 @@ describe('three is a peer pinned exact (SA8)', () => {
   });
 
   it('every CLI entry point refuses a wrong three before it loads anything else', () => {
-    const { root, sdk } = project('0.185.0');
-    const entries = [...new Set(Object.values(PACKAGE.bin))];
-    expect(Object.keys(PACKAGE.bin).toSorted()).toEqual(['sharddev', 'wildshard']);
+    const { root, dev } = project('0.185.0');
+    const entries = [...new Set(Object.values(DEV_PACKAGE.bin))];
+    expect(Object.keys(DEV_PACKAGE.bin).toSorted()).toEqual(['sharddev', 'wildshard']);
     for (const entry of entries) {
       // The copy has no format hook and no CLI: reaching past the gate would fail with another error.
-      const run = spawnSync(process.execPath, [join(sdk, entry), 'check', '.'], { cwd: root, encoding: 'utf8' });
+      const run = spawnSync(process.execPath, [join(dev, entry), 'check', '.'], { cwd: root, encoding: 'utf8' });
       expect(run.status, entry).toBe(1);
       expect(run.stderr, entry).toContain(`three 0.185.0 is installed, but ${PACKAGE.name} ${PACKAGE.version} needs three ${PIN} exactly`);
     }
-    const version = spawnSync(process.execPath, [join(sdk, entries[0] ?? ''), '--version'], { cwd: root, encoding: 'utf8' });
+    const version = spawnSync(process.execPath, [join(dev, entries[0] ?? ''), '--version'], { cwd: root, encoding: 'utf8' });
     expect(version.stderr).not.toContain('[three-version]');
-    const help = spawnSync(process.execPath, [join(sdk, entries[0] ?? ''), 'check', '--help'], { cwd: root, encoding: 'utf8' });
+    const help = spawnSync(process.execPath, [join(dev, entries[0] ?? ''), 'check', '--help'], { cwd: root, encoding: 'utf8' });
     expect(help.stderr).not.toContain('[three-version]');
     expect(help.stderr).toContain('past the three gate');
   });

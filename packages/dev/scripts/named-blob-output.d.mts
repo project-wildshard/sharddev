@@ -1,5 +1,5 @@
 import type { ScriptContract } from '@wildshard/format/scriptContract';
-import type { NamedBlobKind } from '../src/sharddev/blobs';
+import type { NamedBlobKind } from '@wildshard/sdk/blobs';
 
 /** Register exact bytes as cached author-project inputs; directory is assets or a bounded subdirectory. */
 export function namedBlobOutput(project: URL, label: string, directory?: string): {

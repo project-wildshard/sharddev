@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import { parseShardfile } from '@wildshard/format/shardSchema';
 import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 import { validateSimulation } from '@wildshard/engine/host/headless';
-import { starterSpearContent } from './generators/spear';
+import { starterSpearContent } from '@wildshard/sdk/scripts/docs/author-project/generators/spear.ts';
 
 const product = resolve(process.argv[2] ?? 'dist');
 const input: unknown = JSON.parse(readFileSync(resolve(product, 'shard.json'), 'utf8'));

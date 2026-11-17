@@ -21,10 +21,10 @@ import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { installBakeEnvironment } from './environment.mjs';
-import { visitAuthoredWorld } from './worldHost.mjs';
-import { prepareNativeScalarBlocks } from './nativeWorld.mjs';
-import { placeholderGridBytes, placeholderOf } from './placeholderShards.mjs';
+import { installBakeEnvironment } from '@wildshard/sdk/scripts/bake/environment.mjs';
+import { visitAuthoredWorld } from '@wildshard/sdk/scripts/bake/worldHost.mjs';
+import { prepareNativeScalarBlocks } from '@wildshard/sdk/scripts/bake/nativeWorld.mjs';
+import { placeholderGridBytes, placeholderOf } from '@wildshard/sdk/scripts/bake/placeholderShards.mjs';
 
 const slug = process.argv.slice(2).find(value => !value.startsWith('--'));
 if (typeof slug !== 'string') throw new Error('usage: near-placeholder.mjs <slug> [--report] [--ground-error=<m>] [--resident=<bytes>]');

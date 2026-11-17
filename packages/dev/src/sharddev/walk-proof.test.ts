@@ -8,7 +8,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- resolve the repo's bin.
 import { join, resolve } from 'node:path';
 import { afterAll, describe, expect, test } from 'vitest';
-import { pickChoice, walkProof, type WalkBox, type WalkPage, type WalkRows, type WalkState } from './walkProof';
+import { pickChoice, walkProof, type WalkBox, type WalkPage, type WalkRows, type WalkState } from '../../../sdk/src/sharddev/walkProof';
 
 /* oxlint-disable typescript/no-unsafe-type-assertion -- the fake page answers each page read by its function's name */
 const ROWS = {

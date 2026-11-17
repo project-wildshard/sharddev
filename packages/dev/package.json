@@ -1,0 +1,102 @@
+{
+  "name": "@wildshard/dev",
+  "version": "0.3.9",
+  "private": true,
+  "description": "The local game and the `wildshard` CLI (SDK-SPLIT SP8): dev, watch, check (sim and walk proofs), prove, hero, serve, the local page, the sim test harness, build-shards and the drafts tool. Depends on the engine; the sdk, kit, build and upload never do. Private until SP12 publishes it.",
+  "license": "UNLICENSED",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/project-wildshard/sharddev.git",
+    "directory": "packages/dev"
+  },
+  "type": "module",
+  "bin": {
+    "sharddev": "./bin/wildshard.mjs",
+    "wildshard": "./bin/wildshard.mjs"
+  },
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "files": [
+    "bin",
+    "src",
+    "!src/**/*.test.*",
+    "!src/e2e",
+    "!src/test",
+    "!src/ci",
+    "!src/web/tsconfig.json",
+    "!src/tsconfig.json",
+    "scripts",
+    "!scripts/**/*.test.*",
+    "!scripts/docs",
+    "lint",
+    "!lint/**/*.test.*"
+  ],
+  "scripts": {
+    "dev": "node src/tools/build-web.ts --dev",
+    "build": "node src/tools/build-web.ts",
+    "drafts:dev": "vite --config drafts/vite.config.ts",
+    "drafts:build": "vite build --config drafts/vite.config.ts",
+    "drafts:deploy": "bash drafts/tools/deploy.sh",
+    "drafts:test": "../../node_modules/.bin/npr tsc -p drafts/tsconfig.json && ../../node_modules/.bin/npr tsc -p drafts/tools/tsconfig.json && vitest run drafts/test && node drafts/tools/atlas.ts --check",
+    "lint:kit": "node ../../kit/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern 'src/sharddev/**' --no-error-on-unmatched-pattern src",
+    "lint:author": "WILDSHARD_RATCHET_FILE=lint/ratchet.json node ../../kit/scripts/bin-tools.mjs -c .oxlintrc.author.json --deny-warnings src/sharddev",
+    "test": "pnpm test:kit && pnpm test:author",
+    "test:ci": "node --test 'src/ci/**/*.test.ts'",
+    "test:e2e": "playwright test --config src/e2e/playwright.config.ts",
+    "test:kit": "node --test 'src/cli/**/*.test.ts' 'src/server/*.test.ts' 'src/test/**/*.test.ts'",
+    "test:author": "vitest run",
+    "check:watch-build": "node src/sharddev/watch/parity.mjs --check"
+  },
+  "dependencies": {
+    "@dimforge/rapier3d-simd": "0.21.0",
+    "@gltf-transform/core": "4.5.0",
+    "@gltf-transform/extensions": "4.5.0",
+    "@hono/node-server": "2.1.8",
+    "@loaders.gl/core": "4.5.3",
+    "@loaders.gl/textures": "4.5.3",
+    "@types/three": "0.186.0",
+    "@typescript/typescript6": "6.0.2",
+    "@wildshard/engine": "0.1.34",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.16.0",
+    "@wildshard/kit": "workspace:*",
+    "@wildshard/sdk": "workspace:*",
+    "@wildshard/upload": "workspace:*",
+    "esbuild": "0.28.2",
+    "fflate": "0.8.3",
+    "happy-dom": "21.0.4",
+    "hono": "4.13.19",
+    "meshoptimizer": "1.2.0",
+    "playwright": "1.65.0",
+    "postprocessing": "6.39.5",
+    "preact": "11.1.1",
+    "sharp": "0.35.5",
+    "valibot": "1.5.0",
+    "vite": "8.3.0"
+  },
+  "peerDependencies": {
+    "three": "0.186.0"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.65.0",
+    "@types/node": "24.3.1",
+    "three": "0.186.0",
+    "vitest": "5.0.3"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./bootInventory": "./src/sharddev/bootInventory.ts",
+    "./bake/nativeRaster": "./src/sharddev/bake/nativeRaster.ts",
+    "./test/scriptScenario": "./src/sharddev/test/scriptScenario.ts",
+    "./watch/watch": "./src/sharddev/watch/watch.ts",
+    "./watch/page": "./src/sharddev/watch/page.ts",
+    "./bake/mapRest": "./src/sharddev/bake/mapRest.ts",
+    "./test/diskScriptScenario": "./src/sharddev/test/diskScriptScenario.ts",
+    "./bake/splatLayers": "./src/sharddev/bake/splatLayers.ts",
+    "./projectEntryProof": "./src/sharddev/projectEntryProof.ts",
+    "./scripts/*": "./scripts/*"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

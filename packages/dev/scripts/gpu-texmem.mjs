@@ -19,7 +19,7 @@ import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-sett
 // Metal, muted (`--mute-audio`, `mute=1`), closed at the end. Writes progress/texmem/<tag>-<chunk>-<tier>.json.
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
-import { ledger, report } from './texmem-probe.mjs';
+import { ledger, report } from '@wildshard/sdk/scripts/texmem-probe.mjs';
 
 const { chromium, devices } = await import("./browser-playwright.mjs");
 const ROOT = resolvePath(new URL('..', import.meta.url).pathname);

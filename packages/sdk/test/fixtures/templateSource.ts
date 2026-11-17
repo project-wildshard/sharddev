@@ -11,8 +11,8 @@ import { compileTemplateBehaviour, TEMPLATE_BEHAVIOUR_INPUTS, templateBehaviourM
 import { hashImmutableBytes } from '../../src/sharddev/immutable';
 import { templatePropRows } from '../../src/shards/_template/generators/props';
 
-const scripts = await compileTemplateBehaviour({ compileScript }, new Map(TEMPLATE_BEHAVIOUR_INPUTS.map(file => [file, new Uint8Array(fs.readFileSync(resolve('src/shards/_template', file)))])));
-const bossBytes = await compileTemplateBoss({ compileDecisionScripts }, new Map(TEMPLATE_BOSS_INPUTS.map(file => [file, new Uint8Array(fs.readFileSync(resolve('src/shards/_template', file)))])));
+const scripts = await compileTemplateBehaviour({ compileScript }, new Map(TEMPLATE_BEHAVIOUR_INPUTS.map(file => [file, new Uint8Array(fs.readFileSync(resolve(import.meta.dirname, '../../src/shards/_template', file)))])));
+const bossBytes = await compileTemplateBoss({ compileDecisionScripts }, new Map(TEMPLATE_BOSS_INPUTS.map(file => [file, new Uint8Array(fs.readFileSync(resolve(import.meta.dirname, '../../src/shards/_template', file)))])));
 export const TEMPLATE_BOSS = { hash: hashImmutableBytes(bossBytes), compressed: bossBytes.length };
 export const TEMPLATE_BEHAVIOUR = templateBehaviourMetadata(scripts);
 const { assets: terrain, ...rows } = templateTerrain(), props = templatePropRows(), generated = new Map([...terrain, ...props.assets, [TEMPLATE_BOSS.hash, bossBytes] as const, ...[...scripts.values()].map(bytes => [hashImmutableBytes(bytes), bytes] as const)]);
@@ -26,5 +26,5 @@ export function templateAssets(hashes?: ReadonlySet<string>): Map<string, Uint8A
   return new Map(selected.map(file => {
     if (file === undefined) throw new Error('Unknown Template fixture asset');
     return [file.hash,
-    new Uint8Array(generated.get(file.hash) ?? fs.readFileSync(resolve('src/shards/_template/assets', file.hash)))];}));
+    new Uint8Array(generated.get(file.hash) ?? fs.readFileSync(resolve(import.meta.dirname, '../../src/shards/_template/assets', file.hash)))];}));
 }

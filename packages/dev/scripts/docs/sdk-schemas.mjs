@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from '@typescript/typescript6';
-import { schemaInventory } from './schema-reference.mjs';
+import { schemaInventory } from '@wildshard/sdk/scripts/docs/schema-reference.mjs';
 import { layerFolder } from '@wildshard/engine/scripts/format-package.mjs';
 
 /** Read public schema metadata without invoking author/build functions.

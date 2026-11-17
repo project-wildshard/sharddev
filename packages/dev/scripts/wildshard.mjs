@@ -3,12 +3,12 @@
 import { build } from 'vite';
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
 import { captureProductInputs, recordBundle, inputRecorderPlugin } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
-import { basename, resolve } from 'node:path';
+import { basename, dirname, resolve, sep } from 'node:path';
 import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { pathToFileURL } from 'node:url';
 import { createRequire } from 'node:module';
-import { importBundle } from './import-bundle.mjs';
+import { importBundle } from '@wildshard/sdk/scripts/import-bundle.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
@@ -29,6 +29,10 @@ async function writeShardfile(dir, source, options = {}) {
 // The bundle's import.meta.dirname stays src/sdk: headless.ts finds bake/headlessWorker.ts beside it, and src/sdk keeps the
 // author tools' dependency links until the host leaves at P3 (P1-F4).
 const authorRequire = createRequire(resolve(import.meta.dirname, '../src/sharddev/package.json'));
+const DEV_SRC = resolve(import.meta.dirname, '../src/sharddev');
+const SDK_DIR = realpathSync(dirname(authorRequire.resolve('@wildshard/sdk/package.json'))), SDK_SRC = resolve(SDK_DIR, 'src/sharddev');
+// The script compilers and the texture tools are the sdk's dependencies; they load from the sdk's own install.
+const sdkRequire = createRequire(resolve(SDK_SRC, 'package.json'));
 // P4: the project is the repo the author stands in; the tools are this package.
 const projectRoot = () => process.cwd();
 /** Compile the trusted CLI once before product children; later invocations
@@ -45,9 +49,15 @@ export function prepareWildshard() {
   const sdkRoot = realpathSync(resolve(import.meta.dirname, '..'));
   const sdk = `${sdkRoot}@${JSON.parse(readFileSync(resolve(sdkRoot, 'package.json'), 'utf8')).version}`;
   return authorBundleCached(root,[shardfileValidationRevision(root),policy,sdk],async()=>{
-    const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()), 'import.meta.dirname': JSON.stringify(resolve(import.meta.dirname, '../src/sharddev')) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', resolveId(id) {
+    const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', transform(code, id) {
+      // SDK-SPLIT SP8c: each package keeps its own src/sharddev as import.meta.dirname (the sdk finds its GUIDE.md,
+      // template and tools; dev, the engine and upload find dev's): one global value pointed the sdk's modules at dev.
+      if (!code.includes('import.meta.dirname')) return null;
+      const file = id.split('?')[0] ?? id, owner = file.startsWith(SDK_DIR + sep) ? SDK_SRC : DEV_SRC;
+      return { code: code.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
+    }, resolveId(id) {
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
-      if (id === 'sharp' || id === 'binaryen' || id === '@typescript/typescript6' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(authorRequire.resolve(id)).href, external: true };
+      if (id === 'sharp' || id === 'binaryen' || id === '@typescript/typescript6' || /^assemblyscript(?:\/|$)/u.test(id)) return { id: pathToFileURL(sdkRequire.resolve(id)).href, external: true };
       return null;
     } }], build: { write: false, minify: false, lib: { entry: resolve(import.meta.dirname, '../src/sharddev/cli.ts'), formats: ['es'], fileName: 'cli' }, rolldownOptions: { platform: 'node', external: [/^node:/u], output: { codeSplitting: false } } } });
     recordBundle(result,{execution:true});

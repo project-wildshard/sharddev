@@ -26,7 +26,11 @@ function sdkExports(sub) {
     const manifest = JSON.parse(readFileSync(resolve(installed('@wildshard/sdk'), 'package.json'), 'utf8'));
     exports = new Set(Object.keys(manifest.exports ?? {}));
   }
-  return exports.has(`./${sub}`);
+  // SDK-SPLIT SP8c: @wildshard/dev reaches the sdk's tool scripts through its `./scripts/*` pattern export.
+  return exports.has(`./${sub}`) || [...exports].some(key => {
+    const [prefix, suffix] = key.split('*');
+    return suffix !== undefined && `./${sub}`.startsWith(prefix) && `./${sub}`.endsWith(suffix) && `./${sub}`.length >= prefix.length + suffix.length;
+  });
 }
 
 const publicIndex = engine.rules['public-index'];

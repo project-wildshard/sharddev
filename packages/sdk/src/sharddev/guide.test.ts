@@ -15,7 +15,7 @@ const guide = readFileSync(GUIDE_SOURCE, 'utf8');
 
 /** The verbs `wildshard --help` lists, read from the CLI's own output so help's wording can change freely. */
 function helpVerbs(): string[] {
-  const help = spawnSync(process.execPath, [resolve(ROOT, 'bin/wildshard.mjs'), '--help'], { encoding: 'utf8' });
+  const help = spawnSync(process.execPath, [resolve(ROOT, '../dev/bin/wildshard.mjs'), '--help'], { encoding: 'utf8' });
   expect(help.status, help.stderr).toBe(0);
   const commands = help.stdout.split(/^Commands:$/mu)[1]?.split(/^Options:$/mu)[0] ?? '';
   return [...new Set([...commands.matchAll(/^ {2}([a-z][a-z-]*)(?= |$)/gmu)].map(match => match[1] ?? ''))];

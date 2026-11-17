@@ -8,7 +8,7 @@ import {dirname,resolve,relative,join} from 'node:path';
 import {createHash} from 'node:crypto';
 // oxlint-disable-next-line import/no-nodejs-modules -- Public module URLs may include spaces or encoded characters.
 import {fileURLToPath} from 'node:url';
-import provenance from '../fixtures/ci21-nu3/provenance.json' with {type:'json'};
+import provenance from '../../../sdk/test/fixtures/ci21-nu3/provenance.json' with {type:'json'};
 import ts from '@typescript/typescript6';
 import {afterAll,expect,test} from 'vitest';
 import {authoredManifestSource,productManifestPath} from '@wildshard/engine/scripts/authored-manifest.mjs';

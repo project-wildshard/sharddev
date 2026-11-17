@@ -2,15 +2,15 @@
 import { resolve } from 'node:path';
 import { readFileSync } from 'node:fs';
 import { inflateSync } from 'node:zlib';
-import { readBakedGeometry } from '../src/sharddev/kit/bakedGeometry.ts';
+import { readBakedGeometry } from '@wildshard/sdk/kit/bakedGeometry';
 import { _applyChunkConstants } from '@wildshard/engine/core/config';
 import { configureLevel } from '@wildshard/engine/level/selection';
 import { placeForest } from '@wildshard/engine/world/forest/placement';
 
 import { BufferGeometry, Euler, Float32BufferAttribute, Matrix4, Quaternion, Vector3 } from 'three';
-import { MapRaster } from '../src/sharddev/bake/mapRaster.ts';
+import { MapRaster } from '@wildshard/sdk/bake/mapRaster';
 import { readMapGeometry } from '@wildshard/engine/scripts/map-painter.mjs';
-import { mapModel, readMapJson } from './map-geometry.mjs';
+import { mapModel, readMapJson } from '@wildshard/sdk/scripts/map-geometry.mjs';
 
 export const mapPose = pose => pose.matrix === undefined ? new Matrix4().compose(new Vector3(pose.x, pose.y, pose.z),
   new Quaternion().setFromEuler(new Euler(pose.yxz.pitch ?? 0, pose.yxz.yawAtan2 === undefined ? pose.yxz.yaw : Math.atan2(...pose.yxz.yawAtan2), pose.yxz.roll ?? 0, 'YXZ')),

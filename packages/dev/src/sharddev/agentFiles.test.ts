@@ -3,10 +3,10 @@ import { appendFileSync, cpSync, lstatSync, mkdirSync, mkdtempSync, readFileSync
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { relative, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AGENTS_FILE, AGENTS_TEXT, CLAUDE_FILE, CLAUDE_TEXT, GUIDE_SOURCE, SDK_ROOT, SKILLS, skillFile, skillLink, skillLinkTarget, skillSource, syncAgentFiles, updateShardRepo } from './agentFiles';
-import { projectPerformancePolicy } from './performancePolicy';
+import { AGENTS_FILE, AGENTS_TEXT, CLAUDE_FILE, CLAUDE_TEXT, GUIDE_SOURCE, SDK_ROOT, SKILLS, skillFile, skillLink, skillLinkTarget, skillSource, syncAgentFiles, updateShardRepo } from '../../../sdk/src/sharddev/agentFiles';
+import { projectPerformancePolicy } from '../../../sdk/src/sharddev/performancePolicy';
 import type { Shardfile } from '@wildshard/format/shardSchema';
-import { writeShardRepo } from './newProject';
+import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
 import { runCli } from './cli';
 
 // SHARD-AUTHORING SA28 (J314 Q7, Q8, Q27): `new` and `update` write the agent files; `update` after an sdk bump

@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import ts from '@typescript/typescript6';
 import { hostAnalysis } from '../lint/host-callbacks.mjs';
-import { referenceData } from './docs/gen-shardfile-reference.mjs';
+import { referenceData } from '@wildshard/sdk/scripts/docs/gen-shardfile-reference.mjs';
 import { formatSource } from '@wildshard/engine/scripts/format-package.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..');

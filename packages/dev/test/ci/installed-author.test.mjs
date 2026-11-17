@@ -170,11 +170,12 @@ test('author and engine share the format schema and Three instance without a tes
 });
 /** `wildshard prepare`'s last step on `folder` with a fixture recording (as src/ci/cook-preparation.test.ts), no WebKit. */
 function prepare(folder) {
-  const sdk = join(bin, '../..'), header = readFileSync(join(folder, 'shard.json')), recording = join(root, 'recording.json');
+  // SP8c: prepare-product is @wildshard/dev's script; J82's format hook is the sdk's.
+  const dev = join(bin, '../..'), sdk = join(app, 'node_modules/@wildshard/sdk'), header = readFileSync(join(folder, 'shard.json')), recording = join(root, 'recording.json');
   writeFileSync(recording, JSON.stringify({ headerHash: createHash('sha256').update(header).digest('hex'), renderer: '1'.repeat(64), reads: [],
     programs: { version: 2, build: 'wire-fixture-only', lines: ['void main() {}'], shaders: [[0]], programs: [[0, 0]] } }));
   const finish = `import {readFileSync} from 'node:fs';
-import {finishPreparation} from ${JSON.stringify(join(sdk, 'scripts/prepare-product.mjs'))};
+import {finishPreparation} from ${JSON.stringify(join(dev, 'scripts/prepare-product.mjs'))};
 const [dir,file]=process.argv.slice(1);
 await finishPreparation(dir,JSON.parse(readFileSync(file,'utf8')),readFileSync(dir+'/shard.json'));`;
   const done = spawnSync(process.execPath, ['--import', join(sdk, 'src/sharddev/bake/format-hook.mjs'), '--input-type=module', '-e', finish, folder, recording], { encoding: 'utf8' });

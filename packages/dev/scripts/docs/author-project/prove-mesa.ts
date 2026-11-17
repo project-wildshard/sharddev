@@ -1,4 +1,4 @@
-import { starterSpearContent } from './generators/spear';
+import { starterSpearContent } from '@wildshard/sdk/scripts/docs/author-project/generators/spear.ts';
 import { hashImmutableBytes, encodeCanonicalJson } from '@wildshard/sdk/immutable';
 import {
   proveMesaNative, proveSceneClient, proveEquippedItemClient,

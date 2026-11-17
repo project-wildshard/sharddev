@@ -7,8 +7,8 @@ import { connect } from 'node:net';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the bin and the scratch project.
 import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { writeShardRepo } from './newProject';
-import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
+import { closeFixtures, fixtureRoot } from '../../../sdk/src/sharddev/test/ownedScratch';
 
 // HOW-WE-BUILD SD-6: Ctrl-C (SIGINT) or SIGTERM ends `wildshard dev` and frees its port within 2 s, page open or not.
 const BIN = resolve(import.meta.dirname, '../../bin/wildshard.mjs');

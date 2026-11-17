@@ -1,36 +1,36 @@
-import { printSpawnWarnings } from './spawnWarnings';
+import { printSpawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI accepts filesystem project/output paths.
 import { basename, dirname, relative, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
-import { buildProject, readProjectAssets, validateProject } from './project';
+import { buildProject, readProjectAssets, validateProject } from '@wildshard/sdk/project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
 import { watchProject } from './watch/watch';
 import { devClient } from './devClient';
 import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
-import { performanceReport, performanceReportLines, type PerformanceObservations } from './reportCard';
-import { projectPerformancePolicy } from './performancePolicy';
-import { readBoundedFile } from './sourceReader';
+import { performanceReport, performanceReportLines, type PerformanceObservations } from '@wildshard/sdk/reportCard';
+import { projectPerformancePolicy } from '@wildshard/sdk/internal/performancePolicy';
+import { readBoundedFile } from '@wildshard/sdk/sourceReader';
 import { STILL_IMAGE_LIMITS } from '@wildshard/format/stillImage';
-import { assetOverdraw } from './assets';
+import { assetOverdraw } from '@wildshard/sdk/assets';
 // oxlint-disable-next-line import/no-nodejs-modules -- The CLI releases its author server on termination.
 import process from 'node:process';
-import { buildBehaviourProject } from './buildBehaviour';
-import { synthProject } from './synth';
-import { formatJsonSchemas, schemaAt, schemaDeclaration } from './formatJsonSchema';
+import { buildBehaviourProject } from '@wildshard/sdk/buildBehaviour';
+import { synthProject } from '@wildshard/sdk/synth';
+import { formatJsonSchemas, schemaAt, schemaDeclaration } from '@wildshard/sdk/formatJsonSchema';
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
-import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from './outputProduct';
-import { locatedError } from './authorError';
-import type { ProjectManifestSource } from './projectManifest';
-import { templateNamed, writeShardRepo } from './newProject';
-import { updateShardRepo } from './agentFiles';
-import { updatePins } from './updatePins';
+import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from '@wildshard/sdk/outputProduct';
+import { locatedError } from '@wildshard/sdk/internal/authorError';
+import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
+import { templateNamed, writeShardRepo } from '@wildshard/sdk/internal/newProject';
+import { updateShardRepo } from '@wildshard/sdk/internal/agentFiles';
+import { updatePins } from '@wildshard/sdk/internal/updatePins';
 import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
-import { providePortalEntryProof } from './projectGeneration';
+import { providePortalEntryProof } from '@wildshard/sdk/projectGeneration';
 
 // SDK-SPLIT SP8a: generation's static portal walk (Rapier and the engine sim) is this CLI's to hand in; it loads only when
 // a generator asks for it (Nine Dragon's entry proof), so a build that never asks never starts Rapier.

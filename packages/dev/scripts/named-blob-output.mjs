@@ -19,7 +19,7 @@ function validateJson(schemaBytes, bytes) {
 export function namedBlobOutput(project, label, directory = 'assets') {
   if (!/^assets(?:\/[A-Za-z0-9_-]+)*$/u.test(directory) || directory.length > 120) throw new Error('Invalid blob source directory');
   const writer = byteWriter(process.argv.includes('--check'), label);
-  /** @type {Map<string,NonNullable<import('../src/sharddev/projectOutput').ProjectOutput['blobs']>[number]>} */
+  /** @type {Map<string,NonNullable<import('@wildshard/sdk/projectOutput').ProjectOutput['blobs']>[number]>} */
   const rows = new Map();
   /** @type {Map<string,string>} */
   const aliases = new Map();

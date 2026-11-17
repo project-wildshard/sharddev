@@ -5,7 +5,7 @@ import { expect, test } from 'vitest';
 import { filePolicy } from '@wildshard/engine/boot/filePolicy';
 import { CLOUD_FIELD_URL } from '@wildshard/engine/boot/bakedApi';
 import { RAPIER_WASM_URL } from '@wildshard/engine/physics/wasmUrl';
-import { assertConfigBoundary } from './configBoundary';
+import { assertConfigBoundary } from '../../../sdk/src/sharddev/configBoundary';
 import { bakedBootTextureSource, bootFilePolicy, sharedBootPhysics, sharedBootTextures, type BootInventory } from './bootInventory';
 
 test('native bake texture sources retain their owned namespace and reject path injection', () => {

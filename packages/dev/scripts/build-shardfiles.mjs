@@ -19,11 +19,11 @@ import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discover
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
 import { orderProductBuilds, readProductBuildTimes, recordProductBuildTimes } from '@wildshard/engine/scripts/product-build-times.mjs';
-import { prepareProductBuildTools } from './product-build-tools.mjs';
+import { prepareProductBuildTools } from '@wildshard/sdk/scripts/product-build-tools.mjs';
 import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
 import { runtimeCopyIssues, productMapInput, publishProductMap, productFlags, productRecipe, retainProductInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-product.mjs';
-import { isWorktreePath } from './worktree-ignore.mjs';
+import { isWorktreePath } from '@wildshard/sdk/scripts/worktree-ignore.mjs';
 
 /** Read CI's output or a matching immutable product without invoking the builder.
  * @param {string} root @param {string} name

@@ -1,5 +1,5 @@
 import { Scope } from '@wildshard/engine/app/scope';
-import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, budgetLines, decodeGeometry, type WatchBuild, type WatchPart, type WatchState } from './protocol';
+import { DEV_HOOK_VERSION, DEV_SCENE_PATH, WATCH_SOCKET, WATCH_WIRE, budgetLines, decodeGeometry, type WatchBuild, type WatchPart, type WatchState } from '@wildshard/sdk/watch/protocol';
 
 /**
  * SHARD-SOURCE AP5 (J347): the page script `wildshard watch` injects into the page it serves (`pageEntry.ts`, bundled at

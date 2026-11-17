@@ -25,6 +25,94 @@ importers:
         specifier: 1.89.0
         version: 1.89.0
 
+  packages/dev:
+    dependencies:
+      '@dimforge/rapier3d-simd':
+        specifier: 0.21.0
+        version: 0.21.0
+      '@gltf-transform/core':
+        specifier: 4.5.0
+        version: 4.5.0
+      '@gltf-transform/extensions':
+        specifier: 4.5.0
+        version: 4.5.0
+      '@hono/node-server':
+        specifier: 2.1.8
+        version: 2.1.8(hono@4.13.19)
+      '@loaders.gl/core':
+        specifier: 4.5.3
+        version: 4.5.3
+      '@loaders.gl/textures':
+        specifier: 4.5.3
+        version: 4.5.3(@loaders.gl/core@4.5.3)
+      '@types/three':
+        specifier: 0.186.0
+        version: 0.186.0
+      '@typescript/typescript6':
+        specifier: 6.0.2
+        version: 6.0.2
+      '@wildshard/engine':
+        specifier: 0.1.34
+        version: 0.1.34(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+      '@wildshard/format':
+        specifier: npm:@wildshard/shard-format@0.16.0
+        version: '@wildshard/shard-format@0.16.0(typescript@6.0.3)'
+      '@wildshard/kit':
+        specifier: workspace:*
+        version: link:../kit
+      '@wildshard/sdk':
+        specifier: workspace:*
+        version: link:../sdk
+      '@wildshard/upload':
+        specifier: workspace:*
+        version: link:../upload
+      esbuild:
+        specifier: 0.28.2
+        version: 0.28.2
+      fflate:
+        specifier: 0.8.3
+        version: 0.8.3
+      happy-dom:
+        specifier: 21.0.4
+        version: 21.0.4
+      hono:
+        specifier: 4.13.19
+        version: 4.13.19
+      meshoptimizer:
+        specifier: 1.2.0
+        version: 1.2.0
+      playwright:
+        specifier: 1.65.0
+        version: 1.65.0
+      postprocessing:
+        specifier: 6.39.5
+        version: 6.39.5(@types/three@0.186.0)(three@0.186.0)
+      preact:
+        specifier: 11.1.1
+        version: 11.1.1
+      sharp:
+        specifier: 0.35.5
+        version: 0.35.5(@types/node@24.3.1)
+      valibot:
+        specifier: 1.5.0
+        version: 1.5.0(typescript@6.0.3)
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
+    devDependencies:
+      '@playwright/test':
+        specifier: 1.65.0
+        version: 1.65.0
+      '@types/node':
+        specifier: 24.3.1
+        version: 24.3.1
+      three:
+        specifier: 0.186.0
+        version: 0.186.0
+      vitest:
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.10.0)(@types/node@24.3.1)(happy-dom@21.0.4)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+
   packages/kit:
     dependencies:
       '@wildshard/shard-format':
@@ -58,9 +146,6 @@ importers:
 
   packages/sdk:
     dependencies:
-      '@dimforge/rapier3d-simd':
-        specifier: 0.21.0
-        version: 0.21.0
       '@gltf-transform/core':
         specifier: 4.5.0
         version: 4.5.0
@@ -70,15 +155,6 @@ importers:
       '@gltf-transform/functions':
         specifier: 4.5.0
         version: 4.5.0(@types/node@24.3.1)
-      '@hono/node-server':
-        specifier: 2.1.8
-        version: 2.1.8(hono@4.13.19)
-      '@loaders.gl/core':
-        specifier: 4.5.3
-        version: 4.5.3
-      '@loaders.gl/textures':
-        specifier: 4.5.3
-        version: 4.5.3(@loaders.gl/core@4.5.3)
       '@types/three':
         specifier: 0.186.0
         version: 0.186.0
@@ -88,9 +164,6 @@ importers:
       '@valibot/to-json-schema':
         specifier: 1.8.0
         version: 1.8.0(valibot@1.5.0(typescript@6.0.3))
-      '@wildshard/engine':
-        specifier: 0.1.34
-        version: 0.1.34(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.18.0
         version: '@wildshard/shard-format@0.18.0(typescript@6.0.3)'
@@ -112,12 +185,6 @@ importers:
       fflate:
         specifier: 0.8.3
         version: 0.8.3
-      happy-dom:
-        specifier: 21.0.4
-        version: 21.0.4
-      hono:
-        specifier: 4.13.19
-        version: 4.13.19
       meshoptimizer:
         specifier: 1.2.0
         version: 1.2.0
@@ -127,15 +194,6 @@ importers:
       oxlint:
         specifier: 1.89.0
         version: 1.89.0
-      playwright:
-        specifier: 1.65.0
-        version: 1.65.0
-      postprocessing:
-        specifier: 6.39.5
-        version: 6.39.5(@types/three@0.186.0)(three@0.186.0)
-      preact:
-        specifier: 11.1.1
-        version: 11.1.1
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@24.3.1)
@@ -145,25 +203,31 @@ importers:
       vite:
         specifier: 8.3.0
         version: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
-      vitest:
-        specifier: 5.0.3
-        version: 5.0.3(@opentelemetry/api@1.10.0)(@types/node@24.3.1)(happy-dom@21.0.4)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
     devDependencies:
-      '@playwright/test':
-        specifier: 1.65.0
-        version: 1.65.0
+      '@dimforge/rapier3d-simd':
+        specifier: 0.21.0
+        version: 0.21.0
       '@types/node':
         specifier: 24.3.1
         version: 24.3.1
+      '@wildshard/engine':
+        specifier: 0.1.34
+        version: 0.1.34(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
-      esbuild:
-        specifier: 0.28.2
-        version: 0.28.2
+      happy-dom:
+        specifier: 21.0.4
+        version: 21.0.4
+      postprocessing:
+        specifier: 6.39.5
+        version: 6.39.5(@types/three@0.186.0)(three@0.186.0)
       three:
         specifier: 0.186.0
         version: 0.186.0
+      vitest:
+        specifier: 5.0.3
+        version: 5.0.3(@opentelemetry/api@1.10.0)(@types/node@24.3.1)(happy-dom@21.0.4)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
 
   packages/upload:
     dependencies:

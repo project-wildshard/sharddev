@@ -40,7 +40,7 @@
 // terrain splat, the bark) are baked a second time unflipped (`<url>#layer`): loadPBRArray keeps the file's orientation.
 //
 //   node --import ./scripts/bake-loader.mjs scripts/bake-ktx2.mjs [--dry] [--force] [--only=<substr>] [--jobs=4] [--tiers=phone,desktop] [--desktop-max=16384]
-import { COMMON, CLASS, FAR, glbKtx2Key } from './ktx2-settings.mjs';
+import { COMMON, CLASS, FAR, glbKtx2Key } from '@wildshard/sdk/scripts/ktx2-settings.mjs';
 import { writeKtx2Tables } from '@wildshard/engine/scripts/ktx2-tables.mjs';
 import { createHash } from 'node:crypto';
 import { execFileSync, spawn } from 'node:child_process';
@@ -83,7 +83,7 @@ const TIERS = new Set(flag('tiers', 'phone,desktop').split(','));
 const libraryInput = flag('library', '');
 if (libraryInput !== '') {
   const { bakeTextureLibrary } = await import('../src/shards/far-reach/generators/bake-sky-world.mjs');
-  const { bakeColourTexture } = await import('../src/sharddev/bake/texture.ts');
+  const { bakeColourTexture } = await import('@wildshard/sdk/bake/texture');
   await bakeTextureLibrary(ROOT, libraryInput, { encoder: bakeColourTexture, encode: argv.includes('--encode'), check: CHECK });
   process.exit(0);
 }

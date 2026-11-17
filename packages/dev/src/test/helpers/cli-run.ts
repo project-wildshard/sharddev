@@ -14,7 +14,7 @@ import { fileURLToPath } from 'node:url'
 // empty, closed at once.
 
 const MAIN = fileURLToPath(new URL('../../cli/main.ts', import.meta.url))
-const ROOT = fileURLToPath(new URL('../../../', import.meta.url))
+const ROOT = fileURLToPath(new URL('../../../../sdk', import.meta.url))
 const OWNER_ONLY = 0o600
 
 interface CliRun {

@@ -11,7 +11,7 @@ import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { mergeProjectBlobs } from '@wildshard/sdk/projectOutput';
 import { writeOutputProduct } from '@wildshard/sdk/outputProduct';
 import { scenario } from '../test/scriptScenario';
-import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
+import { encodeCanonicalJson, hashImmutableBytes } from '../../../../sdk/src/sharddev/immutable';
 
 let root = '', modulePath = '', moduleBytes: Uint8Array = new Uint8Array();
 beforeAll(async () => {

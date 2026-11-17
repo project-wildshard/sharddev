@@ -14,7 +14,7 @@ import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { build } from '../scripts/shardfile-vite.mjs';
 import {build as buildCompiler} from 'vite';
 import * as v from 'valibot';
-import { createProjectGeneration } from '../src/sharddev/projectGeneration';
+import { createProjectGeneration } from '../../sdk/src/sharddev/projectGeneration';
 
 const owned: string[] = [];
 afterEach(() => { for (const root of owned.splice(0)) rmSync(root, { recursive: true, force: true }); });

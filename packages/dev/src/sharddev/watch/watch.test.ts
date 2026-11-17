@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { afterAll, expect, test } from 'vitest';
 import { socketOf, startWatchPage, type DevHookLike } from './page';
-import { DEV_HOOK_VERSION, WATCH_WIRE, hookMismatch } from './protocol';
+import { DEV_HOOK_VERSION, WATCH_WIRE, hookMismatch } from '../../../../sdk/src/sharddev/watch/protocol';
 import { decodeTerrainTile, terrainTileHeight } from '@wildshard/format/terrainTileBytes';
 import { NO_SERVICE_WORKER, pageScript, watchProject } from './watch';
 

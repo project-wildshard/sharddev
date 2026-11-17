@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // CI21's imported tests participate in the normal typed lint and compiler gates.
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
 import { lintEnvironment } from '../../../kit/scripts/bin-tools.mjs';
@@ -8,11 +8,16 @@ import { titles } from './ci21-test-declarations.mjs';
 
 const manifest = JSON.parse(readFileSync(new URL('../test/ci21-sdk-tail.json', import.meta.url), 'utf8'));
 const compiler = JSON.parse(readFileSync(new URL('../tsconfig.author.json', import.meta.url), 'utf8'));
+// SDK-SPLIT SP8c: a recorded test or support file that moved with the dev package (the script-scenario kit and the
+// Template boss test that drives it) is compiled and linted there, under dev's own author configs.
+const devCompiler = JSON.parse(readFileSync(new URL('../../dev/tsconfig.author.json', import.meta.url), 'utf8'));
+const inDev = path => !existsSync(new URL(`../${path}`, import.meta.url)) && existsSync(new URL(`../../dev/${path}`, import.meta.url));
+const located = path => inDev(path) ? `../dev/${path}` : path;
 const targets = manifest.files.map(file => file.targetPath);
 const pending = JSON.parse(readFileSync(new URL('../test/lift-pending.json', import.meta.url), 'utf8'));
 for (const target of targets) if (pending.includes(target)) throw new Error(`CI21 destination is excluded from the default suite: ${target}`);
 const admitted = [...targets, ...manifest.supportPaths];
-if (JSON.stringify([...compiler.files].sort()) !== JSON.stringify([...admitted].sort())) throw new Error('CI21 compiler paths differ from the recorded test/support destinations');
+if (JSON.stringify([...compiler.files, ...devCompiler.files].sort()) !== JSON.stringify([...admitted].sort())) throw new Error('CI21 compiler paths differ from the recorded test/support destinations');
 
 for (const file of manifest.files) {
   if (file.wireSplit !== undefined && file.caseSplit === true) throw new Error(`CI21 split modes are mutually exclusive: ${file.targetPath}`);
@@ -42,15 +47,16 @@ for (const file of manifest.files) {
     } else if (file.targetTests.length !== file.originalTests.length) throw new Error(`CI21 renamed case count differs: ${file.targetPath}`);
     for (const [index, title] of file.targetTests.entries()) if (file.caseSplit !== true && file.wireSplit === undefined && title !== file.originalTests[index]) process.stdout.write(`CI21 rename: ${file.originalTests[index]} -> ${title} (${file.targetPath})\n`);
   }
-  if (JSON.stringify(titles(file.targetPath)) !== JSON.stringify(file.targetTests ?? file.originalTests)) throw new Error(`CI21 test declarations differ from their source record: ${file.targetPath}`);
+  if (JSON.stringify(titles(located(file.targetPath))) !== JSON.stringify(file.targetTests ?? file.originalTests)) throw new Error(`CI21 test declarations differ from their source record: ${file.targetPath}`);
 }
 const selected = process.argv.slice(2);
 if (selected.some(file => !admitted.includes(file))) throw new Error('CI21 lint accepts only recorded test/support paths');
 const paths = selected.length === 0 ? admitted : selected;
 process.stdout.write(`CI21 typed lint: ${targets.length} recorded tests, ${manifest.supportPaths.length} support files; linting ${paths.length} paths\n`);
 // Explicit admission includes only the recorded boundary helpers, alongside the port tests.
-const run = spawnSync(process.execPath, ['../../kit/scripts/bin-tools.mjs', '--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...paths], {
-  stdio: 'inherit', env: { ...lintEnvironment(new URL('../../..', import.meta.url).pathname), WILDSHARD_RATCHET_FILE: 'lint/ratchet.json' },
+const lint = (cwd, group) => group.length === 0 ? 0 : spawnSync(process.execPath, ['../../kit/scripts/bin-tools.mjs', '--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...group], {
+  cwd, stdio: 'inherit', env: { ...lintEnvironment(new URL('../../..', import.meta.url).pathname), WILDSHARD_RATCHET_FILE: 'lint/ratchet.json' },
 });
-if (run.error !== undefined) throw run.error;
-process.exitCode = run.status ?? 1;
+const runs = [lint(new URL('..', import.meta.url).pathname, paths.filter(path => !inDev(path))), lint(new URL('../../dev', import.meta.url).pathname, paths.filter(inDev))];
+for (const run of runs) if (typeof run !== 'number' && run.error !== undefined) throw run.error;
+process.exitCode = runs.some(run => (typeof run === 'number' ? run : run.status ?? 1) !== 0) ? 1 : 0;

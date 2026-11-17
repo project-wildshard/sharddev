@@ -9,7 +9,7 @@ import {
   open,
   upload,
   uploadWith,
-} from '../../../../sdk/src/test/helpers/upload-run.ts'
+} from '../../../../dev/src/test/helpers/upload-run.ts'
 import { placementLines } from './placement.ts'
 
 // SA32 (J314 Q13): `--no-place` sends `place: false`, and the upload

@@ -1,0 +1,12 @@
+{
+  "$schema": "../../sdk/node_modules/oxlint/configuration_schema.json",
+  "extends": ["../../../kit/.oxlintrc.json"],
+  // oxlint does not inherit ignorePatterns through extends (K11, J329).
+  "ignorePatterns": [
+    "scripts/**",
+    "dist/**",
+    "test/fixtures/**",
+    "test-results/**",
+    "playwright-report/**"
+  ]
+}

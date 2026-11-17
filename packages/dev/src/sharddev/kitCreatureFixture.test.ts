@@ -7,12 +7,12 @@ import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile, shardfileRules } from '@wildshard/format/shardSchema';
 import { resolveSkinLookFiles } from '@wildshard/format/skinAssets';
 import { speciesKinds } from '@wildshard/engine/entities/species/registry';
-import { emptyShardfile } from './author';
-import { kitCreature } from './kitCreatures';
-import { buildProject } from './project';
+import { emptyShardfile } from '../../../sdk/src/sharddev/author';
+import { kitCreature } from '../../../sdk/src/sharddev/kitCreatures';
+import { buildProject } from '../../../sdk/src/sharddev/project';
 import { checkProject } from './checkProject';
-import { validateOutputProduct } from './outputProduct';
-import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+import { validateOutputProduct } from '../../../sdk/src/sharddev/outputProduct';
+import { closeFixtures, fixtureRoot } from '../../../sdk/src/sharddev/test/ownedScratch';
 
 afterAll(closeFixtures);
 

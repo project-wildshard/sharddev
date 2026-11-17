@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { prepareProductBuildTools } from '../scripts/product-build-tools.mjs';
+import { prepareProductBuildTools } from '../../sdk/scripts/product-build-tools.mjs';
 import { runShardBuildPool } from '../scripts/shard-build-pool.mjs';
 
 test('only selected product prerequisites run, once, before every product worker', async () => {

@@ -9,3 +9,8 @@ packages/sdk/src/test/fixtures/**
 packages/sdk/src/test-results/**
 packages/sdk/src/playwright-report/**
 packages/sdk/src/**/*.md
+packages/dev/src/sharddev/
+packages/dev/src/dist/**
+packages/dev/src/test-results/**
+packages/dev/src/**/*.md
+packages/dev/src/playwright-report/**

@@ -2,11 +2,11 @@
 // `wildshard`: the author commands run through scripts/wildshard.mjs, which bundles the CLI once; pack, upload and serve are
 // this repo's own, and so is `build <folder>` (SA3): a built shard file folder needs no author bundle, only its shard file.
 // Node strips no types under node_modules, so J82's hook goes first and every import below it is dynamic.
-import '../src/sharddev/threeGate.mjs';
+import '@wildshard/sdk/internal/threeGate';
 import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
-import '../src/sharddev/bake/format-hook.mjs';
+import '@wildshard/sdk/internal/bake/format-hook';
 import { homedir } from 'node:os';
 // SP-NE1: an install that landed in the home folder (no package.json here) says so before any verb runs.
 const { homeInstallWarning } = await import('../src/cli/install-home.ts');
