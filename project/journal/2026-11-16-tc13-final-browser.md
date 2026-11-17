@@ -36,3 +36,11 @@ rather than independent arbitrary30s/10s sublimits. The120s outer test
 and cleanup bounds stay intact. This is the explicit Ring2 boot proof,
 not an FPS gate: it still must earn13real simulation/render frames and
 pass every health, authored-section, version, fault and cleanup oracle.
+
+Hosted43984359094 earns all play/version/error assertions (game6→19,
+draw354→406, health100, faults empty), then the80s proof timer kills
+Chrome while its unbounded screenshot is capturing. Stop that timer
+after the last real assertion, and bound optional PNG capture to3s in
+the already-reserved40s artifact/cleanup budget. Record capture failure
+without changing the play verdict; independent clean browser/dev shutdown
+remains mandatory. A screenshot is evidence, not a boot/play criterion.

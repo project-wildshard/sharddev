@@ -102,7 +102,10 @@ async function observeAuthorBrowser(context, empty) {
       receipt.versionLabel = await page.locator('.ws-update').textContent();
       assert.ok(receipt.versionLabel.toLowerCase().includes(`v${receipt.enginePin}`), 'The published client must name the declared engine version');
     }
-    await page.screenshot({ path: join(report, 'outside-author.png') });
+    cancellation.signal.throwIfAborted();
+    clearTimeout(deadline); // Play is proved; artifact capture uses the reserved cleanup budget.
+    try { await page.screenshot({ path: join(report, 'outside-author.png'), timeout: 3_000 }); }
+    catch (error) { receipt.screenshotError = String(error); }
     receipt.verdict = 'pass';
   } catch (error) {
     receipt.verdict = 'fail'; receipt.error = String(error);
