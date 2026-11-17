@@ -207,9 +207,18 @@ function placed(reply: Reply, body: CommitBody, grid: Grid): Reply {
 function dressed(
   reply: Reply,
   body: CommitBody,
-  api: Readonly<{ grid: Grid; echo: boolean }>,
+  api: Readonly<{ grid: Grid; echo: boolean; held: string | undefined }>,
 ): Reply {
-  const answered = placed(reply, body, api.grid)
+  const placedReply = placed(reply, body, api.grid)
+  const answered =
+    api.held === undefined ||
+    placedReply.status >= FIRST_FAILURE ||
+    typeof placedReply.body !== 'object'
+      ? placedReply
+      : {
+          status: placedReply.status,
+          body: { ...placedReply.body, held: api.held },
+        }
   return api.echo ? echoed(answered, body) : answered
 }
 

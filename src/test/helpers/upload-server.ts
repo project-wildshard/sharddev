@@ -62,6 +62,8 @@ interface UploadServerState {
   sso: boolean
   /** Echo the channel and the three versions, as UP2's API will. */
   echo: boolean
+  /** SB35: the API's `held` reason, answered on every successful commit. */
+  held: string | undefined
   /** The API's SA30 grid step: `off`, as live today, answers no `placement`. */
   grid: Grid
   readonly accounts: Accounts
@@ -259,6 +261,7 @@ function newState(): UploadServerState {
     unlisted: false,
     sso: false,
     echo: false,
+    held: undefined,
     grid: 'off',
     accounts: newAccounts(),
     deletions: newDeletions(),

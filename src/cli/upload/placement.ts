@@ -98,6 +98,19 @@ function movedChannels(
     : ['preview', 'staging']
 }
 
+/**
+ * Meta STAGING-BUGBASH SB35: api-server recorded the upload, but its format
+ * is above the one the channel serves, so no pointer moves there until the
+ * channel's format does (a release call, not the author's).
+ */
+function heldLines(answer: CommitAnswer, channel: Channel): readonly string[] {
+  return answer.held === undefined
+    ? []
+    : [
+        `warning: held: ${answer.held}; nothing goes live on ${channel} until that channel's format moves`,
+      ]
+}
+
 /** The grid line, then one `/slug/<slug>` link per channel moved. */
 function placementLines(
   answer: CommitAnswer,
@@ -109,7 +122,11 @@ function placementLines(
     (name: ChannelName): string =>
       `${name}: https://${HOSTS[name]}/slug/${answer.shard} ${PAGE_NOT_BUILT}`,
   )
-  return [gridLine(answer.placement, asked), ...links]
+  return [
+    ...heldLines(answer, options.channel),
+    gridLine(answer.placement, asked),
+    ...links,
+  ]
 }
 
 export { placementLines }

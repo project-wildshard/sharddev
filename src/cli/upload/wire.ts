@@ -96,6 +96,8 @@ interface CommitAnswer extends UploadResult {
   readonly placement?: unknown
   /** DEL7: true when the commit brought a deleted shard back (preview only). */
   readonly revived?: unknown
+  /** Why no pointer moves on the upload's channel yet (meta STAGING-BUGBASH SB35): a format above the channel's. */
+  readonly held?: string | undefined
 }
 
 const MigrationsSchema = array(unknown())
@@ -115,6 +117,7 @@ const CommitFieldsSchema = object({
   shardFormat: EchoSchema,
   placement: optional(unknown()),
   revived: optional(unknown()),
+  held: optional(string()),
 })
 
 const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
