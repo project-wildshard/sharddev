@@ -1,5 +1,4 @@
 import { printSpawnWarnings } from './spawnWarnings';
-import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
@@ -51,6 +50,7 @@ import { projectDecisionBudget } from './projectPolicy';
 import { nameBlob } from './blobs';
 import { lowerMaterialGraphs } from './materialGraphFiles';
 import { parseDiscoveryValues, type DiscoveryValues } from '@wildshard/format/discoveryValues';
+import { diagnosticNow } from './diagnosticClock';
 
 /** Stable JSON encoding: sorted object keys, no timestamps or host paths. */
 export function canonicalJson(value: unknown): string { return encodeCanonicalJson(value); }

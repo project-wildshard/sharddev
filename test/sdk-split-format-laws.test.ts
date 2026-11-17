@@ -22,6 +22,10 @@ const LAW_IMPORTS_GONE: Readonly<Record<string, readonly string[]>> = {
   'bake/slabs.ts': ['models/nativeGeometry', 'game/plugin/geometry'],
   'bake/mapRest.ts': ['physics/mover'],
   'bake/splatGround.ts': ['world/BakedTerrain', 'world/Terrain', 'world/Heightfield'],
+  // SP7a: the build's and check's clocks are performance.now(), not the engine's diagnostic clock
+  'project.ts': ['core/clock'],
+  'check.ts': ['core/clock'],
+  'watch/watch.ts': ['core/clock'],
 };
 
 const engineImports = (file: string): string[] =>

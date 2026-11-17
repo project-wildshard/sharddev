@@ -10,7 +10,6 @@ import { build, type Plugin } from 'vite';
 import * as THREE from 'three';
 import * as liveTsl from 'three/tsl';
 import * as liveWebgpu from 'three/webgpu';
-import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { Scope } from '@wildshard/engine/app/scope';
 import { SDK_ROOT } from '../agentFiles';
 import { buildProject } from '../project';
@@ -31,6 +30,7 @@ import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 // oxlint-disable-next-line import/no-nodejs-modules -- The idle full build runs `wildshard build` in a child process.
 import { spawn, type ChildProcess } from 'node:child_process';
 import { acceptSocket, type WatchSocket } from './socket';
+import { diagnosticNow } from '../diagnosticClock';
 
 /**
  * SHARD-SOURCE AP5 and AP6 (J347): `wildshard watch <source> [port]`. The page boots once from a live shell (the ground,
