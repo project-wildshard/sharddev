@@ -1,9 +1,9 @@
 # NPM-PUBLISH (meta docs/plans/NPM-PUBLISH-PLAN.md; Jake 2026-11-12: "publish stuff to npm so it can be installed
-# without git links"). A vX.Y.Z release tag publishes @wildshard/sdk (this repo's package name since SHARD-AUTHORING
-# SA7a, J317) to npm by trusted publishing (OIDC): no token is stored anywhere, and npm attaches the provenance itself.
+# without git links"). A vX.Y.Z release tag publishes the workspace packages (meta SDK-SPLIT D5: one version; kit,
+# upload, then @wildshard/sdk from packages/sdk, SP2b/SP2c) to npm by trusted publishing (OIDC): no token is stored anywhere, and npm attaches the provenance itself.
 # npm adds a trusted publisher only to a package that already exists; Jake published the README-only 0.0.0 placeholder
-# and trusted this repo and workflow (NP5). The job reads the name from package.json, so it skips with a notice only if
-# that name is not on npm. A manual run with placeholder=true publishes a README-only 0.0.x from this same file, so
+# and trusted this repo and workflow (NP5); each new name needs the same once (SP12). The job refuses, naming the
+# package, when a name is not on npm yet. A manual run with placeholder=true publishes a README-only 0.0.x from this same file, so
 # it proves the trusted publisher end to end without a release (NPM-PUBLISH smoke row).
 name: npm-publish
 
@@ -50,14 +50,14 @@ jobs:
           node -e 'const [a,b,c]=process.argv[1].split(".").map(Number);process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)' "$(npm --version)" ||
             npm install --global npm@11.16.0
           npm --version
-      - name: Pack and verify both packages from the exact tag
+      - name: Pack and verify every workspace package from the exact tag
         env:
           RELEASE_TAG: ${{ github.ref_name }}
         run: |
           # shellcheck disable=SC2016 # The quoted JavaScript reads the environment itself.
           node -e 'if (process.env.RELEASE_TAG !== `v${require("./package.json").version}`) throw new Error("Tag and package version differ")'
           node scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
-      - name: Publish kit, then SDK
+      - name: Publish kit, upload, then the SDK
         run: |
           node --input-type=module <<'NODE'
           import { execFileSync } from 'node:child_process';
@@ -84,6 +84,8 @@ jobs:
         include:
           - name: '@wildshard/kit'
             description: 'Shared creature content and helpers for the one shard format.'
+          - name: '@wildshard/upload'
+            description: 'Upload, account and delete for Wildshard shard files.'
           - name: '@wildshard/sdk'
             description: 'The Wildshard author SDK and the wildshard CLI for building shards.'
     env:
