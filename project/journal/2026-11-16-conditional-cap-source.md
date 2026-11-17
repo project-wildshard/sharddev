@@ -35,3 +35,11 @@ shape an explicit interface and the schema an explicit GenericSchema.
 All 13 focused source and isolated-declaration controls now pass, as do
 all type projects, using actual registry format0.14. No validator rule or
 test was weakened. The final pin has no local file or live source alias.
+
+Rebased the held M1 source onto current SDK main. Retained its engine0.1.32
+pin and current checkShardfile flow; the creature declaration check still
+runs before admission. Two obsolete carried hero-only commits conflicted
+with main’s hero; they were not replayed. All four hero files remain
+byte-identical to origin/main; visual owner opus-brassgun17 recaptures.
+Aligned the workspace kit version to SDK0.3.7 using release:stamp and
+regenerated its lock normally. This publishes no kit package.
