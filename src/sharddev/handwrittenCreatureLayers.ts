@@ -12,18 +12,24 @@ import { expandJournalIconSource } from './journalIconSource';
 import { mergeProjectBlobs } from './projectOutput';
 import { SHARD_INDEX } from './shardSource';
 import { expandCombatSource } from './combatSource';
+import { expandNativeHuntSource } from './nativeHuntSource';
 
 /** Hand-held JSON enters the same source expansion, then format settles the changed section's real hashes again. */
 export function settleHandwrittenCreatureLayers(source: string, output: string): ReturnType<typeof validateOutputProduct> {
   if (resolve(source) === resolve(output)) throw new Error('Creature expansion output must be separate from its authored source');
   settleHandwritten(source, output);
-  const checked = validateOutputProduct(output), layers = expandCombatSource(expandHarvestSource(expandCreatureLayers(checked.shard, console.warn, checked.sections), console.warn, checked.sections), console.warn, checked.sections);
-  const journal = expandJournalIconSource(layers, checked.sections);
-  if (journal.shard === checked.shard) return checked;
-  const merged = mergeProjectBlobs(journal.shard, checked.assets, journal.blobs, checked.index.files.filter(file => file.name !== undefined), [], checked.sections);
+  const checked = validateOutputProduct(output), sections = new Map(checked.sections);
+  const native = sections.get('actors/species-programs');
+  const expandedNative = native === undefined ? undefined : expandNativeHuntSource(native);
+  if (expandedNative !== native) sections.set('actors/species-programs', expandedNative);
+  const layers = expandCombatSource(expandHarvestSource(expandCreatureLayers(checked.shard, console.warn, sections), console.warn, sections), console.warn, sections);
+  const journal = expandJournalIconSource(layers, sections);
+  if (journal.shard === checked.shard && expandedNative === native) return checked;
+  const merged = mergeProjectBlobs(journal.shard, checked.assets, journal.blobs, checked.index.files.filter(file => file.name !== undefined), [], sections);
   const expanded = merged.shard;
-  const payloads = outputSectionPayloads(expanded);
-  for (const name of ['actors/species', 'combat/items', ...(journal.blobs.length === 0 ? [] : ['ui/compendium'])]) {
+  const payloads = new Map(outputSectionPayloads(expanded));
+  if (expandedNative !== native) payloads.set('actors/species-programs', expandedNative);
+  for (const name of ['actors/species', 'combat/items', ...(journal.blobs.length === 0 ? [] : ['ui/compendium']), ...(expandedNative === native ? [] : ['actors/species-programs'])]) {
     const section = checked.index.sections.find(row => row.name === name), payload = payloads.get(name);
     if (section === undefined || payload === undefined) throw new Error('Missing admitted section for source expansion');
     writeFileSync(resolve(output, section.path), encodeCanonicalJson(payload));

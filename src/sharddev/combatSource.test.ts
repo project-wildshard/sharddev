@@ -15,6 +15,7 @@ import { expandCombatSource } from './combatSource';
 import { buildProject } from './project';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
+import { emitPlatformSections } from './platformSections';
 import { closeFixtures, fixtureRoot } from './test/ownedScratch';
 
 afterAll(closeFixtures);
@@ -68,7 +69,7 @@ test('normal SDK and handwritten source builds emit the same complete admitted c
   } finally { warning.mockRestore(); rmSync(root, { recursive: true, force: true }); }
 });
 
-test('original Driftwood native swords retain their complete contact policy until their targets migrate', () => {
+test('original Driftwood native swords declare complete contact effects by their native identities', () => {
   const frozen = JSON.parse(readFileSync(resolve('test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
   const sections = new Map<string, unknown>();
   for (const row of frozen.sections) {
@@ -83,7 +84,32 @@ test('original Driftwood native swords retain their complete contact policy unti
   expect(native.program?.species.filter(row => row.kind === 'crab' || row.kind === 'sailor').map(row => row.id)).toEqual(['creature.crab', 'creature.sailor']);
   const before = JSON.stringify(source.items), warnings: string[] = [];
   const expanded = expandCombatSource(source, message => { warnings.push(message); }, sections);
-  expect(expanded.items).toStrictEqual(source.items);
+  for (const item of expanded.items.rows) {
+    if (item.kind !== 'weapon' || item.profile?.family !== 'melee') continue;
+    for (const move of [...item.profile.moves.combo, item.profile.moves.heavy]) {
+      expect(move.debris).toEqual({default: {surface: 'sand', count: 10, atFeet: true, sparks: false}, overrides: [
+        {target: 'creature.crab', effect: {surface: 'shell', count: 9, atFeet: false, sparks: true}},
+        {target: 'creature.sailor', effect: {surface: 'wood', count: 8, atFeet: false, sparks: true}},
+      ]});
+    }
+  }
   expect(JSON.stringify(source.items)).toBe(before);
-  expect(warnings.join(' ')).toContain('native contact policy');
+  expect(warnings.join(' ')).not.toContain('retained native');
+});
+
+test('handwritten native declarations emit explicit effects and cap flags without source mutation', () => {
+  const root = fixtureRoot('combat-native-handwritten-'), warning = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    const source = fixture();
+    const metadata = {page: [], native: [{id: 'native.shell', kind: 'crab', label: 'Native shell', variants: [{id: 'plain', label: 'Plain', rarity: 'common', weight: 1, scale: [1, 1]}]}],
+      hunt: {limit: 8, player: 'host', fight: {capExempt: ['crab']}, bands: {states: [], legacyKinds: []}, hit: {namespace: 'creature', tags: []}}};
+    writeOutputProduct(source, new Map(), resolve(root, 'source'), {platform: emitPlatformSections(new Map([['actors/species-programs', metadata]]))});
+    const original = readFileSync(resolve(root, 'source/sections/actors/species-programs.json'), 'utf8');
+    const settled = settleHandwrittenCreatureLayers(resolve(root, 'source'), resolve(root, 'settled'));
+    expect(readSpeciesPrograms(settled.sections.get('actors/species-programs')).native[0]?.capExempt).toBe(true);
+    const item = settled.shard.items.rows[0];
+    if (item?.kind !== 'weapon' || item.profile?.family !== 'melee') throw new Error('Missing original sword');
+    expect(item.profile.moves.heavy.debris?.overrides).toContainEqual({target: 'native.shell', effect: {surface: 'shell', count: 9, atFeet: false, sparks: true}});
+    expect(readFileSync(resolve(root, 'source/sections/actors/species-programs.json'), 'utf8')).toBe(original);
+  } finally {warning.mockRestore();rmSync(root, {recursive: true, force: true});}
 });
