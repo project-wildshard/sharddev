@@ -8,8 +8,8 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BoxGeometry, Group, Mesh, MeshStandardMaterial, Scene } from 'three';
 import { expect, test } from 'vitest';
-import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
-import { readScene } from './scene';
+import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/sdk/immutable';
+import { readScene } from '@wildshard/sdk/scene';
 import { synthProject } from './synth';
 
 function project(source: string): string {

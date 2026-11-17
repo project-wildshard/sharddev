@@ -9,6 +9,7 @@ on:
       - packages/sdk/src/**
       - packages/sdk/public/**
       - packages/dev/**
+      - packages/build/**
       - packages/sdk/scripts/assert-candidate-engine.mjs
       - packages/sdk/scripts/select-candidate.mjs
       - .github/workflows/cooked-templates-contract.yml

@@ -4,7 +4,7 @@ import { createServer } from 'node:http';
 import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, rmSync, statSync, watch, readFileSync, writeFileSync, type Dirent } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
-import { buildProject } from '@wildshard/sdk/project';
+import { buildProject } from '@wildshard/build/project';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';

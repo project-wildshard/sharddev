@@ -5,8 +5,8 @@ import {join, resolve} from 'node:path';
 import {expect, test} from 'vitest';
 import {parseManifestMetadata} from '@wildshard/format/minimap';
 import {shardFromDiscovery} from '@wildshard/engine/game/shard/discovery';
-import {authorManifest, sceneCardUrls} from '../src/sharddev/authorManifest';
-import {buildProject, newProject} from '../src/sharddev/project';
+import {authorManifest, sceneCardUrls} from '@wildshard/sdk/internal/authorManifest';
+import {buildProject, newProject} from '@wildshard/build/project';
 
 /** C3: an author's shard has no first-party manifest source, and still wears its own card and enters its own page. */
 test('an author project builds with discovery a page revives to itself', async () => {
@@ -37,7 +37,7 @@ test('a scene shard\'s captured hero replaces its generated card, slot by slot',
   try {
     newProject(project, 'trail-side');
     mkdirSync(join(project, 'card'));
-    copyFileSync(resolve('art/targets/mossgate/t1-01-spawn-yard-fp-front.jpg'), join(project, 'card/thumb.jpg'));
+    copyFileSync(resolve('../sdk/art/targets/mossgate/t1-01-spawn-yard-fp-front.jpg'), join(project, 'card/thumb.jpg'));
     expect(sceneCardUrls(project, 'trail-side')).toEqual({thumb: '/src/shards/trail-side/card/thumb.jpg'});
     await buildProject(project, out, {outputFormat: 2, client: null});
     const manifest = shardFromDiscovery(JSON.parse(readFileSync(join(out, 'mounts/shardfiles/trail-side/discovery.json'), 'utf8')));

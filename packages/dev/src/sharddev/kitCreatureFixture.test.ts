@@ -9,7 +9,7 @@ import { resolveSkinLookFiles } from '@wildshard/format/skinAssets';
 import { speciesKinds } from '@wildshard/engine/entities/species/registry';
 import { emptyShardfile } from '../../../sdk/src/sharddev/author';
 import { kitCreature } from '../../../sdk/src/sharddev/kitCreatures';
-import { buildProject } from '../../../sdk/src/sharddev/project';
+import { buildProject } from '@wildshard/build/project';
 import { checkProject } from './checkProject';
 import { validateOutputProduct } from '../../../sdk/src/sharddev/outputProduct';
 import { closeFixtures, fixtureRoot } from '../../../sdk/src/sharddev/test/ownedScratch';

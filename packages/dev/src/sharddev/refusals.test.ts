@@ -10,7 +10,7 @@ import { readTar } from '@wildshard/format/tar';
 import { GUIDE_FILE, LINT_OTHER, LINT_RULES, REFUSAL_ANCHORS, REFUSAL_RULES, lintRuleId, refusalCode, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
 import { checkLines, lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import { checkProject } from './checkProject';
-import { newProject } from '../../../sdk/src/sharddev/project';
+import { newProject } from '@wildshard/build/project';
 import { runCli } from './cli';
 import { draftMessage } from '@wildshard/upload/sharddev/draft';
 

@@ -6,12 +6,12 @@ import { afterAll, expect, test, vi } from 'vitest';
 import { commonCreature } from '@wildshard/kit/creatures';
 import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import { emptyShardfile } from './author';
-import { expandHarvestSource } from './harvestSource';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { expandHarvestSource } from '@wildshard/sdk/internal/harvestSource';
 import { buildProject } from './project';
-import { validateOutputProduct, writeOutputProduct } from './outputProduct';
-import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
-import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+import { validateOutputProduct, writeOutputProduct } from '@wildshard/sdk/outputProduct';
+import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
+import { closeFixtures, fixtureRoot } from '@wildshard/sdk/internal/test/ownedScratch';
 
 afterAll(closeFixtures);
 function fixture(): Shardfile {

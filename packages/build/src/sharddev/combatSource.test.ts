@@ -1,4 +1,4 @@
-import { expandNativeHuntSource } from './nativeHuntSource';
+import { expandNativeHuntSource } from '@wildshard/sdk/internal/nativeHuntSource';
 // oxlint-disable-next-line import/no-nodejs-modules -- Exercise real immutable source and generated products.
 import { readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture output stays beneath the lane's repository scratch.
@@ -10,14 +10,14 @@ import { parseRows } from '@wildshard/format/rows';
 import { parseItems } from '@wildshard/format/items';
 import { parseShardfile } from '@wildshard/format/shardSchema';
 import { readSpeciesPrograms } from '@wildshard/format/speciesPrograms';
-import { hashImmutableBytes } from './immutable';
-import { emptyShardfile } from './author';
-import { expandCombatSource } from './combatSource';
+import { hashImmutableBytes } from '@wildshard/sdk/immutable';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { expandCombatSource } from '@wildshard/sdk/internal/combatSource';
 import { buildProject } from './project';
-import { validateOutputProduct, writeOutputProduct } from './outputProduct';
-import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
-import { emitPlatformSections } from './platformSections';
-import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+import { validateOutputProduct, writeOutputProduct } from '@wildshard/sdk/outputProduct';
+import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
+import { closeFixtures, fixtureRoot } from '@wildshard/sdk/internal/test/ownedScratch';
 
 afterAll(closeFixtures);
 function fixture() {
@@ -29,7 +29,7 @@ function fixture() {
   });
   source.rows = parseRows({ ...source.rows, species: creatures.map(row => row.species), strikes: creatures.flatMap(row => row.strikes),
     looks: creatures.map(row => ({ id: row.species.body?.look, species: row.species.id, recipe: 'engine.sphere', material: null, parameters: {}, animation: { recipe: 'engine.scale-wave', parameters: {} } })) });
-  const items = parseItems(JSON.parse(readFileSync(resolve('src/shards/_template/data/items.json'), 'utf8')));
+  const items = parseItems(JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/data/items.json'), 'utf8')));
   const iron = items.rows.find(row => row.id === 'weapon.sword-iron'); if (iron?.kind !== 'weapon') throw new Error('Missing original iron row');
   source.items = parseItems({ ...source.items, rows: [{ ...iron, profile: IRON_MELEE_PROFILE }], loadout: { ...source.items.loadout, primary: iron.id } });
   return parseShardfile(source);
@@ -71,7 +71,7 @@ test('normal SDK and handwritten source builds emit the same complete admitted c
 });
 
 test('original Driftwood native swords declare complete contact effects by their native identities', () => {
-  const frozen = JSON.parse(readFileSync(resolve('test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
+  const frozen = JSON.parse(readFileSync(resolve('../sdk/test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
   const sections = new Map<string, unknown>();
   for (const row of frozen.sections) {
     const bytes = new TextEncoder().encode(row.wire);
@@ -119,7 +119,7 @@ test('handwritten native declarations emit explicit effects and cap flags withou
 
 test('ordinary cap compilation keeps conditional request tags and authored overrides', () => {
   const source = fixture();
-  const metadata = JSON.parse(readFileSync(resolve('src/shards/_template/manifest.json'), 'utf8'));
+  const metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/manifest.json'), 'utf8'));
   source.manifest = { ...metadata, fight: { capExempt: ['crab', 'state.rage', 'effect.hot'] } };
   const first = source.rows.species[0], second = source.rows.species[1];
   if (first === undefined || second === undefined) throw new Error('Missing explicit controls');
@@ -133,7 +133,7 @@ test('ordinary cap compilation keeps conditional request tags and authored overr
 });
 
 test('the original captain keeps the level cap exemption when native hunt has no cap list', () => {
-  const frozen = JSON.parse(readFileSync(resolve('test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
+  const frozen = JSON.parse(readFileSync(resolve('../sdk/test/fixtures/driftwood-native-combat.json'), 'utf8')) as { sections: { name: string; hash: string; bytes: number; wire: string }[] };
   const row = frozen.sections.find(section => section.name === 'actors/species-programs');
   if (row === undefined) throw new Error('Missing immutable native fixture');
   const bytes = new TextEncoder().encode(row.wire);
@@ -142,7 +142,7 @@ test('the original captain keeps the level cap exemption when native hunt has no
   expect(native.hunt?.fight.capExempt).toBeUndefined();
   const captain = native.program?.species.find(species => species.kind === 'captain');
   expect(captain).toBeDefined(); expect(captain?.capExempt).toBeUndefined();
-  const source = fixture(), metadata = JSON.parse(readFileSync(resolve('src/shards/_template/manifest.json'), 'utf8'));
+  const source = fixture(), metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/manifest.json'), 'utf8'));
   source.manifest = { ...metadata, fight: { maxHitDamage: 20, capExempt: ['captain'] } };
   const sections = new Map([['actors/species-programs', native]]);
   const result = expandCombatSource(parseShardfile(source, sections), () => undefined, sections);

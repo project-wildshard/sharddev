@@ -9,7 +9,7 @@ import { env } from 'node:process';
 import {resolve,dirname} from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Locate only the declared engine package.
 import {createRequire} from 'node:module';
-import {readProjectAssets} from '../../../sdk/src/sharddev/project';
+import {readProjectAssets} from '@wildshard/build/project';
 import {writeOutputProduct} from '../../../sdk/src/sharddev/outputProduct';
 import { scenario as diskScenario } from '../../src/sharddev/test/scriptScenario';
 import { scriptScenarioReceipt } from '@wildshard/engine/scripts/script-scenario-metrics.mjs';

@@ -11,8 +11,8 @@ import { resolve } from 'node:path'
 import { emptyShardfile } from '@wildshard/sdk/author'
 import { afterEach, expect, test } from 'vitest'
 
-import { validateOutputProduct } from '../src/sharddev/outputProduct'
-import { emitPlatformSections } from '../src/sharddev/platformSections'
+import { validateOutputProduct } from '@wildshard/sdk/outputProduct'
+import { emitPlatformSections } from '@wildshard/sdk/platformSections'
 import { buildProject } from '../src/sharddev/project'
 
 const roots: string[] = []
@@ -22,7 +22,7 @@ afterEach(() => {
 })
 const items: unknown = JSON.parse(
   readFileSync(
-    new URL('./fixtures/native-contact-items.json', import.meta.url),
+    new URL('../../sdk/test/fixtures/native-contact-items.json', import.meta.url),
     'utf8',
   ),
 )

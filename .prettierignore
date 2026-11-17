@@ -2,6 +2,7 @@ packages/sdk/src/sharddev/
 packages/sdk/src/commons/
 packages/sdk/src/shards/
 packages/upload/src/sharddev/
+packages/build/src/sharddev/
 # Paths under src/ that kit/.oxfmtrc.json ignored when it lived in src/;
 # its ignorePatterns now only reach kit/, and oxfmt refuses ".." (J329).
 packages/sdk/src/dist/**

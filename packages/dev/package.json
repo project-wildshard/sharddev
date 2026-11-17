@@ -57,6 +57,7 @@
     "@loaders.gl/textures": "4.5.3",
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
+    "@wildshard/build": "workspace:*",
     "@wildshard/engine": "0.1.35",
     "@wildshard/format": "npm:@wildshard/shard-format@0.19.0",
     "@wildshard/kit": "workspace:*",

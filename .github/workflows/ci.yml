@@ -143,7 +143,7 @@ jobs:
       - run: pnpm test:agent-hooks
       - run: pnpm check:parity
       - run: pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs
-        working-directory: packages/sdk
+        working-directory: packages/build
       - run: node --test ../dev/test/ci/generation-cli.test.mjs
         working-directory: packages/sdk
       - name: Installed keyed sky codec and worker byte contracts

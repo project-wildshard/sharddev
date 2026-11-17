@@ -7,7 +7,7 @@ import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../../../sdk/src/sharddev/author';
 import { expandCreatureLayers, assertCreatureDeclarations } from '../../../sdk/src/sharddev/creatureLayers';
-import { buildProject } from '../../../sdk/src/sharddev/project';
+import { buildProject } from '@wildshard/build/project';
 import { checkProject } from './checkProject';
 import { settleHandwrittenCreatureLayers } from '../../../sdk/src/sharddev/handwrittenCreatureLayers';
 import { writeOutputProduct } from '../../../sdk/src/sharddev/outputProduct';

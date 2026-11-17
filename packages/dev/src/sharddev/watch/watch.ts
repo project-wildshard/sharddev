@@ -11,7 +11,7 @@ import * as THREE from 'three';
 import * as liveTsl from 'three/tsl';
 import * as liveWebgpu from 'three/webgpu';
 import { Scope } from '@wildshard/engine/app/scope';
-import { buildProject } from '@wildshard/sdk/project';
+import { buildProject } from '@wildshard/build/project';
 import { projectSourceStamp } from '../dev';
 import { executeBundle } from '@wildshard/sdk/executeBundle';
 import type { ShardScene } from '@wildshard/sdk/scene/description';

@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, 
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { runCli } from './cli';
-import { newProject } from '../../../sdk/src/sharddev/project';
+import { newProject } from '@wildshard/build/project';
 import { findShardSource, shardFolderName, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
 import { checkProject } from './checkProject';
 import { validateOutputProduct } from '../../../sdk/src/sharddev/outputProduct';

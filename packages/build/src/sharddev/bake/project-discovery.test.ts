@@ -4,10 +4,10 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
-import { emptyShardfile } from '../author';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { readProjectAssets } from '../project';
-import { writeOutputProduct } from '../outputProduct';
-import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
+import { writeOutputProduct } from '@wildshard/sdk/outputProduct';
+import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/sdk/immutable';
 
 test('generated discovery is admitted once and stored only in product metadata', async () => {
   mkdirSync('tmp', { recursive: true });

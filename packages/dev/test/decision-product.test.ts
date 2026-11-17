@@ -5,11 +5,11 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { resolve } from 'node:path';
 import { emptyShardfile } from '@wildshard/engine/host/author';
 import { compileScript } from '@wildshard/sdk/compileScript';
-import { nameBlob, emitNamedBlobs, readNamedBlob } from '../src/sharddev/blobs';
-import { buildProject } from '../src/sharddev/project';
-import { mergeProjectBlobs, prepareProjectOutput } from '../src/sharddev/projectOutput';
-import { emitPlatformSections } from '../src/sharddev/platformSections';
-import { writeOutputProduct, validateOutputProduct } from '../src/sharddev/outputProduct';
+import { nameBlob, emitNamedBlobs, readNamedBlob } from '@wildshard/sdk/blobs';
+import { buildProject } from '@wildshard/build/project';
+import { mergeProjectBlobs, prepareProjectOutput } from '@wildshard/sdk/projectOutput';
+import { emitPlatformSections } from '@wildshard/sdk/platformSections';
+import { writeOutputProduct, validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { admitFolder as admitBrowser, readFolderDescriptor, type FolderOptions } from '@wildshard/engine/game/shardfile/folder';
 import { parseDecisionScripts } from '@wildshard/format/decisionScripts';
@@ -17,7 +17,7 @@ import { admitScriptContract, decisionModuleContracts, decisionScriptsFromSectio
 import { assetCost } from '@wildshard/format/shardfileAssets';
 import { validateShardfileAssets } from '@wildshard/format/assetAdmission';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
-import { FIXTURE_RUNTIME_COST } from './fixtures/clientPlanRuntime';
+import { FIXTURE_RUNTIME_COST } from '../../sdk/test/fixtures/clientPlanRuntime';
 
 let bytes: Uint8Array = new Uint8Array();
 const directories: string[] = [];

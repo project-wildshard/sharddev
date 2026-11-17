@@ -3,7 +3,7 @@ import { printSpawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 import { basename, dirname, relative, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
-import { buildProject, readProjectAssets, validateProject } from '@wildshard/sdk/project';
+import { buildProject, readProjectAssets, validateProject } from '@wildshard/build/project';
 import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
 import { watchProject } from './watch/watch';
@@ -17,7 +17,7 @@ import { assetOverdraw } from '@wildshard/sdk/assets';
 // oxlint-disable-next-line import/no-nodejs-modules -- The CLI releases its author server on termination.
 import process from 'node:process';
 import { buildBehaviourProject } from '@wildshard/sdk/buildBehaviour';
-import { synthProject } from '@wildshard/sdk/synth';
+import { synthProject } from '@wildshard/build/synth';
 import { formatJsonSchemas, schemaAt, schemaDeclaration } from '@wildshard/sdk/formatJsonSchema';
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from '@wildshard/sdk/outputProduct';

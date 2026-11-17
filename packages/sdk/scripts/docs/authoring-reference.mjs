@@ -6,8 +6,9 @@ import { documentationProse } from './wording.mjs';
 const HERE = import.meta.dirname;
 const directive = /<!-- example: ([a-z][a-z-]*) -->/gu;
 /** SDK-SPLIT SP8b: an example that calls the engine (weapon-family, a trusted runtime/ registration) is checked in
- * @wildshard/dev's scripts/docs/authoring, beside the engine; the guide still renders it. */
-const exampleDirectories = directory => [resolve(directory, 'authoring'), resolve(directory, '../../../dev/scripts/docs/authoring')].filter(folder => existsSync(folder));
+ * @wildshard/dev's scripts/docs/authoring, beside the engine; SP9c: one that calls the build (synth) is checked in
+ * @wildshard/build's. The guide still renders both. */
+const exampleDirectories = directory => [resolve(directory, 'authoring'), resolve(directory, '../../../dev/scripts/docs/authoring'), resolve(directory, '../../../build/scripts/docs/authoring')].filter(folder => existsSync(folder));
 
 /** Every retained example must be referenced once; no unchecked inline TypeScript hides in the guide. */
 export function authoringExamples(directory = HERE) {

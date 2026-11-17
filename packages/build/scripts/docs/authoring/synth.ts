@@ -1,5 +1,5 @@
 import { Scene, Group } from 'three';
-import { synthScene } from '@wildshard/sdk/synth';
+import { synthScene } from '@wildshard/build/synth';
 
 /** Publish a Template-style graph into an existing author project directory. */
 export function synthExample(project: string) {

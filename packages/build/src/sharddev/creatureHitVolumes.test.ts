@@ -9,14 +9,14 @@ import { commonCreature } from '@wildshard/kit/creatures';
 import { parseRows } from '@wildshard/format/rows';
 import { parseShardfile } from '@wildshard/format/shardSchema';
 import { prepareAssetDecoders, parseGlb } from '@wildshard/format/shardfileAssets';
-import { creatureGlb, creatureSkin } from './scene/creature';
-import { creatureHitVolumes, expandCreatureHitVolumes } from './creatureHitVolumes';
-import { hashImmutableBytes } from './immutable';
-import { emptyShardfile } from './author';
+import { creatureGlb, creatureSkin } from '@wildshard/sdk/scene/creature';
+import { creatureHitVolumes, expandCreatureHitVolumes } from '@wildshard/sdk/internal/creatureHitVolumes';
+import { hashImmutableBytes } from '@wildshard/sdk/immutable';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { buildProject } from './project';
-import { validateOutputProduct } from './outputProduct';
+import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { outputSectionPayloads } from '@wildshard/format/outputFields';
-import { settleHandwrittenCreatureLayers } from './handwrittenCreatureLayers';
+import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
 
 const Doc = v.looseObject({ nodes: v.array(v.looseObject({ name: v.optional(v.string()), children: v.optional(v.array(v.number())) })) });
 function rig() {

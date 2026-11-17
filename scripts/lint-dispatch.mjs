@@ -20,7 +20,8 @@ for(let i=0;i<args.length;i++){
   }else files.push(arg);
 }
 // SDK-SPLIT SP8c: packages/dev lints the same way from its own folder (its src/.oxlintrc.json and .oxlintrc.author.json).
-const PACKAGES=[['packages/sdk/','@wildshard/sdk'],['packages/dev/','@wildshard/dev']];
+// SP9c: packages/build too.
+const PACKAGES=[['packages/sdk/','@wildshard/sdk'],['packages/dev/','@wildshard/dev'],['packages/build/','@wildshard/build']];
 const owner=file=>PACKAGES.find(([prefix])=>file.startsWith(prefix));
 const rootFiles=files.filter(file=>owner(file)===undefined);
 const sdkAuthor=file=>/^(?:src\/(?:sharddev|commons|shards)\/|codemods\/)/u.test(file);

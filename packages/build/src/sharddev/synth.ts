@@ -1,15 +1,15 @@
-import { assertConfigBoundary } from './configBoundary';
+import { assertConfigBoundary } from '@wildshard/sdk/configBoundary';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author inputs must remain within the project.
 import { realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author inputs must remain within the project.
 import { resolve, sep } from 'node:path';
-import { executeBundle } from './executeBundle';
-import { bundle } from './bundle';
+import { executeBundle } from '@wildshard/sdk/executeBundle';
+import { bundle } from '@wildshard/sdk/internal/bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the defining reader into the same author bundle.
 import { fileURLToPath } from 'node:url';
 import type { Object3D } from 'three';
-import { readScene, type SceneDescription } from './scene';
-import { confined, publishScene, type SynthResult } from './bake';
+import { readScene, type SceneDescription } from '@wildshard/sdk/scene';
+import { confined, publishScene, type SynthResult } from '@wildshard/sdk/bake';
 
 /** Inspect an ordinary three.js graph and publish canonical scene.json, with an immutable content-hash copy.
  * Graph generation still executes on each synth; expensive producers use the verified native bake cache separately.

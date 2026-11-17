@@ -20,12 +20,12 @@ import { DatabaseSync } from 'node:sqlite'
 
 import { afterEach, expect, test } from 'vitest'
 
-import { emptyShardfile } from '../../src/sharddev/author.ts'
+import { emptyShardfile } from '@wildshard/sdk/author'
 import {
   generationCache,
   pruneGenerationCache,
-} from '../../src/sharddev/generationCache.ts'
-import { readProjectAssets } from '../../src/sharddev/project.ts'
+} from '@wildshard/sdk/internal/generationCache'
+import { readProjectAssets } from '../../src/sharddev/project'
 
 const owned: string[] = []
 afterEach(() => {
@@ -406,7 +406,7 @@ test('G430 expires history, keeps newest three and protects live and receipt key
   const worker = spawnSync(
     process.execPath,
     [
-      resolve('src/sharddev/generationCache.ts'),
+      resolve('../sdk/src/sharddev/generationCache.ts'),
       '--prune-generation-cache',
       old.root,
     ],

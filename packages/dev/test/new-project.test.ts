@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve only owned author and output paths.
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import { buildProject } from '@wildshard/sdk/project';
+import { buildProject } from '@wildshard/build/project';
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { writeNewProject } from '../../sdk/src/sharddev/newProject';
 import { runCli } from '../src/sharddev/cli';

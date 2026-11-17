@@ -3,8 +3,8 @@ import { afterEach, expect, test } from 'vitest';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { resolve } from 'node:path';
-import { bundle } from './bundle';
-import { emptyShardfile } from './author';
+import { bundle } from '@wildshard/sdk/internal/bundle';
+import { emptyShardfile } from '@wildshard/sdk/author';
 import { readProjectAssets } from './project';
 
 const directories: string[] = [];

@@ -5,9 +5,9 @@ import { join } from 'node:path';
 import { templateProps } from '../../../../src/shards/_template/generators/templatePropsSource';
 import { bakeProps } from '../../../../src/sharddev/bake/props';
 import { bakeTerrain } from '../../../../src/sharddev/bake/terrain';
-import { canonicalJson } from '../../../../src/sharddev/project';
+import { canonicalJson } from '../../../../../build/src/sharddev/project';
 import { emptyShardfile } from '../../../../src/sharddev/author';
-import { validateProject } from '../../../../src/sharddev/project';
+import { validateProject } from '../../../../../build/src/sharddev/project';
 /** Generate the board's actual admitted bytes and the CLI-valid fixture shardfile, without shipping a template runtime. */
 export function buildPropsFixture(directory: string, count = 10): void {
   mkdirSync(directory, { recursive: true });

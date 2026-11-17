@@ -10,7 +10,7 @@ import { bakePoseLayers, type PoseLayer } from './layers';
 import type { ClipName } from '../../../../src/client/engine/anim/rig';
 import { creatureSkinSource, rangerSkinSource, type SkinSource } from './sources';
 import { sampleSkinClip, skinnedGlb, type SampledSkinClip } from '../../../../src/sharddev/bake/export';
-import { contentHash, canonicalJson } from '../../../../src/sharddev/project';
+import { contentHash, canonicalJson } from '../../../../../build/src/sharddev/project';
 import { parseGlb } from '../../../../src/sharddev/assets';
 
 /** The three required export representatives, created independently for every clip to reset closure-owned state. */

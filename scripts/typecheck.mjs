@@ -6,7 +6,7 @@ import { resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const compiler = resolve(root, 'node_modules/.bin/npr');
-const projects = ['packages/sdk/src/tsconfig.json', 'packages/sdk/tsconfig.author.json', 'packages/dev/src/tsconfig.json', 'packages/dev/src/web/tsconfig.json', 'packages/dev/tsconfig.author.json', 'packages/upload/tsconfig.json', 'packages/kit/tsconfig.json'];
+const projects = ['packages/sdk/src/tsconfig.json', 'packages/sdk/tsconfig.author.json', 'packages/dev/src/tsconfig.json', 'packages/dev/src/web/tsconfig.json', 'packages/dev/tsconfig.author.json', 'packages/upload/tsconfig.json', 'packages/kit/tsconfig.json', 'packages/build/tsconfig.author.json'];
 const results = await Promise.all(projects.map(project => new Promise(done => {
   const child = spawn(compiler, ['tsc', '-p', project], { cwd: root, stdio: 'inherit' });
   child.on('error', error => { process.stderr.write([project, ': ', error.message, '\n'].join('')); done(1); });

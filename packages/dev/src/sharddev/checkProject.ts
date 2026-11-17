@@ -12,7 +12,7 @@ import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
 import { checkShardfile } from '@wildshard/engine/host/checkShardfile';
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import type { Shardfile } from '@wildshard/format/shardSchema';
-import { buildProject } from '@wildshard/sdk/project';
+import { buildProject } from '@wildshard/build/project';
 import { isHandwrittenSource, isRepoSource, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
 import { handwrittenIdentity } from '@wildshard/sdk/internal/handwritten';
 import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';

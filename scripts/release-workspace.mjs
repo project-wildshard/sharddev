@@ -17,7 +17,8 @@ const PACKAGES = [
 const manifests = PACKAGES.map(pkg => ({ ...pkg, manifest: read(pkg.path) }))
 // SDK-SPLIT SP8c: @wildshard/dev (the local game and, until SP10, the bin) carries the release version too, but stays
 // private and unpacked until SP12 publishes it beside the others.
-const stampedOnly = [['packages/dev', '@wildshard/dev']].map(([dir, name]) => {
+// SP9c: @wildshard/build likewise, private until SP12.
+const stampedOnly = [['packages/build', '@wildshard/build'], ['packages/dev', '@wildshard/dev']].map(([dir, name]) => {
   const path = join(root, dir, 'package.json')
   return { dir: join(root, dir), path, name, manifest: read(path) }
 })

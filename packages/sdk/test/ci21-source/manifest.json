@@ -47,7 +47,7 @@
         "a scoped request prepares the remaining producer inputs of global discovery prerequisites",
         "a corrupt newly built receipt refuses before any table is published"
       ],
-      "targetSha256": "e59471899fbea806a5b5601f3c07e950dc72393b06863e59000051cacc73d062"
+      "targetSha256": "621a172836f45e3642a6289ef4e5ebc7b5f7dc7b9bb42deb6f913f044242b89a"
     },
     {
       "sourcePath": "test/model-sources.test.ts",

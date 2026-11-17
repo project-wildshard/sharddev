@@ -3,12 +3,12 @@ import { afterEach, expect, test } from 'vitest';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolves only the owned fixture directory.
 import { resolve } from 'node:path';
-import { emptyShardfile } from '@wildshard/engine/host/author';
-import { mergeProjectSections } from '../src/sharddev/projectSections';
+import { emptyShardfile } from '@wildshard/sdk/author';
+import { mergeProjectSections } from '@wildshard/sdk/internal/projectSections';
 import { readProjectAssets, buildProject } from '../src/sharddev/project';
-import { validateOutputProduct } from '../src/sharddev/outputProduct';
-import { originalDriftwoodMovers } from './fixtures/driftwood-movers';
-import { FIXTURE_RUNTIME_COST } from './fixtures/clientPlanRuntime';
+import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
+import { originalDriftwoodMovers } from '../../sdk/test/fixtures/driftwood-movers';
+import { FIXTURE_RUNTIME_COST } from '../../sdk/test/fixtures/clientPlanRuntime';
 
 const movers = originalDriftwoodMovers();
 

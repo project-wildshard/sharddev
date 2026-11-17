@@ -150,14 +150,3 @@ it.skipIf(encoder === null)('gives a re-encoded hashed recording a new URL every
   // A rebuild from the cache lands on the same names.
   expect((await encodeMountAudio(input, { cacheRoot })).renamed).toEqual(renamed);
 });
-
-it('refuses a built product that still names a renamed recording', async () => {
-  const { assertNoRenamedAudioNames } = await import('./project');
-  const product = folder(), renamed = new Map([['/assets/sfx/test/hit-0123abcd.m4a', '/assets/sfx/test/hit-89abcdef.m4a']]);
-  mkdirSync(join(product, 'sections'), { recursive: true });
-  writeFileSync(join(product, 'sections', 'ok.json'), JSON.stringify({ file: 'hit-89abcdef.m4a' }));
-  writeFileSync(join(product, 'hit-0123abcd.m4a'), 'a recording is not read');
-  expect(() => assertNoRenamedAudioNames(product, renamed)).not.toThrow();
-  writeFileSync(join(product, 'sections', 'stale.json'), JSON.stringify({ file: 'hit-0123abcd.m4a' }));
-  expect(() => assertNoRenamedAudioNames(product, renamed)).toThrow('sections/stale.json names /assets/sfx/test/hit-0123abcd.m4a, which the build serves as /assets/sfx/test/hit-89abcdef.m4a (AU21)');
-});

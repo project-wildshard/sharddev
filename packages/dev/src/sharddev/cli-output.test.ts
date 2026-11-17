@@ -5,7 +5,7 @@ import { resolve } from 'node:path';
 import { expect, test, vi } from 'vitest';
 import { runCli } from './cli';
 import { checkProject } from './checkProject';
-import { buildProject, newProject } from '@wildshard/sdk/project';
+import { buildProject, newProject } from '@wildshard/build/project';
 import { encodeCanonicalJson } from '../../../sdk/src/sharddev/immutable';
 import { HeadlessSimulation } from '@wildshard/engine/host/headless';
 

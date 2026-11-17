@@ -6,7 +6,7 @@ import { generatorImportViolation } from '../../sdk/lint/sdk-plugin.mjs';
 import { servedName } from '../scripts/capture-hero.mjs';
 import { runCli } from '../src/sharddev/cli';
 import { readCookInput } from '../../sdk/src/sharddev/cookInput';
-import { newProject } from '../../sdk/src/sharddev/project';
+import { newProject } from '@wildshard/build/project';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 
 // SHARD-AUTHORING SA44: a single-shard repo keeps its source at `src/` (J317), one folder below the repo root, where

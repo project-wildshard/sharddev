@@ -35,7 +35,7 @@ import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile
 import { afterEach, expect, test } from 'vitest'
 
 import { writeOutputProduct } from '../../src/sharddev/outputProduct'
-import { readProjectAssets } from '../../src/sharddev/project'
+import { readProjectAssets } from '../../../build/src/sharddev/project'
 
 const owned: string[] = []
 afterEach(() => {

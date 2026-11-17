@@ -9,7 +9,9 @@ import { expect, test } from 'vitest';
 const ROOT = resolve(import.meta.dirname, '..', 'src', 'sharddev');
 /** SP8b moved the dev verbs (check, watch, mapRest, the CLI) to packages/dev; their laws are still read there. */
 const DEV = resolve(import.meta.dirname, '..', '..', 'dev', 'src', 'sharddev');
-const located = (file: string): string => existsSync(resolve(ROOT, file)) ? resolve(ROOT, file) : resolve(DEV, file);
+/** SP9c moved the build (project.ts, synth) to packages/build. */
+const BUILD = resolve(import.meta.dirname, '..', '..', 'build', 'src', 'sharddev');
+const located = (file: string): string => [ROOT, BUILD].map(dir => resolve(dir, file)).find(path => existsSync(path)) ?? resolve(DEV, file);
 const ENGINE_FREE = [
   'bake/nativeTerrainField.ts', 'bake/contactRows.ts', 'bake/wholePieceJoin.ts', 'bake/meadow.ts', 'bake/farImpostor.ts',
   'outputProduct.ts', 'interactions.ts', 'quests.ts', 'questGraph.ts', 'rows.ts',

@@ -37,7 +37,7 @@ const at = path => import(pathToFileURL(resolve(root, path)).href);
 const folder = resolve(root, 'src/shards', slug), manifestSource = { folder: slug, ...(existsSync(resolve(folder, 'manifest.json')) ? { file: resolve(folder, 'manifest.json') } : {}),
   imageRoots: [{ prefix: `/src/shards/${slug}/`, directory: folder }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }] };
 const legacy = decisionLegacyLines(root, slug);
-const project = existsSync(resolve(folder, 'shard.config.ts')) ? await (await at('src/sharddev/project.ts')).readProjectAssets(folder, undefined, manifestSource, legacy === undefined ? {} : { decisionLegacyLines: legacy }) : null;
+const project = existsSync(resolve(folder, 'shard.config.ts')) ? await (await import('@wildshard/build/project')).readProjectAssets(folder, undefined, manifestSource, legacy === undefined ? {} : { decisionLegacyLines: legacy }) : null;
 const environment = installBakeEnvironment(root);
 // G342: a colour map's mean colour, decoded from its encoded bytes (PNG / JPEG / WebP) by Pillow, so a textured prop keeps
 // its own paint (Pine's cabins, Driftwood's huts) instead of a guessed wood tint; the bitmap is that one mean texel
