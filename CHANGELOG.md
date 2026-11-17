@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.9 (2026-11-16)
+
+- Async uploads show cooking and activation progress, with full refusal reports.
+- Inspect an async upload with its status command, or use --no-wait to return with its ID.
+- Uploads warn when the API holds a shard back from placement.
+- New Mossgate templates have flatter entrances and chests that pay on interaction.
+
 ## v0.3.8 (2026-11-16)
 
 - `wildshard prepare` and `dev` use engine 0.1.32, so a shard with its own runtime prepares and publishes.
