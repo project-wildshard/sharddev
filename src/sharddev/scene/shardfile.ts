@@ -8,8 +8,9 @@ import type { GeneratedProject, ProjectGenerationContext } from '../projectGener
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
+import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, ScenePart, SceneSwing, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
 import { SceneRefusalError } from './lower';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
@@ -81,6 +82,9 @@ const entryKey = (material: string, motion: SceneMotion | null, card = false, sw
   motion === null && !card && !swing ? material : `${material}${card ? '.card' : ''}${swing ? '.swing' : ''}${motion === null ? '' : `.${hashOf((h) => h.json(motion))}`}`;
 const luminance = ([r, g, b]: Rgb): number => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
+/** SS-GF2a: scene movers' entities, clear of the scene's creatures (from 1) and a data shard's hand-placed movers (9201). */
+const MOVER_ENTITY_BASE = 9101;
+
 const round = (value: number, digits = 4): number => { const k = 10 ** digits; const out = Math.round(value * k) / k; return out === 0 ? 0 : out; };
 const rgb01 = (colour: Rgb): [number, number, number] => [round(clamp01(colour[0])), round(clamp01(colour[1])), round(clamp01(colour[2]))];
 /** A linear channel as sRGB (three's `LinearToSRGB`). */
@@ -771,7 +775,10 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     ...(part.touch.density === undefined ? {} : { density: part.touch.density }), ...(part.touch.friction === undefined ? {} : { friction: part.touch.friction }),
     ...(part.touch.restitution === undefined ? {} : { restitution: part.touch.restitution }),
     ...(part.touch.damping === undefined ? {} : { linearDamping: part.touch.damping, angularDamping: part.touch.damping }) }]);
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  // SS-GF2a: a mover panel's solids ride its track (format `movers`), never a static collider
+  const movers = scene.parts.flatMap((part) => part.move === undefined || part.panel === undefined ? [] : [{ id: part.panel, move: part.move }])
+    .map(({ id, move }, i) => moverRow(id, move, MOVER_ENTITY_BASE + i));
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
@@ -787,6 +794,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     critical: [...terrain.critical], far: null, library: [...base.library, ...library],
     props: { version: 1, family: 'pbr', overhang: OVERHANG, tiles: propTiles, panels, models: [], far: null, textures: [], colliders, ...(bodies.length === 0 ? {} : { bodies }), ...(Object.keys(propMaterials).length === 0 ? {} : { materials: propMaterials }) },
     ...(water.length === 0 ? {} : { water }),
+    ...(movers.length === 0 ? {} : { movers }),
     // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
     items: STARTER_ITEMS,
   };
@@ -795,6 +803,25 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   if (options.extend !== undefined) shard = options.extend(shard);
   shard = withAnchored(shard, scene.anchored);
   return { shard, assets, report: { cards, lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
+}
+
+/**
+ * SS-GF2a: one mover part as a format `movers` row: a native platform on a track driver, its rest at the centre of its
+ * bounds, its boxes about that, and its keys spaced by distance so it keeps one speed along the path.
+ */
+export function moverRow(id: string, move: SceneMove, entity: number): Record<string, unknown> {
+  const [ax, ay, az] = move.at, rest = { at: { x: ax, y: ay, z: az }, euler: { x: 0, y: 0, z: 0 } };
+  const legs = move.path.slice(1).map((p, i) => Math.hypot(...p.map((n, k) => n - (move.path[i]?.[k] ?? n))));
+  const total = legs.reduce((a, b) => a + b, 0);
+  let run = 0;
+  const times = [0, ...legs.map((leg) => { run += leg; return Math.round(run / total * move.seconds * 1e4) / 1e4; })];
+  times[times.length - 1] = move.seconds;
+  const motion: MoverMotion = {
+    driver: { kind: 'track' }, trigger: move.start === 'always' ? { kind: 'always' } : { kind: 'stand', delay: 0 },
+    track: { clip: 'ride', duration: move.seconds, loop: move.loop, speed: 1, times, position: move.path.map(([x, y, z]): [number, number, number] => [x, y, z]) },
+  };
+  const boxes = move.boxes.map((b) => ({ x: b.x, y: b.y, z: b.z, hx: b.hx, hy: b.hy, hz: b.hz, rot: { x: b.rot[0], y: b.rot[1], z: b.rot[2], w: b.rot[3] } }));
+  return { id, entity, kind: 'platform', ...rest, enabled: true, boxes, ...lowerMoverMotion(motion, rest), ...motion, execution: 'native' };
 }
 
 /**

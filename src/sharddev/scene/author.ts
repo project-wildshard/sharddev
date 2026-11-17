@@ -16,6 +16,24 @@ export interface PartOptions {
   readonly panel?: string;
   /** SHARD-SOURCE SS9d: a panel players push (a crate, a barrel): one dynamic body the server keeps, drawn where it is */
   readonly touchable?: TouchableOptions;
+  /** SHARD-SOURCE SS-GF2a: a panel that rides a track (a raft, a ferry): the server moves its solids, every page its GLB */
+  readonly mover?: MoverOptions;
+}
+
+/**
+ * SS-GF2a: how a mover part travels (format `movers`, a native track mover). It starts where it is built; `path` is where
+ * the centre of its bounds goes next, in world metres, and it takes `seconds` from the start to the last point, at one
+ * speed along the whole path. Its solids are what a player stands on, and they move with it.
+ */
+export interface MoverOptions {
+  /** 1 to 9 world points (x, y, z) the part's centre passes through after where it is built, in order */
+  readonly path: readonly (readonly [number, number, number])[];
+  /** seconds from where it is built to the last point (0.1 to 3600) */
+  readonly seconds: number;
+  /** what moves it: `stand` (the default) only while a player stands on it, `always` on its own */
+  readonly start?: 'stand' | 'always';
+  /** `pingpong` (the default) comes back along the path; `once` stops at the last point; `repeat` starts over */
+  readonly loop?: 'pingpong' | 'once' | 'repeat';
 }
 
 /** How a touchable panel's body is made. Its rest is the part's bounds: centred there, the shape fitted round them. */
@@ -37,6 +55,7 @@ export interface ShardWorld {
    * A named piece of the world, the unit `watch` swaps. Objects added to `scene` outside a part belong to part `scene`.
    * `options.panel` makes the part a panel (SHARD-SOURCE AP16): its meshes ship as one GLB the shard's `targets.panels`
    * rows show and hide by state (a gate that opens, a rifle taken off a rack), and its solids as one collider of that id.
+   * `options.mover` (with a panel) makes it ride a track: a raft a player stands on and rides (SHARD-SOURCE SS-GF2a).
    */
   part: (name: string, build: (part: Group) => void, options?: PartOptions) => Group;
   /**

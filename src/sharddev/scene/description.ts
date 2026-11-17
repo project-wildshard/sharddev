@@ -180,12 +180,26 @@ export interface SceneTouch {
   readonly damping?: number;
 }
 
+/** SS-GF2a: a mover part's track, in the cell's frame: its rest (the centre of its bounds), solids about it, and its path. */
+export interface SceneMove {
+  readonly at: Vec3;
+  /** the part's solids about `at` (world axes), what a rider stands on */
+  readonly boxes: readonly { readonly x: number; readonly y: number; readonly z: number; readonly hx: number; readonly hy: number; readonly hz: number; readonly rot: readonly [number, number, number, number] }[];
+  /** the centre's track from `at` (first) to the last point */
+  readonly path: readonly Vec3[];
+  readonly seconds: number;
+  readonly start: 'stand' | 'always';
+  readonly loop: 'pingpong' | 'once' | 'repeat';
+}
+
 export interface ScenePart {
   readonly name: string;
   /** AP16: the panel id when the part is one (`world.part(name, build, { panel })`): one hideable GLB and one collider */
   readonly panel?: string;
   /** SS9d: a touchable panel's body (format `props.bodies`): its rest at the part's bounds, the shape fitted round them */
   readonly touch?: SceneTouch;
+  /** SS-GF2a: a mover panel's track (format `movers`): its solids ride it, never a static collider */
+  readonly move?: SceneMove;
   /** content hash of everything below and of the materials, textures and geometries it uses */
   readonly hash: string;
   readonly draws: readonly SceneDraw[];

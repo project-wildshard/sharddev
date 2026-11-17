@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type ShardWorld, type TouchableOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type ShardWorld, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -192,7 +192,7 @@ function swingRow(path: string, node: Object3D, options: Required<HangOptions>):
   return { path, pivot: v3(pivot), length: clamp(pivot.y - middle, 0.05, 10), rate: clamp(options.rate, 0.05, 4), amount: clamp(options.amount, 0, 0.6), reach: clamp(options.reach, 0, 3) };
 }
 
-function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions): ScenePart {
+function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions, mover?: MoverOptions): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   // SS8d: the part's hung bodies, each a row the first time something under it lowers
   const swings: SceneSwing[] = [], swingIndex = new Map<Object3D, number>();
@@ -288,7 +288,26 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
   for (const cloud of points) hash.text(cloud.material).bytes(cloud.positions).json(cloud.motion);
   const touch = touchable === undefined ? undefined : touchOf(root, touchable);
   if (touch !== undefined) hash.json(touch);
-  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), draws, sprites, points, lights, colliders, water, ...(swings.length === 0 ? {} : { swings }), materials, textures, geometries };
+  const move = mover === undefined ? undefined : moveOf(root, colliders, mover);
+  if (move !== undefined) hash.json(move);
+  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), ...(move === undefined ? {} : { move }), draws, sprites, points, lights, colliders, water, ...(swings.length === 0 ? {} : { swings }), materials, textures, geometries };
+}
+
+/** SS-GF2a: a mover part's track: its rest at the centre of its bounds, its solids about that, the path from there. */
+function moveOf(root: Object3D, colliders: readonly SceneCollider[], options: MoverOptions): SceneMove {
+  const box = new Box3().setFromObject(root);
+  if (box.isEmpty()) throw new SceneRefusalError(root.name, 'a mover part has no bounds', 'Give it a mesh');
+  if (colliders.length === 0) throw new SceneRefusalError(root.name, 'a mover part has no solid to stand on', 'Mark its deck solid: solid(mesh)');
+  if (colliders.length > 128) throw new SceneRefusalError(root.name, `a mover part has ${colliders.length} solids, over the 128 a mover holds`, 'Merge its solids into fewer boxes');
+  if (options.path.length === 0 || options.path.length > 9) throw new SceneRefusalError(root.name, `a mover's path has ${options.path.length} points, not 1 to 9`, 'Give world.part\'s mover 1 to 9 points after where it is built');
+  if (!(options.seconds >= 0.1 && options.seconds <= 3600)) throw new SceneRefusalError(root.name, `a mover's ${options.seconds} seconds is outside 0.1 to 3600`, 'Give it the seconds from its start to its last point');
+  const round = (n: number): number => Math.round(n * 1e4) / 1e4;
+  const centre = box.getCenter(new Vector3()), at: Vec3 = [round(centre.x), round(centre.y), round(centre.z)];
+  const path: Vec3[] = [at, ...options.path.map(([x, y, z]): Vec3 => [round(x), round(y), round(z)])];
+  if (path.some((p) => p.some((n) => !Number.isFinite(n) || Math.abs(n) > 250))) throw new SceneRefusalError(root.name, 'a mover\'s path leaves the 500 m cell', 'Keep every point within 250 m of the cell\'s centre');
+  if (path.some((p, i) => i > 0 && p.every((n, k) => n === path[i - 1]?.[k]))) throw new SceneRefusalError(root.name, 'a mover\'s path stands still between two points', 'Drop the repeated point');
+  const boxes = colliders.map((c) => ({ x: round(c.centre[0] - at[0]), y: round(c.centre[1] - at[1]), z: round(c.centre[2] - at[2]), hx: round(c.half[0]), hy: round(c.half[1]), hz: round(c.half[2]), rot: c.rotation }));
+  return { at, boxes, path, seconds: options.seconds, start: options.start ?? 'stand', loop: options.loop ?? 'pingpong' };
 }
 
 /** SS9d: a touchable panel's body, fitted round the part's world bounds (each half extent at most 8 m, the format's). */
@@ -393,7 +412,7 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
 
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
-  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>();
+  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
@@ -421,6 +440,13 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (options.touchable !== undefined) {
         if (panel === undefined) throw new SceneRefusalError(name, 'a touchable part is a panel', 'Give it a panel id too: world.part(name, build, { panel, touchable })');
         touchables.set(group, options.touchable);
+      }
+      // SS-GF2a: a mover part is a panel too (its GLB is what every page moves), and never touchable (one body moves it)
+      if (options.mover !== undefined) {
+        if (panel === undefined) throw new SceneRefusalError(name, 'a mover part is a panel', 'Give it a panel id too: world.part(name, build, { panel, mover })');
+        if (options.touchable !== undefined) throw new SceneRefusalError(name, 'a part is a mover or touchable, not both', 'Drop one of the two options');
+        if (movers.size >= 32) throw new SceneRefusalError(name, 'a shard has at most 32 movers', 'Merge movers that travel together');
+        movers.set(group, options.mover);
       }
       fill(group); return group;
     },
@@ -470,7 +496,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
     details: new Set(detailRequests.map((request) => request.mesh)) };
-  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root), touchables.get(root)));
+  const lowered = roots.map((root) => lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root)));
   const details = detailRequests.map((request) => lowerDetail(request, tables));
   const fog: SceneLook['fog'] = scene.fog instanceof FogExp2 ? { kind: 'exp2', colour: rgb(scene.fog.color), density: scene.fog.density }
     : scene.fog instanceof Fog ? { kind: 'linear', colour: rgb(scene.fog.color), near: scene.fog.near, far: scene.fog.far } : null;
