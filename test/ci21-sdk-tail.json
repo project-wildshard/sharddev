@@ -397,6 +397,12 @@
     "test/author-format-selector.test.ts",
     "test/author-placement-parity.test.ts",
     "test/faceted-author-compiler.test.ts",
-    "test/scene-source-author-ports.test.ts"
+    "test/scene-source-author-ports.test.ts",
+    "test/author-number-rows.test.ts",
+    "test/author-scene-tile-groups.test.ts",
+    "test/registered-creature-look-json.test.ts",
+    "test/registered-scene-model-json.test.ts",
+    "test/graph-scene-author-types.test.ts",
+    "test/sdk-engine-types.test.ts"
   ]
 }
