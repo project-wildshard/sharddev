@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.0 (2026-11-17)
+
+- The `wildshard` command now comes from `@wildshard/cli`: one install brings build, upload and the local game.
+- `wildshard build` runs the engine-free `@wildshard/build`, so building a shard never loads the engine.
+- New shards pin `@wildshard/cli` instead of the engine; kit, upload, build and dev publish with the sdk.
+- Race shards name their resets, and sockets leave shared colliders (Mirror Salt, Glowfen and raft fixes).
+
 ## v0.3.9 (2026-11-16)
 
 - Async uploads show cooking and activation progress, with full refusal reports.
