@@ -5,7 +5,7 @@ import { FarSchema } from '@wildshard/format/shardSections';
 import { bakeFarPlaceholder } from './placeholders';
 import { FAR_IMPOSTOR_BAKE } from './farImpostor';
 import { readImagePixels } from './image';
-import type { PlaceholderGrid, PlaceholderLook } from '@wildshard/engine/game/plugin/placeholderGeometry';
+import type { PlaceholderGrid, PlaceholderLook } from './placeholderGeometry';
 
 // G539: every far proxy bakes a camera-facing impostor beside it, admitted in the same far row and its caps.
 const res = 17, heights = Float32Array.from({ length: res * res }, (_, i) => 30 * Math.sin((i % res) * 0.7) * Math.cos(Math.floor(i / res) * 0.5) + 20);

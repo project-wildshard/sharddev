@@ -1,9 +1,9 @@
 import { expect, test } from 'vitest';
 import * as v from 'valibot';
-import { CONTENT_CAPS } from '@wildshard/engine/core/config';
+import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 import { FarSchema } from '@wildshard/format/shardSections';
 import { bakeFarPlaceholder, projectFarPlaceholder } from './placeholders';
-import type { PlaceholderGrid, PlaceholderLook } from '@wildshard/engine/game/plugin/placeholderGeometry';
+import type { PlaceholderGrid, PlaceholderLook } from './placeholderGeometry';
 
 // QA 11-13 row 4: `wildshard check`'s generic far bake keeps the GLB alone when the GLB plus its impostor breaks a far cap.
 const res = 17, heights = Float32Array.from({ length: res * res }, (_, i) => 30 * Math.sin((i % res) * 0.7) * Math.cos(Math.floor(i / res) * 0.5) + 20);

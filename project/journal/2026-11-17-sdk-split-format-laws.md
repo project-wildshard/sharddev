@@ -13,3 +13,9 @@ SP6b: `src/sharddev/bake/voxelAO.ts` and `geometryBake.ts` are byte copies of th
 from format's `seededRng`), and `facetedGeometry` uses them, so `withFacetedAO`'s scoped table and the recorder are the
 sdk's own module state. The port tests keep the engine as the oracle: the same calls give the same Float64 bits and the
 same encoded table bytes from both, and the engine answers a table the sdk recorded.
+
+SP6c: `placeholderGeometry.ts` with the `farProxy.ts` builder it wraps, and `terrainGeometry.ts`
+(`terrainChunkGeometry`, `canopyChannel`), are byte copies of the engine's; their constants come from format's
+`contentBounds` (the engine's drawn grid radius is format's `GRID_RADIUS`) and `TERRAIN_RES` is pinned to the engine's
+by `placeholder-geometry-port.test.ts`, which also checks both builders give the engine's bytes. `splatGround` keeps one
+engine read, `filePolicy` over the engine's own texture table; that is engine boot data and leaves with SP7.

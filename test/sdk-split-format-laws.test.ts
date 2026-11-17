@@ -11,15 +11,17 @@ const ENGINE_FREE = [
   'bake/nativeTerrainField.ts', 'bake/contactRows.ts', 'bake/wholePieceJoin.ts', 'bake/meadow.ts', 'bake/farImpostor.ts',
   'outputProduct.ts', 'interactions.ts', 'quests.ts', 'questGraph.ts', 'rows.ts',
   // SP6b: voxel AO and the geometry bake are the sdk's own copies
-  'bake/facetedGeometry.ts',
+  'bake/facetedGeometry.ts', 'bake/voxelAO.ts', 'bake/geometryBake.ts',
+  // SP6c: the placeholder geometry (and its far-proxy builder) and the terrain chunk geometry are the sdk's own copies
+  'bake/placeholders.ts', 'bake/placeholderGeometry.ts', 'bake/farProxy.ts', 'bake/terrainGeometry.ts',
 ];
-/** Files that keep one engine import SP6a does not own (kit content is SP3's, the three-based decoders are SP6b/SP6c's). */
+/** Files that keep an engine import SP6 does not own: kit content is SP3's, the GLB whole-piece decoder and the client
+ *  channel view stay engine reads until SP8, and `splatGround`'s engine texture table (`filePolicy`) leaves with SP7. */
 const LAW_IMPORTS_GONE: Readonly<Record<string, readonly string[]>> = {
   'bake/forest.ts': ['world/forest/placement', 'world/terrainField', 'level/data'],
   'bake/slabs.ts': ['models/nativeGeometry', 'game/plugin/geometry'],
   'bake/mapRest.ts': ['physics/mover'],
-  'bake/placeholders.ts': ['core/config', 'world/BakedTerrain'],
-  'bake/splatGround.ts': ['world/BakedTerrain'],
+  'bake/splatGround.ts': ['world/BakedTerrain', 'world/Terrain', 'world/Heightfield'],
 };
 
 const engineImports = (file: string): string[] =>
