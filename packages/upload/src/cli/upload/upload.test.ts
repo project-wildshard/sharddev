@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
@@ -230,13 +229,9 @@ test('reads the channel and versions the API echoes (UP2)', async (context: Test
 // images' blob hashes, against the slug's newest catalogued version.
 
 async function heroDigest(): Promise<string> {
-  const { card } = await validateShardfile(TARBALL)
-  assert.ok(card)
-  return createHash('sha256')
-    .update(
-      `thumb:${card.thumb}\nportrait:${card.portrait}\nlandscape:${card.landscape}`,
-    )
-    .digest('hex')
+  const { heroHash } = await validateShardfile(TARBALL)
+  assert.ok(heroHash !== undefined)
+  return heroHash
 }
 
 test('an unchanged hero refuses before the PUT and names wildshard hero', async (context: TestContext): Promise<void> => {

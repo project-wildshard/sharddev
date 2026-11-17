@@ -14,7 +14,10 @@ import { fileURLToPath } from 'node:url'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { heroFixture } from './hero-fixture.ts'
 import { makeTar } from './tar.ts'
+
+import type { HeroOption } from './hero-fixture.ts'
 
 // Test shardfiles: Template 2 as the format pin ships it, re-stamped with a
 // slug, name and seed, its source hash recomputed with format's own functions
@@ -37,6 +40,13 @@ interface ShardfileOptions {
   readonly seed?: number
   /** `makeShardfile` only: the draft as built, which upload refuses. */
   readonly draft?: boolean
+  /**
+   * Meta HERO-GATE HG2: the hero its discovery card names. By default three
+   * mounted images at the hero's sizes, shaded by `seed` so each revision's
+   * hero differs; `'generated'` the placeholder `data:` card; an object
+   * swaps the named images.
+   */
+  readonly hero?: HeroOption
 }
 
 interface ProductEntry {
@@ -117,7 +127,15 @@ async function shardfileFiles(
     ...parsed.build,
     sourceHash: sha256(validationSourceBytes(shard)),
   }
-  files.set(INDEX, validationSourceBytes({ ...parsed, identity, build }))
+  files.set(
+    INDEX,
+    validationSourceBytes({
+      ...parsed,
+      identity,
+      build,
+      cook: await heroFixture(files, options.hero, identity.seed),
+    }),
+  )
   return files
 }
 

@@ -1,4 +1,5 @@
-// A minimal ustar writer for tests: regular files only, names ≤ 100 bytes.
+// A minimal ustar writer for tests: regular files only; a path past 100
+// bytes splits at a slash into ustar's 155-byte prefix and its name.
 
 const BLOCK = 512
 const OCTAL = 8
@@ -11,13 +12,25 @@ function octal(value: number, width: number): string {
   return `${value.toString(OCTAL).padStart(width - 1, '0')}\0`
 }
 
+const NAME = 100
+
+/** Ustar's [prefix, name] for a path: the name is the last part that fits. */
+function split(path: string): readonly [string, string] {
+  if (path.length <= NAME) {
+    return ['', path]
+  }
+  const at = path.indexOf('/', path.length - NAME - 1)
+  return [path.slice(START, at), path.slice(at + 1)]
+}
+
 /** [offset, width, value] of each header field before the checksum. */
 function fields(
   path: string,
   size: number,
 ): readonly (readonly [number, number, string])[] {
+  const [prefix, name] = split(path)
   return [
-    [0, 100, path],
+    [0, 100, name],
     [100, 8, octal(0o644, 8)],
     [108, 8, octal(0, 8)],
     [116, 8, octal(0, 8)],
@@ -27,6 +40,7 @@ function fields(
     [156, 1, '0'],
     [257, 6, 'ustar\0'],
     [263, 2, '00'],
+    [345, 155, prefix],
   ]
 }
 

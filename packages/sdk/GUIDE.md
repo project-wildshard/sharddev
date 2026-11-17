@@ -176,7 +176,9 @@ A refusal is one line that starts with its rule, `[hero-<rule>]`, never a stack:
 `hero-card-file`, `hero-curated`, `hero-size` and `hero-page-error`.
 
 Build then refuses a shard file whose content changed after the hero was stamped (`hero-stale`), and upload refuses a
-new version whose hero is the same as the previous version's (`hero-unchanged`). Section 6 has every hero refusal.
+new version whose hero is the same as the previous version's (`hero-unchanged`). Upload, and the API, also refuse a
+shard file with no captured hero or the generated card (`hero-missing`) and a card image of the wrong size
+(`hero-size`). Section 6 has every hero refusal.
 
 **A curated hero** is hand-picked art, not a capture. Put `"curated": true` in `hero.json` and the art is kept: after a
 content change, `wildshard hero . --stamp-existing` re-stamps the images already there, and `wildshard hero . --base`
@@ -839,6 +841,19 @@ prepare again ("Uploading", steps 3 and 4).
 
 Upload only: this new version's hero is the same as the previous version's (J306: a new version needs a new hero).
 Capture a new hero, build, prepare and upload again.
+
+#### hero-missing
+
+Upload only (and api-server's commit, as a 422): the shard file has no captured hero. `[hero-missing]`: no card in its
+discovery, manifest or presentation; `[hero-generated]`: the card is still the generated `data:` placeholder `wildshard
+new` gives. No zone reaches zone select without a hero (Jake, 2026-11-17). Run `wildshard dev .`, then `wildshard hero .
+--base <url>` with the URL it printed, look at the three images, then build, prepare and upload again ("The hero").
+
+#### hero-size
+
+Upload only (and api-server's commit, as a 422): a card image is not in the shard file or is not a PNG, JPEG or WebP
+(`[hero-image]`), or is the wrong size (`[hero-size]`). The hero is thumb 640x360, portrait 804x1626 and landscape
+1600x900, the sizes `wildshard hero` writes. Capture it again rather than resizing by hand.
 
 #### audio-refused
 

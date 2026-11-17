@@ -2,8 +2,10 @@ import { createHash } from 'node:crypto'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { heroVerdict } from './hero-gate.ts'
 import { heroHashOf } from './hero.ts'
 
+import type { HeroShard, HeroVerdict } from './hero-gate.ts'
 import type { HeroCard } from './hero.ts'
 import type { AudioReport } from '@wildshard/format/audioRules'
 import type { ShardfileFiles as ProductFiles } from '@wildshard/format/shardfileValidation'
@@ -22,6 +24,8 @@ interface ValidShardfile {
   readonly card: HeroCard | undefined
   /** The hero digest api-server's UP4 takes (`hero.ts`); undefined with no card. */
   readonly heroHash: string | undefined
+  /** Meta HERO-GATE HG2: whether the hero is present, captured, carried and the right size. */
+  readonly hero: HeroVerdict
   /** `0.2`: a draft as `wildshard build` writes it; `0.3`: prepared (J198). */
   readonly sdk: '0.2' | '0.3'
 }
@@ -47,6 +51,15 @@ function productFiles(files: ReadonlyMap<string, Uint8Array>): ProductFiles {
   }
 }
 
+/** HG2's verdict and the digest UP4 compares: a scene shard's card is its discovery mount's. */
+function heroOf(
+  shard: Readonly<HeroShard>,
+  members: ReadonlyMap<string, Readonly<Uint8Array>>,
+): Pick<ValidShardfile, 'hero' | 'heroHash'> {
+  const hero = heroVerdict(shard, members)
+  return { hero, heroHash: hero.ok ? hero.digest : heroHashOf(shard) }
+}
+
 /** The shard's identity; throws with format's reason when it is invalid. */
 async function validateShardfile(
   tarball: Readonly<Uint8Array>,
@@ -60,8 +73,10 @@ async function validateShardfile(
     await import('@wildshard/format/shardfileAudio')
   const { readTar } = await import('@wildshard/format/tar')
   await prepareAssetDecoders()
-  const product = productFiles(readTar(tarball))
-  const valid = validateShardfileProduct(product, { hash: sha256 })
+  const members = readTar(tarball)
+  const valid = validateShardfileProduct(productFiles(members), {
+    hash: sha256,
+  })
   const { identity, presentation } = valid.shard
   return {
     sdk: valid.index.sdk,
@@ -69,8 +84,9 @@ async function validateShardfile(
     name: identity.name,
     audio: productAudioReport(valid, new Date()),
     card: presentation?.card,
-    heroHash: heroHashOf(valid.shard),
+    ...heroOf(valid.shard, members),
   }
 }
 
+export { assertHero } from './hero-gate.ts'
 export { type ValidShardfile, validateShardfile }

@@ -12,7 +12,7 @@ import {
 import { completeUpload } from './completion.ts'
 import { storedForm } from './compress.ts'
 import { hashTarball, signTarball } from './signature.ts'
-import { validateShardfile } from './validate.ts'
+import { assertHero, validateShardfile } from './validate.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
 import type { Completion } from './completion.ts'
@@ -228,20 +228,19 @@ interface Validated {
   readonly hero: string | undefined
 }
 
-/**
- * Format's check, then the draft check (J198) and AU5's audio rules: a draft
- * or a red refuses before any byte is sent.
- */
+/** Format's check, the draft check (J198), AU5's audio rules and the hero gate (HERO-GATE HG2): each refuses before a byte is sent. */
 async function validated(
   options: Readonly<UploadOptions>,
   tarball: Readonly<Uint8Array>,
 ): Promise<Validated> {
-  const { slug, name, audio, heroHash, sdk } = await validateShardfile(tarball)
+  const { slug, name, audio, heroHash, sdk, hero } =
+    await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
   if (sdk === DRAFT_SDK) {
     throw new Error(draftMessage(slug))
   }
   await assertAudio(audio)
+  assertHero(hero)
   return { slug, hero: heroHash }
 }
 

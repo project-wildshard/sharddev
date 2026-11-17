@@ -129,6 +129,11 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Build again after the hero capture: `wildshard build` writes a shard file that carries it.' },
   { id: 'hero-unchanged', anchor: 'hero-unchanged', steps: ['upload'], match: /the hero is unchanged since/u,
     fix: 'Capture a new hero (`wildshard hero`), then build and upload again.' },
+  // HERO-GATE HG2 (Jake, 2026-11-17): upload, and api-server's commit, refuse a zone with no real hero
+  { id: 'hero-missing', anchor: 'hero-missing', steps: ['upload'], match: /\[hero-(?:missing|generated)\]/u,
+    fix: 'Capture the hero from a served build: run `wildshard dev .`, then `wildshard hero <shard> --base <url>`, build and upload again.' },
+  { id: 'hero-size', anchor: 'hero-size', steps: ['upload'], match: /\[hero-(?:image|size)\]/u,
+    fix: 'The hero is thumb 640x360, portrait 804x1626 and landscape 1600x900 PNG, JPEG or WebP: capture it again with `wildshard hero <shard> --base <url>`.' },
   // the audio rules (AU5): `audio-refused` is upload's refusal of a red report; the rest are its findings, which build
   // prints with their rows (red or amber, a build never refuses on them)
   { id: 'audio-refused', anchor: 'audio-refused', steps: 'any', codes: ['audio-refused'],
