@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import type { InteractTable, InteractPlacement } from '@wildshard/engine/world/interact/types';
+import type { InteractTable, InteractPlacement } from '@wildshard/format/interactTable';
 import { InteractionRowsSchema as schema, parseInteractionRows as parseRows, type InteractionRowsData as Data } from '@wildshard/format/questInteractions';
 
 /** Declared interaction rows: transient marks, prompt / crack rows at named spots with ordered needs and their sets (SF72). */

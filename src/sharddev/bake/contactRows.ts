@@ -1,5 +1,5 @@
 import * as v from 'valibot';
-import { readColliderRows, poseOf, placeCollider } from '@wildshard/engine/models/colliders';
+import { readColliderRows, poseOf, placeCollider } from '@wildshard/format/colliders';
 import type { AuthorPlacement, ColliderDesc, ContactSurface } from './placement';
 
 const finite = v.pipe(v.number(), v.finite());
@@ -66,7 +66,9 @@ export function admitContactRows(rows: readonly unknown[], policy: AuthorContact
 
 /** Compile an ordered contact batch at one authored pose using the native matrix/quaternion/scale law. */
 export function placeContactRows(rows: readonly ColliderDesc[], placement: AuthorPlacement<object>): ColliderDesc[] {
-  const pose = poseOf(placement);
+  const { x, y, z, yaw, leanX, leanZ, scale, matrix } = placement;
+  const pose = poseOf({ x, y, z, ...(yaw === undefined ? {} : { yaw }), ...(leanX === undefined ? {} : { leanX }), ...(leanZ === undefined ? {} : { leanZ }),
+    ...(scale === undefined ? {} : { scale }), ...(matrix === undefined ? {} : { matrix: matrix.elements }) });
   return rows.map(row => placeCollider(row, pose));
 }
 

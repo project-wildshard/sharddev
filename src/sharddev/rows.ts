@@ -25,7 +25,7 @@ import { QuestPageCompositionSchema } from '@wildshard/format/questPageCompositi
 import { CoverCompositionSchema } from '@wildshard/format/streamedCover';
 import { ManifestMetadataSchema } from '@wildshard/format/minimap';
 import * as v from 'valibot';
-import { ItemCatalogue } from '@wildshard/engine/game/loadout/itemCatalogue';
+import { ItemCatalogue } from '@wildshard/format/itemCatalogue';
 import { parseExplorerCatalogue } from '@wildshard/format/explorerCatalogue';
 import { QuestTraderSchema } from '@wildshard/format/namedJsonContracts';
 import { parseBarterEconomy } from '@wildshard/format/lootEconomy';

@@ -1,6 +1,8 @@
 import { BufferAttribute, BufferGeometry, Float16BufferAttribute, InterleavedBufferAttribute, Matrix3, Matrix4, Vector3, type TypedArrayConstructor } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import type { WholeGeometryPiece } from '@wildshard/engine/game/plugin/geometry';
+import type { WholeGeometryPiece as FormatWholePiece } from '@wildshard/format/wholePartition';
+/** A decoded whole piece over three's geometry and matrix (format's shape, SDK-SPLIT SP6a). */
+type WholeGeometryPiece = FormatWholePiece<BufferGeometry, Matrix4>;
 
 function raw(attribute: BufferAttribute | InterleavedBufferAttribute, vertex: number, lane: number): number | undefined {
   return attribute instanceof InterleavedBufferAttribute ? attribute.data.array[vertex * attribute.data.stride + attribute.offset + lane] : attribute.array[vertex * attribute.itemSize + lane];

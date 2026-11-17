@@ -1,4 +1,4 @@
-import { GrassField, type GrassFieldPorts } from '@wildshard/engine/game/systems/looks/grassField';
+import { GrassField, type GrassFieldPorts } from '@wildshard/format/grassField';
 
 /** An owned eight-channel native lattice snapshot and the original query state that produced it. */
 export interface NativeMeadowField {

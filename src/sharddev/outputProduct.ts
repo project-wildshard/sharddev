@@ -1,5 +1,5 @@
 import { ktx2DeviceCosts } from '@wildshard/format/ktx2Cost';
-import { HEADLESS_CONTEXT_SECTIONS } from '@wildshard/engine/host/headlessSections';
+import { HEADLESS_CONTEXT_SECTIONS } from '@wildshard/format/headlessSections';
 import {publishedSourceResidency} from '@wildshard/format/sourceResidency';
 import {postStackCost} from '@wildshard/format/postStack';
 /** Author-only format-2 emission and on-disk inventory validation. */

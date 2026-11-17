@@ -1,5 +1,5 @@
-import { buildTerrain } from '@wildshard/engine/world/terrainField';
-import { CHUNK_HALF, ROAD_WIDTH, ROAD_LENGTH } from '@wildshard/engine/core/config';
+import { buildTerrain } from '@wildshard/format/terrainField';
+import { CHUNK_HALF, ROAD_WIDTH, ROAD_LENGTH } from '@wildshard/format/contentBounds';
 
 /** Mandatory native cell/entry-road dimensions used by the field compiler. */
 export function terrainFieldPolicy(): { readonly half: number; readonly roadWidth: typeof ROAD_WIDTH; readonly roadLength: typeof ROAD_LENGTH } {

@@ -3,8 +3,8 @@ import { ALL_EXTENSIONS, EXTMeshoptCompression, KHRMeshQuantization } from '@glt
 import { MeshoptDecoder, MeshoptSimplifier } from 'meshoptimizer';
 import sharp from 'sharp';
 import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix4, MeshBasicMaterial, MeshStandardMaterial, Quaternion, SRGBColorSpace, Vector3 } from 'three';
-import { CONTENT_CAPS } from '@wildshard/engine/core/config';
-import { parseBakedTerrain } from '@wildshard/engine/world/BakedTerrain';
+import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
+import { parseBakedTerrain } from '@wildshard/format/bakedTerrainBytes';
 import { decodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import type { PlaceholderTree } from '@wildshard/format/placeholderSource';
 import { NEAR_COLOUR, NEAR_LIGHT, NEAR_PLACEHOLDER_LIMITS } from '@wildshard/format/nearPlaceholder';

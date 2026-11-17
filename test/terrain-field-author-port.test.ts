@@ -2,12 +2,13 @@ import { expect, expectTypeOf, test } from 'vitest';
 import { createTerrainField, terrainFieldPolicy } from '../src/sharddev/bake/nativeTerrainField';
 import { forestDefaultTreeSpecs } from '../src/sharddev/bake/forest';
 import { buildTerrain } from '@wildshard/engine/world/terrainField';
+import type { buildTerrain as formatBuildTerrain } from '@wildshard/format/terrainField';
 import { CHUNK_HALF, ROAD_WIDTH, ROAD_LENGTH } from '@wildshard/engine/core/config';
 import { TREE_SPECS } from '@wildshard/engine/world/forest/treeSpec';
 
 
 test('native field and planting metadata retain complete signatures, mandatory dimensions and identity', () => {
-  expectTypeOf<typeof createTerrainField>().toEqualTypeOf<typeof buildTerrain>();
+  expectTypeOf<typeof createTerrainField>().toEqualTypeOf<typeof formatBuildTerrain>();
   expectTypeOf<ReturnType<typeof forestDefaultTreeSpecs>>().toEqualTypeOf<typeof TREE_SPECS>();
   expect(terrainFieldPolicy()).toEqual({ half: CHUNK_HALF, roadWidth: ROAD_WIDTH, roadLength: ROAD_LENGTH });
   expect(forestDefaultTreeSpecs()).toBe(TREE_SPECS);

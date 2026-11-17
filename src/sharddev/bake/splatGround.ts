@@ -12,7 +12,8 @@ import { floatPositionError } from './geometryError';
  * Build time only: geometry and bytes, no textures, renderer, physics or scene.
  */
 import { BufferAttribute, BufferGeometry, Float32BufferAttribute, MeshStandardMaterial } from 'three';
-import { parseBakedTerrain, bakedSamplers } from '@wildshard/engine/world/BakedTerrain';
+import { parseBakedTerrain } from '@wildshard/format/bakedTerrainBytes';
+import { bakedSamplers } from '@wildshard/format/bakedTerrainSampling';
 import { canopyChannel, terrainChunkGeometry } from '@wildshard/engine/world/Terrain';
 import { _installBakedTerrain } from '@wildshard/engine/world/Heightfield';
 import { filePolicy } from '@wildshard/engine/boot/filePolicy';

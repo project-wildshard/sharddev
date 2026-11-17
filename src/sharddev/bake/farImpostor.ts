@@ -1,7 +1,6 @@
 import type { BufferGeometry } from 'three';
 import type { FarImpostor } from '@wildshard/format/shardSections';
-import { ROAD_SKY } from '@wildshard/engine/game/grid/frameModel';
-import { FAR_CLIFF_FLOOR } from '@wildshard/engine/game/grid/farView';
+import { FAR_CLIFF_FLOOR, ROAD_SKY } from '@wildshard/format/roadLight';
 import { writeImagePixels } from './image';
 
 /**

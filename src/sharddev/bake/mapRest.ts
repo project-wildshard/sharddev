@@ -1,7 +1,7 @@
 import { BufferGeometry, Group, InstancedMesh, MeshBasicMaterial } from 'three';
-import { createClientChannelView, moverChannelValues } from '@wildshard/engine/game/plugin/clientChannelView';
+import { createClientChannelView } from '@wildshard/engine/game/plugin/clientChannelView';
+import { moverChannelValues, type MoverPose } from '@wildshard/format/moverPose';
 import { parseClientChannels } from '@wildshard/format/clientChannels';
-import type { MoverPose } from '@wildshard/engine/physics/mover';
 
 /** Only the initial private transforms and instance slots used by the map projection. */
 export interface MapRestNode {

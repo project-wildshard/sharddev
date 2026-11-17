@@ -3,7 +3,7 @@ import { parsePersistedQuestPage as parsePage, parseQuestStory, type PersistedQu
 import { QuestDataSchema as schema, parseQuestData as parseData, type QuestData as Data } from '@wildshard/format/quests';
 import { parseNativeQuestComposition } from '@wildshard/format/nativeQuestComposition';
 import { NativeQuestPropsSchema } from '@wildshard/format/questInteractions';
-import type { InteractDef } from '@wildshard/engine/world/interact/types';
+import type { InteractDef } from '@wildshard/format/interactTable';
 import { parseCompletion } from '@wildshard/format/completion';
 import type { QuestWorldRows } from '@wildshard/format/questWorld';
 import { parseQuestHost } from '@wildshard/format/questHost';

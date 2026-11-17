@@ -1,9 +1,9 @@
 import { BufferAttribute, type BufferGeometry, Float16BufferAttribute, Group, Matrix4, Mesh, MeshStandardMaterial, Vector3, type Object3D } from 'three';
 import * as v from 'valibot';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { NativeAttributesSchema } from '@wildshard/engine/models/nativeGeometry';
+import { NativeAttributesSchema } from '@wildshard/format/nativeGeometryChannels';
 import { wholeGeometryPieces } from '@wildshard/engine/game/shardfile/wholeGeometryPieces';
-import type { WholeGeometryPiece } from '@wildshard/engine/game/plugin/geometry';
+import type { WholeGeometryPiece as FormatWholePiece } from '@wildshard/format/wholePartition';
 import { joinWholePieceSteps } from './wholePieceJoin';
 import { WorldSceneSlabsSchema, type WorldSceneSlabChunk, type WorldSceneSlabFile, type WorldSceneSlabKey, type WorldSceneSlabLibrary } from '@wildshard/format/worldSceneSlabs';
 import { parseWorldSceneWeld, type WorldSceneWeld, type WorldSceneWeldNode } from '@wildshard/format/worldSceneWeld';
@@ -17,6 +17,8 @@ import { parseGlb } from '../assets';
 import { readSourceModel } from './skinned';
 import { positionErrorScale } from './geometryError';
 import { partitionSlabGeometry, type SlabGeometryChunk } from './slabChunks';
+/** A decoded whole piece over three's geometry and matrix (format's shape, SDK-SPLIT SP6a). */
+type WholeGeometryPiece = FormatWholePiece<BufferGeometry, Matrix4>;
 
 // Every native slab mounts as one identity instance with a white RGB colour.
 // Its first draw uploads those two native attributes as well as the geometry.

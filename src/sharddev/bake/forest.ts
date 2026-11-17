@@ -1,6 +1,5 @@
-import { canopyMapOf, placeForest, type ForestPlacementSource, type PlantSpec } from '@wildshard/engine/world/forest/placement';
-import { buildTerrainMetadata } from '@wildshard/engine/world/terrainField';
-import type { ForestSpec, TerrainSpec } from '@wildshard/engine/level/data';
+import { canopyMapOf, placeForest, type ForestPlacementSource, type ForestPlacementSpec as ForestSpec, type PlantSpec } from '@wildshard/format/forestPlacement';
+import { buildTerrainMetadata, type TerrainSpec } from '@wildshard/format/terrainField';
 import { readNativeTerrain } from './terrain';
 import { TreeSetSchema } from '@wildshard/format/treeSetRows';
 import { ManifestMetadataSchema } from '@wildshard/format/minimap';
@@ -38,7 +37,7 @@ export function bakeForestPlacements(source: ForestPlacementSource, variants: re
   const owned = new Map<(typeof native.trees)[number], NativeForestTree>();
   for (const tree of native.trees) {
     const { tint, species, ...data } = tree;
-    const row: NativeForestTree = { ...data, ...(species === undefined ? {} : { species }), tint: [tint.r, tint.g, tint.b] };
+    const row: NativeForestTree = { ...data, ...(species === undefined ? {} : { species }), tint: [tint[0], tint[1], tint[2]] };
     trees.push(row); owned.set(tree, row);
   }
   return { trees, nearby: (x, z, radius = 2) => native.grid.nearby(x, z, radius).map(tree => {
