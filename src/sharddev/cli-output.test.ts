@@ -49,9 +49,13 @@ test('build and validate run no simulation; check measures CPU again and refuses
     const project = resolve(scratch, 'project'), output = resolve(scratch, 'out');
     newProject(project, 'cli-cpu');
     await runCli(['build', project, output, '--folder-only', '--no-placeholders']);
+    // The static half of the performance report still runs (and can refuse) at build and at both validates.
+    const reports = () => log.mock.calls.filter(args => typeof args[0] === 'string' && args[0].startsWith('PERFORMANCE REPORT')).length;
+    expect(reports()).toBe(1);
     writeFileSync(resolve(output, 'validation.json'), JSON.stringify({ scripts: { p95Micros: 0, maxMicros: 0, samples: 1000000 } }));
     await expect(runCli(['validate', output])).resolves.toBeUndefined();
     await expect(runCli(['validate', project])).resolves.toBeUndefined();
+    expect(reports()).toBe(3);
     expect(created).toBe(0);
     // The numbers validate used to print are check's report note now (SP7c).
     const passed = await checkProject(project, resolve(scratch, 'first-check'));

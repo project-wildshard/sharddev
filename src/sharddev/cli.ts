@@ -176,7 +176,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     if (unknownFlag !== undefined) throw new Error(`unknown build flag: ${unknownFlag}`);
     if (flags.filter(flag => flag.startsWith('--output=')).length > 1 || flags.length !== new Set(flags).size || flags.filter(flag => flag.startsWith('--map=')).length > 1 || flags.filter(flag => flag.startsWith('--map-tiles-hash=')).length > 1 || flags.filter(flag => flag.startsWith('--generated-map-tiles-hash=')).length > 1 || mapSourceHash !== undefined && mapPath !== undefined || ((mapPath === undefined) !== (tilesHash === undefined))) throw new Error('unknown or incomplete build map flag');
     const map = mapPath === undefined || tilesHash === undefined ? undefined : { bytes: readBoundedFile(resolve(mapPath), STILL_IMAGE_LIMITS.bytes), tilesHash };
-    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders') }); console.info(`built ${shard.identity.slug} v${shard.version}`);
+    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: async (built, _assets, policy) => { printStaticReport(built, policy); await Promise.resolve(); } }); console.info(`built ${shard.identity.slug} v${shard.version}`);
     if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(shardOutputRoot(resolve(input)), 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
     return;
   }
@@ -201,6 +201,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       printSpawnWarnings(checked.shard);
       // P1-F3 (b), the execution proof, is `wildshard check`'s (SP7c). G491 holds there: validation.json is static build
       // evidence, never authority for current script CPU; check executes the admitted bytes again on this host.
+      printStaticReport(checked.shard, checked.shard.runtime === null ? 'refuse' : 'warn');
       console.info(`validated ${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas`);
       console.info(SIMULATION_ELSEWHERE); return;
     }
