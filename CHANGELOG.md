@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.8 (2026-11-16)
+
+- `wildshard prepare` and `dev` use engine 0.1.32, so a shard with its own runtime prepares and publishes.
+
 ## v0.3.7 (2026-11-16)
 
 - `wildshard prove` and `check` play a stand-still proof tape on the Template again instead of refusing its Wasm imports.
