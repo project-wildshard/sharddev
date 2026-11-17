@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
@@ -149,5 +149,14 @@ describe('dep-guard', () => {
     assert.deepEqual(upload.forbidden, [])
     assert.deepEqual(upload.engineFiles, [])
     assert.deepEqual(upload.escapes, [])
+  })
+
+  it('pins upload to the same versions the sdk ships with (SP2a)', () => {
+    // Until SP12 publishes it, the sdk carries upload's source, so upload's own pins must be the sdk's: provenance
+    // reads the format version from the nearest install, which in a checkout is packages/upload's.
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const read = path => JSON.parse(readFileSync(join(repo, path), 'utf8'))
+    const root = read('package.json').dependencies, upload = read('packages/upload/package.json').dependencies
+    for (const [name, specifier] of Object.entries(upload)) assert.equal(specifier, root[name], name)
   })
 })
