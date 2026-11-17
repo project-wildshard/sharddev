@@ -29,6 +29,9 @@ This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
 run `pnpm install` in the new project, then `pnpm exec wildshard <verb>` to use the copy it pins.
 Add npm packages of your own with `pnpm add <name>`.
 
+Run `wildshard memory <folder>` on a built shard folder to measure its phone-tier boot with the installed engine.
+The command prints the process peak, the phone estimate and the verdict. It exits 1 above the 1.5 GB phone limit.
+
 **`npm audit` on a fresh install.** From sdk 0.3.10 it reports no high finding of the sdk's own; what is left comes
 through the engine's exact pins until its next release. Accepted, with reasons: vite 8.3.0 (high; launch-editor's
 Windows editor-open flaws and dev-server file reads; the engine pins vite 8.3.0 as a peer, and `wildshard dev` and
