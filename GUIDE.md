@@ -482,7 +482,7 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 | `world.trigger(id, object, { radius, flag })` | Entering `radius` metres of `object` sets quest flag `flag` |
 | `world.interact(id, object, { label, radius, scene })` | A use prompt that runs a shard scene |
 | `world.interact(id, object, { label, radius, sets })` | A use prompt that sets a state field, no script needed: `sets: { field, scope: 'shared' \| 'player', value }` or `{ field, scope, add, max }` (a count). A shared use's prompt goes once the field holds what it would write |
-| `world.part(name, build, { panel, shownWhen: { field, equals } })` | A panel shown (and solid) only while a field a `sets` prompt writes holds `equals`: a shrine's flame once it is lit. A `player` field shows on the server today; pages show it once SHARD-SOURCE SS-GF1a2 lands |
+| `world.part(name, build, { panel, shownWhen: { field, equals } })` | A panel shown (and solid) only while a field a `sets` prompt writes holds `equals`: a shrine's flame once it is lit. A `player` field's panel is that player's alone (their socket): never solid, and shown on their page by an engine with SHARD-SOURCE SS-GF1a2 |
 | `world.pickup(id, at, { label, radius, item: { id: 'tool.<name>', name, colour?, intensity?, fuelSeconds? }, flag? })` | A lantern on a stand: using its prompt puts the tool in the player's kit lit and full, and raises `flag`; a later use refills it. The sdk writes the tool, the take and the fields that show its light. Two pickups may hand over one tool (same options). Needs an engine with SHARD-SOURCE SS-GF1a1a |
 | `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
 

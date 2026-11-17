@@ -128,7 +128,8 @@ export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: s
     if (part.shownWhen === undefined || part.panel === undefined) return [];
     if (takenPanels.has(part.panel)) throw new SceneRefusalError(part.name, `extend shows panel ${part.panel} too`, 'Show it once: drop the row from extend, or the part\'s shownWhen');
     const target = written.get(part.shownWhen.field); if (target === undefined) throw new Error(`scene: no field ${part.shownWhen.field}`);
-    const solid = part.colliders.length > 0 && part.touch === undefined && part.move === undefined;
+    // SS-GF1a2: one collider stands for every player, so a part a player's own field shows (their socket) is never solid
+    const solid = target.scope === 'shared' && part.colliders.length > 0 && part.touch === undefined && part.move === undefined;
     return [{ panel: part.panel, scope: target.scope, fieldId: target.id, equals: part.shownWhen.equals, visibleWhenMatched: true, colliders: solid ? [part.panel] : [], activeWhenMatched: true }];
   });
   const source = stateModuleSource(uses, written.size);

@@ -34,6 +34,9 @@ const shrine = (world: ShardWorld): void => {
   world.part('flame', (part) => {
     const fire = solid(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.4), flame)); fire.position.set(0, 1.5, 0); part.add(fire);
   }, { panel: 'shrine.flame', shownWhen: { field: 'shrine.lit', equals: true } });
+  world.part('socket', (part) => {
+    part.add(solid(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), flame)).translateX(-2));
+  }, { panel: 'shrine.socket', shownWhen: { field: 'shrine.touched', equals: true } });
   world.part('third', (part) => {
     part.add(new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.3, 0.3), flame).translateY(2.5));
   }, { panel: 'shrine.third', shownWhen: { field: 'shrine.lanterns', equals: 3 } });
@@ -62,6 +65,8 @@ test('sets and shownWhen write the state, hooks, targets and one generated serve
   ]);
   expect(shard.targets.panels).toEqual([
     { panel: 'shrine.flame', scope: 'shared', fieldId: 6001, equals: 1, visibleWhenMatched: true, colliders: ['shrine.flame'], activeWhenMatched: true },
+    // SS-GF1a2: a player's socket shows by their own field and is never the one shared collider
+    { panel: 'shrine.socket', scope: 'player', fieldId: 6003, equals: 1, visibleWhenMatched: true, colliders: [], activeWhenMatched: true },
     { panel: 'shrine.third', scope: 'shared', fieldId: 6002, equals: 3, visibleWhenMatched: true, colliders: [], activeWhenMatched: true },
   ]);
   const [module] = shard.sim.scripts;
