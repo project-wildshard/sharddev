@@ -158,7 +158,7 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
     shard = product.shard;
     for (const [hash, bytes] of product.assets) baked.set(hash, bytes);
   } else shard = parseShardfile(declaration);
-  checkProjectRuntime(project, projectPerformancePolicy(project, shard));
+  checkProjectRuntime(project, projectPerformancePolicy(project, shard), undefined, shard.identity);
   const sidecar = sidecarModule?.exports;
   if (sidecar !== undefined && ('output' in loaded || !('output' in sidecar))) throw new Error('Output sidecar requires one unambiguous output export');
   if (generatedOutput !== undefined && (sidecar !== undefined || 'output' in loaded)) throw new Error('Generated project requires one unambiguous output declaration');
