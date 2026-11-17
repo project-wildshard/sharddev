@@ -34,7 +34,7 @@ const declaration: v.StrictObjectSchema<{ readonly name: v.StringSchema<undefine
   name: v.string(), kind: v.picklist(['glb', 'ktx2', 'image', 'audio', 'wasm', 'bin', 'tile', 'json']),
   source: v.string(), options: v.exactOptional(options),
 });
-const output = v.strictObject({
+const output: v.GenericSchema<unknown, PreparedOutputInput> = v.strictObject({
   blobs: v.optional(v.pipe(v.array(declaration), v.maxLength(8192)), []),
   platform: v.exactOptional(emitted),
   late: v.exactOptional(AdmissionLateSchema),
@@ -86,7 +86,14 @@ function riggedHullLate(platform: EmittedSections | undefined, files: readonly O
     .map(hash => ({ hash }));
 }
 
-type PreparedOutputInput = v.InferOutput<typeof output>;
+interface PreparedOutputInput {
+  blobs: v.InferOutput<typeof declaration>[];
+  platform?: EmittedSections;
+  late?: AdmissionLate;
+  server?: ServerBlob[];
+  namedFiles: OutputFile[];
+  assets: Map<string, Uint8Array>;
+}
 const preparedInputs = new WeakMap<object, PreparedOutputInput>();
 
 /** Normalize the one producer result before source parsing and decision work.

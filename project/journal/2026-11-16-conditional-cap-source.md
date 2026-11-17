@@ -27,3 +27,11 @@ regression failed before removing the inference, then all 11 source
 controls, types and normal author lint passed. The original verified
 native fixture retains the captain’s absent flag and the level emits
 `creature.captain`; explicit true and false still survive unchanged.
+
+The broader author suite passed 1513 cases and exposed one declaration
+failure in the preceding native-output helper: its exported prepared
+input type reached an unannotated private schema. Give that prepared
+shape an explicit interface and the schema an explicit GenericSchema.
+All 13 focused source and isolated-declaration controls now pass, as do
+all type projects, using actual registry format0.14. No validator rule or
+test was weakened. The final pin has no local file or live source alias.
