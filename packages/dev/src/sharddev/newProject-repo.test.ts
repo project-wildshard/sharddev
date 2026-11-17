@@ -30,7 +30,7 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     const manifest = JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { name: string; packageManager: string; dependencies: Record<string, string>; devDependencies?: unknown };
     expect(manifest.name).toBe('my-shard');
     expect(manifest.packageManager).toBe('pnpm@10.34.9');
-    expect(manifest.dependencies).toEqual({ '@wildshard/engine': sdk.dependencies['@wildshard/engine'], '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
+    expect(manifest.dependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
     expect(manifest.devDependencies).toBeUndefined();
     expect(Object.keys(manifest.dependencies)).not.toContain('@wildshard/sharddev');
     // Exact pins: no range operator on any of them.
@@ -97,7 +97,7 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(manifest.name).toBe('clay-hall');
     // J314: no sdk at runtime and no three.js; the CLI and shard-format only, pinned exactly as the sdk pins format.
     expect(manifest.dependencies).toBeUndefined();
-    expect(manifest.devDependencies).toEqual({ '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version });
+    expect(manifest.devDependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version });
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('hand-written');
     // Renamed everywhere a person holds JSON: no blender-template slug, path or name is left outside the baked blobs.
     expect(existsSync(resolve(repo, 'src/mounts/shardfiles/clay-hall/discovery.json'))).toBe(true);
