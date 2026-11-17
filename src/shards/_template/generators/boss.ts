@@ -1,3 +1,4 @@
+import { parseShardfileField } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '@wildshard/sdk/author';
 import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 import type { ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';
@@ -12,7 +13,7 @@ import { TEMPLATE_BEHAVIOUR_INPUTS } from './behaviour';
 export const TEMPLATE_BOSS_INPUTS: readonly ["behaviour/door.as", "behaviour/items.as", "behaviour/idle.as", "behaviour/boss.as"] = [...TEMPLATE_BEHAVIOUR_INPUTS, 'behaviour/boss.as'] as const;
 /** The boss uses the same declared-handler compiler and complete authored source budget as product admission. */
 export async function compileTemplateBoss(compiler: Pick<ProjectGenerationContext, 'compileDecisionScripts'>, inputs: ReadonlyMap<string, Uint8Array>): Promise<Uint8Array> {
-  const source = { ...emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 }), creatures, rows, state: hooks.state };
+  const source = { ...emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 }), creatures, rows, state: parseShardfileField('state', hooks.state) };
   // MH-4: the decision's `fields` name the Warden's public shared fields, so the compile sees the shard's state rows.
   const authored = new Map([...inputs].map(([path, bytes]) => [path, new TextDecoder('utf-8', { fatal: true }).decode(bytes)]));
   const built = await compiler.compileDecisionScripts([decision], source, moves, authored, BUILD_OPTIONS);

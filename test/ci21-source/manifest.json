@@ -193,6 +193,67 @@
         "%s map declarations invalidate on raster and scene edits"
       ],
       "targetSha256": "027fb423c1bde55fef97eeba92370f6b30ab29240f33af6eee0aaa93d052688a"
+    },
+    {
+      "sourcePath": "test/basis-glb-variant.test.ts",
+      "targetPath": "test/ci21-source/basis-glb-variant.source.ts",
+      "sourceRevision": "8181914169e4c783e103b846abbec81775c68b40",
+      "sourceBlob": "6822655cdc9554cc70486568b3e99df1baa01366",
+      "originalTests": [
+        "the injected shipped image reproduces the entire shipped phone container",
+        "the caller cannot mutate geometry while the asynchronous encoder owns its detached image",
+        "a malformed encoder result refuses: %s",
+        "unsupported or malformed sources refuse before requesting an encoder",
+        "an individually bounded image cannot overflow the combined GLB allocation",
+        "the unused writer bundles as one config-safe chunk with no file, process or generated imports"
+      ],
+      "targetTests": [
+        "the injected shipped image reproduces the entire shipped phone container",
+        "the caller cannot mutate geometry while the asynchronous encoder owns its detached image",
+        "a malformed encoder result refuses: %s",
+        "unsupported or malformed sources refuse before requesting an encoder",
+        "an individually bounded image cannot overflow the combined GLB allocation",
+        "the unused writer bundles as one config-safe chunk with no file, process or generated imports"
+      ],
+      "changes": "Whole original cases and byte assertions retained; current SDK defining guard and relocated immutable Sky fixture only.",
+      "state": "C10 default blocking source suite",
+      "targetSha256": "176014395ac951277e5386bbf99647251424ba4ff6b194cf5f5fac2e8e87891f"
+    },
+    {
+      "sourcePath": "test/glb-embedded-basis.test.ts",
+      "targetPath": "test/ci21-source/glb-embedded-basis.source.ts",
+      "sourceRevision": "8181914169e4c783e103b846abbec81775c68b40",
+      "sourceBlob": "9eebdf2e51d9dcdbe574be739454e2627eee56af",
+      "originalTests": [
+        "the complete shipped phone Basis rig admits without reencoding or changing its identity",
+        "normal admission refuses %s before allocation"
+      ],
+      "targetTests": [
+        "the complete shipped phone Basis rig admits without reencoding or changing its identity",
+        "normal admission refuses %s before allocation"
+      ],
+      "changes": "Whole original cases and byte assertions retained; current SDK defining guard and relocated immutable Sky fixture only.",
+      "state": "C10 default blocking source suite",
+      "targetSha256": "20279959e85bfab09dfdcc581362bc12b87e575aab44f6eb596b4bab9af02d03"
+    },
+    {
+      "sourcePath": "test/template-generation.test.ts",
+      "targetPath": "test/ci21-source/template-generation.source.ts",
+      "sourceRevision": "8181914169e4c783e103b846abbec81775c68b40",
+      "sourceBlob": "37a45eb198c9f59ffad7e77058e69c17f955dccd",
+      "originalTests": [
+        "template direct generation and a cache hit retain every original world row and asset byte",
+        "the actual template build closure bundles and executes through the unchanged config boundary",
+        "Template boss and output sources use the unchanged SDK-only author import surface"
+      ],
+      "targetTests": [
+        "template direct generation and a cache hit retain every original world row and asset byte",
+        "the actual template build closure bundles and executes through the unchanged config boundary",
+        "Template boss and output sources use the unchanged SDK-only author import surface"
+      ],
+      "changes": "Whole original cases and byte assertions retained. Defining SDK guard and immutable fixture relocation only. Real source bug fixed: buildTemplateWorld resets its masonry seed counter for each generation.",
+      "state": "C10 default blocking source suite",
+      "targetSha256": "6babb974d93ad1e6cca6ab43edf9079362c33a990d89278f54c3b2feaac67499"
     }
   ]
 }

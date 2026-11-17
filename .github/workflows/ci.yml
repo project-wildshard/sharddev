@@ -89,6 +89,18 @@ jobs:
       # The same members as pnpm check bar check:watch-build (a GPU and a devserver client: pre-push only); author tests run in products.
       - run: node scripts/check-lift-review.mjs
       - run: pnpm typecheck
+      - name: Admit all restored CI21 source cases and compiler assertions
+        run: |
+          pnpm exec npr tsc -p test/ci21-source/tsconfig.json
+          node scripts/ci21-source-lint.mjs
+          pnpm exec vitest run --config vitest.ci21-source.config.ts --reporter=default --reporter=json --outputFile=tmp/ci21-source/report.json
+      - name: Retain raw default CI21 source verdict
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci21-sdk-source-${{ github.run_id }}
+          path: tmp/ci21-source/report.json
+          if-no-files-found: error
       - run: pnpm lint
       - run: pnpm format:check
       - run: pnpm test:kit
