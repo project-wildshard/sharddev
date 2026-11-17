@@ -464,7 +464,13 @@ export default defineShard({ slug: 'meadow', name: 'Meadow' }, (world) => {
 
 **The entry roads.** Players walk in from the next cell by a road at the middle of each cell edge. Within 6 m of the
 middle of each edge the ground must be exactly 0 m high, so the road meets the next cell; check refuses a shard
-whose ground is not ("Terrain entry road must meet road height zero").
+whose ground is not ("Terrain entry road must meet road height zero"). Two more rules cover the road's approach, and
+check refuses those too: the first 15 m in from each edge, 8 m wide, must be exactly 0 m over every ground triangle it
+touches ("baked entryway footprint must be flat at road height y=0"), and the engine walks each road 50 m in, so for
+50 m the ground must stay within 0.15 m of 0, flat, dry and free of colliders ("Blocked edge entry north lane 0 at
+34.40m"). Easiest: blend your ground to exactly 0 for the last 50 m before each edge's middle and a few metres to each
+side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.abs(x), Math.abs(z)))))` does with
+`r = Math.hypot(x, z)`.
 
 **What `world` takes.**
 
