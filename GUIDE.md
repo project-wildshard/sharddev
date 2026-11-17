@@ -166,6 +166,26 @@ content change, `wildshard hero . --stamp-existing` re-stamps the images already
 refuses rather than shoot the spawn view over them. A new version still needs a new picture (`hero-unchanged`): swap
 the art, then `--stamp-existing`. Remove `curated` to capture again.
 
+### Reading a browser proof
+
+A staging MMO page keeps authoritative quests and creatures in its worker client. Use the engine's shared reader in
+a Playwright proof (the same reader serves local `wildshard dev`):
+
+```js
+import { readProofState } from '@wildshard/engine/scripts/proof-state.mjs';
+const state = await page.evaluate(readProofState, { creatureKinds: ['boar'] });
+if (!state) throw new Error('Enter the shard before reading gameplay');
+console.log(state.quest.flags, state.quest.quests, state.creatures, state.seat);
+```
+
+Request the creature kinds your walk checks; the reader uses live worker rows for those kinds. `quest.flags` combines
+shared and player flags; `quest.quests` contains the player's quest progress (including a null `step` when complete).
+The local probe's original quest fields are retained. `seat` includes the server's cell number, instance, slug and the
+page's visual `inside` cell, so a crossing can distinguish them. Wire cells are one-based; zero means the road on a
+grid page. An unmapped seat says `unknown`, never a guessed slug. Without a worker, local probe creatures and quests
+are retained; without its dev net reader, the worker report still supplies flags and quest steps (`phased` is null
+because that report combines the two flag scopes). This is observation only: no flags, quests or creatures are changed.
+
 ### The proof tape
 
 `proof.json` is a tape the server plays headlessly, one row of commands per tick, then checks what happened.
