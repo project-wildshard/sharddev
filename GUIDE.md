@@ -21,7 +21,8 @@ is a command stopping with a rule id, a fix and a link into section 6.
 **Running `wildshard` today.** Install the published SDK with `pnpm add @wildshard/sdk` or
 `npm install @wildshard/sdk`, then run `pnpm exec wildshard <verb>` (or `npx wildshard <verb>`). Both work from 0.3.
 Run either in a folder with its own `package.json` (`npm init -y` makes one): in a folder without one, npm installs
-into the nearest folder above that has one, maybe your home folder. `new` writes a pnpm project, so use pnpm inside it.
+into the nearest folder above that has one, maybe your home folder (`wildshard` then warns that it runs from there).
+`new` writes a pnpm project, so use pnpm inside it.
 This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
 `wildshard <verb> --help` prints one. `wildshard --version` prints the sdk, engine, shard-format and `three` versions.
 `new` writes a `package.json` that pins `@wildshard/sdk`, shard-format, engine and `three` exactly;

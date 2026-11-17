@@ -7,6 +7,11 @@ import { pathToFileURL } from 'node:url';
 import { resolve } from 'node:path';
 import { existsSync } from 'node:fs';
 import '../src/sharddev/bake/format-hook.mjs';
+import { homedir } from 'node:os';
+// SP-NE1: an install that landed in the home folder (no package.json here) says so before any verb runs.
+const { homeInstallWarning } = await import('../src/cli/install-home.ts');
+const homeWarning = homeInstallWarning({ sdk: resolve(import.meta.dirname, '..'), cwd: process.cwd(), home: homedir() });
+if (homeWarning !== undefined) process.stderr.write(homeWarning);
 
 const AUTHOR = new Set(['new', 'update', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'watch', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
