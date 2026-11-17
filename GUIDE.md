@@ -215,8 +215,9 @@ because that report combines the two flag scopes). This is observation only: no 
 }
 ```
 
-- **`player`** moves the player this tick (`moveX`, `moveZ` from -1 to 1, `yaw` in radians). `moveZ: -1` walks
-  forward, and at `yaw` 0 forward is −z, as W on the page.
+- **`player`** moves the player this tick (`moveX`, `moveZ` from -1 to 1, `yaw` in radians). The stick is world
+  space: `moveX: 1` walks towards +x and `moveZ: -1` towards −z whatever the `yaw`, which turns only the facing (the
+  page turns W by the camera before it sends the stick). A diagonal leg is both: `moveX: 0.7, moveZ: -0.7`.
 - **`interact`** presses E. Its `id` is one of `targets.interactions`, or a talk: `"wren"` presses E on the talk
   `wren` (it closes a line with no choices), and `"wren:accept"` picks the choice `accept` of the node the player
   stands at. The player must be within the talk's `radius`, as on the page. An `id` that names nothing refuses with
@@ -449,12 +450,10 @@ export default defineShard({ slug: 'meadow', name: 'Meadow' }, (world) => {
   // a low knoll, flat (height 0) from 120 m out, so every entry road meets the next cell at 0
   world.ground((x, z) => 6 * Math.max(0, 1 - Math.hypot(x, z) / 120) ** 2, { colourAt: () => [0.32, 0.5, 0.2] });
   const stone = new THREE.MeshStandardMaterial({ color: '#8a8378', roughness: 0.9 });
-  const hut = world.part('hut', (part) => {
-    const walls = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), stone));
-    walls.position.set(0, 5.6, -20); // the knoll is 4.2 m high here; the walls are 3 m
-    part.add(walls);
-  });
-  world.trigger('meadow.hut', hut.children[0]!, { radius: 8, flag: 'meadow.hut' });
+  const walls = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 3, 6), stone));
+  walls.position.set(0, 5.6, -20); // the knoll is 4.2 m high here; the walls are 3 m
+  world.part('hut', (part) => { part.add(walls); });
+  world.trigger('meadow.hut', walls, { radius: 8, flag: 'meadow.hut' });
   world.spawn(0, 7, 10, 0); // ground 5 m here; yaw 0 faces -z, towards the hut
 });
 ```
