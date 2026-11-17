@@ -12,3 +12,7 @@
   static report, the shard file refusal); dev's CLI hands its `build` branch there. Build keeps byte copies of the
   engine's `shard-outputs.mjs` and `decision-legacy-lines.mjs` (node and valibot only) in `packages/build/scripts/`,
   and dev's scripts import those. The Template's 229 `out/` files and shard file are byte-identical before and after.
+- SP11 (opus-sdksplit4): `scripts/dep-guard.mjs` is strict for build, kit, sdk and upload (`LEAN`): a forbidden name
+  in the production tree, a source file importing the engine, or an export reaching it exits 1 (dev and the root only
+  report). Proof: with `vite` moved into build's dependencies the CI step (`node --test test/ci/dep-guard.test.mjs &&
+  node scripts/dep-guard.mjs`) exits 1.

@@ -15,7 +15,9 @@ import {
   engineExports,
   engineImporters,
   escapingImports,
+  guardFailures,
   guardReport,
+  LEAN,
   parseLock,
   productionTree,
 } from '../../scripts/dep-guard.mjs'
@@ -191,5 +193,27 @@ describe('dep-guard', () => {
       upload = read('packages/upload/package.json').dependencies
     for (const [name, specifier] of Object.entries(upload))
       assert.equal(specifier, root[name], name)
+  })
+  it('fails a lean package on a forbidden name, an engine import or an export reaching it, never dev (SP11)', () => {
+    const row = (name, extra = {}) => ({ importer: name, name, forbidden: [], engineFiles: [], escapes: [], engineExports: [], ...extra })
+    assert.deepEqual(LEAN, ['@wildshard/build', '@wildshard/kit', '@wildshard/sdk', '@wildshard/upload'])
+    assert.deepEqual(guardFailures([row('@wildshard/build'), row('@wildshard/dev', { forbidden: ['vite'], engineFiles: ['src/a.ts'], engineExports: ['./a'] })]), [])
+    const failures = guardFailures([
+      row('@wildshard/build', { forbidden: ['vite'] }),
+      row('@wildshard/sdk', { engineFiles: [resolve('src/a.ts')], escapes: ['scripts/x.mjs -> ../../kit/y'] }),
+      row('@wildshard/upload', { engineExports: ['./api'] }),
+    ])
+    assert.deepEqual(failures, [
+      '@wildshard/build: production tree holds vite',
+      '@wildshard/sdk: src/a.ts imports @wildshard/engine',
+      '@wildshard/upload: export ./api reaches @wildshard/engine',
+    ])
+  })
+
+  it('finds every lean package of this repo clean (SP11)', () => {
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const report = guardReport(repo)
+    for (const name of LEAN) assert.ok(report.some(row => row.name === name), name)
+    assert.deepEqual(guardFailures(report), [])
   })
 })

@@ -1,10 +1,11 @@
 #!/usr/bin/env node
-// SDK-SPLIT SP1 (meta docs/plans/SDK-SPLIT-PLAN.md): the dependency guard, in report mode. For each workspace package in
+// SDK-SPLIT SP1 (meta docs/plans/SDK-SPLIT-PLAN.md): the dependency guard. For each workspace package in
 // pnpm-lock.yaml it prints which of FORBIDDEN its production tree holds (dependencies and optionalDependencies, followed
 // through the lockfile's snapshots and through `link:` workspace packages; devDependencies are not shipped), which source
 // files import `@wildshard/engine`, which relative imports leave a workspace package (SP2a), and which of the package's
 // exports reach such a file through relative imports.
-// Report only: it exits 0 whatever it finds. SP11 makes it strict.
+// SP11: strict for the lean packages (LEAN): it exits 1 when one's production tree holds a forbidden name, its source
+// imports the engine, or an export reaches it. dev and the workspace root only report.
 //
 //   node scripts/dep-guard.mjs [--json]
 //
@@ -23,6 +24,13 @@ export const FORBIDDEN = [
   'vitest',
 ]
 const ENGINE = '@wildshard/engine'
+/** The packages a shard build installs: none may reach the engine or the dev tools (SP11, Q36). */
+export const LEAN = [
+  '@wildshard/build',
+  '@wildshard/kit',
+  '@wildshard/sdk',
+  '@wildshard/upload',
+]
 const PRODUCTION = new Set(['dependencies', 'optionalDependencies'])
 
 const unquote = text =>
@@ -278,6 +286,19 @@ export function guardReport(root) {
     })
 }
 
+/** SP11: one line per way a lean package breaks the guard; empty when every lean package is clean. */
+export function guardFailures(report) {
+  return report
+    .filter(row => LEAN.includes(row.name))
+    .flatMap(row => [
+      ...row.forbidden.map(name => `${row.name}: production tree holds ${name}`),
+      ...row.engineFiles.map(
+        file => `${row.name}: ${relative('.', file)} imports ${ENGINE}`,
+      ),
+      ...row.engineExports.map(key => `${row.name}: export ${key} reaches ${ENGINE}`),
+    ])
+}
+
 if (
   process.argv[1] !== undefined &&
   resolve(process.argv[1]) === fileURLToPath(import.meta.url)
@@ -304,8 +325,14 @@ if (
       )
       for (const key of row.engineExports) console.log(`    ${key}`)
     }
-    console.log(
-      'dep-guard: report mode (SP1); nothing fails yet (SP11 makes it strict)',
-    )
   }
+  const failures = guardFailures(report)
+  for (const line of failures) console.error(`dep-guard: ${line}`)
+  if (!process.argv.includes('--json'))
+    console.log(
+      failures.length === 0
+        ? `dep-guard: ${LEAN.join(', ')} are clean (SP11)`
+        : `dep-guard: ${String(failures.length)} failures in the lean packages (SP11)`,
+    )
+  if (failures.length > 0) process.exitCode = 1
 }
