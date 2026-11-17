@@ -1,6 +1,6 @@
 // SDK-SPLIT SP13: a shard repo moves onto the split packages (meta docs/plans/SDK-SPLIT-PLAN.md, Q36). `update --pins`
 // runs it after 0.4.0's kit move (see 0.2.5.mjs for the hook's shape).
-// - The modules that left the sdk move to their new homes: the watch page, the script scenario, the map rest and the boot
+// - The modules that left the sdk move to their new homes: the watch page, the script scenario, the map rest, the native raster and the boot
 //   inventory to @wildshard/dev, the project builder to @wildshard/build; the repo pins each home it now imports.
 // - The repo pins @wildshard/cli (the `wildshard` command) beside the sdk, at the release version (D5).
 // - The engine is no longer the repo's to pin for the build: a repo whose code imports it (sim tests) keeps it as a dev
@@ -11,7 +11,7 @@ import { join, relative, resolve } from 'node:path';
 
 const SKIP = new Set(['.git', '.worktrees', 'node_modules', 'tmp', 'out', 'dist', 'build', 'public']);
 const HOMES = new Map([['bake/mapRest', 'dev'], ['watch/watch', 'dev'], ['watch/page', 'dev'], ['test/scriptScenario', 'dev'],
-  ['bootInventory', 'dev'], ['project', 'build']]);
+  ['bootInventory', 'dev'], ['bake/nativeRaster', 'dev'], ['project', 'build']]);
 const LITERAL = /(["'`])@wildshard\/(?:sdk|sharddev)\/([^"'`\s]+)\1/gu;
 const ENGINE = /["'`]@wildshard\/engine(?:\/[^"'`\s]*)?["'`]/u;
 const VERSION = /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/u;
