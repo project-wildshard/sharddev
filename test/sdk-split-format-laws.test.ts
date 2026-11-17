@@ -2,7 +2,7 @@
 // Each file below once imported a law the engine defined; SP4 moved the law into format and SP5 made the engine read it
 // there too. A file listed here may import no engine path at all, so the sdk's bake tree stays engine-free as SP7 and
 // SP8 move the rest (the SP1 dep-guard counts what is left).
-import { readFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
 
@@ -45,4 +45,17 @@ const localImports = (file: string): string[] =>
 test('SP7b: the build names no engine music; check does, at its validate step (the cook refuses unknown names too)', () => {
   expect(localImports('project.ts')).not.toContain('./engineMusic');
   expect(localImports('checkProject.ts')).toContain('./engineMusic');
+});
+
+test('SP7d: generation loads the portal proof (Rapier and the engine sim) only when a generator asks for it', async () => {
+  const text = readFileSync(resolve(ROOT, 'projectGeneration.ts'), 'utf8');
+  expect(text).not.toMatch(/^import (type )?\{[^}]*\} from '\.\/projectEntryProof'/mu);
+  const { createProjectGeneration } = await import('../src/sharddev/projectGeneration');
+  const scratch = resolve(import.meta.dirname, '..', 'tmp', 'sp7d-generation');
+  mkdirSync(scratch, { recursive: true });
+  try {
+    const context = createProjectGeneration(scratch, '0'.repeat(64), new Map(), resolve(scratch, 'cache'));
+    // The real proof parses its shard first, so a bad one refuses there: the call reached projectEntryProof lazily.
+    await expect(context.proveStaticPortalEntries({} as never, [])).rejects.toThrow();
+  } finally { rmSync(scratch, { recursive: true, force: true }); }
 });

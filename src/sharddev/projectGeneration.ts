@@ -18,7 +18,6 @@ import { compileScript } from './bake/compileScript';
 import { compileScriptV2 } from './bake/compileScriptV2';
 import { compileReturnProjectionV2 } from './returnProjectionV2';
 import { compileDeclaredDecisionScripts, compileDecisionScripts } from './buildDecisionScripts';
-import { proveStaticPortalEntries } from './projectEntryProof';
 import { readImagePixels, writeImagePixels } from './bake/image';
 import { normalizeWorldGlb } from './bake/world';
 import { createBasisEncoder } from './bake/basisEncoder';
@@ -55,6 +54,8 @@ export interface OutputProgramResult {
   readonly world?: Uint8Array;
   readonly map?: { readonly pixels: Uint8Array; readonly name?: string };
 }
+/** Actual static capsule walks and transfers, never a caller-supplied receipt (`projectEntryProof`'s result). */
+export interface StaticPortalEntryProof { readonly lanes: number; readonly steps: number; readonly portalTransfers: number }
 /** A build may return output metadata alongside the declaration it describes. Neither is written into source. */
 export interface GeneratedProject {
   readonly shard: Shardfile;
@@ -65,8 +66,9 @@ export interface GeneratedProject {
 }
 /** Build-only capabilities. No cache filename or intermediate source file enters a product. */
 export interface ProjectGenerationContext {
-  /** Always fresh: prove real static portal capsule walks and dispose their native world. */
-  proveStaticPortalEntries: typeof proveStaticPortalEntries;
+  /** Always fresh: prove real static portal capsule walks and dispose their native world (`projectEntryProof`, loaded
+   *  only when called, SP7d). */
+  proveStaticPortalEntries: (input: Shardfile, pieces: unknown) => Promise<StaticPortalEntryProof>;
   /** Decode bounded still image bytes into owned RGBA at build time; no Sharp dependency enters the author bundle. */
   readImagePixels: typeof readImagePixels;
   /** Encode a bounded RGBA raster as a deterministic lossless PNG at build time (GR9); older adapters may omit it. */
@@ -142,7 +144,10 @@ export function createProjectGeneration(project: string, programHash: string, as
     compileDecisionScripts: (input, source, moves, authored, options) => compileDeclaredDecisionScripts(input, source, moves, authored, { ...options, compileMemo: memoAssemblyScript }),
     compileDecisionRows: (input, registries, authored, options) => compileDecisionScripts(input, registries, authored, { ...options, compileMemo: memoAssemblyScript }),
     compileReturnProjection: (input, registries, authored, options) => compileReturnProjectionV2(input, registries, authored, { ...options, compileMemo: memoAssemblyScript }),
-    proveStaticPortalEntries, readImagePixels, writeImagePixels, normalizeWorldGlb,
+    // SDK-SPLIT SP7d: the portal proof runs Rapier and the engine's entry walk; it loads only when a generator asks
+    // (Nine Dragon's entry proof), so a build that never asks never loads the engine. SP8 moves it into the dev package.
+    proveStaticPortalEntries: async (input, pieces) => (await import('./projectEntryProof')).proveStaticPortalEntries(input, pieces),
+    readImagePixels, writeImagePixels, normalizeWorldGlb,
     basisEncoder: createBasisEncoder, phoneAstcKtx2, encodeGainKey: encodeGainKeyMemo, encodePortableBytes: encodePortableBytesMemo, encodeZstdBytes: encodeZstdBytesMemo, meshoptNoLarger: meshoptNoLargerMemo,
     inputFiles: prefixes => projectInputFiles(roots, prefixes, root),
     asset(bytes) {
