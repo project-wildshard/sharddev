@@ -50,6 +50,33 @@ export interface InteractOptions {
 }
 
 /**
+ * SS-GF1a1b: a lantern a player carries (format `items.rows`, a `tool` of the engine's `kit.lantern` family): its held view
+ * draws in the off hand and lights the way while it burns. Two pickups may hand over one lantern (the same `id` and the
+ * same options): a later take refills it.
+ */
+export interface ToolOptions {
+  /** `tool.` and a lower-case name, like `tool.spirit-lantern` */
+  readonly id: `tool.${string}`;
+  /** what the kit calls it (1 to 128 characters) */
+  readonly name: string;
+  readonly blurb?: string;
+  /** the held lantern's body colour, `#rrggbb` (default a brass `#b08a4a`) */
+  readonly colour?: string;
+  /** its light while it burns, 0 to 10 (default 2) */
+  readonly intensity?: number;
+  /** seconds a full lantern burns (default 120); a take refills it */
+  readonly fuelSeconds?: number;
+}
+/** SS-GF1a1b: a pickup's options: its prompt, the tool it hands over, and the quest flag its take raises. */
+export interface PickupOptions {
+  readonly label: string;
+  readonly radius: number;
+  readonly item: ToolOptions;
+  /** a quest flag the take raises for the player who takes it (declared for you) */
+  readonly flag?: string;
+}
+
+/**
  * SS-GF2a: how a mover part travels (format `movers`, a native track mover). It starts where it is built; `path` is where
  * the centre of its bounds goes next, in world metres, and it takes `seconds` from the start to the last point, at one
  * speed along the whole path. Its solids are what a player stands on, and they move with it.
@@ -116,6 +143,13 @@ export interface ShardWorld {
    * `sets` a state field, which a panel part's `shownWhen` reads: the sdk writes the field, the scene and the script.
    */
   interact: (id: string, at: Object3D, options: InteractOptions) => void;
+  /**
+   * SS-GF1a1b: a tool on a stand at `at`'s world position. Within `radius` metres the player sees `label`; using it puts
+   * `item` in their kit, lit and full (format `targets.itemActions`, a take, action 3, of a declared tool the loadout does
+   * not carry), and raises `flag` if given. A later use refills it. The sdk writes the tool, the scene, the take and the
+   * fields that show its light on the page. Needs an engine that takes a tool off its stand (SS-GF1a1a).
+   */
+  pickup: (id: string, at: Object3D, options: PickupOptions) => void;
   /**
    * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
    * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how

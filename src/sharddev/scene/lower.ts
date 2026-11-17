@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type TouchableOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type ToolOptions, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, SceneStateWrite, SceneSwing, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, ScenePickup, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -416,7 +416,7 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
   // SS-GF0: the state writes of `sets` prompts, and the panels a field shows
-  const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>();
+  const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>(), pickups: ScenePickup[] = [];
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
@@ -493,6 +493,17 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (sets !== undefined) writes.push(stateWrite(id, sets, writes));
       interactions.push({ id, at, label: prompt.label, radius: prompt.radius, scene: prompt.scene ?? id, ...(prompt.unless === undefined ? {} : { unless: prompt.unless }) });
     },
+    // SS-GF1a1b: a pickup is a use prompt whose scene (its own id) is a take of a declared tool
+    pickup: (id, at, options) => {
+      anchor('interact', id);
+      if (!(options.radius >= 0.1 && options.radius <= 8)) throw new SceneRefusalError(id, `a use prompt's radius ${options.radius} is outside 0.1 to 8 m`, 'Give it a reach in metres between 0.1 and 8');
+      if (options.label.length === 0 || options.label.length > 128) throw new SceneRefusalError(id, 'a use prompt\'s label is 1 to 128 characters', 'Shorten the label');
+      if (options.flag !== undefined && (options.flag.length === 0 || options.flag.length > 128)) throw new SceneRefusalError(id, 'a quest flag is 1 to 128 characters', 'Shorten the flag');
+      const tool = sceneTool(id, options.item), same = pickups.find((p) => p.tool.id === tool.id);
+      if (same !== undefined && JSON.stringify(same.tool) !== JSON.stringify(tool)) throw new SceneRefusalError(id, `pickup ${same.use} hands over ${tool.id} with other options`, 'Give every pickup of one tool the same item options');
+      pickups.push({ use: id, tool, ...(options.flag === undefined ? {} : { flag: options.flag }) });
+      interactions.push({ id, at, label: options.label, radius: options.radius, scene: id });
+    },
     detail: (id, mesh, options) => {
       if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');
       if (detailRequests.some((d) => d.id === id)) throw new SceneRefusalError(id, 'two detail layers share this id', 'Give every world.detail its own id');
@@ -528,6 +539,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const r3 = (n: number): number => Math.round(n * 1000) / 1000;
   const anchored: ShardScene['anchored'] = {
     ...(writes.length === 0 ? {} : { writes }),
+    ...(pickups.length === 0 ? {} : { pickups }),
     triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
     interactions: interactions.map((i) => {
       const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };
@@ -543,6 +555,18 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
 }
 
 const FIELD_NAME = /^[a-z][a-z0-9.-]{0,127}$/u, I32_MAX = 0x7fffffff;
+/** SS-GF1a1b: a pickup's tool with its defaults (the Template lantern's), refused where the format would refuse it. */
+function sceneTool(use: string, item: ToolOptions): SceneTool {
+  const { id, name } = item;
+  if (typeof id !== 'string' || !/^tool\.[a-z][a-z0-9-]{0,63}$/u.test(id)) throw new SceneRefusalError(use, `${String(id)} is not a tool id`, 'Name it like `tool.spirit-lantern`: `tool.`, then a lower-case letter, lower case, digits and dashes');
+  if (typeof name !== 'string' || name.length === 0 || name.length > 128) throw new SceneRefusalError(use, 'a tool\'s name is 1 to 128 characters', 'Give the item a short name');
+  const colour = item.colour ?? '#b08a4a', intensity = item.intensity ?? 2, fuelSeconds = item.fuelSeconds ?? 120, blurb = item.blurb ?? name;
+  if (!/^#[0-9a-fA-F]{6}$/u.test(colour)) throw new SceneRefusalError(use, `a tool's colour ${colour} is not #rrggbb`, 'Give the colour as #rrggbb');
+  if (!(intensity >= 0 && intensity <= 10)) throw new SceneRefusalError(use, `a tool's intensity ${String(intensity)} is outside 0 to 10`, 'Give it a light from 0 to 10');
+  if (!(fuelSeconds >= 0.001 && fuelSeconds <= 86400)) throw new SceneRefusalError(use, `a tool's fuelSeconds ${String(fuelSeconds)} is outside 0.001 to 86400`, 'Give it a burn time in seconds');
+  if (blurb.length > 128) throw new SceneRefusalError(use, 'a tool\'s blurb is at most 128 characters', 'Shorten the blurb');
+  return { id, name, blurb, colour, intensity, fuelSeconds };
+}
 const whole = (n: unknown, low: number): n is number => typeof n === 'number' && Number.isInteger(n) && n >= low && n <= I32_MAX;
 /** SS-GF0: one `sets` as the write it lowers to; a field keeps one scope and one kind (a flag or a count) across its uses. */
 function stateWrite(use: string, sets: SetsOptions, before: readonly SceneStateWrite[]): SceneStateWrite {

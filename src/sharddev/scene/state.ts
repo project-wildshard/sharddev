@@ -1,7 +1,7 @@
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { compileScript } from '../bake/compileScript';
 import { hashImmutableBytes } from '../immutable';
-import type { SceneStateWrite, ShardScene } from './description';
+import type { ScenePickup, SceneStateWrite, ShardScene } from './description';
 import { countMax, SceneRefusalError } from './lower';
 
 /**
@@ -18,6 +18,11 @@ import { countMax, SceneRefusalError } from './lower';
  * - **sim**: one generated ABI v0 server module (`stateModuleSource`, Brasscap `src/sources/gate.as`'s shape: read the
  *   use events, write the fields) compiled with the sdk's pinned AssemblyScript and bound to the player, so it runs once
  *   per player on their own body and a player write is theirs.
+ *
+ * SS-GF1a1b: a pickup (`world.pickup`) adds its tool (`items.rows`, a `kit.lantern` the loadout does not carry, so the
+ * engine starts it on its stand), a `hooks.scenes` row and an `itemActions` take (action 3, with its `setsFlag`), and the
+ * tool's `fuel` and `lit` as the owner's player fields projected by `itemFields`, which is how a page shows a lantern the
+ * server burns; those projections need a state lane, so a scene with pickups always has the module.
  *
  * No format change: these are the sections a data shard declares today.
  */
@@ -54,8 +59,8 @@ export async function withSceneState(shard: Shardfile, scene: ShardScene, compil
  * `extend` and the anchored rows (`withAnchored`), so it numbers past them and refuses a name declared twice.
  */
 export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: string; apply: (hash: string, bytes: Uint8Array) => Shardfile } | null {
-  const writes = scene.anchored.writes ?? [];
-  if (writes.length === 0) return null;
+  const writes = scene.anchored.writes ?? [], pickups = scene.anchored.pickups ?? [];
+  if (writes.length === 0 && pickups.length === 0) return null;
   // state: each field once, numbered past what extend declares
   const takenIds = new Set([...shard.state.shared, ...shard.state.player].map((f) => f.id));
   const names = new Set([...shard.state.shared, ...shard.state.player].map((f) => f.name));
@@ -70,10 +75,21 @@ export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: s
       : { id, name: write.field, type: 'i32', privacy, default: 0, min: 0, max: countMax(uses) } });
   }
   const field = (scope: 'player' | 'shared'): Field[] => [...declared.values()].filter((f) => f.scope === scope).map((f) => f.row);
-  const state = { ...shard.state, shared: [...shard.state.shared, ...field('shared')], player: [...shard.state.player, ...field('player')] };
+  // SS-GF1a1b: each pickup tool's fuel and light, the owner's, numbered after the written fields
+  const tools = toolRows(shard, pickups), held: Field[] = [], itemFields: { item: string; fieldId: number; property: 'fuel' | 'lit' }[] = [];
+  for (const tool of tools) {
+    const base = tool.id.slice('tool.'.length);
+    for (const [property, name] of [['fuel', `${base}.fuel`], ['lit', `${base}.lit`]] as const) {
+      if (names.has(name) || declared.has(name)) throw new SceneRefusalError(pickups.find((p) => p.tool.id === tool.id)?.use ?? tool.id, `state field ${name} is declared twice`, 'Rename the tool or the field');
+      const id = nextFree(takenIds);
+      held.push(property === 'fuel' ? { id, name, type: 'f64', privacy: 'owner', default: 1, min: 0, max: 1 } : { id, name, type: 'bool', privacy: 'owner', default: false });
+      itemFields.push({ item: tool.id, fieldId: id, property });
+    }
+  }
+  const state = { ...shard.state, shared: [...shard.state.shared, ...field('shared')], player: [...shard.state.player, ...field('player'), ...held] };
   const numeric = (list: readonly Field[]): Field[] => list.filter((f) => f.type !== 'string').sort((a, b) => a.id - b.id);
   const shared = numeric(state.shared), player = numeric(state.player);
-  if (shared.length + player.length > NUMERIC_FIELDS) throw new SceneRefusalError(writes[0]?.use ?? 'scene', `the shard declares ${shared.length + player.length} number fields, over the ${NUMERIC_FIELDS} a script reads`, 'Set fewer fields, or share one count between uses');
+  if (shared.length + player.length > NUMERIC_FIELDS) throw new SceneRefusalError(writes[0]?.use ?? pickups[0]?.use ?? 'scene', `the shard declares ${shared.length + player.length} number fields, over the ${NUMERIC_FIELDS} a script reads`, 'Set fewer fields, or share one count between uses');
   // the ABI input: tick, dt, command, entity, token, role, the two counts, then shared and player values by id
   const written = new Map([...declared.values()].map(({ row, scope }) => {
     const slot = scope === 'shared' ? 8 + shared.findIndex((s) => s.id === row.id) : 8 + shared.length + player.findIndex((p) => p.id === row.id);
@@ -88,6 +104,12 @@ export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: s
     return { type: nextFree(types), field: target, write };
   });
   const scenes = uses.map((use) => ({ id: use.write.use, type: use.type, value: 1 }));
+  // SS-GF1a1b: a pickup's scene is the server kit's take (action 3), never the module's
+  for (const pickup of pickups) {
+    if (sceneIds.has(pickup.use)) throw new SceneRefusalError(pickup.use, `extend declares scene ${pickup.use} too`, 'Declare it once: drop the scene from extend, or rename the pickup');
+    scenes.push({ id: pickup.use, type: nextFree(types), value: 3 });
+  }
+  const itemActions = pickups.map((p) => ({ scene: p.use, item: p.tool.id, action: 3 as const, ...(p.flag === undefined ? {} : { setsFlag: p.flag }) }));
   // a shared use with no `unless` of the author's is spent while its field holds what it would write
   const interactions = shard.targets.interactions.map((row) => {
     const use = uses.find((u) => u.write.use === row.id);
@@ -116,13 +138,30 @@ export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: s
     return {
       ...shard, state,
       hooks: { conditions: [...shard.hooks.conditions, ...conditions], scenes: [...shard.hooks.scenes, ...scenes] },
-      targets: { ...shard.targets, interactions, panels: [...shard.targets.panels, ...panels] },
+      targets: { ...shard.targets, interactions, panels: [...shard.targets.panels, ...panels],
+        ...(pickups.length === 0 ? {} : { itemActions: [...shard.targets.itemActions ?? [], ...itemActions], itemFields: [...shard.targets.itemFields ?? [], ...itemFields] }) },
+      ...(tools.length === 0 ? {} : { items: { ...shard.items, rows: [...shard.items.rows, ...tools] } }),
       sim: { ...shard.sim, scripts: [...shard.sim.scripts, hash], bindings: [...shard.sim.bindings ?? [], { module: hash, entity: PLAYER_HANDLE, actorId: PLAYER_ACTOR, kind: 'server' as const }] },
       files: [...shard.files, file].sort((a, b) => a.hash.localeCompare(b.hash)), critical: [...new Set([...shard.critical, hash])],
       budgets: { ...shard.budgets, sim: { resident: shard.budgets.sim.resident + resident, compressed: shard.budgets.sim.compressed + bytes.length } },
       serverBudget: { ...shard.serverBudget, memory: shard.serverBudget.memory + resident },
     };
   } };
+}
+
+type ToolRow = Extract<Shardfile['items']['rows'][number], { kind: 'tool' }>;
+/** SS-GF1a1b: each pickup's tool once, as the Template's lantern row (no script hook: the server kit burns it). */
+function toolRows(shard: Shardfile, pickups: readonly ScenePickup[]): ToolRow[] {
+  const rows = new Map<string, ToolRow>();
+  for (const { use, tool } of pickups) {
+    if (rows.has(tool.id)) continue;
+    if (shard.items.rows.some((row) => row.id === tool.id)) throw new SceneRefusalError(use, `extend declares item ${tool.id} too`, 'Declare it once: drop the row from extend, or rename the pickup\'s tool');
+    rows.set(tool.id, { id: tool.id, kind: 'tool', family: 'kit.lantern', ui: { name: tool.name, icon: 'glyph', swapIcon: '', blurb: tool.blurb },
+      view: { recipe: 'kit.lantern', colour: tool.colour, position: [-0.3, -0.3, -0.55], rotation: [0, 0, 0] }, hook: null,
+      // a declared lantern keeps its numeric toggle path; no key binds it, so the stand's take is the only way it lights
+      action: `${tool.id.slice('tool.'.length)}.light`, fuelSeconds: tool.fuelSeconds, intensity: tool.intensity });
+  }
+  return [...rows.values()];
 }
 
 /**

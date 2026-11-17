@@ -314,9 +314,15 @@ export interface SceneInteraction { readonly id: string; readonly at: Vec3; read
  */
 export type SceneStateWrite = { readonly use: string; readonly field: string; readonly scope: 'player' | 'shared'; readonly kind: 'bool' | 'count' }
   & ({ readonly value: number } | { readonly add: number; readonly max: number });
+/** SS-GF1a1b: a tool a pickup hands over, its defaults filled. */
+export interface SceneTool { readonly id: `tool.${string}`; readonly name: string; readonly blurb: string; readonly colour: string; readonly intensity: number; readonly fuelSeconds: number }
+/** SS-GF1a1b: a pickup (`world.pickup`): `use` is its interaction's id (and its scene's), `flag` the quest flag its take raises. */
+export interface ScenePickup { readonly use: string; readonly tool: SceneTool; readonly flag?: string }
 export interface SceneAnchored {
   readonly triggers: readonly SceneTrigger[];
   readonly interactions: readonly SceneInteraction[];
+  /** SS-GF1a1b: the pickups, in the order they were declared; absent or empty: none */
+  readonly pickups?: readonly ScenePickup[];
   /** SS-GF0: the state writes of `sets` prompts, in the order they were declared; absent or empty: none */
   readonly writes?: readonly SceneStateWrite[];
 }
