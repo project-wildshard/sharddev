@@ -3,8 +3,8 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { TestContext } from 'node:test'
 
-import { heroState } from '../../cli/hero/stamp.ts'
-import { writeShardfile } from '../../cli/shardfile/shardfile.ts'
+import { heroState } from '../../../packages/upload/src/cli/hero/stamp.ts'
+import { writeShardfile } from '../../../packages/upload/src/cli/shardfile/shardfile.ts'
 import { shardfileFiles } from './shardfile.ts'
 
 // A shard project for the hero tests (src/cli/hero): `<root>/src/shards/<name>`

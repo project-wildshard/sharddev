@@ -14,7 +14,7 @@ import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the source and format's package.
 import { dirname, resolve } from 'node:path';
 import { readTar } from '@wildshard/format/tar';
-import { SHARD_INDEX } from './shardSource';
+import { SHARD_INDEX } from '../../packages/upload/src/sharddev/shardSource';
 
 // The bundled CLI defines import.meta.dirname as the package's src/sharddev, so the package root is two up.
 const SDK_ROOT = resolve(import.meta.dirname, '../..');

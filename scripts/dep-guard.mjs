@@ -2,7 +2,8 @@
 // SDK-SPLIT SP1 (meta docs/plans/SDK-SPLIT-PLAN.md): the dependency guard, in report mode. For each workspace package in
 // pnpm-lock.yaml it prints which of FORBIDDEN its production tree holds (dependencies and optionalDependencies, followed
 // through the lockfile's snapshots and through `link:` workspace packages; devDependencies are not shipped), which source
-// files import `@wildshard/engine`, and which of the package's exports reach such a file through relative imports.
+// files import `@wildshard/engine`, which relative imports leave a workspace package (SP2a), and which of the package's
+// exports reach such a file through relative imports.
 // Report only: it exits 0 whatever it finds. SP11 makes it strict.
 //
 //   node scripts/dep-guard.mjs [--json]
@@ -117,6 +118,19 @@ export function engineImporters(root, folders) {
     .sort()
 }
 
+/**
+ * The relative imports in the non-test source files under `folders` that resolve outside `root`, as `file -> specifier`,
+ * sorted (SP2a): a workspace package ships alone, so its code may not reach into a sibling or the repo root.
+ */
+export function escapingImports(root, folders) {
+  return folders.flatMap(folder => walk(root, folder)).flatMap(path =>
+    specifiers(readFileSync(join(root, path), 'utf8'))
+      .filter(specifier => specifier.startsWith('.'))
+      .filter(specifier => posix.normalize(posix.join(posix.dirname(path), specifier)).startsWith('../'))
+      .map(specifier => `${path} -> ${specifier}`),
+  ).sort()
+}
+
 /** A relative specifier's file, trying the extensions and index files Node and TypeScript accept. */
 function resolveRelative(root, from, specifier) {
   const base = posix.normalize(posix.join(posix.dirname(from), specifier))
@@ -167,6 +181,7 @@ export function guardReport(root) {
       name: manifest.name,
       forbidden: FORBIDDEN.filter(name => tree.has(name)),
       engineFiles: engineImporters(folder, sources),
+      escapes: importer === '.' ? [] : escapingImports(folder, sources),
       engineExports: engineExports(folder, manifest.exports ?? {}),
     }
   })
@@ -182,6 +197,8 @@ if (process.argv[1] !== undefined && resolve(process.argv[1]) === fileURLToPath(
       console.log(`  production tree holds: ${row.forbidden.length === 0 ? 'none of the forbidden names' : row.forbidden.join(', ')}`)
       console.log(`  ${String(row.engineFiles.length)} source files import ${ENGINE}`)
       for (const file of row.engineFiles) console.log(`    ${relative('.', file)}`)
+      console.log(`  ${String(row.escapes.length)} imports leave the package`)
+      for (const escape of row.escapes) console.log(`    ${escape}`)
       console.log(`  ${String(row.engineExports.length)} exports reach ${ENGINE}`)
       for (const key of row.engineExports) console.log(`    ${key}`)
     }

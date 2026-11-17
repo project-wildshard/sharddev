@@ -26,10 +26,10 @@ import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
 import { updateShardRepo } from './agentFiles';
 import { updatePins } from './updatePins';
-import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
+import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
-import { refusalCode, refusalHint, refusalNote, type RefusalStep } from './refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {

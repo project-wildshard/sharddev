@@ -7,7 +7,7 @@ import {readFileSync} from 'node:fs';
 const files=process.argv.slice(2).filter(file=>file!=='--');
 const manifest=JSON.parse(readFileSync(new URL('../test/ci21-sdk-tail.json',import.meta.url),'utf8'));
 const ports=[...manifest.files.map(file=>file.targetPath),...manifest.supportPaths];
-const author=file=>/^src\/(?:sharddev|commons|shards)\//u.test(file);
+const author=file=>/^(?:src\/(?:sharddev|commons|shards)|packages\/upload\/src\/sharddev)\//u.test(file);
 const jobs=files.length===0?[['lint:kit',[]],['lint:author',[]]]:
   [['lint:kit',files.filter(file=>!author(file))],['lint:author',files.filter(author)]].filter(([,paths])=>paths.length>0);
 if(files.length===0)jobs.push(['lint:ci21',[]]);

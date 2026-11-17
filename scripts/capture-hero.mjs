@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // `wildshard hero <shard-dir> --base <served-build-url>`: capture a shard's hero (its SHARD SELECT card) from a served
 // build of this exact candidate, write it over the card files the manifest names, and stamp `hero.json` with the
-// content it shows. `wildshard build` refuses a cut whose stamp no longer matches the content (src/cli/hero/hero.ts).
+// content it shows. `wildshard build` refuses a cut whose stamp no longer matches the content (packages/upload/src/cli/hero/hero.ts).
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the templates."
 //
 // Serve the candidate first: `wildshard dev .` (SA17; its page enters the shard by `?skipintro`), or an engine build
@@ -19,9 +19,9 @@
 // only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { heroSlotFiles, writeHeroStamp } from '../src/cli/hero/stamp.ts';
+import { heroSlotFiles, writeHeroStamp } from '../packages/upload/src/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
-import { findShardSource, shardFolderName, shardRepoRoot } from '../src/sharddev/shardSource.ts';
+import { findShardSource, shardFolderName, shardRepoRoot } from '../packages/upload/src/sharddev/shardSource.ts';
 
 const SCALE = 2;
 const VIEWS = { portrait: { width: 402, height: 813 }, landscape: { width: 800, height: 450 }, thumb: { width: 320, height: 180 } };

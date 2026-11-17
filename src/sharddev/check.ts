@@ -4,7 +4,7 @@
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import { diagnosticNow } from '@wildshard/engine/core/clock';
 import { authorErrorText } from './authorError';
-import { refusalCode, refusalHint, refusalNote, type RefusalStep } from './refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
 
 /** The five steps, in the order they run. */
 export type CheckStepName = 'lint' | 'build' | 'validate' | 'prove' | 'report';

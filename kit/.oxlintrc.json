@@ -146,6 +146,7 @@
         "test/**",
         "e2e/**",
         "cook/**",
+        "**/packages/*/src/cli/**", // SDK-SPLIT SP2a: the CLI's packages are Node programs too
         "**/*.test.ts",
         "*.config.ts",
         "**/*.config.ts"

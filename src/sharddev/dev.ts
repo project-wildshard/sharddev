@@ -5,7 +5,7 @@ import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, r
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
 import { buildProject } from './project';
-import { shardRepoRoot } from './shardSource';
+import { shardRepoRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '../../scripts/scratch-dir.mjs';
 

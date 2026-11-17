@@ -5,7 +5,7 @@ import { object, parse, string } from 'valibot'
 
 import { sendJson } from './http-double.ts'
 
-import type { UploadState } from '../../cli/upload/wire.ts'
+import type { UploadState } from '../../../packages/upload/src/cli/upload/wire.ts'
 import type { Reply } from './upload-commit.ts'
 
 interface AsyncUploads {

@@ -6,6 +6,12 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
 import {
+  field,
+  heroState,
+  readJson,
+  writeHeroStamp,
+} from '../../../packages/upload/src/cli/hero/stamp.ts'
+import {
   BASE,
   SVG,
   cut,
@@ -13,7 +19,6 @@ import {
   stateOf,
 } from '../../test/helpers/hero-project.ts'
 import { stampExistingHero } from './adopt.ts'
-import { field, heroState, readJson, writeHeroStamp } from './stamp.ts'
 
 import type { Project } from '../../test/helpers/hero-project.ts'
 

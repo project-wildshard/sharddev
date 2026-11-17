@@ -20,7 +20,7 @@ const SDK = '9.8.7'
 // them, or as this sharddev does when the shard has none installed.
 
 const SHA = 'a'.repeat(40)
-const ROOT = new URL('../../../', import.meta.url)
+const ROOT = new URL('../../../../../', import.meta.url)
 
 async function installed(name: string): Promise<string> {
   const file = new URL(`node_modules/${name}/package.json`, ROOT)

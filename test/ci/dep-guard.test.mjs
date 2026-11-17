@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { describe, it } from 'node:test'
 
 import {
   FORBIDDEN,
   engineExports,
   engineImporters,
+  escapingImports,
+  guardReport,
   parseLock,
   productionTree,
 } from '../../scripts/dep-guard.mjs'
@@ -131,8 +134,20 @@ describe('dep-guard', () => {
         './e': './src/e.ts',
       }
       assert.deepEqual(engineExports(root, exports), ['./a', './b', './e'])
+      write('src/f.ts', "import { y } from '../../src/y.ts'\nimport { z } from './sub/../z.ts'\n")
+      assert.deepEqual(escapingImports(root, ['src']), ['src/f.ts -> ../../src/y.ts'])
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+
+  it('reports packages/upload clean and self-contained (SP2a)', () => {
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const upload = guardReport(repo).find(row => row.importer === 'packages/upload')
+    assert.ok(upload, 'packages/upload is a workspace package in pnpm-lock.yaml')
+    assert.equal(upload.name, '@wildshard/upload')
+    assert.deepEqual(upload.forbidden, [])
+    assert.deepEqual(upload.engineFiles, [])
+    assert.deepEqual(upload.escapes, [])
   })
 })

@@ -3,7 +3,7 @@ import { existsSync, readFileSync, statSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author build reads the shard's folder and public/.
 import { resolve } from 'node:path';
 import * as v from 'valibot';
-import { shardRepoRoot } from './shardSource';
+import { shardRepoRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { AudioWaiverSchema, type AudioWaiver } from '@wildshard/format/audioWaiver';
 
 /** C0 (J137): what a product carries so it stands alone. The list is the shard's `mounts.json`, per output

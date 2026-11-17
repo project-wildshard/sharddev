@@ -5,11 +5,11 @@ import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { runCli } from './cli';
 import { newProject } from './project';
-import { findShardSource, shardFolderName, shardOutputRoot } from './shardSource';
+import { findShardSource, shardFolderName, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { checkProject } from './checkProject';
 import { validateOutputProduct } from './outputProduct';
 import { writeShardRepo } from './newProject';
-import { REFUSAL_RULES } from './refusals';
+import { REFUSAL_RULES } from '../../packages/upload/src/sharddev/refusals';
 
 // SA16 (J314, J317): `wildshard new <dir> [--template sdk]` writes a whole single-shard repo, its shard source at
 // `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written. SS5

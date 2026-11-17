@@ -5,11 +5,11 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { uploadShardfile } from '../cli/upload/upload.ts'
+import { uploadShardfile } from '../../packages/upload/src/cli/upload/upload.ts'
 import { makeShardfile } from '../test/helpers/shardfile.ts'
 import { openUploadServer } from '../test/helpers/upload-server.ts'
 
-import type { UploadOutcome } from '../cli/upload/upload.ts'
+import type { UploadOutcome } from '../../packages/upload/src/cli/upload/upload.ts'
 
 // A format break (J173): bytes the server holds and now refuses must not
 // read as "already stored" to the author. CI only (J186).

@@ -1,0 +1,18 @@
+{
+  "name": "@wildshard/upload",
+  "version": "0.0.0",
+  "private": true,
+  "description": "wildshard upload, account, delete and the shard file writer: the engine-free half of the CLI (SDK-SPLIT SP2a). Private until SP12; @wildshard/sdk ships this source by relative path meanwhile.",
+  "type": "module",
+  "engines": {
+    "node": ">=24.18.0"
+  },
+  "files": [
+    "src",
+    "!src/**/*.test.*"
+  ],
+  "dependencies": {
+    "@wildshard/format": "npm:@wildshard/shard-format@0.13.0",
+    "valibot": "1.5.0"
+  }
+}

@@ -4,8 +4,7 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { brotliDecompressSync } from 'node:zlib'
 
-import { refusalNote } from '../../sharddev/refusals.ts'
-import { sha256 } from '../../test/helpers/shardfile.ts'
+import { sha256 } from '../../../../../src/test/helpers/shardfile.ts'
 import {
   BUILT_WITH,
   COMMIT,
@@ -14,7 +13,8 @@ import {
   onlyPut,
   open,
   upload,
-} from '../../test/helpers/upload-run.ts'
+} from '../../../../../src/test/helpers/upload-run.ts'
+import { refusalNote } from '../../sharddev/refusals.ts'
 import { validateShardfile } from './validate.ts'
 
 // The whole client against a real HTTP double: real Brotli, real Ed25519,

@@ -4,7 +4,8 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { refusalNote } from '../../sharddev/refusals.ts'
+import { writeHeroStamp } from '../../../packages/upload/src/cli/hero/stamp.ts'
+import { refusalNote } from '../../../packages/upload/src/sharddev/refusals.ts'
 import {
   BASE,
   SVG,
@@ -12,7 +13,6 @@ import {
   project,
   stateOf,
 } from '../../test/helpers/hero-project.ts'
-import { writeHeroStamp } from './stamp.ts'
 
 import type { Project } from '../../test/helpers/hero-project.ts'
 

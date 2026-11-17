@@ -1,0 +1,4 @@
+{
+  "extends": "../../kit/tsconfig.json",
+  "include": ["src"]
+}

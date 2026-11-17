@@ -4,10 +4,14 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { keyFileIn, runCli, scratchHome } from '../../test/helpers/cli-run.ts'
-import { openUploadServer } from '../../test/helpers/upload-server.ts'
+import {
+  keyFileIn,
+  runCli,
+  scratchHome,
+} from '../../../../../src/test/helpers/cli-run.ts'
+import { openUploadServer } from '../../../../../src/test/helpers/upload-server.ts'
 
-import type { CliRun } from '../../test/helpers/cli-run.ts'
+import type { CliRun } from '../../../../../src/test/helpers/cli-run.ts'
 
 // Meta SHARD-DELETE DEL6: `wildshard account <email>` makes the account
 // (DEL4's one call) and keeps its key in ~/.config/wildshard/sharddev-key,

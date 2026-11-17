@@ -4,7 +4,7 @@ import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
 import { writeEmptyShardSource } from './newProject';
-import { shardFolderName, shardOutputRoot, shardRepoRoot } from './shardSource';
+import { shardFolderName, shardOutputRoot, shardRepoRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { clientPage } from './clientPage';
 import { assertConfigBoundary } from './configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from './projectGeneration';

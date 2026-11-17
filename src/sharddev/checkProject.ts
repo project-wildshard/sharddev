@@ -13,14 +13,14 @@ import { checkShardfile } from '@wildshard/engine/host/checkShardfile';
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { buildProject } from './project';
-import { isHandwrittenSource, isRepoSource, shardOutputRoot } from './shardSource';
+import { isHandwrittenSource, isRepoSource, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
 import { handwrittenIdentity, settleHandwritten } from './handwritten';
 import { validateOutputProduct } from './outputProduct';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import type { ProjectManifestSource } from './projectManifest';
 import { authorErrorText } from './authorError';
-import { refusalCode } from './refusals';
-import { DRAFT_SDK, draftMessage } from './draft';
+import { refusalCode } from '../../packages/upload/src/sharddev/refusals';
+import { DRAFT_SDK, draftMessage } from '../../packages/upload/src/sharddev/draft';
 import { authorLintPlan } from './authorLint';
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */

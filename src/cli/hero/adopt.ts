@@ -10,7 +10,7 @@ import {
   isMissing,
   readJson,
   writeHeroStamp,
-} from './stamp.ts'
+} from '../../../packages/upload/src/cli/hero/stamp.ts'
 
 // `wildshard hero <shard> --stamp-existing`: a shard repo gains the hero check
 // (stamp.ts) when it bumps its sharddev pin, with curated heroes and no stamp.

@@ -1,14 +1,21 @@
 #!/usr/bin/env node
 
+import {
+  runAccount,
+  runDelete,
+  runWhoami,
+} from '../../packages/upload/src/cli/account/command.ts'
+import { parseCliArgs } from '../../packages/upload/src/cli/args.ts'
+import {
+  runPack,
+  runShardfile,
+} from '../../packages/upload/src/cli/shardfile/command.ts'
+import { runUpload } from '../../packages/upload/src/cli/upload/command.ts'
 import { serve } from '../server/serve.ts'
-import { runAccount, runDelete, runWhoami } from './account/command.ts'
-import { parseCliArgs } from './args.ts'
 import { USAGE, verbHelp } from './help.ts'
-import { runPack, runShardfile } from './shardfile/command.ts'
-import { runUpload } from './upload/command.ts'
 import { readVersion, readVersionChain } from './version.ts'
 
-import type { CliArgs } from './args.ts'
+import type { CliArgs } from '../../packages/upload/src/cli/args.ts'
 
 const EXIT_OK = 0
 const EXIT_USAGE = 1

@@ -5,11 +5,14 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { TestContext } from 'node:test'
 
-import { uploadShardfile } from '../../cli/upload/upload.ts'
+import { uploadShardfile } from '../../../packages/upload/src/cli/upload/upload.ts'
 import { makeShardfile } from './shardfile.ts'
 import { openUploadServer } from './upload-server.ts'
 
-import type { UploadOptions, UploadOutcome } from '../../cli/upload/upload.ts'
+import type {
+  UploadOptions,
+  UploadOutcome,
+} from '../../../packages/upload/src/cli/upload/upload.ts'
 import type { UploadServer } from './upload-server.ts'
 
 // One upload run against the HTTP double: the fixture product re-stamped
