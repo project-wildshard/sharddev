@@ -154,9 +154,10 @@ export interface ShardWorld {
    * SS-MS1b: a timed run (format `quests.races`). Each player's clock starts when quest flag `start` rises (a trigger at the
    * start gate) and stops when `stop` rises; the finish files `fact` (default `id`) and the page shows the time and the best.
    * Past `cap` seconds (whole, 1 to 3600; default 600) the run lapses. Both flags drop after a finish or a lapse, so the run can
-   * be run again. Needs an engine with the race clock (SS-MS1a2, SS-MS1a3).
+   * be run again, and so do `resets` (SS-MS1c: the middle gates' flags, so a second run counts them again; 1 to 64, not the
+   * start or stop). Needs an engine with the race clock (SS-MS1a2, SS-MS1a3), and one that lowers resets (SS-MS1c).
    */
-  race: (id: string, options: { start: string; stop: string; fact?: string; cap?: number }) => void;
+  race: (id: string, options: { start: string; stop: string; fact?: string; cap?: number; resets?: readonly string[] }) => void;
   /**
    * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
    * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how

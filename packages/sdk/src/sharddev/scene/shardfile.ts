@@ -879,8 +879,8 @@ export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(
   // SS-GF1a1b: so is a pickup's
   const raised = (anchored.pickups ?? []).flatMap((p) => p.flag === undefined || flags.includes(p.flag) ? [] : [p.flag]);
   for (const flag of raised) if (!flags.includes(flag)) flags.push(flag);
-  // SS-MS1b: and a race's two
-  const timed = races.flatMap((r) => [r.start, r.stop]).filter((flag) => !flags.includes(flag));
+  // SS-MS1b: and a race's two, and its resets (SS-MS1c)
+  const timed = races.flatMap((r) => [r.start, r.stop, ...r.resets ?? []]).filter((flag) => !flags.includes(flag));
   for (const flag of timed) if (!flags.includes(flag)) flags.push(flag);
   const targets = (shard.targets ?? { panels: [], interactions: [] }) as { interactions?: readonly { id: string }[] };
   const twice = (rows: readonly { id: string }[], added: readonly { id: string }[], what: string): void => {

@@ -7,7 +7,7 @@ settings:
 overrides:
   binaryen: npm:@pre-bundled/binaryen@132.0.0-patch-1
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
-  '@wildshard/format': npm:@wildshard/shard-format@0.18.0
+  '@wildshard/format': npm:@wildshard/shard-format@0.19.0
 
 packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 
@@ -92,8 +92,8 @@ importers:
         specifier: 0.1.35
         version: 0.1.35(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
-        specifier: npm:@wildshard/shard-format@0.18.0
-        version: '@wildshard/shard-format@0.18.0(typescript@6.0.3)'
+        specifier: npm:@wildshard/shard-format@0.19.0
+        version: '@wildshard/shard-format@0.19.0(typescript@6.0.3)'
       '@wildshard/kit':
         specifier: workspace:*
         version: link:../kit
@@ -168,8 +168,8 @@ importers:
   packages/upload:
     dependencies:
       '@wildshard/format':
-        specifier: npm:@wildshard/shard-format@0.18.0
-        version: '@wildshard/shard-format@0.18.0(typescript@6.0.3)'
+        specifier: npm:@wildshard/shard-format@0.19.0
+        version: '@wildshard/shard-format@0.19.0(typescript@6.0.3)'
       valibot:
         specifier: 1.5.0
         version: 1.5.0(typescript@6.0.3)
@@ -676,8 +676,8 @@ packages:
     engines: {node: '>=24.18.0'}
     hasBin: true
 
-  '@wildshard/shard-format@0.18.0':
-    resolution: {integrity: sha512-rcF8JQ2VizYMqry50rhuuh8kEpsI47nrWIqj1/T7pSjo5L2yka7XrlWvYUvbIiev3qrAIKH69LGRNCkV9MFbcQ==}
+  '@wildshard/shard-format@0.19.0':
+    resolution: {integrity: sha512-OngbujKJr6bqdFvE+q0Qb0oLmpEkqDQM7ZzFozGHNC90n++C/0RN3l8iuvMr3Q2ztqTgqvGpG89RlFZmJGjXRA==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -1705,7 +1705,7 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@6.0.3))
-      '@wildshard/format': '@wildshard/shard-format@0.18.0(typescript@6.0.3)'
+      '@wildshard/format': '@wildshard/shard-format@0.19.0(typescript@6.0.3)'
       '@wildshard/wire': 0.1.0(typescript@6.0.3)
       ajv: 6.15.0
       fflate: 0.8.3
@@ -1737,7 +1737,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@wildshard/shard-format@0.18.0(typescript@6.0.3)':
+  '@wildshard/shard-format@0.19.0(typescript@6.0.3)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@6.0.3)
