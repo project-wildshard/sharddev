@@ -75,7 +75,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
 | `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> [--base <url>]` | Record the built folder in phone WebKit against engine's preparation client (or the exact engine preview `--base` names), which turns a draft into the uploadable form (see "Uploading") |
-| `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
+| `wildshard validate <source \| folder>` | Shard-format's checks and the static budgets, alone; `check` runs the headless budget run |
 | `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened ("Proof tapes" below) |
 | `wildshard prove <source> <walk.mjs> --base <url>` | Play a walk proof on a `dev` page in headless Chromium: walk to an NPC, talk, answer, fight, and assert the flags and quest steps the server says ("Walk proofs" below) |
 | `wildshard synth <source>` | Run `shard.config.ts`'s `scene` and `identity` exports (an older scene form) and write the scene as data. A `defineShard` scene shard (section 2b) needs no synth: `check` builds it and `watch` shows it |

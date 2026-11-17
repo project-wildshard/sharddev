@@ -8,7 +8,7 @@ import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
 import { watchProject } from './watch/watch';
 import { devClient } from './devClient';
-import { proveAuthorSimulation, measureSimulation, validateSimulation } from '@wildshard/engine/host/headless';
+import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
 import { performanceReport, performanceReportLines, type PerformanceObservations } from './reportCard';
 import { projectPerformancePolicy } from './performancePolicy';
 import { readBoundedFile } from './sourceReader';
@@ -32,17 +32,16 @@ import { checkLines } from './check';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
-function printReport(shard: Shardfile, observed: PerformanceObservations, policy: 'warn' | 'refuse'): void {
-  const report = performanceReport(shard, observed, policy);
+/** The performance report's static half (declared bounds, downloads, memory): every refusal stands except the missing
+ *  execution samples, which `wildshard check` measures (SP7c). */
+function printStaticReport(shard: Shardfile, policy: 'warn' | 'refuse'): void {
+  const report = performanceReport(shard, unmeasured, policy);
   for (const line of performanceReportLines(report)) console.info(line);
-  if (observed.scripts.samples > 0) console.info('script CPU estimate: 60 warm-up ticks; minimum p95 of three 60-tick windows; raw maxima and all fuel retained');
-  if (!report.pass) throw new Error('Performance report refused this shard');
+  if (report.issues.some(issue => issue.severity === 'refusal' && issue.code !== 'perf-script-samples-missing')) throw new Error('Performance report refused this shard');
 }
-async function admitBuild(shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> {
-  // Native hybrids need their trusted recipes for a meaningful proof; never invent a fake native measurement.
-  if (shard.runtime !== null) { printReport(shard, unmeasured, policy); return; }
-  printReport(shard, await measureSimulation(shard, assets, undefined, sections), policy);
-}
+/** SDK-SPLIT SP7c (D3): build and validate run no simulation. `wildshard check` runs the engine's own full check (the cook's,
+ *  SP19), which measures script CPU and walks every entry on this host; this line says so where the measure used to print. */
+const SIMULATION_ELSEWHERE = 'simulation, script CPU and entry walk: not run by build or validate; wildshard check runs them (the engine\'s own check, as the upload cook does)';
 /** SA3: writes a built folder's shard file (hero check against `source`, format and audio checks) and returns its path;
  * scripts/wildshard.mjs gives it. `draftWarning: false` leaves the draft warning (J198) to the caller. */
 export type ShardfileWriter = (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string>;
@@ -177,7 +176,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     if (unknownFlag !== undefined) throw new Error(`unknown build flag: ${unknownFlag}`);
     if (flags.filter(flag => flag.startsWith('--output=')).length > 1 || flags.length !== new Set(flags).size || flags.filter(flag => flag.startsWith('--map=')).length > 1 || flags.filter(flag => flag.startsWith('--map-tiles-hash=')).length > 1 || flags.filter(flag => flag.startsWith('--generated-map-tiles-hash=')).length > 1 || mapSourceHash !== undefined && mapPath !== undefined || ((mapPath === undefined) !== (tilesHash === undefined))) throw new Error('unknown or incomplete build map flag');
     const map = mapPath === undefined || tilesHash === undefined ? undefined : { bytes: readBoundedFile(resolve(mapPath), STILL_IMAGE_LIMITS.bytes), tilesHash };
-    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: admitBuild }); console.info(`built ${shard.identity.slug} v${shard.version}`);
+    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders') }); console.info(`built ${shard.identity.slug} v${shard.version}`);
     if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(shardOutputRoot(resolve(input)), 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
     return;
   }
@@ -200,10 +199,10 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       // P1-F3 (a): format validation, @wildshard/format/productValidation alone (schema, inventory, hashes, budgets, admission rows).
       const checked = validateOutputProduct(folder);
       printSpawnWarnings(checked.shard);
-      // P1-F3 (b): execution proof. G491: validation.json contains static build evidence, never authority
-      // for current script CPU. Execute the admitted bytes again on this host.
-      await admitBuild(checked.shard, checked.assets, checked.shard.runtime === null ? 'refuse' : 'warn', checked.sections);
-      console.info(`validated ${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas`); return;
+      // P1-F3 (b), the execution proof, is `wildshard check`'s (SP7c). G491 holds there: validation.json is static build
+      // evidence, never authority for current script CPU; check executes the admitted bytes again on this host.
+      console.info(`validated ${checked.shard.identity.slug}: format 2 inventory, byte kinds and section schemas`);
+      console.info(SIMULATION_ELSEWHERE); return;
     }
     const { shard, assets, output: extensions } = await readProjectAssets(resolve(input), undefined, options.manifest, options);
     const scripts = outputScriptAdmissionRows(extensions.platform), contracts = decisionModuleContracts(scripts, shard.files);
@@ -216,12 +215,10 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       const estimate = assetOverdraw(kind, bytes, kind === 'wasm' ? contracts.get(hash) ?? { abi: 0 } : undefined); layers += estimate.layers; blended += estimate.blendedLayers; masked += estimate.maskedLayers;
     }
     console.info(`advisory asset raster layers: ${layers.toFixed(2)} total, ${blended.toFixed(2)} blended, ${masked.toFixed(2)} alpha-tested (primitive bounds; before culling/occlusion, not measured screen overdraw)`);
-    if (shard.runtime !== null) { printReport(shard, unmeasured, policy); console.info(`validated ${shard.identity.slug} v${shard.version}: native execution/entries UNMEASURED (trusted browser proof required)`); return; }
-    const proof = await validateSimulation(shard, assets, outputPlatformPayloads(extensions.platform));
-    printReport(shard, proof, policy);
-    console.info(`validated ${shard.identity.slug} v${shard.version}: ${proof.ticks} sim ticks, ${proof.lanes} edge lanes, ${proof.steps} capsule steps`);
-    console.info(`advisory tick timing (${proof.timing.samples} samples): median ${proof.timing.medianMicros.toFixed(1)} us, max ${proof.timing.maxMicros.toFixed(1)} us, declared ${shard.serverBudget.tickMicros} us`);
-    if (proof.timing.medianMicros > shard.serverBudget.tickMicros) console.warn('advisory: measured tick median exceeds the declared runtime budget; host load is not an admission refusal');
+    // The static half of the performance report (declared bounds, downloads, memory) stays; scripts are check's to measure.
+    printStaticReport(shard, policy);
+    console.info(`validated ${shard.identity.slug} v${shard.version}: format 2 source, assets and section schemas`);
+    console.info(SIMULATION_ELSEWHERE);
     return;
   }
   throw new Error('unknown wildshard command');

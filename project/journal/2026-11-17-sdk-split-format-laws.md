@@ -19,3 +19,10 @@ SP6c: `placeholderGeometry.ts` with the `farProxy.ts` builder it wraps, and `ter
 `contentBounds` (the engine's drawn grid radius is format's `GRID_RADIUS`) and `TERRAIN_RES` is pinned to the engine's
 by `placeholder-geometry-port.test.ts`, which also checks both builders give the engine's bytes. `splatGround` keeps one
 engine read, `filePolicy` over the engine's own texture table; that is engine boot data and leaves with SP7.
+
+SP7a to SP7c: the build, check and watch phase timers are the sdk's own `diagnosticNow`; the engine music line (AU18)
+moved from `buildProject` to check's validate step; and `wildshard build` and `wildshard validate` no longer run the
+headless simulation (`admitBuild`, `validateSimulation`). Validate keeps the static half of the performance report and
+says check runs the rest; `wildshard check` runs the engine's own full check, the cook's, which re-measures script CPU on
+this host (G491). `cli-output.test.ts` proves no simulation starts for build or validate and that check refuses a fresh
+over-budget measurement despite a stale receipt.

@@ -170,8 +170,8 @@ const VERBS: Readonly<Record<string, string>> = {
                        records against an exact engine preview instead`,
   validate: `validate <source | folder | shard.json>
                        Validate a shard source, or a built shard file
-                       folder with shard-format's checks, and run it
-                       headlessly against its budgets`,
+                       folder with shard-format's checks and its static
+                       budgets (check runs it headlessly)`,
   prove: `prove <source | folder | shard.json> <proof.json>
                        Play the proof tape headlessly and print what
                        happened as JSON. check plays src/proof.json the
