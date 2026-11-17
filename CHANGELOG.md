@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.3.7 (2026-11-16)
+
+- `wildshard prove` and `check` play a stand-still proof tape on the Template again instead of refusing its Wasm imports.
+- A shard's baked map rebuilds when the sdk code that bakes it changes, not only when its own files change.
+- The sdk's species and engine types match engine 0.1.31 and shard format 0.12.0 again.
+
 ## v0.3.6 (2026-11-16)
 
 - A scene shard's lanterns can hang and swing (`hang`), and a touchable part is a body players push, like Mossgate's crate by the gate.
