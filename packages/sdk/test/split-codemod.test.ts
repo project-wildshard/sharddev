@@ -14,6 +14,7 @@ test('moved modules go to dev and build under both package names; the rest stay'
     expect(rewriteSplitImports(`import { watch } from '@wildshard/${prefix}/watch/watch';`)).toBe("import { watch } from '@wildshard/dev/watch/watch';");
     expect(rewriteSplitImports(`await import("@wildshard/${prefix}/test/scriptScenario");`)).toBe('await import("@wildshard/dev/test/scriptScenario");');
     expect(rewriteSplitImports(`import type { Project } from '@wildshard/${prefix}/project';`)).toBe("import type { Project } from '@wildshard/build/project';");
+    expect(rewriteSplitImports(`import { bundleNativeRaster } from '@wildshard/${prefix}/bake/nativeRaster';`)).toBe("import { bundleNativeRaster } from '@wildshard/dev/bake/nativeRaster';");
   }
   for (const source of ["'@wildshard/sdk/projectGeneration'", "'@wildshard/sdk/rows'", "'@wildshard/sdk/project/x'", "'@wildshard/engine/sim'"])
     expect(rewriteSplitImports(source)).toBe(source);
