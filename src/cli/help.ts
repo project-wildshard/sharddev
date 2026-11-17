@@ -188,7 +188,14 @@ const VERBS: Readonly<Record<string, string>> = {
                        { "kind": "interact", "id": "<interaction id>" }.
                        At checkpointTick prove saves, unloads and reloads
                        the cell; every required fact must be filed by the
-                       end. GUIDE.md "Proof tapes" has the rest`,
+                       end. GUIDE.md "Proof tapes" has the rest.
+       prove <source> <walk.mjs> --base <dev url>
+                       Play a walk proof on a \`wildshard dev\` page in
+                       headless Chromium: its default export gets talk,
+                       choose, walkTo, fight, expectFlags, expectQuest
+                       and state, and plays the shard by name (walk to an
+                       NPC, answer it by choice id or words). Prints a
+                       JSON report; GUIDE.md "Walk proofs" has the rest`,
   synth: `synth <source>
                        Run shard.config.ts's scene and identity exports
                        (export const scene, a three.js Scene, and export

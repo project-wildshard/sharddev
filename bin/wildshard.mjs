@@ -25,6 +25,11 @@ if (verbHelp) {
   const text = verb === undefined ? help.USAGE : help.verbHelp(verb);
   if (text === undefined) { process.stderr.write(`wildshard: unknown command ${verb}\n\n${help.USAGE}`); process.exitCode = 1; }
   else process.stdout.write(text);
+} else if (command === 'prove' && /\.m?js$/u.test(process.argv[4] ?? '')) {
+  // F27: a walk proof (a script, not a tape) plays the shard on a `wildshard dev` page in headless Chromium.
+  const script = resolve(import.meta.dirname, '../scripts/prove-walk.mjs');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
 } else if (AUTHOR.has(command) && !builtFolder) {
   const script = resolve(import.meta.dirname, '../scripts/wildshard.mjs');
   process.argv[1] = script;

@@ -71,6 +71,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard prepare <folder> [--base <url>]` | Record the built folder in phone WebKit against engine's preparation client (or the exact engine preview `--base` names), which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the headless budget run, alone |
 | `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened ("Proof tapes" below) |
+| `wildshard prove <source> <walk.mjs> --base <url>` | Play a walk proof on a `dev` page in headless Chromium: walk to an NPC, talk, answer, fight, and assert the flags and quest steps the server says ("Walk proofs" below) |
 | `wildshard synth <source>` | Run `shard.config.ts`'s `scene` and `identity` exports (an older scene form) and write the scene as data. A `defineShard` scene shard (section 2b) needs no synth: `check` builds it and `watch` shows it |
 | `wildshard schema [list\|shardfile\|<root>] [pointer]` | Print the JSON Schema of the shard file, or of one section or field |
 | `wildshard serve` | The sharddev web app on localhost (tools for this repo, not for your shard) |
@@ -122,8 +123,9 @@ prints what happened as JSON. The shape:
 - **`tape`**: one list per tick, 1 to 4,096 ticks (the simulation runs 60 ticks a second), each with that tick's
   commands (at most 1,024). A `player` command is the stick (`moveX`, `moveZ`, each -1 to 1) and the facing (`yaw`, in
   radians), plus a press this tick: `jump: true`, `dodge: true`, or `attack: { "targetId": "<id>" }`. An `interact`
-  command uses one of the shard's `targets.interactions` (a `world.interact` id, section 2b). `wildshard schema`
-  does not print the tape; this list is its whole shape for authors.
+  command uses one of the shard's `targets.interactions` (a `world.interact` id, section 2b), or talks to an NPC:
+  `"wren"` presses E on the talk `wren` and `"wren:accept"` picks its choice `accept` ("The proof tape" below).
+  `wildshard schema` does not print the tape; this list is its whole shape for authors.
 - **`checkpointTick`**: the tick, from 1 to the tape's length, where prove saves the cell, unloads it and loads it
   again. The player must come back where they stood, and the rest of the tape must play as it would have.
 - **`requiredFacts`**: the facts the run must file, each a quest's `onComplete.fact`, at least one, no repeats.
@@ -135,9 +137,10 @@ node -e 'const walk=[{kind:"player",moveX:0,moveZ:-1,yaw:0}];require("fs").write
 ```
 
 **Known, sdk 0.3.x:** a valid tape can still fail in the engine's save step (`traveler pose changed on restore` on a
-scene shard, `restored regional suffix diverged` when a creature is moving at the checkpoint), and a tape cannot yet
-talk to an NPC or choose a dialogue line. Both are being fixed (meta NEW-SHARD-E2E F27); until then a failing prove is not your tape's fault if
-those are its words.
+scene shard, `restored regional suffix diverged` when a creature is moving at the checkpoint); a failing prove with
+those words is not your tape's fault. A tape is input tick by tick, so walking it to an NPC means counting ticks: to
+play a quest the way a player does, by name (walk to Wren, answer "I will help."), write a walk proof ("Walk proofs"
+below) instead.
 
 ### The hero
 
@@ -219,6 +222,56 @@ because that report combines the two flag scopes). This is observation only: no 
   each kill's roll off the shard's loot tables by item, and the ledger's item rewards. A native shard's own packs
   appear under their own ids (`pack`).
 - `checkpointTick` is where the proof saves, unloads and restores the shard mid-tape; it must fall inside the tape.
+
+### Walk proofs
+
+A walk proof plays your shard on a `dev` page the way a player does, by name instead of by tick: walk to Wren, press
+E, answer "I will help.", kill the bear, and check what the server then says. It is a small script, say
+`proof/honey-thief.walk.mjs`, whose default export gets the walk helpers:
+
+```js
+// The honey thief: Wren's talk, the bear, three hives, the turn-in.
+export default async function honeyThief({ talk, choose, fight, expectFlags, expectQuest }) {
+  await talk('wren');                  // walk to the talk, press E, wait for its box
+  await choose('accept');              // a choice by its id ...
+  await expectFlags(['honey.met']);
+  await expectQuest('honey-thief', 'bear');
+  await fight('honey-bear');           // a spawn id (or a species kind), until none is alive
+  for (const hive of ['hive-1', 'hive-2', 'hive-3']) {
+    await talk(hive);
+    await choose('Gather a honeycomb.'); // ... or by its words on screen
+  }
+  await talk('wren');
+  await choose('three honeycombs');    // ... or a part of them, any case, when only one answer has it
+  await expectFlags(['honey.returned', 'honey.complete']);
+  await expectQuest('honey-thief', 'complete');
+}
+```
+
+Run `wildshard dev .`, then, in a second terminal, `wildshard prove . proof/honey-thief.walk.mjs --base <the URL dev
+printed>`. It opens the page in headless Chromium (muted, 60 fps, no window), enters your shard as a new player, runs
+the script and prints a JSON report: the verdict, each step with its time and what it saw (the talk's node and the
+answers it offered, the swings a fight took), and the server's flags and quest steps at the end. Exit 0 is a pass.
+`check` does not run walk proofs: they need a `dev` page. A page error during the walk fails it.
+
+- **`talk(id)`** walks to the talk (`targets.talks`), presses E and waits for its dialogue box. It returns the node
+  the server put this player at and the answers the box offers, each with its choice id and label.
+- **`choose(answer)`** picks an answer of the open talk by its choice id, its label, or a part of one label (any
+  case), presses its number, and waits for the server to move the talk to its next node. Two choices may share a
+  label; the one your flags let the page offer is the one picked.
+- **`walkTo(target, reach)`** walks to a talk, an interaction or a spawn by id, or to `{ x, z }`, within `reach`
+  metres (1.5 unless given). The page's server moves the player; the walk holds W and steers.
+- **`fight(target)`** walks to the nearest live creature of a spawn's species (or a species kind) and swings until
+  the server shows none alive.
+- **`expectFlags(all, none)`** waits until the server says the player has every flag in `all` and none in `none`;
+  **`expectQuest(id, step)`** waits until the quest is at `step`: a step id, `unstarted` or `complete`. Each waits
+  up to 8 s for the server.
+- **`state()`** reads the server's word for the player now (position, `hp`, `kills`, `flags`, `quests`), and
+  **`page`** is the Playwright page, for anything else.
+
+Every refusal says what the page showed instead: `talk wren at node hello has no answer "three honeycombs" now; it
+offers: accept ("I will help.")`, `flags: missing honey.bear-dead; the server says: honey.met`, `quest honey-thief is
+at gather, not return`. Walk it by hand in `dev` to see which step did not happen.
 
 ### Uploading
 
@@ -667,7 +720,8 @@ If a fresh, unedited build still fails, report it with the message.
 
 #### proof-failed
 
-The tape played, but a step it expected did not happen. Fix the data, or the tape step.
+The tape (or the walk proof) played, but a step it expected did not happen. Fix the data, or the tape or walk step.
+A walk proof's refusal names what the page showed instead ("Walk proofs", section 1).
 
 ### Budgets
 
