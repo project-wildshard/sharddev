@@ -8,3 +8,7 @@
 - Tests that need the engine as an oracle (`decision-product`, `author-discovery`) moved to dev; build's own suite has
   no engine. The generation cache proof runs from `packages/build` in CI. dep-guard: build's tree holds no engine,
   vite, playwright, happy-dom or vitest in production.
+- SP9d1 (opus-sdksplit4): the `build` verb itself moved to `packages/build/src/sharddev/buildVerb.ts` (`runBuild`, the
+  static report, the shard file refusal); dev's CLI hands its `build` branch there. Build keeps byte copies of the
+  engine's `shard-outputs.mjs` and `decision-legacy-lines.mjs` (node and valibot only) in `packages/build/scripts/`,
+  and dev's scripts import those. The Template's 229 `out/` files and shard file are byte-identical before and after.

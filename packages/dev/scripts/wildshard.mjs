@@ -12,8 +12,8 @@ import { importBundle } from '@wildshard/sdk/scripts/import-bundle.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
-import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-lines.mjs';
-import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-lines.mjs';
+import { outputManifest, shardOutputs } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { findShardSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
 
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */

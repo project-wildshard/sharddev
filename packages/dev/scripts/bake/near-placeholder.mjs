@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { shardManifestPath } from '@wildshard/engine/scripts/authored-manifest.mjs';
-import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-lines.mjs';
+import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-lines.mjs';
 // G342: bake one shard's near placeholder (public/assets/baked/<slug>/near.glb + near.json). Its drawn static world is
 // built in Node from the shard's own authored world through the bake world host, as the physics bakes build it (no
 // browser, no game page), harvested as prototypes with their placed copies, reduced by the SDK producer

@@ -3,30 +3,26 @@ import { printSpawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 import { basename, dirname, relative, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- `prove` tells a project from a built product by its config file.
 import { existsSync } from 'node:fs';
-import { buildProject, readProjectAssets, validateProject } from '@wildshard/build/project';
-import { ShardfileSchema, type Shardfile } from '@wildshard/format/shardSchema';
+import { readProjectAssets, validateProject } from '@wildshard/build/project';
+import { printStaticReport, runBuild, ShardfileRefusalError, type BuildVerbOptions } from '@wildshard/build/buildVerb';
+import { ShardfileSchema } from '@wildshard/format/shardSchema';
 import { devProject } from './dev';
 import { watchProject } from './watch/watch';
 import { devClient } from './devClient';
 import { proveAuthorSimulation } from '@wildshard/engine/host/headless';
-import { performanceReport, performanceReportLines, type PerformanceObservations } from '@wildshard/sdk/reportCard';
 import { projectPerformancePolicy } from '@wildshard/sdk/internal/performancePolicy';
-import { readBoundedFile } from '@wildshard/sdk/sourceReader';
-import { STILL_IMAGE_LIMITS } from '@wildshard/format/stillImage';
 import { assetOverdraw } from '@wildshard/sdk/assets';
 // oxlint-disable-next-line import/no-nodejs-modules -- The CLI releases its author server on termination.
 import process from 'node:process';
-import { buildBehaviourProject } from '@wildshard/sdk/buildBehaviour';
 import { synthProject } from '@wildshard/build/synth';
 import { formatJsonSchemas, schemaAt, schemaDeclaration } from '@wildshard/sdk/formatJsonSchema';
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { locatedError } from '@wildshard/sdk/internal/authorError';
-import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { templateNamed, writeShardRepo } from '@wildshard/sdk/internal/newProject';
 import { updateShardRepo } from '@wildshard/sdk/internal/agentFiles';
 import { updatePins } from '@wildshard/sdk/internal/updatePins';
-import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
+import { findShardSource, isHandwrittenSource, isRepoSource } from '@wildshard/upload/sharddev/shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
@@ -36,29 +32,12 @@ import { providePortalEntryProof } from '@wildshard/sdk/projectGeneration';
 // a generator asks for it (Nine Dragon's entry proof), so a build that never asks never starts Rapier.
 providePortalEntryProof(async (input, pieces) => (await import('./projectEntryProof')).proveStaticPortalEntries(input, pieces));
 
-const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
-/** The performance report's static half (declared bounds, downloads, memory): every refusal stands except the missing
- *  execution samples, which `wildshard check` measures (SP7c). */
-function printStaticReport(shard: Shardfile, policy: 'warn' | 'refuse'): void {
-  const report = performanceReport(shard, unmeasured, policy);
-  for (const line of performanceReportLines(report)) console.info(line);
-  if (report.issues.some(issue => issue.severity === 'refusal' && issue.code !== 'perf-script-samples-missing')) throw new Error('Performance report refused this shard');
-}
 /** SDK-SPLIT SP7c (D3): build and validate run no simulation. `wildshard check` runs the engine's own full check (the cook's,
  *  SP19), which measures script CPU and walks every entry on this host; this line says so where the measure used to print. */
 const SIMULATION_ELSEWHERE = 'simulation, script CPU and entry walk: not run by build or validate; wildshard check runs them (the engine\'s own check, as the upload cook does)';
-/** SA3: writes a built folder's shard file (hero check against `source`, format and audio checks) and returns its path;
- * scripts/wildshard.mjs gives it. `draftWarning: false` leaves the draft warning (J198) to the caller. */
-export type ShardfileWriter = (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string>;
-/** A refusal from the shard file step, named by its own rules (SA3), not build's source rules. */
-class ShardfileRefusalError extends Error { override readonly name = 'ShardfileRefusalError'; }
-async function writeShardfileOf(options: CliOptions, folder: string, source: string): Promise<void> {
-  try { await options.writeShardfile?.(folder, source); }
-  catch (error) { throw new ShardfileRefusalError(error instanceof Error ? error.message : String(error), { cause: error }); }
-}
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
 const SOURCE_VERBS: ReadonlySet<string> = new Set(['check', 'synth', 'build', 'dev', 'watch', 'validate', 'prove']);
-interface CliOptions { readonly decisionLegacyLines?: number; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: ShardfileWriter }
+type CliOptions = BuildVerbOptions;
 async function runCommand(given: readonly string[], options: CliOptions): Promise<void> {
   // SA16 (J317): a verb given a repo finds its shard source at `src/` or its one `src/shards/<slug>/`.
   const args = SOURCE_VERBS.has(given[0] ?? '') && given[1] !== undefined && !given[1].startsWith('--') ? [given[0] ?? '', findShardSource(given[1]), ...given.slice(2)] : given;
@@ -166,25 +145,8 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     // SA15: `?skipintro` walks straight into the shard; the bare page sits on the game's title over it
     console.info(`wildshard dev: ${server.url}?skipintro`); return;
   }
-  if (command === 'build') {
-    if (output === '--behaviour-only' && (buildFlag === undefined || buildFlag === '--check')) {
-      const files = await buildBehaviourProject(resolve(input), { check: buildFlag === '--check' });
-      console.info(`built ${files.length} native behaviour outputs`); return;
-    }
-    // A flag straight after the project is a flag, not the output folder.
-    const folder = output?.startsWith('--') === true ? undefined : output;
-    const flags = args.slice(folder === undefined ? 2 : 3), mapSourceHash = flags.find(flag => flag.startsWith('--generated-map-tiles-hash='))?.slice(27), mapPath = flags.find(flag => flag.startsWith('--map='))?.slice(6), tilesHash = flags.find(flag => flag.startsWith('--map-tiles-hash='))?.slice(17), selected = flags.find(flag => flag.startsWith('--output='))?.slice(9);
-    // SA3: --shardfile-only skips the client; --folder-only also skips the shard file, for build-shards, whose folders are
-    // cached and prepared before anything tars them. --product-only keeps its old meaning: --folder-only.
-    const folderOnly = flags.includes('--folder-only') || flags.includes('--product-only'), noClient = folderOnly || flags.includes('--shardfile-only');
-    const unknownFlag = flags.find(flag => flag !== '--shardfile-only' && flag !== '--folder-only' && flag !== '--product-only' && flag !== '--no-placeholders' && flag !== '--format=2' && flag !== '--copy-runtime' && !flag.startsWith('--map=') && !flag.startsWith('--map-tiles-hash=') && !flag.startsWith('--output=') && !flag.startsWith('--generated-map-tiles-hash='));
-    if (unknownFlag !== undefined) throw new Error(`unknown build flag: ${unknownFlag}`);
-    if (flags.filter(flag => flag.startsWith('--output=')).length > 1 || flags.length !== new Set(flags).size || flags.filter(flag => flag.startsWith('--map=')).length > 1 || flags.filter(flag => flag.startsWith('--map-tiles-hash=')).length > 1 || flags.filter(flag => flag.startsWith('--generated-map-tiles-hash=')).length > 1 || mapSourceHash !== undefined && mapPath !== undefined || ((mapPath === undefined) !== (tilesHash === undefined))) throw new Error('unknown or incomplete build map flag');
-    const map = mapPath === undefined || tilesHash === undefined ? undefined : { bytes: readBoundedFile(resolve(mapPath), STILL_IMAGE_LIMITS.bytes), tilesHash };
-    const shard = await buildProject(resolve(input), folder === undefined ? undefined : resolve(folder), { outputFormat:2, ...(selected === undefined ? {} : { output: selected }), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }), copyRuntime: flags.includes('--copy-runtime'), ...(noClient ? { client: null } : {}), ...(map === undefined ? {} : { map }), ...(mapSourceHash === undefined ? {} : { mapSourceHash }), placeholders: !flags.includes('--no-placeholders'), admit: async (built, _assets, policy) => { printStaticReport(built, policy); await Promise.resolve(); } }); console.info(`built ${shard.identity.slug} v${shard.version}`);
-    if (!folderOnly) await writeShardfileOf(options, folder === undefined ? resolve(shardOutputRoot(resolve(input)), 'public/shardfiles', shard.identity.slug) : resolve(folder), resolve(input));
-    return;
-  }
+  // SDK-SPLIT SP9d1: the build verb is build's (packages/build/src/sharddev/buildVerb.ts).
+  if (command === 'build') { await runBuild(input, args.slice(2), options); return; }
   if (command === 'prove') {
     if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('prove requires a format-2 shard.json or shard source');
     if (output === undefined || buildFlag !== undefined) throw new Error('usage: wildshard prove <source|shard.json> <proof.json>');

@@ -1,4 +1,4 @@
-import type { ShardFolder } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import type { ShardFolder } from '@wildshard/build/scripts/shard-outputs.mjs';
 
 export function shardFolders(root: string): string[];
 /** Every product slug (SF88g: a folder's declared outputs, else the folder itself). */

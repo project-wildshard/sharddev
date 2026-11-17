@@ -1,5 +1,5 @@
 // G458: outcome progress and evidence-bound grid readiness, never task counts.
-import { representativeFolder } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { representativeFolder } from '@wildshard/build/scripts/shard-outputs.mjs';
 import {existsSync,readFileSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';

@@ -7,7 +7,7 @@ import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from '@typescript/typescript6';
 import { outputFormat } from '@wildshard/engine/scripts/shard-platform-format.mjs';
-import { builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { builtShardFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 import type { SectionMapping } from '@wildshard/format/outputFields';
 import { formatSource } from '@wildshard/engine/scripts/format-package.mjs';
 

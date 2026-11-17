@@ -2,7 +2,7 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { authoredManifestSource, folderManifestPath } from '@wildshard/engine/scripts/authored-manifest.mjs';
-import { manifestFolders, outputManifest, builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { manifestFolders, outputManifest, builtShardFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { genStarterArmClips } from '@wildshard/engine/scripts/gen-starter-arm-clips.mjs';
 import { genStarterWeapons } from '@wildshard/engine/scripts/gen-starter-weapons.mjs';
 import { genStarterBag } from '@wildshard/engine/scripts/gen-starter-bag.mjs';

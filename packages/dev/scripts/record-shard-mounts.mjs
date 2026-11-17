@@ -9,7 +9,7 @@
 // sfx, the piano stings): it stays out of every list, and a product of the same folder may share one.
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import { builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { builtShardFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 
 const argument = (name) => process.argv.find(row => row.startsWith(`--${name}=`))?.slice(name.length + 3);
 // --root: the tree whose src/shards, public and out are recorded (a shard repo; this repo by default).

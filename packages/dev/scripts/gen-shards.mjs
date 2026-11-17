@@ -5,7 +5,7 @@ import { dirname, resolve, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from '@typescript/typescript6';
 import { folderManifestPath, authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs';
-import { outputManifest, builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { outputManifest, builtShardFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { genShardWords } from '@wildshard/engine/scripts/gen-shard-words.mjs';
 import { readProgramDiscovery, usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { authoredManifestImports } from '@wildshard/engine/scripts/manifest-static-imports.mjs';

@@ -14,7 +14,7 @@ import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { folderInputKey, folderToolchainKey, matchingFolderInputKey, publishFolderInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { quietCli } from '@wildshard/engine/scripts/quiet-cli.mjs';
-import { manifestFolders, outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { manifestFolders, outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
