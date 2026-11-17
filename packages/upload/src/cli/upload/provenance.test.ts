@@ -7,7 +7,7 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-import { resolveProvenance } from './provenance.ts'
+import { resolveProvenance as resolveFrom } from './provenance.ts'
 
 // The running CLI's version, which the caller passes in (SDK-SPLIT SP2a:
 // upload never reads the sdk's package.json).
@@ -22,7 +22,13 @@ const SDK = '9.8.7'
 
 const SHA = 'a'.repeat(40)
 // The sdk package: the uploading `wildshard`, whose installs a bare shard falls back to (SP2b passes its folder).
+// The sdk folder: every request reads what the shard lacks from it, as the CLI does (SP2b).
 const ROOT = new URL('../../../../sdk/', import.meta.url)
+async function resolveProvenance(
+  request: Parameters<typeof resolveFrom>[0],
+): ReturnType<typeof resolveFrom> {
+  return await resolveFrom({ installDir: fileURLToPath(ROOT), ...request })
+}
 
 async function installed(name: string): Promise<string> {
   const file = new URL(`node_modules/${name}/package.json`, ROOT)
@@ -102,7 +108,6 @@ test("defaults to the project's package.json version and HEAD", async (context: 
     await resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      installDir: fileURLToPath(ROOT),
     }),
     {
       version: '0.0.3',
@@ -121,7 +126,6 @@ test('finds the project from a folder inside it', async (context: TestContext): 
     await resolveProvenance({
       sharddev: SDK,
       cwd: inner,
-      installDir: fileURLToPath(ROOT),
     }),
     {
       version: '0.0.3',
@@ -138,7 +142,6 @@ test('flags override both, and need no git checkout', async (context: TestContex
     await resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      installDir: fileURLToPath(ROOT),
       version: '1.2.3',
       commit: SHA,
     }),
@@ -151,7 +154,6 @@ test('the three versions match the installed packages (J306)', async (context: T
   const { sharddev, engine, shardFormat } = await resolveProvenance({
     sharddev: SDK,
     cwd: dir,
-    installDir: fileURLToPath(ROOT),
     version: '0.0.1',
     commit: SHA,
   })
@@ -220,7 +222,6 @@ test('refuses a dirty tree when the commit comes from HEAD', async (context: Tes
     resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      installDir: fileURLToPath(ROOT),
     }),
     /the shard source has uncommitted changes .*--commit <sha>/u,
   )
@@ -233,7 +234,6 @@ test('an untracked file, such as the packed tarball, is not dirt', async (contex
   const { commit } = await resolveProvenance({
     sharddev: SDK,
     cwd: dir,
-    installDir: fileURLToPath(ROOT),
   })
 
   assert.equal(commit, head)
