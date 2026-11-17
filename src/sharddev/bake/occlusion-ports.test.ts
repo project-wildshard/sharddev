@@ -1,6 +1,9 @@
 import { BoxGeometry, BufferAttribute, Color, InterleavedBuffer, InterleavedBufferAttribute } from 'three';
 import { expect, expectTypeOf, test } from 'vitest';
-import { aoTint, encodeVoxelAOBake, hemisphere, recordVoxelAO, voxelAO, voxelAOBakeStats } from '@wildshard/engine/world/voxelAO';
+import { aoTint, hemisphere, voxelAO } from '@wildshard/engine/world/voxelAO';
+import * as engineAO from '@wildshard/engine/world/voxelAO';
+// SDK-SPLIT SP6b: the recorder and the scoped tables are the sdk's own copy; the engine stays the parity oracle
+import { encodeVoxelAOBake, recordVoxelAO, voxelAOBakeStats } from './voxelAO';
 import { bakeOcclusionDirections, bakeOcclusionTint, bakeVoxelOcclusion, withFacetedAO } from './facetedGeometry';
 
 test('offline rays and all three native sampling modes retain complete contracts and Float64 bits', () => {
@@ -27,10 +30,13 @@ test('offline rays and all three native sampling modes retain complete contracts
       expect(calls).toEqual(nativeCalls);
       expect(author).not.toBe(native);
       expect(geometry.getAttribute('position').array).toEqual(positions);
-      const recorder = recordVoxelAO();
-      let table: Uint8Array;
-      try { bakeVoxelOcclusion(geometry, parameters); table = encodeVoxelAOBake(recorder.entries); }
-      finally { recorder.stop(); }
+      const recorder = recordVoxelAO(), engineRecorder = engineAO.recordVoxelAO();
+      let table: Uint8Array, engineTable: Uint8Array;
+      try {
+        bakeVoxelOcclusion(geometry, parameters); voxelAO(geometry, parameters);
+        table = encodeVoxelAOBake(recorder.entries); engineTable = engineAO.encodeVoxelAOBake(engineRecorder.entries);
+      } finally { recorder.stop(); engineRecorder.stop(); }
+      expect(table).toEqual(engineTable);
       const before = voxelAOBakeStats().hits;
       expect(withFacetedAO(table, () => bakeVoxelOcclusion(geometry, parameters))).toEqual(native);
       expect(voxelAOBakeStats().hits).toBe(before + 1);

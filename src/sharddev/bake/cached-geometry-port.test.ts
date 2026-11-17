@@ -1,6 +1,8 @@
 import { BoxGeometry, BufferAttribute, type BufferGeometry } from 'three';
 import { expect, expectTypeOf, test } from 'vitest';
-import { addGeometryBake, bakedGeometry, encodeGeometryBake, geometryBakeStats, recordGeometryBake } from '@wildshard/engine/world/geometryBake';
+import * as engine from '@wildshard/engine/world/geometryBake';
+// SDK-SPLIT SP6b: the recorder and the scoped tables are the sdk's own copy; the engine reads the same table bytes
+import { addGeometryBake, encodeGeometryBake, geometryBakeStats, recordGeometryBake } from './geometryBake';
 import { Rng } from '../random';
 import { bakeCachedGeometry } from './facetedGeometry';
 
@@ -11,7 +13,7 @@ function channels(geometry: BufferGeometry) {
 }
 
 test('author geometry retains native recording producer, owned hits and complete RNG continuation', () => {
-  expectTypeOf<typeof bakeCachedGeometry>().toEqualTypeOf<typeof bakedGeometry>();
+  expectTypeOf<typeof bakeCachedGeometry>().toEqualTypeOf<typeof engine.bakedGeometry>();
   for (const rng of [null, new Rng(7), Rng.scrambled(23)]) {
     const start = rng?.snapshot(), id = 'sdk.cache.author', inputs = [1.25, -0, 0.1];
     let calls = 0;
@@ -29,23 +31,26 @@ test('author geometry retains native recording producer, owned hits and complete
     } finally { recorder.stop(); }
     const expected = channels(source), groups = structuredClone(source.groups), after = rng?.snapshot();
     source.dispose();
-    const release = addGeometryBake(Uint8Array.from(table).buffer);
-    try {
-      for (const compile of [bakeCachedGeometry, bakedGeometry]) {
+    expect(engine.encodeGeometryBake(engine.decodeGeometryBake(Uint8Array.from(table).buffer) ?? new Map())).toEqual(table);
+    const sides = [{ add: addGeometryBake, compile: bakeCachedGeometry, stats: geometryBakeStats },
+      { add: engine.addGeometryBake, compile: engine.bakedGeometry, stats: engine.geometryBakeStats }];
+    for (const side of sides) {
+      const release = side.add(Uint8Array.from(table).buffer);
+      try {
         const restored = start === undefined ? null : new Rng(0);
         if (restored !== null && start !== undefined) restored.restore(start);
-        const hits = geometryBakeStats().hits;
-        const hit = compile(id, inputs, restored, () => { throw new Error('Owned native cache hit must not rebuild'); });
+        const hits = side.stats().hits;
+        const hit = side.compile(id, inputs, restored, () => { throw new Error('Owned native cache hit must not rebuild'); });
         try {
           expect(channels(hit)).toEqual(expected); expect(hit.groups).toEqual(groups);
           expect(restored?.snapshot()).toEqual(after);
-          expect(geometryBakeStats().hits).toBe(hits + 1);
+          expect(side.stats().hits).toBe(hits + 1);
           hit.getAttribute('position').setX(0, 999);
         } finally { hit.dispose(); }
-      }
-      expect(calls).toBe(1);
-      const fallback = bakeCachedGeometry('sdk.cache.absent', inputs, null, () => { calls++; return new BoxGeometry(); });
-      fallback.dispose(); expect(calls).toBe(2);
-    } finally { release(); }
+      } finally { release(); }
+    }
+    expect(calls).toBe(1);
+    const fallback = bakeCachedGeometry('sdk.cache.absent', inputs, null, () => { calls++; return new BoxGeometry(); });
+    fallback.dispose(); expect(calls).toBe(2);
   }
 });

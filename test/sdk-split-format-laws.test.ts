@@ -10,6 +10,8 @@ const ROOT = resolve(import.meta.dirname, '..', 'src', 'sharddev');
 const ENGINE_FREE = [
   'bake/nativeTerrainField.ts', 'bake/contactRows.ts', 'bake/wholePieceJoin.ts', 'bake/meadow.ts', 'bake/farImpostor.ts',
   'outputProduct.ts', 'interactions.ts', 'quests.ts', 'questGraph.ts', 'rows.ts',
+  // SP6b: voxel AO and the geometry bake are the sdk's own copies
+  'bake/facetedGeometry.ts',
 ];
 /** Files that keep one engine import SP6a does not own (kit content is SP3's, the three-based decoders are SP6b/SP6c's). */
 const LAW_IMPORTS_GONE: Readonly<Record<string, readonly string[]>> = {

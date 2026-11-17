@@ -2,8 +2,8 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { Rng } from '../random';
-import { voxelAO, aoTint, hemisphere, addVoxelAOBake } from '@wildshard/engine/world/voxelAO';
-import { bakedGeometry } from '@wildshard/engine/world/geometryBake';
+import { voxelAO, aoTint, hemisphere, addVoxelAOBake } from './voxelAO';
+import { bakedGeometry } from './geometryBake';
 
 /** Compile an offline geometry through the native scoped bake/recorder protocol.
  * IDs, quantized keys, owned cache copies and complete RNG continuation stay native. */
