@@ -80,14 +80,14 @@ describe('the refusal table (SA21)', () => {
 
   // SA41: shard-format gives every issue a stable code; each one must name a rule, so a code added upstream with no row
   // here fails this test (and GUIDE.md's anchor test covers the row's heading).
-  it('names every format and engine-check issue code, from every step, by exactly one row', () => {
-    const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure'];
+  it('names every format, engine-check and author warning code by exactly one row', () => {
+    const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure', 'spawn-aware-radius'];
     expect(codes.length).toBeGreaterThanOrEqual(53);
     expect(codes).toContain('audio-container');
     const named = REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row.id] as const));
     const unmapped = codes.filter(code => !named.some(([listed]) => listed === code));
     expect(unmapped, 'shard-format codes no row in refusals.ts names').toEqual([]);
-    expect(named.map(([code]) => code).filter(code => !codes.includes(code)), 'rows naming a code shard-format does not have').toEqual([]);
+    expect(named.map(([code]) => code).filter(code => !codes.includes(code)), 'rows naming an unknown format, engine-check or author warning code').toEqual([]);
     expect(new Set(named.map(([code]) => code)).size, 'a code named by two rows').toBe(named.length);
     for (const code of codes) {
       const rule = named.find(([listed]) => listed === code)?.[1];
