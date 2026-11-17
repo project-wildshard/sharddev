@@ -1,6 +1,6 @@
 import { WebIO, type Accessor, type Document } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
-import { MeshoptDecoder } from 'meshoptimizer';
+import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import * as THREE from 'three';
 
 /** Authoring rest data from a retained skinned GLB; no animation, renderer, scene service or game is installed. */
@@ -23,7 +23,7 @@ function attribute(accessor: Accessor | null, label: string): THREE.BufferAttrib
  * Meshopt and embedded WebP are admitted through their GLTF extensions. Multi-skin/multi-primitive input refuses;
  * callers that need a composed rig must author that composition explicitly. UVs and mesh-local positions stay unchanged. */
 export async function readRigRest(glb: Uint8Array): Promise<RigRest> {
-  const document = await readDocument(glb);
+  const document = await readRigDocument(glb);
   const nodes = document.getRoot().listNodes().filter(node => node.getSkin() !== null && node.getMesh() !== null);
   if (nodes.length !== 1) throw new Error('Rig requires one skinned node');
   const node = nodes[0], skin = node?.getSkin(), primitives = node?.getMesh()?.listPrimitives();
@@ -54,18 +54,24 @@ export interface RigMotion {
   readonly clips: readonly THREE.AnimationClip[];
   readonly nodes: readonly RigTransform[];
 }
-async function readDocument(glb: Uint8Array): Promise<Document> {
+/** Bounded authoring graph intake shared by rest, motion and chain imports. */
+export async function readRigDocument(glb: Uint8Array): Promise<Document> {
   if (glb.length < 20 || glb.length > 64_000_000) throw new Error('Rig requires bounded GLB bytes');
   const header = new DataView(glb.buffer, glb.byteOffset, glb.byteLength);
   if (header.getUint32(0, true) !== 0x46546c67 || header.getUint32(4, true) !== 2 || header.getUint32(8, true) !== glb.byteLength) throw new Error('Rig requires complete GLB 2 bytes');
   await MeshoptDecoder.ready;
   return new WebIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'meshopt.decoder': MeshoptDecoder }).readBinary(glb);
 }
+/** Retain the source graph's lossless Meshopt codec when an authoring pass writes it. */
+export async function writeRigDocument(document: Document): Promise<Uint8Array> {
+  await MeshoptEncoder.ready;
+  return new WebIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({ 'meshopt.encoder': MeshoptEncoder }).writeBinary(document);
+}
 /** Decode GLB transform animation into standard Three tracks, preserving Float32 keys and STEP/LINEAR interpolation.
  * Stable named targets are required. Morph channels, cubic splines and normalized/integer animation accessors refuse;
  * they require their own exact compiler. Geometry and embedded images are never decoded into rendering resources. */
 export async function readRigMotion(glb: Uint8Array): Promise<RigMotion> {
-  const root = (await readDocument(glb)).getRoot();
+  const root = (await readRigDocument(glb)).getRoot();
   if (root.listNodes().length > 4096 || root.listAnimations().length > 32) throw new Error('Rig motion exceeds node/clip cap');
   const nodes = root.listNodes().map(node => ({ name: node.getName(), parent: node.getParentNode()?.getName() ?? null,
     position: [...node.getTranslation()], quaternion: [...node.getRotation()], scale: [...node.getScale()] }));

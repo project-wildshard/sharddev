@@ -428,6 +428,17 @@ hand-written template (`new --template blender`, a shard file folder held by han
 A repo started that way before still checks and uploads: `wildshard check .` packs and validates its `src/` folder as
 it always did.
 
+**Imported creature chains.** `importCreatureGlb` from `@wildshard/sdk/scene/creature-import` accepts
+one skinned GLB and `{ skeleton: 'biped', map: 'mixamo' }` (or `'rigify'`). A custom map supplies
+`root` and a `chains` object: each defining chain name maps to source bone names in chain order.
+The presets use `Armature` / `root` as their body root; a root outside the skin is added as a joint
+with remapped weight indices. Mixamo names accept the `mixamorig:` or `mixamorig` prefix.
+The importer keeps mesh weights, clip targets and attachment parents, while emitting canonical names
+and full ordered joint metadata through `creatureSkin`. Missing, duplicate or detached chains name
+the failing chain. Inputs use translation-only, unit-scale inverse binds and at most 32 final joints;
+bake bind rotations/scales in the source tool. Read source bytes through `ctx.cached` and return the
+compiled GLB in generated output assets. Kit skeleton/body helpers are a separate build step.
+
 **Creature hit markers.** For a creature's `platform.skin` look, parent an empty named `hit.<part>` under a skin
 bone in Blender. Its translation becomes the bone-local offset. Export custom properties as extras: `radius`
 (default 0.3), `shape` (`sphere` or `capsule`), `halfLength`, `axis` (`y` or `z`) and `multiplier` (head defaults to 2,

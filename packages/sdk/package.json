@@ -175,6 +175,7 @@
     "./scene/description": "./src/sharddev/scene/description.ts",
     "./scene/shardfile": "./src/sharddev/scene/shardfile.ts",
     "./scene/creature": "./src/sharddev/scene/creature.ts",
+    "./scene/creature-import": "./src/sharddev/scene/creatureImport.ts",
     "./watch/protocol": "./src/sharddev/watch/protocol.ts",
     "./physics": "./src/sharddev/physics.ts",
     "./entries": "./src/sharddev/entries.ts",

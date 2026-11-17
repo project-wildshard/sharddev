@@ -142,7 +142,7 @@ export function creatureSkin(rig: CreatureRig, options: { id: string; family?: '
   return {
     row: {
       cost: { decoded: cost.decoded, draws: cost.draws, gpu: cost.gpu, triangles: cost.triangles }, family: options.family ?? 'toon', file: hashImmutableBytes(rig.glb), id: options.id,
-      rig: { clips: [...rig.clips], joints: rig.bones.filter((b) => b.parent !== null).map((b) => [b.parent, b.name]), skeleton: options.id, sockets: rig.bones.map((b) => b.name) },
+      rig: { clips: [...rig.clips], joints: [rig.bones.map((b) => b.name)], skeleton: options.id, sockets: rig.bones.map((b) => b.name) },
     },
     binding: { loops: [...options.binding.loops], material: { ...options.binding.material }, ...(options.binding.materials === undefined ? {} : { materials: { ...options.binding.materials } }), skin: options.id },
   };
