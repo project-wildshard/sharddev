@@ -19,3 +19,7 @@ then passes (61.6 s product, 64.8 s wrapper); Driftwood also passes (42.5/45.6 s
 These are pass/fail run walls under shared load, not performance readings.
 Dunes and Sky also passed the linked graph. The final graph, cache edit/rebuild,
 local checks, hosted qualification and batch review are recorded in the plan.
+
+Review repair: the native author test now uses the established owned
+scratch fixture and closes its empty parent after the run, instead of
+recreating an unclaimed hard-coded lane directory.

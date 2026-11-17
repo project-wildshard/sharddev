@@ -1,15 +1,17 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Native compiler fixture lives only in owned scratch.
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Locate the owned fixture files.
 import { resolve } from 'node:path';
-import { expect, test } from 'vitest';
+import { afterAll, expect, test } from 'vitest';
 import type { PluginOption } from 'vite';
 import { bundleAuthor } from './authorBundle';
 import { executeBundle } from './executeBundle';
+import { closeFixtures, fixtureRoot } from './test/ownedScratch';
+
+afterAll(closeFixtures);
 
 test('inlining an inactive browser branch never initializes it in a Node author', async () => {
-  const scratch = resolve('tmp/codex-pagesize'); mkdirSync(scratch, { recursive: true });
-  const root = mkdtempSync(resolve(scratch, 'node-author-'));
+  const root = fixtureRoot('node-author-');
   try {
     mkdirSync(resolve(root, '.git'));
     writeFileSync(resolve(root, 'browser.ts'), 'throw new Error("Browser initialization crossed the Node author boundary"); export const value = 91;');
