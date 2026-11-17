@@ -182,6 +182,7 @@
     "./internal/handwritten": "internal",
     "./internal/handwrittenCreatureLayers": "internal",
     "./internal/authorLint": "internal",
+    "./internal/creatureHitVolumes": "internal",
     "./internal/creatureLayers": "internal",
     "./internal/performancePolicy": "internal",
     "./internal/newProject": "internal",
