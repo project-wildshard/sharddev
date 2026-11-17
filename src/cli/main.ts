@@ -77,7 +77,8 @@ const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
     await runShardfile('build', args.operand, args.target ?? args.out),
   pack: async (args: CliArgs): Promise<number> =>
     await runPack(args.operand, args.out ?? args.target),
-  upload: async (args: CliArgs): Promise<number> => await runUpload(args, ENV),
+  upload: async (args: CliArgs): Promise<number> =>
+    await runUpload(args, ENV, await readVersion()),
   // Meta SHARD-DELETE DEL6: the account key upload sends.
   account: async (args: CliArgs): Promise<number> =>
     await runAccount(args, serverOf(args)),

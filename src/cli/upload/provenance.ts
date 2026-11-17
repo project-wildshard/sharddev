@@ -6,8 +6,6 @@ import { text as readAll } from 'node:stream/consumers'
 
 import { object, optional, safeParse, string } from 'valibot'
 
-import { readVersion } from '../version.ts'
-
 // What every upload names (API-CLOUDFLARE AC16, J275 V1): the shard version
 // and the commit of the shard project it was built from. `--version`
 // defaults to the project's package.json version and `--commit` to its git
@@ -39,6 +37,8 @@ const SHARDDEV_DIR = import.meta.dirname
 interface ProvenanceRequest {
   /** Where `wildshard upload` runs: inside the shard project. */
   readonly cwd: string
+  /** The running `wildshard`'s own version; the caller reads it, so upload never reads the sdk's package.json (SP2a). */
+  readonly sharddev: string
   /** `--version`, if passed. */
   readonly version?: string | undefined
   /** `--commit`, if passed. */
@@ -183,7 +183,7 @@ async function resolveProvenance(
   return {
     version,
     commit,
-    sharddev: await readVersion(),
+    sharddev: request.sharddev,
     engine: await installedVersion(request.cwd, ENGINE),
     shardFormat: await installedVersion(request.cwd, SHARD_FORMAT),
   }

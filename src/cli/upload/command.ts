@@ -36,10 +36,14 @@ function bypassOption(env: Env): { readonly bypassSecret?: string } {
 }
 
 /** The shard version and commit to send, or what is wrong (AC16). */
-async function provenanceOf(args: CliArgs): Promise<Provenance | string> {
+async function provenanceOf(
+  args: CliArgs,
+  sharddev: string,
+): Promise<Provenance | string> {
   try {
     const provenance = await resolveProvenance({
       cwd: process.cwd(),
+      sharddev,
       version: args.shardVersion,
       commit: args.commit,
     })
@@ -152,6 +156,7 @@ function uploadSettings(
 async function uploadOptions(
   args: CliArgs,
   env: Env,
+  sharddev: string,
 ): Promise<UploadOptions | string> {
   const apiKey = await apiKeyOf(env['WILDSHARD_API_KEY'])
   if (apiKey instanceof Error) {
@@ -161,7 +166,7 @@ async function uploadOptions(
   if (typeof settings === 'string') {
     return settings
   }
-  const provenance = await provenanceOf(args)
+  const provenance = await provenanceOf(args, sharddev)
   return typeof provenance === 'string'
     ? provenance
     : { ...settings, ...provenance }
@@ -207,11 +212,16 @@ async function sendUpload(options: UploadOptions): Promise<number> {
   }
 }
 
-async function runUpload(args: CliArgs, env: Env): Promise<number> {
+/** `sharddev` is the running `wildshard`'s version, read by the caller (SDK-SPLIT SP2a). */
+async function runUpload(
+  args: CliArgs,
+  env: Env,
+  sharddev: string,
+): Promise<number> {
   if (args.operand === 'status') {
     return await runStatus(args, env)
   }
-  const options = await uploadOptions(args, env)
+  const options = await uploadOptions(args, env, sharddev)
   if (typeof options === 'string') {
     refuse('upload', '', options)
     return EXIT_USAGE

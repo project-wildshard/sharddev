@@ -14,7 +14,10 @@
 //
 // Messages stay as the refusing code (and shard-format) words them: a row matches them, it never rewrites them.
 import type { IssueCode } from '@wildshard/format/issue-codes';
-import type { ShardfileCheckFailure } from '@wildshard/engine/game/shardfile/checkReport';
+
+/** The engine check's failure code (its `ShardfileCheckFailure['code']`, a plain string); named here so this table,
+ *  which upload ships, never imports the engine (SDK-SPLIT SP2a). */
+type CheckFailureCode = string;
 
 /** Where a refusal came from: `check`'s five steps, then the other verbs. `shardfile` is the shard file build writes (SA3). */
 export type RefusalStep = 'lint' | 'build' | 'validate' | 'prove' | 'report' | 'new' | 'update' | 'shardfile' | 'pack' | 'upload' | 'account' | 'delete';
@@ -25,7 +28,7 @@ export interface RefusalRule {
   readonly anchor: string;
   readonly fix: string;
   readonly steps: readonly RefusalStep[] | 'any';
-  readonly codes?: readonly (IssueCode | ShardfileCheckFailure['code'])[];
+  readonly codes?: readonly (IssueCode | CheckFailureCode)[];
   readonly match?: RegExp;
 }
 /** What a refusal carries besides its words: oxlint's code and help, or shard-format's issue code. */

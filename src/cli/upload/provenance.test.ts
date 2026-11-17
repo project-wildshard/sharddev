@@ -6,8 +6,11 @@ import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { readVersion } from '../version.ts'
 import { resolveProvenance } from './provenance.ts'
+
+// The running CLI's version, which the caller passes in (SDK-SPLIT SP2a:
+// upload never reads the sdk's package.json).
+const SDK = '9.8.7'
 
 // API-CLOUDFLARE AC16 (V1): every upload names the shard version and the
 // commit it was built from. The defaults come from the shard project the
@@ -32,7 +35,7 @@ async function carried(): Promise<
   Readonly<{ sharddev: string; engine: string; shardFormat: string }>
 > {
   return {
-    sharddev: await readVersion(),
+    sharddev: SDK,
     engine: await installed('@wildshard/engine'),
     shardFormat: await installed('@wildshard/format'),
   }
@@ -93,7 +96,7 @@ async function project(
 test("defaults to the project's package.json version and HEAD", async (context: TestContext): Promise<void> => {
   const { dir, head } = await project(context)
 
-  assert.deepEqual(await resolveProvenance({ cwd: dir }), {
+  assert.deepEqual(await resolveProvenance({ sharddev: SDK, cwd: dir }), {
     version: '0.0.3',
     commit: head,
     ...(await carried()),
@@ -105,7 +108,7 @@ test('finds the project from a folder inside it', async (context: TestContext): 
   const inner = path.join(dir, 'out', 'packs')
   await mkdir(inner, { recursive: true })
 
-  assert.deepEqual(await resolveProvenance({ cwd: inner }), {
+  assert.deepEqual(await resolveProvenance({ sharddev: SDK, cwd: inner }), {
     version: '0.0.3',
     commit: head,
     ...(await carried()),
@@ -116,7 +119,12 @@ test('flags override both, and need no git checkout', async (context: TestContex
   const dir = await scratch(context)
 
   assert.deepEqual(
-    await resolveProvenance({ cwd: dir, version: '1.2.3', commit: SHA }),
+    await resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      version: '1.2.3',
+      commit: SHA,
+    }),
     { version: '1.2.3', commit: SHA, ...(await carried()) },
   )
 })
@@ -124,12 +132,13 @@ test('flags override both, and need no git checkout', async (context: TestContex
 test('the three versions match the installed packages (J306)', async (context: TestContext): Promise<void> => {
   const dir = await scratch(context)
   const { sharddev, engine, shardFormat } = await resolveProvenance({
+    sharddev: SDK,
     cwd: dir,
     version: '0.0.1',
     commit: SHA,
   })
 
-  assert.equal(sharddev, await readVersion())
+  assert.equal(sharddev, SDK)
   assert.equal(engine, await installed('@wildshard/engine'))
   assert.equal(shardFormat, await installed('@wildshard/format'))
   assert.match(engine, /^\d+\.\d+\.\d+$/u)
@@ -144,6 +153,7 @@ test("reads engine and shard-format from the shard's own install", async (contex
   await mkdir(inner)
 
   const provenance = await resolveProvenance({
+    sharddev: SDK,
     cwd: inner,
     version: '0.0.1',
     commit: SHA,
@@ -151,7 +161,7 @@ test("reads engine and shard-format from the shard's own install", async (contex
 
   assert.equal(provenance.engine, '7.8.9')
   assert.equal(provenance.shardFormat, '4.5.6')
-  assert.equal(provenance.sharddev, await readVersion())
+  assert.equal(provenance.sharddev, SDK)
 })
 
 test('@wildshard/shard-format wins over the @wildshard/format alias', async (context: TestContext): Promise<void> => {
@@ -160,6 +170,7 @@ test('@wildshard/shard-format wins over the @wildshard/format alias', async (con
   await install(dir, '@wildshard/shard-format', '5.0.0')
 
   const { shardFormat } = await resolveProvenance({
+    sharddev: SDK,
     cwd: dir,
     version: '0.0.1',
     commit: SHA,
@@ -173,7 +184,12 @@ test('refuses an installed version the API would refuse', async (context: TestCo
   await install(dir, '@wildshard/engine', '0.1.0-rc.1')
 
   await assert.rejects(
-    resolveProvenance({ cwd: dir, version: '0.0.1', commit: SHA }),
+    resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      version: '0.0.1',
+      commit: SHA,
+    }),
     /@wildshard\/engine 0\.1\.0-rc\.1 .* is not X\.Y\.Z/u,
   )
 })
@@ -183,7 +199,7 @@ test('refuses a dirty tree when the commit comes from HEAD', async (context: Tes
   await writeFile(path.join(dir, 'package.json'), '{"version":"0.0.4"}\n')
 
   await assert.rejects(
-    resolveProvenance({ cwd: dir }),
+    resolveProvenance({ sharddev: SDK, cwd: dir }),
     /the shard source has uncommitted changes .*--commit <sha>/u,
   )
 })
@@ -192,7 +208,7 @@ test('an untracked file, such as the packed tarball, is not dirt', async (contex
   const { dir, head } = await project(context)
   await writeFile(path.join(dir, 'shard.tar'), 'bytes')
 
-  const { commit } = await resolveProvenance({ cwd: dir })
+  const { commit } = await resolveProvenance({ sharddev: SDK, cwd: dir })
 
   assert.equal(commit, head)
 })
@@ -210,7 +226,7 @@ test('needs --commit outside a git checkout', async (context: TestContext): Prom
   })
 
   await assert.rejects(
-    resolveProvenance({ cwd: dir, version: '0.0.1' }),
+    resolveProvenance({ sharddev: SDK, cwd: dir, version: '0.0.1' }),
     /not a git checkout.*--commit <sha>/u,
   )
 })
@@ -220,7 +236,7 @@ test('needs --version without a package.json version', async (context: TestConte
   await writeFile(path.join(dir, 'package.json'), '{"name":"x"}\n')
 
   await assert.rejects(
-    resolveProvenance({ cwd: dir, commit: SHA }),
+    resolveProvenance({ sharddev: SDK, cwd: dir, commit: SHA }),
     /no version in .*package\.json; pass --version X\.Y\.Z/u,
   )
 })
@@ -229,15 +245,30 @@ test('refuses a version or commit the API would refuse', async (context: TestCon
   const dir = await scratch(context)
 
   await assert.rejects(
-    resolveProvenance({ cwd: dir, version: 'v1.0', commit: SHA }),
+    resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      version: 'v1.0',
+      commit: SHA,
+    }),
     /--version v1\.0 is not X\.Y\.Z/u,
   )
   await assert.rejects(
-    resolveProvenance({ cwd: dir, version: '01.0.0', commit: SHA }),
+    resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      version: '01.0.0',
+      commit: SHA,
+    }),
     /--version 01\.0\.0 is not X\.Y\.Z/u,
   )
   await assert.rejects(
-    resolveProvenance({ cwd: dir, version: '0.0.1', commit: 'abc123' }),
+    resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      version: '0.0.1',
+      commit: 'abc123',
+    }),
     /--commit abc123 is not a full 40-hex sha/u,
   )
 })
