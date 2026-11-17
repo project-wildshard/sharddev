@@ -29,6 +29,12 @@ This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
 run `pnpm install` in the new project, then `pnpm exec wildshard <verb>` to use the copy it pins.
 Add npm packages of your own with `pnpm add <name>`.
 
+**`npm audit` on a fresh install.** From sdk 0.3.10 it reports no high finding of the sdk's own; what is left comes
+through the engine's exact pins until its next release. Accepted, with reasons: vite 8.3.0 (high; launch-editor's
+Windows editor-open flaws and dev-server file reads; the engine pins vite 8.3.0 as a peer, and `wildshard dev` and
+`watch` listen on 127.0.0.1 only), and hono 4.13.13 and @hono/node-server 2.1.5 (moderate; the engine's game server
+pins them). The engine moves to the fixed releases; then the sdk follows.
+
 ## 1. The loop
 
 The loop is: `new`, `dev`, `check`, `hero`, `upload --channel staging`, then `upload --channel prod`, then share the
