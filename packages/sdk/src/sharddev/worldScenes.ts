@@ -1,5 +1,5 @@
 import { parseWorldScenePage } from '@wildshard/format/worldScenePages';
-import { SceneModelSourceSchema, SceneBakeSourceSchema } from '@wildshard/format/sceneSources';
+import { SceneModelSourceSchema, SceneBakeSourceSchema, type SceneModelSourceDocument as SceneModelSource, type SceneBakeSourceDocument as SceneBakeSource } from '@wildshard/format/sceneSources';
 import type { BakedPlacementPlan } from '@wildshard/format/bakedTiles';
 import { isJsonData } from '@wildshard/format/json';
 import { namedJsonSchema, registeredJsonSchema } from './formatJsonSchema';
@@ -14,7 +14,6 @@ import { WorldSceneSurfaceSchema, type WorldSceneSurface } from '@wildshard/form
 import { parseWorldScenePlacement,parseWorldScenePlacementPage } from '@wildshard/format/worldScenePlacement';
 import { parse, record, string, strictObject, array, boolean, object, exactOptional, picklist, pipe, unknown, transform, number, finite, regex, type GenericSchema, type ArraySchema, type StrictObjectSchema, type InferOutput } from 'valibot';
 import { SceneDrawsSchema, type SceneDrawsRows } from '@wildshard/format/sceneDraws';
-import type { SceneModelSource, SceneBakeSource } from '@wildshard/engine/game/shardfile/sceneSources';
 import { nameBlob, type NamedBlob } from './blobs';
 import { ForestPageSchema, LivingPageInputSchema, type LivingPageInputRows, type ForestPageRows } from '@wildshard/format/forestPage';
 import { AdmissionLateSchema, type LateFile } from '@wildshard/format/admissionLate';

@@ -14,6 +14,9 @@ const ENGINE_FREE = [
   'bake/facetedGeometry.ts', 'bake/voxelAO.ts', 'bake/geometryBake.ts',
   // SP6c: the placeholder geometry (and its far-proxy builder) and the terrain chunk geometry are the sdk's own copies
   'bake/placeholders.ts', 'bake/placeholderGeometry.ts', 'bake/farProxy.ts', 'bake/terrainGeometry.ts',
+  // SP8a: the library half reaches no engine module in place; dev-bound files move to packages/dev in SP8b
+  'worldScenes.ts', 'bake/slabs.ts', 'bake/wholeGeometryPieces.ts', 'projectGeneration.ts', 'kit/geometryPack.ts', 'bake/mapAssembly.ts',
+  'bake/splatGround.ts',
 ];
 /** Files that keep an engine import SP6 does not own: kit content is SP3's, the GLB whole-piece decoder and the client
  *  channel view stay engine reads until SP8, and `splatGround`'s engine texture table (`filePolicy`) leaves with SP7. */
@@ -29,7 +32,7 @@ const LAW_IMPORTS_GONE: Readonly<Record<string, readonly string[]>> = {
 };
 
 const engineImports = (file: string): string[] =>
-  [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/from '@wildshard\/engine\/([^']+)'/gu)].map(m => m[1] ?? '');
+  [...readFileSync(resolve(ROOT, file), 'utf8').matchAll(/(?:from |import\()'@wildshard\/engine\/([^']+)'/gu)].map(m => m[1] ?? '');
 
 test.each(ENGINE_FREE)('%s imports no engine path', file => {
   expect(engineImports(file)).toEqual([]);
@@ -47,15 +50,23 @@ test('SP7b: the build names no engine music; check does, at its validate step (t
   expect(localImports('checkProject.ts')).toContain('./engineMusic');
 });
 
-test('SP7d: generation loads the portal proof (Rapier and the engine sim) only when a generator asks for it', async () => {
+test('SP8a: generation never loads the portal proof itself; build alone refuses it, naming wildshard check', async () => {
   const text = readFileSync(resolve(ROOT, 'projectGeneration.ts'), 'utf8');
-  expect(text).not.toMatch(/^import (type )?\{[^}]*\} from '\.\/projectEntryProof'/mu);
-  const { createProjectGeneration } = await import('../src/sharddev/projectGeneration');
-  const scratch = resolve(import.meta.dirname, '..', 'tmp', 'sp7d-generation');
+  expect(text).not.toMatch(/projectEntryProof'/u);
+  const { createProjectGeneration, providePortalEntryProof, PORTAL_PROOF_REFUSAL } = await import('../src/sharddev/projectGeneration');
+  expect(PORTAL_PROOF_REFUSAL).toContain('wildshard check');
+  const scratch = resolve(import.meta.dirname, '..', 'tmp', 'sp8a-generation');
   mkdirSync(scratch, { recursive: true });
   try {
     const context = createProjectGeneration(scratch, '0'.repeat(64), new Map(), resolve(scratch, 'cache'));
-    // The real proof parses its shard first, so a bad one refuses there: the call reached projectEntryProof lazily.
-    await expect(context.proveStaticPortalEntries({} as never, [])).rejects.toThrow();
+    await expect(context.proveStaticPortalEntries({} as never, [])).rejects.toThrow(PORTAL_PROOF_REFUSAL);
+    const proof = { lanes: 1, steps: 2, portalTransfers: 3 };
+    providePortalEntryProof(async () => proof);
+    try { await expect(context.proveStaticPortalEntries({} as never, [])).resolves.toBe(proof); }
+    finally { providePortalEntryProof(undefined); }
   } finally { rmSync(scratch, { recursive: true, force: true }); }
+});
+
+test('SP8a: the author CLI hands generation the engine portal walk (dev)', () => {
+  expect(readFileSync(resolve(ROOT, 'cli.ts'), 'utf8')).toMatch(/providePortalEntryProof\(/u);
 });

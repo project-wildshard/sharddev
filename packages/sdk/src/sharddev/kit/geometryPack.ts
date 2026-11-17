@@ -94,17 +94,3 @@ export class GeometryPackWriter {
     this.chunks.push(padded); this.size += padded.length;
   }
 }
-
-/** Fetch a zlib-deflated bake and inflate it (a failed fetch throws). */
-export async function fetchDeflated(url: string): Promise<Uint8Array> {
-  // The authoring codec is also imported by isolated Node bakers. Only a runtime
-  // fetch needs the engine's presentation-aware decoder.
-  const { fetchDeflatedBytes } = await import('@wildshard/engine/core/deflate');
-  return fetchDeflatedBytes(url);
-}
-
-/** Fetch a zlib bake whose four-byte words are stored in byte lanes, restoring them within the live frame budget. */
-export async function fetchLaneBake(url: string): Promise<Uint8Array> {
-  const { fetchLaneBytes } = await import('@wildshard/engine/core/deflate');
-  return fetchLaneBytes(url);
-}

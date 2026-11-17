@@ -30,6 +30,11 @@ import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } f
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
+import { providePortalEntryProof } from './projectGeneration';
+
+// SDK-SPLIT SP8a: generation's static portal walk (Rapier and the engine sim) is this CLI's to hand in; it loads only when
+// a generator asks for it (Nine Dragon's entry proof), so a build that never asks never starts Rapier.
+providePortalEntryProof(async (input, pieces) => (await import('./projectEntryProof')).proveStaticPortalEntries(input, pieces));
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 /** The performance report's static half (declared bounds, downloads, memory): every refusal stands except the missing

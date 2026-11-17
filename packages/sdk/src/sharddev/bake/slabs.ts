@@ -2,7 +2,7 @@ import { BufferAttribute, type BufferGeometry, Float16BufferAttribute, Group, Ma
 import * as v from 'valibot';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { NativeAttributesSchema } from '@wildshard/format/nativeGeometryChannels';
-import { wholeGeometryPieces } from '@wildshard/engine/game/shardfile/wholeGeometryPieces';
+import { wholeGeometryPieces } from './wholeGeometryPieces';
 import type { WholeGeometryPiece as FormatWholePiece } from '@wildshard/format/wholePartition';
 import { joinWholePieceSteps } from './wholePieceJoin';
 import { WorldSceneSlabsSchema, type WorldSceneSlabChunk, type WorldSceneSlabFile, type WorldSceneSlabKey, type WorldSceneSlabLibrary } from '@wildshard/format/worldSceneSlabs';

@@ -6,6 +6,7 @@ import { parseWorldScenes } from '@wildshard/format/worldScenes';
 import { WorldSceneSlabsSchema } from '@wildshard/format/worldSceneSlabs';
 import { joinWholePieceSteps } from './wholePieceJoin';
 import { wholeGeometryPieces } from '@wildshard/engine/game/shardfile/wholeGeometryPieces';
+import { wholeGeometryPieces as sdkWholeGeometryPieces } from './wholeGeometryPieces';
 import { bakeProps } from './props';
 import { readSourceModel } from './skinned';
 import { partitionSlabGeometry, slabGeometryBytes } from './slabChunks';
@@ -299,4 +300,23 @@ test.each([0, 1, 2, 3])('slab verification still refuses corruption in aligned w
   geometry.setAttribute('position', new BufferAttribute(new CorruptFloat32Array(position.array), 3));
   try { expect(() => partitionSlabGeometry(geometry, 36, new Matrix4(), 1000)).toThrow('Slab channel copy differs'); }
   finally { geometry.dispose(); }
+});
+
+// SDK-SPLIT SP8a: the sdk's own whole-piece decode (`./wholeGeometryPieces`) is the engine's, piece for piece and bit for bit.
+test.each([[false, false], [true, false], [false, true]])('the sdk whole-piece decode is the engine one, shader-normal=%s across-tiles=%s', async (shaderNormal, acrossTiles) => {
+  const input = fixture(shaderNormal, acrossTiles);
+  for (const hash of input.shardfile.tiles.flatMap(row => row.files)) {
+    const source = input.assets.get(hash); if (source === undefined) throw new Error('Missing source');
+    const ours = await meshes(source), theirs = await meshes(source);
+    const sdk = sdkWholeGeometryPieces(ours), engine = wholeGeometryPieces(theirs);
+    try {
+      expect(sdk.map(piece => ({ ...piece, geometry: triangles(piece.geometry), matrix: piece.matrix.toArray() })))
+        .toEqual(engine.map(piece => ({ part: piece.part, geometry: triangles(piece.geometry), matrix: piece.matrix.toArray(), vertices: piece.vertices,
+          triangles: piece.triangles, vertexCount: piece.vertexCount, indexCount: piece.indexCount, layout: piece.layout })));
+      const broken = ours[0]; if (broken === undefined) throw new Error('No mesh');
+      broken.userData['matrix64'] = [1, 2, 3];
+      expect(() => sdkWholeGeometryPieces(ours)).toThrow();
+      expect(() => wholeGeometryPieces(ours)).toThrow();
+    } finally { for (const piece of [...sdk, ...engine]) piece.geometry.dispose(); release(ours); release(theirs); }
+  }
 });

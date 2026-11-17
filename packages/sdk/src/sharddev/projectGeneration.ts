@@ -64,10 +64,17 @@ export interface GeneratedProject {
   /** Computed data bindings admitted into the product receipt, never imported at runtime. */
   readonly discovery?: DiscoveryInput;
 }
+/** The static portal walk (Rapier and the engine sim): the dev package's `projectEntryProof`, handed in by its CLI. */
+export type PortalEntryProof = (input: Shardfile, pieces: unknown) => Promise<StaticPortalEntryProof>;
+/** What build alone says to a generator that asks for the portal walk (SDK-SPLIT SP8a, SP7d's carry). */
+export const PORTAL_PROOF_REFUSAL = 'proveStaticPortalEntries needs the engine: the portal walk runs under wildshard check or wildshard build with @wildshard/dev installed (@wildshard/build alone refuses it)';
+let portalEntryProof: PortalEntryProof | undefined;
+/** The dev package installs the engine's portal walk; `undefined` takes it away again (tests). */
+export function providePortalEntryProof(prove: PortalEntryProof | undefined): void { portalEntryProof = prove; }
 /** Build-only capabilities. No cache filename or intermediate source file enters a product. */
 export interface ProjectGenerationContext {
-  /** Always fresh: prove real static portal capsule walks and dispose their native world (`projectEntryProof`, loaded
-   *  only when called, SP7d). */
+  /** Always fresh: prove real static portal capsule walks and dispose their native world (the dev package's
+   *  `projectEntryProof`, handed in by `providePortalEntryProof`; build alone refuses, SP8a). */
   proveStaticPortalEntries: (input: Shardfile, pieces: unknown) => Promise<StaticPortalEntryProof>;
   /** Decode bounded still image bytes into owned RGBA at build time; no Sharp dependency enters the author bundle. */
   readImagePixels: typeof readImagePixels;
@@ -144,9 +151,12 @@ export function createProjectGeneration(project: string, programHash: string, as
     compileDecisionScripts: (input, source, moves, authored, options) => compileDeclaredDecisionScripts(input, source, moves, authored, { ...options, compileMemo: memoAssemblyScript }),
     compileDecisionRows: (input, registries, authored, options) => compileDecisionScripts(input, registries, authored, { ...options, compileMemo: memoAssemblyScript }),
     compileReturnProjection: (input, registries, authored, options) => compileReturnProjectionV2(input, registries, authored, { ...options, compileMemo: memoAssemblyScript }),
-    // SDK-SPLIT SP7d: the portal proof runs Rapier and the engine's entry walk; it loads only when a generator asks
-    // (Nine Dragon's entry proof), so a build that never asks never loads the engine. SP8 moves it into the dev package.
-    proveStaticPortalEntries: async (input, pieces) => (await import('./projectEntryProof')).proveStaticPortalEntries(input, pieces),
+    // SDK-SPLIT SP7d/SP8a: the portal proof runs Rapier and the engine's entry walk, so it lives in the dev package, which
+    // hands it in (providePortalEntryProof); build alone refuses a generator that asks for it.
+    proveStaticPortalEntries: async (input, pieces) => {
+      if (portalEntryProof === undefined) throw new Error(PORTAL_PROOF_REFUSAL);
+      return await portalEntryProof(input, pieces);
+    },
     readImagePixels, writeImagePixels, normalizeWorldGlb,
     basisEncoder: createBasisEncoder, phoneAstcKtx2, encodeGainKey: encodeGainKeyMemo, encodePortableBytes: encodePortableBytesMemo, encodeZstdBytes: encodeZstdBytesMemo, meshoptNoLarger: meshoptNoLargerMemo,
     inputFiles: prefixes => projectInputFiles(roots, prefixes, root),
