@@ -192,6 +192,25 @@ export interface SceneMove {
   readonly loop: 'pingpong' | 'once' | 'repeat';
 }
 
+/** SS-MS2a4: a vehicle part's rest (the base centre of its bounds, in the cell's frame) and its driving. */
+export interface SceneVehicle {
+  readonly at: Vec3;
+  /** the half width of its footprint across its heading: where a rider steps off */
+  readonly side: number;
+  /** the half length of its footprint along its heading: how near a player boards */
+  readonly reach: number;
+  readonly speed: number;
+  readonly turn: number;
+  readonly boost: number;
+  readonly accel: number;
+  readonly ground: boolean;
+  readonly heading: number;
+  readonly seat: number;
+  readonly wind?: { readonly toward: readonly [number, number]; readonly push: number };
+  readonly board: string;
+  readonly leave: string;
+}
+
 export interface ScenePart {
   readonly name: string;
   /** AP16: the panel id when the part is one (`world.part(name, build, { panel })`): one hideable GLB and one collider */
@@ -200,6 +219,8 @@ export interface ScenePart {
   readonly touch?: SceneTouch;
   /** SS-GF2a: a mover panel's track (format `movers`): its solids ride it, never a static collider */
   readonly move?: SceneMove;
+  /** SS-MS2a4: a vehicle panel's driving (format `movers`, a native steer carry): no collider, every page poses its GLB */
+  readonly vehicle?: SceneVehicle;
   /** SS-GF0: a panel shown while a state field holds a value (`world.part(..., { panel, shownWhen })`) */
   readonly shownWhen?: { readonly field: string; readonly equals: number };
   /** content hash of everything below and of the materials, textures and geometries it uses */

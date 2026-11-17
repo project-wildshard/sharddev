@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type ToolOptions, type TouchableOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type ToolOptions, type TouchableOptions, type VehicleOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneVehicle, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -192,7 +192,7 @@ function swingRow(path: string, node: Object3D, options: Required<HangOptions>):
   return { path, pivot: v3(pivot), length: clamp(pivot.y - middle, 0.05, 10), rate: clamp(options.rate, 0.05, 4), amount: clamp(options.amount, 0, 0.6), reach: clamp(options.reach, 0, 3) };
 }
 
-function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions, mover?: MoverOptions): ScenePart {
+function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: TouchableOptions, mover?: MoverOptions, vehicle?: VehicleOptions): ScenePart {
   const draws: SceneDraw[] = [], sprites: SceneSprite[] = [], lights: SceneLight[] = [], colliders: SceneCollider[] = [], water: SceneWater[] = [], points: ScenePoints[] = [];
   // SS8d: the part's hung bodies, each a row the first time something under it lowers
   const swings: SceneSwing[] = [], swingIndex = new Map<Object3D, number>();
@@ -290,7 +290,9 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
   if (touch !== undefined) hash.json(touch);
   const move = mover === undefined ? undefined : moveOf(root, colliders, mover);
   if (move !== undefined) hash.json(move);
-  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), ...(move === undefined ? {} : { move }), draws, sprites, points, lights, colliders, water, ...(swings.length === 0 ? {} : { swings }), materials, textures, geometries };
+  const drive = vehicle === undefined ? undefined : vehicleOf(root, vehicle);
+  if (drive !== undefined) hash.json(drive);
+  return { name: root.name, hash: hash.hex(), ...(panel === undefined ? {} : { panel }), ...(touch === undefined ? {} : { touch }), ...(move === undefined ? {} : { move }), ...(drive === undefined ? {} : { vehicle: drive }), draws, sprites, points, lights, colliders, water, ...(swings.length === 0 ? {} : { swings }), materials, textures, geometries };
 }
 
 /** SS-GF2a: a mover part's track: its rest at the centre of its bounds, its solids about that, the path from there. */
@@ -310,6 +312,38 @@ function moveOf(root: Object3D, colliders: readonly SceneCollider[], options: Mo
   if (path.some((p, i) => i > 0 && p.every((n, k) => n === path[i - 1]?.[k]))) throw new SceneRefusalError(root.name, 'a mover\'s path stands still between two points', 'Drop the repeated point');
   const boxes = colliders.map((c) => ({ x: round(c.centre[0] - at[0]), y: round(c.centre[1] - at[1]), z: round(c.centre[2] - at[2]), hx: round(c.half[0]), hy: round(c.half[1]), hz: round(c.half[2]), rot: c.rotation }));
   return { at, boxes, path, seconds: options.seconds, start: options.start ?? 'stand', loop: options.loop ?? 'pingpong' };
+}
+
+/** SS-MS2a4: a vehicle part's rest at the base centre of its bounds, its footprint and its driving, each in the format's range. */
+function vehicleOf(root: Object3D, options: VehicleOptions): SceneVehicle {
+  const box = new Box3().setFromObject(root);
+  if (box.isEmpty()) throw new SceneRefusalError(root.name, 'a vehicle part has no bounds', 'Give it a mesh');
+  const range = (what: string, value: number | undefined, fallback: number, min: number, max: number): number => {
+    const n = value ?? fallback;
+    if (!(Number.isFinite(n) && n >= min && n <= max)) throw new SceneRefusalError(root.name, `a vehicle's ${what} ${String(n)} is outside ${String(min)} to ${String(max)}`, `Give world.part's vehicle a ${what} in that range`);
+    return n;
+  };
+  const round = (n: number): number => Math.round(n * 1e4) / 1e4;
+  const heading = range('heading', options.heading, 0, -Math.PI, Math.PI), seat = range('seat', options.seat, 0.8, -10, 10);
+  const centre = box.getCenter(new Vector3()), size = box.getSize(new Vector3());
+  const at: Vec3 = [round(centre.x), round(box.min.y), round(centre.z)];
+  if (at.some((n) => Math.abs(n) > 250)) throw new SceneRefusalError(root.name, 'a vehicle stands outside the 500 m cell', 'Build it within 250 m of the cell\'s centre');
+  // its footprint in its own frame: the bounds turned back by its heading (a box's extent along and across it)
+  const cos = Math.abs(Math.cos(heading)), sin = Math.abs(Math.sin(heading)), across = (size.x * cos + size.z * sin) / 2, along = (size.x * sin + size.z * cos) / 2;
+  const label = (what: string, text: string | undefined, fallback: string): string => {
+    const value = text ?? fallback;
+    if (value.length === 0 || value.length > 128) throw new SceneRefusalError(root.name, `a vehicle's ${what} label is not 1 to 128 characters`, 'Give it a short label');
+    return value;
+  };
+  const wind = options.wind;
+  if (wind !== undefined) {
+    if (!wind.toward.every((n) => Number.isFinite(n)) || Math.hypot(...wind.toward) === 0) throw new SceneRefusalError(root.name, 'a vehicle\'s wind blows toward no direction', 'Give wind.toward an (x, z) that is not (0, 0)');
+    range('wind push', wind.push, 0, 0, 20);
+  }
+  return { at, side: round(Math.min(8, across)), reach: round(Math.min(8, along)), speed: range('speed', options.speed, 0, 0.005, 60), turn: range('turn', options.turn, 1.2, 0, 2 * Math.PI),
+    boost: range('boost', options.boost, 1.5, 1, 4), accel: range('accel', options.accel, 6, 0.005, 100), ground: options.ground === true, heading: round(heading), seat,
+    ...(wind === undefined ? {} : { wind: { toward: [wind.toward[0], wind.toward[1]] as const, push: wind.push } }),
+    board: label('board', options.board, 'Board'), leave: label('leave', options.leave, 'Leave') };
 }
 
 /** SS9d: a touchable panel's body, fitted round the part's world bounds (each half extent at most 8 m, the format's). */
@@ -416,7 +450,7 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
 const RACE_CAP_DEFAULT = 600;
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
-  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
+  const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>(), vehicles = new Map<Object3D, VehicleOptions>();
   // SS-GF0: the state writes of `sets` prompts, and the panels a field shows
   const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>(), pickups: ScenePickup[] = [], races: SceneRace[] = [];
   let sky: SceneSky | null = null;
@@ -451,14 +485,21 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       if (options.mover !== undefined) {
         if (panel === undefined) throw new SceneRefusalError(name, 'a mover part is a panel', 'Give it a panel id too: world.part(name, build, { panel, mover })');
         if (options.touchable !== undefined) throw new SceneRefusalError(name, 'a part is a mover or touchable, not both', 'Drop one of the two options');
-        if (movers.size >= 32) throw new SceneRefusalError(name, 'a shard has at most 32 movers', 'Merge movers that travel together');
+        if (movers.size + vehicles.size >= 32) throw new SceneRefusalError(name, 'a shard has at most 32 movers', 'Merge movers that travel together');
         movers.set(group, options.mover);
+      }
+      // SS-MS2a4: a vehicle is a panel too (its GLB is what every page drives), never a mover or touchable (one row drives it)
+      if (options.vehicle !== undefined) {
+        if (panel === undefined) throw new SceneRefusalError(name, 'a vehicle part is a panel', 'Give it a panel id too: world.part(name, build, { panel, vehicle })');
+        if (options.touchable !== undefined || options.mover !== undefined) throw new SceneRefusalError(name, 'a vehicle part is not touchable or a mover', 'Drop touchable or mover, or vehicle');
+        if (movers.size + vehicles.size >= 32) throw new SceneRefusalError(name, 'a shard has at most 32 movers and vehicles', 'Drop a vehicle');
+        vehicles.set(group, options.vehicle);
       }
       // SS-GF0: a shown part is a panel (its GLB and collider are what show), read against its field once the build has run
       if (options.shownWhen !== undefined) {
         if (panel === undefined) throw new SceneRefusalError(name, 'a shown part is a panel', 'Give it a panel id too: world.part(name, build, { panel, shownWhen })');
         // its body or track would stay solid while the panel hides: the engine toggles only a static collider by a field
-        if (options.touchable !== undefined || options.mover !== undefined) throw new SceneRefusalError(name, 'a shown part is not touchable or a mover', 'Show a still panel; drop touchable or mover, or shownWhen');
+        if (options.touchable !== undefined || options.mover !== undefined || options.vehicle !== undefined) throw new SceneRefusalError(name, 'a shown part is not touchable or a mover, nor a vehicle', 'Show a still panel; drop touchable, mover or vehicle, or shownWhen');
         shown.set(group, options.shownWhen);
       }
       fill(group); return group;
@@ -541,7 +582,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
     details: new Set(detailRequests.map((request) => request.mesh)) };
   const lowered = roots.map((root) => {
-    const part = lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root)), when = shown.get(root);
+    const part = lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root), vehicles.get(root)), when = shown.get(root);
     return when === undefined ? part : Object.assign(part, { shownWhen: shownValue(root.name, when, writes) });
   });
   const details = detailRequests.map((request) => lowerDetail(request, tables));

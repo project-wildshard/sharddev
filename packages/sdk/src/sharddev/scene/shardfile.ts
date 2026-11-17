@@ -10,7 +10,7 @@ import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, SceneVehicle, ShardScene } from './description';
 import { SceneRefusalError } from './lower';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
@@ -788,11 +788,14 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     ...(part.touch.restitution === undefined ? {} : { restitution: part.touch.restitution }),
     ...(part.touch.damping === undefined ? {} : { linearDamping: part.touch.damping, angularDamping: part.touch.damping }) }]);
   // SS-GF2a: a mover panel's solids ride its track (format `movers`), never a static collider
-  const movers = scene.parts.flatMap((part) => part.move === undefined || part.panel === undefined ? [] : [{ id: part.panel, move: part.move }])
+  const tracks = scene.parts.flatMap((part) => part.move === undefined || part.panel === undefined ? [] : [{ id: part.panel, move: part.move }])
     .map(({ id, move }, i) => moverRow(id, move, MOVER_ENTITY_BASE + i));
+  // SS-MS2a4: a vehicle panel is a native steer carry after the track movers, its entity next in line
+  const movers = [...tracks, ...scene.parts.flatMap((part) => part.vehicle === undefined || part.panel === undefined ? [] : [{ id: part.panel, vehicle: part.vehicle }])
+    .map(({ id, vehicle }, i) => vehicleRow(id, vehicle, MOVER_ENTITY_BASE + tracks.length + i))];
   // SS-GF1a2: a part a player's own field shows (their socket) has no collider: one collider stands for every player
   const playerFields = new Set((scene.anchored.writes ?? []).filter((w) => w.scope === 'player').map((w) => w.field));
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && part.vehicle === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
@@ -838,6 +841,26 @@ export function moverRow(id: string, move: SceneMove, entity: number): Record<st
   };
   const boxes = move.boxes.map((b) => ({ x: b.x, y: b.y, z: b.z, hx: b.hx, hy: b.hy, hz: b.hz, rot: { x: b.rot[0], y: b.rot[1], z: b.rot[2], w: b.rot[3] } }));
   return { id, entity, kind: 'platform', ...rest, enabled: true, boxes, ...lowerMoverMotion(motion, rest), ...motion, execution: 'native' };
+}
+
+/**
+ * SS-MS2a4: one vehicle part as a format `movers` row: a native carry `channel` with a `steer` driver (engine SS-MS2a1b),
+ * boarded and left by its two prompts, which ride with it in its own frame (x right, z back), as its landing does: the rider
+ * steps off beside it. Its rest is the base of its bounds, so a ground follower stands on the floor it finds.
+ */
+export function vehicleRow(id: string, vehicle: SceneVehicle, entity: number): Record<string, unknown> {
+  const [ax, ay, az] = vehicle.at, rest = { at: { x: ax, y: ay, z: az }, euler: { x: 0, y: vehicle.heading, z: 0 } };
+  const motion: MoverMotion = { trigger: { kind: 'interact', permission: 0 }, driver: { kind: 'steer', speed: vehicle.speed, turn: vehicle.turn,
+    boost: vehicle.boost, accel: vehicle.accel, ground: vehicle.ground, ...(vehicle.wind === undefined ? {} : { wind: { toward: [vehicle.wind.toward[0], vehicle.wind.toward[1]], push: vehicle.wind.push } }) } };
+  const step = round(vehicle.side + 1);
+  const carry = {
+    seat: vehicle.seat, landings: [[step, 0, 0], [-step, 0, 0]], yaw: 0,
+    surface: { level: 0, bankRamp: 0, bob: [0, 0], pitch: [0, 0], roll: [0, 0, 0] },
+    // board from beside it on foot; leave from the seat, where the rider's eyes are
+    prompts: [{ at: [0, 1, 0], radius: round(Math.min(10, Math.max(vehicle.side, vehicle.reach) + 2)), label: vehicle.board },
+      { at: [0, round(vehicle.seat + 1.2), 0], radius: 2, label: vehicle.leave }],
+  };
+  return { id, entity, kind: 'channel', ...rest, enabled: true, boxes: [], ...lowerMoverMotion(motion, rest), ...motion, carry, execution: 'native' };
 }
 
 /**

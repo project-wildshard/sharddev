@@ -18,6 +18,8 @@ export interface PartOptions {
   readonly touchable?: TouchableOptions;
   /** SHARD-SOURCE SS-GF2a: a panel that rides a track (a raft, a ferry): the server moves its solids, every page its GLB */
   readonly mover?: MoverOptions;
+  /** SHARD-SOURCE SS-MS2a4: a panel a player boards and steers (a land-sail): the server drives it, every page its GLB */
+  readonly vehicle?: VehicleOptions;
   /**
    * SHARD-SOURCE SS-GF0: a panel shown while a state field holds `equals` (a shrine's flame once it is lit), hidden
    * otherwise, its solids with it. The field is one a use prompt's `sets` writes.
@@ -92,6 +94,34 @@ export interface MoverOptions {
   readonly loop?: 'pingpong' | 'once' | 'repeat';
 }
 
+/**
+ * SS-MS2a4: a vehicle a player boards and steers (format `movers`, a native carry with a `steer` driver). It stands where it
+ * is built, its rest the centre of its footprint at the bottom of its bounds, facing `heading`. A player near it boards with
+ * the `board` prompt and rides at `seat`; the stick steers (forward goes, back brakes, it never reverses), sprint boosts, and
+ * the `leave` prompt sets the rider down beside it. A riderless vehicle slows to a stand. Its solids do not block anyone.
+ */
+export interface VehicleOptions {
+  /** top speed in m/s (0.005 to 60) */
+  readonly speed: number;
+  /** turn rate in radians a second at full stick (default 1.2, at most 2π) */
+  readonly turn?: number;
+  /** how much faster boost goes (1 to 4, default 1.5) */
+  readonly boost?: number;
+  /** m/s² it gains or sheds speed (default 6, at most 100) */
+  readonly accel?: number;
+  /** follow the ground under it (default false: it keeps the height it is built at) */
+  readonly ground?: boolean;
+  /** the heading it is built facing, radians (default 0: forward is -z; a right turn lowers it) */
+  readonly heading?: number;
+  /** the rider's height above the vehicle's base in metres (default 0.8) */
+  readonly seat?: number;
+  /** a sail: the wind blowing toward (x, z) pushes it up to `push` m/s (0 to 20) along its heading, as far as the stick opens it */
+  readonly wind?: { readonly toward: readonly [number, number]; readonly push: number };
+  /** the board and leave prompts' labels (default `Board` and `Leave`) */
+  readonly board?: string;
+  readonly leave?: string;
+}
+
 /** How a touchable panel's body is made. Its rest is the part's bounds: centred there, the shape fitted round them. */
 export interface TouchableOptions {
   /** the body's shape round the part's bounds (default `box`) */
@@ -112,6 +142,7 @@ export interface ShardWorld {
    * `options.panel` makes the part a panel (SHARD-SOURCE AP16): its meshes ship as one GLB the shard's `targets.panels`
    * rows show and hide by state (a gate that opens, a rifle taken off a rack), and its solids as one collider of that id.
    * `options.mover` (with a panel) makes it ride a track: a raft a player stands on and rides (SHARD-SOURCE SS-GF2a).
+   * `options.vehicle` (with a panel) makes it a vehicle a player boards and steers: a land-sail (SHARD-SOURCE SS-MS2a4).
    */
   part: (name: string, build: (part: Group) => void, options?: PartOptions) => Group;
   /**
