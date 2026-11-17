@@ -160,7 +160,7 @@ const VERBS: Readonly<Record<string, string>> = {
                        outputs; --check refuses stale ones and writes
                        nothing`,
   memory: `memory <folder> [--out=<report.json>]
-                       Boot the built product on the installed engine's
+                       Boot the built shard on the installed engine's
                        phone-tier preparation client. Print the measured
                        peak and fail above the 1.5 GB phone line.`,
   prepare: `prepare <folder> [--base <exact-preview-url>]
