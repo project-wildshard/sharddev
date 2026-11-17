@@ -1,5 +1,5 @@
-import { NodeIO } from '@gltf-transform/core';
-import { ALL_EXTENSIONS, EXTMeshoptCompression, KHRMeshQuantization } from '@gltf-transform/extensions';
+import { NodeIO, type Node as GltfNode } from '@gltf-transform/core';
+import { ALL_EXTENSIONS, EXTMeshGPUInstancing, EXTMeshoptCompression, KHRMeshQuantization, type InstancedMesh as GltfInstances } from '@gltf-transform/extensions';
 import { MeshoptDecoder, MeshoptSimplifier } from 'meshoptimizer';
 import sharp from 'sharp';
 import { BufferAttribute, BufferGeometry, Color, Float32BufferAttribute, Matrix4, MeshBasicMaterial, MeshStandardMaterial, Quaternion, SRGBColorSpace, Vector3 } from 'three';
@@ -458,6 +458,23 @@ function tileSurfaces(shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>)
   };
 }
 
+/** A tile node's world matrices: its own, or one per EXT_mesh_gpu_instancing copy (TRS columns or an exact `_MATRIX`). */
+function nodeTransforms(node: GltfNode): number[][] {
+  const world = new Matrix4().fromArray(Array.from(node.getWorldMatrix())), instances = node.getExtension<GltfInstances>('EXT_mesh_gpu_instancing');
+  if (instances === null) return [Array.from(world.elements)];
+  const exact = instances.getAttribute('_MATRIX'), t = instances.getAttribute('TRANSLATION'), r = instances.getAttribute('ROTATION'), s = instances.getAttribute('SCALE');
+  const count = (exact ?? t ?? r ?? s)?.getCount() ?? 0, out: number[][] = [], m = new Matrix4(), e: number[] = [];
+  for (let k = 0; k < count; k++) {
+    if (exact !== null) m.fromArray(exact.getElement(k, e));
+    else {
+      const p = t === null ? [0, 0, 0] : t.getElement(k, [0, 0, 0]), q = r === null ? [0, 0, 0, 1] : r.getElement(k, [0, 0, 0, 1]), sc = s === null ? [1, 1, 1] : s.getElement(k, [1, 1, 1]);
+      m.compose(new Vector3(p[0] ?? 0, p[1] ?? 0, p[2] ?? 0), new Quaternion(q[0] ?? 0, q[1] ?? 0, q[2] ?? 0, q[3] ?? 1), new Vector3(sc[0] ?? 1, sc[1] ?? 1, sc[2] ?? 1));
+    }
+    out.push(Array.from(m.premultiply(world).elements));
+  }
+  return out;
+}
+
 /**
  * A shardfile's drawn static world as near-placeholder prototypes: every mesh of its coarse (L1) tiles' GLBs, each
  * primitive one prototype at its node's world matrix, coloured as the shard's own catalogue draws it (`tileSurfaces`).
@@ -465,8 +482,9 @@ function tileSurfaces(shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>)
 export async function shardfileWorld(shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, skip: (material: string) => boolean = () => false, lod: 0 | 1 = 1): Promise<NearPrototype[]> {
   await MeshoptDecoder.ready;
   const glbs = new Set(shard.files.filter(file => file.kind === 'glb').map(file => file.hash)),
-    // RM8.1: tiles carry quantized channels (KHR_mesh_quantization) and may be meshopt-compressed
-    io = new NodeIO().registerExtensions([EXTMeshoptCompression, KHRMeshQuantization]).registerDependencies({ 'meshopt.decoder': MeshoptDecoder }),
+    // RM8.1: tiles carry quantized channels (KHR_mesh_quantization) and may be meshopt-compressed; a scene shard's
+    // InstancedMesh bakes as EXT_mesh_gpu_instancing (SHARD-SOURCE SS12a)
+    io = new NodeIO().registerExtensions([EXTMeshoptCompression, KHRMeshQuantization, EXTMeshGPUInstancing]).registerDependencies({ 'meshopt.decoder': MeshoptDecoder }),
     out: NearPrototype[] = [], surfaceOf = tileSurfaces(shard, assets);
   for (const tile of shard.tiles) {
     if (tile.lod !== lod) continue;
@@ -476,7 +494,7 @@ export async function shardfileWorld(shard: Shardfile, assets: ReadonlyMap<strin
       const document = await io.readBinary(Uint8Array.from(bytes));
       for (const node of document.getRoot().listNodes()) {
         const mesh = node.getMesh(); if (mesh === null) continue;
-        const matrix = Array.from(node.getWorldMatrix());
+        const transforms = nodeTransforms(node);
         for (const [i, primitive] of mesh.listPrimitives().entries()) {
           const position = primitive.getAttribute('POSITION'), indices = primitive.getIndices(), colour = primitive.getAttribute('COLOR_0'), uv = primitive.getAttribute('TEXCOORD_0');
           if (position === null || primitive.getMode() !== 4 || skip(primitive.getMaterial()?.getName() ?? '')) continue;
@@ -490,7 +508,7 @@ export async function shardfileWorld(shard: Shardfile, assets: ReadonlyMap<strin
             colours.set(surface([factor[0] * (c[0] ?? 1), factor[1] * (c[1] ?? 1), factor[2] * (c[2] ?? 1)], uv === null ? null : t), v * 3);
           }
           const index = indices === null ? Uint32Array.from({ length: count }, (_, k) => k) : Uint32Array.from({ length: indices.getCount() }, (_, k) => indices.getScalar(k));
-          out.push({ name: `${ref.slice(0, 8)}:${node.getName()}:${String(i)}`, positions, colours, index, transforms: [matrix] });
+          out.push({ name: `${ref.slice(0, 8)}:${node.getName()}:${String(i)}`, positions, colours, index, transforms });
         }
       }
     }

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { NodeIO } from '@gltf-transform/core';
-import { Float32BufferAttribute, MeshStandardMaterial, PlaneGeometry } from 'three';
+import { Float32BufferAttribute, Matrix4, MeshStandardMaterial, PlaneGeometry, Quaternion, Vector3 } from 'three';
 import { emptyShardfile } from '../author';
 import { staticGlb } from './glb';
 import { compressGlb } from './glbCompression';
@@ -74,4 +74,21 @@ test('corrupt meshopt payload refuses without poisoning the next near read', asy
   if (ref === undefined) throw new Error('Missing fixture tile');
   await expect(shardfileWorld(packed.shard, new Map([[ref, bytes.subarray(0, -8)]]))).rejects.toThrow();
   expect(await shardfileWorld(packed.shard, packed.assets)).toHaveLength(1);
+});
+
+test('an instanced tile mesh (EXT_mesh_gpu_instancing) reads as one prototype with every copy placed', async () => {
+  // SHARD-SOURCE SS12a (opus-ss10): a scene shard's InstancedMesh (Mirror Salt's salt crust) bakes into its tile GLB as
+  // EXT_mesh_gpu_instancing, and the near bake refused the build with "Missing required extension".
+  const geometry = new PlaneGeometry(2, 2).rotateX(-Math.PI / 2);
+  const material = new MeshStandardMaterial({ color: 0xf7efe8 }); material.name = 'Crust';
+  const a = new Matrix4().makeTranslation(10, 0, 12), b = new Matrix4().compose(new Vector3(30, 1, 40), new Quaternion(), new Vector3(2, 1, 2));
+  try {
+    const raw = admitted(staticGlb([{ geometry, material, name: 'crust', instances: [a, b] }]));
+    const prototypes = await shardfileWorld(raw.shard, raw.assets), first = prototypes[0];
+    expect(prototypes).toHaveLength(1);
+    if (first === undefined) throw new Error('Missing instanced prototype');
+    expect(first.transforms).toHaveLength(2);
+    expect(first.transforms[0]?.slice(12, 15)).toEqual([10, 0, 12]);
+    expect(first.transforms[1]?.map(v => Math.round(v * 1e5) / 1e5)).toEqual(b.elements);
+  } finally { geometry.dispose(); material.dispose(); }
 });
