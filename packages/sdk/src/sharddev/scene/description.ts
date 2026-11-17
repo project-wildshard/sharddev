@@ -319,7 +319,7 @@ export interface SceneTool { readonly id: `tool.${string}`; readonly name: strin
 /** SS-GF1a1b: a pickup (`world.pickup`): `use` is its interaction's id (and its scene's), `flag` the quest flag its take raises. */
 export interface ScenePickup { readonly use: string; readonly tool: SceneTool; readonly flag?: string }
 /** SS-MS1b: a timed run (format `quests.races`) between two quest flags. */
-export interface SceneRace { readonly id: string; readonly start: string; readonly stop: string; readonly fact: string; readonly cap: number }
+export interface SceneRace { readonly id: string; readonly start: string; readonly stop: string; readonly fact: string; readonly cap: number; readonly resets?: readonly string[] }
 export interface SceneAnchored {
   readonly triggers: readonly SceneTrigger[];
   readonly interactions: readonly SceneInteraction[];

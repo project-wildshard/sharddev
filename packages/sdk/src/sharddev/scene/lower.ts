@@ -514,7 +514,14 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       for (const flag of [start, stop, fact]) if (flag.length === 0 || flag.length > 128) throw new SceneRefusalError(id, 'a race\'s flags and fact are 1 to 128 characters', 'Shorten them');
       if (start === stop) throw new SceneRefusalError(id, `race ${id} starts and stops on one flag`, 'Give it a start gate\'s flag and a finish gate\'s flag');
       if (!Number.isInteger(cap) || cap < 1 || cap > 3600) throw new SceneRefusalError(id, `a race's cap ${cap} is outside 1 to 3600 whole seconds`, 'Give the cap in whole seconds, at most an hour');
-      races.push({ id, start, stop, fact, cap });
+      const { resets } = options;
+      if (resets !== undefined) {
+        if (resets.length === 0 || resets.length > 64) throw new SceneRefusalError(id, `race ${id} resets ${String(resets.length)} flags, not 1 to 64 flags`, 'Name the middle gates\' flags, or drop `resets`');
+        for (const flag of resets) if (flag.length === 0 || flag.length > 128) throw new SceneRefusalError(id, 'a race\'s flags and fact are 1 to 128 characters', 'Shorten them');
+        if (resets.includes(start) || resets.includes(stop)) throw new SceneRefusalError(id, `race ${id} resets its own start or stop`, 'A finish lowers those already: name only the gates between them');
+        if (new Set(resets).size !== resets.length) throw new SceneRefusalError(id, `race ${id} names a reset flag twice`, 'Name each gate once');
+      }
+      races.push({ id, start, stop, fact, cap, ...(resets === undefined ? {} : { resets: [...resets] }) });
     },
     detail: (id, mesh, options) => {
       if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');

@@ -38,3 +38,20 @@ test('a race is refused at its line: one flag for both ends, a cap outside 1 to 
   expect(race({ start: 'arch.start', stop: 'arch.finish', cap: 1.5 })).toThrow(/outside 1 to 3600/u);
   expect(race({ start: 'arch.start', stop: 'arch.finish' }, true)).toThrow(/two races share this id/u);
 });
+
+test('a race names its resets: the middle gates its finish and a lapse lower, so a second run counts them again (SS-MS1c)', () => {
+  const scene = lowerShard({ slug: 's', name: 's' }, (world) => {
+    gates(world);
+    world.race('arch', { start: 'arch.start', stop: 'arch.finish', resets: ['arch.1', 'arch.2'] });
+  });
+  expect(scene.anchored.races).toEqual([{ id: 'arch', start: 'arch.start', stop: 'arch.finish', fact: 'arch', cap: 600, resets: ['arch.1', 'arch.2'] }]);
+  const data = parseQuestData(withAnchored({}, scene.anchored).quests as unknown);
+  expect(data.races?.[0]?.resets).toEqual(['arch.1', 'arch.2']);
+  expect(data.flags).toEqual(['arch.start', 'arch.finish', 'arch.1', 'arch.2']);
+  const refused = (resets: string[]) => () => lowerShard({ slug: 's', name: 's' }, (world) => {
+    gates(world); world.race('arch', { start: 'arch.start', stop: 'arch.finish', resets });
+  });
+  expect(refused(['arch.start'])).toThrow(/resets its own start or stop/u);
+  expect(refused([])).toThrow(/1 to 64 flags/u);
+  expect(refused(['arch.1', 'arch.1'])).toThrow(/twice/u);
+});
