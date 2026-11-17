@@ -73,6 +73,9 @@ test('sets and shownWhen write the state, hooks, targets and one generated serve
   if (module === undefined) throw new Error('no generated script');
   expect(shard.sim.scripts).toHaveLength(1);
   expect(shard.sim.bindings).toEqual([{ module, entity: 1106943697, actorId: 'actor.player', kind: 'server' }]);
+  // the socket is the player's alone: no collider stands for it (review MUST-FIX); the shared flame keeps its own
+  expect(shard.props?.colliders.map((c) => c.id)).toContain('shrine.flame');
+  expect(shard.props?.colliders.map((c) => c.id)).not.toContain('shrine.socket');
   expect(shard.files.find((f) => f.hash === module)).toMatchObject({ kind: 'wasm', critical: true });
   expect(shard.critical).toContain(module);
   expect(assets.get(module)?.length).toBeGreaterThan(0);
@@ -108,6 +111,11 @@ test('bad sets and shownWhen refuse by name', () => {
   });
   expect(shown({ shownWhen: { field: 'f.x', equals: true } })).toThrow(/a shown part is a panel/u);
   expect(shown({ panel: 'p.a', shownWhen: { field: 'f.x', equals: true } })).toThrow(/no use prompt sets f.x/u);
+  expect(shown({ panel: 'p.a', shownWhen: { field: 'f.x', equals: true }, touchable: { material: 'wood' } })).toThrow(/not touchable or a mover/u);
+  expect(build((w) => {
+    w.interact('a.b', node, { label: 'x', radius: 2, sets: { field: 'f.x', scope: 'shared', add: 1, max: 3 } });
+    w.interact('a.c', node, { label: 'x', radius: 2, sets: { field: 'f.x', scope: 'shared', add: 1, max: 5 } });
+  })).toThrow(/same max/u);
 });
 
 test('extend keeps its own state, hooks and scripts beside the generated ones, and a clash refuses', async () => {

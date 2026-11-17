@@ -455,6 +455,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       // SS-GF0: a shown part is a panel (its GLB and collider are what show), read against its field once the build has run
       if (options.shownWhen !== undefined) {
         if (panel === undefined) throw new SceneRefusalError(name, 'a shown part is a panel', 'Give it a panel id too: world.part(name, build, { panel, shownWhen })');
+        // its body or track would stay solid while the panel hides: the engine toggles only a static collider by a field
+        if (options.touchable !== undefined || options.mover !== undefined) throw new SceneRefusalError(name, 'a shown part is not touchable or a mover', 'Show a still panel; drop touchable or mover, or shownWhen');
         shown.set(group, options.shownWhen);
       }
       fill(group); return group;
@@ -583,6 +585,9 @@ function stateWrite(use: string, sets: SetsOptions, before: readonly SceneStateW
   else throw new SceneRefusalError(use, `a field's value ${String(sets.value)} is not true, false or a whole number of 0 or more`, 'Set a flag to true or false, or a count to a whole number');
   const earlier = before.find((w) => w.field === field);
   if (earlier !== undefined && earlier.scope !== scope) throw new SceneRefusalError(use, `field ${field} is ${earlier.scope} at ${earlier.use}: a field takes one scope`, 'Use one scope for the field, or name another field');
+  // a field's adds share one max, so each prompt is spent exactly when the count is full
+  const other = 'add' in write ? before.find((w) => w.field === field && 'add' in w && w.max !== write.max) : undefined;
+  if (other !== undefined && 'max' in other) throw new SceneRefusalError(use, `field ${field} counts to ${String(other.max)} at ${other.use}, not ${String('max' in write ? write.max : '')}`, 'Give every add on one field the same max');
   if (earlier !== undefined && earlier.kind !== write.kind) throw new SceneRefusalError(use, `field ${field} holds true or false, or numbers, not both (${earlier.use} sets it as a ${earlier.kind === 'bool' ? 'flag' : 'count'})`, 'Set a flag with true or false only, a count with numbers only');
   return write;
 }

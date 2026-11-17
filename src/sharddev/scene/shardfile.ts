@@ -790,7 +790,9 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // SS-GF2a: a mover panel's solids ride its track (format `movers`), never a static collider
   const movers = scene.parts.flatMap((part) => part.move === undefined || part.panel === undefined ? [] : [{ id: part.panel, move: part.move }])
     .map(({ id, move }, i) => moverRow(id, move, MOVER_ENTITY_BASE + i));
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  // SS-GF1a2: a part a player's own field shows (their socket) has no collider: one collider stands for every player
+  const playerFields = new Set((scene.anchored.writes ?? []).filter((w) => w.scope === 'player').map((w) => w.field));
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
