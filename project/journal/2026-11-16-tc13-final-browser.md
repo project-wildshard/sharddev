@@ -52,3 +52,11 @@ facts and independent clean shutdown. Metal PNG is already retained.
 Restore the held browser-only manual diagnostic to verify this artifact
 change without rebaking unchanged products. Full push/nightly Ring2
 still runs every step; the diagnostic explicitly earns no full-ring credit.
+
+Manual43989420015 proves the same full play facts without PNG, but
+graceful close still exceeds5s. Readback was not the whole shutdown cause.
+Use BrowserServer.kill() as the bounded fallback: the installed public API
+waits for process exit. Verify exitCode/signalCode, retain forced shutdown
+and its graceful-close warning, and fail cleanup if termination cannot be
+confirmed. This requires real resource closure rather than treating slow
+graceful GPU shutdown as a failed play assertion. No play oracle changes.

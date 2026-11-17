@@ -130,7 +130,20 @@ async function observeAuthorBrowser(context, empty) {
       let timer;
       try {
         await Promise.race([server.close(), new Promise((_resolve, reject) => { timer = setTimeout(() => reject(new Error('browser close timeout')), 5_000); })]);
-      } catch (error) { cleanup.push(String(error)); server.process().kill('SIGKILL'); }
+      } catch (error) {
+        // A disposable software browser may hang during graceful GPU shutdown.
+        // Playwright's kill waits for actual process exit; only a failed kill
+        // is a cleanup failure. Preserve the forced-shutdown diagnostic.
+        receipt.browserShutdown = { forced: true, gracefulError: String(error) };
+        clearTimeout(timer);
+        try {
+          await Promise.race([server.kill(), new Promise((_resolve, reject) => { timer = setTimeout(() => reject(new Error('browser kill timeout')), 5_000); })]);
+          const process = server.process();
+          assert.ok(process.exitCode !== null || process.signalCode !== null, 'Owned browser process must actually exit');
+          receipt.browserShutdown.exitCode = process.exitCode;
+          receipt.browserShutdown.signalCode = process.signalCode;
+        } catch (killError) { cleanup.push(String(killError)); server.process().kill('SIGKILL'); }
+      }
       finally { clearTimeout(timer); }
     }
     if (dev) {
