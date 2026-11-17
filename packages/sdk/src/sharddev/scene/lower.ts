@@ -9,7 +9,7 @@ import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
 import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type ToolOptions, type TouchableOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, ScenePickup, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -412,11 +412,13 @@ function lowerDetail(request: DetailRequest, tables: Tables): SceneDetailScatter
   };
 }
 
+/** SS-MS1b: a race with no cap lapses after ten minutes. */
+const RACE_CAP_DEFAULT = 600;
 /** Run the author's build on a fresh scene and read it. Parts come in authored order; `scene` holds anything outside one. */
 export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWorld) => void): ShardScene {
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
   // SS-GF0: the state writes of `sets` prompts, and the panels a field shows
-  const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>(), pickups: ScenePickup[] = [];
+  const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>(), pickups: ScenePickup[] = [], races: SceneRace[] = [];
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
@@ -506,6 +508,14 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       pickups.push({ use: id, tool, ...(options.flag === undefined ? {} : { flag: options.flag }) });
       interactions.push({ id, at, label: options.label, radius: options.radius, scene: id });
     },
+    race: (id, options) => {
+      anchor('race', id);
+      const { start, stop, fact = id, cap = RACE_CAP_DEFAULT } = options;
+      for (const flag of [start, stop, fact]) if (flag.length === 0 || flag.length > 128) throw new SceneRefusalError(id, 'a race\'s flags and fact are 1 to 128 characters', 'Shorten them');
+      if (start === stop) throw new SceneRefusalError(id, `race ${id} starts and stops on one flag`, 'Give it a start gate\'s flag and a finish gate\'s flag');
+      if (!Number.isInteger(cap) || cap < 1 || cap > 3600) throw new SceneRefusalError(id, `a race's cap ${cap} is outside 1 to 3600 whole seconds`, 'Give the cap in whole seconds, at most an hour');
+      races.push({ id, start, stop, fact, cap });
+    },
     detail: (id, mesh, options) => {
       if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');
       if (detailRequests.some((d) => d.id === id)) throw new SceneRefusalError(id, 'two detail layers share this id', 'Give every world.detail its own id');
@@ -542,6 +552,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const anchored: ShardScene['anchored'] = {
     ...(writes.length === 0 ? {} : { writes }),
     ...(pickups.length === 0 ? {} : { pickups }),
+    ...(races.length === 0 ? {} : { races }),
     triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
     interactions: interactions.map((i) => {
       const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };

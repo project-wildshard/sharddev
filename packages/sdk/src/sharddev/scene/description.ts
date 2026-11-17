@@ -318,6 +318,8 @@ export type SceneStateWrite = { readonly use: string; readonly field: string; re
 export interface SceneTool { readonly id: `tool.${string}`; readonly name: string; readonly blurb: string; readonly colour: string; readonly intensity: number; readonly fuelSeconds: number }
 /** SS-GF1a1b: a pickup (`world.pickup`): `use` is its interaction's id (and its scene's), `flag` the quest flag its take raises. */
 export interface ScenePickup { readonly use: string; readonly tool: SceneTool; readonly flag?: string }
+/** SS-MS1b: a timed run (format `quests.races`) between two quest flags. */
+export interface SceneRace { readonly id: string; readonly start: string; readonly stop: string; readonly fact: string; readonly cap: number }
 export interface SceneAnchored {
   readonly triggers: readonly SceneTrigger[];
   readonly interactions: readonly SceneInteraction[];
@@ -325,4 +327,6 @@ export interface SceneAnchored {
   readonly pickups?: readonly ScenePickup[];
   /** SS-GF0: the state writes of `sets` prompts, in the order they were declared; absent or empty: none */
   readonly writes?: readonly SceneStateWrite[];
+  /** SS-MS1b: the races, in the order they were declared; absent or empty: none */
+  readonly races?: readonly SceneRace[];
 }

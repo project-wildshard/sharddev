@@ -871,22 +871,27 @@ export function sceneGameplay(identity: ShardScene['identity'], options: Shardfi
  * it, so an `extend` that replaces `quests` keeps them. An id `extend` already declares is refused: one place, one row.
  */
 export function withAnchored<T extends { quests?: unknown; targets?: unknown }>(shard: T, anchored: ShardScene['anchored']): T {
-  if (anchored.triggers.length === 0 && anchored.interactions.length === 0) return shard;
-  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { flags?: readonly string[]; triggers?: readonly { id: string }[] };
+  const races = anchored.races ?? [];
+  if (anchored.triggers.length === 0 && anchored.interactions.length === 0 && races.length === 0) return shard;
+  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { flags?: readonly string[]; triggers?: readonly { id: string }[]; races?: readonly { id: string }[] };
   // a trigger's flag is a quest flag: declare the ones `extend` did not (review SHOULD 4)
   const flags = [...quests.flags ?? []]; for (const t of anchored.triggers) if (!flags.includes(t.flag)) flags.push(t.flag);
   // SS-GF1a1b: so is a pickup's
   const raised = (anchored.pickups ?? []).flatMap((p) => p.flag === undefined || flags.includes(p.flag) ? [] : [p.flag]);
   for (const flag of raised) if (!flags.includes(flag)) flags.push(flag);
+  // SS-MS1b: and a race's two
+  const timed = races.flatMap((r) => [r.start, r.stop]).filter((flag) => !flags.includes(flag));
+  for (const flag of timed) if (!flags.includes(flag)) flags.push(flag);
   const targets = (shard.targets ?? { panels: [], interactions: [] }) as { interactions?: readonly { id: string }[] };
   const twice = (rows: readonly { id: string }[], added: readonly { id: string }[], what: string): void => {
     const taken = new Set(rows.map((row) => row.id)), clash = added.find((row) => taken.has(row.id));
     if (clash !== undefined) throw new SceneRefusalError(clash.id, `extend declares ${what} ${clash.id} too`, `Declare it once: drop the row from extend, or rename the scene's`);
   };
-  twice(quests.triggers ?? [], anchored.triggers, 'trigger'); twice(targets.interactions ?? [], anchored.interactions, 'interaction');
+  twice(quests.triggers ?? [], anchored.triggers, 'trigger'); twice(quests.races ?? [], races, 'race'); twice(targets.interactions ?? [], anchored.interactions, 'interaction');
   return {
     ...shard,
-    ...(anchored.triggers.length === 0 && raised.length === 0 ? {} : { quests: { ...quests, flags, triggers: [...quests.triggers ?? [], ...anchored.triggers] } }),
+    ...(anchored.triggers.length === 0 && raised.length === 0 && races.length === 0 ? {} : { quests: { ...quests, flags, triggers: [...quests.triggers ?? [], ...anchored.triggers],
+      ...(races.length === 0 ? {} : { races: [...quests.races ?? [], ...races] }) } }),
     ...(anchored.interactions.length === 0 ? {} : { targets: { ...targets, interactions: [...targets.interactions ?? [], ...anchored.interactions] } }),
   };
 }
