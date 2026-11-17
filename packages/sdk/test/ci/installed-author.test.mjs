@@ -212,11 +212,11 @@ test('the outside author uploads its newly built and prepared tarball through th
   assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version: '1.0.0' }]);
 });
 test('the newly built outside-author product boots and accepts real worker input', { timeout: 9_500 }, async () => {
-  const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessFolder');
+  const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
   const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
   const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
   const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
-  const product = await loadHeadlessProduct(join(app, 'first'));
+  const product = await loadHeadlessFolder(join(app, 'first'));
   const descriptor = outputDescriptor(product.shardfile);
   assert.ok(descriptor);
   const assets = new Map(descriptor.index.files.map(file => [file.commons === true ? `commons:${file.hash}` : file.hash, readFileSync(join(app, 'first', file.path))]));
