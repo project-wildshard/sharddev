@@ -10,7 +10,7 @@ import { encodeCanonicalJson } from './immutable';
 import { validateOutputProduct } from './outputProduct';
 import { expandJournalIconSource } from './journalIconSource';
 import { mergeProjectBlobs } from './projectOutput';
-import { SHARD_INDEX } from './shardSource';
+import { SHARD_INDEX } from '../../packages/upload/src/sharddev/shardSource';
 import { expandCombatSource } from './combatSource';
 import { expandNativeHuntSource } from './nativeHuntSource';
 

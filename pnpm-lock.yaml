@@ -51,9 +51,6 @@ importers:
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.16.0
         version: '@wildshard/shard-format@0.16.0(typescript@6.0.3)'
-      '@wildshard/kit':
-        specifier: workspace:*
-        version: link:packages/kit
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -109,6 +106,9 @@ importers:
       '@types/node':
         specifier: 24.3.1
         version: 24.3.1
+      '@wildshard/kit':
+        specifier: workspace:*
+        version: link:packages/kit
       '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
@@ -122,23 +122,23 @@ importers:
         specifier: 0.186.0
         version: 0.186.0
 
+  packages/kit:
+    dependencies:
+      '@wildshard/shard-format':
+        specifier: 0.16.0
+        version: 0.16.0(typescript@6.0.3)
+      three:
+        specifier: 0.186.0
+        version: 0.186.0
+      valibot:
+        specifier: 1.5.0
+        version: 1.5.0(typescript@6.0.3)
+
   packages/upload:
     dependencies:
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.16.0
         version: '@wildshard/shard-format@0.16.0(typescript@6.0.3)'
-      valibot:
-        specifier: 1.5.0
-        version: 1.5.0(typescript@6.0.3)
-
-  packages/kit:
-    dependencies:
-      '@wildshard/shard-format':
-        specifier: 0.12.0
-        version: 0.12.0(typescript@6.0.3)
-      three:
-        specifier: 0.186.0
-        version: 0.186.0
       valibot:
         specifier: 1.5.0
         version: 1.5.0(typescript@6.0.3)
@@ -648,11 +648,6 @@ packages:
 
   '@wildshard/shard-format@0.16.0':
     resolution: {integrity: sha512-upyY0P2qhxdkeWqdgVX22cpvjeyvi6s4beEcXdC0DyQ4CRUIpq8pK9T6cAO0yW+UzqxRGZTSEpSJMnlw5GV96Q==}
-    engines: {node: '>=24.18.0'}
-    hasBin: true
-
-  '@wildshard/shard-format@0.14.0':
-    resolution: {integrity: sha512-QUFo/kFXAW3081ivs9oOnZm5zMaPGfralzBS0VpSFfjrKbyPD7QEOOhkn8YteBe/qAROTzDbkzsIrYO9qhTIEQ==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
@@ -1715,13 +1710,6 @@ snapshots:
       - utf-8-validate
 
   '@wildshard/shard-format@0.16.0(typescript@6.0.3)':
-    dependencies:
-      meshoptimizer: 1.2.0
-      valibot: 1.5.0(typescript@6.0.3)
-    transitivePeerDependencies:
-      - typescript
-
-  '@wildshard/shard-format@0.14.0(typescript@6.0.3)':
     dependencies:
       meshoptimizer: 1.2.0
       valibot: 1.5.0(typescript@6.0.3)

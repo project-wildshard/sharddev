@@ -80,7 +80,6 @@
     "pack:shards": "node scripts/pack-all.mjs",
     "lint:ci21": "node scripts/ci21-sdk-tail-lint.mjs",
     "check:bin-pins": "node kit/scripts/bin-pins.mjs",
-    "docs": "node scripts/docs.mjs",
     "test:content": "pnpm --dir packages/kit test"
   },
   "dependencies": {
