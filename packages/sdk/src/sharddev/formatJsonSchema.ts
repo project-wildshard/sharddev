@@ -519,6 +519,7 @@ const wireRoots: Readonly<Record<string, GenericSchema>> = {
 const wireChecks = new Map<object, string>();
 const wireFinite = new Set<object>();
 const wireRegexes = new Set<object>();
+const windDirections = new Set<object>();
 function rememberActions(value: unknown, path: string, seen: WeakSet<object>): void {
   if (typeof value !== 'object' || value === null || seen.has(value)) return;
   seen.add(value);
@@ -533,6 +534,7 @@ function rememberActions(value: unknown, path: string, seen: WeakSet<object>): v
   if (kind === 'validation') {
     if (type === 'check' && !wireChecks.has(value)) wireChecks.set(value, path);
     else if (type === 'finite') wireFinite.add(value);
+    else if (type === 'some_item' && path.endsWith('.entries.wind.wrapped.entries.toward.pipe.1')) windDirections.add(value);
     else if (type === 'regex') {
       const regex: unknown = Reflect.get(value, 'requirement');
       if (regex instanceof RegExp && regex.flags === 'u') wireRegexes.add(value);
@@ -628,6 +630,8 @@ export function formatJsonSchema(schema: GenericSchema, target: 'draft-07' | 'dr
     overrideSchema: ({ valibotSchema }) => customSchemas.get(valibotSchema),
     overrideAction: ({ valibotAction, jsonSchema, errors }) => {
       if (postIdentityTransforms.has(valibotAction)) return jsonSchema;
+      // The defining steer-wind action requires at least one nonzero axis.
+      if (windDirections.has(valibotAction)) return { ...jsonSchema, not: { const: [0, 0] } };
       // Exact one-pass sample transforms retain the original wire grammar; JSON numbers are finite.
       if (valibotAction === SkinPoseLayerSchema.entries.times.pipe[1]) return { type: 'array', items: { type: 'number' }, minItems: 2, maxItems: 4097 };
       if (valibotAction === SkinPoseLayerSchema.entries.tracks.pipe[0].item.entries.values.pipe[1]) return { type: 'array', items: { type: 'number' }, maxItems: 300000 };
