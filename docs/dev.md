@@ -5,7 +5,10 @@ here; what the repo does is `docs/prd.md`, how it is built `docs/design.md`.
 
 ## Commands
 
-Run from the repo root.
+Layout (SDK-SPLIT SP2b, 2026-11-17): the repo root is a private workspace of tooling; the sdk is `packages/sdk`,
+beside `packages/kit` and `packages/upload`. The `pnpm` scripts below run from the repo root (they forward to the
+sdk); every `src/`, `test/`, `scripts/` and `bin/` path below is under `packages/sdk/`, so run a direct `node ...`
+command from `packages/sdk`.
 
 - `pnpm install`: installs deps and points `core.hooksPath` at `.githooks/`,
   through `pnpm:devPreinstall`. Never use `prepare` here (`../leftover/docs/repo-kit.md`).

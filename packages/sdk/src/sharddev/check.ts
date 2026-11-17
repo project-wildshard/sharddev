@@ -3,7 +3,7 @@
 // SA21: every refusal carries a rule id, a one-line fix and a GUIDE.md link, from refusals.ts.
 import type { ShardfileCheckReport } from '@wildshard/engine/game/shardfile/checkReport';
 import { authorErrorText } from './authorError';
-import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
 import { diagnosticNow } from './diagnosticClock';
 
 /** The five steps, in the order they run. */

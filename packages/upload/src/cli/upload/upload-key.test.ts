@@ -4,8 +4,11 @@ import type { IncomingMessage } from 'node:http'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { runCli, scratchHome } from '../../../../../src/test/helpers/cli-run.ts'
-import { sha256 } from '../../../../../src/test/helpers/shardfile.ts'
+import {
+  runCli,
+  scratchHome,
+} from '../../../../sdk/src/test/helpers/cli-run.ts'
+import { sha256 } from '../../../../sdk/src/test/helpers/shardfile.ts'
 import {
   BUILT_WITH,
   COMMIT,
@@ -14,11 +17,11 @@ import {
   onlyPut,
   open,
   upload,
-} from '../../../../../src/test/helpers/upload-run.ts'
+} from '../../../../sdk/src/test/helpers/upload-run.ts'
 import { uploadShardfile } from './upload.ts'
 
-import type { CliRun } from '../../../../../src/test/helpers/cli-run.ts'
-import type { Run } from '../../../../../src/test/helpers/upload-run.ts'
+import type { CliRun } from '../../../../sdk/src/test/helpers/cli-run.ts'
+import type { Run } from '../../../../sdk/src/test/helpers/upload-run.ts'
 
 // Meta SHARD-DELETE DEL6: since DEL5 api-server answers a ticket or a commit
 // with no account key 401. The key goes on exactly those two calls (never

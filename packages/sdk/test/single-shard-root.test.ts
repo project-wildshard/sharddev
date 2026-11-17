@@ -7,7 +7,7 @@ import { servedName } from '../scripts/capture-hero.mjs';
 import { runCli } from '../src/sharddev/cli';
 import { readCookInput } from '../src/sharddev/cookInput';
 import { newProject } from '../src/sharddev/project';
-import { shardRepoRoot } from '../packages/upload/src/sharddev/shardSource';
+import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 
 // SHARD-AUTHORING SA44: a single-shard repo keeps its source at `src/` (J317), one folder below the repo root, where
 // `src/shards/<slug>/` is three. The build's mounts (`public/`), the hero's served name (`out/`) and the author lint

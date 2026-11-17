@@ -41,7 +41,7 @@
   "inputs": [
     "generators",
     "data/layout.json",
-    "../../../pnpm-lock.yaml",
+    "../../../../../pnpm-lock.yaml",
     "../../sharddev/as/prelude.ts",
     "../../sharddev/as/ws.ts",
     "../../sharddev/as/wsV2.ts",
@@ -126,7 +126,7 @@
     "../../sharddev/sceneTransform.ts",
     "../../sharddev/schemaValidation.ts",
     "../../sharddev/sections.ts",
-    "../../../packages/upload/src/sharddev/shardSource.ts",
+    "../../../../upload/src/sharddev/shardSource.ts",
     "../../sharddev/sourceReader.ts",
     "../../sharddev/worldSource.ts"
   ]

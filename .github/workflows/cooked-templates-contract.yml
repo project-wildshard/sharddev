@@ -76,6 +76,7 @@ jobs:
       - name: Install the declared producer graph
         run: pnpm install --frozen-lockfile --config.ci=false
       - name: Prove the pinned producer before building
+        working-directory: packages/sdk
         run: node scripts/assert-candidate-engine.mjs --producer
       - name: Build all three authored templates once
         run: pnpm build:shards
@@ -84,8 +85,8 @@ jobs:
         with:
           name: cooked-templates-source-${{ github.sha }}
           path: |
-            out/
-            tmp/cooked-templates/producer.json
+            packages/sdk/out/
+            packages/sdk/tmp/cooked-templates/producer.json
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 2
@@ -135,7 +136,7 @@ jobs:
         uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
         with:
           name: cooked-templates-source-${{ github.sha }}
-          path: .
+          path: packages/sdk
       - name: Select exact candidate runtime after the build
         env:
           CANDIDATE_ENGINE: ${{ env.COOKED_ENGINE_CANDIDATE }}
@@ -143,10 +144,13 @@ jobs:
       - name: Install candidate runtime
         run: pnpm install --no-frozen-lockfile --config.ci=false
       - name: Prove actual runtime provenance
+        working-directory: packages/sdk
         run: node scripts/assert-candidate-engine.mjs
       - name: Check explicit proof syntax
+        working-directory: packages/sdk
         run: node --check test/ci/cooked-template-play.proof.mjs
       - name: Cold cook and play this measured partition
+        working-directory: packages/sdk
         env:
           COOKED_PART: 1/1
         run: node --test --test-concurrency=1 test/ci/cooked-template-play.proof.mjs
@@ -155,6 +159,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: cooked-templates-contract
-          path: tmp/cooked-templates/*.json
+          path: packages/sdk/tmp/cooked-templates/*.json
           if-no-files-found: error
           retention-days: 14

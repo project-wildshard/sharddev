@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { exportCommonBody } from '@wildshard/kit/geometry/export';
 import { commonBodyVariants, BOAR_LOOK, BEAR_LOOK } from '@wildshard/kit/bake/species';
 
-const root = fileURLToPath(new URL('../packages/kit/content/creatures/', import.meta.url));
+const root = fileURLToPath(new URL('../../kit/content/creatures/', import.meta.url));
 const check = process.argv.includes('--check');
 const sha = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = value => new TextEncoder().encode(JSON.stringify(value, null, 2) + '\n');

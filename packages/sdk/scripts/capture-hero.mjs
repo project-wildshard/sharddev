@@ -19,9 +19,9 @@
 // only when those images match the current content; a wrong stamp hides a stale hero until the next content change.
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
-import { heroSlotFiles, writeHeroStamp } from '../packages/upload/src/cli/hero/stamp.ts';
+import { heroSlotFiles, writeHeroStamp } from '@wildshard/upload/cli/hero/stamp.ts';
 import { stampExistingHero } from '../src/cli/hero/adopt.ts';
-import { findShardSource, shardFolderName, shardRepoRoot } from '../packages/upload/src/sharddev/shardSource.ts';
+import { findShardSource, shardFolderName, shardRepoRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
 const SCALE = 2;
 const VIEWS = { portrait: { width: 402, height: 813 }, landscape: { width: 800, height: 450 }, thumb: { width: 320, height: 180 } };

@@ -3,13 +3,19 @@
 // commit hashes, never executable shell fragments or moving branches.
 import { readFileSync, writeFileSync } from 'node:fs';
 const choices = [['engine', process.env.CANDIDATE_ENGINE]];
-const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
+// SDK-SPLIT SP2b: the direct edge is the sdk package's; the overrides live in the workspace root.
+const ROOT = 'package.json', SDK = 'packages/sdk/package.json';
+const pkg = JSON.parse(readFileSync(ROOT, 'utf8'));
+const sdk = JSON.parse(readFileSync(SDK, 'utf8'));
 for (const [name, sha] of choices) {
   if (!sha) continue;
   if (!/^[a-f0-9]{40}$/u.test(sha)) throw new Error(`${name}: candidate must be a full commit hash`);
   const spec = `github:project-wildshard/${name}#${sha}`;
-  pkg.dependencies[`@wildshard/${name}`] = spec;
+  sdk.dependencies[`@wildshard/${name}`] = spec;
   pkg.pnpm ??= {}; pkg.pnpm.overrides ??= {};
   pkg.pnpm.overrides[`@wildshard/${name}`] = spec;
 }
-if (choices.some(([, value]) => value)) writeFileSync('package.json', `${JSON.stringify(pkg, null, 2)}\n`);
+if (choices.some(([, value]) => value)) {
+  writeFileSync(ROOT, `${JSON.stringify(pkg, null, 2)}\n`);
+  writeFileSync(SDK, `${JSON.stringify(sdk, null, 2)}\n`);
+}

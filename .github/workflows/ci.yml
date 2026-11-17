@@ -88,10 +88,12 @@ jobs:
         run: node scripts/assert-store-layout.mjs
       # The same members as pnpm check bar check:watch-build (a GPU and a devserver client: pre-push only); author tests run in products.
       - run: node scripts/check-lift-review.mjs
+        working-directory: packages/sdk
       - run: pnpm typecheck
       - name: Admit all restored CI21 source cases and compiler assertions
         run: |
-          pnpm exec npr tsc -p test/ci21-source/tsconfig.json
+          pnpm exec npr tsc -p packages/sdk/test/ci21-source/tsconfig.json
+          cd packages/sdk
           node scripts/ci21-source-lint.mjs
           pnpm exec vitest run --config vitest.ci21-source.config.ts --reporter=default --reporter=json --outputFile=tmp/ci21-source/report.json
       - name: Retain raw default CI21 source verdict
@@ -99,7 +101,7 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ci21-sdk-source-${{ github.run_id }}
-          path: tmp/ci21-source/report.json
+          path: packages/sdk/tmp/ci21-source/report.json
           if-no-files-found: error
       - run: pnpm lint
       - run: pnpm format:check
@@ -117,8 +119,9 @@ jobs:
       - name: Install the pinned API contract
         run: pnpm --dir tmp/codex-wire/api-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
       - name: Prove async upload with the real API and PGlite
+        working-directory: packages/sdk
         env:
-          WILDSHARD_API_SOURCE: tmp/codex-wire/api-contract-source
+          WILDSHARD_API_SOURCE: ${{ github.workspace }}/tmp/codex-wire/api-contract-source
         run: node --experimental-transform-types --test --test-concurrency=1 test/ci/async-upload.test.mjs test/ci/async-upload-parent.test.mjs
       - run: pnpm check:asks
       # The agent hook scripts are shellchecked at this exact version
@@ -140,18 +143,26 @@ jobs:
       - run: pnpm test:agent-hooks
       - run: pnpm check:parity
       - run: pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs
+        working-directory: packages/sdk
       - run: node --test test/ci/generation-cli.test.mjs
+        working-directory: packages/sdk
       - name: Installed keyed sky codec and worker byte contracts
+        working-directory: packages/sdk
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/keyed-sky-codec.test.mjs
       - name: Installed interaction placement author contracts
+        working-directory: packages/sdk
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/interaction-placement.test.mjs
       - name: Installed map author ownership and legacy pixels
+        working-directory: packages/sdk
         run: node --test test/ci/map-author.test.mjs
       - name: Installed navigation author and real queries
+        working-directory: packages/sdk
         run: node --test test/ci/navigation-author.test.mjs
       - name: Public headless observation and worker ownership
+        working-directory: packages/sdk
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/headless-observation.test.mjs
       - name: Public numeric output and refusal contracts
+        working-directory: packages/sdk
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/channel-values.test.mjs
       - if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: pnpm test:hooks
@@ -171,7 +182,7 @@ jobs:
           if [ -z "$WILDSHARD_API_KEY" ]; then
             echo '::notice::No WILDSHARD_API_KEY secret yet (meta SHARD-DELETE DEL6)'
           else
-            node bin/wildshard.mjs whoami
+            node packages/sdk/bin/wildshard.mjs whoami
           fi
       - name: Name the commits this verdict covers
         if: always() && github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -265,6 +276,7 @@ jobs:
         run: pnpm build:shards
       - name: Preserve CI21 grid eviction and restore assertions
         if: ${{ !cancelled() }}
+        working-directory: packages/sdk
         run: |
           mkdir -p tmp/ci21-grid
           node --test test/ci21-grid-reentry.test.mjs > tmp/ci21-grid/raw.tap
@@ -274,15 +286,18 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: ci21-grid-owner-${{ github.job }}-${{ github.run_id }}
-          path: tmp/ci21-grid/
+          path: packages/sdk/tmp/ci21-grid/
           if-no-files-found: ignore
       - name: Walk the owned 1800-tick authored route
+        working-directory: packages/sdk
         if: ${{ !cancelled() }}
         run: node --experimental-transform-types --test test/ci/owned-journey.test.mjs
       - name: Installed author and template play proofs
+        working-directory: packages/sdk
         if: ${{ !cancelled() }}
         run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs test/ci/template-warden.test.mjs test/ci/template-chest.test.mjs test/ci/package-products.test.mjs
       - name: Install Chromium for e2e
+        working-directory: packages/sdk
         if: ${{ !cancelled() }}
         run: pnpm exec playwright install --with-deps chromium
       - name: End-to-end
@@ -292,5 +307,5 @@ jobs:
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: playwright-traces
-          path: src/e2e/test-results/
+          path: packages/sdk/src/e2e/test-results/
           retention-days: 7

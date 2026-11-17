@@ -1,21 +1,27 @@
 #!/usr/bin/env node
 
+import { fileURLToPath } from 'node:url'
+
 import {
   runAccount,
   runDelete,
   runWhoami,
-} from '../../packages/upload/src/cli/account/command.ts'
-import { parseCliArgs } from '../../packages/upload/src/cli/args.ts'
+} from '@wildshard/upload/cli/account/command.ts'
+import { parseCliArgs } from '@wildshard/upload/cli/args.ts'
 import {
   runPack,
   runShardfile,
-} from '../../packages/upload/src/cli/shardfile/command.ts'
-import { runUpload } from '../../packages/upload/src/cli/upload/command.ts'
+} from '@wildshard/upload/cli/shardfile/command.ts'
+import { runUpload } from '@wildshard/upload/cli/upload/command.ts'
+
 import { serve } from '../server/serve.ts'
 import { USAGE, verbHelp } from './help.ts'
 import { readVersion, readVersionChain } from './version.ts'
 
-import type { CliArgs } from '../../packages/upload/src/cli/args.ts'
+import type { CliArgs } from '@wildshard/upload/cli/args.ts'
+
+/** The sdk package's folder: the engine and shard-format resolve from here when the shard has none (SP2b). */
+const SDK_DIR = fileURLToPath(new URL('../..', import.meta.url))
 
 const EXIT_OK = 0
 const EXIT_USAGE = 1
@@ -85,7 +91,10 @@ const COMMANDS: Readonly<Record<string, (args: CliArgs) => Promise<number>>> = {
   pack: async (args: CliArgs): Promise<number> =>
     await runPack(args.operand, args.out ?? args.target),
   upload: async (args: CliArgs): Promise<number> =>
-    await runUpload(args, ENV, await readVersion()),
+    await runUpload(args, ENV, {
+      version: await readVersion(),
+      installDir: SDK_DIR,
+    }),
   // Meta SHARD-DELETE DEL6: the account key upload sends.
   account: async (args: CliArgs): Promise<number> =>
     await runAccount(args, serverOf(args)),

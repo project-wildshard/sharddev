@@ -1,8 +1,7 @@
 {
   "name": "@wildshard/upload",
-  "version": "0.0.0",
-  "private": true,
-  "description": "wildshard upload, account, delete and the shard file writer: the engine-free half of the CLI (SDK-SPLIT SP2a). Private until SP12; @wildshard/sdk ships this source by relative path meanwhile.",
+  "version": "0.3.9",
+  "description": "wildshard upload, account, delete and the shard file writer: the engine-free half of the CLI (SDK-SPLIT SP2a). Published with the sdk at one version (D5); the sdk depends on it by name (SP2b).",
   "type": "module",
   "engines": {
     "node": ">=24.18.0"
@@ -14,5 +13,19 @@
   "dependencies": {
     "@wildshard/format": "npm:@wildshard/shard-format@0.16.0",
     "valibot": "1.5.0"
-  }
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    "./*.ts": "./src/*.ts",
+    "./*": "./src/*.ts"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/project-wildshard/sharddev.git",
+    "directory": "packages/upload"
+  },
+  "license": "UNLICENSED"
 }

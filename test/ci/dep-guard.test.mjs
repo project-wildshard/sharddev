@@ -183,11 +183,11 @@ describe('dep-guard', () => {
   })
 
   it('pins upload to the same versions the sdk ships with (SP2a)', () => {
-    // Until SP12 publishes it, the sdk carries upload's source, so upload's own pins must be the sdk's: provenance
-    // reads the format version from the nearest install, which in a checkout is packages/upload's.
+    // The sdk depends on upload by name (SP2b) and both install side by side, so upload's own pins must be the sdk's:
+    // provenance reads the format version from the nearest install, which in a checkout is packages/upload's.
     const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
     const read = path => JSON.parse(readFileSync(join(repo, path), 'utf8'))
-    const root = read('package.json').dependencies,
+    const root = read('packages/sdk/package.json').dependencies,
       upload = read('packages/upload/package.json').dependencies
     for (const [name, specifier] of Object.entries(upload))
       assert.equal(specifier, root[name], name)

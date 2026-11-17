@@ -145,7 +145,7 @@ test(
     const bytes = new Uint8Array(
       readFileSync(
         new URL(
-          '../packages/kit/content/journal-icons/bear.png',
+          '../../kit/content/journal-icons/bear.png',
           import.meta.url,
         ),
       ),

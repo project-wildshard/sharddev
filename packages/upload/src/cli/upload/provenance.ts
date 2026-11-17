@@ -31,7 +31,8 @@ const PackageJsonSchema = object({ version: optional(string()) })
 
 const ENGINE = ['@wildshard/engine']
 const SHARD_FORMAT = ['@wildshard/shard-format', '@wildshard/format']
-// This sharddev's own install: its node_modules resolve from here up.
+// The fallback install when the caller names none: upload's own folder, from here up. The sdk names its own folder
+// (SDK-SPLIT SP2b), since upload's package does not depend on the engine.
 const SHARDDEV_DIR = import.meta.dirname
 
 interface ProvenanceRequest {
@@ -39,6 +40,8 @@ interface ProvenanceRequest {
   readonly cwd: string
   /** The running `wildshard`'s own version; the caller reads it, so upload never reads the sdk's package.json (SP2a). */
   readonly sharddev: string
+  /** Where the running `wildshard` resolves its own installs when the shard has none (the sdk's folder). */
+  readonly installDir?: string | undefined
   /** `--version`, if passed. */
   readonly version?: string | undefined
   /** `--commit`, if passed. */
@@ -149,10 +152,11 @@ async function installedAt(
 async function installedVersion(
   cwd: string,
   names: readonly string[],
+  installDir: string,
 ): Promise<string> {
   const found =
     (await installedAt(path.resolve(cwd), names)) ??
-    (await installedAt(SHARDDEV_DIR, names))
+    (await installedAt(installDir, names))
   if (found === undefined) {
     throw new Error(
       `${names.join(' or ')} is not installed at or above ${cwd}; run pnpm install in the shard repo`,
@@ -184,8 +188,16 @@ async function resolveProvenance(
     version,
     commit,
     sharddev: request.sharddev,
-    engine: await installedVersion(request.cwd, ENGINE),
-    shardFormat: await installedVersion(request.cwd, SHARD_FORMAT),
+    engine: await installedVersion(
+      request.cwd,
+      ENGINE,
+      request.installDir ?? SHARDDEV_DIR,
+    ),
+    shardFormat: await installedVersion(
+      request.cwd,
+      SHARD_FORMAT,
+      request.installDir ?? SHARDDEV_DIR,
+    ),
   }
 }
 

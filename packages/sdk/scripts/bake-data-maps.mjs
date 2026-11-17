@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MapRaster } from '../src/sharddev/bake/mapRaster.ts';
-import { isRepoSource, shardFolderName } from '../packages/upload/src/sharddev/shardSource.ts';
+import { isRepoSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
 import { readMapGeometry, stylizeMap } from '@wildshard/engine/scripts/map-painter.mjs';
 import { MAP_METRES, mapPixelHash, mapSettingsPath, mapStampPath, mapShards, mapTilesHash } from '@wildshard/engine/scripts/map-hash.mjs';
 

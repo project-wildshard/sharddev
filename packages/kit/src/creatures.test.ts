@@ -75,7 +75,8 @@ test('copied creature calls isolate nested gameplay content and reject invalid i
 })
 
 test('regeneration preserves the committed creature declarations and explicit drops', () => {
-  const root = new URL('../../../', import.meta.url)
+  // The kit's builders are the sdk's scripts (SDK-SPLIT SP2b moved them to packages/sdk).
+  const root = new URL('../../sdk/', import.meta.url)
   const result = spawnSync(
     execPath,
     [fileURLToPath(new URL('scripts/build-kit-layers.mjs', root)), '--check'],

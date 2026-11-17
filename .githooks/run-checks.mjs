@@ -69,10 +69,10 @@ const scripts = manifest.scripts ?? {};
 /** @type {{ name: string, args: string[] }[]} */
 const jobs = [];
 if (lane === 'commit') {
-  // Staged code under src/ and kit/ (J329), passed relative to the
-  // repo root (the package root). Code outside them (.githooks, docs) has its own checks.
+  // Staged code under src/ and kit/ (J329) and each packages/<name>/src (SDK-SPLIT SP2b),
+  // passed relative to the repo root; scripts/lint-dispatch.mjs routes them. Code outside them (.githooks, docs) has its own checks.
   const staged = git(['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR']).split('\0').filter(Boolean)
-    .filter((path) => /^(?:src|kit)\//u.test(path));
+    .filter((path) => /^(?:src|kit|packages\/[^/]+\/src)\//u.test(path));
   const lint = staged.filter((path) => LINTABLE.test(path));
   const format = staged.filter((path) => FORMATTABLE.test(path));
   if (scripts.lint && lint.length) jobs.push({ name: 'lint', args: ['lint', ...lint] });

@@ -1,4 +1,5 @@
-// The SDK and kit share one release version (SDK-SPLIT D5).
+// The workspace's packages share one release version (SDK-SPLIT D5): the root package.json's, which the release
+// tooling bumps; `stamp` copies it into each published package (SP2b: the sdk lives in packages/sdk).
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
@@ -6,29 +7,38 @@ import { join, posix, resolve } from 'node:path'
 
 const root = resolve(import.meta.dirname, '..')
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
-const sdk = read(join(root, 'package.json'))
-const kitPath = join(root, 'packages/kit/package.json')
-const kit = read(kitPath)
+const workspace = read(join(root, 'package.json'))
+// Publish order: a package before any that depends on it.
+const PACKAGES = [
+  ['packages/kit', '@wildshard/kit'],
+  ['packages/upload', '@wildshard/upload'],
+  ['packages/sdk', '@wildshard/sdk'],
+].map(([dir, name]) => ({ dir: join(root, dir), path: join(root, dir, 'package.json'), name }))
+const manifests = PACKAGES.map(pkg => ({ ...pkg, manifest: read(pkg.path) }))
+const sdk = manifests.find(pkg => pkg.name === '@wildshard/sdk').manifest
+const kit = manifests.find(pkg => pkg.name === '@wildshard/kit').manifest
 const [command, destination] = process.argv.slice(2)
 if (
-  sdk.name !== '@wildshard/sdk' ||
-  kit.name !== '@wildshard/kit' ||
-  !/^\d+\.\d+\.\d+$/u.test(sdk.version)
+  manifests.some(pkg => pkg.manifest.name !== pkg.name) ||
+  !/^\d+\.\d+\.\d+$/u.test(workspace.version)
 )
   throw new Error('Unexpected release workspace identities')
 
 if (command === 'stamp' && destination === undefined) {
-  if (kit.version !== sdk.version) {
-    const before = readFileSync(kitPath, 'utf8')
+  for (const pkg of manifests) {
+    if (pkg.manifest.version === workspace.version) continue
+    const before = readFileSync(pkg.path, 'utf8')
     writeFileSync(
-      kitPath,
-      before.replace(/("version"\s*:\s*)"[^"]*"/u, `$1"${sdk.version}"`),
+      pkg.path,
+      before.replace(/("version"\s*:\s*)"[^"]*"/u, `$1"${workspace.version}"`),
     )
   }
-  console.log(`release workspace: SDK and kit ${sdk.version}`)
+  console.log(
+    `release workspace: ${manifests.map(pkg => pkg.name).join(', ')} ${workspace.version}`,
+  )
 } else if (command === 'pack' && destination !== undefined) {
-  if (sdk.version !== kit.version)
-    throw new Error('SDK and kit release versions differ; run release:stamp')
+  if (manifests.some(pkg => pkg.manifest.version !== workspace.version))
+    throw new Error('Package and workspace release versions differ; run release:stamp')
   const output = resolve(destination)
   const allowed = [
     join(root, 'tmp') + '/',
@@ -40,10 +50,7 @@ if (command === 'stamp' && destination === undefined) {
     throw new Error('Release archives need owned scratch')
   mkdirSync(output, { recursive: true })
   const artifacts = []
-  for (const [dir, pkg] of [
-    [join(root, 'packages/kit'), kit],
-    [root, sdk],
-  ]) {
+  for (const { dir, manifest: pkg } of manifests) {
     const filename = `${pkg.name.replace(/^@/u, '').replaceAll('/', '-')}-${pkg.version}.tgz`
     const archive = join(output, filename)
     execFileSync('pnpm', ['pack', '--out', archive], {
@@ -55,7 +62,7 @@ if (command === 'stamp' && destination === undefined) {
         encoding: 'utf8',
       }),
     )
-    if (manifest.name !== pkg.name || manifest.version !== sdk.version)
+    if (manifest.name !== pkg.name || manifest.version !== workspace.version)
       throw new Error('Packed release identity differs')
     const files = new Set(
       execFileSync('tar', ['-tzf', archive], { encoding: 'utf8' })
@@ -119,9 +126,10 @@ if (command === 'stamp' && destination === undefined) {
     }
     if (
       pkg.name === sdk.name &&
-      manifest.dependencies?.['@wildshard/kit'] !== kit.version
+      (manifest.dependencies?.['@wildshard/kit'] !== kit.version ||
+        manifest.dependencies?.['@wildshard/upload'] !== workspace.version)
     )
-      throw new Error('Packed SDK does not pin the matching kit')
+      throw new Error('Packed SDK does not pin the matching kit and upload')
     const bytes = readFileSync(archive)
     artifacts.push({
       name: pkg.name,

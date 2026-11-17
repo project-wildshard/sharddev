@@ -81,10 +81,12 @@ jobs:
       - name: Install the frozen native tool pins
         run: pnpm exec npr install --frozen
       - name: Compile the complete author project and source ports
-        run: pnpm exec npr tsc -p test/ci21-source/tsconfig.json
+        run: pnpm exec npr tsc -p packages/sdk/test/ci21-source/tsconfig.json
       - name: Apply actual typed author lint
+        working-directory: packages/sdk
         run: node scripts/ci21-source-lint.mjs
       - name: Run every source case and retain actual results
+        working-directory: packages/sdk
         run: |
           mkdir -p tmp/ci21-source
           pnpm exec vitest run --config vitest.ci21-source.config.ts --reporter=json --outputFile=tmp/ci21-source/results.json
@@ -93,6 +95,6 @@ jobs:
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: ci21-sdk-source-${{ github.sha }}
-          path: tmp/ci21-source/*.json
+          path: packages/sdk/tmp/ci21-source/*.json
           if-no-files-found: error
           retention-days: 14

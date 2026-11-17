@@ -7,7 +7,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { writeNewProject, writeReferenceProject } from './newProject';
 import { GUIDE_SOURCE } from './agentFiles';
-import { GUIDE_FILE, REFUSAL_ANCHORS } from '../../packages/upload/src/sharddev/refusals';
+import { GUIDE_FILE, REFUSAL_ANCHORS } from '@wildshard/upload/sharddev/refusals';
 
 // SHARD-AUTHORING SA13 (J314, J317): GUIDE.md is the author's manual, shipped in the package and copied by `new`.
 const ROOT = resolve(import.meta.dirname, '../..');

@@ -31,8 +31,10 @@ const NOT_BLENDER = manifest.notBlender ?? {};
 /** the repo's files: git's list when this is a checkout, else a walk (an exported tree has no .git) */
 function listFiles(dir) {
   try {
-    const top = execFileSync('git', ['rev-parse', '--show-toplevel'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
-    if (resolve(top) !== ROOT) throw new Error('Exported project has no own git root');
+    // A checkout tracks this package's own package.json (at the root, or in packages/sdk since SDK-SPLIT SP2b); an
+    // exported tree inside some other repo does not.
+    const own = execFileSync('git', ['ls-files', '--', 'package.json'], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim();
+    if (own === '') throw new Error('Exported project has no own git checkout');
     return execFileSync('git', ['ls-files', '-z', '--', dir], { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
       .split('\0').filter((f) => f !== '');
   } catch {

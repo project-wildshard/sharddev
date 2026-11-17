@@ -189,7 +189,7 @@ export async function readSectionInventory(root:string=ROOT,productsRoot:string=
   const folders=readdirSync(resolve(root,'src/shards'),{withFileTypes:true})
     .filter(entry=>entry.isDirectory()&&!entry.name.endsWith('-legacy')&&existsSync(resolve(root,'src/shards',entry.name,'shard.config.ts'))).map(entry=>entry.name);
   const products=shardProducts(root,folders).map(({slug,folder})=>productSectionEntries(resolve(productsRoot,slug),slug,folder));
-  const table=readFileSync(resolve(root,'project/archive/reviews/2026-10-24-host-audit-inventory.md'),'utf8');
+  const table=readFileSync(resolve(ROOT,'../../project/archive/reviews/2026-10-24-host-audit-inventory.md'),'utf8');
   const historic=execFileSync('git',['show',`${HOST_PIN}:docs/HOST-BAR.md`],{cwd:root,encoding:'utf8'});
   const groups=hostGroupBindings(table,historic),files=['src/engine','src/game'].flatMap(folder=>tree(resolve(root,folder)))
     .filter(path=>path.endsWith('.ts')&&!path.endsWith('.d.ts')&&!path.endsWith('.test.ts')).map(path=>({path:relative(root,path).replaceAll('\\','/'),source:readFileSync(path,'utf8')}));

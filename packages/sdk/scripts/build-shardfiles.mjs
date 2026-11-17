@@ -5,7 +5,7 @@
 // (node scripts/bake-maps.mjs --url=<scripts/serve-build.sh --head> --shards=<slug>). test/baked-maps.test.ts is the gate's check.
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runWildshard } from './wildshard.mjs';
 import { mapInputHashes, mapTilesHash, verifyMapPixels } from '@wildshard/engine/scripts/map-hash.mjs';
@@ -37,6 +37,24 @@ export function readBuiltShardfile(root, name, options = {}) { return selectBuil
 // else it is removed, so a one-shard preview never serves a stale product of a changed shard. A product whose discovery
 // is program-bound (scripts/program-discovery.mjs) is always built too: the app build writes its discovery module from
 // that product's current receipt, so it cannot be left stale (unchanged inputs reuse it at once).
+/** The nearest folder at or above `root` with a pnpm-workspace.yaml: the root itself in a shard repo, the workspace root
+ * for sharddev's packages/sdk (SDK-SPLIT SP2b). @param {string} root */
+function workspaceRootOf(root) {
+  for (let dir = resolve(root); ; dir = dirname(dir)) {
+    if (existsSync(resolve(dir, 'pnpm-workspace.yaml')) && existsSync(resolve(dir, 'pnpm-lock.yaml'))) return dir;
+    if (dirname(dir) === dir) return resolve(root);
+  }
+}
+
+/** The engine's toolchain key hashes package.json, pnpm-lock.yaml and pnpm-workspace.yaml in one root. In a workspace
+ * package the lockfile and workspace file are the workspace root's, so key those there and add the package's own
+ * package.json. @param {string} root @param {InputHashMemo} memo */
+function toolchainKey(root, memo) {
+  const workspace = workspaceRootOf(root);
+  if (workspace === resolve(root)) return productToolchainKey(root, memo);
+  return `${productToolchainKey(workspace, new InputHashMemo(workspace))}+${memo.hash('package.json')}`;
+}
+
 /** Pack every first-party map through the existing charged SDK row; missing maps keep the old no-map build path.
  * @param {string} root @param {{strict?:boolean, build?:typeof runWildshard, reuse?:boolean, only?:string[], scope?:string[], copyRuntime?:boolean|'closed',onFailure?:(slug:string,error:unknown)=>void}} options */
 async function buildShardfilesWork(root, { strict = [process.env.CI, process.env.VERCEL].some(flag => flag !== undefined && flag !== '' && flag !== 'false'), build = runWildshard, reuse = false, only, scope, copyRuntime = 'closed',onFailure } = {}, counters = createBuildCacheCounters()) {
@@ -98,7 +116,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   // The validation receipt every product carries is checked against this revision (vite.config.ts, the ruler). The
   // cached author CLI computes it once per compiler child, so a traced read set may miss its sources: key it directly,
   // or a product reused after the revision moved ships a stale receipt.
-  const toolchainOf = () => `${productToolchainKey(root,inputHashes)}:${shardfileValidationRevision(root)}`;
+  const toolchainOf = () => `${toolchainKey(root,inputHashes)}:${shardfileValidationRevision(root)}`;
   const toolchain = recorded ? toolchainOf() : '';
   try {
   await runShardBuildPool(ordered, async ({ name, folder, output }, signal) => {

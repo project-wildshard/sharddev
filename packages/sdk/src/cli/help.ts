@@ -1,4 +1,4 @@
-import { DEFAULT_BROTLI_LEVEL } from '../../packages/upload/src/cli/upload/compress.ts'
+import { DEFAULT_BROTLI_LEVEL } from '@wildshard/upload/cli/upload/compress.ts'
 
 // SHARD-AUTHORING SA2 (J317): every verb's help in the glossary's words (meta
 // docs/architecture/README.md § Glossary): shard source, shard file, build

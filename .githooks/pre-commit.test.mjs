@@ -156,7 +156,7 @@ describe('pre-commit hook', () => {
     blocked(commit({ 'a.txt': 'a  \n' }, MSG), /whitespace/);
   });
   test('J370 accepts the exact shipped phone GLB below 5 MB', () => {
-    const fixture = readFileSync('test/fixtures/sky-rigs/storm-roc-70e5655f.glb');
+    const fixture = readFileSync('packages/sdk/test/fixtures/sky-rigs/storm-roc-70e5655f.glb');
     assert.equal(fixture.length, 2053504);
     const result = sandbox().commit({ 'phone.glb': fixture }, MSG);
     assert.equal(result.status, 0, result.stderr);

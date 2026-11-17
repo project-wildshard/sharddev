@@ -6,10 +6,10 @@ import { installFormatHook } from '@wildshard/format/formatHook';
 installFormatHook();
 
 const { parseRows } = await import('@wildshard/format/rows');
-const { legacyCreatureProfile } = await import('../packages/kit/src/legacySpecies.ts');
-const { abilities } = await import('../packages/kit/src/abilities.ts');
+const { legacyCreatureProfile } = await import('../../kit/src/legacySpecies.ts');
+const { abilities } = await import('../../kit/src/abilities.ts');
 
-const root = fileURLToPath(new URL('../packages/kit/', import.meta.url));
+const root = fileURLToPath(new URL('../../kit/', import.meta.url));
 const catalogue = JSON.parse(readFileSync(resolve(root, 'content/animated/catalogue.json'), 'utf8'));
 for (const kind of ['boar', 'bear']) {
   const original = JSON.parse(readFileSync(resolve(root, `content/species/${kind}.json`), 'utf8'));

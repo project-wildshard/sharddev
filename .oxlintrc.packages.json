@@ -1,0 +1,13 @@
+{
+  // SDK-SPLIT SP2b: the root lints the author code of packages/upload and packages/kit with the sdk's author rules
+  // (packages/sdk/.oxlintrc.author.json); an override's files match from its own config's folder, so kit's node:test
+  // files get their node environment here.
+  "extends": ["./packages/sdk/.oxlintrc.author.json"],
+  "overrides": [
+    {
+      "files": ["packages/kit/src/**/*.test.ts"],
+      "env": { "node": true },
+      "rules": { "import/no-nodejs-modules": "off", "eslint/no-console": "off" }
+    }
+  ]
+}

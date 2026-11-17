@@ -5,6 +5,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
+import { fileURLToPath } from 'node:url'
 
 import { resolveProvenance } from './provenance.ts'
 
@@ -20,7 +21,8 @@ const SDK = '9.8.7'
 // them, or as this sharddev does when the shard has none installed.
 
 const SHA = 'a'.repeat(40)
-const ROOT = new URL('../../../../../', import.meta.url)
+// The sdk package: the uploading `wildshard`, whose installs a bare shard falls back to (SP2b passes its folder).
+const ROOT = new URL('../../../../sdk/', import.meta.url)
 
 async function installed(name: string): Promise<string> {
   const file = new URL(`node_modules/${name}/package.json`, ROOT)
@@ -96,11 +98,18 @@ async function project(
 test("defaults to the project's package.json version and HEAD", async (context: TestContext): Promise<void> => {
   const { dir, head } = await project(context)
 
-  assert.deepEqual(await resolveProvenance({ sharddev: SDK, cwd: dir }), {
-    version: '0.0.3',
-    commit: head,
-    ...(await carried()),
-  })
+  assert.deepEqual(
+    await resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      installDir: fileURLToPath(ROOT),
+    }),
+    {
+      version: '0.0.3',
+      commit: head,
+      ...(await carried()),
+    },
+  )
 })
 
 test('finds the project from a folder inside it', async (context: TestContext): Promise<void> => {
@@ -108,11 +117,18 @@ test('finds the project from a folder inside it', async (context: TestContext): 
   const inner = path.join(dir, 'out', 'packs')
   await mkdir(inner, { recursive: true })
 
-  assert.deepEqual(await resolveProvenance({ sharddev: SDK, cwd: inner }), {
-    version: '0.0.3',
-    commit: head,
-    ...(await carried()),
-  })
+  assert.deepEqual(
+    await resolveProvenance({
+      sharddev: SDK,
+      cwd: inner,
+      installDir: fileURLToPath(ROOT),
+    }),
+    {
+      version: '0.0.3',
+      commit: head,
+      ...(await carried()),
+    },
+  )
 })
 
 test('flags override both, and need no git checkout', async (context: TestContext): Promise<void> => {
@@ -122,6 +138,7 @@ test('flags override both, and need no git checkout', async (context: TestContex
     await resolveProvenance({
       sharddev: SDK,
       cwd: dir,
+      installDir: fileURLToPath(ROOT),
       version: '1.2.3',
       commit: SHA,
     }),
@@ -134,6 +151,7 @@ test('the three versions match the installed packages (J306)', async (context: T
   const { sharddev, engine, shardFormat } = await resolveProvenance({
     sharddev: SDK,
     cwd: dir,
+    installDir: fileURLToPath(ROOT),
     version: '0.0.1',
     commit: SHA,
   })
@@ -199,7 +217,11 @@ test('refuses a dirty tree when the commit comes from HEAD', async (context: Tes
   await writeFile(path.join(dir, 'package.json'), '{"version":"0.0.4"}\n')
 
   await assert.rejects(
-    resolveProvenance({ sharddev: SDK, cwd: dir }),
+    resolveProvenance({
+      sharddev: SDK,
+      cwd: dir,
+      installDir: fileURLToPath(ROOT),
+    }),
     /the shard source has uncommitted changes .*--commit <sha>/u,
   )
 })
@@ -208,7 +230,11 @@ test('an untracked file, such as the packed tarball, is not dirt', async (contex
   const { dir, head } = await project(context)
   await writeFile(path.join(dir, 'shard.tar'), 'bytes')
 
-  const { commit } = await resolveProvenance({ sharddev: SDK, cwd: dir })
+  const { commit } = await resolveProvenance({
+    sharddev: SDK,
+    cwd: dir,
+    installDir: fileURLToPath(ROOT),
+  })
 
   assert.equal(commit, head)
 })

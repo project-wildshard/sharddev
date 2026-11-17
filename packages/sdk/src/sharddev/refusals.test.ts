@@ -7,12 +7,12 @@ import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { issueCodeRows, issueError } from '@wildshard/format/issue-codes';
 import { readTar } from '@wildshard/format/tar';
-import { GUIDE_FILE, LINT_OTHER, LINT_RULES, REFUSAL_ANCHORS, REFUSAL_RULES, lintRuleId, refusalCode, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
+import { GUIDE_FILE, LINT_OTHER, LINT_RULES, REFUSAL_ANCHORS, REFUSAL_RULES, lintRuleId, refusalCode, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
 import { checkLines, lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import { checkProject } from './checkProject';
 import { newProject } from './project';
 import { runCli } from './cli';
-import { draftMessage } from '../../packages/upload/src/sharddev/draft';
+import { draftMessage } from '@wildshard/upload/sharddev/draft';
 
 const ALL = [...REFUSAL_RULES, ...LINT_RULES, LINT_OTHER];
 const STEPS: readonly RefusalStep[] = ['lint', 'build', 'validate', 'prove', 'report', 'new', 'update', 'shardfile', 'pack', 'upload', 'account', 'delete'];

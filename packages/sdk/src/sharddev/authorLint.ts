@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the repo root, its config and the linted folder.
 import { dirname, relative, resolve } from 'node:path';
-import { shardRepoRoot } from '../../packages/upload/src/sharddev/shardSource';
+import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 
 /** How `wildshard check` runs the author lint for one project, or why it skips it. */
 export type AuthorLintPlan =

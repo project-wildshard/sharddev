@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 
-import boar from '../packages/kit/content/species/boar.json' with { type: 'json' }
-import bear from '../packages/kit/content/species/bear.json' with { type: 'json' }
+import boar from '../../kit/content/species/boar.json' with { type: 'json' }
+import bear from '../../kit/content/species/bear.json' with { type: 'json' }
 import { commonSpeciesRows as kitSpeciesRows } from '@wildshard/kit/bake/species'
 
 test('kit plain definitions preserve existing extraction bytes and own their returned values', (): void => {

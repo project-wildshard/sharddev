@@ -14,7 +14,7 @@ import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
 import { decisionLegacyLines } from '@wildshard/engine/scripts/decision-legacy-lines.mjs';
 import { outputManifest, shardOutputs } from '@wildshard/engine/scripts/shard-outputs.mjs';
-import { findShardSource, shardFolderName } from '../packages/upload/src/sharddev/shardSource.ts';
+import { findShardSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
 
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
 const SOURCE_VERBS = new Set(['check', 'synth', 'build', 'dev', 'watch', 'validate', 'prove']);
@@ -23,7 +23,7 @@ let runner;
 /** SA3 (J170): `build` and `check` end by writing the folder's shard file, the step `pack` was. It stays out of the author
  * bundle: the same module serves `wildshard build <folder>` and the deprecated `pack` (src/cli/main.ts). */
 async function writeShardfile(dir, source, options = {}) {
-  const { writeShardfile: write } = await import('../packages/upload/src/cli/shardfile/shardfile.ts');
+  const { writeShardfile: write } = await import('@wildshard/upload/cli/shardfile/shardfile.ts');
   return (await write({ dir, source, report: line => console.info(line), ...options })).file;
 }
 // The bundle's import.meta.dirname stays src/sdk: headless.ts finds bake/headlessWorker.ts beside it, and src/sdk keeps the

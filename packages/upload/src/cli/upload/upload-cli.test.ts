@@ -8,20 +8,20 @@ import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
-import { readVersion } from '../../../../../src/cli/version.ts'
-import { makeShardfile } from '../../../../../src/test/helpers/shardfile.ts'
+import { readVersion } from '../../../../sdk/src/cli/version.ts'
+import { makeShardfile } from '../../../../sdk/src/test/helpers/shardfile.ts'
 import {
   COMMIT,
   VERSION,
   open,
-} from '../../../../../src/test/helpers/upload-run.ts'
+} from '../../../../sdk/src/test/helpers/upload-run.ts'
 
-import type { Run } from '../../../../../src/test/helpers/upload-run.ts'
+import type { Run } from '../../../../sdk/src/test/helpers/upload-run.ts'
 
 const MAIN = fileURLToPath(
-  new URL('../../../../../src/cli/main.ts', import.meta.url),
+  new URL('../../../../sdk/src/cli/main.ts', import.meta.url),
 )
-const ROOT = new URL('../../../../../', import.meta.url)
+const ROOT = new URL('../../../../sdk/', import.meta.url)
 
 // UP3 (J301, J306): the channel the upload is for, and the versions it was
 // built with, through the real CLI against the double.

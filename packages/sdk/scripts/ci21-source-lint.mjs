@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFileSync,readdirSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {titles} from './ci21-test-declarations.mjs';
-import {lintEnvironment} from '../kit/scripts/bin-tools.mjs';
+import {lintEnvironment} from '../../../kit/scripts/bin-tools.mjs';
 const manifest=JSON.parse(readFileSync('test/ci21-source/manifest.json','utf8'));
 const files=manifest.files.map(row=>row.targetPath);
 assert.equal(new Set(files).size,files.length,'Every source port is recorded once');
@@ -39,6 +39,6 @@ for(const row of manifest.files){
  }
  assert.equal(createHash('sha256').update(readFileSync(row.targetPath)).digest('hex'),row.targetSha256,'Reviewed source body changed; refresh its integrity record');
 }
-const run=spawnSync('pnpm',['exec','oxlint','--type-aware','--tsconfig','test/ci21-source/tsconfig.json','-c','.oxlintrc.author.json','--deny-warnings',...files],{stdio:'inherit',env:lintEnvironment()});
+const run=spawnSync('pnpm',['exec','oxlint','--type-aware','--tsconfig','test/ci21-source/tsconfig.json','-c','.oxlintrc.author.json','--deny-warnings',...files],{stdio:'inherit',env:lintEnvironment(new URL('../../..',import.meta.url).pathname)});
 if(run.error!==undefined)throw run.error;
 process.exitCode=run.status??1;

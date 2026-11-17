@@ -29,7 +29,7 @@ const clips = doc.getRoot().listAnimations().map(animation => ({ name: animation
 }) }));
 const result = { version: 1, source: { repo: 'sharddev', revision, glb, skin }, bones, clips, binding: definition.binding };
 const output = new TextEncoder().encode(JSON.stringify(result) + '\n');
-const destination = new URL('../packages/kit/content/clips/quadruped.json', import.meta.url);
+const destination = new URL('../../kit/content/clips/quadruped.json', import.meta.url);
 if (process.argv.includes('--check')) {
   if (!Buffer.from(output).equals(readFileSync(destination))) throw new Error('Kit clip content differs');
 } else { mkdirSync(fileURLToPath(new URL('.', destination)), { recursive: true }); writeFileSync(destination, output); }

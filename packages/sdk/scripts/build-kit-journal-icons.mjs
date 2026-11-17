@@ -1,9 +1,9 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
-import originals from '../packages/kit/content/journal-icons.json' with { type: 'json' };
+import originals from '../../kit/content/journal-icons.json' with { type: 'json' };
 
-const root = new URL('../packages/kit/content/journal-icons/', import.meta.url);
+const root = new URL('../../kit/content/journal-icons/', import.meta.url);
 const check = process.argv.includes('--check');
 if (!check) mkdirSync(root, { recursive: true });
 for (const [name, source] of Object.entries(originals)) {

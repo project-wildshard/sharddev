@@ -12,7 +12,7 @@ import { commonBodyVariants } from '@wildshard/kit/bake/species';
 import { quadrupedBinding } from '@wildshard/kit/clips';
 
 await prepareGlbCost();
-const root = fileURLToPath(new URL('../packages/kit/content/animated/', import.meta.url));
+const root = fileURLToPath(new URL('../../kit/content/animated/', import.meta.url));
 const check = process.argv.includes('--check'), entries = [];
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 const json = value => new TextEncoder().encode(JSON.stringify(value) + '\n');

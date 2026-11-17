@@ -10,7 +10,8 @@ import {
   heroState,
   readJson,
   writeHeroStamp,
-} from '../../../packages/upload/src/cli/hero/stamp.ts'
+} from '@wildshard/upload/cli/hero/stamp.ts'
+
 import {
   BASE,
   SVG,

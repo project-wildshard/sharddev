@@ -12,13 +12,13 @@ import {
   VERSION,
   open,
   uploadWith,
-} from '../../../../../src/test/helpers/upload-run.ts'
+} from '../../../../sdk/src/test/helpers/upload-run.ts'
 import { readUploadStatus } from './api.ts'
 
-import type { Run } from '../../../../../src/test/helpers/upload-run.ts'
+import type { Run } from '../../../../sdk/src/test/helpers/upload-run.ts'
 
 const MAIN = fileURLToPath(
-  new URL('../../../../../src/cli/main.ts', import.meta.url),
+  new URL('../../../../sdk/src/cli/main.ts', import.meta.url),
 )
 const PROVENANCE = [
   '--version',

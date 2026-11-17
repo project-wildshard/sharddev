@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
-import { open, upload } from '../../../../../src/test/helpers/upload-run.ts'
+import { open, upload } from '../../../../sdk/src/test/helpers/upload-run.ts'
 
 // Meta STAGING-BUGBASH SB35: sdk 0.3.6 uploaded Mossgate at format 0.1.0.1
 // to a staging serving 0.1, so no pointer moved, and the CLI still printed

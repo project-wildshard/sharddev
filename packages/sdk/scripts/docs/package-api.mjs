@@ -34,7 +34,7 @@ function kindOf(symbol) {
 
 /** SDK, installed format and workspace kit bindings, independent of engine context interfaces. */
 export function packageApiSurface(root) {
-  const folders = { sharddev: root, format: resolve(root, 'node_modules/@wildshard/format'), kit: resolve(root, 'packages/kit') };
+  const folders = { sharddev: root, format: resolve(root, 'node_modules/@wildshard/format'), kit: resolve(root, '../kit') };
   const modules = Object.fromEntries(Object.entries(folders).map(([name, folder]) => [name, publicModules(folder)]));
   const config = ts.readConfigFile(resolve(root, 'tsconfig.json'), ts.sys.readFile);
   if (config.error !== undefined) throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'));

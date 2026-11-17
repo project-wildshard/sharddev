@@ -26,10 +26,10 @@ import type { ProjectManifestSource } from './projectManifest';
 import { templateNamed, writeShardRepo } from './newProject';
 import { updateShardRepo } from './agentFiles';
 import { updatePins } from './updatePins';
-import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from '../../packages/upload/src/sharddev/shardSource';
+import { findShardSource, isHandwrittenSource, isRepoSource, shardOutputRoot } from '@wildshard/upload/sharddev/shardSource';
 import { checkProject, readProofTape } from './checkProject';
 import { checkLines } from './check';
-import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '../../packages/upload/src/sharddev/refusals';
+import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
 
 const unmeasured: PerformanceObservations = { scripts: { p95Micros: 0, maxMicros: 0, samples: 0 }, fuel: { p95: 0, max: 0, samples: 0 } };
 /** The performance report's static half (declared bounds, downloads, memory): every refusal stands except the missing

@@ -4,18 +4,26 @@
 // wrapper drops that one report when `./<sub>` is a real export of the installed SDK; every other rule and report is
 // engine's, unchanged.
 import { existsSync, readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { createRequire } from 'node:module';
+import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+/** An installed package's folder: the working directory's node_modules first (a shard repo, the sdk package), else as
+ * this file resolves it (sharddev's workspace root, which lints upload's and kit's author code: SDK-SPLIT SP2b). */
+function installed(name) {
+  const local = resolve(process.cwd(), 'node_modules', name);
+  return existsSync(local) ? local : dirname(createRequire(import.meta.url).resolve(`${name}/package.json`));
+}
+
 // Engine exports no `./lint` path; the config always loaded this file from the working directory's node_modules.
-const { default: engine } = await import(pathToFileURL(resolve(process.cwd(), 'node_modules/@wildshard/engine/lint/wildshard-plugin.js')).href);
+const { default: engine } = await import(pathToFileURL(resolve(installed('@wildshard/engine'), 'lint/wildshard-plugin.js')).href);
 
 const SDK_IMPORT = /^Cross-layer imports use the public index: @wildshard\/sdk\/(.+)$/u;
 let exports;
 /** `./<sub>` is listed in the installed SDK's package.json `exports` (here, the repo's own, linked by pnpm). */
 function sdkExports(sub) {
   if (exports === undefined) {
-    const manifest = JSON.parse(readFileSync(resolve(process.cwd(), 'node_modules/@wildshard/sdk/package.json'), 'utf8'));
+    const manifest = JSON.parse(readFileSync(resolve(installed('@wildshard/sdk'), 'package.json'), 'utf8'));
     exports = new Set(Object.keys(manifest.exports ?? {}));
   }
   return exports.has(`./${sub}`);
@@ -36,12 +44,14 @@ const wrapped = {
   },
 };
 
-// J366 restores kit as a public content package. Validate its actual export map
-// before accepting its name; unknown subpaths must still refuse.
-function kitExports(source) {
-  if (source !== '@wildshard/kit' && !source.startsWith('@wildshard/kit/')) return false;
-  const sub = source === '@wildshard/kit' ? '.' : `.${source.slice('@wildshard/kit'.length)}`;
-  const root = resolve(process.cwd(), 'node_modules/@wildshard/kit');
+// J366 restores kit as a public content package, and SDK-SPLIT SP2b makes upload the sdk's workspace sibling. Validate
+// the package's actual export map before accepting its name; unknown subpaths must still refuse.
+const LAYER_PACKAGES = ['@wildshard/kit', '@wildshard/upload'];
+function packageExports(source) {
+  const name = LAYER_PACKAGES.find(candidate => source === candidate || source.startsWith(`${candidate}/`));
+  if (name === undefined) return false;
+  const sub = source === name ? '.' : `.${source.slice(name.length)}`;
+  const root = installed(name);
   if (sub.includes('..') || !existsSync(resolve(root, 'package.json'))) return false;
   const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'));
   return Object.entries(manifest.exports).some(([key, target]) => {
@@ -59,7 +69,7 @@ const kitLayer = {
   create(context) {
     const report = descriptor => {
       const match = /^No such layer package: (.+)$/u.exec(descriptor.message ?? '');
-      if (match !== null && kitExports(match[1])) return;
+      if (match !== null && packageExports(match[1])) return;
       context.report(descriptor);
     };
     const view = new Proxy({}, { get: (_view, key) => key === 'report' ? report : Reflect.get(context, key, context), has: (_view, key) => key in context });

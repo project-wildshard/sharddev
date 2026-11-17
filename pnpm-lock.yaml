@@ -14,6 +14,30 @@ packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 importers:
 
   .:
+    devDependencies:
+      '@types/node':
+        specifier: 24.3.1
+        version: 24.3.1
+      npm-bin-deps:
+        specifier: 2.1.0
+        version: 2.1.0
+      oxlint:
+        specifier: 1.89.0
+        version: 1.89.0
+
+  packages/kit:
+    dependencies:
+      '@wildshard/shard-format':
+        specifier: 0.16.0
+        version: 0.16.0(typescript@6.0.3)
+      three:
+        specifier: 0.186.0
+        version: 0.186.0
+      valibot:
+        specifier: 1.5.0
+        version: 1.5.0(typescript@6.0.3)
+
+  packages/sdk:
     dependencies:
       '@dimforge/rapier3d-simd':
         specifier: 0.21.0
@@ -53,7 +77,10 @@ importers:
         version: '@wildshard/shard-format@0.16.0(typescript@6.0.3)'
       '@wildshard/kit':
         specifier: workspace:*
-        version: link:packages/kit
+        version: link:../kit
+      '@wildshard/upload':
+        specifier: workspace:*
+        version: link:../upload
       ajv:
         specifier: 6.15.0
         version: 6.15.0
@@ -115,24 +142,9 @@ importers:
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
-      npm-bin-deps:
-        specifier: 2.1.0
-        version: 2.1.0
       three:
         specifier: 0.186.0
         version: 0.186.0
-
-  packages/kit:
-    dependencies:
-      '@wildshard/shard-format':
-        specifier: 0.16.0
-        version: 0.16.0(typescript@6.0.3)
-      three:
-        specifier: 0.186.0
-        version: 0.186.0
-      valibot:
-        specifier: 1.5.0
-        version: 1.5.0(typescript@6.0.3)
 
   packages/upload:
     dependencies:
@@ -962,7 +974,6 @@ packages:
   playwright@1.65.0:
     resolution: {integrity: sha512-F3AMWcR44qMBt4kq+6Kb6mX7bjGXshktKFOPULd7reED6ZJWevjbNRqysP7q+AATE9kdPEZBibex1BYsvpVoeA==}
     engines: {node: '>=20'}
-    deprecated: 'Broken release: playwright-core@1.65.0 is missing. Use 1.64.1 for now.'
     hasBin: true
 
   postcss@8.5.32:

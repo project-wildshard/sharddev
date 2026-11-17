@@ -13,7 +13,7 @@ test('SDK docs read moved kit bindings and exact checked examples without engine
     expect(kit.filter(row => row.from === `@wildshard/kit/${path}`).length).toBeGreaterThan(0);
     expect(sdk.some(row => row.from === `@wildshard/sdk/${path}`)).toBe(false);
   }
-  const modules = publicModules(resolve(root, 'packages/kit'));
+  const modules = publicModules(resolve(root, '../kit'));
   expect(modules.some(row => row.from === '@wildshard/kit/geometry/species')).toBe(true);
   expect(modules.some(row => row.from.includes('test'))).toBe(false);
   expect(kit.filter(row => row.from === '@wildshard/kit/geometry/species').map(row => ({ name: row.name, kind: row.kind, doc: row.doc }))).toEqual(
