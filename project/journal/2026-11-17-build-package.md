@@ -42,3 +42,7 @@
   bin; hand-written repos keep the sdk pin so `update --pins` can read their release; the sdk's engine lint plugin finds
   the engine through cli and dev in a repo that pins no engine (proved in a pnpm cli-only repo); npm-publish checks all
   six names before the first publish.
+- SP13 codemod (opus-sdksplit5): `codemods/0.4.1.mjs` moves the six modules that left the sdk (the watch page, script
+  scenario, map rest and boot inventory to dev; the project builder to build), pins the cli (and each new home) at the
+  sdk's version, and keeps the engine only as a dev pin at dev's engine when the repo's code imports it (sim tests).
+  `update --pins` moves cli, build, dev and upload with the sdk and installs again when a codemod changed package.json.
