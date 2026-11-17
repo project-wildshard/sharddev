@@ -393,6 +393,10 @@
     "test/fixtures/return-group.ts",
     "src/sharddev/test/scriptScenario.ts",
     "src/sharddev/test/diskScriptScenario.ts",
-    "test/runtime-files.test.ts"
+    "test/runtime-files.test.ts",
+    "test/author-format-selector.test.ts",
+    "test/author-placement-parity.test.ts",
+    "test/faceted-author-compiler.test.ts",
+    "test/scene-source-author-ports.test.ts"
   ]
 }
