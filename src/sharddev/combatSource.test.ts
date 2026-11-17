@@ -106,10 +106,27 @@ test('handwritten native declarations emit explicit effects and cap flags withou
     writeOutputProduct(source, new Map(), resolve(root, 'source'), {platform: emitPlatformSections(new Map([['actors/species-programs', metadata]]))});
     const original = readFileSync(resolve(root, 'source/sections/actors/species-programs.json'), 'utf8');
     const settled = settleHandwrittenCreatureLayers(resolve(root, 'source'), resolve(root, 'settled'));
-    expect(readSpeciesPrograms(settled.sections.get('actors/species-programs')).native[0]?.capExempt).toBe(true);
+    const native = readSpeciesPrograms(settled.sections.get('actors/species-programs'));
+    expect(native.native[0]?.capExempt).toBeUndefined();
+    expect(native.hunt?.fight.capExemptTags).toEqual(['creature.crab']);
     const item = settled.shard.items.rows[0];
     if (item?.kind !== 'weapon' || item.profile?.family !== 'melee') throw new Error('Missing original sword');
     expect(item.profile.moves.heavy.debris?.overrides).toContainEqual({target: 'native.shell', effect: {surface: 'shell', count: 9, atFeet: false, sparks: true}});
     expect(readFileSync(resolve(root, 'source/sections/actors/species-programs.json'), 'utf8')).toBe(original);
   } finally {warning.mockRestore();rmSync(root, {recursive: true, force: true});}
+});
+
+test('ordinary cap compilation keeps conditional request tags and authored overrides', () => {
+  const source = fixture();
+  const metadata = JSON.parse(readFileSync(resolve('src/shards/_template/manifest.json'), 'utf8'));
+  source.manifest = { ...metadata, fight: { capExempt: ['crab', 'state.rage', 'effect.hot'] } };
+  const first = source.rows.species[0], second = source.rows.species[1];
+  if (first === undefined || second === undefined) throw new Error('Missing explicit controls');
+  first.capExempt = true; second.capExempt = false;
+  const admitted = parseShardfile(source), before = JSON.stringify(admitted);
+  const result = expandCombatSource(admitted, () => undefined);
+  expect(result.rows.species.map(row => row.capExempt)).toEqual([true, false, undefined, undefined]);
+  expect(result.manifest?.fight?.capExemptTags).toEqual(['creature.crab', 'state.rage', 'creature.state.rage', 'effect.hot', 'creature.effect.hot']);
+  expect(JSON.stringify(admitted)).toBe(before);
+  expect(expandCombatSource(result, () => { throw new Error('Repeated policy expansion'); })).toBe(result);
 });

@@ -1,3 +1,4 @@
+import { compileIncomingCapPolicy } from '@wildshard/format/incomingCapPolicy';
 import { readSpeciesPrograms, type SpeciesData } from '@wildshard/format/speciesPrograms';
 import { legacyHuntTuning } from '@wildshard/kit/legacySpecies';
 import { legacyHarvest } from '@wildshard/kit/legacyHarvest';
@@ -8,19 +9,22 @@ import type { EmittedSections } from './sections';
 export function expandNativeHuntSource(input: unknown, warn: (message: string) => void = console.warn): unknown {
   const source = readSpeciesPrograms(input);
   const messages = new Set<string>();
+  const capExemptTags = compileIncomingCapPolicy(source.hunt?.fight ?? {});
+  const compileFight = source.hunt !== undefined && source.hunt.fight.capExemptTags === undefined;
+  if (compileFight) messages.add('native hunt: compiled exact source cap tags');
   const fill = <T extends SpeciesData>(row: T): T => {
     const tuning = source.hunt !== undefined && row.tuning === undefined ? legacyHuntTuning(row.aggressive === true) : undefined;
     const variants = [...new Set([...row.variants, ...row.spawnOnly ?? []].map(variant => variant.id))];
     const harvest = row.harvest === undefined ? legacyHarvest(row.kind, variants) : undefined;
-    const capExempt = source.hunt !== undefined && row.capExempt === undefined
-      ? source.hunt.fight.capExempt?.some(value => value === row.kind || value === `creature.${row.kind}`) ?? false : undefined;
+    const capExempt = source.hunt !== undefined && row.capExempt === undefined && capExemptTags.length === 0 ? false : undefined;
     if (tuning === undefined && harvest === undefined && capExempt === undefined) return row;
     if (tuning !== undefined) messages.add(`species \`${row.id}\` uses the old native hunt owner: copied kit tuning from its explicit aggressive flag`);
     if (harvest !== undefined) messages.add(`species \`${row.id}\` uses the old harvest law: copied explicit drops for its complete variant roster`);
     if (capExempt !== undefined) messages.add(`species \`${row.id}\` uses the old native hunt owner: copied its source cap policy`);
     return { ...row, ...(tuning === undefined ? {} : { tuning }), ...(harvest === undefined ? {} : { harvest }), ...(capExempt === undefined ? {} : { capExempt }) };
   };
-  const expanded = { ...source, native: source.native.map(fill), page: source.page.map(fill),
+  const expanded = { ...source,
+    ...(compileFight && source.hunt !== undefined ? { hunt: { ...source.hunt, fight: { ...source.hunt.fight, capExemptTags } } } : {}), native: source.native.map(fill), page: source.page.map(fill),
     ...(source.program === undefined ? {} : { program: { ...source.program, species: source.program.species.map(fill) } }) };
   if (messages.size === 0) return input;
   const result = readSpeciesPrograms(expanded);
