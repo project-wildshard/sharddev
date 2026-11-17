@@ -31,7 +31,7 @@ const [{readTar},{validateShardfileFolder},{checkShardfile}]=await Promise.all([
 ]);
 const [{cookApi,pendingSource,uploadDelivery,VerdictOutbox,activationDelivery,gameActivationClient},
   {createCookWorker,apiSource},{folderStore},{uploadActivator,uploadActivationReceiver},
-  {readPlacementFile},{readPackProduct},{World},{memoryPlayerSaves},{runCells},
+  {readPlacementFile},{readPackFolder},{World},{memoryPlayerSaves},{runCells},
   {placeCell,forgetPlacedCells},{loadRapier}, {placementWriter}]=await Promise.all([
   engine('src/cook/game/uploadTransport.ts'),engine('src/cook/game/cookWorker.ts'),engine('src/cook/game/packStore.ts'),
   engine('src/server/host/dedicated/uploadActivation.ts'),engine('src/server/host/dedicated/placementFile.ts'),
@@ -73,13 +73,13 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
   const stops=[],rooms=new Set();
   const boot=slugs=>{
     const {port1,port2}=new MessageChannel();
-    const cells=runCells(port2,{slugs,build,bootId:()=>build,memory:()=>process.memoryUsage(),load:slug=>readPackProduct(slug,build,rapier,options,reads,fixture.hash,[],true),booted:slug=>rooms.add(slug)});
+    const cells=runCells(port2,{slugs,build,bootId:()=>build,memory:()=>process.memoryUsage(),load:slug=>readPackFolder(slug,build,rapier,options,reads,fixture.hash,[],true),booted:slug=>rooms.add(slug)});
     const stop=()=>{cells.dispose();port1.close();};stops.push(stop);
     return {send:(order,transfer=[])=>port1.postMessage(order,transfer),listen:news=>{port1.onmessage=event=>news(event.data);},stop};
   };
   const world=await World.open({build,cells:[],workers:1,seats:8,secret:'fixture-seat-secret',boot,saves:memoryPlayerSaves(),log:()=>{},crashed:error=>{throw new Error(String(error));},restart:()=>{throw new Error('No release restart expected');}});
   context.after(()=>{world.dispose();for(const stop of stops)stop();forgetPlacedCells();});
-  const activate=uploadActivator({build,channel:'staging',read:async()=>readPlacementFile(documents.get('releases/staging-placements.json').text,publicKey),preload:async(slug,hash)=>{await readPackProduct(slug,build,rapier,options,reads,hash,[],true);},place:row=>{placeCell(row);},open:instances=>world.activateCells(instances),opened:instance=>Object.hasOwn(world.health().table,instance)});
+  const activate=uploadActivator({build,channel:'staging',read:async()=>readPlacementFile(documents.get('releases/staging-placements.json').text,publicKey),preload:async(slug,hash)=>{await readPackFolder(slug,build,rapier,options,reads,hash,[],true);},place:row=>{placeCell(row);},open:instances=>world.activateCells(instances),opened:instance=>Object.hasOwn(world.health().table,instance)});
   const gameToken=['fixture','local','game','receiver','test','key','32bytes'].join('-'),receive=uploadActivationReceiver(gameToken,activate);
   const server=createServer((request,response)=>{if(!receive(request,response))response.writeHead(404).end();});
   await new Promise(done=>server.listen(0,'127.0.0.1',done));
