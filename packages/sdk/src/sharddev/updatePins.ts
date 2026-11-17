@@ -20,9 +20,10 @@ import { assertShardRepo, updateShardRepo } from './agentFiles';
  * alias. The move keeps the name the repo has. */
 export const SDK_NAMES = ['@wildshard/sdk', '@wildshard/sharddev'] as const;
 /** The pins a shard repo may list; each moves to what the release names. The sdk moves to the release itself. */
-export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/cli', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three'] as const;
-/** SDK-SPLIT SP10: the cli releases with the sdk at one version (D5), so it moves to the release's own version. */
-const CLI = '@wildshard/cli';
+export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/cli', '@wildshard/build', '@wildshard/dev', '@wildshard/upload', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three'] as const;
+/** SDK-SPLIT SP10, SP13: the cli, build, dev and upload release with the sdk at one version (D5), so each moves to the
+ * release's own version. */
+const LOCKSTEP: ReadonlySet<string> = new Set(['@wildshard/cli', '@wildshard/build', '@wildshard/dev', '@wildshard/upload']);
 const isSdkName = (name: string): boolean => (SDK_NAMES as readonly string[]).includes(name);
 const isPinned = (name: string): boolean => (PINNED as readonly string[]).includes(name);
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies'] as const;
@@ -99,7 +100,7 @@ export function movePins(text: string, release: SdkRelease, sdkSpec?: string): {
   if (!isRecord(parsed)) throw new Error('update --pins: package.json is not a JSON object');
   const moves: PinMove[] = [];
   const target = (name: string, from: string): string | undefined => {
-    if (name === CLI) return SEMVER.test(from) ? release.version : undefined;
+    if (LOCKSTEP.has(name)) return SEMVER.test(from) ? release.version : undefined;
     if (!isSdkName(name)) return release.pins[name];
     if (SDK_ALIAS.test(from)) return `npm:@wildshard/sdk@${release.version}`;
     if (GITHUB_PIN.test(from)) return sdkSpec;
@@ -263,7 +264,7 @@ const LAST_UPDATE_WITHOUT_SHARDDEV = '0.2.5';
 /** pnpm view: the release a spec names, with the specs it pins. */
 function pnpmView(spec: string, cwd: string): SdkRelease {
   let out: string;
-  try { out = execFileSync('pnpm', ['view', `@wildshard/sdk@${spec}`, 'version', 'dependencies', 'peerDependencies', 'engines', '--json'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
+  try { out = execFileSync('pnpm', ['view', `@wildshard/sdk@${spec}`, 'version', 'dependencies', 'peerDependencies', 'devDependencies', 'engines', '--json'], { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }); }
   catch (error) { throw new Error(`update --pins: pnpm view @wildshard/sdk@${spec} failed: ${error instanceof Error ? error.message.split('\n')[0] ?? '' : String(error)}`, { cause: error }); }
   if (out.trim() === '') throw new Error(`update --pins: npm has no @wildshard/sdk@${spec}`);
   const parsed: unknown = JSON.parse(out);
@@ -276,6 +277,10 @@ function pnpmView(spec: string, cwd: string): SdkRelease {
     const listed = record[key];
     if (isRecord(listed)) for (const [name, value] of Object.entries(listed)) if (typeof value === 'string') pins[name] = value;
   }
+  // SDK-SPLIT SP13: the split sdk keeps the engine only as a dev dependency, at dev's exact pin (test/dev-engine-pin), so
+  // a repo's engine pin (sim tests) and its override still move with each release.
+  const dev = record['devDependencies'], engine = isRecord(dev) ? stringAt(dev, '@wildshard/engine') : undefined;
+  if (engine !== undefined && SEMVER.test(engine)) pins['@wildshard/engine'] ??= engine;
   const engines = record['engines'], node = isRecord(engines) ? stringAt(engines, 'node') : undefined;
   return { version, pins, ...(node === undefined ? {} : { node }) };
 }
@@ -333,8 +338,14 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
     if (threePin !== undefined && SEMVER.test(threePin) && listsThree(listed) && three !== threePin) throw new Error(`update --pins: sdk ${release.version} pins three ${threePin}, but ${three ?? 'none'} is installed`);
     sdkRoot = realpathSync(resolve(project, 'node_modules', pin.name));
     // 3. The release's codemods, read from the installed sdk.
+    const pinned = readFileSync(packageFile, 'utf8');
     const codemods = await applyCodemods(project, sdkRoot, from, release.version);
     runner.log(codemods.length === 0 ? `  no codemods between ${from} and ${release.version}` : codemods.join('\n'));
+    // SDK-SPLIT SP13: a codemod that pins a package (the cli, dev, build) installs it before update and check run.
+    if (readFileSync(packageFile, 'utf8') !== pinned) {
+      try { runner.run('pnpm', ['install'], project); }
+      catch (error) { throw new Error(`update --pins: pnpm install after the codemods failed on @wildshard/sdk ${release.version}`, { cause: error }); }
+    }
   } catch (error) {
     writeFileSync(packageFile, oldText);
     if (oldLock !== undefined) writeFileSync(lockFile, oldLock);
