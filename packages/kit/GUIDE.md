@@ -219,3 +219,20 @@ on each move. Source compilation also copies an older native hunt's own
 cap-exemption list to its species flags, retaining explicit flags and
 explicit move policies. These are compatibility writers, not runtime
 content lookups.
+
+## Reference skeletons
+
+`referenceSkeletonSource('biped' | 'quadruped')` from
+`@wildshard/kit/skeletons` returns fresh bone/weighted-geometry data and
+matching dimensions. Compile it with the SDK's existing `skinnedGlb`
+exporter. The source module uses Three and the defining format contract;
+it adds no SDK or engine runtime dependency. The caller owns its returned
+geometry and material.
+
+The package also carries `content/skeletons/biped.glb` and
+`content/skeletons/quadruped.glb`, exported through
+`@wildshard/kit/content/skeletons/<name>.glb`. Both use canonical named
+joints, translation-only unit binds and one vertex-coloured skin surface.
+From this repository, `pnpm --filter @wildshard/kit run build:skeletons`
+regenerates both through the same SDK kernel; the asset tests compare the
+published bytes to regeneration and measure their actual joint binds.

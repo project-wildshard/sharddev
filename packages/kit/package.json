@@ -23,6 +23,7 @@
     ".": "./src/index.ts",
     "./creatures": "./src/creatures.ts",
     "./body": "./src/body.ts",
+    "./skeletons": "./src/skeletons.ts",
     "./legacySpecies": "./src/legacySpecies.ts",
     "./legacyHarvest": "./src/legacyHarvest.ts",
     "./legacyCombat": "./src/legacyCombat.ts",
@@ -45,6 +46,7 @@
   },
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
+    "build:skeletons": "node --import ./test-hook.mjs scripts/build-skeletons.ts",
     "test": "node --import ./test-hook.mjs --test 'src/**/*.test.ts'"
   },
   "dependencies": {

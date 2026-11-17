@@ -24,3 +24,6 @@ export type {
   CreatureOptions,
   CreatureContent,
 } from './creatures.ts'
+
+export { referenceSkeletonSource } from './skeletons.ts'
+export type { ReferenceSkeletonSource } from './skeletons.ts'

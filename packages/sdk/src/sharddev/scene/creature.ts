@@ -132,8 +132,8 @@ export interface CreatureBinding {
 }
 
 /**
- * AP23b: the skin file for a compiled rig, as a species' skin names it: the rig row (its GLB's cost and hash, clips, joints as
- * parent and child pairs, every bone a socket) and its binding. No species, kind or brain row is written: a species binds
+ * AP23b: the skin file for a compiled rig, as a species' skin names it: the rig row (its GLB's cost and hash, clips, the ordered
+ * skin joint list, every bone a socket) and its binding. No species, kind or brain row is written: a species binds
  * the skin by `id` as it binds a hand-written one.
  */
 export function creatureSkin(rig: CreatureRig, options: { id: string; family?: 'toon' | 'pbr' | 'painterly'; binding: CreatureBinding }): { row: Record<string, unknown>; binding: Record<string, unknown> } {
