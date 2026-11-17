@@ -14,7 +14,7 @@ import sharp from 'sharp';
 import {installWildshard} from '../../src/test/helpers/install.ts';
 
 const {readTar}=await import('@wildshard/format/tar');
-const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
+const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
 const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
 
 const parent=process.env.WS_PROOF_SCRATCH??tmpdir();mkdirSync(parent,{recursive:true});
@@ -29,7 +29,7 @@ function cli(args,success=true){
   env:{...process.env,WILDSHARD_GEN_CACHE:join(root,'generation'),WILDSHARD_SHARDFILE_CACHE:join(root,'compiler')}});
  assert.ifError(run.error);if(success)assert.equal(run.status,0,`${run.stdout}\n${run.stderr}`);else assert.notEqual(run.status,0);return run;
 }
-async function build(name,flags=[]){const output=join(app,name);cli(['build',source,output,'--product-only',...flags]);return loadHeadlessProduct(output);}
+async function build(name,flags=[]){const output=join(app,name);cli(['build',source,output,'--product-only',...flags]);return loadHeadlessFolder(output);}
 function config(body){writeFileSync(join(source,'shard.config.ts'),`import {emptyShardfile} from '@wildshard/sdk/author';
  import {nameBlob} from '@wildshard/sdk/blobs';
  import {registeredJsonSchema} from '@wildshard/sdk/formatJsonSchema';
@@ -59,7 +59,7 @@ test('generated input bytes reach the admitted product through the installed bui
 test('editing an author input invalidates generation without changing the prior product',{timeout:45_000},async()=>{
  writeFileSync(join(source,'assets/token.bin'),new Uint8Array([12]));
  const product=await build('token-b');assert.deepEqual([...await product.file('authored/token.bin')],[12]);
- assert.deepEqual([...await (await loadHeadlessProduct(join(app,'token-a'))).file('authored/token.bin')],[11]);
+ assert.deepEqual([...await (await loadHeadlessFolder(join(app,'token-a'))).file('authored/token.bin')],[11]);
 });
 test('one real image serves every level image alias in the emitted product',{timeout:45_000},async()=>{
  const bytes=await sharp({create:{width:4,height:4,channels:4,background:'#387ace'}}).png().toBuffer();
@@ -101,7 +101,7 @@ test('a generated map ships its actual lossless pixels and author source identit
 test('an edited map program ships new pixels while its previous product stays immutable',{timeout:45_000},async()=>{
  config(`const pixels=new Uint8Array(4000000);for(let i=0;i<pixels.length;i+=4){pixels[i]=81;pixels[i+1]=83;pixels[i+2]=121;pixels[i+3]=255;}
  return {shard,output:{},map:{pixels,name:'ui/map'}};`);
- const product=await build('map-edited',[`--generated-map-tiles-hash=${'b'.repeat(64)}`]),old=await loadHeadlessProduct(join(app,'map'));
+ const product=await build('map-edited',[`--generated-map-tiles-hash=${'b'.repeat(64)}`]),old=await loadHeadlessFolder(join(app,'map'));
  assert.equal(product.shardfile.map.tilesHash,'b'.repeat(64));assert.notEqual(product.shardfile.map.image,old.shardfile.map.image);
  const pixels=await sharp(await product.file('ui/map')).raw().toBuffer();assert.equal(pixels[0],81);
  const previous=await sharp(await old.file('ui/map')).raw().toBuffer();assert.equal(previous[0],39);

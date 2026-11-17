@@ -11,7 +11,7 @@ import { mergeProjectBlobs, prepareProjectOutput } from '../src/sharddev/project
 import { emitPlatformSections } from '../src/sharddev/platformSections';
 import { writeOutputProduct, validateOutputProduct } from '../src/sharddev/outputProduct';
 import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/engine/host/immutable';
-import { admitProduct as admitBrowser, readProductDescriptor, type ProductOptions } from '@wildshard/engine/game/shardfile/product';
+import { admitFolder as admitBrowser, readFolderDescriptor, type FolderOptions } from '@wildshard/engine/game/shardfile/folder';
 import { parseDecisionScripts } from '@wildshard/format/decisionScripts';
 import { admitScriptContract, decisionModuleContracts, decisionScriptsFromSections } from '@wildshard/format/scriptContract';
 import { assetCost } from '@wildshard/format/shardfileAssets';
@@ -68,10 +68,10 @@ test('writer, disk validator and untrusted browser use the exact verified sim/sc
   const index = writeOutputProduct(shard, assets, root, { namedFiles, platform });
   expect(validateOutputProduct(root).assets.get(blob.file.hash)).toEqual(bytes);
   const base = 'https://example.test/decision/';
-  const options: ProductOptions = { base, offline: false, firstParty: false, hash: wire => Promise.resolve(hashImmutableBytes(wire)), fetch: url => {
+  const options: FolderOptions = { base, offline: false, firstParty: false, hash: wire => Promise.resolve(hashImmutableBytes(wire)), fetch: url => {
     const path = url.slice(base.length); return Promise.resolve(new Response(Uint8Array.from(readFileSync(resolve(root, path)))));
   } };
-  const source = await readProductDescriptor(options);
+  const source = await readFolderDescriptor(options);
   expect((await admitBrowser(source, options)).assets.get(blob.file.hash)).toEqual(bytes);
   expect(() => validateShardfileAssets(shard, assets, hashImmutableBytes, undefined, undefined, scripts)).not.toThrow();
   expect(() => writeOutputProduct(shard, assets, directory())).toThrow();
@@ -84,7 +84,7 @@ test('writer, disk validator and untrusted browser use the exact verified sim/sc
   const { packs: _packs, ...unpacked } = index;
   writeFileSync(resolve(root, 'shard.json'), encodeCanonicalJson(unpacked));
   expect(() => validateOutputProduct(root)).toThrow('fixed pages');
-  await expect(admitBrowser(await readProductDescriptor(options), options)).rejects.toThrow('fixed pages');
+  await expect(admitBrowser(await readFolderDescriptor(options), options)).rejects.toThrow('fixed pages');
 });
 
 

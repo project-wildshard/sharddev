@@ -12,17 +12,17 @@ import { mapInputHashes, mapTilesHash, verifyMapPixels } from '@wildshard/engine
 import { borrowShardfileEntry, readBuildKey, reuseOrBuild, shardfileCacheRoot, shardfileKey, treeHashes } from '@wildshard/engine/scripts/shardfile-cache.mjs';
 import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
-import { productInputKey, productToolchainKey, matchingProductInputKey, publishProductInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
+import { folderInputKey, folderToolchainKey, matchingFolderInputKey, publishFolderInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { quietCli } from '@wildshard/engine/scripts/quiet-cli.mjs';
 import { manifestFolders, outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
 import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
-import { orderProductBuilds, readProductBuildTimes, recordProductBuildTimes } from '@wildshard/engine/scripts/product-build-times.mjs';
+import { orderFolderBuilds, readFolderBuildTimes, recordFolderBuildTimes } from '@wildshard/engine/scripts/folder-build-times.mjs';
 import { prepareProductBuildTools } from './product-build-tools.mjs';
 import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
-import { runtimeCopyIssues, productMapInput, publishProductMap, productFlags, productRecipe, retainProductInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-product.mjs';
+import { runtimeCopyIssues, folderMapInput, publishFolderMap, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
 import { isWorktreePath } from './worktree-ignore.mjs';
 
 /** Read CI's output or a matching immutable product without invoking the builder.
@@ -51,8 +51,8 @@ function workspaceRootOf(root) {
  * package.json. @param {string} root @param {InputHashMemo} memo */
 function toolchainKey(root, memo) {
   const workspace = workspaceRootOf(root);
-  if (workspace === resolve(root)) return productToolchainKey(root, memo);
-  return `${productToolchainKey(workspace, new InputHashMemo(workspace))}+${memo.hash('package.json')}`;
+  if (workspace === resolve(root)) return folderToolchainKey(root, memo);
+  return `${folderToolchainKey(workspace, new InputHashMemo(workspace))}+${memo.hash('package.json')}`;
 }
 
 /** Pack every first-party map through the existing charged SDK row; missing maps keep the old no-map build path.
@@ -109,7 +109,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   const buildTimes=new Map();
   /** @type {Map<string,number>} */
   const validationTimes=new Map();
-  const ordered=recorded?orderProductBuilds(products,readProductBuildTimes(shardfileCacheRoot())):products;
+  const ordered=recorded?orderFolderBuilds(products,readFolderBuildTimes(shardfileCacheRoot())):products;
   // The engine pin's treeHashes skips .worktrees/ only from engine 03d4d79; drop plan worktrees here either way (DS11).
   const files = recorded ? undefined : new Map([...treeHashes(root)].filter(([path]) => !isWorktreePath(path)));
   const inputHashes = new InputHashMemo(root,resolve(root,'.cache/shardfile-input-hashes.json'));
@@ -125,7 +125,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     const project = shardSourceDir(root, folder);
     try {
     const started = performance.now();
-    const map = productMapInput(project, output), expected = map?.tilesHash ?? null;
+    const map = folderMapInput(project, output), expected = map?.tilesHash ?? null;
     let actual=mapTileHashes.get(project);
     if(actual===undefined){actual=mapTilesHash(project);mapTileHashes.set(project,actual);}
     if (expected !== actual) {
@@ -139,14 +139,14 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     }
     const issues = copyRuntime === 'closed' ? runtimeIssues(project) : [];
     runtimeReport.push({ slug: name, runtime: issues.length > 0 ? 'source' : 'output', issues });
-    const flags = productFlags(root, output, map, copyRuntime === true || copyRuntime === 'closed' && issues.length === 0);
+    const flags = folderFlags(root, output, map, copyRuntime === true || copyRuntime === 'closed' && issues.length === 0);
     // --no-placeholders (G348): a first-party product keeps its own bytes; its near / far views come from the repo bakes
     // until the grid reads a shardfile's `near`. The CLI's default baked a near row into Signal Dunes' product, whose play
     // stage then never ran (677bd1cf1: "Shardfile requires the normal play stage", the page held at 82 %).
     const destination = resolve(root, 'out', name);
-    const { normalized, recipe, receipts } = productRecipe(root, name, flags, toolchain, shardfileCacheRoot());
+    const { normalized, recipe, receipts } = folderRecipe(root, name, flags, toolchain, shardfileCacheRoot());
     if (recorded) borrowShardfileEntry(receipts, true);
-    const currentKey = () => recorded ? matchingProductInputKey(root,receipts,recipe,inputHashes) : shardfileKey(files ?? new Map(),name,folders.filter(other=>other!==folder),normalized);
+    const currentKey = () => recorded ? matchingFolderInputKey(root,receipts,recipe,inputHashes) : shardfileKey(files ?? new Map(),name,folders.filter(other=>other!==folder),normalized);
     const key = currentKey();
     if (selected !== undefined && !selected.includes(name)) {
       const here = readBuildKey(destination);
@@ -159,25 +159,25 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
       try {
       await buildOne(['build',project,out,'--folder-only','--no-placeholders','--format=2',...flags,...(recorded?[`--input-receipt=${receipt}`]:[])]);
       if (recorded && toolchainOf() !== toolchain) throw new Error('Product toolchain changed during build');
-      const next = recorded ? productInputKey(root,receipt,recipe,inputHashes) : currentKey();
+      const next = recorded ? folderInputKey(root,receipt,recipe,inputHashes) : currentKey();
       if (next === undefined) throw new Error(`Missing complete product input receipt: ${name}`);
       if(recorded) {
-        retainProductInputs(root,name,receipt,next,recipe,inputHashes);
-        publishProductInputs(receipts,receipt,next);
+        retainFolderInputs(root,name,receipt,next,recipe,inputHashes);
+        publishFolderInputs(receipts,receipt,next);
       }
       return next;
       } finally { if(recorded)rmSync(receipt,{force:true}); }
     } });
     if (recorded && how !== 'built') {
       const retained = readBuildKey(destination);
-      retainProductInputs(root,name,resolve(receipts,`${retained}.json`),retained,recipe,inputHashes);
+      retainFolderInputs(root,name,resolve(receipts,`${retained}.json`),retained,recipe,inputHashes);
     }
     // Cache transport never substitutes for current strict admission, including
     // file hashes, schemas, budgets and executing the admitted script bytes.
     if (strict && how !== 'built') await buildOne(['validate',destination]);
     const tiles = checkTileBake(root, name, destination);
     reportTileBake(root, name, destination);
-    if (map !== undefined && map.image === undefined) await publishProductMap(root, name, destination, map.tilesHash);
+    if (map !== undefined && map.image === undefined) await publishFolderMap(root, name, destination, map.tilesHash);
     console.info(`tile bake: ${name} ${tiles.l0} L0/${tiles.l1} L1, 16 full 5x5 windows checked, ${Object.keys(tiles.debt).length} existing debt metrics`);
     console.info(`wildshard build: ${name} ${how === 'built' ? 'built' : `reused (${how})`} in ${((performance.now() - started) / 1000).toFixed(1)}s`);
     count++;
@@ -206,7 +206,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     if (strict) throw new Error(message);
     console.warn(message);
   }
-  if(recorded)recordProductBuildTimes(shardfileCacheRoot(),buildTimes,validationTimes);
+  if(recorded)recordFolderBuildTimes(shardfileCacheRoot(),buildTimes,validationTimes);
   return count;
 }
 

@@ -9,7 +9,7 @@
 // sfx, the piano stings): it stays out of every list, and a product of the same folder may share one.
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
-import { shardProducts } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
 
 const argument = (name) => process.argv.find(row => row.startsWith(`--${name}=`))?.slice(name.length + 3);
 // --root: the tree whose src/shards, public and out are recorded (a shard repo; this repo by default).
@@ -76,7 +76,7 @@ const html = readFileSync(join(dist, 'index.html'), 'utf8');
 const bank = JSON.parse(/id="boot-module-files">([^<]+)</u.exec(html)?.[1] ?? 'null');
 const book = JSON.parse(readFileSync(join(dist, readdirSync(join(dist, 'assets/spawn')).filter(name => name.startsWith('packs-')).map(name => `assets/spawn/${name}`)[0] ?? ''), 'utf8'));
 const folders = readdirSync(resolve(root, 'src/shards'), { withFileTypes: true }).filter(row => row.isDirectory()).map(row => row.name);
-const products = shardProducts(root, folders).filter(row => existsSync(join(out, row.slug, 'shard.json')));
+const products = builtShardFolders(root, folders).filter(row => existsSync(join(out, row.slug, 'shard.json')));
 
 const reads = new Map(), folderOf = new Map(products.map(row => [row.slug, row.folder]));
 for (const { slug } of products) {

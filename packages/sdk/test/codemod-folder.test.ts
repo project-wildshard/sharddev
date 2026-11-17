@@ -1,12 +1,12 @@
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { afterAll, expect, it } from 'vitest';
-import codemod, { moveSource } from '../codemods/sa25-folder.mjs';
+import codemod, { moveSource } from '../codemods/0.4.0-folder.mjs';
 
 // SHARD-SOURCE SA25b: engine SA25 renamed its `product` modules and names; `update --pins` moves a shard repo's imports.
 const scratchRoot = resolve(import.meta.dirname, '../tmp');
 mkdirSync(scratchRoot, { recursive: true });
-const repo = mkdtempSync(join(scratchRoot, 'codemod-sa25-'));
+const repo = mkdtempSync(join(scratchRoot, 'codemod-folder-'));
 afterAll(() => { rmSync(repo, { recursive: true, force: true }); });
 
 it('moves the engine imports a shard repo has today, and nothing it owns', () => {

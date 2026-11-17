@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { test } from 'node:test';
 import { Vector3 } from 'three';
-const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
+const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
 const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
 const { snapshotSimHost, serializeSimSnapshot, decodeSimSnapshot } = await import('@wildshard/engine/sim/snapshot');
@@ -14,7 +14,7 @@ const { restoreSimHost } = await import('@wildshard/engine/sim/restore');
 const { createShardfileSim, bindShardfileSim, prepareShardfileSimRestore } = await import('@wildshard/engine/game/plugin/simulation');
 const { createTrustedHeadlessResident } = await import('@wildshard/engine/host/headlessRuntime');
 const { hasDeclaredClientPage } = await import('@wildshard/format/runtimeBinds');
-const { productHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
+const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { ScriptHost } = await import('@wildshard/engine/script/host');
 const { leadPlayer } = await import('@wildshard/engine/sim/leadPlayer');
 const require = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
@@ -22,7 +22,7 @@ const owner = JSON.parse(readFileSync('test/ci21-grid-owner.json', 'utf8'));
 const quest = { fact: () => undefined, coins: () => undefined };
 async function supplied(row) {
   const directory = process.env.CI21_GRID_PRODUCTS_ROOT === undefined ? row.directory : `${process.env.CI21_GRID_PRODUCTS_ROOT}/${row.slug}`;
-  const product = await loadHeadlessProduct(directory), shard = product.shardfile;
+  const product = await loadHeadlessFolder(directory), shard = product.shardfile;
   const descriptor = outputDescriptor(shard); assert.ok(descriptor, 'Missing admitted product inventory');
   const assets = new Map(descriptor.index.files.map(file => [file.commons === true ? `commons:${file.hash}` : file.hash,
     Uint8Array.from(readFileSync(`${directory}/${file.path}`))]));
@@ -31,7 +31,7 @@ async function supplied(row) {
 }
 for (const row of owner.products) test(`${row.slug}: evict and re-enter with kit, held items and quest progress`, { timeout: 30_000 }, async () => {
   const preparation = await supplied(row), { product, shard, assets, rapier } = preparation;
-  const sections = productHeadlessSections(product);
+  const sections = folderHeadlessSections(product);
   const native = shard.runtime !== null || hasDeclaredClientPage(shard) || product.has('sim/runtime-plan');
   const first = native ? await createTrustedHeadlessResident(preparation) : createShardfileSim(shard, assets, { rapier, sections, quest });
   let saved;
@@ -78,7 +78,7 @@ if (owner.generic) test('generic grid data destinations restore exact modules wi
   for (const row of owner.products) {
     const { product, shard, assets, rapier } = await supplied(row);
     assert.equal(shard.runtime, null); assert.equal(hasDeclaredClientPage(shard), false);
-    const sections = productHeadlessSections(product), original = ScriptHost.prototype.install;
+    const sections = folderHeadlessSections(product), original = ScriptHost.prototype.install;
     let installs = 0;
     ScriptHost.prototype.install = function (...args) { installs++; return original.apply(this, args); };
     try {

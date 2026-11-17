@@ -10,8 +10,8 @@ import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 import { Vector3 } from 'three';
 
-const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
-const { productHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
+const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
+const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { createShardfileSim } = await import('@wildshard/engine/game/plugin/simulation');
 const { encounterRows } = await import('@wildshard/engine/sim/encounterRows');
@@ -22,14 +22,14 @@ const PLAYER = 'actor.player', TICKS = 60;
 
 /** The built Template's cell server, with every quest fact it files kept in `facts`. */
 async function templateSim() {
-  const directory = resolve(process.env.WS_TEMPLATE_OUT ?? 'out/_template'), product = await loadHeadlessProduct(directory), shard = product.shardfile;
+  const directory = resolve(process.env.WS_TEMPLATE_OUT ?? 'out/_template'), product = await loadHeadlessFolder(directory), shard = product.shardfile;
   const descriptor = outputDescriptor(shard);
   assert.ok(descriptor, 'The built Template must pass admission');
   const assets = new Map(descriptor.index.files.filter(file => serverReadsFile(file, shard.terrain?.collider) && (file.name === undefined || file.kind === 'wasm' || file.kind === 'tile'))
     .map(file => [file.commons === true ? `commons:${file.hash}` : file.hash, Uint8Array.from(readFileSync(join(directory, file.path)))]));
   const rapier = await loadRapier(Uint8Array.from(readFileSync(engineRequire.resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm'))));
   const facts = [], paid = [];
-  const sim = createShardfileSim(shard, assets, { rapier, sections: productHeadlessSections(product), quest: { fact: name => { facts.push(name); }, coins: (amount, player) => { paid.push([player, amount]); } } });
+  const sim = createShardfileSim(shard, assets, { rapier, sections: folderHeadlessSections(product), quest: { fact: name => { facts.push(name); }, coins: (amount, player) => { paid.push([player, amount]); } } });
   return { shard, sim, facts, paid };
 }
 

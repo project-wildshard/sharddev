@@ -6,7 +6,7 @@ import {registeredJsonSchema,namedJsonSchema} from '@wildshard/engine/host/forma
 import {encodeCanonicalJson} from '@wildshard/engine/host/immutable';
 import {nameBlob} from '../src/sharddev/blobs';
 import {emptyShardfile} from '@wildshard/engine/host/author';
-import {createShardProduct} from '@wildshard/engine/game/shardfile/shardProduct';
+import {createShardFolder} from '@wildshard/engine/game/shardfile/shardFolder';
 import {fixtureJsonCheck} from './fixtures/productFile';
 
 // Detached, unplayed roots exercise the original native laws; no game state is lent.
@@ -38,7 +38,7 @@ for(const root of roots){
  test(`${root.name} refuses missing and foreign defining metadata before a read`,async()=>{
   const identity={slug:'native-quest',name:'Quest',author:'Test',revision:1,seed:1};
   for(const jsonSchema of[undefined,{},{$comment:'foreign'}]){
-   let reads=0;const product=createShardProduct({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
+   let reads=0;const product=createShardFolder({...identity,shardfile:emptyShardfile(identity),sections:new Map(),jsonCheck:fixtureJsonCheck,
     files:new Map([[root.name,{hash:'a'.repeat(64),url:'/quest',...(jsonSchema===undefined?{}:{jsonSchema})}]]),
     read:()=>{reads++;return Promise.resolve(encode(root.value));}});
    await expect(product.json(root.name)).rejects.toThrow('unregistered named JSON is retired');expect(reads).toBe(0);

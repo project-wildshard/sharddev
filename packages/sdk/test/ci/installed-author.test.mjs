@@ -212,15 +212,15 @@ test('the outside author uploads its newly built and prepared tarball through th
   assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version: '1.0.0' }]);
 });
 test('the newly built outside-author product boots and accepts real worker input', { timeout: 9_500 }, async () => {
-  const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
+  const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessFolder');
   const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
-  const { productHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
+  const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
   const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
   const product = await loadHeadlessProduct(join(app, 'first'));
   const descriptor = outputDescriptor(product.shardfile);
   assert.ok(descriptor);
   const assets = new Map(descriptor.index.files.map(file => [file.commons === true ? `commons:${file.hash}` : file.hash, readFileSync(join(app, 'first', file.path))]));
-  const runtime = await HeadlessSimulation.create(product.shardfile, assets, undefined, { deadline: 'advisory', sections: productHeadlessSections(product), ...(product.shardfile.runtime === null ? {} : { product: join(app, 'first') }) });
+  const runtime = await HeadlessSimulation.create(product.shardfile, assets, undefined, { deadline: 'advisory', sections: folderHeadlessSections(product), ...(product.shardfile.runtime === null ? {} : { product: join(app, 'first') }) });
   try {
     const commit = await runtime.step([{ source: 'outside-author', commands: [{ kind: 'player', moveX: 0, moveZ: -1, yaw: 0 }] }]);
     assert.equal(commit.tick, 1);

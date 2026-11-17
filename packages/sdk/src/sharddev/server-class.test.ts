@@ -7,10 +7,10 @@ import { emptyShardfile } from '@wildshard/sdk/author';
 import { readOutputDownloadIndex } from '@wildshard/format/outputDownload';
 import { parseOutputIndex } from '@wildshard/format/outputIndex';
 import { resolveOutputDescriptor } from '@wildshard/engine/game/shardfile/outputDescriptor';
-import { shardProductData } from '@wildshard/engine/game/shardfile/productData';
-import { copyOutputProducts } from '@wildshard/engine/scripts/app-build/outputProducts.mjs';
+import { shardFolderData } from '@wildshard/engine/game/shardfile/folderData';
+import { copyOutputFolders } from '@wildshard/engine/scripts/app-build/outputFolders.mjs';
 import { nativeAssemblyFiles, serverBlob, type NativeAssemblyPlan } from './blobs';
-import { loadHeadlessProduct } from '@wildshard/engine/host/headlessProduct';
+import { loadHeadlessFolder } from '@wildshard/engine/host/headlessFolder';
 import { hashImmutableBytes } from './immutable';
 import { validateOutputProduct, writeOutputProduct } from './outputProduct';
 import { prepareProjectOutput } from './projectOutput';
@@ -73,7 +73,7 @@ it('gives the client fetch list nothing to ask for: the schedule, the admitted s
 it('never publishes the server class to the app, and only a server reader can name it', async () => {
   const tree = root(), slug = 'server-class', { server } = product(resolve(tree, 'out', slug));
   const dist = resolve(tree, 'dist');
-  copyOutputProducts(tree, dist);
+  copyOutputFolders(tree, dist);
   const published = every(resolve(dist, 'shardfiles', slug));
   expect(published.length).toBeGreaterThan(0);
   expect(published.filter(path => path.includes(`${slug}/server/`))).toEqual([]);
@@ -81,11 +81,11 @@ it('never publishes the server class to the app, and only a server reader can na
   // standalone's server is a worker on the device: it reads them from its server pack (C2), never a tree of their own
   expect(existsSync(resolve(dist, 'server-class'))).toBe(false);
 
-  const headless = await loadHeadlessProduct(resolve(tree, 'out', slug));
+  const headless = await loadHeadlessFolder(resolve(tree, 'out', slug));
   expect(headless.hasFile(server.file.name)).toBe(true);
   expect(await headless.file(server.file.name)).toEqual(MARK);
 
-  const client = shardProductData(headless.shardfile, 'https://example.test/', () => Promise.reject(new Error('A client must not read this')));
+  const client = shardFolderData(headless.shardfile, 'https://example.test/', () => Promise.reject(new Error('A client must not read this')));
   expect(client.hasFile(server.file.name)).toBe(false);
   await expect(client.file(server.file.name)).rejects.toThrow(/names no file/u);
 });

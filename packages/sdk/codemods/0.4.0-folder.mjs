@@ -1,5 +1,6 @@
 // SHARD-SOURCE SA25b: engine SA25 took `product` out of its exports (J317). This codemod moves a shard repo's imports of
 // the renamed engine modules and names onto the new ones. `update --pins` runs it (see 0.2.5.mjs for the hook's shape).
+// It is named 0.4.0-folder, a prerelease of 0.4.0, so a move to 0.4.0 runs it just before 0.4.0.mjs.
 // Only files that import from `@wildshard/engine` change, and only the names each file imports from it.
 /* oxlint-disable node/no-sync, import/no-nodejs-modules -- A codemod is a one-shot synchronous edit of the shard repo on disk. */
 import { readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';

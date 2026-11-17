@@ -1,12 +1,12 @@
-import type { ProductFile, ShardProductInput } from '@wildshard/engine/game/shardfile/shardProduct';
+import type { FolderFile, ShardFolderInput } from '@wildshard/engine/game/shardfile/shardFolder';
 import { nodeNamedJsonCheck } from '@wildshard/engine/game/shardfile/outputChecksNode';
 import { registeredJsonSchema } from '../../src/sharddev/formatJsonSchema';
 
 /** The public native validator retains every named-JSON check in fixture products. */
-export const fixtureJsonCheck: NonNullable<ShardProductInput['jsonCheck']> = nodeNamedJsonCheck;
+export const fixtureJsonCheck: NonNullable<ShardFolderInput['jsonCheck']> = nodeNamedJsonCheck;
 
 /** Attach registered metadata without replacing explicit schemas or verified readers. */
-export function fixtureProductFile(name: string, file: ProductFile): ProductFile {
+export function fixtureProductFile(name: string, file: FolderFile): FolderFile {
   if (file.jsonSchema !== undefined) return file;
   const jsonSchema = registeredJsonSchema(name);
   return jsonSchema === undefined ? file : { ...file, jsonSchema };

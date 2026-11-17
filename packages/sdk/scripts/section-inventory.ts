@@ -7,7 +7,7 @@ import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import ts from '@typescript/typescript6';
 import { outputFormat } from '@wildshard/engine/scripts/shard-platform-format.mjs';
-import { shardProducts } from '@wildshard/engine/scripts/shard-outputs.mjs';
+import { builtShardFolders } from '@wildshard/engine/scripts/shard-outputs.mjs';
 import type { SectionMapping } from '@wildshard/format/outputFields';
 import { formatSource } from '@wildshard/engine/scripts/format-package.mjs';
 
@@ -188,7 +188,7 @@ export async function readSectionInventory(root:string=ROOT,productsRoot:string=
   const {OUTPUT_SECTIONS}=await import('@wildshard/format/outputFields');
   const folders=readdirSync(resolve(root,'src/shards'),{withFileTypes:true})
     .filter(entry=>entry.isDirectory()&&!entry.name.endsWith('-legacy')&&existsSync(resolve(root,'src/shards',entry.name,'shard.config.ts'))).map(entry=>entry.name);
-  const products=shardProducts(root,folders).map(({slug,folder})=>productSectionEntries(resolve(productsRoot,slug),slug,folder));
+  const products=builtShardFolders(root,folders).map(({slug,folder})=>productSectionEntries(resolve(productsRoot,slug),slug,folder));
   const table=readFileSync(resolve(ROOT,'../../project/archive/reviews/2026-10-24-host-audit-inventory.md'),'utf8');
   const historic=execFileSync('git',['show',`${HOST_PIN}:docs/HOST-BAR.md`],{cwd:root,encoding:'utf8'});
   const groups=hostGroupBindings(table,historic),files=['src/engine','src/game'].flatMap(folder=>tree(resolve(root,folder)))

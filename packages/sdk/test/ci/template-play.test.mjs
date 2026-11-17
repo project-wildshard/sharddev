@@ -7,17 +7,17 @@ import { createRequire } from 'node:module';
 import { resolve, join } from 'node:path';
 import { test } from 'node:test';
 
-const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
+const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
 const { createTrustedHeadlessAdapter } = await import('@wildshard/engine/host/headlessRuntime');
 const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
-const { productHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
+const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
-const { manifestFolders, shardProducts } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const { manifestFolders, builtShardFolders } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
 const products = readdirSync('out', { withFileTypes: true }).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars');
 assert.ok(products.length, 'Build this shard before running its product proof');
-assert.deepEqual(products.map(row => row.name).sort(), shardProducts(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort(), 'Every declared product must be built');
+assert.deepEqual(products.map(row => row.name).sort(), builtShardFolders(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort(), 'Every declared product must be built');
 const tapes = existsSync('test/ci/content-tapes.json') ? JSON.parse(readFileSync('test/ci/content-tapes.json', 'utf8')) : {};
 
 async function play(runtime, plan, declared) {
@@ -32,7 +32,7 @@ async function play(runtime, plan, declared) {
 }
 
 for (const { name: slug } of products) test(`${slug}: boot, walk and resume on the installed engine`, { timeout: 9_500 }, async () => {
-  const directory = resolve('out', slug), product = await loadHeadlessProduct(directory), shard = product.shardfile;
+  const directory = resolve('out', slug), product = await loadHeadlessFolder(directory), shard = product.shardfile;
   const descriptor = outputDescriptor(shard);
   assert.ok(descriptor, 'The built shard must pass admission');
   const declared = shard.runtime === null && !product.has('sim/runtime-plan');
@@ -42,7 +42,7 @@ for (const { name: slug } of products) test(`${slug}: boot, walk and resume on t
   const rapier = declared ? undefined : await loadRapier(readFileSync(engineRequire.resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm')));
   const create = async snapshot => {
     const runtime = declared
-      ? await HeadlessSimulation.create(shard, assets, snapshot, { deadline: 'advisory', sections: productHeadlessSections(product) })
+      ? await HeadlessSimulation.create(shard, assets, snapshot, { deadline: 'advisory', sections: folderHeadlessSections(product) })
       : await createTrustedHeadlessAdapter({ shard, assets, product, rapier }, snapshot);
     owned.push(runtime);
     return runtime;

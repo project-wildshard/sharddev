@@ -58,15 +58,15 @@ test('check --json passes the default new project', {timeout:120_000},()=>{
  assert.equal(JSON.parse(done.stdout).verdict,'pass');
 });
 test('the new author opens and crosses the real door, then resumes', {timeout:60_000},async()=>{
- const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
+ const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
  const {HeadlessSimulation}=await import('@wildshard/engine/host/headless');
- const {productHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
+ const {folderHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
  const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
- const product=await loadHeadlessProduct(output), shard=product.shardfile, descriptor=outputDescriptor(shard);
+ const product=await loadHeadlessFolder(output), shard=product.shardfile, descriptor=outputDescriptor(shard);
  assert.equal(shard.identity.slug,'first-island');
  const assets=new Map(descriptor.index.files.map(file=>[file.commons===true?`commons:${file.hash}`:file.hash,readFileSync(join(output,file.path))]));
  const worlds=[];
- const create=async snapshot=>{const world=await HeadlessSimulation.create(shard,assets,snapshot,{deadline:'advisory',sections:productHeadlessSections(product)});worlds.push(world);return world;};
+ const create=async snapshot=>{const world=await HeadlessSimulation.create(shard,assets,snapshot,{deadline:'advisory',sections:folderHeadlessSections(product)});worlds.push(world);return world;};
  try {
   const world=await create();
   let last; const observations=[];
@@ -103,14 +103,14 @@ test('the engine Template 1 pin agrees with the newly authored real door journey
  writeFileSync(tar,bytes);mkdirSync(folder);
  const extracted=spawnSync('tar',['-xf',tar,'-C',folder],{encoding:'utf8',timeout:10_000});
  assert.ifError(extracted.error);assert.equal(extracted.status,0,extracted.stderr);
- const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
+ const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
  const {HeadlessSimulation}=await import('@wildshard/engine/host/headless');
- const {productHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
+ const {folderHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
  const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
- const product=await loadHeadlessProduct(folder),shard=product.shardfile,descriptor=outputDescriptor(shard);
+ const product=await loadHeadlessFolder(folder),shard=product.shardfile,descriptor=outputDescriptor(shard);
  assert.equal(shard.identity.slug,'template');assert.equal(shard.identity.revision,2);
  const assets=new Map(descriptor.index.files.map(file=>[file.commons===true?`commons:${file.hash}`:file.hash,readFileSync(join(folder,file.path))]));
- const world=await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:productHeadlessSections(product)});
+ const world=await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:folderHeadlessSections(product)});
  try{
   const observations=[];
   for(const segment of pinDoorSegments){const part=await world.verbTapePart({version:1,observe:[],segments:[segment]});observations.push(...part.report.observations);}
@@ -131,8 +131,8 @@ test('the installed author cooks its complete tar and admits cooked server secti
  try {
   const {cookShard,servedAsIs}=await import('@wildshard/engine/game/shardCook');
   const {readServerPackBook,serverPackFile}=await import('@wildshard/engine/game/shardfile/serverPack');
-  const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');
-  const {productHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
+  const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
+  const {folderHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
   const report=await cookShard(readFileSync(tar),cooked,{now:()=>performance.now(),
    wireBytes:(url,bytes)=>servedAsIs(url,bytes)?bytes.length:brotliCompressSync(bytes,{params:{[constants.BROTLI_PARAM_QUALITY]:4}}).length});
   assert.equal(report.slug,'first-island');assert.equal(report.manifests.length,4);assert.ok(report.parts.count>0);
@@ -157,9 +157,9 @@ test('the installed author cooks its complete tar and admits cooked server secti
   // variants the cook deliberately excludes. Cooked-only worker play needs
   // the production server-product admission boundary to be exported by engine.
   // The preceding test separately proves real door play and save continuation.
-  const product=await loadHeadlessProduct(unpacked);
+  const product=await loadHeadlessFolder(unpacked);
   assert.equal(product.shardfile.identity.slug,report.slug);
-  assert.ok(productHeadlessSections(product).size>0);
+  assert.ok(folderHeadlessSections(product).size>0);
   console.log(`cooked reference: ${report.server.files} server files, ${report.parts.count} parts, ${report.seconds.toFixed(2)} seconds`);
  } finally {
   if(previous===undefined)delete process.env.WILDSHARD_SPAWN_PART_CACHE;else process.env.WILDSHARD_SPAWN_PART_CACHE=previous;

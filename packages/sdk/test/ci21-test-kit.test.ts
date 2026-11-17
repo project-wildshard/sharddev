@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { BoxGeometry } from 'three';
 import { ScenarioWorld } from '@wildshard/sdk/test/scriptScenario';
 import { slabGeometryBytes } from '@wildshard/sdk/bake/slabChunks';
-import { createShardProduct } from '@wildshard/engine/game/shardfile/shardProduct';
+import { createShardFolder } from '@wildshard/engine/game/shardfile/shardFolder';
 import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { emptyShardfile } from '@wildshard/engine/host/author';
 import { fixtureJsonCheck, fixtureProductFile } from './fixtures/productFile';
@@ -22,7 +22,7 @@ test('the public scenario/slab kit and fixture products retain their real bounda
     const bytes = new TextEncoder().encode(JSON.stringify(input));
     const base = fixtureProductFile(name, {hash: hashImmutableBytes(bytes), url: '/moves'});
     const file = extraRequired ? {...base, jsonSchema: {...base.jsonSchema, required: ['missing']}} : base;
-    return createShardProduct({slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map(),
+    return createShardFolder({slug: source.identity.slug, revision: 1, shardfile: source, sections: new Map(),
       files: new Map([[name, file]]), jsonCheck: (...args) => {checked++; return fixtureJsonCheck(...args);}, read: () => Promise.resolve(bytes)});
   };
   const schema = {$schema: 'http://json-schema.org/draft-07/schema#', type: 'object'};

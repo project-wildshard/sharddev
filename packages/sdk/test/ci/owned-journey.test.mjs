@@ -8,16 +8,16 @@ import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 const { questSource } = await import('./quest-source.mjs');
 
-const { loadHeadlessProduct } = await import('@wildshard/engine/host/headlessProduct');
+const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
 const { createTrustedHeadlessAdapter } = await import('@wildshard/engine/host/headlessRuntime');
 const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
-const { productHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
+const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
-const { manifestFolders, shardProducts } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const { manifestFolders, builtShardFolders } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
 const routes = JSON.parse(readFileSync('test/ci/walk-routes.json', 'utf8'));
-const products = shardProducts(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort();
+const products = builtShardFolders(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort();
 assert.ok(products.length);
 assert.deepEqual(readdirSync('out', {withFileTypes:true}).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars').map(row=>row.name).sort(), products);
 
@@ -30,7 +30,7 @@ function routeFor(slug, spawn) {
 }
 
 for (const slug of products) test(`${slug}: enters and walks 1800 actual authored-route ticks`, {timeout:9500}, async () => {
-  const started = performance.now(), directory = resolve('out', slug), product = await loadHeadlessProduct(directory), shard = product.shardfile;
+  const started = performance.now(), directory = resolve('out', slug), product = await loadHeadlessFolder(directory), shard = product.shardfile;
   assert.deepEqual(shard.quests,questSource(slug),'The real product must preserve its authored quest inventory');
   const descriptor = outputDescriptor(shard); assert.ok(descriptor);
   const declared = shard.runtime === null && !product.has('sim/runtime-plan');
@@ -38,7 +38,7 @@ for (const slug of products) test(`${slug}: enters and walks 1800 actual authore
     .map(file=>[file.commons === true ? `commons:${file.hash}` : file.hash,readFileSync(join(directory,file.path))]));
   const rapier = declared ? undefined : await loadRapier(readFileSync(engineRequire.resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm')));
   const runtime = declared
-    ? await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:productHeadlessSections(product)})
+    ? await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:folderHeadlessSections(product)})
     : await createTrustedHeadlessAdapter({shard,assets,product,rapier});
   try {
     const route = routeFor(slug,shard.spawn), report = await runtime.journey({ticks:1800,points:route.points});
