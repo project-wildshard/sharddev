@@ -156,6 +156,9 @@ jobs:
       - if: github.event_name == 'push' || github.event_name == 'pull_request'
         run: pnpm test:hooks
       - run: pnpm test:ci
+      # SDK-SPLIT SP1: the dependency guard, report only until SP11.
+      - name: Dependency guard (report)
+        run: node --test test/ci/dep-guard.test.mjs && node scripts/dep-guard.mjs
       # Meta SHARD-DELETE DEL6: the operator's account key, for uploads from
       # CI. The repo secret WILDSHARD_API_KEY is set by hand (Jake); until it
       # is, this step only notes it is missing. whoami prints the key's first
