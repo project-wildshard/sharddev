@@ -57,6 +57,8 @@ export function prepareWildshard() {
       return { code: code.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
     }, resolveId(id) {
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
+      // SP9b: the sdk bundles with rolldown; its bundles record their inputs through dev's bridge, as vite's did.
+      if (id === 'rolldown') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-rolldown.mjs')).href, external: true };
       if (id === 'sharp' || id === 'binaryen' || id === '@typescript/typescript6' || /^(?:assemblyscript|rolldown)(?:\/|$)/u.test(id)) return { id: pathToFileURL(sdkRequire.resolve(id)).href, external: true };
       return null;
     } }], build: { write: false, minify: false, lib: { entry: resolve(import.meta.dirname, '../src/sharddev/cli.ts'), formats: ['es'], fileName: 'cli' }, rolldownOptions: { platform: 'node', external: [/^node:/u], output: { codeSplitting: false } } } });

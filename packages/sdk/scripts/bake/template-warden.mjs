@@ -3,7 +3,7 @@
 // content-addressed assets (the GLB and its { row, binding } skin file) and its data/skins.json entry. The generator is
 // TypeScript, so it is bundled first, as scripts/bake/skins.mjs bundles the skin fixture; generators/warden.test.ts
 // re-bakes and refuses committed bytes that differ.
-import { build } from 'vite';
+import { bundle } from '../../src/sharddev/bundle.ts';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -11,7 +11,7 @@ import { pathToFileURL } from 'node:url';
 const repo = resolve(import.meta.dirname, '../..'), project = resolve(repo, 'src/shards/_template'), scratch = resolve(repo, `tmp/bake-warden-${process.pid}`);
 try {
   mkdirSync(scratch, { recursive: true }); symlinkSync(join(repo, 'node_modules'), join(scratch, 'node_modules'));
-  await build({ configFile: false, logLevel: 'silent', build: { target: 'esnext', outDir: join(scratch, 'generator'), emptyOutDir: true, lib: { entry: join(project, 'generators/warden.ts'), formats: ['es'], fileName: 'warden' }, rolldownOptions: { platform: 'node', external: [/^node:/u, 'vite', '@gltf-transform/core', '@gltf-transform/extensions', 'meshoptimizer'] } } });
+  await bundle({ entry: join(project, 'generators/warden.ts'), fileName: 'warden', target: 'esnext', platform: 'node', outDir: join(scratch, 'generator'), external: [/^node:/u, /^rolldown(?:\/|$)/u, '@gltf-transform/core', '@gltf-transform/extensions', 'meshoptimizer'] });
   const { bakeWardenSkin } = await import(pathToFileURL(join(scratch, 'generator/warden.js')).href);
   const { glb, json, entry } = await bakeWardenSkin();
   writeFileSync(resolve(project, 'assets', entry.glb), glb); writeFileSync(resolve(project, 'assets', entry.skin), json);

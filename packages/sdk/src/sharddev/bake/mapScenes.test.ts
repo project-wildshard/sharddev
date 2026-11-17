@@ -3,7 +3,7 @@ import { resolve } from 'node:path';
 import { Document, WebIO } from '@gltf-transform/core';
 import { Matrix4 } from 'three';
 import { expect, test, vi } from 'vitest';
-import { build } from 'vite';
+import { bundle } from '../bundle';
 import { assertConfigBoundary } from '../configBoundary';
 import { MapRaster } from './mapRaster';
 import { mapRows, paintMapScenes } from './mapScenes';
@@ -98,11 +98,8 @@ test('fitted models use the declared byte identity with no inferred public direc
 });
 
 test('the private-scene painter fits the unchanged author config boundary', async () => {
-  const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: resolve('src/sharddev/bake/mapScenes.ts'), formats: ['es'] },
-    rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
-  const output = Array.isArray(result) ? result[0] : result;
-  if (output === undefined || !('output' in output)) throw new Error('Missing private-scene painter bundle');
+  const result = await bundle({ entry: resolve('src/sharddev/bake/mapScenes.ts'), external: [/^node:/u], codeSplitting: false });
+  const output = result;
   const chunks = output.output.filter(row => row.type === 'chunk'); expect(chunks).toHaveLength(1);
   for (const chunk of chunks) expect(() => assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports])).not.toThrow();
 });

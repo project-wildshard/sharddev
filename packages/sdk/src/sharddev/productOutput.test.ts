@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve only the repository and owned fixture paths.
 import { resolve } from 'node:path';
-import { build } from 'vite';
+import { bundle } from './bundle';
 import { BoxGeometry, MeshStandardMaterial } from 'three';
 import { expect, test } from 'vitest';
 import { emptyShardfile } from './author';
@@ -34,12 +34,9 @@ const source = JSON.parse(readFileSync(process.argv[2], 'utf8'));
 const bytes = new Uint8Array(readFileSync(process.argv[3]));
 const admitted = admitProduct(source, new Map([[source.files[0].hash, bytes]]), 'warn');
 console.log(admitted.identity.slug);`;
-    const built = await build({ configFile: false, publicDir: false, logLevel: 'silent',
+    const built = await bundle({ entry: 'virtual:direct-writer', target: 'esnext', external: [/^node:/u], codeSplitting: false,
       plugins: [{ name: 'direct-author-writer-fixture', resolveId(id) { return id === 'virtual:direct-writer' ? id : null; },
-        load(id) { return id === 'virtual:direct-writer' ? code : null; } }],
-      build: { write: false, target: 'esnext', minify: false,
-        rolldownOptions: { input: 'virtual:direct-writer', external: [/^node:/u], output: { codeSplitting: false } } } });
-    if (Array.isArray(built) || !('output' in built)) throw new Error('Expected one direct-writer bundle');
+        load(id) { return id === 'virtual:direct-writer' ? code : null; } }] });
     const chunks = built.output.filter(file => file.type === 'chunk'), chunk = chunks[0];
     if (chunks.length !== 1 || chunk === undefined) throw new Error('Expected one isolated writer module');
     writeFileSync(entry, chunk.code);

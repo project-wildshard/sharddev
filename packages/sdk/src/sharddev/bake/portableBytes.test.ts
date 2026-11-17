@@ -1,6 +1,6 @@
 import {expect,test} from 'vitest';
 import {zlibSync} from 'fflate';
-import {build} from 'vite';
+import {bundle} from '../bundle';
 import {encodePortableBytes} from './portableBytes';
 import {assertConfigBoundary} from '../configBoundary';
 
@@ -15,9 +15,8 @@ test('every portable level preserves original bytes and selected offset views',(
   expect(()=>encodePortableBytes(new Uint8Array(new SharedArrayBuffer(16)))).toThrow('bounded unshared');
 });
 test('portable author compression bundles without native service imports',async()=>{
-  const result=await build({configFile:false,logLevel:'silent',build:{write:false,minify:false,lib:{entry:'src/sharddev/bake/portableBytes.ts',formats:['es']},rolldownOptions:{external:[/^node:/u],output:{codeSplitting:false}}}});
-  const built=Array.isArray(result)?result[0]:result;
-  if(built===undefined||!('output'in built))throw new Error('Missing portable codec bundle');
+  const result=await bundle({entry:'src/sharddev/bake/portableBytes.ts',external:[/^node:/u],codeSplitting:false});
+  const built=result;
   const chunks=built.output.filter(row=>row.type==='chunk');expect(chunks).toHaveLength(1);
   for(const chunk of chunks)expect(()=>assertConfigBoundary([...chunk.imports,...chunk.dynamicImports])).not.toThrow();
 });

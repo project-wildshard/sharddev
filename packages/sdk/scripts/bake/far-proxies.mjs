@@ -8,7 +8,7 @@
 // SF49: a shard whose land is models (floating islands) merges them in decimated; this runner hands it the SDK's model
 // tools (`placeholderModelTools`: a GLB reader that samples the base colour per vertex, and meshoptimizer's simplifier),
 // the same ones the near bake builds that land with (G380).
-import { build } from 'vite';
+import { bundle } from '../../src/sharddev/bundle.ts';
 import { mkdirSync, mkdtempSync, rmSync, symlinkSync, realpathSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
@@ -29,7 +29,7 @@ try {
   // sharp (the bundle reaches it through the SDK's asset tools) stays outside the bundle as the runner's own copy: pnpm
   // does not hoist it to the repo root, so an inlined copy cannot find its platform binary, and one libvips per process
   const sharpUrl = pathToFileURL(req.resolve('sharp')).href;
-  await build({ plugins: [{ name: 'external-sharp', enforce: 'pre', resolveId: (id) => (id === 'sharp' ? { id: sharpUrl, external: true } : null) }], configFile: false, logLevel: 'silent', build: { target: 'esnext', outDir: join(scratch, 'generator'), emptyOutDir: true, lib: { entry: join(scratch, 'entry.ts'), formats: ['es'], fileName: 'build' }, rolldownOptions: { platform: 'node', external: [/^node:/u, 'vite'] } } });
+  await bundle({ plugins: [{ name: 'external-sharp', resolveId: (id) => (id === 'sharp' ? { id: sharpUrl, external: true } : null) }], entry: join(scratch, 'entry.ts'), fileName: 'build', target: 'esnext', platform: 'node', outDir: join(scratch, 'generator'), external: [/^node:/u, /^rolldown(?:\/|$)/u] });
   const { sdk, modules: load } = await import(pathToFileURL(join(scratch, 'generator/build.js')).href), tools = await sdk.placeholderModelTools(repo);
   const exported = async (dir, ref) => { const value = (await load[join(dir, ref.module)]())[ref.export]; if (value === undefined) throw new Error(`${dir}: ${ref.module} has no export ${ref.export}`); return value; };
   for (const { slug, dir, source: { far: declared } } of shards) {

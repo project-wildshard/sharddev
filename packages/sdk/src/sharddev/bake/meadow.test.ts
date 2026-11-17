@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { build } from 'vite';
+import { bundle } from '../bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Inspect the author's real production bundle.
 import { resolve } from 'node:path';
 import { GrassField, type GrassFieldPorts } from '@wildshard/engine/game/systems/looks/grassField';
@@ -37,11 +37,8 @@ test('native meadow snapshots preserve complete predecessor bytes and original q
 });
 
 test('native meadow authoring bundles as one config-safe chunk without Node services', async () => {
-  const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: resolve('src/sharddev/bake/meadow.ts'), formats: ['es'] },
-    rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
-  const built = Array.isArray(result) ? result[0] : result;
-  if (built === undefined || !('output' in built)) throw new Error('Missing meadow author bundle');
+  const result = await bundle({ entry: resolve('src/sharddev/bake/meadow.ts'), external: [/^node:/u], codeSplitting: false });
+  const built = result;
   const chunks = built.output.filter(row => row.type === 'chunk'); expect(chunks).toHaveLength(1);
   const chunk = chunks[0]; if (chunk === undefined) throw new Error('Missing meadow author chunk');
   expect([...chunk.imports, ...chunk.dynamicImports]).toEqual([]);

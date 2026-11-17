@@ -90,6 +90,9 @@ importers:
       preact:
         specifier: 11.1.1
         version: 11.1.1
+      rolldown:
+        specifier: 1.2.16
+        version: 1.2.16
       sharp:
         specifier: 0.35.5
         version: 0.35.5(@types/node@24.3.1)
@@ -203,9 +206,6 @@ importers:
       valibot:
         specifier: 1.5.0
         version: 1.5.0(typescript@6.0.3)
-      vite:
-        specifier: 8.3.0
-        version: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
     devDependencies:
       '@dimforge/rapier3d-simd':
         specifier: 0.21.0
@@ -228,6 +228,9 @@ importers:
       three:
         specifier: 0.186.0
         version: 0.186.0
+      vite:
+        specifier: 8.3.0
+        version: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
       vitest:
         specifier: 5.0.3
         version: 5.0.3(@opentelemetry/api@1.10.0)(@types/node@24.3.1)(happy-dom@21.0.4)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))

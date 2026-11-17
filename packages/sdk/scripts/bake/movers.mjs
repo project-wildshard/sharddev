@@ -11,7 +11,7 @@ import { createHash } from 'node:crypto';
 import { resolve, join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
-import { build } from 'vite';
+import { bundle } from '../../src/sharddev/bundle.ts';
 
 const repo = resolve(import.meta.dirname, '../..');
 /** Every shard folder declaring a mover bake, sorted by folder name. */
@@ -43,9 +43,8 @@ try {
   symlinkSync(join(repo, 'node_modules'), join(scratch, 'node_modules'));
   for (const { slug, bake } of shards) {
     const directory = join(scratch, slug);
-    await build({ configFile: false, logLevel: 'silent', build: { target: 'esnext', outDir: directory, emptyOutDir: true,
-      lib: { entry: join(repo, 'src/shards', slug, 'generators/movers.ts'), formats: ['es'], fileName: 'capture' },
-      rolldownOptions: { platform: 'node', external: [/^node:/u] } } });
+    await bundle({ entry: join(repo, 'src/shards', slug, 'generators/movers.ts'), fileName: 'capture', target: 'esnext', platform: 'node',
+      external: [/^node:/u], outDir: directory });
     const capture = (await import(pathToFileURL(join(directory, 'capture.js')).href))[bake.capture];
     if (typeof capture !== 'function') throw new Error(`${slug}: generators/movers.ts has no ${bake.capture}`);
     const data = capture(...bake.modules.map(module => hashes.get(`${slug}/${module.file}`)));

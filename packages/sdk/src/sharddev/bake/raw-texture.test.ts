@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { build } from 'vite';
+import { bundle } from '../bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the actual author helper for its sealed bundle proof.
 import { resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Inspect every original numerical pixel after native Zstd decompression.
@@ -50,10 +50,8 @@ test('refuses invalid dimensions, incomplete/shared/detached pixels and unknown 
 });
 
 test('bundles the real pixel packer without filesystem, image or compiler services', async () => {
-  const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: resolve('src/sharddev/bake/rawTexture.ts'), formats: ['es'] }, rolldownOptions: { external: [/^node:/u] } } });
-  const built = Array.isArray(result) ? result[0] : result;
-  if (built === undefined || !('output' in built)) throw new Error('Missing raw texture bundle');
+  const result = await bundle({ entry: resolve('src/sharddev/bake/rawTexture.ts'), external: [/^node:/u] });
+  const built = result;
   const chunks = built.output.filter(row => row.type === 'chunk'); expect(chunks).toHaveLength(1);
   for (const chunk of chunks) {
     assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports]);

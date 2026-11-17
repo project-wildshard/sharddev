@@ -4,7 +4,7 @@ import { realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author inputs must remain within the project.
 import { resolve, sep } from 'node:path';
 import { executeBundle } from './executeBundle';
-import { build } from 'vite';
+import { bundle } from './bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the defining reader into the same author bundle.
 import { fileURLToPath } from 'node:url';
 import type { Object3D } from 'three';
@@ -34,8 +34,8 @@ if (!(input.scene instanceof Object3D)) throw new Error(typeof input.default?.de
   : 'Scene config must export a real three.js scene (export const scene) and its identity (export const identity)');
 if (typeof input.identity?.slug !== 'string') throw new Error('Scene config must export identity.slug');
 export default { scene: readScene(input.scene), slug: input.identity.slug };`;
-  const result = await build({ configFile: false, publicDir: false, logLevel: 'silent',
-    plugins: [{ name: 'author-scene-three-identity', enforce: 'pre', resolveId(id, importer) {
+  const built = await bundle({ entry: virtual, fileName: 'scene', target: 'esnext', platform: 'node', external: [/^node:/u, 'assemblyscript/dist/asc.js'],
+    plugins: [{ name: 'author-scene-three-identity', resolveId(id, importer) {
       if (id === virtual) return virtual;
       const author = importer?.startsWith(root + sep) === true && !importer.startsWith(resolve(root, 'node_modules') + sep);
       if (author && (/^@wildshard\/(?:game|engine)\//u.test(id) || /^@wildshard\/(?:sdk|sharddev)\/runtime\//u.test(id))) throw new Error('Scene synth cannot import trusted runtime');
@@ -50,11 +50,7 @@ export default { scene: readScene(input.scene), slug: input.identity.slug };`;
       if (realpathSync(file) !== file) throw new Error('Scene synth author source must not be a symlink');
       return null;
     } }],
-    build: { write: false, minify: false, target: 'esnext', lib: { entry: virtual, formats: ['es'], fileName: 'scene' },
-      rolldownOptions: { platform: 'node', external: [/^node:/u, 'assemblyscript/dist/asc.js'] } },
   });
-  const built = Array.isArray(result) ? result[0] : result;
-  if (built === undefined || !('output' in built) || Array.isArray(result) && result.length !== 1) throw new Error('Scene config produced unexpected output');
   const chunks = built.output.filter(output => output.type === 'chunk'), chunk = chunks[0];
   if (chunks.length !== 1 || chunk === undefined) throw new Error('Scene config must compile as one module');
   assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports]);

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { build } from 'vite';
+import { bundle } from '../bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Inspect the author module's real production bundle.
 import { resolve } from 'node:path';
 import { bakeForestPlacements } from './forest';
@@ -33,11 +33,8 @@ test('owned forest data preserves the complete predecessor and its spatial query
 });
 
 test('the forest author module is one config-safe chunk without Node service imports', async () => {
-  const built = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: resolve('src/sharddev/bake/forest.ts'), formats: ['es'] },
-    rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
-  const output = Array.isArray(built) ? built[0] : built;
-  if (output === undefined || !('output' in output)) throw new Error('Missing forest author bundle');
+  const built = await bundle({ entry: resolve('src/sharddev/bake/forest.ts'), external: [/^node:/u], codeSplitting: false });
+  const output = built;
   const chunks = output.output.filter(row => row.type === 'chunk'); expect(chunks).toHaveLength(1);
   const chunk = chunks[0]; if (chunk === undefined) throw new Error('Missing forest author chunk');
   expect([...chunk.imports, ...chunk.dynamicImports]).toEqual([]);

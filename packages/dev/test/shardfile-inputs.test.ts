@@ -12,6 +12,7 @@ import { afterEach, expect, it } from 'vitest';
 import { captureFolderInputs, folderInputKey, folderToolchainKey, recordBundle, recordModuleInput, recordResolution, inputRecorderPlugin, matchingFolderInputKey, publishFolderInputs, replayFolderInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { build } from '../scripts/shardfile-vite.mjs';
+import { rolldown } from '../scripts/shardfile-rolldown.mjs';
 import {build as buildCompiler} from 'vite';
 import * as v from 'valibot';
 import { createProjectGeneration } from '../../sdk/src/sharddev/projectGeneration';
@@ -63,6 +64,19 @@ it('keys native-bundled modules, sync and async reads, negative probes and real 
   writeFileSync(receipt,'{}'); expect(key()).toBeUndefined();
 });
 
+it('SP9b: the sdk\'s rolldown bundles record their modules through the dev bridge', async () => {
+  const root = fixture(), receipt = resolve(root,'receipt.json'), memo = new InputHashMemo(root);
+  let code = '';
+  await captureProductInputs(root,receipt,async () => {
+    const built = await rolldown({ input: resolve(root,'entry.ts'), logLevel: 'silent' });
+    try { code = (await built.generate({ format: 'es' })).output[0].code; } finally { await built.close(); }
+  });
+  expect(code).toContain('answer');
+  const rows=v.parse(v.object({inputs:v.array(v.string())}),JSON.parse(readFileSync(receipt,'utf8')));
+  expect(rows.inputs).toEqual(expect.arrayContaining(['F entry.ts','F src/engine/used.ts']));
+  const before = productInputKey(root,receipt,[],memo); expect(before).toMatch(/^[a-f0-9]{64}$/u);
+  writeFileSync(resolve(root,'src/engine/used.ts'),'export const value=2;\n'); expect(productInputKey(root,receipt,[],memo)).toBeUndefined();
+});
 it('keeps another revision from replacing a matching captured read set', async () => {
   const first=fixture(), second=fixture(), directory=resolve(first,'receipts'), recipe=['same-product'];
   writeFileSync(resolve(second,'asset.txt'),'second');

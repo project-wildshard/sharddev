@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync, symlinkSync } from 'node
 // oxlint-disable-next-line import/no-nodejs-modules -- Package resolution uses only this synthetic directory.
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import { build } from 'vite';
+import { bundle } from './bundle';
 import { compilerPackageInputs, createProjectCompilerIdentities } from './projectCompilerIdentity';
 
 test('compiler identities cover transitive runtime and standard-library bytes, not installation paths', () => {
@@ -33,7 +33,7 @@ test('compiler identities cover transitive runtime and standard-library bytes, n
 test('raw compiler role excludes only decision builders while generation and raw compiler inputs remain bound',async()=>{
   let decisionVisits=0,rawVisits=0;
   async function identities(mutation:'none'|'decision'|'raw'){
-    const identity=createProjectCompilerIdentities(options=>build({...options,plugins:[...(options?.plugins??[]),{
+    const identity=createProjectCompilerIdentities(options=>bundle({...options,plugins:[...(options.plugins??[]),{
       name:'owned-identity-input-mutation',
       transform(code,id){
         if(id.endsWith('/src/sharddev/buildDecisionScripts.ts')&&mutation==='decision'){

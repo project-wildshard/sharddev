@@ -4,7 +4,7 @@ import { readdirSync, realpathSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Package-relative names, never installation paths, enter the key.
 import { dirname, resolve, relative } from 'node:path';
-import { build } from 'vite';
+import { bundle as rolldownBundle } from './bundle';
 import * as v from 'valibot';
 import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { readBoundedFile } from './sourceReader';
@@ -13,7 +13,7 @@ const Package = v.object({ name: v.string(), version: v.string(), dependencies: 
 const external = ['binaryen', 'assemblyscript/dist/asc.js'];
 /** A bounded immutable build session owns its two identities. Production uses
  * the native bundler; a host may provide its own scoped bundling capability. */
-export function createProjectCompilerIdentities(bundle: typeof build = build): {
+export function createProjectCompilerIdentities(bundle: typeof rolldownBundle = rolldownBundle): {
   project: () => Promise<string>; rawAssemblyScript: () => Promise<string>;
 } {
   let project: Promise<string> | undefined, raw: Promise<string> | undefined;
@@ -36,17 +36,13 @@ export function projectCompilerIdentity(): Promise<string> {
 export function rawAssemblyScriptCompilerIdentity(): Promise<string> {
   return compilerIdentities.rawAssemblyScript();
 }
-async function capture(role: 'project' | 'raw-assemblyscript', bundle: typeof build): Promise<string> {
+async function capture(role: 'project' | 'raw-assemblyscript', bundle: typeof rolldownBundle): Promise<string> {
   // The CLI defines the SDK directory when executing its bundle as a data URL.
   const require = createRequire(resolve(import.meta.dirname, 'package.json'));
   const compiler = require.resolve('@wildshard/sdk/compileScript');
   const decisions = require.resolve('@wildshard/sdk/buildDecisionScripts');
   const v2 = require.resolve('@wildshard/sdk/compileScriptV2');
-  const built = await bundle({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: role === 'project' ? [compiler, decisions, v2] : [compiler, v2], formats: ['es'] },
-    rolldownOptions: { external: [/^node:/u, ...external] } } });
-  const result = Array.isArray(built) ? built[0] : built;
-  if (result === undefined || !('output' in result)) throw new Error('Missing generation compiler identity');
+  const result = await bundle({ entry: role === 'project' ? [compiler, decisions, v2] : [compiler, v2], external: [/^node:/u, ...external] });
   const chunks = result.output.filter(row => row.type === 'chunk'), names = new Set(chunks.map(row => row.fileName));
   if (chunks.length === 0 || result.output.some(row => row.type !== 'chunk')
     || chunks.some(row => [...row.imports, ...row.dynamicImports].some(name => !names.has(name) && !name.startsWith('node:') && !external.includes(name)))) throw new Error('Unknown generation compiler dependency');

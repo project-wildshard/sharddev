@@ -2,7 +2,7 @@
 import { resolve } from 'node:path';
 import { Document, WebIO } from '@gltf-transform/core';
 import { expect, test } from 'vitest';
-import { build } from 'vite';
+import { bundle } from '../bundle';
 import { BufferAttribute, BufferGeometry, Matrix4, Vector3 } from 'three';
 import { assertConfigBoundary } from '../configBoundary';
 import { MapRaster } from './mapRaster';
@@ -44,11 +44,8 @@ test('retained file identities use only the explicit reader and cache stays per 
 });
 
 test('the canonical raster bundles without filesystem, module or compiler services', async () => {
-  const result = await build({ configFile: false, logLevel: 'silent', build: { write: false, minify: false,
-    lib: { entry: resolve('src/sharddev/bake/mapRaster.ts'), formats: ['es'] },
-    rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
-  const output = Array.isArray(result) ? result[0] : result;
-  if (output === undefined || !('output' in output)) throw new Error('Missing raster author bundle');
+  const result = await bundle({ entry: resolve('src/sharddev/bake/mapRaster.ts'), external: [/^node:/u], codeSplitting: false });
+  const output = result;
   const chunks = output.output.filter(row => row.type === 'chunk'); expect(chunks).toHaveLength(1);
   for (const chunk of chunks) expect(() => assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports])).not.toThrow();
 });

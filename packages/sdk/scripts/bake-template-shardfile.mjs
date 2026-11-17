@@ -3,15 +3,13 @@
 import { readFileSync, writeFileSync, mkdirSync, copyFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createHash } from 'node:crypto';
-import { build } from 'vite';
+import { bundle } from '../src/sharddev/bundle.ts';
 import { compileScript } from './compile-script.mjs';
 import { executeBundle } from '../src/sharddev/executeBundle.ts';
 
 const root = resolve(import.meta.dirname, '..'), project = resolve(root, 'src/shards/_template');
-const result = await build({ plugins: [{ name: 'external-build-tool', enforce: 'pre', resolveId(id) { return id === 'vite' ? { id: import.meta.resolve('vite'), external: true } : null; } }], configFile: false, publicDir: false, logLevel: 'silent', build: { write: false, minify: false,
-  lib: { entry: resolve(project, 'generators/terrain.ts'), formats: ['es'], fileName: 'terrain' }, rolldownOptions: { platform: 'node', external: [/^node:/u] } } });
-const output = Array.isArray(result) ? result.at(0) : result;
-if (output === undefined) throw new Error('Missing terrain generator output');
+const output = await bundle({ entry: resolve(project, 'generators/terrain.ts'), fileName: 'terrain', platform: 'node', external: [/^node:/u],
+  plugins: [{ name: 'external-build-tool', resolveId(id) { return /^rolldown(?:\/|$)/u.test(id) ? { id: import.meta.resolve(id), external: true } : null; } }] });
 const chunks = output.output.filter((entry) => entry.type === 'chunk');
 const chunk = chunks.at(0);
 if (chunks.length !== 1 || chunk === undefined) throw new Error(`Terrain generator must bundle once: ${chunks.map((entry) => entry.fileName).join(',')}`);
