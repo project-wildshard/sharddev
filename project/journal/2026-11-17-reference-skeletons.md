@@ -20,3 +20,8 @@ recorded in the meta plan. Graphical judgment remains Needs Opus.
 
 The scene/creature comment now describes the complete ordered skin joint
 list already emitted by CC10a2a, rather than the removed pair layout.
+
+The first full push caught generator lint outside the src-only staged
+checks. Kit's TypeScript project now includes its Node build script;
+parallel writes and an explicit filesystem boundary pass normal lint.
+No gate is bypassed. The following fix commit contains only that repair.
