@@ -44,3 +44,10 @@ J381: SKIP_BUDGET=1 bypasses only the commit elapsed cap after all
 checks passed in8.1s against8s (tmp/codex-te2e/cc6d-engine35-https-push.log).
 Types/lint/frozen install and13focused SDK cases pass on engine35;
 the normal full pre-push check still runs over HTTPS.
+
+The merged b0b8e7ff source passed the complete normal gate in662.0s
+(.git/main-push-55364.log). Its transport still used SSH because
+main-push deliberately strips GIT_* environment configuration. The
+checkout push URL and credential helper are now configured directly.
+J381 SKIP_CHECK=1 reuses that exact checked code for the transport
+retry, with only this receipt added. All outgoing guards still run.
