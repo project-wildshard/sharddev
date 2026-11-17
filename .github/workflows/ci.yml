@@ -253,7 +253,7 @@ jobs:
         run: node --experimental-transform-types --test test/ci/owned-journey.test.mjs
       - name: Installed author and template play proofs
         if: ${{ !cancelled() }}
-        run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs test/ci/template-warden.test.mjs test/ci/package-products.test.mjs
+        run: node --test --test-concurrency=1 test/ci/installed-author.test.mjs test/ci/template-play.test.mjs test/ci/template-warden.test.mjs test/ci/template-chest.test.mjs test/ci/package-products.test.mjs
       - name: Install Chromium for e2e
         if: ${{ !cancelled() }}
         run: pnpm exec playwright install --with-deps chromium

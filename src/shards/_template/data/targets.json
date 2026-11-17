@@ -127,7 +127,8 @@
       {
         "scene": "template.chest.open",
         "item": "tool.template-lantern",
-        "action": 4
+        "action": 4,
+        "setsFlag": "template.chest.opened"
       },
       {
         "scene": "template.rack.take",
