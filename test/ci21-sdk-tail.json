@@ -372,7 +372,7 @@
       "originalTests": [
         "Template boss runs published Wasm decisions and resumes a logical save"
       ],
-      "changes": "Jake2026-11-16: Test today’s Warden (Recommended). Keep full actual compiled product/scenario/save continuation, native6-tick clock, fuel/refusal and receipt checks. Update old moving-boss expectations to current authored stationary Warden: slam/sweep/stone, tell/core guard windows,1.6/0.9 beats, health-derived retry, terminal phase3, real stop/death cancellation. No source case retired. Internal exported scenario adapter supports actual declared target-zero shared fields, guard command and schema bounds; save restores shared fields too. Target-zero writes with no declared shared fields now refuse declaration/bounds rather than actor ownership. Shared reads remain actor-only as real host requires; disk field bounds are product-owned.",
+      "changes": "Jake2026-11-16: Test today\u2019s Warden (Recommended). Keep full actual compiled product/scenario/save continuation, native6-tick clock, fuel/refusal and receipt checks. Update old moving-boss expectations to current authored stationary Warden: slam/sweep/stone, tell/core guard windows,1.6/0.9 beats, health-derived retry, terminal phase3, real stop/death cancellation. No source case retired. Internal exported scenario adapter supports actual declared target-zero shared fields, guard command and schema bounds; save restores shared fields too. Target-zero writes with no declared shared fields now refuse declaration/bounds rather than actor ownership. Shared reads remain actor-only as real host requires; disk field bounds are product-owned.",
       "legacyExpectationsReplaced": [
         "approach/bump and1s/0.5s beats: replaced by current slam/sweep/stone and1.6s/0.9s guard-window cadence",
         "silent repeat start and stop-reset-to-phase0: replaced by current health-derived rearm/retry and retained authored phase/beat state",
@@ -381,7 +381,7 @@
       "authorization": {
         "by": "Jake",
         "date": "2026-11-16",
-        "words": "Test today’s Warden (Recommended)",
+        "words": "Test today\u2019s Warden (Recommended)",
         "scope": "CI21 Template boss current-product oracle update"
       }
     }
@@ -392,6 +392,7 @@
     "test/fixtures/defined-json-value.ts",
     "test/fixtures/return-group.ts",
     "src/sharddev/test/scriptScenario.ts",
-    "src/sharddev/test/diskScriptScenario.ts"
+    "src/sharddev/test/diskScriptScenario.ts",
+    "test/runtime-files.test.ts"
   ]
 }
