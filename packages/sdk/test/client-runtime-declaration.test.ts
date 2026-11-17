@@ -15,7 +15,8 @@ import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs';
 import metadata from '../src/shards/_template/manifest.json' with {type:'json'};
 
-const cost = { webContentMB: 500, glMB: 100, engineBaseMB: 300, rev: 'abcdef1234', device: 'Fixture', evidence: 'progress/memory/fixture.json' };
+// Synthetic accounting for the current format model, not a captured runtime reading.
+const cost = { webContentMB: 500, glMB: 100, engineBaseMB: 300, epoch: 2, rev: 'abcdef1234', device: 'Fixture', evidence: 'progress/memory/fixture.json' };
 const row = { kind: 'client-plan', cost, binds: ['terrain', 'props', 'quests', 'state', 'movers'] };
 
 test('compiled ownership retains the exact authority and measured charge with no source entry', () => {
@@ -69,5 +70,11 @@ test('actual output transport preserves compiled cost and binds while refusing a
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,entry:'runtime/index.ts'}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,lines:1}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,files:[{path:'runtime/index.ts',hash:'a'.repeat(64),bytes:1,lines:1}]}})).toThrow();
+    for (const epoch of [undefined, 1]) {
+      const stale = structuredClone(source);
+      if (stale.runtime === null) throw new Error('Missing synthetic client plan');
+      if (epoch === undefined) Reflect.deleteProperty(stale.runtime.cost, 'epoch'); else stale.runtime.cost.epoch = epoch;
+      expect(() => { writeOutputProduct(stale, new Map(), join(root, `stale-${epoch ?? 'omitted'}`)); validateOutputProduct(join(root, `stale-${epoch ?? 'omitted'}`)); }).toThrow('native resident measurement is stale');
+    }
   }finally{rmSync(root,{recursive:true,force:true});}
 });
