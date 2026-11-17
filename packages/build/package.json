@@ -20,7 +20,7 @@
   "dependencies": {
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.19.0",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.23.0",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*"
   },
