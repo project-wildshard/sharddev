@@ -1,4 +1,5 @@
 import { diagnosticNow } from '@wildshard/engine/core/clock';
+import { bundleAuthor } from './authorBundle';
 import { executeBundle } from './executeBundle';
 import { generationRecipes } from './generationRecipe.ts';
 import { mergeProjectSections } from './projectSections';
@@ -13,7 +14,6 @@ import { cpSync, existsSync, readdirSync, readFileSync, realpathSync, writeFileS
 import { join, resolve, sep } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Build phase diagnostics belong only to the CI compiler process.
 import process from 'node:process';
-import { build } from 'vite';
 import ts from '@typescript/typescript6';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { preflightAssetGraph, offlineMemoryAdmission, prepareAssetDecoders } from "@wildshard/format/shardfileAssets";
@@ -66,12 +66,7 @@ async function authorModule(project: string, file: string): Promise<{ exports: R
   await prepareAssetDecoders();
   // The compiled declaration executes here; only its returned data is emitted.
   // Source-text inspection still enters the recorder's exact-content guard.
-  const result = await build({ configFile: false, logLevel: 'silent', plugins: [{name:'wildshard-author-execution',api:{wildshardInputIdentity:'execution'}}], build: { write: false, minify: false, lib: { entry: resolve(project, file), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u, 'assemblyscript/dist/asc.js'], output: { codeSplitting: false } } } });
-  const built = Array.isArray(result) ? result[0] : result;
-  if (built === undefined || !('output' in built) || (Array.isArray(result) && result.length !== 1)) throw new Error('config build produced unexpected output');
-  const chunks = built.output.filter((out) => out.type === 'chunk');
-  if (chunks.length !== 1) throw new Error('config must bundle as one module');
-  const chunk = chunks[0]; if (chunk === undefined) throw new Error('config chunk missing');
+  const chunk = await bundleAuthor(project, file);
   assertConfigBoundary([...chunk.imports, ...chunk.dynamicImports]);
   const loaded: unknown = await executeBundle(generationRecipes(chunk.code), project);
   if (typeof loaded !== 'object' || loaded === null) throw new Error('Author module has no exports');
