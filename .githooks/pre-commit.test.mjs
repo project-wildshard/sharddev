@@ -1,7 +1,7 @@
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
-import { cpSync, writeFileSync } from 'node:fs';
+import { cpSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { ENV, ok, roots, sandbox } from './test-helpers.mjs';
 
@@ -155,9 +155,15 @@ describe('pre-commit hook', () => {
     const { commit } = sandbox();
     blocked(commit({ 'a.txt': 'a  \n' }, MSG), /whitespace/);
   });
-  test('refuses a blob over 1 MB, unless ALLOW_BIG=1', () => {
-    const big = { 'big.txt': 'x'.repeat(1024 * 1024 + 1) };
-    blocked(sandbox().commit(big, MSG), /over the 1 MB cap/);
+  test('J370 accepts the exact shipped phone GLB below 5 MB', () => {
+    const fixture = readFileSync('test/fixtures/sky-rigs/storm-roc-70e5655f.glb');
+    assert.equal(fixture.length, 2053504);
+    const result = sandbox().commit({ 'phone.glb': fixture }, MSG);
+    assert.equal(result.status, 0, result.stderr);
+  });
+  test('refuses a blob over 5 MB, unless ALLOW_BIG=1', () => {
+    const big = { 'big.txt': 'x'.repeat(5 * 1024 * 1024 + 1) };
+    blocked(sandbox().commit(big, MSG), /over the 5 MB cap/);
     assert.equal(sandbox().commit(big, MSG, { env: { ALLOW_BIG: '1' } }).status, 0);
   });
   test('refuses a credential, unless ALLOW_SECRET=1', () => {
