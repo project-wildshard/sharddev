@@ -260,6 +260,19 @@ jobs:
       - name: Build all three owned templates
         if: ${{ !cancelled() }}
         run: pnpm build:shards
+      - name: Preserve CI21 grid eviction and restore assertions
+        if: ${{ !cancelled() }}
+        run: |
+          mkdir -p tmp/ci21-grid
+          node --test test/ci21-grid-reentry.test.mjs > tmp/ci21-grid/raw.tap
+          cat tmp/ci21-grid/raw.tap
+      - name: Keep actual grid owner results
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: ci21-grid-owner-${{ github.job }}-${{ github.run_id }}
+          path: tmp/ci21-grid/
+          if-no-files-found: ignore
       - name: Walk the owned 1800-tick authored route
         if: ${{ !cancelled() }}
         run: node --experimental-transform-types --test test/ci/owned-journey.test.mjs

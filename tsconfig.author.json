@@ -2,7 +2,10 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["vite/client", "node"]
+    "types": [
+      "vite/client",
+      "node"
+    ]
   },
   "include": [
     "src/sharddev/**/*.ts",
@@ -41,6 +44,10 @@
     "test/fixtures/defined-json-value.ts",
     "test/fixtures/return-group.ts",
     "src/sharddev/test/scriptScenario.ts",
-    "src/sharddev/test/diskScriptScenario.ts"
+    "src/sharddev/test/diskScriptScenario.ts",
+    "test/author-format-selector.test.ts",
+    "test/author-placement-parity.test.ts",
+    "test/faceted-author-compiler.test.ts",
+    "test/scene-source-author-ports.test.ts"
   ]
 }

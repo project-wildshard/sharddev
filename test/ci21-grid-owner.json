@@ -1,0 +1,19 @@
+{
+  "schema": "ci21-grid-owner/1",
+  "original": "engine:test/grid-reentry.test.ts",
+  "products": [
+    {
+      "slug": "_template",
+      "directory": "out/_template"
+    },
+    {
+      "slug": "pastel-plain",
+      "directory": "out/pastel-plain"
+    },
+    {
+      "slug": "ink-cel-valley",
+      "directory": "out/ink-cel-valley"
+    }
+  ],
+  "generic": true
+}
