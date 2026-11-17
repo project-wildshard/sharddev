@@ -68,9 +68,12 @@ jobs:
           import { readFileSync } from 'node:fs';
           import { join } from 'node:path';
           const artifacts = JSON.parse(readFileSync(join(process.env.RUNNER_TEMP, 'workspace-release/release-artifacts.json'), 'utf8'));
+          // Every name must exist before the first publish, so a missing one never leaves a half-published release.
           for (const item of artifacts) {
             try { execFileSync('npm', ['view', item.name, 'version'], { stdio: 'pipe' }); }
             catch { throw new Error(`${item.name} needs its initial package and npm publisher configuration before this release`); }
+          }
+          for (const item of artifacts) {
             try { execFileSync('npm', ['view', `${item.name}@${item.version}`, 'version'], { stdio: 'pipe' }); console.log(`${item.name}@${item.version} already published`); continue; }
             catch {}
             execFileSync('npm', ['publish', item.archive, '--provenance', '--access', 'public', '--ignore-scripts'], { stdio: 'inherit' });

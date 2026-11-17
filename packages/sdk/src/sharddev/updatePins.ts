@@ -20,7 +20,9 @@ import { assertShardRepo, updateShardRepo } from './agentFiles';
  * alias. The move keeps the name the repo has. */
 export const SDK_NAMES = ['@wildshard/sdk', '@wildshard/sharddev'] as const;
 /** The pins a shard repo may list; each moves to what the release names. The sdk moves to the release itself. */
-export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three'] as const;
+export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/cli', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three'] as const;
+/** SDK-SPLIT SP10: the cli releases with the sdk at one version (D5), so it moves to the release's own version. */
+const CLI = '@wildshard/cli';
 const isSdkName = (name: string): boolean => (SDK_NAMES as readonly string[]).includes(name);
 const isPinned = (name: string): boolean => (PINNED as readonly string[]).includes(name);
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies'] as const;
@@ -97,6 +99,7 @@ export function movePins(text: string, release: SdkRelease, sdkSpec?: string): {
   if (!isRecord(parsed)) throw new Error('update --pins: package.json is not a JSON object');
   const moves: PinMove[] = [];
   const target = (name: string, from: string): string | undefined => {
+    if (name === CLI) return SEMVER.test(from) ? release.version : undefined;
     if (!isSdkName(name)) return release.pins[name];
     if (SDK_ALIAS.test(from)) return `npm:@wildshard/sdk@${release.version}`;
     if (GITHUB_PIN.test(from)) return sdkSpec;
@@ -344,7 +347,7 @@ export async function updatePins(project: string, spec = 'latest', runner: PinsR
   // 4. GUIDE.md and the skills, by the new sdk's own `update` (SA28); 5. its `check`. An sdk up to 0.2.5 has an `update`
   // that refuses a repo listing it as @wildshard/sharddev, so for those this CLI syncs that sdk's guide and skills itself.
   // SDK-SPLIT SP8c: an sdk from the split on ships no bin; the repo's @wildshard/dev runs `update` and `check` (SP10: cli).
-  const cli = [resolve(sdkRoot, 'bin/wildshard.mjs'), resolve(project, 'node_modules/@wildshard/dev/bin/wildshard.mjs')].find(path => existsSync(path)) ?? resolve(sdkRoot, 'bin/wildshard.mjs');
+  const cli = [resolve(project, 'node_modules/@wildshard/cli/bin/wildshard.mjs'), resolve(sdkRoot, 'bin/wildshard.mjs'), resolve(project, 'node_modules/@wildshard/dev/bin/wildshard.mjs')].find(path => existsSync(path)) ?? resolve(sdkRoot, 'bin/wildshard.mjs');
   if (pin.name === '@wildshard/sdk' || compareVersions(release.version, LAST_UPDATE_WITHOUT_SHARDDEV) > 0) {
     try { runner.run(process.execPath, [cli, 'update', project], project); }
     catch (error) { throw new Error(`update --pins: the pins moved to @wildshard/sdk ${release.version}, but its wildshard update failed: run pnpm exec wildshard update`, { cause: error }); }

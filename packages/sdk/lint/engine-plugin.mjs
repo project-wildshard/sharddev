@@ -12,7 +12,15 @@ import { pathToFileURL } from 'node:url';
  * this file resolves it (sharddev's workspace root, which lints upload's and kit's author code: SDK-SPLIT SP2b). */
 function installed(name) {
   const local = resolve(process.cwd(), 'node_modules', name);
-  return existsSync(local) ? local : dirname(createRequire(import.meta.url).resolve(`${name}/package.json`));
+  if (existsSync(local)) return local;
+  try { return dirname(createRequire(import.meta.url).resolve(`${name}/package.json`)); }
+  catch (error) {
+    // SDK-SPLIT SP10: a shard repo pins @wildshard/cli, not the engine; the engine is dev's, which the cli brings.
+    const cli = resolve(process.cwd(), 'node_modules/@wildshard/cli/package.json');
+    if (!existsSync(cli)) throw error;
+    const dev = createRequire(cli).resolve('@wildshard/dev/package.json');
+    return dirname(createRequire(dev).resolve(`${name}/package.json`));
+  }
 }
 
 // Engine exports no `./lint` path; the config always loaded this file from the working directory's node_modules.

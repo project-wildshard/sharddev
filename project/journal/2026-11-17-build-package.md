@@ -38,3 +38,7 @@
   `npm-publish.yml` installs the workspace first (build's prepack compiles with esbuild and dev's engine pin). The dry
   run caught two packing holes: the sdk shipped `src/tsconfig.json` (extends the repo's kit/) and dev shipped
   `src/sharddev/tsconfig.json` without its parent; the sdk drops the first, dev ships its `tsconfig*.json`.
+- SP10/SP12 review (claude -p, five MUSTs fixed): `update --pins` moves the cli pin with the sdk and runs the repo's cli
+  bin; hand-written repos keep the sdk pin so `update --pins` can read their release; the sdk's engine lint plugin finds
+  the engine through cli and dev in a repo that pins no engine (proved in a pnpm cli-only repo); npm-publish checks all
+  six names before the first publish.

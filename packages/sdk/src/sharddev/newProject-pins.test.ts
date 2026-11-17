@@ -14,8 +14,8 @@ test('a code repo pins the cli, the sdk library, shard-format and three', () => 
     '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
 });
 
-test('a hand-written repo pins only the cli and shard-format, as dev dependencies', () => {
+test('a hand-written repo pins the cli, the sdk and shard-format, as dev dependencies', () => {
   const pkg = JSON.parse(repoPackageJson('my-shard', 'blender')) as { devDependencies: Record<string, string>; dependencies?: unknown };
   expect(pkg.dependencies).toBeUndefined();
-  expect(pkg.devDependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'] });
+  expect(pkg.devDependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version });
 });

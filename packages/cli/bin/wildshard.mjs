@@ -5,10 +5,9 @@
 //   `--behaviour-only` stay on dev's CLI, which owns them; so does a checkout whose build is not compiled yet.
 // - Every other verb, help and `--version` load dev's CLI (packages/dev/bin/wildshard.mjs) only when they run.
 import { pathToFileURL } from 'node:url';
-import { buildBin, route } from './route.mjs';
+import { buildBin, inPackage } from './route.mjs';
 
-const args = process.argv.slice(2);
-const script = route(args);
+const build = buildBin(process.argv.slice(2));
 // Build's bin reads its operands from argv[2]; dev's bin reads the verb from argv[2] as before.
-if (buildBin(args) !== undefined) process.argv.splice(1, 2, script);
-await import(pathToFileURL(script).href);
+if (build !== undefined) process.argv.splice(1, 2, build);
+await import(pathToFileURL(build ?? inPackage('@wildshard/dev', 'bin/wildshard.mjs')).href);
