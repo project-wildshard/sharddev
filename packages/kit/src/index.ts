@@ -25,5 +25,10 @@ export type {
   CreatureContent,
 } from './creatures.ts'
 
-export { referenceSkeletonSource } from './skeletons.ts'
-export type { ReferenceSkeletonSource } from './skeletons.ts'
+export { referenceSkeletonSource, humanoidSource } from './skeletons.ts'
+export type {
+  ReferenceSkeletonSource,
+  HumanoidSource,
+  HumanoidOptions,
+  HumanoidAttachment,
+} from './skeletons.ts'

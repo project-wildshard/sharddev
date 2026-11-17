@@ -11,7 +11,12 @@ import {
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
-import type { CreatureSkeleton } from '@wildshard/shard-format/creatureLayers'
+import { biped, type BodyOptions } from './body.ts'
+
+import type {
+  CreatureBody,
+  CreatureSkeleton,
+} from '@wildshard/shard-format/creatureLayers'
 import type { ShardRows } from '@wildshard/shard-format/rows'
 
 type Point = readonly [number, number, number]
@@ -29,6 +34,53 @@ export interface ReferenceSkeletonSource {
     readonly name: string
   }[]
   readonly dims: ShardRows['species'][number]['dims']
+}
+/** Geometry is copied from the named socket's local frame. */
+export interface HumanoidAttachment {
+  readonly socket: string
+  readonly geometry: BufferGeometry
+  readonly at?: Point
+}
+export interface HumanoidOptions extends BodyOptions {
+  /** Replacement head geometry in the head bone's local frame. */
+  readonly head?: BufferGeometry
+  readonly attachments?: readonly HumanoidAttachment[]
+}
+export interface HumanoidSource extends ReferenceSkeletonSource {
+  readonly body: CreatureBody
+}
+
+/** A unit rig and existing body scale policy, applied once at runtime. */
+export function humanoidSource(
+  options: Readonly<HumanoidOptions>,
+): HumanoidSource {
+  const body = biped({
+    look: options.look,
+    ...(options.size === undefined ? {} : { size: options.size }),
+    ...(options.scale === undefined ? {} : { scale: options.scale }),
+  })
+  const sockets = CREATURE_SKELETONS.biped.sockets
+  for (const attachment of options.attachments ?? []) {
+    if (!Object.hasOwn(sockets, attachment.socket))
+      throw new Error(`Unknown biped socket ${attachment.socket}`)
+    if (attachment.at?.some(value => !Number.isFinite(value)))
+      throw new Error(`Non-finite biped socket offset ${attachment.socket}`)
+    validateSurface(attachment.geometry, attachment.socket)
+  }
+  if (options.head !== undefined) validateSurface(options.head, 'head')
+  return { ...buildReference('biped', options), body }
+}
+function validateSurface(geometry: BufferGeometry, label: string): void {
+  const position = geometry.getAttribute('position')
+  if (position === undefined || position.itemSize !== 3 || position.count === 0)
+    throw new Error(`Kit ${label} needs nonempty 3D positions`)
+  for (let i = 0; i < position.count; i++)
+    if (
+      ![position.getX(i), position.getY(i), position.getZ(i)].every(
+        Number.isFinite,
+      )
+    )
+      throw new Error(`Kit ${label} has a non-finite position`)
 }
 const POINTS: Readonly<
   Record<CreatureSkeleton, Readonly<Record<string, Point>>>
@@ -84,6 +136,12 @@ const COLOUR = {
 export function referenceSkeletonSource(
   skeleton: CreatureSkeleton,
 ): ReferenceSkeletonSource {
+  return buildReference(skeleton)
+}
+function buildReference(
+  skeleton: CreatureSkeleton,
+  options: Readonly<Pick<HumanoidOptions, 'head' | 'attachments'>> = {},
+): ReferenceSkeletonSource {
   const contract = CREATURE_SKELETONS[skeleton],
     positions = POINTS[skeleton]
   const point = (name: string): Point => {
@@ -114,6 +172,7 @@ export function referenceSkeletonSource(
     size: Point,
     colour: Point,
     rotation = new Quaternion(),
+    preserveColour = false,
   ): void => {
     const index = bones.findIndex(row => row.name === bone)
     if (index === -1) throw new Error(`Unknown kit surface joint ${bone}`)
@@ -122,6 +181,10 @@ export function referenceSkeletonSource(
     plain.applyMatrix4(
       new Matrix4().compose(new Vector3(...at), rotation, new Vector3(...size)),
     )
+    if (plain.getAttribute('normal') === undefined) plain.computeVertexNormals()
+    const originalColour = preserveColour
+      ? plain.getAttribute('color')
+      : undefined
     for (const name of Object.keys(plain.attributes))
       if (!['position', 'normal'].includes(name)) plain.deleteAttribute(name)
     const count = plain.getAttribute('position').count,
@@ -131,7 +194,16 @@ export function referenceSkeletonSource(
     for (let vertex = 0; vertex < count; vertex++) {
       indices[vertex * 4] = index
       weights[vertex * 4] = 1
-      colours.set(colour, vertex * 3)
+      colours.set(
+        originalColour === undefined
+          ? colour
+          : [
+              originalColour.getX(vertex),
+              originalColour.getY(vertex),
+              originalColour.getZ(vertex),
+            ],
+        vertex * 3,
+      )
     }
     plain.setAttribute('skinIndex', new BufferAttribute(indices, 4))
     plain.setAttribute('skinWeight', new BufferAttribute(weights, 4))
@@ -168,7 +240,18 @@ export function referenceSkeletonSource(
     box('chest', [0, 1.23, 0], [0.44, 0.42, 0.25], COLOUR.body)
     box('hips', [0, 0.91, 0], [0.3, 0.18, 0.23], COLOUR.dark)
     limb('neck', 'head', 0.1, COLOUR.head)
-    sphere('head', point('head'), [0.16, 0.16, 0.16], COLOUR.head)
+    if (options.head === undefined)
+      sphere('head', point('head'), [0.16, 0.16, 0.16], COLOUR.head)
+    else
+      add(
+        options.head.clone(),
+        'head',
+        point('head'),
+        [1, 1, 1],
+        COLOUR.head,
+        new Quaternion(),
+        true,
+      )
     for (const side of ['L', 'R']) {
       limb(`upperArm.${side}`, `forearm.${side}`, 0.105, COLOUR.body)
       limb(`forearm.${side}`, `hand.${side}`, 0.085, COLOUR.head)
@@ -196,6 +279,27 @@ export function referenceSkeletonSource(
       limb(b, c, 0.08, COLOUR.dark)
       box(c, point(c), [0.11, 0.1, 0.17], COLOUR.dark)
     }
+  }
+  for (const attachment of options.attachments ?? []) {
+    const socket = contract.sockets[attachment.socket]
+    if (socket === undefined)
+      throw new Error(`Unknown ${skeleton} socket ${attachment.socket}`)
+    const origin = point(socket.bone),
+      offset = attachment.at ?? [0, 0, 0]
+    const at: Point = [
+      origin[0] + socket.at[0] + offset[0],
+      origin[1] + socket.at[1] + offset[1],
+      origin[2] + socket.at[2] + offset[2],
+    ]
+    add(
+      attachment.geometry.clone(),
+      socket.bone,
+      at,
+      [1, 1, 1],
+      COLOUR.dark,
+      new Quaternion(),
+      true,
+    )
   }
   const geometry = mergeGeometries(fragments, false)
   for (const fragment of fragments) fragment.dispose()
@@ -229,6 +333,20 @@ export function referenceSkeletonSource(
             [-0.23, -0.43],
           ] as [number, number][],
         }
+  if (options.head !== undefined) {
+    const headPositions = options.head.getAttribute('position')
+    let radius = 0
+    for (let i = 0; i < headPositions.count; i++)
+      radius = Math.max(
+        radius,
+        Math.hypot(
+          headPositions.getX(i),
+          headPositions.getY(i),
+          headPositions.getZ(i),
+        ),
+      )
+    dims.headRadius = radius
+  }
   return {
     name: `kit.${skeleton}`,
     skeleton,

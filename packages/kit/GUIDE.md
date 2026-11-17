@@ -1,7 +1,7 @@
 # Creature presets
 
 > Written by: Codex
-> State: M1 content/helpers built, 2026-11-15; package release pending.
+> State: current source, 2026-11-17; package release pending.
 
 The plain JSON catalogue and TypeScript helpers describe the same rows.
 Copy the content you use into a shard at build time. A kit update changes
@@ -236,3 +236,33 @@ joints, translation-only unit binds and one vertex-coloured skin surface.
 From this repository, `pnpm --filter @wildshard/kit run build:skeletons`
 regenerates both through the same SDK kernel; the asset tests compare the
 published bytes to regeneration and measure their actual joint binds.
+
+`humanoidSource` from `@wildshard/kit/skeletons` uses that same biped:
+
+```ts
+import { BoxGeometry } from 'three'
+import { humanoidSource } from '@wildshard/kit/skeletons'
+import { skinnedGlb } from '@wildshard/sdk/bake/skinned'
+
+const head = new BoxGeometry(0.5, 0.3, 0.2)
+const shield = new BoxGeometry(0.3, 0.5, 0.05)
+const source = humanoidSource({
+  look: 'orc.look', scale: 1.2, head,
+  attachments: [{ socket: 'hand.L', geometry: shield, at: [0, 0, 0.1] }],
+})
+const { glb } = skinnedGlb(source)
+// Use source.body and source.dims in the species row; emit glb as an asset.
+```
+
+`head` replaces the default head in head-bone space. Attachments use the
+format's `head`, `chest`, `back`, `mouth`, `hand.L` or `hand.R` socket and
+an optional additional local offset. Inputs are copied, including indexed
+and vertex-coloured geometry. Surfaces bind rigidly to the existing bone;
+no joint, material slot or runtime script is added. Custom surfaces use
+vertex colours or the plain Kit colours. Caller geometries stay owned by
+the caller, and the returned merged geometry/material need disposal too.
+
+The returned GLB stays in unit metres. `source.body.scale` is the sole
+free-scale policy for runtime mesh, volumes and sockets; do not multiply
+the GLB or dimensions again. `size` uses the existing optional class policy.
+Clipless skin metadata is admitted by the defining format0.24.0.
