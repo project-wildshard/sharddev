@@ -117,7 +117,10 @@ export async function checkProject(projectPath: string, outputPath: string | und
       // TC-NE6 (NEW-SHARD-E2E F6): a count with no names left the author guessing; each warning prints, marked report-only.
       const reported = card.issues.filter(issue => issue.severity !== 'refusal');
       const warnings = reported.length;
-      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}`;
+      // SP7c: the simulation numbers `wildshard validate` printed before it stopped running the engine.
+      const { proof } = admitted.check;
+      const sim = typeof proof === 'string' ? `simulation ${proof}` : `${proof.ticks} sim ticks, ${proof.lanes} edge lanes, ${proof.steps} capsule steps${proof.portalTransfers === undefined ? '' : `, ${proof.portalTransfers} portal transfers`}`;
+      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}; ${sim}`;
       return await Promise.resolve({ status: admitted.check.pass ? 'pass' : 'fail', note,
         refusals: refused.map(issue => ({ message: issue.message, code: issue.code })),
         warnings: reported.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)} (a report-only cap: upload still takes it)` })) });

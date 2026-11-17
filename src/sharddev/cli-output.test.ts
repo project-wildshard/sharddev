@@ -53,6 +53,9 @@ test('build and validate run no simulation; check measures CPU again and refuses
     await expect(runCli(['validate', output])).resolves.toBeUndefined();
     await expect(runCli(['validate', project])).resolves.toBeUndefined();
     expect(created).toBe(0);
+    // The numbers validate used to print are check's report note now (SP7c).
+    const passed = await checkProject(project, resolve(scratch, 'first-check'));
+    expect(passed.steps.find(step => step.name === 'report')?.note).toMatch(/\d+ sim ticks, \d+ edge lanes, \d+ capsule steps/u);
     expect(log.mock.calls.some(args => args.some(value => typeof value === 'string' && value.includes('wildshard check')))).toBe(true);
     overBudget = true;
     const checked = await checkProject(project, resolve(scratch, 'checked'));
