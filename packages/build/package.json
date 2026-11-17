@@ -1,8 +1,7 @@
 {
   "name": "@wildshard/build",
   "version": "0.3.9",
-  "description": "The build: read a shard source, run its generators, write and validate the shard file (SDK-SPLIT SP9c; the build verb, SP9d1). Engine-free; private until SP12 publishes it with the sdk at one version (D5).",
-  "private": true,
+  "description": "The build: read a shard source, run its generators, write and validate the shard file (SDK-SPLIT SP9c; the build verb, SP9d1). Engine-free; published with the sdk at one version (D5, SP12).",
   "type": "module",
   "engines": {
     "node": ">=24.18.0"
@@ -76,5 +75,8 @@
     "url": "git+https://github.com/project-wildshard/sharddev.git",
     "directory": "packages/build"
   },
-  "license": "UNLICENSED"
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  }
 }

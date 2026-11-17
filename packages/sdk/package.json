@@ -32,7 +32,8 @@
     "lint",
     "!lint/**/*.test.*",
     "tsconfig*.json",
-    "!src/.oxlintrc.json"
+    "!src/.oxlintrc.json",
+    "!src/tsconfig.json"
   ],
   "scripts": {
     "docs": "node scripts/docs.mjs",

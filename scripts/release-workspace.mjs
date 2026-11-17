@@ -8,31 +8,27 @@ import { join, posix, resolve } from 'node:path'
 const root = resolve(import.meta.dirname, '..')
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
 const workspace = read(join(root, 'package.json'))
-// Publish order: a package before any that depends on it.
+// Publish order: a package before any that depends on it. SDK-SPLIT SP12: all six publish at one version (D5); build,
+// dev and the cli (SP10, the `wildshard` bin) joined kit, upload and the sdk.
 const PACKAGES = [
   ['packages/kit', '@wildshard/kit'],
   ['packages/upload', '@wildshard/upload'],
   ['packages/sdk', '@wildshard/sdk'],
+  ['packages/build', '@wildshard/build'],
+  ['packages/dev', '@wildshard/dev'],
+  ['packages/cli', '@wildshard/cli'],
 ].map(([dir, name]) => ({ dir: join(root, dir), path: join(root, dir, 'package.json'), name }))
 const manifests = PACKAGES.map(pkg => ({ ...pkg, manifest: read(pkg.path) }))
-// SDK-SPLIT SP8c: @wildshard/dev (the local game and, until SP10, the bin) carries the release version too, but stays
-// private and unpacked until SP12 publishes it beside the others.
-// SP9c: @wildshard/build likewise, private until SP12.
-const stampedOnly = [['packages/build', '@wildshard/build'], ['packages/dev', '@wildshard/dev']].map(([dir, name]) => {
-  const path = join(root, dir, 'package.json')
-  return { dir: join(root, dir), path, name, manifest: read(path) }
-})
-const sdk = manifests.find(pkg => pkg.name === '@wildshard/sdk').manifest
-const kit = manifests.find(pkg => pkg.name === '@wildshard/kit').manifest
+const OWN = new Set(PACKAGES.map(pkg => pkg.name))
 const [command, destination] = process.argv.slice(2)
 if (
-  [...manifests, ...stampedOnly].some(pkg => pkg.manifest.name !== pkg.name) ||
+  manifests.some(pkg => pkg.manifest.name !== pkg.name || pkg.manifest.private === true) ||
   !/^\d+\.\d+\.\d+$/u.test(workspace.version)
 )
   throw new Error('Unexpected release workspace identities')
 
 if (command === 'stamp' && destination === undefined) {
-  for (const pkg of [...manifests, ...stampedOnly]) {
+  for (const pkg of manifests) {
     if (pkg.manifest.version === workspace.version) continue
     const before = readFileSync(pkg.path, 'utf8')
     writeFileSync(
@@ -41,7 +37,7 @@ if (command === 'stamp' && destination === undefined) {
     )
   }
   console.log(
-    `release workspace: ${[...manifests, ...stampedOnly].map(pkg => pkg.name).join(', ')} ${workspace.version}`,
+    `release workspace: ${manifests.map(pkg => pkg.name).join(', ')} ${workspace.version}`,
   )
 } else if (command === 'pack' && destination !== undefined) {
   if (manifests.some(pkg => pkg.manifest.version !== workspace.version))
@@ -131,10 +127,14 @@ if (command === 'stamp' && destination === undefined) {
       )
         throw new Error(`Unpublished dependency in ${pkg.name} ${field}`)
     }
+    // Each workspace package a packed one depends on is pinned at this one release version (D5).
+    for (const [name, spec] of Object.entries(manifest.dependencies ?? {}))
+      if (OWN.has(name) && spec !== workspace.version)
+        throw new Error(`Packed ${pkg.name} pins ${name} ${spec}, not ${workspace.version}`)
     if (
-      pkg.name === sdk.name &&
-      (manifest.dependencies?.['@wildshard/kit'] !== kit.version ||
-        manifest.dependencies?.['@wildshard/upload'] !== workspace.version)
+      pkg.name === '@wildshard/sdk' &&
+      (manifest.dependencies?.['@wildshard/kit'] === undefined ||
+        manifest.dependencies?.['@wildshard/upload'] === undefined)
     )
       throw new Error('Packed SDK does not pin the matching kit and upload')
     const bytes = readFileSync(archive)

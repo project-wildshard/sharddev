@@ -33,3 +33,8 @@
   dev, sends `build <source>` straight to build's compiled bin (no dev, no engine) and loads dev's CLI for every other
   verb. `new` pins `@wildshard/cli` at the sdk's version instead of the engine. Proof from packed tarballs: a repo with
   only the cli runs build, dev and `upload --help`; a repo with only build builds the same Template bytes, no engine.
+- SP12 (opus-sdksplit5): build and dev drop `private`; `release-workspace.mjs pack` packs all six in order (kit, upload,
+  sdk, build, dev, cli) and refuses a packed package that pins a workspace sibling at any other version.
+  `npm-publish.yml` installs the workspace first (build's prepack compiles with esbuild and dev's engine pin). The dry
+  run caught two packing holes: the sdk shipped `src/tsconfig.json` (extends the repo's kit/) and dev shipped
+  `src/sharddev/tsconfig.json` without its parent; the sdk drops the first, dev ships its `tsconfig*.json`.
