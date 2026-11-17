@@ -104,6 +104,8 @@
     "../../sharddev/immutable.ts",
     "../../sharddev/kit/geometryPack.ts",
     "../../sharddev/measure.ts",
+    "../../sharddev/nativeHuntSource.ts",
+    "../../sharddev/nativeLookSource.ts",
     "../../sharddev/outputProduct.ts",
     "../../sharddev/physics.ts",
     "../../sharddev/platformSections.ts",

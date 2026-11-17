@@ -104,6 +104,8 @@
     "../../sharddev/ledger.ts",
     "../../sharddev/materials.ts",
     "../../sharddev/measure.ts",
+    "../../sharddev/nativeHuntSource.ts",
+    "../../sharddev/nativeLookSource.ts",
     "../../sharddev/outputProduct.ts",
     "../../sharddev/physics.ts",
     "../../sharddev/platformSections.ts",
