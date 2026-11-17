@@ -34,6 +34,10 @@ if (verbHelp) {
   const script = resolve(import.meta.dirname, '../scripts/wildshard.mjs');
   process.argv[1] = script;
   await import(pathToFileURL(script).href);
+} else if (command === 'memory') {
+  const script = resolve(import.meta.dirname, '../scripts/memory-product.mjs');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
 } else if (command === 'prepare') {
   const script = resolve(import.meta.dirname, '../scripts/prepare-product.mjs');
   process.argv.splice(1, 2, script);
