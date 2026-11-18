@@ -100,6 +100,7 @@
     "./looks/tileField": "rows",
     "./kit/bakedGeometry": "bake kit",
     "./species/clips": "rows",
+    "./species/toRows": "rows",
     "./compileScript": "scripts",
     "./compileScriptV2": "scripts",
     "./test/compileDualScriptV2": "internal",

@@ -163,6 +163,7 @@
     "./looks/tileField": "./src/sharddev/looks/tileField.ts",
     "./kit/bakedGeometry": "./src/sharddev/kit/bakedGeometry.ts",
     "./species/clips": "./src/sharddev/species/clips.ts",
+    "./species/toRows": "./src/sharddev/species/toRows.ts",
     "./compileScript": "./src/sharddev/bake/compileScript.ts",
     "./compileScriptV2": "./src/sharddev/bake/compileScriptV2.ts",
     "./bake/slabChunks": "./src/sharddev/bake/slabChunks.ts",

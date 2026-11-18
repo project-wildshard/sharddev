@@ -1,0 +1,541 @@
+{
+ "physics": {
+  "duneMatriarch": {
+   "scale": [
+    3.6,
+    3.6
+   ],
+   "spec": {
+    "aggressive": true,
+    "dims": {
+     "bodyHalfLen": 1.1,
+     "bodyRadius": 0.8,
+     "bodyY": 0.3,
+     "feet": [],
+     "halfWidth": 2.6,
+     "headRadius": 0.4,
+     "legLen": 0
+    },
+    "flight": {
+     "above": "ground",
+     "altitude": 18,
+     "climbRate": 7,
+     "diveRate": 20,
+     "lockRange": 60
+    },
+    "hp": 600,
+    "kind": "duneMatriarch",
+    "label": "The Dune Matriarch",
+    "lockable": true,
+    "mods": {
+     "chargeDamage": 25,
+     "chargeDist": 1,
+     "damageTaken": 1,
+     "relentless": false,
+     "speed": 1
+    },
+    "rarity": "legendary",
+    "variant": "matriarch"
+   }
+  },
+  "duneRay": {
+   "scale": [
+    1,
+    1.15
+   ],
+   "spec": {
+    "aggressive": true,
+    "dims": {
+     "bodyHalfLen": 1.1,
+     "bodyRadius": 0.8,
+     "bodyY": 0.3,
+     "feet": [],
+     "halfWidth": 2.6,
+     "headRadius": 0.4,
+     "legLen": 0
+    },
+    "flight": {
+     "above": "ground",
+     "altitude": 14,
+     "climbRate": 6,
+     "diveRate": 24,
+     "lockRange": 34
+    },
+    "hp": 70,
+    "kind": "duneRay",
+    "label": "Dune ray",
+    "lockable": true,
+    "mods": {
+     "chargeDamage": 25,
+     "chargeDist": 1,
+     "damageTaken": 1,
+     "relentless": false,
+     "speed": 1
+    },
+    "rarity": "common",
+    "variant": "dusk"
+   }
+  },
+  "duneStrider": {
+   "scale": [
+    0.95,
+    1.1
+   ],
+   "spec": {
+    "aggressive": true,
+    "dims": {
+     "bodyHalfLen": 1.3,
+     "bodyRadius": 0.75,
+     "bodyY": 1.9659645557403562,
+     "feet": [],
+     "halfWidth": 0.7,
+     "headRadius": 0.4,
+     "legLen": 1.4042603969573975
+    },
+    "hp": 150,
+    "kind": "duneStrider",
+    "label": "Dune strider",
+    "lockable": true,
+    "mods": {
+     "chargeDamage": 25,
+     "chargeDist": 1,
+     "damageTaken": 1,
+     "relentless": false,
+     "speed": 1
+    },
+    "rarity": "uncommon",
+    "variant": "dusk"
+   }
+  },
+  "sandSkitterer": {
+   "scale": [
+    0.9,
+    1.1
+   ],
+   "spec": {
+    "aggressive": true,
+    "dims": {
+     "bodyHalfLen": 0.45,
+     "bodyRadius": 0.3,
+     "bodyY": 0.22,
+     "feet": [],
+     "halfWidth": 0.45,
+     "headRadius": 0.17,
+     "legLen": 0.2
+    },
+    "hp": 24,
+    "kind": "sandSkitterer",
+    "label": "Sand skitterer",
+    "lockable": true,
+    "mods": {
+     "chargeDamage": 25,
+     "chargeDist": 1,
+     "damageTaken": 1,
+     "relentless": false,
+     "speed": 1
+    },
+    "rarity": "common",
+    "variant": "dusk"
+   }
+  }
+ },
+ "program": {
+  "modules": {},
+  "species": [
+   {
+    "aggressive": true,
+    "blood": false,
+    "body": {
+     "attack": "keeper",
+     "contact": {
+      "halfArc": 1.2217304763960306,
+      "kind": "actor",
+      "move": "sunscar.duneRay.contact"
+     },
+     "kind": "animal",
+     "motion": "flight",
+     "stunned": "none"
+    },
+    "brain": {
+     "archetype": "diver",
+     "data": {
+      "circleRadius": 20,
+      "climbAltitude": 17,
+      "climbSeconds": 2.6,
+      "climbSpeedBonus": 3,
+      "diveFrom": 38,
+      "diveMaxSeconds": 4.5,
+      "diveSlope": 0.35,
+      "diveSpeed": 15,
+      "glideAltitude": 14,
+      "glideSpeed": 9,
+      "heldField": "held",
+      "home": {
+       "x": 8,
+       "z": -75
+      },
+      "id": "sunscar.brain.ray",
+      "kind": "diver",
+      "noticeRadius": 55,
+      "orbitLead": 0.55,
+      "patrolAltitude": 22,
+      "patrolRadius": 34,
+      "pattern": "patrol",
+      "restSeconds": 3,
+      "strike": "sunscar.ray.swoop",
+      "targetHeight": 1.2,
+      "thinkDivisor": 6
+     }
+    },
+    "flight": {
+     "above": "ground",
+     "altitude": 14,
+     "climbRate": 6,
+     "diveRate": 24,
+     "lockRange": 34
+    },
+    "id": "sunscar.creature.duneRay",
+    "kind": "duneRay",
+    "label": "Dune ray",
+    "lockable": true,
+    "variants": [
+     {
+      "hp": 70,
+      "id": "dusk",
+      "label": "Dune ray",
+      "rarity": "common",
+      "scale": [
+       1,
+       1.15
+      ],
+      "weight": 1
+     }
+    ]
+   },
+   {
+    "aggressive": true,
+    "blood": false,
+    "body": {
+     "attack": "keeper",
+     "contact": {
+      "halfArc": 1.2217304763960306,
+      "kind": "actor",
+      "move": "sunscar.skitterer.contact"
+     },
+     "kind": "animal",
+     "motion": "ground",
+     "stunned": "none"
+    },
+    "brain": {
+     "archetype": "decision",
+     "data": {
+      "group": "sunscar.skitterers",
+      "script": "sunscar.skitterer.decision",
+      "strikeEffects": [
+       {
+        "aimHeight": 0,
+        "lift": 0,
+        "speed": 0,
+        "strike": "sunscar.skitterer.bite"
+       }
+      ]
+     }
+    },
+    "id": "sunscar.creature.sandSkitterer",
+    "kind": "sandSkitterer",
+    "label": "Sand skitterer",
+    "lockable": true,
+    "variants": [
+     {
+      "hp": 24,
+      "id": "dusk",
+      "label": "Sand skitterer",
+      "rarity": "common",
+      "scale": [
+       0.9,
+       1.1
+      ],
+      "weight": 1
+     }
+    ]
+   },
+   {
+    "aggressive": true,
+    "blood": false,
+    "body": {
+     "attack": "keeper",
+     "contact": {
+      "halfArc": 1.2217304763960306,
+      "kind": "actor",
+      "move": "sunscar.duneStrider.contact"
+     },
+     "kind": "animal",
+     "motion": "ground",
+     "stunned": "none"
+    },
+    "brain": {
+     "archetype": "grazer",
+     "data": {
+      "approachSpeed": 2.4,
+      "charge": "sunscar.strider.charge",
+      "chargeRadius": 17,
+      "circleRate": 0.05,
+      "close": "sunscar.strider.horns",
+      "closeWeight": 1,
+      "faceSeconds": 0.7,
+      "farPreferenceRadius": 5,
+      "farWeight": 2,
+      "homeRadius": 16,
+      "id": "sunscar.brain.strider",
+      "kind": "grazer",
+      "loseRadius": 40,
+      "nearWeight": 0.2,
+      "noticeRadius": 24,
+      "pattern": "circle-challenge",
+      "recoveryField": "winded",
+      "thinkDivisor": 6,
+      "walkSpeed": 1.1,
+      "windupField": "paw"
+     },
+     "phaseSlots": 6
+    },
+    "id": "sunscar.creature.duneStrider",
+    "kind": "duneStrider",
+    "label": "Dune strider",
+    "lockable": true,
+    "variants": [
+     {
+      "hp": 150,
+      "id": "dusk",
+      "label": "Dune strider",
+      "rarity": "uncommon",
+      "scale": [
+       0.95,
+       1.1
+      ],
+      "weight": 1
+     }
+    ]
+   },
+   {
+    "aggressive": true,
+    "blood": false,
+    "body": {
+     "attack": "keeper",
+     "contact": {
+      "halfArc": 1.2217304763960306,
+      "kind": "actor",
+      "move": "sunscar.matriarch.contact"
+     },
+     "kind": "animal",
+     "motion": "flight",
+     "stunned": "none"
+    },
+    "brain": {
+     "archetype": "decision",
+     "data": {
+      "actor": "sunscar.matriarch",
+      "idle": {
+       "move": "sunscar.matriarch.rise",
+       "progress": "rise"
+      },
+      "marks": {
+       "fight": "fight",
+       "phase": "phase"
+      },
+      "script": "sunscar.matriarch.decision",
+      "strikeEffects": [
+       {
+        "aimHeight": 1.2,
+        "lift": 0,
+        "speed": 0,
+        "strike": "sunscar.matriarch.dive"
+       }
+      ]
+     }
+    },
+    "flight": {
+     "above": "ground",
+     "altitude": 18,
+     "climbRate": 7,
+     "diveRate": 20,
+     "lockRange": 60
+    },
+    "id": "sunscar.creature.duneMatriarch",
+    "kind": "duneMatriarch",
+    "label": "The Dune Matriarch",
+    "lockable": true,
+    "variants": [
+     {
+      "hp": 600,
+      "id": "matriarch",
+      "label": "The Dune Matriarch",
+      "rarity": "legendary",
+      "scale": [
+       3.6,
+       3.6
+      ],
+      "weight": 1
+     }
+    ]
+   }
+  ],
+  "strikes": [
+   {
+    "active": 0.4,
+    "cooldown": 2.5,
+    "damage": 14,
+    "id": "sunscar.ray.swoop",
+    "range": 7,
+    "recover": 0.5,
+    "shape": {
+     "kind": "sphere",
+     "radius": 2.2
+    },
+    "tags": [
+     "creature.duneRay"
+    ],
+    "units": "world",
+    "weight": {
+     "kind": "constant",
+     "value": 1
+    },
+    "windup": 0.3
+   },
+   {
+    "active": 1.2,
+    "cooldown": 3.5,
+    "damage": 22,
+    "id": "sunscar.strider.charge",
+    "motion": {
+     "overshoot": 3,
+     "speed": 11
+    },
+    "range": 17,
+    "recover": 1.8,
+    "shape": {
+     "kind": "lane",
+     "length": 13,
+     "width": 2.2
+    },
+    "tags": [
+     "creature.duneStrider"
+    ],
+    "weight": {
+     "above": 5,
+     "far": 2,
+     "kind": "horizontal-distance",
+     "near": 0.2
+    },
+    "windup": 1.1
+   },
+   {
+    "active": 0.2,
+    "cooldown": 1.6,
+    "damage": 12,
+    "id": "sunscar.strider.horns",
+    "range": 3.2,
+    "recover": 0.8,
+    "shape": {
+     "halfAngle": 0.9,
+     "kind": "arc",
+     "radius": 3.4
+    },
+    "tags": [
+     "creature.duneStrider"
+    ],
+    "weight": {
+     "kind": "constant",
+     "value": 1
+    },
+    "windup": 0.6
+   },
+   {
+    "active": 0.15,
+    "cooldown": 1.3,
+    "damage": 6,
+    "id": "sunscar.skitterer.bite",
+    "range": 1.9,
+    "recover": 0.45,
+    "shape": {
+     "kind": "point",
+     "radius": 1.4
+    },
+    "tags": [
+     "creature.sandSkitterer"
+    ],
+    "weight": {
+     "kind": "constant",
+     "value": 1
+    },
+    "windup": 0.38
+   },
+   {
+    "active": 0.5,
+    "cooldown": 2,
+    "damage": 18,
+    "id": "sunscar.matriarch.dive",
+    "range": 10,
+    "recover": 0.6,
+    "shape": {
+     "kind": "sphere",
+     "radius": 4
+    },
+    "tags": [
+     "creature.duneMatriarch"
+    ],
+    "units": "world",
+    "weight": {
+     "kind": "constant",
+     "value": 1
+    },
+    "windup": 0.35
+   },
+   {
+    "active": 0.25,
+    "cooldown": 4,
+    "damage": 16,
+    "id": "sunscar.matriarch.tail",
+    "range": 11.5,
+    "recover": 1,
+    "shape": {
+     "inner": 0,
+     "kind": "ring",
+     "outer": 12
+    },
+    "tags": [
+     "creature.duneMatriarch"
+    ],
+    "units": "world",
+    "weight": {
+     "kind": "constant",
+     "value": 2
+    },
+    "windup": 1
+   },
+   {
+    "active": 0.2,
+    "cooldown": 2.2,
+    "damage": 12,
+    "id": "sunscar.matriarch.buffet",
+    "range": 10.5,
+    "recover": 0.8,
+    "shape": {
+     "halfAngle": 0.8,
+     "kind": "arc",
+     "radius": 11
+    },
+    "tags": [
+     "creature.duneMatriarch"
+    ],
+    "units": "world",
+    "weight": {
+     "kind": "constant",
+     "value": 1
+    },
+    "windup": 0.7
+   }
+  ]
+ },
+ "source": "shard-dunes out/sunscar-dunes sections/actors/species-programs.json program + src/data/physicsRows.json species (OF11a fixture)"
+}
