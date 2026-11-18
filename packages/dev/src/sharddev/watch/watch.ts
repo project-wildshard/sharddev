@@ -1,9 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- The author tool serves the watched product and the scene stream.
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author changes are watched; the product is a private disposable build.
-import { createReadStream, existsSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, watch, writeFileSync } from 'node:fs';
-// oxlint-disable-next-line import/no-nodejs-modules -- Own temporary build directory.
-import { tmpdir } from 'node:os';
+import { createReadStream, existsSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, watch, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
 import { build, type Plugin } from 'vite';
@@ -12,7 +10,8 @@ import * as liveTsl from 'three/tsl';
 import * as liveWebgpu from 'three/webgpu';
 import { Scope } from '@wildshard/engine/app/scope';
 import { buildProject } from '@wildshard/build/project';
-import { projectSourceStamp } from '../dev';
+import { createDevScratch, projectSourceStamp } from '../dev';
+import { createDevWorld, DEV_RELEASE, type DevWorld } from '../../../scripts/dev-world.mjs';
 import { executeBundle } from '@wildshard/sdk/executeBundle';
 import type { ShardScene } from '@wildshard/sdk/scene/description';
 import * as liveAuthor from '@wildshard/sdk/scene/author';
@@ -42,11 +41,10 @@ import { DEV_ROOT } from '../devRoot';
  *   diff    each part's content hash, and the look's day keys, against the last revision; only changed parts are
  *           re-encoded (per-part cache)
  *   push    one `WatchState` on the WebSocket; the page script fetches the changed parts, and only the geometry and
- *           rasters it lacks, and drives engine's dev hook
+ *           rasters it lacks, and drives engine's dev hook and its Node control channel
  *
- * A sky, fog, sun colour or ambient edit goes live (the look's day keys); a ground edit too (AP18: `setGround`), and a quest,
- * encounter, spawn or script edit restarts the page's simulation (AP19: `restartGameplay`). A spawn, grade or sun direction edit
- * can't in M1 (AP17's fast path): it rebuilds the shell and the page reloads, as `dev` does. `wildshard dev` is unchanged.
+ * Look, ground and collider edits go live. Gameplay and other changes that need a new shell rebuild the product and restart
+ * its Node server before the open page reloads.
  */
 export interface WatchProject { url: string; close: () => Promise<void> }
 
@@ -179,13 +177,15 @@ function assertHook(client: string): void {
 
 export async function watchProject(project: string, options: { port?: number; client?: string | null; log?: (line: string) => void } = {}): Promise<WatchProject> {
   if (typeof options.client === 'string') assertHook(options.client);
-  const source = resolve(project), scratch = realpathSync(mkdtempSync(join(tmpdir(), 'wildshard-watch-'))), log = options.log ?? ((line: string): void => { console.info(line); });
+  const source = resolve(project), scratch = createDevScratch(source), log = options.log ?? ((line: string): void => { console.info(line); });
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
   let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
   let ground: WatchState['ground'] = { hash: '', shell: '' }, gameplayState: WatchState['gameplay'] = { hash: '', shell: '' }, lastBuild: WatchBuild | null = null, idle: Scope | null = null, building: ChildProcess | null = null;
   const encodedParts = new Map<string, Uint8Array>(), geometries = new Map<string, Uint8Array>(), textures = new Map<string, Uint8Array>(), grounds = new Map<string, Uint8Array>(), gameplays = new Map<string, Uint8Array>();
   const clients = new Set<WatchSocket>(), scope = new Scope('sdk.watch');
   let seenAt = 0, observed = projectSourceStamp(source), work = Promise.resolve(), pending = false, stampMs = 0;
+  const online = typeof options.client === 'string';
+  let origin = '', world: DevWorld | undefined;
   const state = (): string => JSON.stringify({ wire: WATCH_WIRE, shell, revision, parts, look, ground, gameplay: gameplayState, build: lastBuild, error, seenAt, sentAt: Date.now() } satisfies WatchState);
   const announce = (): void => { const message = state(); for (const client of clients) client.send(message); };
 
@@ -199,9 +199,19 @@ export async function watchProject(project: string, options: { port?: number; cl
       script ||= await pageScript();
       // the shell's number first: the page script reloads on a state for another shell, even on its first message
       const tags = `<script>window.__wsShell=${shell + 1}</script>${script}</body>`;
-      if (existsSync(page)) writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', () => tags));
+      if (existsSync(page)) {
+        const html = readFileSync(page, 'utf8').replace('</body>', () => tags);
+        if (online) {
+          world ??= await createDevWorld(origin, join(scratch, 'world'));
+          await world.move(target, built.identity.slug);
+        }
+        writeFileSync(page, world?.stamp(html) ?? html);
+      } else if (online) throw new Error('wildshard watch requires a client index.html');
       if (product !== '') rmSync(product, { recursive: true, force: true });
       product = target; shardRoot = `/shardfiles/${built.identity.slug}/`; shell++;
+    } catch (cause) {
+      rmSync(target, { recursive: true, force: true });
+      throw cause;
     } finally { if (before === undefined) delete process.env['WILDSHARD_SCENE_LIVE']; else process.env['WILDSHARD_SCENE_LIVE'] = before; }
   };
 
@@ -239,12 +249,13 @@ export async function watchProject(project: string, options: { port?: number; cl
   };
   /** Push one described revision: a new shell if it needs one, the changed parts and the look. */
   const push = async (described: ShardScene, gameplay: Gameplay, timing: string, started: number): Promise<void> => {
-    const key = shellKey(described, gameplay);
+    const gameplayHash = hashOf((hash) => hash.json(gameplay.gameplay));
+    const key = shellKey(described, gameplay) + (online ? gameplayHash : '');
     // AP16: the page streams every part but the panels, which the shell draws
     const scene = { ...described, parts: described.parts.filter((part) => part.panel === undefined) };
     const reshelled = key !== shellHash || reshell;
     if (reshelled) {
-      if (shellHash !== '') log(`wildshard watch: ${reshell ? 'the page can\'t take this look live' : 'the ground, spawn or a fixed look field changed'}; rebuilding the shell (the page reloads)`);
+      if (shellHash !== '') log(`wildshard watch: ${reshell ? 'the page can\'t take this look live' : 'gameplay or a fixed scene field changed'}; rebuilding the shell (the page reloads)`);
       // the first shell's failure is the command's; a later one is the page's error, and the old shell keeps serving
       if (shellHash === '') await buildShell();
       else try { await buildShell(); } catch (cause) { error = cause instanceof Error ? cause.message : String(cause); log(`wildshard watch: ${error}`); revision++; announce(); return; }
@@ -258,7 +269,6 @@ export async function watchProject(project: string, options: { port?: number; cl
     }
     const groundChanged = ground.hash !== '' && groundHash !== ground.hash;
     // AP19: the gameplay sections go live (`restartGameplay`); the shell keeps the ones it was built with
-    const gameplayHash = hashOf((hash) => hash.json(gameplay.gameplay));
     if (!gameplays.has(gameplayHash)) {
       if (gameplays.size > 8) gameplays.clear();
       gameplays.set(gameplayHash, new TextEncoder().encode(JSON.stringify(gameplay.gameplay)));
@@ -329,13 +339,13 @@ export async function watchProject(project: string, options: { port?: number; cl
     };
     work = work.then(run);
   };
-  try { await compile(); } catch (cause) { rmSync(scratch, { recursive: true, force: true }); throw cause; }
-  if (product === '') { rmSync(scratch, { recursive: true, force: true }); throw new Error(`wildshard watch: ${error ?? 'no shell was built'}`); }
-
   const server = createServer((request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     try {
       const path = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
+      if (path === DEV_RELEASE && request.method === 'GET') {
+        response.setHeader('Content-Type', 'application/json'); response.end(world?.signed); return;
+      }
       if (path === WATCH_RESHELL && request.method === 'POST') {
         // the page's look refused this revision live: the next compile builds a new shell, which the page reloads into
         // a revision whose shell build already failed gets no new one until the source changes
@@ -365,13 +375,27 @@ export async function watchProject(project: string, options: { port?: number; cl
     if (stopped) { socket.destroy(); return; }
     if (new URL(request.url ?? '/', 'http://localhost').pathname !== WATCH_SOCKET) { socket.end('HTTP/1.1 404 Not Found\r\n\r\n'); return; }
     // a browser page from anywhere else may not read the scene stream (a Node client sends no Origin)
-    const origin = request.headers.origin, address = server.address(), port = address !== null && typeof address === 'object' ? address.port : 0;
-    if (origin !== undefined && origin !== `http://127.0.0.1:${String(port)}` && origin !== `http://localhost:${String(port)}`) { socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
+    const requestOrigin = request.headers.origin;
+    if (requestOrigin !== undefined && requestOrigin !== origin && requestOrigin !== origin.replace('127.0.0.1', 'localhost')) { socket.end('HTTP/1.1 403 Forbidden\r\n\r\n'); return; }
     const client: WatchSocket | null = acceptSocket(request, socket, () => { if (client !== null) clients.delete(client); });
     if (client === null) return;
     clients.add(client); client.send(state());
   });
-  await new Promise<void>((_resolve, reject) => { server.once('error', reject); server.listen(options.port ?? 0, '127.0.0.1', _resolve); });
+  const closeServer = (): Promise<void> => new Promise((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
+  try {
+    await new Promise<void>((_resolve, reject) => { server.once('error', reject); server.listen(options.port ?? 0, '127.0.0.1', _resolve); });
+    const address = server.address();
+    if (address === null || typeof address === 'string') throw new Error('No watch server address');
+    origin = `http://127.0.0.1:${address.port}`;
+    await compile();
+    if (product === '') throw new Error(`wildshard watch: ${error ?? 'no shell was built'}`);
+  } catch (cause) {
+    await world?.close();
+    await closeServer();
+    scope.dispose();
+    rmSync(scratch, { recursive: true, force: true });
+    throw cause;
+  }
 
   const onChange = (prefix: string) => (_event: string, filename: string | null): void => {
     if (`${prefix}${filename ?? ''}`.split(/[\\/]/u).some((part) => ignored.has(part))) return;
@@ -382,13 +406,13 @@ export async function watchProject(project: string, options: { port?: number; cl
     .map((entry) => watch(join(source, entry.name), { recursive: true }, onChange(`${entry.name}/`)))];
   const poll = (): void => { reconcile(); scope.timeout(Math.min(250, Math.max(40, Math.round(stampMs * 20))), poll); };
   poll();
-  const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No watch server address');
-  return { url: `http://127.0.0.1:${address.port}/`, close: async () => {
+  return { url: `${origin}/`, close: async () => {
     if (stopped) return;
     stopped = true; scope.dispose(); building?.kill('SIGTERM');
     for (const client of clients) client.close();
-    await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
+    await closeServer();
     await work;
+    await world?.close();
     for (const watcher of watchers) watcher.close();
     rmSync(scratch, { recursive: true, force: true });
   } };

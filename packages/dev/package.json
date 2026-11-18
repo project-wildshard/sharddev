@@ -18,6 +18,7 @@
   },
   "files": [
     "bin",
+    "dist/dev-server",
     "src",
     "!src/**/*.test.*",
     "!src/e2e",
@@ -33,6 +34,7 @@
     "tsconfig*.json"
   ],
   "scripts": {
+    "prepack": "node scripts/pack-dev-server.mjs",
     "dev": "node src/tools/build-web.ts --dev",
     "build": "node src/tools/build-web.ts",
     "drafts:dev": "vite --config drafts/vite.config.ts",
@@ -50,6 +52,8 @@
   },
   "dependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
+    "@electric-sql/pglite": "0.5.15",
+    "@electric-sql/pglite-socket": "0.2.18",
     "@gltf-transform/core": "4.5.0",
     "@gltf-transform/extensions": "4.5.0",
     "@hono/node-server": "2.1.8",

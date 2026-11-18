@@ -9,6 +9,7 @@ import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';
+import { createDevWorld, DEV_RELEASE, type DevWorld } from '../../scripts/dev-world.mjs';
 
 // NEW-SHARD-E2E F18: a new build opens the same page under a new `devrev`, not location.reload(): Chromium reports a reload
 // (or a same-URL replace) as navigation type `reload`, which engine's lastEnd reads as the player's own reload and sends to the title.
@@ -78,9 +79,8 @@ export function imageRootFile(manifest: ProjectManifestSource | undefined, path:
   const root = manifest?.imageRoots.find(each => path.startsWith(each.prefix));
   return root === undefined || !existsSync(root.directory) ? undefined : devFile([realpathSync(root.directory)], '', `/${path.slice(root.prefix.length)}`);
 }
-/** A rebuilt static author client. Closing it releases its socket, private build products and watchers; `exiting` neither
- *  waits for a running rebuild nor closes the watchers, which the process's exit drops (SD-6: closing a recursive watch
- *  on macOS blocks the event loop for seconds). */
+/** A local game and its rebuilt author client. Closing it drains the world and drops its socket and private products.
+ *  On process exit the OS closes the watchers (SD-6: closing a recursive watch can block on macOS). */
 export interface DevProject { url: string; close: (options?: { exiting?: boolean }) => Promise<void> }
 /** Only the author command chooses DEVSERVER; requests, cookies and URL switches cannot enable it. */
 /** SDK-SPLIT SP13f: `manifest` is the source `wildshard build` is given (its image roots name `/assets/` and the shard's own
@@ -91,6 +91,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
   let revision = 0, error: string | null = null, current = '', previous = '', stopped = false, shardRoot = '';
   const scope = new Scope('sdk.dev');
   let debounce: Scope | undefined, work = Promise.resolve();
+  let origin = '', world: DevWorld | undefined;
   const rebuild = async (): Promise<void> => {
     if (stopped) return;
     const target = join(scratch, `build-${revision + 1}`);
@@ -100,7 +101,10 @@ export async function devProject(project: string, options: { decisionLegacyLines
       if (!existsSync(page)) throw new Error('wildshard dev requires the SDK devserver client; build/pack the SDK first');
       const flags: unknown = JSON.parse(readFileSync(join(target, 'build-flags.json'), 'utf8'));
       if (typeof flags !== 'object' || flags === null || !('devserver' in flags) || flags.devserver !== true) throw new Error('wildshard dev requires a client compiled in devserver mode');
-      writeFileSync(page, readFileSync(page, 'utf8').replace('</body>', `${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
+      const document = readFileSync(page, 'utf8');
+      world ??= await createDevWorld(origin, join(scratch, 'world'));
+      await world.move(target, built.identity.slug);
+      writeFileSync(page, world.stamp(document).replace('</body>', `${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
       if (previous !== '') rmSync(previous, { recursive: true, force: true });
       previous = current; current = target; shardRoot = `/shardfiles/${built.identity.slug}/`; revision++; error = null;
     } catch (cause) {
@@ -109,11 +113,13 @@ export async function devProject(project: string, options: { decisionLegacyLines
       console.error(`wildshard dev: rebuild failed; serving previous product: ${error}`);
     }
   };
-  try { await rebuild(); } catch (cause) { rmSync(scratch, { recursive: true, force: true }); throw cause; }
   const server = createServer((request, response) => {
     response.setHeader('Cache-Control', 'no-store');
     try {
       const path = decodeURIComponent(new URL(request.url ?? '/', 'http://localhost').pathname);
+      if (path === DEV_RELEASE && request.method === 'GET') {
+        response.setHeader('Content-Type', 'application/json'); response.end(world?.signed); return;
+      }
       if (path === '/__wildshard_dev_revision') {
         response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ revision, error })); return;
       }
@@ -123,17 +129,26 @@ export async function devProject(project: string, options: { decisionLegacyLines
       // inline shard, and that shell's level download asks for a packs book a dev build never writes (404). The page's
       // `sw.js` is one that takes nothing and unregisters itself (and a worker an older `dev` left on this port).
       if (path === '/sw.js') { response.setHeader('Content-Type', 'text/javascript'); response.end(DEV_SERVICE_WORKER); return; }
-      // SD-2: the page's in-page server reads the shard where a release serves it, `/shardfiles/<slug>/`; here that is
-      // the product's own root.
+      // Serve the author's product at the same shardfile path as a release.
       const file = devFile([current, previous], shardRoot, path) ?? imageRootFile(options.manifest, path);
       if (file === undefined) { response.writeHead(404); response.end(); return; }
       response.setHeader('Content-Type', MIME[extname(file.file)] ?? 'application/octet-stream');
       if (request.method === 'HEAD') response.end(); else createReadStream(file.file).on('error', () => { response.destroy(); }).pipe(response);
     } catch { response.writeHead(400); response.end(); }
   });
+  const closeServer = (): Promise<void> => new Promise((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
   try {
     await new Promise<void>((_resolve, reject) => { server.once('error', reject); server.listen(options.port ?? 0, '127.0.0.1', _resolve); });
-  } catch (cause) { rmSync(scratch, { recursive: true, force: true }); throw cause; }
+    const address = server.address();
+    if (address === null || typeof address === 'string') throw new Error('No author server address');
+    origin = `http://127.0.0.1:${address.port}`;
+    await rebuild();
+  } catch (cause) {
+    await world?.close();
+    await closeServer();
+    rmSync(scratch, { recursive: true, force: true });
+    throw cause;
+  }
   let observed = projectSourceStamp(source);
   const reconcile = (): void => {
     if (stopped) return;
@@ -155,15 +170,15 @@ export async function devProject(project: string, options: { decisionLegacyLines
     .map((entry) => watch(join(source, entry.name), { recursive: true }, onChange(`${entry.name}/`)))];
   // Capture before returning the ready server; polling covers native-event gaps without rebuilding unchanged input.
   scope.interval(250, reconcile);
-  const address = server.address(); if (address === null || typeof address === 'string') throw new Error('No author server address');
-  return { url: `http://127.0.0.1:${address.port}/`, close: async (closing = {}) => {
+  return { url: `${origin}/`, close: async (closing = {}) => {
     if (stopped) return;
     // The port goes first: closing the watchers can block for seconds (SD-6), and `wildshard dev` frees it within 2 s.
     stopped = true; scope.dispose();
     try {
-      await new Promise<void>((_resolve) => { server.close(() => { _resolve(); }); server.closeAllConnections(); });
-      // A build already running owns its directory until its promise finishes; on the way out it is dropped with it.
-      if (closing.exiting !== true) await work;
+      await closeServer();
+      // A running build owns the world until it returns, including on exit.
+      await work;
+      await world?.close();
       rmSync(scratch, { recursive: true, force: true });
     } finally { if (closing.exiting !== true) for (const watcher of watchers) watcher.close(); }
   } };

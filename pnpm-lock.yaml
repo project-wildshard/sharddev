@@ -119,6 +119,12 @@ importers:
       '@dimforge/rapier3d-simd':
         specifier: 0.21.0
         version: 0.21.0
+      '@electric-sql/pglite':
+        specifier: 0.5.15
+        version: 0.5.15
+      '@electric-sql/pglite-socket':
+        specifier: 0.2.18
+        version: 0.2.18(@electric-sql/pglite@0.5.15)
       '@gltf-transform/core':
         specifier: 4.5.0
         version: 4.5.0
@@ -343,6 +349,22 @@ packages:
 
   '@dimforge/rapier3d-simd@0.21.0':
     resolution: {integrity: sha512-3Z42VCMavxfsJYxSX95E9ytubSbC8QmBVVd5wKHLPVIkUy94A7xIpdfe14VuUEnjE5e8YYYKPDgAtDU59agYmA==}
+
+  '@electric-sql/pglite-socket@0.2.18':
+    resolution: {integrity: sha512-Cin2T1pO0RkQDpgdPRsxCCny7ZKZEEciKoF3xl0/GCxmXVyOJe1g/FKm5G5eSCKCG3pPvEvN0C+txu7kOKYSjQ==}
+    hasBin: true
+    peerDependencies:
+      '@electric-sql/pglite': 0.5.15
+      '@electric-sql/pglite-age': 0.0.16
+      '@electric-sql/pglite-pg_hashids': 0.0.16
+      '@electric-sql/pglite-pg_ivm': 0.0.16
+      '@electric-sql/pglite-pg_textsearch': 0.0.17
+      '@electric-sql/pglite-pg_uuidv7': 0.0.16
+      '@electric-sql/pglite-pgtap': 0.0.16
+      '@electric-sql/pglite-pgvector': 0.0.16
+
+  '@electric-sql/pglite@0.5.15':
+    resolution: {integrity: sha512-ERZWgaRTxueGV4cvL1tfpAOzFCWTXoUtbCBqnf2FhHDVs/so9eAKaanvrwWF9Dntx7BYsmFQujVQ0/B4S8Mmiw==}
 
   '@emnapi/runtime@1.11.3':
     resolution: {integrity: sha512-Xz4Tpyki7XyrpbUK1jR1AhdAdaXyhhY4lZ3neLodmhpuWfy2PAQN5B46sAiU4liOXGLkHypn/qU+jvfWSCYYLA==}
@@ -1479,6 +1501,12 @@ snapshots:
   '@dimforge/rapier3d-compat@0.12.0': {}
 
   '@dimforge/rapier3d-simd@0.21.0': {}
+
+  '@electric-sql/pglite-socket@0.2.18(@electric-sql/pglite@0.5.15)':
+    dependencies:
+      '@electric-sql/pglite': 0.5.15
+
+  '@electric-sql/pglite@0.5.15': {}
 
   '@emnapi/runtime@1.11.3':
     dependencies:
