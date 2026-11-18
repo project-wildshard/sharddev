@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-// SHARD-SOURCE M4.10: bake the Template's Barrow Warden skin (src/shards/_template/generators/warden.ts) into its
+// SHARD-SOURCE M4.10: bake the Template's Barrow Warden skin (src/shards/_template/sources/warden.ts) into its
 // content-addressed assets (the GLB and its { row, binding } skin file) and its data/skins.json entry. The generator is
-// TypeScript, so it is bundled first, as scripts/bake/skins.mjs bundles the skin fixture; generators/warden.test.ts
+// TypeScript, so it is bundled first, as scripts/bake/skins.mjs bundles the skin fixture; sources/warden.test.ts
 // re-bakes and refuses committed bytes that differ.
 import { bundle } from '../../src/sharddev/bundle.ts';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -12,7 +12,7 @@ import { formatJson } from './json.mjs';
 const repo = resolve(import.meta.dirname, '../..'), project = resolve(repo, 'src/shards/_template'), scratch = resolve(repo, `tmp/bake-warden-${process.pid}`);
 try {
   mkdirSync(scratch, { recursive: true }); symlinkSync(join(repo, 'node_modules'), join(scratch, 'node_modules'));
-  await bundle({ entry: join(project, 'generators/warden.ts'), fileName: 'warden', target: 'esnext', platform: 'node', outDir: join(scratch, 'generator'), external: [/^node:/u, /^rolldown(?:\/|$)/u, '@gltf-transform/core', '@gltf-transform/extensions', 'meshoptimizer'] });
+  await bundle({ entry: join(project, 'sources/warden.ts'), fileName: 'warden', target: 'esnext', platform: 'node', outDir: join(scratch, 'generator'), external: [/^node:/u, /^rolldown(?:\/|$)/u, '@gltf-transform/core', '@gltf-transform/extensions', 'meshoptimizer'] });
   const { bakeWardenSkin } = await import(pathToFileURL(join(scratch, 'generator/warden.js')).href);
   const { glb, json, entry } = await bakeWardenSkin();
   writeFileSync(resolve(project, 'assets', entry.glb), glb); writeFileSync(resolve(project, 'assets', entry.skin), json);

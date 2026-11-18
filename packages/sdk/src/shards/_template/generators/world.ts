@@ -782,7 +782,7 @@ export const SLATE = 0x4f4d52, FLOOR_MOSS = 0x4e6a2a, ARENA_CELL = 1.5;
 /** LF1-9: the three braziers on the arena rim, as angles round `layout.ARENA` from the way in (across from it and either side). */
 export const RIM_BRAZIERS: readonly number[] = [Math.PI - 0.72, Math.PI, Math.PI + 0.72];
 /**
- * The open-core gem's centre over the Warden's feet: just over its crown (warden.ts `WARDEN_CROWN`, 1.76 m at scale 1, so
+ * The open-core gem's centre over the Warden's feet: just over its crown (sources/warden.ts `WARDEN_CROWN`, 1.76 m at scale 1, so
  * 5.27 m at the spawn's scale 3) by its own half height (0.76 m) and a 0.2 m gap. It was 4.6, inside the golem's head
  * (M4.10 review); the panel is fixed, so over the crown it reads whichever way the Warden turns.
  */

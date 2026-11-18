@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import { pondEdge, pondSDF, templateHeightAt } from './landscape';
 import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, pondStones, BRIDGE_STONES, REEDS, rimFlames, TELL_RADIUS, TREES, WARDEN_CORE, wardenTell } from './world';
-import { WARDEN_CROWN } from './warden';
+import { WARDEN_CROWN } from '../sources/warden';
 import creatures from '../data/creatures.json' with { type: 'json' };
 import { templateClientScripts } from './clientScripts';
 import { Box3, Group, Mesh, type Object3D } from 'three';

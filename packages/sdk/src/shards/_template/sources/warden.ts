@@ -3,6 +3,8 @@ import { sampleSkinClip, skinnedGlb, type SampledSkinClip } from '@wildshard/sdk
 import { parseGlb } from '@wildshard/sdk/assets';
 import { hashImmutableBytes } from '@wildshard/sdk/immutable';
 
+// SHARD-SOURCE AP36c: an asset source, not part of the build: `wildshard build` runs generators/; this program made the
+// committed Warden GLB and skin in assets/, and runs again only when the Warden changes.
 /**
  * Build-time only (SHARD-SOURCE M4.10, the Template look): the Barrow Warden's skin, a hulking golem of mossy stone blocks
  * after the cleanroom's (mossgate-cleanroom `src/world.js` `warden()`): two block legs, hips, a broad torso with a glowing

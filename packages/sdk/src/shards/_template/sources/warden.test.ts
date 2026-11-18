@@ -6,14 +6,14 @@ import { expect, test } from 'vitest';
 import { validateSkinAssets } from '@wildshard/format/skinAssets';
 import { bakeWardenSkin, WARDEN_PARTS } from './warden';
 import skins from '../data/skins.json' with { type: 'json' };
-import { TEMPLATE_RAW_ROWS as rows } from './rows';
+import { TEMPLATE_RAW_ROWS as rows } from '../generators/rows';
 import creatures from '../data/creatures.json' with { type: 'json' };
 import look from '../data/look.json' with { type: 'json' };
 
 const ASSETS = resolve(import.meta.dirname, '../assets');
 
 // SHARD-SOURCE M4.10 (Jake: the Barrow Warden must no longer be a ball): the Warden is a mossy stone golem baked by
-// generators/warden.ts (scripts/bake/template-warden.mjs writes it). The committed bytes are that bake's, exactly.
+// sources/warden.ts (scripts/bake/template-warden.mjs writes it). The committed bytes are that bake's, exactly.
 test('the Warden skin is the generator\'s bake, admitted at its declared cost', async () => {
   const { glb, json, entry } = await bakeWardenSkin();
   const committed = skins.find((row) => row.species === 'barrow-warden');
