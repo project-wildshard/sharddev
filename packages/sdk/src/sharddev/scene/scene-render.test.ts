@@ -5,7 +5,8 @@ import { positionWorld, vec3 } from 'three/tsl';
 import { MeshStandardNodeMaterial } from 'three/webgpu';
 import { animate, drift, flicker, pulse, rise, sway, uvScroll } from './author';
 import { GraphMaterial, graph, graphInputs, noise } from '../materials';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { SERVER_TICK_MICROS, SIM_CEILING, sceneShardfile, withAnchored } from './shardfile';
 
 // SHARD-SOURCE AP10 to AP12: alpha cards, decals and transparency; sprites and points as camera-facing cards; declared

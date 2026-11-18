@@ -22,7 +22,7 @@ import { BufferAttribute, Matrix4, MeshStandardMaterial, Quaternion, Vector3, ty
 import { parseGlb } from '@wildshard/format/shardfileAssets';
 import { hashImmutableBytes } from '../immutable';
 import { skinnedGlb, type SkinnedBone, type SkinnedPart } from '../bake/skinned';
-import { SceneRefusalError } from './lower';
+import { SceneRefusalError } from './refusal';
 
 export interface CreatureOptions {
   /** Bone animations, by name (`walk`, `attack`); each track names a bone of the rig. */

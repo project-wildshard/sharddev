@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { solid } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE SS9d: a touchable panel part (a crate by the yard gate) lowers to one `props.bodies` row naming its panel,

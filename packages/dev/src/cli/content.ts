@@ -2,6 +2,10 @@
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
+import { skinCreatures } from './content-creatures.ts'
+
+import type { ContentCreature } from './content-creatures.ts'
+
 type Json = Record<string, unknown>
 
 interface ContentCounts {
@@ -29,6 +33,7 @@ interface ContentReport {
   readonly slug: string
   readonly counts: ContentCounts
   readonly short: readonly string[]
+  readonly creatures: readonly ContentCreature[]
 }
 
 const TEMPLATE_BAR: ReadonlyArray<
@@ -268,6 +273,7 @@ function readContent(dir: string, bar?: string): ContentReport {
     slug: text(get(record(get(index, 'identity')), 'slug')) || dir,
     counts: count,
     short,
+    creatures: skinCreatures(dir, index, section(dir, 'look/materials')),
   }
 }
 
@@ -281,7 +287,13 @@ function formatContent(report: ContentReport, bar?: string): string {
       : report.short.length === 0
         ? `\nbar ${bar}: pass`
         : `\nbar ${bar}: fail\n${report.short.map(line => `  short ${line}`).join('\n')}`
-  return `content ${report.slug}\n${values}${verdict}\n`
+  const creatures = report.creatures
+    .map(
+      row =>
+        `  creature ${row.id}: ${row.bones} bones, ${row.triangles} triangles`,
+    )
+    .join('\n')
+  return `content ${report.slug}\n${values}${creatures === '' ? '' : `\n${creatures}`}${verdict}\n`
 }
 
 export { formatContent, readContent }

@@ -2,7 +2,8 @@ import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { compileScript } from '../bake/compileScript';
 import { hashImmutableBytes } from '../immutable';
 import type { ScenePickup, SceneStateWrite, ShardScene } from './description';
-import { countMax, SceneRefusalError } from './lower';
+import { countMax } from './lower';
+import { SceneRefusalError } from './refusal';
 
 /**
  * SHARD-SOURCE SS-GF0: scene state with no script of the author's. A use prompt's `sets` writes a state field and a panel

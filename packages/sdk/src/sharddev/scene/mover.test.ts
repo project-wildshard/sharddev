@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { solid, type PartOptions } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE SS-GF2a: a mover panel part (Glowfen's raft at the jetty) lowers to one format `movers` row: a native

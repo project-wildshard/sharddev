@@ -5,7 +5,7 @@ import { LookLightSchema } from '@wildshard/format/look-light';
 import * as v from 'valibot';
 import { readSourceModel } from '../bake/skinned';
 import { creatureGlb, creatureLampRows, creatureSkin } from './creature';
-import { SceneRefusalError } from './lower';
+import { SceneRefusalError } from './refusal';
 
 // SHARD-SOURCE AP23a: a Group of bone nodes and meshes, with clips, compiles to a skinned GLB rig.
 const cloth = new THREE.MeshStandardMaterial({ color: '#7a5a3a', roughness: 0.9 });

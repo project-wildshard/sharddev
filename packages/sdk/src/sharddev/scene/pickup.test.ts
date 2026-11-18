@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import type { ShardWorld } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import type { ShardScene } from './description';
 import { compileScript } from '../bake/compileScript';
 import { builtSceneShardfile, type ShardfileOptions } from './shardfile';

@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { parseMovers } from '@wildshard/format/movers';
 import { solid, type PartOptions } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE SS-MS2a4: a vehicle panel part (Mirror Salt's land-sail) lowers to one format `movers` row: a native carry

@@ -1,5 +1,6 @@
 import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { ShardCreatures } from '@wildshard/format/creatures';
+import type { ShardRows } from '@wildshard/format/rows';
 /**
  * AUTHORING-PARITY AP1: the scene description. An author writes an ordinary three.js scene inside `defineShard`; the
  * walker (`lower.ts`) reads it once into this plain, serialisable shape, and both back ends read only this: the shardfile
@@ -293,6 +294,22 @@ export interface ShardScene {
   readonly anchored: SceneAnchored;
   /** AP32c: `world.detail` layers (format `look.details`), counted from their InstancedMeshes; absent or empty: none */
   readonly details?: readonly SceneDetailScatter[];
+  /** ONE-FORMAT CC24: `world.creature`'s compiled creatures, in the order they were declared; absent or empty: none */
+  readonly creatures?: readonly SceneCreature[];
+}
+
+/**
+ * ONE-FORMAT CC24: one `world.creature`: its rig GLB, its skin file (the rig row and binding, `{ row, binding }`) and the
+ * species and look rows that name them. The shard file stores both files (the skin in the library) and adds the rows.
+ */
+export interface SceneCreature {
+  readonly id: string;
+  readonly glb: Uint8Array;
+  readonly skin: Uint8Array;
+  readonly species: ShardRows['species'][number];
+  readonly look: ShardRows['looks'][number];
+  readonly bones: number;
+  readonly triangles: number;
 }
 
 /**

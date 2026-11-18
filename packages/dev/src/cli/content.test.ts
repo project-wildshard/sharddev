@@ -210,3 +210,54 @@ describe('content bar', () => {
     assert.equal(counts.creatureStrikes, 3)
   })
 })
+
+describe('content creatures (ONE-FORMAT CC24)', () => {
+  it("lists each skinned creature with its skin file's bones and triangles", async () => {
+    const dir = await product({
+      'look/materials': {
+        rows: {
+          looks: [
+            {
+              id: 'critter.look',
+              species: 'critter',
+              recipe: 'platform.skin',
+              parameters: { skin: 'aa' },
+            },
+            {
+              id: 'ball.look',
+              species: 'ball',
+              recipe: 'engine.sphere',
+              parameters: {},
+            },
+          ],
+        },
+      },
+    })
+    await writeFile(
+      resolve(dir, 'shard.json'),
+      JSON.stringify({
+        identity: { slug: 'test-content' },
+        files: [{ hash: 'aa', path: 'blobs/json/aa.json' }],
+      }),
+    )
+    await mkdir(resolve(dir, 'blobs/json'), { recursive: true })
+    await writeFile(
+      resolve(dir, 'blobs/json/aa.json'),
+      JSON.stringify({
+        row: {
+          rig: { joints: [['body', 'head', 'tail']] },
+          cost: { triangles: 12 },
+        },
+        binding: {},
+      }),
+    )
+    const report = readContent(dir)
+    assert.deepEqual(report.creatures, [
+      { id: 'critter', bones: 3, triangles: 12 },
+    ])
+    assert.match(
+      formatContent(report),
+      /\n {2}creature critter: 3 bones, 12 triangles\n/u,
+    )
+  })
+})

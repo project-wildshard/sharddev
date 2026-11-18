@@ -3,6 +3,7 @@ import { positionLocal } from 'three/tsl';
 import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
+import type { CreatureWorldOptions } from './worldCreature';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -199,6 +200,13 @@ export interface ShardWorld {
    * shard's `creatures.spawns` beside any `extend` declares. A boss is a spawn its encounter names by this id.
    */
   spawnAt: (id: string, at: Object3D, row: SpawnAtRow) => void;
+  /**
+   * ONE-FORMAT CC24: a whole creature from a three.js `Group` of named bone nodes (built outside `world.scene`): its
+   * skinned GLB rig (each mesh bound to its nearest bone, `clips` kept), its skin, and the species and look rows
+   * (`<id>.look`) with its size, skeleton, volumes and lock, under the creature caps (64 bones). Place it with
+   * `world.spawnAt(…, { species: id, … })`.
+   */
+  creature: (id: string, body: Object3D, options: CreatureWorldOptions) => void;
   /**
    * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
    * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how

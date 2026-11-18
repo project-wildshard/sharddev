@@ -15,6 +15,7 @@
     "./scene/author": "bake kit",
     "./scene/canvas": "bake kit",
     "./scene/lower": "bake kit",
+    "./scene/refusal": "bake kit",
     "./scene/description": "bake kit",
     "./scene/shardfile": "bake kit",
     "./scene/creature": "bake kit",

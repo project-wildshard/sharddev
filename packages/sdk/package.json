@@ -173,6 +173,7 @@
     "./scene/author": "./src/sharddev/scene/author.ts",
     "./scene/canvas": "./src/sharddev/scene/canvas.ts",
     "./scene/lower": "./src/sharddev/scene/lower.ts",
+    "./scene/refusal": "./src/sharddev/scene/refusal.ts",
     "./scene/description": "./src/sharddev/scene/description.ts",
     "./scene/shardfile": "./src/sharddev/scene/shardfile.ts",
     "./scene/creature": "./src/sharddev/scene/creature.ts",

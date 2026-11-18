@@ -9,8 +9,10 @@ import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
 import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type SpawnAtRow, type ToolOptions, type TouchableOptions, type VehicleOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneVehicle, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, ScenePickup, SceneCreature, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneVehicle, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
+import { compileWorldCreature } from './worldCreature';
+import { SceneRefusalError } from './refusal';
 import { ContentHash, hashOf } from './hash';
 
 /**
@@ -24,9 +26,6 @@ import { ContentHash, hashOf } from './hash';
 const readsMeshMap = (entry: object): boolean =>
   Object.values((entry as { graph?: { nodes?: Record<string, { op?: string }> } }).graph?.nodes ?? {}).some((node) => node.op === 'meshMap');
 
-export class SceneRefusalError extends Error {
-  constructor(path: string, problem: string, fix: string) { super(`scene: ${path}: ${problem}. ${fix}`); this.name = 'SceneRefusalError'; }
-}
 
 const rgb = (colour: Color, scale = 1): Rgb => [colour.r * scale, colour.g * scale, colour.b * scale];
 const v3 = (v: Vector3): Vec3 => [v.x, v.y, v.z];
@@ -457,6 +456,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
   const spawnsAt: { id: string; at: Object3D; row: SpawnAtRow }[] = [];
+  const creatures: SceneCreature[] = [];
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
   const anchor = (kind: string, id: string): void => {
@@ -524,6 +524,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     },
     spawn: (x, y, z, yaw = 0) => { spawn = { position: [x, y, z], yaw }; },
     spawnAt: (id, at, row) => { anchor('spawnAt', id); spawnsAt.push({ id, at, row }); },
+    creature: (id, body, options) => { anchor('creature', id); creatures.push(compileWorldCreature(id, body, options)); },
     trigger: (id, at, options) => {
       anchor('trigger', id);
       if (!(options.radius >= 0.01 && options.radius <= 500)) throw new SceneRefusalError(id, `a trigger's radius ${options.radius} is outside 0.01 to 500 m`, 'Give it a radius in metres between 0.01 and 500');
@@ -620,6 +621,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     identity, parts: lowered, materials: Object.fromEntries(tables.materials), textures: Object.fromEntries(tables.textures),
     geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn, anchored,
     ...(details.length === 0 ? {} : { details }),
+    ...(creatures.length === 0 ? {} : { creatures }),
   };
 }
 

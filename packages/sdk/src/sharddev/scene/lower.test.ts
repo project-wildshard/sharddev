@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { solid } from './author';
 import { sceneShardfile } from './shardfile';
 

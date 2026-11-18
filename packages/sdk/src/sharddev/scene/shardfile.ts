@@ -11,7 +11,7 @@ import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, SceneVehicle, ShardScene } from './description';
-import { SceneRefusalError } from './lower';
+import { SceneRefusalError } from './refusal';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
@@ -779,7 +779,14 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
   });
   // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
-  const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort()];
+  // ONE-FORMAT CC24: a world.creature's rig GLB and its skin file (the skin loads with the shard: the library)
+  const creatures = scene.creatures ?? [];
+  const skins = creatures.map((creature) => {
+    const glb = store(creature.glb, 'glb').hash, hash = hashImmutableBytes(creature.skin);
+    if (!assets.has(hash)) { assets.set(hash, creature.skin); files.push({ hash, kind: 'json', compressed: creature.skin.length, decoded: creature.skin.length * 2, gpu: 0, triangles: 0, draws: 0, dependencies: [glb], critical: false }); }
+    return hash;
+  });
+  const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort(), ...skins];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)
   // SS9d: a touchable panel is its own body (format `props.bodies`): its solids are the body, never a static collider
   const bodies = scene.parts.flatMap((part) => part.touch === undefined || part.panel === undefined ? [] : [{
@@ -814,6 +821,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     ...(movers.length === 0 ? {} : { movers }),
     // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
     items: STARTER_ITEMS,
+    ...(creatures.length === 0 ? {} : { rows: { ...base.rows, species: [...base.rows.species, ...creatures.map((c) => c.species)], looks: [...base.rows.looks, ...creatures.map((c) => c.look)] } }),
   };
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));

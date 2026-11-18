@@ -1,7 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { animate, flicker, hang } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE SS8d: `hang(group, { rate, amount, reach })` hangs a lantern from its group's origin. It lowers to one

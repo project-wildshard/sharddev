@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { expect, test } from 'vitest';
 import { parseGlb } from '@wildshard/format/shardfileAssets';
 import { animate, solid, sway } from './author';
-import { lowerShard, SceneRefusalError } from './lower';
+import { lowerShard } from './lower';
+import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 import { liveShell } from '../watch/protocol';
 
