@@ -61,11 +61,12 @@ function subset(source: BufferGeometry, selected: readonly number[], indices: re
 }
 
 /** Keep one chunk per tile/key while it fits; split oversized content by quadrant, then height and bytes.
- * A resident cell packs in source order across tiles, splitting only at the byte cap.
+ * A resident cell packs in source order across tiles, splitting at the byte or vertex cap.
  * A tall original triangle is never split.
  * Displacements and normals have already passed through the original whole-piece join's exact transform order. */
-export function partitionSlabGeometry(source: BufferGeometry, tile: number, world: Matrix4, maximumBytes = 4_000_000, residentCell = false): SlabGeometryChunk[] {
+export function partitionSlabGeometry(source: BufferGeometry, tile: number, world: Matrix4, maximumBytes = 4_000_000, residentCell = false, maximumVertices: number = Number.MAX_SAFE_INTEGER): SlabGeometryChunk[] {
   if (!Number.isInteger(tile) || tile < 0 || tile > 63 || !Number.isSafeInteger(maximumBytes) || maximumBytes < 1 || maximumBytes > 4_000_000
+    || !Number.isSafeInteger(maximumVertices) || maximumVertices < 3
     || world.elements.some(value => !Number.isFinite(value))) throw new Error('Invalid slab partition budget or tile');
   const position = source.getAttribute('position'), index = source.index;
   if (!(position instanceof BufferAttribute) || position.itemSize !== 3 || position.normalized || !(position.array instanceof Float32Array)
@@ -93,23 +94,23 @@ export function partitionSlabGeometry(source: BufferGeometry, tile: number, worl
     bucket.triangles.push({ ordinal: offset / 3, corners: [a, b, c], minY, maxY });
     bucket.minY = Math.min(bucket.minY, minY); bucket.maxY = Math.max(bucket.maxY, maxY); buckets.set(key, bucket);
   }
-  const byteCost = (triangles: readonly Triangle[]): number => {
+  const fits = (triangles: readonly Triangle[]): boolean => {
     const vertices = new Set<number>(); for (const triangle of triangles) for (const vertex of triangle.corners) vertices.add(vertex);
-    return vertices.size * stride + triangles.length * 3 * (vertices.size > 65535 ? 4 : 2);
+    return vertices.size <= maximumVertices && vertices.size * stride + triangles.length * 3 * (vertices.size > 65535 ? 4 : 2) <= maximumBytes;
   };
   const bands = [...buckets.values()].sort((a, b) => a.quadrant - b.quadrant || a.band - b.band), all = bands.flatMap(bucket => bucket.triangles).sort((a, b) => a.ordinal - b.ordinal);
   const combined = (triangles: Triangle[], quadrant: number): Bucket => ({ quadrant, band: 0, triangles,
     minY: triangles.reduce((value, triangle) => Math.min(value, triangle.minY), Infinity), maxY: triangles.reduce((value, triangle) => Math.max(value, triangle.maxY), -Infinity) });
   const groups: Bucket[] = [];
-  if (residentCell || byteCost(all) <= maximumBytes) groups.push(combined(all, 0));
+  if (residentCell || fits(all)) groups.push(combined(all, 0));
   else for (const quadrant of [0, 1, 2, 3]) {
     const rows = bands.filter(bucket => bucket.quadrant === quadrant), triangles = rows.flatMap(bucket => bucket.triangles).sort((a, b) => a.ordinal - b.ordinal);
     if (triangles.length === 0) continue;
-    if (byteCost(triangles) <= maximumBytes) { groups.push(combined(triangles, quadrant)); continue; }
+    if (fits(triangles)) { groups.push(combined(triangles, quadrant)); continue; }
     // Height is a split axis for oversized content, never a reason to create many tiny draws.
     let previous: Bucket | undefined;
     for (const bucket of rows) {
-      if (previous !== undefined && byteCost([...previous.triangles, ...bucket.triangles]) <= maximumBytes) {
+      if (previous !== undefined && fits([...previous.triangles, ...bucket.triangles])) {
         for (const triangle of bucket.triangles) previous.triangles.push(triangle);
         previous.minY = Math.min(previous.minY, bucket.minY); previous.maxY = Math.max(previous.maxY, bucket.maxY);
       } else { groups.push(bucket); previous = bucket; }
@@ -132,7 +133,7 @@ export function partitionSlabGeometry(source: BufferGeometry, tile: number, worl
       for (const triangle of group.triangles) {
         const added = new Set(triangle.corners.filter(vertex => !remap.has(vertex))).size, vertexCount = vertices.length + added;
         const bytes = vertexCount * stride + (corners.length + 3) * (vertexCount > 65535 ? 4 : 2);
-        if (triangles.length > 0 && bytes > maximumBytes) flush();
+        if (triangles.length > 0 && (bytes > maximumBytes || vertexCount > maximumVertices)) flush();
         for (const vertex of triangle.corners) {
           let local = remap.get(vertex);
           if (local === undefined) { local = vertices.length; vertices.push(vertex); remap.set(vertex, local); }

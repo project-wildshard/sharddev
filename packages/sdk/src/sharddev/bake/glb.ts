@@ -133,9 +133,8 @@ export interface GlbPrimitive {
    *  tightly packed), which three's GLTFLoader reads back into the same typed attributes;
    *  positions stay float32. Other storage refuses. Absent: the old float32 byte path. */
   quantizedChannels?: true;
-  /** With `quantizedChannels`: every quantized channel gets a 4-byte stride (meshopt's attribute codec needs one;
-   *  GLTFLoader reads it back interleaved), and an unnormalized Int16 position is written on its node's grid, the
-   *  node's `transform` (a scale and translation) dequantizing it (RM8.1, tiles). */
+  /** Aligns quantized attributes to 4 bytes for meshopt. An unnormalized Int16 position also uses this stride
+   *  and requires the node's scale and translation in `transform` (RM8.1, tiles and slabs). */
   meshoptReady?: true;
 }
 /** A deterministic self-contained static GLB; names and vertex colours survive the ordinary engine GLTFLoader. */
@@ -239,6 +238,7 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
     if (material.map !== null || material.alphaMap !== null || (!(material instanceof MeshBasicMaterial) && (material.normalMap !== null || material.roughnessMap !== null || material.metalnessMap !== null))) throw new Error('GLB textures must be external KTX2 declarations');
     if (!geometry.hasAttribute('position')) throw new Error('Missing GLB positions');
     const p = geometry.getAttribute('position'); if ( p.count > 400_000) throw new Error('Unsupported GLB geometry');
+    const packedPosition = meshoptReady === true && p instanceof BufferAttribute && p.array instanceof Int16Array && !p.normalized;
     const attributes: Record<string, Json> = {};
     for (const [key, semantic, width] of [['position', 'POSITION', 3], ['normal', 'NORMAL', 3], ['uv', 'TEXCOORD_0', 2], ['uv1', 'TEXCOORD_1', 2], ['color', 'COLOR_0', geometry.hasAttribute('color') ? geometry.getAttribute('color').itemSize : 3], ['tangent', 'TANGENT', 4]] as const) {
       const a = geometry.getAttribute(key); if (!geometry.hasAttribute(key)) continue;
@@ -251,9 +251,9 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
         if (!(a instanceof BufferAttribute) || (key === 'normal' && !(a.array instanceof Int8Array))) throw new Error('Quantized GLB normals must be normalized Int8');
         attributes[semantic] = packedAccessor(a, meshoptReady === true); continue;
       }
-      if (quantizedChannels === true && meshoptReady === true && key === 'position' && a instanceof BufferAttribute && a.array instanceof Int16Array) {
+      if (key === 'position' && packedPosition) {
         if (transform === undefined) throw new Error('A quantized GLB position needs its node transform');
-        attributes[semantic] = packedAccessor(a, true, true); continue;
+        attributes[semantic] = packedAccessor(p, true, true); continue;
       }
       attributes[semantic] = accessor(a, width, `VEC${width}`, false, key === 'position');
     }
@@ -279,8 +279,7 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
         let stored = semantic;
         // a quantized normal / colour is already its own typed portable accessor: the table names it, with no raw copy;
         // so is an integer custom channel (glTF admits any component type for an application semantic), written once here
-        const portable = quantizedChannels === true && (channel === 'normal' || channel === 'color'
-          || (channel === 'position' && meshoptReady === true && a.array instanceof Int16Array && !a.normalized));
+        const portable = (quantizedChannels === true && (channel === 'normal' || channel === 'color')) || (channel === 'position' && packedPosition);
         const integerCustom = nativeOnce === true && semantic.startsWith('_') && !(a instanceof Float16BufferAttribute) && !(a.array instanceof Float32Array);
         if (integerCustom) { attributes[semantic] = rawAccessor(a); native[channel] = { semantic, storage: a.array.constructor.name, normalized: a.normalized, itemSize: a.itemSize }; continue; }
         if (!portable && (!(a.array instanceof Float32Array) || (semantic === 'NORMAL' && a.itemSize !== 3))) {

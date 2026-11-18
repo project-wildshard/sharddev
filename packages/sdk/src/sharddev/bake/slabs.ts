@@ -1,4 +1,4 @@
-import { BufferAttribute, type BufferGeometry, Float16BufferAttribute, Group, Matrix4, Mesh, MeshStandardMaterial, Vector3, type Object3D } from 'three';
+import { Box3, BufferAttribute, type BufferGeometry, Float16BufferAttribute, Group, Matrix4, Mesh, MeshStandardMaterial, Vector3, type Object3D } from 'three';
 import * as v from 'valibot';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { NativeAttributesSchema } from '@wildshard/format/nativeGeometryChannels';
@@ -17,6 +17,8 @@ import { parseGlb } from '../assets';
 import { readSourceModel } from './skinned';
 import { positionErrorScale } from './geometryError';
 import { partitionSlabGeometry, type SlabGeometryChunk } from './slabChunks';
+import { gridPositions } from './props';
+import { fitTileGrid, tileGridTransform, type TileGrid } from './worldGeometry';
 /** A decoded whole piece over three's geometry and matrix (format's shape, SDK-SPLIT SP6a). */
 type WholeGeometryPiece = FormatWholePiece<BufferGeometry, Matrix4>;
 
@@ -24,11 +26,12 @@ type WholeGeometryPiece = FormatWholePiece<BufferGeometry, Matrix4>;
 // Its first draw uploads those two native attributes as well as the geometry.
 const INSTANCE_UPLOAD_BYTES = (16 + 3) * Float32Array.BYTES_PER_ELEMENT;
 const GEOMETRY_UPLOAD_BYTES = 4_000_000 - INSTANCE_UPLOAD_BYTES;
+const SLAB_VERTICES = 65_535;
 
 type WholeLibrary = Exclude<Extract<WorldScenesSection['libraries'][number], { kind: 'whole' }>, { storage: 'slabs' }>;
 type Draw = Extract<WorldSceneWeldNode, { kind: 'mesh' }>;
 interface Source { node: Draw; model: WholeLibrary['models'][number]; forceIdentity: boolean; frame: Matrix4; owners: readonly string[] }
-interface Chunk { key: WorldSceneSlabKey; part: SlabGeometryChunk; custom: Readonly<Record<string, string>>; error: number }
+interface Chunk { key: WorldSceneSlabKey; part: SlabGeometryChunk; custom: Readonly<Record<string, string>>; error: number; grid?: TileGrid }
 interface GroupedKey { key: WorldSceneSlabKey; signature: string }
 /** Actual partition and upload census. Oversized height is explained by an unchanged source triangle, never a clipped one. */
 export interface SlabBakeTileReport {
@@ -150,6 +153,7 @@ function options(chunk: Chunk, tile: number, index: number): GlbPrimitive {
   const material = new MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 1, metalness: 0 }); material.name = chunk.key.material;
   return { geometry, material, name: `${chunk.key.id}-chunk_${index}`, castShadow: chunk.key.castShadow, customAttributes: chunk.custom,
     nativeAttributes: true, nativeOnce: true, compactIndex: true, ...(quantized ? { quantizedChannels: true } : {}),
+    ...(chunk.grid === undefined ? {} : { meshoptReady: true, transform: tileGridTransform(chunk.grid) }),
     extras: { slab: { key: chunk.key.id, tile, chunk: index } } };
 }
 function chunkRow(chunk: Chunk): WorldSceneSlabChunk {
@@ -194,7 +198,7 @@ export function readSlabLibrary(bytes: Uint8Array): WorldSceneSlabLibrary {
 }
 
 /** Prejoin the declared fine whole pieces in their original draw frames. The runtime is not activated by this writer.
- * Every source triangle is charged once; attribute copies are bit-checked before files enter the returned map. */
+ * Every source triangle is charged once; channels other than the position grid retain their original storage bits. */
 export async function bakeWholeSlabs(input: {
   readonly id: string; readonly library: WholeLibrary; readonly weld: unknown;
   readonly shardfile: Pick<Shardfile, 'tiles' | 'files' | 'ring'>; readonly assets: ReadonlyMap<string, Uint8Array>;
@@ -249,7 +253,25 @@ export async function bakeWholeSlabs(input: {
       for (const group of groups.values()) {
         const geometry = concatenate(group.geometries);
         try {
-          for (const part of partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell)) chunks.push({ key: group.key, part, custom: group.custom, error: group.error });
+          const parts = partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell, SLAB_VERTICES);
+          const bounds = new Box3();
+          for (const part of parts) if (part.geometry.boundingBox !== null) bounds.union(part.geometry.boundingBox);
+          // Match the engine slab grid and use one origin per key, so its chunks can still merge.
+          const grid = fitTileGrid(bounds, 2 ** -8, 2 ** -6);
+          const error = grid === undefined ? 0 : Math.sqrt(3) * grid.step / 2;
+          for (const part of parts) {
+            if (grid === undefined) {
+              chunks.push({ key: group.key, part, custom: group.custom, error: group.error });
+              continue;
+            }
+            gridPositions(part.geometry, grid);
+            part.geometry.boundingBox?.expandByScalar(grid.step / 2);
+            const sphere = part.geometry.boundingSphere;
+            if (sphere !== null) sphere.radius += error;
+            // POSITION occupies 8 bytes per vertex both on the wire and with Metal's aligned runtime stride.
+            const bytes = part.bytes - part.geometry.getAttribute('position').count * 4;
+            chunks.push({ key: group.key, part: { ...part, bytes }, custom: group.custom, error: group.error + error * positionErrorScale(group.frame), grid });
+          }
         } finally { geometry.dispose(); }
       }
       if (chunks.length === 0 || chunks.length > 64) throw new Error('Slab tile exceeds its chunk budget');

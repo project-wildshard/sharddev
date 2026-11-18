@@ -35,7 +35,7 @@ function fixture(shaderNormal = false, acrossTiles = false, large?: BufferGeomet
   for (const shape of shapes) shape.dispose(); material.dispose();
   return { id: 'fine-slabs', library, weld, shardfile: { tiles: baked.tiles, files: baked.files }, assets: baked.assets };
 }
-function triangles(geometry: BufferGeometry): string[] {
+function triangles(geometry: BufferGeometry, pose?: Matrix4): string[] {
   const keys = Object.keys(geometry.attributes).sort(), count = geometry.index?.count ?? geometry.getAttribute('position').count, result: string[] = [];
   for (let corner = 0; corner < count; corner += 3) {
     const values: unknown[] = [];
@@ -43,6 +43,12 @@ function triangles(geometry: BufferGeometry): string[] {
       const vertex = geometry.index?.getX(corner + local) ?? corner + local;
       for (const key of keys) {
         const attribute = geometry.getAttribute(key); if (!(attribute instanceof BufferAttribute)) throw new Error('Expected plain oracle channel');
+        if (key === 'position' && pose !== undefined && attribute.array instanceof Int16Array) {
+          const point = new Vector3().fromBufferAttribute(attribute, vertex).applyMatrix4(pose);
+          const storage = new Uint8Array(Float32Array.from(point).buffer);
+          values.push([key, 'Float32Array', 'plain', false, attribute.gpuType, Array.from(storage)]);
+          continue;
+        }
         const width = attribute.itemSize * attribute.array.BYTES_PER_ELEMENT;
         const storage = new Uint8Array(attribute.array.buffer, attribute.array.byteOffset + vertex * width, width);
         values.push([key, attribute.array.constructor.name, attribute instanceof Float16BufferAttribute ? 'half' : 'plain', attribute.normalized, attribute.gpuType, Array.from(storage)]);
@@ -83,11 +89,15 @@ test.each([false, true])('slabs retain every native triangle and channel bit, sh
         expect(mesh.userData['wholePartition']).toBeUndefined();
         const geometry = nativeWholeGeometry(mesh);
         try {
-          expect(slabGeometryBytes(geometry)).toBe(row.bytes); expect(row.bytes).toBeLessThanOrEqual(4_000_000);
-          actual.push(...triangles(geometry));
           const position = geometry.getAttribute('position'), point = new Vector3();
+          expect(position.array).toBeInstanceOf(Int16Array);
+          expect(position.normalized).toBe(false);
+          // The runtime pads each decoded xyz to four Int16 words for Metal.
+          expect(slabGeometryBytes(geometry) + position.count * 2).toBe(row.bytes);
+          expect(row.bytes).toBeLessThanOrEqual(4_000_000);
+          actual.push(...triangles(geometry, mesh.matrix));
           for (let vertex = 0; vertex < position.count; vertex++) {
-            point.fromBufferAttribute(position, vertex);
+            point.fromBufferAttribute(position, vertex).applyMatrix4(mesh.matrix);
             expect(point.x).toBeGreaterThanOrEqual(row.box[0]); expect(point.y).toBeGreaterThanOrEqual(row.box[1]); expect(point.z).toBeGreaterThanOrEqual(row.box[2]);
             expect(point.x).toBeLessThanOrEqual(row.box[3]); expect(point.y).toBeLessThanOrEqual(row.box[4]); expect(point.z).toBeLessThanOrEqual(row.box[5]);
             expect(point.distanceTo(new Vector3(...row.sphere.slice(0, 3)))).toBeLessThanOrEqual(row.sphere[3]);
@@ -121,6 +131,33 @@ test.each(['cull-origin', 'parent-visibility'] as const)('equal poses retain ind
   const first = result.library.keys.find(key => key.sources.includes('model0')), second = result.library.keys.find(key => key.sources.includes('model1'));
   expect(first).toBeDefined(); expect(second).toBeDefined(); expect(first?.id).not.toBe(second?.id);
   expect(first?.node).toBe('draw0'); expect(second?.node).toBe('draw1');
+});
+
+test('slab grid rounds an off-grid position by at most half a step per axis', async () => {
+  const input = fixture();
+  const shift = 0.001;
+  const library = { ...input.library, models: input.library.models.map(row => ({
+    ...row, matrix: new Matrix4().makeTranslation(shift, 0, 0).elements,
+  })) };
+  const result = await bakeWholeSlabs({ ...input, library });
+  expect(result.assets.size).toBeGreaterThan(0);
+  for (const bytes of result.assets.values()) {
+    const decoded = await meshes(bytes);
+    try {
+      for (const mesh of decoded) {
+        const geometry = nativeWholeGeometry(mesh);
+        try {
+          const position = geometry.getAttribute('position');
+          expect(position.array).toBeInstanceOf(Int16Array);
+          expect(mesh.scale.x).toBe(2 ** -8);
+          for (let vertex = 0; vertex < position.count; vertex++) {
+            const x = position.getX(vertex) * mesh.scale.x + mesh.position.x;
+            expect(Math.abs(x - (Math.round(x) + shift))).toBeLessThanOrEqual(mesh.scale.x / 2);
+          }
+        } finally { geometry.dispose(); }
+      }
+    } finally { release(decoded); }
+  }
 });
 
 test('partition uses bounded upload owners and preserves tall original triangles', () => {
@@ -214,7 +251,7 @@ test('only a resident cell groups compatible keys across tiles; rings retain ind
     for (const bytes of result.assets.values()) {
       const decoded = await meshes(bytes);
       try { for (const mesh of decoded) { const geometry = nativeWholeGeometry(mesh);
-        try { out.push(...triangles(geometry)); } finally { geometry.dispose(); } } }
+        try { out.push(...triangles(geometry, mesh.matrix)); } finally { geometry.dispose(); } } }
       finally { release(decoded); }
     }
     return out.sort();
@@ -234,6 +271,16 @@ test('resident-cell byte splits preserve source triangle order across spatial ba
     expect(chunks.flatMap(chunk => chunk.triangles)).toEqual([0, 1, 2, 3]);
     expect(chunks.every(chunk => chunk.bytes <= 100)).toBe(true);
     expect(chunks.flatMap(chunk => triangles(chunk.geometry)).sort()).toEqual(triangles(geometry));
+  } finally { geometry.dispose(); for (const chunk of chunks) chunk.geometry.dispose(); }
+});
+
+test('a low-stride slab still splits before it would need a 32-bit index', () => {
+  const vertices = 65_538;
+  const geometry = new BufferGeometry().setAttribute('position', new BufferAttribute(new Float32Array(vertices * 3), 3));
+  const chunks = partitionSlabGeometry(geometry, 36, new Matrix4(), 4_000_000, true, 65_535);
+  try {
+    expect(chunks.map(chunk => chunk.geometry.getAttribute('position').count)).toEqual([65_535, 3]);
+    expect(chunks.every(chunk => chunk.geometry.index?.array instanceof Uint16Array)).toBe(true);
   } finally { geometry.dispose(); for (const chunk of chunks) chunk.geometry.dispose(); }
 });
 
@@ -260,7 +307,6 @@ test('a near-cap slab leaves upload room for its native instance matrix and colo
   const result = await bakeWholeSlabs(fixture(false, false, geometry));
   const chunks = result.library.tiles.flatMap(tile => tile.files.flatMap(file => file.chunks));
   expect(chunks.length).toBeGreaterThan(1);
-  expect(Math.max(...chunks.map(chunk => chunk.bytes))).toBeGreaterThan(3_900_000);
   for (const chunk of chunks) expect(chunk.bytes + (16 + 3) * Float32Array.BYTES_PER_ELEMENT).toBeLessThanOrEqual(4_000_000);
   expect(result.report.reduce((sum, row) => sum + row.triangles, 0)).toBe(count);
 });

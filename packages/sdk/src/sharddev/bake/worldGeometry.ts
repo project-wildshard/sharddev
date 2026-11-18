@@ -95,13 +95,18 @@ export function worldGeometry(source: WorldPrimitive, bounds?: readonly [number,
 /** RM8.1: a tile's position grid. One power-of-two step for every tile (1/512 m, coarsened only where a tile is too
  *  tall for 16 bits) and an origin on that grid, so a point two tiles share quantizes to the same place in both. */
 export interface TileGrid { origin: readonly [number, number, number]; step: number }
-export function tileGrid(box: Box3): TileGrid {
+export function fitTileGrid(box: Box3, finest: number, coarsest: number): TileGrid | undefined {
   const centre = box.getCenter(new Vector3()).toArray(), lo = box.min.toArray(), hi = box.max.toArray();
-  for (let step = 1 / 512; step <= 1; step *= 2) {
+  for (let step = finest; step <= coarsest; step *= 2) {
     const origin = centre.map(value => Math.round(value / step) * step) as [number, number, number];
     if (origin.every((o, axis) => Math.abs((lo[axis] ?? 0) - o) / step <= 32767 && Math.abs((hi[axis] ?? 0) - o) / step <= 32767)) return { origin, step };
   }
-  throw new Error('World tile is too large for a 16-bit position grid');
+  return undefined;
+}
+export function tileGrid(box: Box3): TileGrid {
+  const grid = fitTileGrid(box, 1 / 512, 1);
+  if (grid === undefined) throw new Error('World tile is too large for a 16-bit position grid');
+  return grid;
 }
 /** RM8.1e: the grid of a primitive whose graph reads its model-space position (the open plots' hologram, turned about
  *  its model origin): origin pinned at that model origin, so the graph's model space is the authored metres times one
