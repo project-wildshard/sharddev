@@ -71,7 +71,7 @@ test('actual output transport preserves compiled cost and binds while refusing a
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,entry:'runtime/index.ts'}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,lines:1}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,files:[{path:'runtime/index.ts',hash:'a'.repeat(64),bytes:1,lines:1}]}})).toThrow();
-    for (const epoch of [undefined, 1]) {
+    for (const epoch of [undefined, 1, 2]) {
       const stale = structuredClone(source);
       if (stale.runtime === null) throw new Error('Missing synthetic client plan');
       if (epoch === undefined) Reflect.deleteProperty(stale.runtime.cost, 'epoch'); else stale.runtime.cost.epoch = epoch;
