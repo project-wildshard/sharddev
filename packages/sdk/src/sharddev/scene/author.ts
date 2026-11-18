@@ -103,7 +103,7 @@ export interface MoverOptions {
 export interface VehicleOptions {
   /** top speed in m/s (0.005 to 60) */
   readonly speed: number;
-  /** turn rate in radians a second at full stick (default 1.2, at most 2π) */
+  /** turn rate in radians a second at full stick (0.005 to 2π, default 1.2) */
   readonly turn?: number;
   /** how much faster boost goes (1 to 4, default 1.5) */
   readonly boost?: number;

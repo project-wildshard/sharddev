@@ -34,6 +34,14 @@ test('a vehicle built turned faces its heading, and its footprint turns with it'
   expect(row?.carry?.prompts.map((p) => p.label)).toEqual(['Board', 'Leave']);
 });
 
+test('a vehicle facing +z or -z (heading ±π) is a row the format admits', () => {
+  for (const heading of [Math.PI, -Math.PI]) {
+    const { shard } = sceneShardfile(lowerShard({ slug: 'h', name: 'H' }, (world) => { world.part('sail', sail, { panel: 'salt.sail', vehicle: { speed: 5, heading } }); }));
+    const [row] = parseMovers(shard.movers);
+    expect(Math.abs(row?.euler.y ?? 0)).toBeCloseTo(Math.PI, 4);
+  }
+});
+
 test('a track mover and a vehicle take their own entities', () => {
   const { shard } = sceneShardfile(lowerShard({ slug: 'two', name: 'Two' }, (world) => {
     world.part('sail', sail, options);
@@ -52,6 +60,7 @@ test('a vehicle needs a panel and no mover, and its numbers stay in the format r
   refuse({ panel: 'salt.sail', vehicle: { speed: 9 }, mover: { path: [[0, 0, 1]], seconds: 1 } }, /not touchable or a mover/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 90 } }, /speed 90 is outside/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, boost: 5 } }, /boost 5 is outside/u);
+  refuse({ panel: 'salt.sail', vehicle: { speed: 9, turn: 0 } }, /turn 0 is outside 0.005/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [0, 0], push: 3 } } }, /blows toward no direction/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [1, 0], push: 30 } } }, /wind push 30 is outside/u);
 });

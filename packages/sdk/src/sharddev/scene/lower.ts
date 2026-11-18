@@ -340,8 +340,8 @@ function vehicleOf(root: Object3D, options: VehicleOptions): SceneVehicle {
     if (!wind.toward.every((n) => Number.isFinite(n)) || Math.hypot(...wind.toward) === 0) throw new SceneRefusalError(root.name, 'a vehicle\'s wind blows toward no direction', 'Give wind.toward an (x, z) that is not (0, 0)');
     range('wind push', wind.push, 0, 0, 20);
   }
-  return { at, side: round(Math.min(8, across)), reach: round(Math.min(8, along)), speed: range('speed', options.speed, 0, 0.005, 60), turn: range('turn', options.turn, 1.2, 0, 2 * Math.PI),
-    boost: range('boost', options.boost, 1.5, 1, 4), accel: range('accel', options.accel, 6, 0.005, 100), ground: options.ground === true, heading: round(heading), seat,
+  return { at, side: round(Math.min(8, across)), reach: round(Math.min(8, along)), speed: range('speed', options.speed, 0, 0.005, 60), turn: range('turn', options.turn, 1.2, 0.005, 2 * Math.PI),
+    boost: range('boost', options.boost, 1.5, 1, 4), accel: range('accel', options.accel, 6, 0.005, 100), ground: options.ground === true, heading: Math.min(Math.PI, Math.max(-Math.PI, round(heading))), seat,
     ...(wind === undefined ? {} : { wind: { toward: [wind.toward[0], wind.toward[1]] as const, push: wind.push } }),
     board: label('board', options.board, 'Board'), leave: label('leave', options.leave, 'Leave') };
 }

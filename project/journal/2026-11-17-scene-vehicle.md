@@ -15,10 +15,17 @@ block nobody. The wind is the author's (`toward`, `push`): the look has
 no wind direction a shard declares, and Mirror Salt already keeps its
 own for its flags.
 
-The workspace pins shard-format 0.21.0; 0.20.0 lacks the wind.
+It needs shard-format 0.21.0 or later (0.20.0 lacks the wind); main pins a newer one.
 
 Format 0.21.0 checks the wind with `someItem`, which the sdk's JSON
 Schema bridge could not lower; it now writes `not: { items: { const: 0 } }`.
 sharddev dev's platform-families test converts through the engine's
 copy of the bridge (fixed on engine main; red here until the sdk pins an
 engine release with it).
+
+Review (opus-ss10j, at the land): a heading of ±π rounded to 3.1416, past
+the format's angle limit, and a `turn` under the format's 0.005 floor
+threw a raw ValiError; the heading is clamped after rounding and `turn`
+is refused below 0.005, each with a test that failed first. Left: the
+footprint reads the world bounds, so a hull built at an oblique heading
+gets a wider landing than its own frame would give.
