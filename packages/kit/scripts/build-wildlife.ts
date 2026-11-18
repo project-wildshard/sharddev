@@ -5,8 +5,12 @@ import { bakeWildlife } from '../src/geometry/wildlife.ts'
 
 const directory = new URL('../content/wildlife/', import.meta.url)
 await mkdir(directory, { recursive: true })
-for (const kind of ['deer', 'wolf'] as const) {
-  const { glb, skin } = await bakeWildlife(kind)
-  await writeFile(new URL(`${kind}.glb`, directory), glb)
-  await writeFile(new URL(`${kind}.skin.json`, directory), skin)
-}
+await Promise.all(
+  (['deer', 'wolf'] as const).map(async (kind): Promise<void> => {
+    const { glb, skin } = await bakeWildlife(kind)
+    await Promise.all([
+      writeFile(new URL(`${kind}.glb`, directory), glb),
+      writeFile(new URL(`${kind}.skin.json`, directory), skin),
+    ])
+  }),
+)
