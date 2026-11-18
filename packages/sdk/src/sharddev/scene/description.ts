@@ -1,4 +1,5 @@
 import type { DetailLayer } from '@wildshard/format/detail-layer';
+import type { ShardCreatures } from '@wildshard/format/creatures';
 /**
  * AUTHORING-PARITY AP1: the scene description. An author writes an ordinary three.js scene inside `defineShard`; the
  * walker (`lower.ts`) reads it once into this plain, serialisable shape, and both back ends read only this: the shardfile
@@ -350,4 +351,9 @@ export interface SceneAnchored {
   readonly writes?: readonly SceneStateWrite[];
   /** SS-MS1b: the races, in the order they were declared; absent or empty: none */
   readonly races?: readonly SceneRace[];
+  /** ONE-FORMAT OF28d: `world.spawnAt`'s creature spawn rows, in the order they were declared; absent or empty: none */
+  readonly spawns?: readonly SceneSpawnRow[];
 }
+
+/** OF28d: one format creature spawn row (`creatures.spawns`), its `at` and `yaw` read off a scene node. */
+export type SceneSpawnRow = ShardCreatures['spawns'][number];

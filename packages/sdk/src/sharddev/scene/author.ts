@@ -2,7 +2,7 @@ import { DataTexture, type InstancedMesh, LinearFilter, LinearMipmapLinearFilter
 import { positionLocal } from 'three/tsl';
 import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
-import type { Rgb, SceneMotion, ScenePost } from './description';
+import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -135,6 +135,9 @@ export interface TouchableOptions {
   readonly damping?: number;
 }
 
+/** OF28d: a `world.spawnAt` row: the format spawn row without what the node supplies. */
+export type SpawnAtRow = Omit<SceneSpawnRow, 'id' | 'at' | 'yaw'>;
+
 export interface ShardWorld {
   readonly scene: Scene;
   /**
@@ -189,6 +192,13 @@ export interface ShardWorld {
    * start or stop). Needs an engine with the race clock (SS-MS1a2, SS-MS1a3), and one that lowers resets (SS-MS1c).
    */
   race: (id: string, options: { start: string; stop: string; fact?: string; cap?: number; resets?: readonly string[] }) => void;
+  /**
+   * ONE-FORMAT OF28d (absorbs SHARD-SOURCE AP25c): a creature spawn row at `at`'s world position and heading (its +z,
+   * read once the build has run, so a node moved later still counts). `row` is the rest of the format's spawn row:
+   * species, variant, brain, strike, seed and scale, and any of rank, count, when, group or respawn. Written into the
+   * shard's `creatures.spawns` beside any `extend` declares. A boss is a spawn its encounter names by this id.
+   */
+  spawnAt: (id: string, at: Object3D, row: SpawnAtRow) => void;
   /**
    * AP32c: grass, ferns and small clutter as a detail layer (format `look.details`). Build the clumps as a cleanroom does,
    * one InstancedMesh of a small card (at most 2,000 triangles), and hand it here: the shard keeps the card once and how

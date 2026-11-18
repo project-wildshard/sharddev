@@ -519,6 +519,7 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 | `world.part(name, build, { panel, vehicle: { speed, turn?, boost?, accel?, ground?, heading?, seat?, wind?: { toward: [x, z], push }, board?, leave? } })` | A vehicle a player boards and steers: a land-sail. Forward goes, back brakes, sprint (Shift; a phone's stick pushed all the way) boosts, the wind pushes it along its heading; its board and leave prompts ride with it. Its solids block nobody. Needs an engine with SHARD-SOURCE SS-MS2a3 |
 | `world.pickup(id, at, { label, radius, item: { id: 'tool.<name>', name, colour?, intensity?, fuelSeconds? }, flag? })` | A lantern on a stand: using its prompt puts the tool in the player's kit lit and full, and raises `flag`; a later use refills it. The sdk writes the tool, the take and the fields that show its light. Two pickups may hand over one tool (same options). Needs an engine with SHARD-SOURCE SS-GF1a1a |
 | `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
+| `world.spawnAt(id, object, { species, variant, brain, strike, seed, scale, rank?, count?, when? })` | A creature spawn row (`creatures.spawns`) at `object`'s world position, facing its +z; a boss is a spawn its encounter names by `id` |
 
 From `@wildshard/sdk/scene/author`: `solid` (collides), `paint` (a texture from a function), `Water` (a water
 surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uvScroll`.

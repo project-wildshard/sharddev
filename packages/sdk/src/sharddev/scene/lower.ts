@@ -6,10 +6,10 @@ import {
 import { vec3 } from 'three/tsl';
 import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } from '../materials';
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
-import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type ToolOptions, type TouchableOptions, type VehicleOptions } from './author';
+import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type SpawnAtRow, type ToolOptions, type TouchableOptions, type VehicleOptions } from './author';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneVehicle, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneMove, ScenePickup, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneVehicle, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { ContentHash, hashOf } from './hash';
 
@@ -456,6 +456,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   let sky: SceneSky | null = null;
   let ground: SceneGround | null = null, post: ScenePost | null = null, spawn: ShardScene['spawn'] = { position: [0, 0, 0], yaw: 0 };
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
+  const spawnsAt: { id: string; at: Object3D; row: SpawnAtRow }[] = [];
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
   const anchor = (kind: string, id: string): void => {
@@ -522,6 +523,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
         environment: env === undefined ? null : { intensity: env.intensity, ground: [env.ground[0], env.ground[1], env.ground[2]] } };
     },
     spawn: (x, y, z, yaw = 0) => { spawn = { position: [x, y, z], yaw }; },
+    spawnAt: (id, at, row) => { anchor('spawnAt', id); spawnsAt.push({ id, at, row }); },
     trigger: (id, at, options) => {
       anchor('trigger', id);
       if (!(options.radius >= 0.01 && options.radius <= 500)) throw new SceneRefusalError(id, `a trigger's radius ${options.radius} is outside 0.01 to 500 m`, 'Give it a radius in metres between 0.01 and 500');
@@ -597,10 +599,16 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     return p;
   };
   const r3 = (n: number): number => Math.round(n * 1000) / 1000;
+  const spawnRows: SceneSpawnRow[] = [];
+  for (const sp of spawnsAt) {
+    const p = placed(sp.id, sp.at), ahead = sp.at.getWorldDirection(new Vector3());
+    spawnRows.push({ ...sp.row, id: sp.id, at: [r3(p.x), r3(p.y), r3(p.z)], yaw: r3(Math.atan2(ahead.x, ahead.z)) });
+  }
   const anchored: ShardScene['anchored'] = {
     ...(writes.length === 0 ? {} : { writes }),
     ...(pickups.length === 0 ? {} : { pickups }),
     ...(races.length === 0 ? {} : { races }),
+    ...(spawnRows.length === 0 ? {} : { spawns: spawnRows }),
     triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
     interactions: interactions.map((i) => {
       const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };
