@@ -16,7 +16,7 @@ import { compressGlb } from './glbCompression';
 import { parseGlb } from '../assets';
 import { readSourceModel } from './skinned';
 import { positionErrorScale } from './geometryError';
-import { partitionSlabGeometry, type SlabGeometryChunk } from './slabChunks';
+import { deduplicateSlabVertices, partitionSlabGeometry, slabGeometryBytes, type SlabGeometryChunk } from './slabChunks';
 import { gridPositions } from './props';
 import { fitTileGrid, tileGridTransform, type TileGrid } from './worldGeometry';
 /** A decoded whole piece over three's geometry and matrix (format's shape, SDK-SPLIT SP6a). */
@@ -269,8 +269,11 @@ export async function bakeWholeSlabs(input: {
             const sphere = part.geometry.boundingSphere;
             if (sphere !== null) sphere.radius += error;
             // POSITION occupies 8 bytes per vertex both on the wire and with Metal's aligned runtime stride.
-            const bytes = part.bytes - part.geometry.getAttribute('position').count * 4;
-            chunks.push({ key: group.key, part: { ...part, bytes }, custom: group.custom, error: group.error + error * positionErrorScale(group.frame), grid });
+            const compact = deduplicateSlabVertices(part.geometry);
+            const chunkGeometry = compact ?? part.geometry;
+            if (compact !== undefined) part.geometry.dispose();
+            const bytes = slabGeometryBytes(chunkGeometry) + chunkGeometry.getAttribute('position').count * 2;
+            chunks.push({ key: group.key, part: { ...part, geometry: chunkGeometry, bytes }, custom: group.custom, error: group.error + error * positionErrorScale(group.frame), grid });
           }
         } finally { geometry.dispose(); }
       }

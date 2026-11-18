@@ -9,7 +9,7 @@ import { wholeGeometryPieces } from '@wildshard/engine/game/shardfile/wholeGeome
 import { wholeGeometryPieces as sdkWholeGeometryPieces } from './wholeGeometryPieces';
 import { bakeProps } from './props';
 import { readSourceModel } from './skinned';
-import { partitionSlabGeometry, slabGeometryBytes } from './slabChunks';
+import { deduplicateSlabVertices, partitionSlabGeometry, slabGeometryBytes } from './slabChunks';
 import { bakeWholeSlabs, readSlabLibrary } from './slabs';
 import * as v from 'valibot';
 
@@ -272,6 +272,20 @@ test('resident-cell byte splits preserve source triangle order across spatial ba
     expect(chunks.every(chunk => chunk.bytes <= 100)).toBe(true);
     expect(chunks.flatMap(chunk => triangles(chunk.geometry)).sort()).toEqual(triangles(geometry));
   } finally { geometry.dispose(); for (const chunk of chunks) chunk.geometry.dispose(); }
+});
+
+test('slab welding preserves the draw order and every channel word', () => {
+  const geometry = new BufferGeometry()
+    .setAttribute('position', new BufferAttribute(Int16Array.of(1, 2, 3, 1, 2, 3, 1, 2, 3), 3))
+    .setAttribute('aFace', new Float16BufferAttribute(Uint16Array.of(0x8000, 0x8000, 0), 1))
+    .setIndex([0, 1, 2, 2, 1, 0]);
+  const welded = deduplicateSlabVertices(geometry);
+  if (welded === undefined) throw new Error('Two vertices have identical streams');
+  try {
+    expect(Array.from(welded.getAttribute('aFace').array)).toEqual([0x8000, 0]);
+    expect(welded.getAttribute('position').count).toBe(2);
+    expect(Array.from(welded.getIndex()?.array ?? [])).toEqual([0, 0, 1, 1, 0, 0]);
+  } finally { geometry.dispose(); welded.dispose(); }
 });
 
 test('a low-stride slab still splits before it would need a 32-bit index', () => {

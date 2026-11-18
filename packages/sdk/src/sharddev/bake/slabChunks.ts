@@ -60,6 +60,33 @@ function subset(source: BufferGeometry, selected: readonly number[], indices: re
   } catch (error) { output.dispose(); throw error; }
 }
 
+// The slab owns plain channels. Compare all stored bytes, including flags and half-float words.
+export function deduplicateSlabVertices(source: BufferGeometry): BufferGeometry | undefined {
+  const index = source.getIndex();
+  if (index === null) return undefined;
+  const positions = source.getAttribute('position');
+  const lanes = Object.values(source.attributes).map(attribute => {
+    const array = attribute.array;
+    return { raw: new Uint8Array(array.buffer, array.byteOffset, array.byteLength), width: attribute.itemSize * array.BYTES_PER_ELEMENT };
+  });
+  const seen = new Map<string, number>(), selected: number[] = [], remap = new Uint32Array(positions.count);
+  for (let vertex = 0; vertex < positions.count; vertex++) {
+    let key = '';
+    for (const { raw, width } of lanes) {
+      const start = vertex * width;
+      for (let at = start; at < start + width; at++) key += String.fromCodePoint(raw[at] ?? 0);
+    }
+    let known = seen.get(key);
+    if (known === undefined) { known = selected.length; seen.set(key, known); selected.push(vertex); }
+    remap[vertex] = known;
+  }
+  if (selected.length === positions.count) return undefined;
+  const geometry = subset(source, selected, Array.from(index.array, vertex => remap[vertex] ?? 0));
+  geometry.boundingBox = source.boundingBox;
+  geometry.boundingSphere = source.boundingSphere;
+  return geometry;
+}
+
 /** Keep one chunk per tile/key while it fits; split oversized content by quadrant, then height and bytes.
  * A resident cell packs in source order across tiles, splitting at the byte or vertex cap.
  * A tall original triangle is never split.
