@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.1 (2026-11-17)
+
+- `wildshard update --pins` moves a shard onto the split packages: it pins `@wildshard/cli` and fixes moved imports.
+- A shard whose tests import the engine keeps it as a dev pin that moves with each release.
+
 ## v0.4.0 (2026-11-17)
 
 - The `wildshard` command now comes from `@wildshard/cli`: one install brings build, upload and the local game.
