@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/kit",
-  "version": "0.4.9",
+  "version": "0.4.10",
   "description": "Shared creature content and helpers for the one shard format.",
   "license": "UNLICENSED",
   "type": "module",
