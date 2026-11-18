@@ -72,6 +72,23 @@ export default function codemod({ project, to }) {
     }
   };
   visit(root);
+  // The repo's author lint config loaded engine's plugin itself, so the sdk's layer rule (which knows build and dev) never
+  // ran and every moved import was refused; it loads the sdk's wrapper of it, as `new` writes it.
+  const sdkName = (() => {
+    try {
+      const listed = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+      return ['@wildshard/sharddev', '@wildshard/sdk'].find(name => FIELDS.some(field => listed[field]?.[name] !== undefined));
+    } catch { return undefined; }
+  })();
+  for (const name of ['.oxlintrc.author.json', '.oxlintrc.json']) {
+    const config = join(root, name);
+    if (sdkName === undefined || !existsSync(config)) continue;
+    const before = readFileSync(config, 'utf8');
+    const after = before.replaceAll('./node_modules/@wildshard/engine/lint/wildshard-plugin.js', `./node_modules/${sdkName}/lint/engine-plugin.mjs`);
+    if (before === after) continue;
+    writeFileSync(config, after);
+    changes.push(`${name}: lint with the sdk's engine plugin`);
+  }
   const file = join(root, 'package.json');
   if (!existsSync(file)) return changes;
   const pkg = JSON.parse(readFileSync(file, 'utf8'));

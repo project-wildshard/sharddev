@@ -36,6 +36,19 @@ test('the CI tests take dev engine\'s folder names and run the cli\'s bin', () =
     expect(rewriteEngineRenames(kept)).toBe(kept);
 });
 
+test('the author lint config loads the sdk\'s engine plugin', () => {
+  const parent = resolve(process.env['VITEST_TMP_ROOT'] ?? 'tmp/vitest');
+  mkdirSync(parent, { recursive: true });
+  const root = mkdtempSync(join(parent, 'split-codemod-lint-'));
+  try {
+    writeFileSync(join(root, 'package.json'), `${JSON.stringify({ dependencies: { '@wildshard/sharddev': 'npm:@wildshard/sdk@0.4.4', '@wildshard/cli': '0.4.4' } }, null, 2)}\n`);
+    writeFileSync(join(root, '.oxlintrc.author.json'), '{ "jsPlugins": ["./node_modules/@wildshard/engine/lint/wildshard-plugin.js", "./node_modules/@wildshard/sharddev/lint/sdk-plugin.mjs"] }\n');
+    expect(codemod({ project: root, from: '0.3.9', to: '0.4.4' })).toContain(".oxlintrc.author.json: lint with the sdk's engine plugin");
+    expect(readFileSync(join(root, '.oxlintrc.author.json'), 'utf8')).toBe('{ "jsPlugins": ["./node_modules/@wildshard/sharddev/lint/engine-plugin.mjs", "./node_modules/@wildshard/sharddev/lint/sdk-plugin.mjs"] }\n');
+    expect(codemod({ project: root, from: '0.3.9', to: '0.4.4' })).toEqual([]);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test('a repo that imports the engine keeps it as a dev pin at dev\'s engine; the cli and homes are pinned; idempotent', () => {
   const parent = resolve(process.env['VITEST_TMP_ROOT'] ?? 'tmp/vitest');
   mkdirSync(parent, { recursive: true });

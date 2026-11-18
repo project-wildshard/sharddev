@@ -6,3 +6,6 @@
 - `codemods/0.4.1.mjs` now makes those edits (`rewriteEngineRenames`): whole identifiers only, and a sdk `package.json`
   resolve becomes the cli's only in a file that runs `bin/wildshard.mjs`. Nine Dragon, Driftwood, Nalati and Pine
   still have all of them.
+- The shards' own `.oxlintrc.author.json` loaded engine's lint plugin directly, so sharddev `ba73597e`'s layer fix (dev
+  is a layer package) never ran there and Sky Reach's `@wildshard/dev/bake/mapRest` import stayed refused. The codemod
+  points the config at the sdk's `lint/engine-plugin.mjs`, as Brasscap's already was.
