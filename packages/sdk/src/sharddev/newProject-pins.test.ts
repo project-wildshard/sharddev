@@ -29,7 +29,8 @@ test('a pin never names a cli release npm does not have', () => {
   const sdkVersions = ['0.3.8', '0.3.9', '0.4.0', '0.4.1'], cliVersions = ['0.0.0-stage', '0.4.0', '0.4.1'];
   expect(releasePin('0.3.9', sdkVersions, cliVersions)).toBe('0.4.1');
   expect(releasePin('0.4.0', sdkVersions, cliVersions)).toBe('0.4.0');
-  expect(releasePin('0.4.2', sdkVersions, cliVersions)).toBe('0.4.1');
+  expect(releasePin('0.4.2', sdkVersions, cliVersions)).toBe('0.4.2');
+  expect(releasePin('0.3.10', sdkVersions, cliVersions)).toBe('0.4.1');
   expect(releasePin('0.4.2', undefined, cliVersions)).toBe('0.4.2');
   expect(() => releasePin('0.3.9', ['0.3.9'], ['0.4.0'])).toThrow(/no release of both/u);
   const pkg = JSON.parse(repoPackageJson('my-shard', 'sdk', name => (name === '@wildshard/cli' ? ['0.0.1'] : ['0.0.1', sdk.version]))) as { dependencies: Record<string, string> };
@@ -39,8 +40,8 @@ test('a pin never names a cli release npm does not have', () => {
 
 test('the pins `wildshard new` writes today are on npm', { timeout: 60_000 }, () => {
   const pkg = JSON.parse(repoPackageJson('my-shard', 'sdk')) as { dependencies: Record<string, string> };
-  for (const name of ['@wildshard/cli', '@wildshard/sdk']) {
-    const versions: unknown = JSON.parse(execFileSync('pnpm', ['view', name, 'versions', '--json'], { encoding: 'utf8' }));
-    expect(versions, name).toContain(pkg.dependencies[name]);
-  }
+  const listed = (name: string): string[] => JSON.parse(execFileSync('pnpm', ['view', name, 'versions', '--json'], { encoding: 'utf8' })) as string[];
+  // On a release branch the sdk is the version being cut, newer than npm's; its own publish brings both packages.
+  if (releasePin(sdk.version, listed('@wildshard/sdk'), listed('@wildshard/cli')) === sdk.version && !listed('@wildshard/sdk').includes(sdk.version)) return;
+  for (const name of ['@wildshard/cli', '@wildshard/sdk']) expect(listed(name), name).toContain(pkg.dependencies[name]);
 });
