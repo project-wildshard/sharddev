@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.5 (2026-11-18)
+
+- `wildshard update --pins` renames more of engine 0.1.35's headless names in a shard's tests, imports inside a function included.
+- `wildshard prepare` and `wildshard dev` fetch the clients of the engine actually installed, so an engine override is respected.
+- `wildshard check` refuses a creature over 64 bones or 16 hit volumes and warns past its size class's triangle and texture marks.
+- `world.creature` builds a skinned creature from a group of named bones; the bake kit can shrink a creature's mesh for the phone.
+
 ## v0.4.4 (2026-11-17)
 
 - wildshard dev builds shards whose generators read /assets/ inputs, and serves the shard's public assets.
