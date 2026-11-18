@@ -75,7 +75,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'config-default-export', anchor: 'config-default-export', steps: ['build'], match: /config has no default export|config generate export must be a build function|Author module has no exports/u,
     fix: 'shard.config.ts must `export default generate;`, the function `wildshard new` wrote there.' },
   { id: 'config-file-access', anchor: 'config-file-access', steps: ['build'], match: /must use injected build capabilities for file access/u,
-    fix: 'Read files through the build context (`ctx.cached`), not node:fs, in runtime shard.config.ts imports.' },
+    fix: 'Read files through the build context (`ctx.cached`), not node:fs, in code that shard.config.ts imports.' },
   { id: 'project-folder-slug', anchor: 'project-folder-slug', steps: ['build'], match: /Manifest identity differs from its folder/u,
     fix: 'Name the shard source folder after the shard\'s slug (data/identity.json), or change the slug to the folder\'s name.' },
   { id: 'source-schema', anchor: 'source-schema', steps: ['build'], match: /(?:^|: |; )Invalid [a-z]+: /u,
