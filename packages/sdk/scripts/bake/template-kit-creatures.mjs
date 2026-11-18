@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { installFormatHook } from '@wildshard/format/formatHook';
+import { formatJson } from './json.mjs';
 
 installFormatHook();
 
@@ -12,7 +13,8 @@ const { parseSkinFile } = await import('@wildshard/format/skinAssets');
 const { parseRows } = await import('@wildshard/format/rows');
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
-const json = value => `${JSON.stringify(value, null, 2)}\n`;
+// SHARD-SOURCE AP36c: the Template's data is written compact (json.mjs); pastel keeps two-space JSON
+const json = (value, project = '') => project.endsWith('_template') ? formatJson(value) : `${JSON.stringify(value, null, 2)}\n`;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 // SHARD-SOURCE AP36b: the Template keeps its rows section as one file per row kind under data/rows/; pastel keeps data/rows.json.
 const split = project => existsSync(resolve(project, 'data/rows'));
@@ -20,7 +22,7 @@ const readRows = project => split(project)
   ? Object.fromEntries(['strikes', 'weather', 'days', 'species', 'looks', 'compendiums', 'loot'].map(key => [key, JSON.parse(readFileSync(resolve(project, `data/rows/${key}.json`), 'utf8'))]))
   : JSON.parse(readFileSync(resolve(project, 'data/rows.json'), 'utf8'));
 const rowFiles = (project, source) => split(project)
-  ? readdirSync(resolve(project, 'data/rows')).map(file => [resolve(project, 'data/rows', file), json(source[file.replace(/\.json$/u, '')])])
+  ? readdirSync(resolve(project, 'data/rows')).map(file => [resolve(project, 'data/rows', file), json(source[file.replace(/\.json$/u, '')], project)])
   : [[resolve(project, 'data/rows.json'), json(source)]];
 
 /** Regenerate only the two projects' kit boar; every authored gameplay override remains. */
@@ -47,9 +49,11 @@ export function templateKitCreatures(check = false) {
     const brain = owners.size > 1 || owner === undefined || owner === null || creatures.groups?.some(group => group.id === owner) ? 'none' : owner;
     const preset = commonCreature('boar', { id: original.id, look: look.look, strike: 'boar.charge' }).species;
     const temperament = { ...preset.temperament, brain }; delete temperament.tuning;
+    // the kit preset's harvest is the kit's drops; a shard whose boar declares none keeps it without one
     const next = { ...preset, ...original, body: preset.body, temperament,
       senses: original.senses ?? preset.senses, abilities: original.abilities ?? preset.abilities,
       presentation: original.presentation ?? preset.presentation };
+    if (original.harvest === undefined) delete next.harvest;
     source.species = source.species.map(value => value.id === original.id ? next : value);
     // The Warden's declared decision controller owns its body; it has no species-wide brain.
     source.species = source.species.map(value => value.id === 'barrow-warden' && value.temperament === undefined ? {
@@ -72,7 +76,7 @@ export function templateKitCreatures(check = false) {
       parameters: { skin: value.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } })) });
     put(resolve(project, 'assets', asset.glbHash), glb); put(resolve(project, 'assets', asset.skinHash), skin);
     for (const [path, bytes] of rowFiles(project, source)) put(path, bytes);
-    put(resolve(project, 'data/skins.json'), json(output));
+    put(resolve(project, 'data/skins.json'), json(output, project));
   }
   console.log(`Template and pastel kit boar ${check ? 'checked' : 'written'}: ${asset.glbHash.slice(0, 12)}`);
 }

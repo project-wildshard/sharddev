@@ -4,11 +4,7 @@
   "oil": "LANTERN OIL",
   "notes": "NOTES",
   "note": "Reach the hut, then defeat the grey blob. The whip heavy applies poison.",
-  "braziers": [
-    "Light brazier A",
-    "Light brazier B",
-    "Light brazier C"
-  ],
+  "braziers": ["Light brazier A", "Light brazier B", "Light brazier C"],
   "chest": "Open the old chest (lantern oil)",
   "rack": "Take the iron sword",
   "lever": "Pull the gate lever"

@@ -9,8 +9,6 @@
     "above": 0,
     "retreat": false,
     "constantSpeed": false,
-    "ready": {
-      "kind": "range"
-    }
+    "ready": { "kind": "range" }
   }
 ]

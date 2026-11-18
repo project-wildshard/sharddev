@@ -3,29 +3,9 @@
     "id": "template.day",
     "units": "hour",
     "start": 12,
-    "schedule": [
-      {
-        "phase": "day",
-        "to": 24,
-        "minutes": 12,
-        "from": 0
-      }
-    ],
-    "sun": {
-      "maxElevation": 60,
-      "azimuthOffset": 35
-    },
-    "fixed": {
-      "midday": 12,
-      "golden": 17,
-      "sunset": 18,
-      "night": 0
-    },
-    "presets": {
-      "dawn": 6,
-      "noon": 12,
-      "dusk": 18,
-      "night": 0
-    }
+    "schedule": [{ "phase": "day", "to": 24, "minutes": 12, "from": 0 }],
+    "sun": { "maxElevation": 60, "azimuthOffset": 35 },
+    "fixed": { "midday": 12, "golden": 17, "sunset": 18, "night": 0 },
+    "presets": { "dawn": 6, "noon": 12, "dusk": 18, "night": 0 }
   }
 ]

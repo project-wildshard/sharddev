@@ -17,14 +17,8 @@
               "id": "accept",
               "label": "I'll deal with the pack.",
               "next": "waiting",
-              "sets": [
-                "template.hermit.accepted"
-              ],
-              "when": {
-                "all": [
-                  "template.lamp.done"
-                ]
-              }
+              "sets": ["template.hermit.accepted"],
+              "when": { "all": ["template.lamp.done"] }
             }
           ]
         },
@@ -39,25 +33,14 @@
               "id": "report",
               "label": "The pack is gone.",
               "next": "thanks",
-              "sets": [
-                "template.hermit.reported"
-              ],
-              "when": {
-                "all": [
-                  "dead:mossling:1",
-                  "dead:mossling:2",
-                  "dead:mossling:3",
-                  "dead:mossling:4"
-                ]
-              }
+              "sets": ["template.hermit.reported"],
+              "when": { "all": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"] }
             }
           ]
         },
         {
           "id": "thanks",
-          "lines": [
-            "Quiet at last. The reeds will grow back. Take these coins, and my thanks."
-          ],
+          "lines": ["Quiet at last. The reeds will grow back. Take these coins, and my thanks."],
           "choices": []
         }
       ]

@@ -7,26 +7,8 @@
       "family": "kit.melee",
       "slot": "declared.weapon.template-whip",
       "context": "template.whip",
-      "ui": {
-        "name": "Whip",
-        "icon": "sword",
-        "swapIcon": "〰",
-        "blurb": "A quick whip with a poisoned heavy strike."
-      },
-      "view": {
-        "recipe": "kit.whip",
-        "colour": "#565656",
-        "position": [
-          0.28,
-          -0.35,
-          -0.6
-        ],
-        "rotation": [
-          0,
-          0,
-          -0.3
-        ]
-      },
+      "ui": { "name": "Whip", "icon": "sword", "swapIcon": "〰", "blurb": "A quick whip with a poisoned heavy strike." },
+      "view": { "recipe": "kit.whip", "colour": "#565656", "position": [0.28, -0.35, -0.6], "rotation": [0, 0, -0.3] },
       "hook": {
         "module": "7035c479edde46ee0baf713fce437fe21e7b61967154f36b5f1126708b2bfaa7",
         "entity": 1001,
@@ -38,11 +20,7 @@
         "cooldown": 0.4,
         "range": 5,
         "width": 1.2,
-        "tags": [
-          "actor.player",
-          "weapon.template-whip",
-          "dmg.melee"
-        ],
+        "tags": ["actor.player", "weapon.template-whip", "dmg.melee"],
         "effect": null
       },
       "heavy": {
@@ -51,11 +29,7 @@
         "cooldown": 0.8,
         "range": 5,
         "width": 1.2,
-        "tags": [
-          "actor.player",
-          "weapon.template-whip",
-          "dmg.melee"
-        ],
+        "tags": ["actor.player", "weapon.template-whip", "dmg.melee"],
         "effect": "effect.poison"
       },
       "charge": 0.6
@@ -66,26 +40,8 @@
       "family": "kit.melee",
       "slot": "declared.weapon.sword-iron",
       "context": "weapon.melee",
-      "ui": {
-        "name": "Iron sword",
-        "icon": "sword",
-        "swapIcon": "⚔",
-        "blurb": "The shared iron sword."
-      },
-      "view": {
-        "recipe": "kit.sword",
-        "colour": "#888888",
-        "position": [
-          0.2,
-          -0.35,
-          -0.6
-        ],
-        "rotation": [
-          0,
-          0,
-          0
-        ]
-      },
+      "ui": { "name": "Iron sword", "icon": "sword", "swapIcon": "⚔", "blurb": "The shared iron sword." },
+      "view": { "recipe": "kit.sword", "colour": "#888888", "position": [0.2, -0.35, -0.6], "rotation": [0, 0, 0] },
       "hook": null,
       "light": {
         "id": "sword.light",
@@ -93,11 +49,7 @@
         "cooldown": 0.08,
         "range": 2.2,
         "width": 1.2,
-        "tags": [
-          "actor.player",
-          "weapon.sword-iron",
-          "dmg.melee"
-        ],
+        "tags": ["actor.player", "weapon.sword-iron", "dmg.melee"],
         "effect": null
       },
       "heavy": {
@@ -106,11 +58,7 @@
         "cooldown": 0.08,
         "range": 2.2,
         "width": 1.2,
-        "tags": [
-          "actor.player",
-          "weapon.sword-iron",
-          "dmg.melee"
-        ],
+        "tags": ["actor.player", "weapon.sword-iron", "dmg.melee"],
         "effect": null
       },
       "charge": 0.45
@@ -119,26 +67,8 @@
       "id": "tool.template-lantern",
       "kind": "tool",
       "family": "kit.lantern",
-      "ui": {
-        "name": "Lantern",
-        "icon": "glyph",
-        "swapIcon": "",
-        "blurb": "A lantern burning oil for two minutes."
-      },
-      "view": {
-        "recipe": "kit.lantern",
-        "colour": "#b08a4a",
-        "position": [
-          -0.3,
-          -0.3,
-          -0.55
-        ],
-        "rotation": [
-          0,
-          0,
-          0
-        ]
-      },
+      "ui": { "name": "Lantern", "icon": "glyph", "swapIcon": "", "blurb": "A lantern burning oil for two minutes." },
+      "view": { "recipe": "kit.lantern", "colour": "#b08a4a", "position": [-0.3, -0.3, -0.55], "rotation": [0, 0, 0] },
       "hook": {
         "module": "7035c479edde46ee0baf713fce437fe21e7b61967154f36b5f1126708b2bfaa7",
         "entity": 1002,
@@ -153,20 +83,10 @@
     {
       "id": "template.whip",
       "keysFrom": "weapon.melee",
-      "actions": [
-        "attack",
-        "heavy",
-        "lock"
-      ],
+      "actions": ["attack", "heavy", "lock"],
       "touch": "melee",
       "lockable": true
     }
   ],
-  "loadout": {
-    "primary": "weapon.template-whip",
-    "secondary": null,
-    "tools": [
-      "tool.template-lantern"
-    ]
-  }
+  "loadout": { "primary": "weapon.template-whip", "secondary": null, "tools": ["tool.template-lantern"] }
 }

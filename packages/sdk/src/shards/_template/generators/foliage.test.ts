@@ -4,7 +4,7 @@ import { pondEdge, pondSDF, templateHeightAt } from './landscape';
 import { buildTemplateWorld, CROSSING_CLEAR, LILIES, mossgateDressing, mossgateFoliage, mushroomCaps, pondPlanting, pondStones, BRIDGE_STONES, REEDS, rimFlames, TELL_RADIUS, TREES, WARDEN_CORE, wardenTell } from './world';
 import { WARDEN_CROWN } from './warden';
 import creatures from '../data/creatures.json' with { type: 'json' };
-import clientScripts from '../data/clientScripts.json' with { type: 'json' };
+import { templateClientScripts } from './clientScripts';
 import { Box3, Group, Mesh, type Object3D } from 'three';
 
 // LF1-5: the yard's foliage stands clear of every walk the MH-2, MH-3 and LF1-0 proofs take and of every use point, so no
@@ -132,8 +132,8 @@ test('the open-core gem and its sparks float over the Warden\'s crown', () => {
   const scale = creatures.spawns.find((row) => row.species === 'barrow-warden')?.scale ?? 0;
   const gem = new Box3().setFromObject(wardenTell(heightAt).core);
   expect(gem.min.y - ground).toBeGreaterThan(WARDEN_CROWN * scale);
-  const sparks = JSON.stringify(clientScripts).match(/"name":"warden-core","target":\{"kind":"particles","id":"template.warden-core","at":\[([^\]]+)\]/u)?.[1]?.split(',').map(Number);
-  expect(sparks?.[1]).toBe(WARDEN_CORE);
+  const sparks = templateClientScripts('0'.repeat(64), []).bindings.find((row) => row.name === 'warden-core')?.target;
+  expect(sparks?.at?.[1]).toBe(WARDEN_CORE);
 });
 
 // The sunk slabs stay without colliders (before brazier B the walk ends in the water), and B's raised bridge stands

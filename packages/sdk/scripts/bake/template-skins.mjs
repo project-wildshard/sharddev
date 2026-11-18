@@ -7,6 +7,7 @@ import { existsSync, readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { templateKitCreatures } from './template-kit-creatures.mjs';
+import { formatJson } from './json.mjs';
 
 const root = resolve(import.meta.dirname, '../..'), source = resolve(root, 'public/assets/baked/skin-fixture'), project = resolve(root, 'src/shards/_template');
 const rows = JSON.parse(readFileSync(resolve(source, 'skins.json'), 'utf8')), bindings = JSON.parse(readFileSync(resolve(source, 'bindings.json'), 'utf8'));
@@ -33,7 +34,7 @@ const out = species.map(({ species: id, look, skin }) => {
 // entries this script does not make (the Barrow Warden, scripts/bake/template-warden.mjs) stay, after the fixture's
 const path = resolve(project, 'data/skins.json'), made = new Set(out.map((entry) => entry.species));
 const kept = (existsSync(path) ? JSON.parse(readFileSync(path, 'utf8')) : []).filter((entry) => !made.has(entry.species));
-writeFileSync(path, `${JSON.stringify([...out, ...kept], null, 2)}\n`);
+writeFileSync(path, formatJson([...out, ...kept]));
 console.info(`template skins: ${out.map((entry) => `${entry.species} ${entry.skin.slice(0, 8)}`).join(', ')}${kept.length === 0 ? '' : `; kept ${kept.map((entry) => entry.species).join(', ')}`}`);
 
 templateKitCreatures();

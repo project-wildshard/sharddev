@@ -10,40 +10,43 @@ import { expect, test } from 'vitest';
 import { build, parseSync } from 'vite';
 import { generatorImportViolation } from '../../lint/sdk-plugin.mjs';
 import { generate } from '../../src/shards/_template/shard.config';
-import { templateTerrain } from '../../src/shards/_template/generators/terrain';
-import { TEMPLATE_BEHAVIOUR, TEMPLATE_BOSS } from '../fixtures/templateSource';
 import { templateBehaviour } from '../../src/shards/_template/generators/behaviour';
-import { templateProduct } from '../../src/shards/_template/generators/product';
-import { templatePropRows } from '../../src/shards/_template/generators/props';
 import { createProjectGeneration, isProjectGenerator } from '../../src/sharddev/projectGeneration';
 import { hashImmutableBytes } from '../../src/sharddev/immutable';
 import { assertConfigBoundary } from '../../src/sharddev/configBoundary';
 import { parseShardfile } from '@wildshard/format/shardSchema';
 
+/**
+ * SHARD-SOURCE AP36c: the Template's gameplay, pinned: every section but the world's (budgets, look, files, tiles, library,
+ * far, props), plus the authored collider rows and the panels' and models' ids. The bake it was once compared to is gone;
+ * this is the AP36b build's gameplay with the idle bindings derived (clientScripts.ts: spawn order, then the anchors).
+ */
+const TEMPLATE_GAMEPLAY = 'c1379c41a8284478c54f735e7578c66e0a1fb999046bbafe544bb2a18588e72c';
+/** The scene build's map, every RGBA byte (the ground-map test pinned the bake's before AP36c). */
+const TEMPLATE_MAP = '4465db6cc11fdd95a997048d59adae04791c1665d80710c7949208deeda08eb8';
+function gameplayDigest(shard: Awaited<ReturnType<typeof generate>>['shard']): string {
+  const { budgets: _budgets, look: _look, files: _files, tiles: _tiles, library: _library, far: _far, props, ...gameplay } = shard;
+  const panels = props.panels.map(panel => `${panel.id} ${String(panel.visible)}`).sort(), models = props.models.map(model => model.id);
+  return hashImmutableBytes(new TextEncoder().encode(JSON.stringify({ gameplay, colliders: props.colliders, panels, models })));
+}
+
 test('template direct generation and a cache hit retain every original world row and asset byte', async () => {
   mkdirSync('tmp', { recursive: true }); const cache = mkdtempSync(resolve('tmp', 'template-generation-'));
   try {
-    const before = performance.now(), { assets: original, ...rows } = templateTerrain(), props = templatePropRows(), produced = performance.now() - before;
     const assets = new Map<string, Uint8Array>(), root = resolve('src/shards/_template');
     const coldAt = performance.now(), cold = await generate(createProjectGeneration(root, 'c'.repeat(64), assets, cache)), coldMs = performance.now() - coldAt;
     const hitAt = performance.now(), hit = await generate(createProjectGeneration(root, 'c'.repeat(64), assets, cache)), hitMs = performance.now() - hitAt;
-    // SHARD-SOURCE AP36a: the world is scene source now (generators/scene.ts), so its tiles, panels' files, look entries and
-    // their budget are the scene back end's; every other row is still the bake's, byte for byte, and so are the colliders
-    const bake = templateProduct(rows, props, TEMPLATE_BEHAVIOUR, TEMPLATE_BOSS), scene = cold.shard;
-    const WORLD = new Set(['budgets', 'look', 'files', 'tiles', 'library', 'far', 'props']);
-    for (const [key, value] of Object.entries(bake)) if (!WORLD.has(key)) expect(JSON.stringify((scene as Record<string, unknown>)[key]), key).toBe(JSON.stringify(value));
-    expect(scene.props?.colliders).toEqual(bake.props?.colliders);
-    const panels = (shard: typeof scene): string[] => (shard.props?.panels ?? []).map(panel => `${panel.id} ${String(panel.visible)}`).sort();
-    expect(panels(scene)).toEqual(panels(bake));
-    expect(scene.props?.models.map(model => model.id)).toEqual(bake.props?.models.map(model => model.id));
-    for (const [id, entry] of Object.entries(bake.look.materials)) expect(scene.look.materials[id], id).toEqual(entry);
+    const scene = cold.shard;
+    expect(gameplayDigest(scene)).toBe(TEMPLATE_GAMEPLAY);
     expect(hit.shard).toEqual(cold.shard); expect(hit.output).toEqual(cold.output);
     if (hit.map === undefined || cold.map === undefined) throw new Error('Missing Template map');
     expect(Buffer.compare(hit.map.pixels, cold.map.pixels)).toBe(0);
-    const boss = assets.get(TEMPLATE_BOSS.hash); if (boss === undefined) throw new Error('Missing generated boss');
-    expect(boss.length).toBe(TEMPLATE_BOSS.compressed);
-    expect(hashImmutableBytes(boss)).toBe(TEMPLATE_BOSS.hash);
-    const scripts = new Set([TEMPLATE_BOSS.hash]);
+    expect(hashImmutableBytes(cold.map.pixels)).toBe(TEMPLATE_MAP);
+    // the boss decision module the output names is in the store, the bytes of its hash
+    const bossHash = /^assets\/([a-f0-9]{64})$/u.exec(cold.output?.blobs?.[0]?.source ?? '')?.[1] ?? '';
+    const boss = assets.get(bossHash); if (boss === undefined) throw new Error('Missing generated boss');
+    expect(hashImmutableBytes(boss)).toBe(bossHash);
+    const scripts = new Set([bossHash]);
     for (const row of Object.values(await templateBehaviour(createProjectGeneration(root, 'c'.repeat(64), assets, cache)))) {
       if (!assets.has(row.hash)) throw new Error('Missing actual compiled module'); scripts.add(row.hash);
     }
@@ -53,8 +56,7 @@ test('template direct generation and a cache hit retain every original world row
       expect(scripts.has(hash) || named.has(hash), hash).toBe(true);
       expect(hashImmutableBytes(bytes), hash).toBe(hash);
     }
-    void original;
-    process.stdout.write(`${JSON.stringify({ templateWorldMs: produced, coldProgramMs: coldMs, cachedProgramMs: hitMs, files: assets.size })}\n`);
+    process.stdout.write(`${JSON.stringify({ coldProgramMs: coldMs, cachedProgramMs: hitMs, files: assets.size })}\n`);
   } finally { rmSync(cache, { recursive: true, force: true }); }
 });
 

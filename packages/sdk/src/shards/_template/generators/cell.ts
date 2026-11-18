@@ -1,5 +1,5 @@
 import { LOOP, ROAD_HALF as HALF } from './ground';
-import { Box3, Group, Matrix4, Mesh, MeshStandardMaterial, type Object3D } from 'three';
+import { Group, Matrix4, Mesh, MeshStandardMaterial } from 'three';
 import { measureBox, type TemplateWorldPorts } from './world';
 import { Kit, framed, type ColliderDesc, type MeasureRole } from './kit';
 import { billboardRow, blockDistrict, copyPlots, crateYard, entryExtras, hangars, overpass, scaffoldYard, stripFill, testCourse, ziggurat } from './districts';
@@ -167,14 +167,6 @@ export function cellPosts(): { model: Group; transforms: Matrix4[]; colliders: C
   return { model, transforms, colliders, owned: [...owned] };
 }
 
-/** A copy of `object` without its `detail` boxes (the road stripes): the coarse tiles' and the far proxy's version. */
-export function cellCoarse(object: Object3D): Object3D {
-  const copy = object.clone(), drop: Object3D[] = [];
-  copy.traverse((node) => { if (node.name === 'detail') drop.push(node); });
-  for (const node of drop) node.removeFromParent();
-  return copy;
-}
-
 /** G220 pass 2's districts, entry extras and copy plots (districts.ts): id, name, builder */
 const DISTRICTS: readonly (readonly [string, string, () => Kit])[] = [
   ['template.district.course', 'Hover test course', testCourse], ['template.district.blocks', 'Block district', blockDistrict],
@@ -184,25 +176,6 @@ const DISTRICTS: readonly (readonly [string, string, () => Kit])[] = [
   ['template.district.strips', 'Strip fill', stripFill], ['template.district.plots', 'Copy plots', copyPlots],
   ['template.entry.extras', 'Entry extras', entryExtras],
 ];
-/** every cell-fill piece the bake draws whole near and coarse far (templatePropsSource.ts) */
-export const CELL_PIECES: readonly string[] = ['template.roads', 'template.hub', 'template.entry.north', 'template.entry.south', 'template.entry.east', 'template.entry.west', ...DISTRICTS.map(([id]) => id)];
-
-/**
- * The far proxy's version of `object` (8,000 triangles for the whole cell): the coarse copy without the small boxes, so
- * only what reads from the next cell stays (blocks, towers, decks, the big pads; no crates, posts or trim strips).
- */
-export function cellFar(object: Object3D): Object3D {
-  const copy = cellCoarse(object), drop: Object3D[] = [];
-  copy.traverse((node) => {
-    if (!(node instanceof Mesh)) return;
-    const box = new Box3().setFromObject(node);
-    const w = box.max.x - box.min.x, h = box.max.y - box.min.y, d = box.max.z - box.min.z;
-    if (Math.max(w, d) < 10 && h < 6) drop.push(node);
-  });
-  for (const node of drop) node.removeFromParent();
-  return copy;
-}
-
 /** Register the cell's roads, entry set pieces, hub and posts under `root`, each a registry piece. */
 export function buildCellFill(ctx: Pick<TemplateWorldPorts, 'root' | 'scope' | 'piece'>): { posts: { model: Group; transforms: Matrix4[] } } {
   const file = 'src/shards/_template/generators/cell.ts';

@@ -5,56 +5,22 @@
       {
         "id": "clear",
         "next": "cloudy",
-        "length": [
-          60,
-          90
-        ],
-        "numbers": {
-          "overcast": 0,
-          "rain": 0,
-          "wet": 0,
-          "wind": 0.1,
-          "fog": 0
-        }
+        "length": [60, 90],
+        "numbers": { "overcast": 0, "rain": 0, "wet": 0, "wind": 0.1, "fog": 0 }
       },
       {
         "id": "cloudy",
         "next": "clear",
-        "length": [
-          30,
-          45
-        ],
-        "numbers": {
-          "overcast": 0.5,
-          "rain": 0,
-          "wet": 0,
-          "wind": 0.1,
-          "fog": 0
-        }
+        "length": [30, 45],
+        "numbers": { "overcast": 0.5, "rain": 0, "wet": 0, "wind": 0.1, "fog": 0 }
       }
     ],
-    "initial": {
-      "overcast": 0,
-      "rain": 0,
-      "wet": 0,
-      "wind": 0.1,
-      "fog": 0
-    },
+    "initial": { "overcast": 0, "rain": 0, "wet": 0, "wind": 0.1, "fog": 0 },
     "soak": 0.1,
     "dry": 0.1,
     "modes": [
-      {
-        "id": "live",
-        "hold": null,
-        "at": 0,
-        "dry": false
-      },
-      {
-        "id": "clear",
-        "hold": "clear",
-        "at": 0,
-        "dry": true
-      }
+      { "id": "live", "hold": null, "at": 0, "dry": false },
+      { "id": "clear", "hold": "clear", "at": 0, "dry": true }
     ]
   }
 ]

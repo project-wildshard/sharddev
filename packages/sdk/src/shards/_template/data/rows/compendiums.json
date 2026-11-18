@@ -3,12 +3,7 @@
     "id": "template.compendium",
     "className": "template",
     "title": "NOTES",
-    "tabs": [
-      {
-        "id": "creatures",
-        "label": "Grey blob"
-      }
-    ],
+    "tabs": [{ "id": "creatures", "label": "Grey blob" }],
     "stamp": "Beat the blob",
     "stats": [],
     "entries": [

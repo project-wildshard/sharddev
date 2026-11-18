@@ -8,33 +8,12 @@
       "name": "Greyback",
       "title": "Greyback",
       "retry": "Try Greyback again",
-      "arena": {
-        "at": [
-          15,
-          0,
-          -12
-        ],
-        "radius": 15
-      },
+      "arena": { "at": [15, 0, -12], "radius": 15 },
       "intro": 0,
       "introShort": 0,
-      "respawn": {
-        "at": [
-          0,
-          0,
-          0
-        ],
-        "yaw": 0
-      },
+      "respawn": { "at": [0, 0, 0], "yaw": 0 },
       "phases": [
-        {
-          "at": 1,
-          "name": "First phase",
-          "caption": "First phase",
-          "speed": 2,
-          "stopDistance": 2,
-          "turnRate": 3
-        }
+        { "at": 1, "name": "First phase", "caption": "First phase", "speed": 2, "stopDistance": 2, "turnRate": 3 }
       ]
     },
     {
@@ -45,41 +24,13 @@
       "name": "Barrow Warden",
       "title": "Keeper of the hollow",
       "retry": "Try the Barrow Warden again",
-      "arena": {
-        "at": [
-          24.5,
-          0,
-          -2
-        ],
-        "radius": 8
-      },
+      "arena": { "at": [24.5, 0, -2], "radius": 8 },
       "intro": 1,
       "introShort": 0.2,
-      "respawn": {
-        "at": [
-          0,
-          0,
-          0
-        ],
-        "yaw": 0
-      },
+      "respawn": { "at": [0, 0, 0], "yaw": 0 },
       "phases": [
-        {
-          "at": 1,
-          "name": "First phase",
-          "caption": "First phase",
-          "speed": 1,
-          "stopDistance": 0,
-          "turnRate": 4
-        },
-        {
-          "at": 0.6,
-          "name": "Second phase",
-          "caption": "Second phase",
-          "speed": 2.5,
-          "stopDistance": 0,
-          "turnRate": 4
-        }
+        { "at": 1, "name": "First phase", "caption": "First phase", "speed": 1, "stopDistance": 0, "turnRate": 4 },
+        { "at": 0.6, "name": "Second phase", "caption": "Second phase", "speed": 2.5, "stopDistance": 0, "turnRate": 4 }
       ]
     }
   ],

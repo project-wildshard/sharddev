@@ -19,180 +19,47 @@
   "hands": "toon",
   "weapon": "custom",
   "treeCount": 0,
-  "trees": {
-    "factory": "none",
-    "noun": "trees"
-  },
-  "minimap": {
-    "image": "/assets/_template/map/top.webp"
-  },
+  "trees": { "factory": "none", "noun": "trees" },
+  "minimap": { "image": "/assets/_template/map/top.webp" },
   "pois": [
-    {
-      "id": "hut",
-      "name": "Grey hut",
-      "x": -4,
-      "z": -11.5,
-      "r": 6
-    },
-    {
-      "id": "greyback",
-      "name": "Greyback",
-      "x": 15,
-      "z": -12,
-      "r": 15
-    },
-    {
-      "id": "barrow-warden",
-      "name": "Barrow Warden",
-      "x": 24.5,
-      "z": -2,
-      "r": 8
-    },
-    {
-      "id": "blob",
-      "name": "Grey blob",
-      "x": 2.5,
-      "z": -16.5,
-      "r": 4
-    },
-    {
-      "id": "mossgate",
-      "name": "Moss gate",
-      "x": -10,
-      "z": 0,
-      "r": 3
-    },
-    {
-      "id": "brazier-a",
-      "name": "Brazier A",
-      "x": 5.9,
-      "z": -12.8,
-      "r": 2
-    },
-    {
-      "id": "brazier-c",
-      "name": "Brazier C",
-      "x": 9.6,
-      "z": -5.4,
-      "r": 2
-    },
-    {
-      "id": "lamplighter",
-      "name": "Lamplighter",
-      "x": 1.1,
-      "z": -6.4,
-      "r": 2
-    },
-    {
-      "id": "pond",
-      "name": "Moss pond",
-      "x": -19.4,
-      "z": 0,
-      "r": 3
-    },
-    {
-      "id": "hermit",
-      "name": "Pond hermit",
-      "x": -15.2,
-      "z": 7.0,
-      "r": 5
-    },
-    {
-      "id": "chest",
-      "name": "Old chest",
-      "x": -8.2,
-      "z": -7.6,
-      "r": 4
-    },
-    {
-      "id": "rack",
-      "name": "Sword rack",
-      "x": 1.0,
-      "z": -12.0,
-      "r": 3
-    },
-    {
-      "id": "lever",
-      "name": "Gate lever",
-      "x": 8.5,
-      "z": -16.6,
-      "r": 2
-    },
-    {
-      "id": "lift",
-      "name": "Lift and ledge",
-      "x": 8.5,
-      "z": 3.65,
-      "r": 3
-    },
-    {
-      "id": "ledge",
-      "name": "Ledge cache",
-      "x": 8.5,
-      "z": 6.4,
-      "r": 2
-    },
-    {
-      "id": "mossling-meadow",
-      "name": "Mossling meadow",
-      "x": 36.0,
-      "z": -98.0,
-      "r": 12
-    }
+    { "id": "hut", "name": "Grey hut", "x": -4, "z": -11.5, "r": 6 },
+    { "id": "greyback", "name": "Greyback", "x": 15, "z": -12, "r": 15 },
+    { "id": "barrow-warden", "name": "Barrow Warden", "x": 24.5, "z": -2, "r": 8 },
+    { "id": "blob", "name": "Grey blob", "x": 2.5, "z": -16.5, "r": 4 },
+    { "id": "mossgate", "name": "Moss gate", "x": -10, "z": 0, "r": 3 },
+    { "id": "brazier-a", "name": "Brazier A", "x": 5.9, "z": -12.8, "r": 2 },
+    { "id": "brazier-c", "name": "Brazier C", "x": 9.6, "z": -5.4, "r": 2 },
+    { "id": "lamplighter", "name": "Lamplighter", "x": 1.1, "z": -6.4, "r": 2 },
+    { "id": "pond", "name": "Moss pond", "x": -19.4, "z": 0, "r": 3 },
+    { "id": "hermit", "name": "Pond hermit", "x": -15.2, "z": 7, "r": 5 },
+    { "id": "chest", "name": "Old chest", "x": -8.2, "z": -7.6, "r": 4 },
+    { "id": "rack", "name": "Sword rack", "x": 1, "z": -12, "r": 3 },
+    { "id": "lever", "name": "Gate lever", "x": 8.5, "z": -16.6, "r": 2 },
+    { "id": "lift", "name": "Lift and ledge", "x": 8.5, "z": 3.65, "r": 3 },
+    { "id": "ledge", "name": "Ledge cache", "x": 8.5, "z": 6.4, "r": 2 },
+    { "id": "mossling-meadow", "name": "Mossling meadow", "x": 36, "z": -98, "r": 12 }
   ],
-  "assetGlobs": [
-    "public/assets/_template/map/**"
-  ],
-  "spawn": {
-    "x": 0,
-    "y": 1,
-    "z": 0,
-    "yaw": 0
-  },
-  "bounds": {
-    "x0": -100,
-    "x1": 100,
-    "z0": -100,
-    "z1": 100,
-    "floor": -10
-  },
+  "assetGlobs": ["public/assets/_template/map/**"],
+  "spawn": { "x": 0, "y": 1, "z": 0, "yaw": 0 },
+  "bounds": { "x0": -100, "x1": 100, "z0": -100, "z1": 100, "floor": -10 },
   "sky": {
-    "sunColor": [
-      1,
-      1,
-      1
-    ],
+    "sunColor": [1, 1, 1],
     "sunIntensity": 1.5,
     "envIntensity": 0.5,
     "bgIntensity": 1,
-    "fogSunColor": [
-      1,
-      1,
-      1
-    ],
-    "cloudSunColor": [
-      1,
-      1,
-      1
-    ],
+    "fogSunColor": [1, 1, 1],
+    "cloudSunColor": [1, 1, 1],
     "hemiSky": 10266548,
     "hemiGround": 6316128,
     "hemiIntensity": 0.7,
-    "sun": {
-      "azimuth": 35,
-      "elevation": 45
-    }
+    "sun": { "azimuth": 35, "elevation": 45 }
   },
   "atmosphere": {
     "fogHeight": -20,
     "fogHeightFalloff": 0,
     "fogHeightDensity": 0,
     "fogDistDensity": 0,
-    "volumetricSunColor": [
-      1,
-      1,
-      1
-    ]
+    "volumetricSunColor": [1, 1, 1]
   },
   "grade": {
     "saturation": 0,
@@ -200,26 +67,10 @@
     "contrast": 0,
     "bloomIntensity": 0,
     "bloomThreshold": 1,
-    "shadowTint": [
-      1,
-      1,
-      1
-    ],
-    "highTint": [
-      1,
-      1,
-      1
-    ],
-    "lift": [
-      0,
-      0,
-      0
-    ],
-    "gain": [
-      1,
-      1,
-      1
-    ],
+    "shadowTint": [1, 1, 1],
+    "highTint": [1, 1, 1],
+    "lift": [0, 0, 0],
+    "gain": [1, 1, 1],
     "gamma": 1
   },
   "explore": {
@@ -231,90 +82,24 @@
     }
   },
   "shardfile": "/shardfiles/_template/shard.json",
-  "ground": {
-    "paths": "plugin",
-    "structures": true
-  },
+  "ground": { "paths": "plugin", "structures": true },
   "uses": [
-    "weather",
-    "dayCycle",
-    "bosses",
-    "elites",
-    "spawns",
-    "quests",
-    "swim",
-    "hover",
-    "explore",
-    "practice",
-    "coins",
-    "loot",
-    "compendium",
-    "feats",
-    "bag.pack"
+    "weather", "dayCycle", "bosses", "elites", "spawns", "quests", "swim", "hover", "explore", "practice", "coins",
+    "loot", "compendium", "feats", "bag.pack"
   ],
   "loadout": {
-    "weapons": [
-      "weapon.sword-iron",
-      "weapon.template-whip"
-    ],
-    "tools": [
-      "tool.template-lantern",
-      "tool.hoverboard"
-    ],
-    "start": [
-      "weapon.template-whip",
-      "tool.template-lantern",
-      "tool.hoverboard"
-    ],
+    "weapons": ["weapon.sword-iron", "weapon.template-whip"],
+    "tools": ["tool.template-lantern", "tool.hoverboard"],
+    "start": ["weapon.template-whip", "tool.template-lantern", "tool.hoverboard"],
     "held": "weapon.template-whip"
   },
   "species": [],
-  "fight": {
-    "attackers": 2,
-    "telegraphed": true,
-    "input": {
-      "bufferMs": 120,
-      "coyoteMs": 100
-    }
-  },
-  "creatures": {
-    "lowPoly": true,
-    "waitForModels": false,
-    "furRim": false,
-    "tintRange": 0,
-    "oneMaterial": true
-  },
-  "tiers": {
-    "phone": {
-      "godRays": false,
-      "ao": false
-    },
-    "desktop": {
-      "godRays": false,
-      "ao": false
-    }
-  },
-  "loot": {
-    "coins": true
-  },
-  "hud": {
-    "bands": [
-      "band.1",
-      "band.2",
-      "band.3"
-    ]
-  },
-  "bag": {
-    "tabs": [
-      "map",
-      "gear",
-      "pack",
-      "notes"
-    ],
-    "pack": {
-      "slots": 8
-    }
-  },
+  "fight": { "attackers": 2, "telegraphed": true, "input": { "bufferMs": 120, "coyoteMs": 100 } },
+  "creatures": { "lowPoly": true, "waitForModels": false, "furRim": false, "tintRange": 0, "oneMaterial": true },
+  "tiers": { "phone": { "godRays": false, "ao": false }, "desktop": { "godRays": false, "ao": false } },
+  "loot": { "coins": true },
+  "hud": { "bands": ["band.1", "band.2", "band.3"] },
+  "bag": { "tabs": ["map", "gear", "pack", "notes"], "pack": { "slots": 8 } },
   "regionalSimCost": {
     "residentMB": 3.21,
     "rev": "01e880c73",
@@ -322,15 +107,6 @@
     "evidence": "progress/memory/sf57/regional-sim-cost/summary.json"
   },
   "spawns": [],
-  "audio": {
-    "ambience": "none",
-    "score": "none"
-  },
-  "bindings": {
-    "accent": "sand",
-    "budgets": {
-      "module": "./data/budgets.json",
-      "export": "default"
-    }
-  }
+  "audio": { "ambience": "none", "score": "none" },
+  "bindings": { "accent": "sand", "budgets": { "module": "./data/budgets.json", "export": "default" } }
 }

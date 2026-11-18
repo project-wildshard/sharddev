@@ -7,6 +7,7 @@ import { bundle } from '../../src/sharddev/bundle.ts';
 import { mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { formatJson } from './json.mjs';
 
 const repo = resolve(import.meta.dirname, '../..'), project = resolve(repo, 'src/shards/_template'), scratch = resolve(repo, `tmp/bake-warden-${process.pid}`);
 try {
@@ -18,7 +19,7 @@ try {
   const path = resolve(project, 'data/skins.json'), skins = JSON.parse(readFileSync(path, 'utf8')), at = skins.findIndex((row) => row.species === entry.species);
   const previous = at === -1 ? undefined : skins[at];
   if (at === -1) skins.push(entry); else skins[at] = entry;
-  writeFileSync(path, `${JSON.stringify(skins, null, 2)}\n`);
+  writeFileSync(path, formatJson(skins));
   for (const hash of [previous?.glb, previous?.skin]) if (hash !== undefined && hash !== entry.glb && hash !== entry.skin) rmSync(resolve(project, 'assets', hash), { force: true });
   const glbRow = entry.files[1];
   console.info(`template warden: skin ${entry.skin.slice(0, 8)}, glb ${entry.glb.slice(0, 8)} (${glb.length} bytes, ${glbRow.triangles} triangles, ${glbRow.draws} draws)`);

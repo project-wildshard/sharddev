@@ -1,31 +1,11 @@
 {
   "flags": [
-    "template.hut",
-    "template.blob",
-    "template.complete",
-    "template.complete-card",
-    "template.door-open",
-    "template.wave-started",
-    "template.wave-complete",
-    "template.lamp.accepted",
-    "template.lamp.a",
-    "template.lamp.b",
-    "template.lamp.c",
-    "template.lamp.reported",
-    "template.lamp.done",
-    "dead:barrow-warden",
-    "template.warden.paid",
-    "template.chest.opened",
-    "template.chest.paid",
-    "template.ledge.found",
-    "template.ledge.paid",
-    "template.hermit.accepted",
-    "template.hermit.reported",
-    "template.hermit.done",
-    "dead:mossling:1",
-    "dead:mossling:2",
-    "dead:mossling:3",
-    "dead:mossling:4"
+    "template.hut", "template.blob", "template.complete", "template.complete-card", "template.door-open",
+    "template.wave-started", "template.wave-complete", "template.lamp.accepted", "template.lamp.a", "template.lamp.b",
+    "template.lamp.c", "template.lamp.reported", "template.lamp.done", "dead:barrow-warden", "template.warden.paid",
+    "template.chest.opened", "template.chest.paid", "template.ledge.found", "template.ledge.paid",
+    "template.hermit.accepted", "template.hermit.reported", "template.hermit.done", "dead:mossling:1", "dead:mossling:2",
+    "dead:mossling:3", "dead:mossling:4"
   ],
   "quests": [
     {
@@ -37,198 +17,111 @@
         {
           "id": "hut",
           "objective": "Reach the hut",
-          "done": {
-            "all": [
-              "template.hut"
-            ]
-          },
+          "done": { "all": ["template.hut"] },
           "hint": "The grey hut is just north of the moss gate",
           "markers": [
-            {
-              "id": "hut.marker",
-              "label": "Grey hut",
-              "short": "Hut",
-              "at": {
-                "poi": "world",
-                "x": -4,
-                "z": -11.5
-              }
-            }
+            { "id": "hut.marker", "label": "Grey hut", "short": "Hut", "at": { "poi": "world", "x": -4, "z": -11.5 } }
           ]
         },
         {
           "id": "blob",
           "objective": "Beat the blob",
-          "done": {
-            "all": [
-              "template.blob"
-            ]
-          },
+          "done": { "all": ["template.blob"] },
           "hint": "The grey blob wanders past the hut: hit it until it pops",
           "markers": [
             {
               "id": "blob.marker",
               "label": "Grey blob",
               "short": "Blob",
-              "at": {
-                "poi": "world",
-                "x": 2.5,
-                "z": -16.5
-              }
+              "at": { "poi": "world", "x": 2.5, "z": -16.5 }
             }
           ]
         }
       ],
-      "onComplete": {
-        "fact": "template.quest",
-        "coins": 5
-      }
+      "onComplete": { "fact": "template.quest", "coins": 5 }
     },
     {
       "id": "template.lamplighter",
       "title": "Relight the Hollow",
       "completeFlag": "template.lamp.done",
-      "startWhen": {
-        "all": [
-          "template.lamp.accepted"
-        ]
-      },
+      "startWhen": { "all": ["template.lamp.accepted"] },
       "steps": [
         {
           "id": "a",
           "objective": "Light brazier A",
-          "done": {
-            "all": [
-              "template.lamp.a"
-            ]
-          },
+          "done": { "all": ["template.lamp.a"] },
           "hint": "Brazier A stands by the training ground, east of the hut",
           "markers": [
             {
               "id": "brazier-a.marker",
               "label": "Brazier A",
               "short": "A",
-              "at": {
-                "poi": "world",
-                "x": 5.9,
-                "z": -12.8
-              },
-              "hideWhen": {
-                "all": [
-                  "template.lamp.a"
-                ]
-              }
+              "at": { "poi": "world", "x": 5.9, "z": -12.8 },
+              "hideWhen": { "all": ["template.lamp.a"] }
             }
           ]
         },
         {
           "id": "b",
           "objective": "Light brazier B",
-          "done": {
-            "all": [
-              "template.lamp.b"
-            ]
-          },
+          "done": { "all": ["template.lamp.b"] },
           "hint": "Brazier B is across the pond, on its west bank",
           "markers": [
             {
               "id": "brazier-b.marker",
               "label": "Brazier B",
               "short": "B",
-              "at": {
-                "poi": "world",
-                "x": -27.6,
-                "z": 0.2
-              },
-              "hideWhen": {
-                "all": [
-                  "template.lamp.b"
-                ]
-              }
+              "at": { "poi": "world", "x": -27.6, "z": 0.2 },
+              "hideWhen": { "all": ["template.lamp.b"] }
             }
           ]
         },
         {
           "id": "c",
           "objective": "Light brazier C",
-          "done": {
-            "all": [
-              "template.lamp.c"
-            ]
-          },
+          "done": { "all": ["template.lamp.c"] },
           "hint": "Brazier C waits by the barrow ring",
           "markers": [
             {
               "id": "brazier-c.marker",
               "label": "Brazier C",
               "short": "C",
-              "at": {
-                "poi": "world",
-                "x": 9.6,
-                "z": -5.4
-              },
-              "hideWhen": {
-                "all": [
-                  "template.lamp.c"
-                ]
-              }
+              "at": { "poi": "world", "x": 9.6, "z": -5.4 },
+              "hideWhen": { "all": ["template.lamp.c"] }
             }
           ]
         },
         {
           "id": "warden",
           "objective": "Beat the Barrow Warden",
-          "done": {
-            "all": [
-              "dead:barrow-warden"
-            ]
-          },
+          "done": { "all": ["dead:barrow-warden"] },
           "hint": "The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core",
           "markers": [
             {
               "id": "warden.marker",
               "label": "Barrow ring",
               "short": "Warden",
-              "at": {
-                "poi": "world",
-                "x": 24.5,
-                "z": -2
-              },
-              "hideWhen": {
-                "all": [
-                  "dead:barrow-warden"
-                ]
-              }
+              "at": { "poi": "world", "x": 24.5, "z": -2 },
+              "hideWhen": { "all": ["dead:barrow-warden"] }
             }
           ]
         },
         {
           "id": "report",
           "objective": "Tell the Lamplighter",
-          "done": {
-            "all": [
-              "template.lamp.reported"
-            ]
-          },
+          "done": { "all": ["template.lamp.reported"] },
           "hint": "The Lamplighter waits on the path east of spawn",
           "markers": [
             {
               "id": "lamplighter.marker",
               "label": "The Lamplighter",
               "short": "Lamp",
-              "at": {
-                "poi": "world",
-                "x": 1.1,
-                "z": -6.4
-              }
+              "at": { "poi": "world", "x": 1.1, "z": -6.4 }
             }
           ]
         }
       ],
-      "onComplete": {
-        "coins": 25,
-        "fact": "template.lamplighter"
-      }
+      "onComplete": { "coins": 25, "fact": "template.lamplighter" }
     },
     {
       "id": "template.warden",
@@ -236,20 +129,9 @@
       "track": false,
       "completeFlag": "template.warden.paid",
       "steps": [
-        {
-          "id": "warden",
-          "objective": "Put down the Barrow Warden",
-          "done": {
-            "all": [
-              "dead:barrow-warden"
-            ]
-          }
-        }
+        { "id": "warden", "objective": "Put down the Barrow Warden", "done": { "all": ["dead:barrow-warden"] } }
       ],
-      "onComplete": {
-        "fact": "template.warden",
-        "coins": 10
-      }
+      "onComplete": { "fact": "template.warden", "coins": 10 }
     },
     {
       "id": "template.chest",
@@ -257,20 +139,9 @@
       "track": false,
       "completeFlag": "template.chest.paid",
       "steps": [
-        {
-          "id": "chest",
-          "objective": "Open the old chest by the sign",
-          "done": {
-            "all": [
-              "template.chest.opened"
-            ]
-          }
-        }
+        { "id": "chest", "objective": "Open the old chest by the sign", "done": { "all": ["template.chest.opened"] } }
       ],
-      "onComplete": {
-        "fact": "template.chest",
-        "coins": 10
-      }
+      "onComplete": { "fact": "template.chest", "coins": 10 }
     },
     {
       "id": "template.ledge",
@@ -281,159 +152,78 @@
         {
           "id": "ledge",
           "objective": "Ride the lift up to the ledge cache",
-          "done": {
-            "all": [
-              "template.ledge.found"
-            ]
-          }
+          "done": { "all": ["template.ledge.found"] }
         }
       ],
-      "onComplete": {
-        "fact": "template.ledge",
-        "coins": 15
-      }
+      "onComplete": { "fact": "template.ledge", "coins": 15 }
     },
     {
       "id": "template.hermit",
       "title": "The pond hermit's pests",
       "completeFlag": "template.hermit.done",
-      "startWhen": {
-        "all": [
-          "template.hermit.accepted"
-        ]
-      },
+      "startWhen": { "all": ["template.hermit.accepted"] },
       "steps": [
         {
           "id": "pack",
           "objective": "Drive off the mossling pack",
           "chip": "Mosslings",
-          "count": [
-            "dead:mossling:1",
-            "dead:mossling:2",
-            "dead:mossling:3",
-            "dead:mossling:4"
-          ],
-          "done": {
-            "all": [
-              "dead:mossling:1",
-              "dead:mossling:2",
-              "dead:mossling:3",
-              "dead:mossling:4"
-            ]
-          },
+          "count": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"],
+          "done": { "all": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"] },
           "hint": "They circle, then bite: strike the one that comes in",
           "markers": [
             {
               "id": "mosslings.marker",
               "label": "Mossling meadow",
               "short": "Pack",
-              "at": {
-                "poi": "world",
-                "x": 36.0,
-                "z": -98.0
-              },
-              "hideWhen": {
-                "all": [
-                  "dead:mossling:1",
-                  "dead:mossling:2",
-                  "dead:mossling:3",
-                  "dead:mossling:4"
-                ]
-              }
+              "at": { "poi": "world", "x": 36, "z": -98 },
+              "hideWhen": { "all": ["dead:mossling:1", "dead:mossling:2", "dead:mossling:3", "dead:mossling:4"] }
             }
           ]
         },
         {
           "id": "report",
           "objective": "Tell the Pond Hermit",
-          "done": {
-            "all": [
-              "template.hermit.reported"
-            ]
-          },
+          "done": { "all": ["template.hermit.reported"] },
           "hint": "The hermit waits on the pond's north bank",
           "markers": [
             {
               "id": "hermit.marker",
               "label": "Pond Hermit",
               "short": "Hermit",
-              "at": {
-                "poi": "world",
-                "x": -15.2,
-                "z": 7.0
-              }
+              "at": { "poi": "world", "x": -15.2, "z": 7 }
             }
           ]
         }
       ],
-      "onComplete": {
-        "coins": 15,
-        "fact": "template.hermit"
-      }
+      "onComplete": { "coins": 15, "fact": "template.hermit" }
     }
   ],
   "triggers": [
-    {
-      "id": "door-open",
-      "kind": "script",
-      "flag": "template.door-open",
-      "condition": "template.door.open"
-    },
-    {
-      "id": "hut",
-      "kind": "region",
-      "flag": "template.hut",
-      "x": -4,
-      "z": -11.5,
-      "radius": 3
-    },
-    {
-      "id": "blob",
-      "kind": "death",
-      "flag": "template.blob",
-      "tag": "creature.greyBlob"
-    },
+    { "id": "door-open", "kind": "script", "flag": "template.door-open", "condition": "template.door.open" },
+    { "id": "hut", "kind": "region", "flag": "template.hut", "x": -4, "z": -11.5, "radius": 3 },
+    { "id": "blob", "kind": "death", "flag": "template.blob", "tag": "creature.greyBlob" },
     {
       "id": "lamp.a",
       "kind": "script",
       "flag": "template.lamp.a",
       "condition": "template.brazier-a.lit",
-      "when": {
-        "all": [
-          "template.lamp.accepted"
-        ]
-      }
+      "when": { "all": ["template.lamp.accepted"] }
     },
     {
       "id": "lamp.b",
       "kind": "script",
       "flag": "template.lamp.b",
       "condition": "template.brazier-b.lit",
-      "when": {
-        "all": [
-          "template.lamp.accepted"
-        ]
-      }
+      "when": { "all": ["template.lamp.accepted"] }
     },
     {
       "id": "lamp.c",
       "kind": "script",
       "flag": "template.lamp.c",
       "condition": "template.brazier-c.lit",
-      "when": {
-        "all": [
-          "template.lamp.accepted"
-        ]
-      }
+      "when": { "all": ["template.lamp.accepted"] }
     },
-    {
-      "id": "template.ledge.near",
-      "kind": "region",
-      "flag": "template.ledge.found",
-      "x": 8.5,
-      "z": 6.4,
-      "radius": 1.4
-    }
+    { "id": "template.ledge.near", "kind": "region", "flag": "template.ledge.found", "x": 8.5, "z": 6.4, "radius": 1.4 }
   ],
   "dialogue": [
     {
@@ -453,48 +243,25 @@
               "id": "accept",
               "label": "I'll relight them.",
               "next": "waiting",
-              "sets": [
-                "template.lamp.accepted"
-              ],
-              "when": {
-                "all": [
-                  "template.complete"
-                ]
-              }
+              "sets": ["template.lamp.accepted"],
+              "when": { "all": ["template.complete"] }
             }
           ]
         },
         {
           "id": "waiting",
-          "lines": [
-            "A by the moss gate, B across the pond, C by the barrow ring. Then the Warden."
-          ],
+          "lines": ["A by the moss gate, B across the pond, C by the barrow ring. Then the Warden."],
           "choices": [
             {
               "id": "report",
               "label": "All three burn, and the Warden is down.",
               "next": "thanks",
-              "when": {
-                "all": [
-                  "template.lamp.a",
-                  "template.lamp.b",
-                  "template.lamp.c",
-                  "dead:barrow-warden"
-                ]
-              },
-              "sets": [
-                "template.lamp.reported"
-              ]
+              "when": { "all": ["template.lamp.a", "template.lamp.b", "template.lamp.c", "dead:barrow-warden"] },
+              "sets": ["template.lamp.reported"]
             }
           ]
         },
-        {
-          "id": "thanks",
-          "lines": [
-            "The Hollow breathes again. Take this for your trouble."
-          ],
-          "choices": []
-        }
+        { "id": "thanks", "lines": ["The Hollow breathes again. Take this for your trouble."], "choices": [] }
       ]
     }
   ]

@@ -1,9 +1,5 @@
 {
-  "families": [
-    "toon",
-    "pbr",
-    "emissive"
-  ],
+  "families": ["toon", "pbr", "emissive"],
   "materials": {
     "pbr": {
       "family": "pbr",
@@ -15,55 +11,19 @@
         "mottle": 0.22,
         "grain": 0.12,
         "relief": 0.6,
-        "moss": {
-          "colour": [
-            0.32,
-            0.42,
-            0.2
-          ],
-          "amount": 0.22
-        }
+        "moss": { "colour": [0.32, 0.42, 0.2], "amount": 0.22 }
       }
     },
-    "mossgate.mushroom-cap": {
-      "family": "emissive",
-      "colour": [
-        0.78,
-        0.13,
-        0.09
-      ],
-      "intensity": 1.1
-    },
-    "mossgate.lamp": {
-      "family": "emissive",
-      "colour": [
-        1,
-        0.6,
-        0.2
-      ],
-      "intensity": 1.7,
-      "vertexColours": true
-    },
+    "mossgate.mushroom-cap": { "family": "emissive", "colour": [0.78, 0.13, 0.09], "intensity": 1.1 },
+    "mossgate.lamp": { "family": "emissive", "colour": [1, 0.6, 0.2], "intensity": 1.7, "vertexColours": true },
     "mossgate.flame": {
       "family": "emissive",
-      "colour": [
-        1,
-        1,
-        1
-      ],
+      "colour": [1, 1, 1],
       "intensity": 0.65,
       "vertexColours": true,
       "blend": "additive"
     },
-    "mossgate.tell": {
-      "family": "emissive",
-      "colour": [
-        1,
-        0.48,
-        0.08
-      ],
-      "intensity": 2.8
-    }
+    "mossgate.tell": { "family": "emissive", "colour": [1, 0.48, 0.08], "intensity": 2.8 }
   },
   "post": [
     {
@@ -72,599 +32,85 @@
         "kind": "post",
         "params": {},
         "nodes": {
-          "c": {
-            "op": "sceneColour"
-          },
-          "rgb": {
-            "op": "swizzle",
-            "in": [
-              "c"
-            ],
-            "mask": "xyz"
-          },
-          "uv": {
-            "op": "screenUV"
-          },
-          "depth": {
-            "op": "sceneDepth"
-          },
-          "sky": {
-            "op": "smoothstep",
-            "in": [
-              400,
-              480,
-              "depth"
-            ]
-          },
-          "ray": {
-            "op": "viewRay"
-          },
-          "h": {
-            "op": "swizzle",
-            "in": [
-              "ray"
-            ],
-            "mask": "y"
-          },
-          "e": {
-            "op": "max",
-            "in": [
-              "h",
-              0
-            ]
-          },
-          "dot0": {
-            "op": "dot",
-            "in": [
-              "ray",
-              [
-                0.30461,
-                0.03332,
-                -0.9519
-              ]
-            ]
-          },
-          "sd": {
-            "op": "max",
-            "in": [
-              "dot0",
-              0
-            ]
-          },
-          "smoothstep1": {
-            "op": "smoothstep",
-            "in": [
-              0.07,
-              0.19,
-              "e"
-            ]
-          },
-          "mix2": {
-            "op": "mix",
-            "in": [
-              [
-                1,
-                0.4793,
-                0.1878
-              ],
-              [
-                0.9387,
-                0.2623,
-                0.2159
-              ],
-              "smoothstep1"
-            ]
-          },
-          "smoothstep3": {
-            "op": "smoothstep",
-            "in": [
-              0.15,
-              0.26,
-              "e"
-            ]
-          },
-          "mix4": {
-            "op": "mix",
-            "in": [
-              "mix2",
-              [
-                0.4342,
-                0.1559,
-                0.3613
-              ],
-              "smoothstep3"
-            ]
-          },
-          "smoothstep5": {
-            "op": "smoothstep",
-            "in": [
-              0.22,
-              0.42,
-              "e"
-            ]
-          },
-          "mix6": {
-            "op": "mix",
-            "in": [
-              "mix4",
-              [
-                0.0931,
-                0.0844,
-                0.3613
-              ],
-              "smoothstep5"
-            ]
-          },
-          "smoothstep7": {
-            "op": "smoothstep",
-            "in": [
-              0.4,
-              0.75,
-              "e"
-            ]
-          },
-          "mix8": {
-            "op": "mix",
-            "in": [
-              "mix6",
-              [
-                0.0252,
-                0.0319,
-                0.2232
-              ],
-              "smoothstep7"
-            ]
-          },
-          "smoothstep9": {
-            "op": "smoothstep",
-            "in": [
-              0,
-              0.4,
-              "e"
-            ]
-          },
-          "oneMinus10": {
-            "op": "oneMinus",
-            "in": [
-              "smoothstep9"
-            ]
-          },
-          "pow11": {
-            "op": "pow",
-            "in": [
-              "sd",
-              6
-            ]
-          },
-          "mul12": {
-            "op": "mul",
-            "in": [
-              "pow11",
-              0.4
-            ]
-          },
-          "mul13": {
-            "op": "mul",
-            "in": [
-              "mul12",
-              "oneMinus10"
-            ]
-          },
-          "mul14": {
-            "op": "mul",
-            "in": [
-              [
-                1,
-                0.62,
-                0.36
-              ],
-              "mul13"
-            ]
-          },
-          "pow15": {
-            "op": "pow",
-            "in": [
-              "sd",
-              120
-            ]
-          },
-          "mul16": {
-            "op": "mul",
-            "in": [
-              "pow15",
-              0.35
-            ]
-          },
-          "mul17": {
-            "op": "mul",
-            "in": [
-              [
-                1,
-                0.7913,
-                0.4342
-              ],
-              "mul16"
-            ]
-          },
-          "smoothstep18": {
-            "op": "smoothstep",
-            "in": [
-              0.99935,
-              0.9997,
-              "sd"
-            ]
-          },
-          "mul19": {
-            "op": "mul",
-            "in": [
-              "smoothstep18",
-              0.9
-            ]
-          },
-          "mul20": {
-            "op": "mul",
-            "in": [
-              [
-                1,
-                0.85,
-                0.6
-              ],
-              "mul19"
-            ]
-          },
-          "add21": {
-            "op": "add",
-            "in": [
-              "mix8",
-              "mul14"
-            ]
-          },
-          "add22": {
-            "op": "add",
-            "in": [
-              "add21",
-              "mul17"
-            ]
-          },
-          "add23": {
-            "op": "add",
-            "in": [
-              "add22",
-              "mul20"
-            ]
-          },
-          "swizzle24": {
-            "op": "swizzle",
-            "in": [
-              "ray"
-            ],
-            "mask": "xz"
-          },
-          "add25": {
-            "op": "add",
-            "in": [
-              "h",
-              0.08
-            ]
-          },
-          "max26": {
-            "op": "max",
-            "in": [
-              "add25",
-              0.04
-            ]
-          },
-          "div27": {
-            "op": "div",
-            "in": [
-              "swizzle24",
-              "max26"
-            ]
-          },
-          "mul28": {
-            "op": "mul",
-            "in": [
-              "div27",
-              1.6
-            ]
-          },
-          "mul29": {
-            "op": "mul",
-            "in": [
-              "mul28",
-              0.55
-            ]
-          },
-          "add30": {
-            "op": "add",
-            "in": [
-              "mul29",
-              4
-            ]
-          },
-          "noise31": {
-            "op": "noise",
-            "in": [
-              "add30"
-            ]
-          },
-          "mul32": {
-            "op": "mul",
-            "in": [
-              "mul28",
-              1.15
-            ]
-          },
-          "add33": {
-            "op": "add",
-            "in": [
-              "mul32",
-              17
-            ]
-          },
-          "noise34": {
-            "op": "noise",
-            "in": [
-              "add33"
-            ]
-          },
-          "mul35": {
-            "op": "mul",
-            "in": [
-              "mul28",
-              2.4
-            ]
-          },
-          "add36": {
-            "op": "add",
-            "in": [
-              "mul35",
-              9
-            ]
-          },
-          "noise37": {
-            "op": "noise",
-            "in": [
-              "add36"
-            ]
-          },
-          "mul38": {
-            "op": "mul",
-            "in": [
-              "noise31",
-              0.6
-            ]
-          },
-          "mul39": {
-            "op": "mul",
-            "in": [
-              "noise34",
-              0.3
-            ]
-          },
-          "add40": {
-            "op": "add",
-            "in": [
-              "mul38",
-              "mul39"
-            ]
-          },
-          "mul41": {
-            "op": "mul",
-            "in": [
-              "noise37",
-              0.22
-            ]
-          },
-          "add42": {
-            "op": "add",
-            "in": [
-              "add40",
-              "mul41"
-            ]
-          },
-          "smoothstep43": {
-            "op": "smoothstep",
-            "in": [
-              0.04,
-              0.1,
-              "h"
-            ]
-          },
-          "smoothstep44": {
-            "op": "smoothstep",
-            "in": [
-              0.3,
-              0.5,
-              "h"
-            ]
-          },
-          "oneMinus45": {
-            "op": "oneMinus",
-            "in": [
-              "smoothstep44"
-            ]
-          },
-          "mul46": {
-            "op": "mul",
-            "in": [
-              "smoothstep43",
-              "oneMinus45"
-            ]
-          },
-          "smoothstep47": {
-            "op": "smoothstep",
-            "in": [
-              0.1,
-              0.24,
-              "add42"
-            ]
-          },
-          "cloud": {
-            "op": "mul",
-            "in": [
-              "smoothstep47",
-              "mul46"
-            ]
-          },
-          "mul48": {
-            "op": "mul",
-            "in": [
-              "sd",
-              "sd"
-            ]
-          },
-          "mix49": {
-            "op": "mix",
-            "in": [
-              [
-                1,
-                0.46,
-                0.46
-              ],
-              [
-                1,
-                0.56,
-                0.32
-              ],
-              "mul48"
-            ]
-          },
-          "mul50": {
-            "op": "mul",
-            "in": [
-              "mix49",
-              0.86
-            ]
-          },
-          "smoothstep51": {
-            "op": "smoothstep",
-            "in": [
-              -0.2,
-              0.4,
-              "noise37"
-            ]
-          },
-          "mul52": {
-            "op": "mul",
-            "in": [
-              "smoothstep51",
-              0.35
-            ]
-          },
-          "mix53": {
-            "op": "mix",
-            "in": [
-              "mul50",
-              [
-                0.2667,
-                0.1175,
-                0.3432
-              ],
-              "mul52"
-            ]
-          },
-          "smoothstep54": {
-            "op": "smoothstep",
-            "in": [
-              0.14,
-              0.45,
-              "e"
-            ]
-          },
-          "mix55": {
-            "op": "mix",
-            "in": [
-              1,
-              0.72,
-              "smoothstep54"
-            ]
-          },
-          "mul56": {
-            "op": "mul",
-            "in": [
-              "mix53",
-              "mix55"
-            ]
-          },
-          "mul57": {
-            "op": "mul",
-            "in": [
-              "cloud",
-              0.92
-            ]
-          },
-          "mix58": {
-            "op": "mix",
-            "in": [
-              "add23",
-              "mul56",
-              "mul57"
-            ]
-          },
-          "skyCol": {
-            "op": "mul",
-            "in": [
-              "mix58",
-              0.95
-            ]
-          },
-          "scene": {
-            "op": "mix",
-            "in": [
-              "rgb",
-              "skyCol",
-              "sky"
-            ]
-          },
-          "vd": {
-            "op": "sub",
-            "in": [
-              "uv",
-              0.5
-            ]
-          },
-          "vr": {
-            "op": "dot",
-            "in": [
-              "vd",
-              "vd"
-            ]
-          },
-          "smoothstep59": {
-            "op": "smoothstep",
-            "in": [
-              0.2,
-              0.75,
-              "vr"
-            ]
-          },
-          "mul60": {
-            "op": "mul",
-            "in": [
-              "smoothstep59",
-              0.22
-            ]
-          },
-          "vig": {
-            "op": "oneMinus",
-            "in": [
-              "mul60"
-            ]
-          },
-          "out": {
-            "op": "mul",
-            "in": [
-              "scene",
-              "vig"
-            ]
-          }
+          "c": { "op": "sceneColour" },
+          "rgb": { "op": "swizzle", "in": ["c"], "mask": "xyz" },
+          "uv": { "op": "screenUV" },
+          "depth": { "op": "sceneDepth" },
+          "sky": { "op": "smoothstep", "in": [400, 480, "depth"] },
+          "ray": { "op": "viewRay" },
+          "h": { "op": "swizzle", "in": ["ray"], "mask": "y" },
+          "e": { "op": "max", "in": ["h", 0] },
+          "dot0": { "op": "dot", "in": ["ray", [0.30461, 0.03332, -0.9519]] },
+          "sd": { "op": "max", "in": ["dot0", 0] },
+          "smoothstep1": { "op": "smoothstep", "in": [0.07, 0.19, "e"] },
+          "mix2": { "op": "mix", "in": [[1, 0.4793, 0.1878], [0.9387, 0.2623, 0.2159], "smoothstep1"] },
+          "smoothstep3": { "op": "smoothstep", "in": [0.15, 0.26, "e"] },
+          "mix4": { "op": "mix", "in": ["mix2", [0.4342, 0.1559, 0.3613], "smoothstep3"] },
+          "smoothstep5": { "op": "smoothstep", "in": [0.22, 0.42, "e"] },
+          "mix6": { "op": "mix", "in": ["mix4", [0.0931, 0.0844, 0.3613], "smoothstep5"] },
+          "smoothstep7": { "op": "smoothstep", "in": [0.4, 0.75, "e"] },
+          "mix8": { "op": "mix", "in": ["mix6", [0.0252, 0.0319, 0.2232], "smoothstep7"] },
+          "smoothstep9": { "op": "smoothstep", "in": [0, 0.4, "e"] },
+          "oneMinus10": { "op": "oneMinus", "in": ["smoothstep9"] },
+          "pow11": { "op": "pow", "in": ["sd", 6] },
+          "mul12": { "op": "mul", "in": ["pow11", 0.4] },
+          "mul13": { "op": "mul", "in": ["mul12", "oneMinus10"] },
+          "mul14": { "op": "mul", "in": [[1, 0.62, 0.36], "mul13"] },
+          "pow15": { "op": "pow", "in": ["sd", 120] },
+          "mul16": { "op": "mul", "in": ["pow15", 0.35] },
+          "mul17": { "op": "mul", "in": [[1, 0.7913, 0.4342], "mul16"] },
+          "smoothstep18": { "op": "smoothstep", "in": [0.99935, 0.9997, "sd"] },
+          "mul19": { "op": "mul", "in": ["smoothstep18", 0.9] },
+          "mul20": { "op": "mul", "in": [[1, 0.85, 0.6], "mul19"] },
+          "add21": { "op": "add", "in": ["mix8", "mul14"] },
+          "add22": { "op": "add", "in": ["add21", "mul17"] },
+          "add23": { "op": "add", "in": ["add22", "mul20"] },
+          "swizzle24": { "op": "swizzle", "in": ["ray"], "mask": "xz" },
+          "add25": { "op": "add", "in": ["h", 0.08] },
+          "max26": { "op": "max", "in": ["add25", 0.04] },
+          "div27": { "op": "div", "in": ["swizzle24", "max26"] },
+          "mul28": { "op": "mul", "in": ["div27", 1.6] },
+          "mul29": { "op": "mul", "in": ["mul28", 0.55] },
+          "add30": { "op": "add", "in": ["mul29", 4] },
+          "noise31": { "op": "noise", "in": ["add30"] },
+          "mul32": { "op": "mul", "in": ["mul28", 1.15] },
+          "add33": { "op": "add", "in": ["mul32", 17] },
+          "noise34": { "op": "noise", "in": ["add33"] },
+          "mul35": { "op": "mul", "in": ["mul28", 2.4] },
+          "add36": { "op": "add", "in": ["mul35", 9] },
+          "noise37": { "op": "noise", "in": ["add36"] },
+          "mul38": { "op": "mul", "in": ["noise31", 0.6] },
+          "mul39": { "op": "mul", "in": ["noise34", 0.3] },
+          "add40": { "op": "add", "in": ["mul38", "mul39"] },
+          "mul41": { "op": "mul", "in": ["noise37", 0.22] },
+          "add42": { "op": "add", "in": ["add40", "mul41"] },
+          "smoothstep43": { "op": "smoothstep", "in": [0.04, 0.1, "h"] },
+          "smoothstep44": { "op": "smoothstep", "in": [0.3, 0.5, "h"] },
+          "oneMinus45": { "op": "oneMinus", "in": ["smoothstep44"] },
+          "mul46": { "op": "mul", "in": ["smoothstep43", "oneMinus45"] },
+          "smoothstep47": { "op": "smoothstep", "in": [0.1, 0.24, "add42"] },
+          "cloud": { "op": "mul", "in": ["smoothstep47", "mul46"] },
+          "mul48": { "op": "mul", "in": ["sd", "sd"] },
+          "mix49": { "op": "mix", "in": [[1, 0.46, 0.46], [1, 0.56, 0.32], "mul48"] },
+          "mul50": { "op": "mul", "in": ["mix49", 0.86] },
+          "smoothstep51": { "op": "smoothstep", "in": [-0.2, 0.4, "noise37"] },
+          "mul52": { "op": "mul", "in": ["smoothstep51", 0.35] },
+          "mix53": { "op": "mix", "in": ["mul50", [0.2667, 0.1175, 0.3432], "mul52"] },
+          "smoothstep54": { "op": "smoothstep", "in": [0.14, 0.45, "e"] },
+          "mix55": { "op": "mix", "in": [1, 0.72, "smoothstep54"] },
+          "mul56": { "op": "mul", "in": ["mix53", "mix55"] },
+          "mul57": { "op": "mul", "in": ["cloud", 0.92] },
+          "mix58": { "op": "mix", "in": ["add23", "mul56", "mul57"] },
+          "skyCol": { "op": "mul", "in": ["mix58", 0.95] },
+          "scene": { "op": "mix", "in": ["rgb", "skyCol", "sky"] },
+          "vd": { "op": "sub", "in": ["uv", 0.5] },
+          "vr": { "op": "dot", "in": ["vd", "vd"] },
+          "smoothstep59": { "op": "smoothstep", "in": [0.2, 0.75, "vr"] },
+          "mul60": { "op": "mul", "in": ["smoothstep59", 0.22] },
+          "vig": { "op": "oneMinus", "in": ["mul60"] },
+          "out": { "op": "mul", "in": ["scene", "vig"] }
         },
-        "stages": {
-          "post": {
-            "colour": "out"
-          }
-        }
+        "stages": { "post": { "colour": "out" } }
       }
     }
   ],
@@ -673,205 +119,55 @@
     "saturation": 1.18,
     "contrast": 1.03,
     "lut": null,
-    "bloom": {
-      "intensity": 0.6,
-      "threshold": 0.9,
-      "radius": 0.55
-    },
+    "bloom": { "intensity": 0.6, "threshold": 0.9, "radius": 0.55 },
     "tone": "aces",
-    "vignette": {
-      "offset": 0.3,
-      "darkness": 0.4
-    }
+    "vignette": { "offset": 0.3, "darkness": 0.4 }
   },
   "clock": "engine",
-  "day": {
-    "minutes": 12,
-    "start": 0.5,
-    "maxElevation": 60,
-    "azimuth": 163.4
-  },
+  "day": { "minutes": 12, "start": 0.5, "maxElevation": 60, "azimuth": 163.4 },
   "dayOverride": 0.65,
   "keys": [
     {
       "time": 0,
-      "sky": {
-        "zenith": [
-          0.0252,
-          0.0319,
-          0.2232
-        ],
-        "horizon": [
-          0.4342,
-          0.1559,
-          0.3613
-        ]
-      },
-      "fog": {
-        "colour": [
-          0.6867,
-          0.314,
-          0.3515
-        ],
-        "density": 0,
-        "near": 30,
-        "far": 280
-      },
-      "sun": {
-        "colour": [
-          1,
-          0.6724,
-          0.4233
-        ],
-        "intensity": 2.2
-      },
-      "ambient": {
-        "sky": [
-          0.552,
-          0.4342,
-          0.7758
-        ],
-        "ground": [
-          0.1946,
-          0.1441,
-          0.0452
-        ],
-        "intensity": 0.85
-      }
+      "sky": { "zenith": [0.0252, 0.0319, 0.2232], "horizon": [0.4342, 0.1559, 0.3613] },
+      "fog": { "colour": [0.6867, 0.314, 0.3515], "density": 0, "near": 30, "far": 280 },
+      "sun": { "colour": [1, 0.6724, 0.4233], "intensity": 2.2 },
+      "ambient": { "sky": [0.552, 0.4342, 0.7758], "ground": [0.1946, 0.1441, 0.0452], "intensity": 0.85 }
     }
   ],
   "light": {
-    "ao": {
-      "intensity": 1,
-      "radius": 1.2
-    },
-    "rim": {
-      "colour": [
-        1,
-        0.3231,
-        0.2159
-      ],
-      "strength": 0.3,
-      "power": 3
-    },
-    "pools": {
-      "colour": [
-        1,
-        0.62,
-        0.28
-      ],
-      "intensity": 1.3,
-      "radius": 2.4,
-      "at": [
-        [
-          0.55,
-          0,
-          -8.3
-        ]
-      ]
-    },
-    "environment": {
-      "intensity": 0.4,
-      "ground": [
-        0.1946,
-        0.1441,
-        0.0452
-      ]
-    },
-    "bounce": {
-      "colour": [
-        1,
-        0.3231,
-        0.2159
-      ],
-      "intensity": 1.2,
-      "lift": 0.12
-    },
-    "shadow": {
-      "intensity": 0.62,
-      "radius": 3,
-      "normalBias": 0.03
-    },
+    "ao": { "intensity": 1, "radius": 1.2 },
+    "rim": { "colour": [1, 0.3231, 0.2159], "strength": 0.3, "power": 3 },
+    "pools": { "colour": [1, 0.62, 0.28], "intensity": 1.3, "radius": 2.4, "at": [[0.55, 0, -8.3]] },
+    "environment": { "intensity": 0.4, "ground": [0.1946, 0.1441, 0.0452] },
+    "bounce": { "colour": [1, 0.3231, 0.2159], "intensity": 1.2, "lift": 0.12 },
+    "shadow": { "intensity": 0.62, "radius": 3, "normalBias": 0.03 },
     "lamps": [
       {
-        "at": [
-          -3.45,
-          2.0,
-          -10.8
-        ],
-        "colour": [
-          1,
-          0.6,
-          0.25
-        ],
+        "at": [-3.45, 2, -10.8],
+        "colour": [1, 0.6, 0.25],
         "intensity": 4.5,
         "distance": 7,
         "decay": 1.6,
-        "halo": {
-          "size": 1.3,
-          "opacity": 0.55
-        },
-        "flicker": {
-          "rate": 6,
-          "amount": 0.12
-        }
+        "halo": { "size": 1.3, "opacity": 0.55 },
+        "flicker": { "rate": 6, "amount": 0.12 }
       },
       {
-        "at": [
-          -3.2,
-          2.0,
-          -15.0
-        ],
-        "colour": [
-          1,
-          0.55,
-          0.2
-        ],
+        "at": [-3.2, 2, -15],
+        "colour": [1, 0.55, 0.2],
         "intensity": 8,
         "distance": 6.5,
         "decay": 1.4,
-        "halo": {
-          "size": 0.9,
-          "opacity": 0.45
-        },
-        "flicker": {
-          "rate": 6,
-          "amount": 0.12
-        }
+        "halo": { "size": 0.9, "opacity": 0.45 },
+        "flicker": { "rate": 6, "amount": 0.12 }
       },
-      {
-        "at": [
-          -5.4,
-          1.5,
-          -15.6
-        ],
-        "colour": [
-          1,
-          0.5,
-          0.18
-        ],
-        "intensity": 3,
-        "distance": 4,
-        "decay": 1.5
-      }
+      { "at": [-5.4, 1.5, -15.6], "colour": [1, 0.5, 0.18], "intensity": 3, "distance": 4, "decay": 1.5 }
     ],
     "motes": {
       "count": 160,
-      "min": [
-        -30,
-        0.3,
-        -18
-      ],
-      "max": [
-        34,
-        2.4,
-        10
-      ],
-      "colour": [
-        1,
-        0.644,
-        0.195
-      ],
+      "min": [-30, 0.3, -18],
+      "max": [34, 2.4, 10],
+      "colour": [1, 0.644, 0.195],
       "gain": 2,
       "size": 0.12
     }

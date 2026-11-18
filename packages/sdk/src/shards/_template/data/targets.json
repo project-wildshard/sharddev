@@ -7,9 +7,7 @@
         "fieldId": 101,
         "equals": 1,
         "visibleWhenMatched": false,
-        "colliders": [
-          "template.door"
-        ],
+        "colliders": ["template.door"],
         "activeWhenMatched": false
       },
       {
@@ -18,9 +16,7 @@
         "fieldId": 102,
         "equals": 1,
         "visibleWhenMatched": false,
-        "colliders": [
-          "template.mossgate"
-        ],
+        "colliders": ["template.mossgate"],
         "activeWhenMatched": false
       },
       {
@@ -47,9 +43,7 @@
         "fieldId": 103,
         "equals": 1,
         "visibleWhenMatched": true,
-        "colliders": [
-          "template.pond-stones"
-        ],
+        "colliders": ["template.pond-stones"],
         "activeWhenMatched": true
       },
       {
@@ -58,9 +52,7 @@
         "fieldId": 104,
         "equals": 1,
         "visibleWhenMatched": false,
-        "colliders": [
-          "template.arena-gate"
-        ],
+        "colliders": ["template.arena-gate"],
         "activeWhenMatched": false
       },
       {
@@ -96,9 +88,7 @@
         "fieldId": 105,
         "equals": 1,
         "visibleWhenMatched": false,
-        "colliders": [
-          "template.south-gate"
-        ],
+        "colliders": ["template.south-gate"],
         "activeWhenMatched": false
       },
       {
@@ -107,53 +97,27 @@
         "fieldId": 112,
         "equals": 1,
         "visibleWhenMatched": true,
-        "colliders": [
-          "template.ledge"
-        ],
+        "colliders": ["template.ledge"],
         "activeWhenMatched": true
       }
     ],
     "itemActions": [
-      {
-        "scene": "template.lantern.toggle",
-        "item": "tool.template-lantern",
-        "action": 3
-      },
-      {
-        "scene": "template.lantern.refill",
-        "item": "tool.template-lantern",
-        "action": 4
-      },
+      { "scene": "template.lantern.toggle", "item": "tool.template-lantern", "action": 3 },
+      { "scene": "template.lantern.refill", "item": "tool.template-lantern", "action": 4 },
       {
         "scene": "template.chest.open",
         "item": "tool.template-lantern",
         "action": 4,
         "setsFlag": "template.chest.opened"
       },
-      {
-        "scene": "template.rack.take",
-        "item": "weapon.sword-iron",
-        "action": 3
-      }
+      { "scene": "template.rack.take", "item": "weapon.sword-iron", "action": 3 }
     ],
     "itemFields": [
-      {
-        "item": "tool.template-lantern",
-        "fieldId": 201,
-        "property": "fuel"
-      },
-      {
-        "item": "tool.template-lantern",
-        "fieldId": 202,
-        "property": "lit"
-      }
+      { "item": "tool.template-lantern", "fieldId": 201, "property": "fuel" },
+      { "item": "tool.template-lantern", "fieldId": 202, "property": "lit" }
     ]
   },
-  "interaction": {
-    "id": "template.door.use",
-    "radius": 3,
-    "scene": "template.door.toggle"
-  },
+  "interaction": { "id": "template.door.use", "radius": 3, "scene": "template.door.toggle" },
   "braziers": [
     {
       "id": "template.brazier-a.use",
@@ -180,19 +144,7 @@
     "label": "Talk to the Lamplighter",
     "dialogue": "template.lamplighter"
   },
-  "chest": {
-    "id": "template.chest.use",
-    "radius": 2.2,
-    "scene": "template.chest.open"
-  },
-  "rack": {
-    "id": "template.rack.use",
-    "radius": 2,
-    "scene": "template.rack.take"
-  },
-  "lever": {
-    "id": "template.lever.use",
-    "radius": 2,
-    "scene": "template.lever.pull"
-  }
+  "chest": { "id": "template.chest.use", "radius": 2.2, "scene": "template.chest.open" },
+  "rack": { "id": "template.rack.use", "radius": 2, "scene": "template.rack.take" },
+  "lever": { "id": "template.lever.use", "radius": 2, "scene": "template.lever.pull" }
 }

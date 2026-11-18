@@ -1,77 +1,27 @@
 [
   {
     "fact": "template.quest",
-    "origin": {
-      "kind": "engine",
-      "source": "quest.complete"
-    },
-    "rewards": [
-      {
-        "kind": "achievement",
-        "id": "template.firstQuest",
-        "title": "A first adventure",
-        "threshold": 1
-      }
-    ]
+    "origin": { "kind": "engine", "source": "quest.complete" },
+    "rewards": [{ "kind": "achievement", "id": "template.firstQuest", "title": "A first adventure", "threshold": 1 }]
   },
   {
     "fact": "template.lamplighter",
-    "origin": {
-      "kind": "engine",
-      "source": "quest.complete"
-    },
-    "rewards": [
-      {
-        "kind": "achievement",
-        "id": "template.lamplighter",
-        "title": "Relight the Hollow",
-        "threshold": 1
-      }
-    ]
+    "origin": { "kind": "engine", "source": "quest.complete" },
+    "rewards": [{ "kind": "achievement", "id": "template.lamplighter", "title": "Relight the Hollow", "threshold": 1 }]
   },
   {
     "fact": "template.warden",
-    "origin": {
-      "kind": "engine",
-      "source": "quest.complete"
-    },
-    "rewards": [
-      {
-        "kind": "achievement",
-        "id": "template.warden",
-        "title": "Barrow Warden",
-        "threshold": 1
-      }
-    ]
+    "origin": { "kind": "engine", "source": "quest.complete" },
+    "rewards": [{ "kind": "achievement", "id": "template.warden", "title": "Barrow Warden", "threshold": 1 }]
   },
   {
     "fact": "template.chest",
-    "origin": {
-      "kind": "engine",
-      "source": "quest.complete"
-    },
-    "rewards": [
-      {
-        "kind": "achievement",
-        "id": "template.chest",
-        "title": "Finders keepers",
-        "threshold": 1
-      }
-    ]
+    "origin": { "kind": "engine", "source": "quest.complete" },
+    "rewards": [{ "kind": "achievement", "id": "template.chest", "title": "Finders keepers", "threshold": 1 }]
   },
   {
     "fact": "template.ledge",
-    "origin": {
-      "kind": "engine",
-      "source": "quest.complete"
-    },
-    "rewards": [
-      {
-        "kind": "achievement",
-        "id": "template.ledge",
-        "title": "High ground",
-        "threshold": 1
-      }
-    ]
+    "origin": { "kind": "engine", "source": "quest.complete" },
+    "rewards": [{ "kind": "achievement", "id": "template.ledge", "title": "High ground", "threshold": 1 }]
   }
 ]

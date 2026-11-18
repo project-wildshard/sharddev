@@ -1,10 +1,6 @@
 import TEMPLATE_DIRECTORS from '../data/director.json' with { type: 'json' };
-import { emptyShardfile } from '@wildshard/sdk/author';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import type { templateTerrain } from './terrain';
 import type { TemplateBehaviour } from './behaviour';
-import type { BakedProps } from '@wildshard/sdk/bake/props';
-import { TEMPLATE_FLAME, TEMPLATE_LAMP, TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE, TEMPLATE_TELL } from './templatePropsSource';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
 import { TEMPLATE_RAW_ROWS as rows } from './rows';
 import { parseRows } from '@wildshard/sdk/rows';
@@ -24,7 +20,7 @@ import ITEMS from '../data/items.json' with { type: 'json' };
 import targets from '../data/targets.json' with { type: 'json' };
 import skins from '../data/skins.json' with { type: 'json' };
 import CARD from '../data/card.json' with { type: 'json' };
-import idle from '../data/clientScripts.json' with { type: 'json' };
+import { IDLE_RESERVE, templateClientScripts } from './clientScripts';
 import { liftMover } from './lift';
 import { templateHeightAt, templateSites } from './landscape';
 import { HIDDEN_PANELS } from './scene';
@@ -38,50 +34,23 @@ const TEMPLATE_QUESTS = { ...QUESTS, dialogue: [...QUESTS.dialogue, ...NPCS.map(
 const TEMPLATE_SKIN_FILES = skins.flatMap(entry => entry.files), TEMPLATE_SKIN_LIBRARY = [...new Set(skins.map(entry => entry.skin))];
 const TEMPLATE_SKIN_COST = TEMPLATE_SKIN_FILES.reduce((sum, file) => ({ resident: sum.resident + file.decoded + file.gpu, compressed: sum.compressed + file.compressed }), { resident: 0, compressed: 0 });
 
-/** The particle anchors over braziers A, B and C, in `layout.BRAZIERS` order. */
-const BRAZIER_FLAMES = ['template.brazier-a.flame', 'template.brazier-b.flame', 'template.brazier-c.flame'];
 /** MH-3's share of the resident library budget: braziers B and C's particle pools (2 × 2 emitters × 96 live). Measured on the
  *  build: the compendium sketch check passes at 100 000 and refuses at 75 000. */
 const MH3_LIBRARY_RESIDENT = 100_000;
 /** MH-4's share: the Warden's ring (12 anchors × 32 live) and core (2 × 64 live) particle pools. Measured on the build:
  *  the sketch check passes at 45 000 and refuses at 30 000; 60 000 leaves a margin. */
 const MH4_LIBRARY_RESIDENT = 60_000;
-/** LF1-9: the rim braziers' flame panel and the Warden's tell ring and core panels (props.library). Measured on the build:
- *  63 092 resident, 33 512 compressed (14 244 + 15 116 + 4 152); these leave a margin. */
-const LF19_LIBRARY = { resident: 70_000, compressed: 36_000 } as const;
-/** TEMPLATES-CLEANROOM M2: the switchable panels (moss gate, arena gate, pond stones) carry coursed masonry and weathered
- *  vertex colours now; their share of the resident library budget. */
-const M2_MASONRY_RESIDENT = 300_000;
-/** SHARD-SOURCE M4.10: the flame panels' layered additive tongues (braziers A and B, the rim and the row beacons), over
- *  LF1-9's five-cone flames. Measured on the build: passes at 15 000 resident and 8 000 compressed, refuses at 0; these
- *  leave a margin. */
-const M410_FLAMES = { resident: 30_000, compressed: 16_000 } as const;
-/** TEMPLATE-E2E TC-M4: the south gate's panel (five planks and braces) in the library. */
-const TC_M4_GATE = { resident: 20_000, compressed: 8_000 } as const;
-/** TEMPLATE-E2E TC-M4b: the lift's deck and the ledge, two panels in the library (measured 37 032 resident, 19 808 compressed). */
-const TC_M4_LIFT = { resident: 40_000, compressed: 21_000 } as const;
-// The idle reserve retains three pairs of Wasm pages and six particle slots.
 /** The compendium's sketch rasters' resident share (format asset admission adds them to the library's): 2 633 280, the
  *  number the old budget carried bare. */
 const COMPENDIUM_SKETCHES = 2_633_280;
 const TEMPLATE_ROWS = parseRows({ ...rows, looks: TEMPLATE_SKIN_LOOKS });
-/** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone draws in the look's plain `pbr` (M2: no measure layer); the red
- *  mushroom caps draw in the look's emissive `mossgate.mushroom-cap` (LF1-2: it keeps its colour under the measure look). */
-const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME }, [TEMPLATE_TELL]: { id: TEMPLATE_TELL } };
 /** The places the gameplay rows stand: the hut door, the braziers' pads and the NPCs' and props' prompts (landscape.ts). */
 type Sites = ReturnType<typeof templateSites>;
-/** The rows the old bake and the scene source share: gameplay, scripts and their files, the look's own entries. */
+/** The gameplay rows: their scripts and files, the UI, targets and talks at their sites. */
 function templateGameplay(sites: Sites, behaviour: TemplateBehaviour, boss: { compressed: number }) {
   const door = behaviour.door, itemModule = behaviour.items.hash;
   const CLIENT_IDLE_HASH = behaviour.idle.hash, CLIENT_IDLE_BYTES = behaviour.idle.compressed;
-  const CLIENT_IDLE_RESIDENT = idle.module.resident - idle.module.bytes + CLIENT_IDLE_BYTES;
-  const clientScripts = structuredClone(idle.scripts);
-  for (const binding of clientScripts.bindings) {
-    binding.module = CLIENT_IDLE_HASH;
-    // MH-2, MH-3: each brazier's fire rises from its bowl (1.6 m over the pad, just under the use point)
-    const site = binding.target.kind === 'particles' ? sites.braziers[BRAZIER_FLAMES.indexOf(binding.target.id)] : undefined;
-    if (site !== undefined) binding.target.at = [site[0], site[1] - 0.1, site[2]];
-  }
+  const CLIENT_IDLE_RESIDENT = IDLE_RESERVE + CLIENT_IDLE_BYTES, clientScripts = templateClientScripts(CLIENT_IDLE_HASH, sites.braziers);
   // Keep generated door positions and the shared teaching text authoritative.
   const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: sites.door }, ui.oil, ui.jump,
     { ...ui.notes, tab: { ...ui.notes.tab, title: text.notes }, paragraphs: [text.note] }, ...ENCOUNTERS.ui];
@@ -106,34 +75,6 @@ function templateGameplay(sites: Sites, behaviour: TemplateBehaviour, boss: { co
       quests: TEMPLATE_QUESTS, directors: TEMPLATE_DIRECTORS, ledger: TEMPLATE_LEDGER, audio: TEMPLATE_AUDIO, state: hooks.state, hooks: hooks.hooks },
     sim: (base: Shardfile['sim']) => ({ ...base, scriptTickDivisor: 1, scripts: [door.hash, itemModule], bindings: [{ module: door.hash, entity: playerHandle, actorId: 'actor.player', kind: 'server' }] }) };
 }
-// The terrain's draw rows, written out at the platform's defaults: its tiles cast (inside the shadow disc) and receive
-// shadows, and the residency re-centres after the viewer moves 5 m. A ground that wants neither shadow, or a coarser
-// follow, changes these numbers.
-const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as const;
-
-/** Assemble the original authored product from this build's terrain rows (the props bake's back end; test fixtures). */
-export function templateProduct(terrain: Omit<ReturnType<typeof templateTerrain>, 'assets'>, props: BakedProps, behaviour: TemplateBehaviour, boss: { compressed: number }): Shardfile {
-const play = templateGameplay(terrain.sites, behaviour, boss);
-const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });
-const tiles = terrain.tiles.map((tile) => {
-  const addition = props.tiles.find((row) => row.lod === tile.lod && row.x === tile.x && row.z === tile.z);
-  if (addition === undefined) return tile;
-  return { ...tile, files: [...tile.files, ...addition.files],
-    bounds: { min: tile.bounds.min.map((value, axis) => Math.min(value, addition.bounds.min[axis] ?? value)), max: tile.bounds.max.map((value, axis) => Math.max(value, addition.bounds.max[axis] ?? value)) },
-    compressed: tile.compressed + addition.compressed, decoded: tile.decoded + addition.decoded, gpu: tile.gpu + addition.gpu, triangles: tile.triangles + addition.triangles, draws: tile.draws + addition.draws };
-});
-// Retain the old producer's JSON boundary, including signed-zero normalization.
-// oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
-return parseShardfile(JSON.parse(JSON.stringify({ ...base, ...play.rows,
-  budgets: { library: { resident: 100_000 + play.library_cost.resident + COMPENDIUM_SKETCHES + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident + TC_M4_LIFT.resident, compressed: 100_000 + play.library_cost.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed + TC_M4_LIFT.compressed }, sim: play.simBudget, overlap: 0 },
-  serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
-  look: TEMPLATE_LOOK, spawn: SPAWN,
-  terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...play.files], edge: terrain.edge,
-  library: [...props.library, ...play.library], far: props.far, props: { ...props.props, materials: TEMPLATE_PROP_MATERIALS },
-  critical: [...terrain.critical, ...play.critical], sim: play.sim(base.sim),
-})));
-}
-
 /**
  * SHARD-SOURCE AP36a2: the Template's rows over its scene source's shardfile (shard.config.ts's `extend`). The scene writes
  * the ground, tiles, panels and their files; this adds the gameplay, the scripts, the look (the ground draws in its `pbr`
