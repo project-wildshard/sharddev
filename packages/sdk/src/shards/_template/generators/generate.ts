@@ -7,13 +7,14 @@ import { defineShard, type SceneShard } from '@wildshard/sdk/scene/shard';
 import { builtSceneShardfile } from '@wildshard/sdk/scene/shardfile';
 import { rasterGroundMap } from '@wildshard/sdk/bake/groundMap';
 import mapSettings from '../data/map.json' with { type: 'json' };
+// SHARD-SOURCE AP37b: the shard's identity is data; `wildshard new` writes a project's own here
+import IDENTITY from '../data/identity.json' with { type: 'json' };
 import { templateBehaviour, type TemplateBehaviour } from './behaviour';
 import { templateBoss } from './boss';
 import { templateRows } from './product';
 import { templateOutput } from './productOutput';
 import { buildTemplate, templateColliders } from './scene';
 
-const IDENTITY = { slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 } as const;
 /** The scripts the last build compiled: `wildshard watch` reads the gameplay rows after its shell's build. */
 let compiled: { behaviour: TemplateBehaviour; boss: { hash: string; compressed: number } } | null = null;
 

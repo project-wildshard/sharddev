@@ -96,6 +96,19 @@ function anchoredGameplay(scene: ShardScene, gameplay: Gameplay): Gameplay {
   const merged = withAnchored({ quests: gameplay.gameplay['quests'], targets: gameplay.rest['targets'] ?? undefined }, scene.anchored);
   return { gameplay: { ...gameplay.gameplay, quests: merged.quests }, rest: interactions.length === 0 ? gameplay.rest : { ...gameplay.rest, targets: merged.targets } };
 }
+/**
+ * SHARD-SOURCE AP37b: the scene's gameplay rows. Rows that need the build's own output first (the Template's: its compiled
+ * scripts' hashes) can't be read here, so they stay the shell's: the source's `data/` and `behaviour/` bytes stand in, and
+ * an edit to either builds a new shell (the page reloads) while parts and the look still go live.
+ */
+function sourceGameplay(source: string, gameplay: (() => Gameplay) | undefined): Gameplay {
+  if (gameplay === undefined) return { gameplay: {}, rest: {} };
+  try { return gameplay(); } catch {
+    const files = (folder: string): string[] => existsSync(folder) ? readdirSync(folder, { recursive: true, encoding: 'utf8' }).map((name) => join(folder, name)).filter((path) => statSync(path).isFile()).sort() : [];
+    const rows = hashOf((hash) => { for (const path of [...files(join(source, 'data')), ...files(join(source, 'behaviour'))]) hash.json({ path: path.slice(source.length), bytes: readFileSync(path, 'utf8') }); });
+    return { gameplay: {}, rest: { unbuilt: rows } };
+  }
+}
 async function describeSource(source: string, memo: PaintMemo): Promise<{ scene: ShardScene; gameplay: Gameplay; describe: (mode: 'guess' | 'truth') => ShardScene; bundleMs: number; describeMs: number }> {
   const started = diagnosticNow();
   const result = await build({ configFile: false, logLevel: 'silent', plugins: [livePlugin()], build: { write: false, minify: false, lib: { entry: resolve(source, 'shard.config.ts'), formats: ['es'], fileName: 'config' }, rolldownOptions: { external: [/^node:/u], output: { codeSplitting: false } } } });
@@ -107,7 +120,7 @@ async function describeSource(source: string, memo: PaintMemo): Promise<{ scene:
   const shard = [loaded['default'], loaded['generate']].find((value): value is { describe: () => ShardScene; gameplay?: () => Gameplay } => typeof value === 'function' && 'describe' in value && typeof value.describe === 'function');
   if (shard === undefined) throw new Error('watch: shard.config.ts exports no scene shard (defineShard from @wildshard/sdk/scene/shard)');
   const describe = (mode: 'guess' | 'truth'): ShardScene => { memo.begin(mode); return withPaintMemo(memo, () => shard.describe()); };
-  const scene = describe('guess'), gameplay = anchoredGameplay(scene, shard.gameplay?.() ?? { gameplay: {}, rest: {} });
+  const scene = describe('guess'), gameplay = anchoredGameplay(scene, sourceGameplay(source, shard.gameplay));
   return { scene, gameplay, describe, bundleMs: Math.round(bundled - started), describeMs: Math.round(diagnosticNow() - bundled) };
 }
 

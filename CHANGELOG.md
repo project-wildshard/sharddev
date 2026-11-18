@@ -12,6 +12,7 @@ the next version and date, commit and push it, then run repo-kit's
 - `LookMaterial` (`@wildshard/sdk/materials`) draws a scene mesh in a look entry you write whole, such as a stone `pbr` with its moss and grain detail, and meshes that share it share one draw.
 - The Template is a three.js scene module now, like Brasscap: its world is parts in `generators/scene.ts`, its gameplay the same rows as before.
 - The Template is half the lines it was: its gameplay rows are one file per kind under `data/rows/`, its creature idles are derived from `creatures.json`, and its data is written compactly.
+- `wildshard new` with no flag gives you that Template, and `pnpm watch` shows each saved edit of its scene in a running page; its slug, name and author live in `src/data/identity.json`.
 
 ## v0.4.9 (2026-11-18)
 

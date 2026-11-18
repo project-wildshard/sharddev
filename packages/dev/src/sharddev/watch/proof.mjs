@@ -11,6 +11,7 @@
 //           (the grade), `sun` (the key light's direction), `ambient` (the hemisphere's intensity), `lamp` (a point light's
 //           intensity), `hill` (AP18: ground under the player), each a line of the authoring slice's `generators/world.ts`;
 //           `quest` (AP19: the slice quest's objective, in `generators/shard.ts`), read from the page's own text.
+//           `template` (AP37b: the Template's hut stone, in its `generators/world.ts`).
 // --fps     the page's frame cap (default 60: GPU benches share Jake's laptop; 0 leaves it uncapped)
 // --motion  at the yard camera: frames 0.2 s apart; the flame (pulse), the near fern (sway) and the page's point lights
 //           (flicker) must change with no shard code in the page (SHARD-SOURCE AP12); numbers to <out>/proof.json
@@ -51,6 +52,9 @@ const EDITS = {
     write: (i) => `y += far * (noise.fbm(x * 0.02 + 50, z * 0.02 + 50, 3) - 0.35) * 7; y += ${(0.2 + i * 0.3).toFixed(1)} * Math.min(1, Math.max(0, (8 - Math.hypot(x + 3.9, z + 5.6)) / 3));`,
     read: '() => Math.round(window.__wildshard.world.player.position.y * 20) / 20', expect: (i) => Math.round((0.2 + i * 0.3) * 20) / 20, held: true },
 };
+// AP37b: the Template's hut stone (its `generators/world.ts`), a colour the hut's parts bake into their vertex colours; the
+// page counts once it frames the revision that swapped them
+EDITS.template = { line: /HUT_STONE = 0x[0-9a-f]{6}/u, write: (i) => `HUT_STONE = 0x${colourOf(i)}` };
 // AP19: the quest's objective, as the page's quest panel says it once the simulation restarted on the new rows
 EDITS.quest = { line: /objective: 'Walk down to the pond(?: \(\d+\))?'/u, write: (i) => `objective: 'Walk down to the pond (${i})'`,
   read: '() => /walk down to the pond \\(\\d+\\)/iu.exec(document.body.innerText)?.[0].toLowerCase() ?? null', expect: (i) => `walk down to the pond (${i})` };

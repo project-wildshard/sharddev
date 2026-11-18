@@ -46,6 +46,14 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     await runCli(['new', repo]);
     expect(existsSync(resolve(repo, 'src/generators/generate.ts'))).toBe(true);
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate');
+    // SHARD-SOURCE AP37b: the Template is a scene module (AP36): the repo runs `pnpm watch`, and its generator keeps the
+    // describe() watch reads, under the project's identity from data/identity.json (no wrapper over shard.config.ts)
+    expect(existsSync(resolve(repo, 'src/generators/scene.ts'))).toBe(true);
+    expect((JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { scripts: Record<string, string> }).scripts).toEqual({ check: 'wildshard check .', watch: 'wildshard watch .' });
+    expect(JSON.parse(readFileSync(resolve(repo, 'src/data/identity.json'), 'utf8'))).toEqual({ author: 'Local author', name: 'default', revision: 2, seed: 357, slug: 'default' });
+    expect(existsSync(resolve(repo, 'src/generators/identity.ts'))).toBe(false);
+    const { generate } = await import(resolve(repo, 'src/generators/generate.ts')) as { generate: { describe: () => { identity: { slug: string } } } };
+    expect(generate.describe().identity.slug).toBe('default');
   });
 
   // SHARD-SOURCE AP37a: `--template scene` is Mossgate Hollow's three.js scene module under the project's identity.

@@ -124,7 +124,7 @@ export function releasePin(version: string, sdkVersions: readonly string[] | und
 }
 
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
-export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions): string {
+export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions, scene = template !== 'blender'): string {
   const sdk = sdkPackage(), release = releasePin(sdk.version, published('@wildshard/sdk'), published('@wildshard/cli'));
   const dependencies: Record<string, string> = { '@wildshard/sdk': release };
   for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
@@ -133,8 +133,9 @@ export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMP
     dependencies[name] = spec;
   }
   const sorted = Object.fromEntries(Object.entries(dependencies).sort(([a], [b]) => a.localeCompare(b)));
-  // AP22: a scene-module repo gets `pnpm watch` (each saved edit swapped into the running page); the Template has no scene to watch.
-  const scripts = template === 'scene' ? { check: 'wildshard check .', watch: 'wildshard watch .' } : { check: 'wildshard check .' };
+  // AP22, AP37b: a scene-module repo gets `pnpm watch` (each saved edit swapped into the running page); the Template is one
+  // too now (AP36). The retired hand-written shape and a bare `--empty` source have no scene to watch.
+  const scripts = scene ? { check: 'wildshard check .', watch: 'wildshard watch .' } : { check: 'wildshard check .' };
   // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
   return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
     engines: { node: sdk.node }, scripts, [template === 'blender' ? 'devDependencies' : 'dependencies']: sorted }, null, 2)}\n`;
@@ -171,11 +172,11 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
 
 function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
-  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the reference world, Mossgate (Template 1)'
+  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the Template, Mossgate\'s gameplay on a three.js scene module'
     : template === 'scene' ? 'Mossgate Hollow, a three.js scene module (`--template scene`)' : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : template === 'scene'
     ? '`identity.json` (the slug and name)\n  and `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save)'
-    : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `data/card.json` (the card)';
+    : '`data/` (the gameplay rows),\n  `generators/` (`scene.ts` is the world; `wildshard watch .` shows each save), `behaviour/`, `assets/` and\n  `data/card.json` (the card)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
   \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`
@@ -230,7 +231,7 @@ export function repoAuthorLint(): string {
 /** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, and the agent files
  * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
 function writeRepoFiles(project: string, slug: string, template: RepoShape, empty: boolean): void {
-  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template));
+  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template, registryVersions, !empty && template !== 'blender'));
   // A hand-written repo holds no TypeScript to check.
   if (template !== 'blender' || empty) writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
   writeFileSync(resolve(project, '.gitignore'), GITIGNORE);
@@ -260,10 +261,11 @@ function writeReferenceSource(source: string, slug: string): void {
   // UP5 (2026-11-13): the boot loads `shardfile`; Template's path booted a file this project never builds and hung.
   const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental', card: { thumb: art, portrait: art, landscape: art }, shardfile: `/shardfiles/${slug}/shard.json` }).replaceAll('/assets/_template/', `/assets/${slug}/`);
   writeFileSync(resolve(source, 'data/card.json'), manifest);
-  writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
-  // TC-NE4: the identity merge is a generator; shard.config.ts stays declaration-only, as the author lint requires.
-  writeFileSync(resolve(source, 'generators/identity.ts'), `import identity from '../data/identity.json' with { type: 'json' };\nimport type { GeneratedProject, ProjectGenerationContext } from '@wildshard/sdk/projectGeneration';\nimport { generate as reference } from './generate';\n\n/** The reference world under this project's identity (\`data/identity.json\`). */\nexport async function generate(context: ProjectGenerationContext): Promise<GeneratedProject> {\n  const product = await reference(context);\n  return { ...product, shard: { ...product.shard, identity: { ...product.shard.identity, ...identity } } };\n}\n`);
-  writeFileSync(resolve(source, 'shard.config.ts'), `import { generate as project } from './generators/identity';\nimport { BUILD_OPTIONS } from './generators/buildOptions';\n\n/** Author this world's data and generators; the identity belongs to this project. */\nexport const generate: typeof project = project;\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this documented generation entry.\nexport default generate;\nexport const buildOptions: typeof BUILD_OPTIONS = { ...BUILD_OPTIONS };\n`);
+  // AP37b: the Template reads its identity from data/identity.json (its scene module's describe() and the build alike), so
+  // the project's own slug, name and author replace it there; the revision and seed stay the Template's.
+  const identity: unknown = JSON.parse(readFileSync(resolve(source, 'data/identity.json'), 'utf8'));
+  if (typeof identity !== 'object' || identity === null || Array.isArray(identity)) throw new Error('Reference project identity is missing');
+  writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ ...identity, slug, name: slug, author: 'Local author' }));
 }
 
 /** AP37a: copy Mossgate Hollow's scene module (AP15) into `source` under this project's identity. Its only source is

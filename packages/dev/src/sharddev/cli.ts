@@ -109,7 +109,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     writeShardRepo(resolve(input), slug, { template, empty: empty === 1 });
     // NEW-SHARD-E2E F8: say what was made and what to run next, never exit silently
     const shown = relative(process.cwd(), resolve(input)) || '.';
-    console.info(`wildshard new: made ${shown}/, shard ${slug} (${template === 'scene' ? 'a three.js scene shard' : empty === 1 ? 'a bare shard source' : 'the reference world'}) at ${shown}/src/`);
+    console.info(`wildshard new: made ${shown}/, shard ${slug} (${template === 'scene' ? 'a three.js scene shard' : empty === 1 ? 'a bare shard source' : 'the Template, a three.js scene module'}) at ${shown}/src/`);
     console.info(`next: cd ${shown} && pnpm install && pnpm exec wildshard check .${template === 'scene' ? ', then pnpm exec wildshard watch . to see each save' : ''} (GUIDE.md is the guide)`);
     return;
   }
