@@ -136,6 +136,15 @@ named chains and translates source rest offsets, and `quadrupedBinding(id)`,
 which returns fresh binding data. Missing chains refuse before export.
 Scene-root motion remains actor-owned, as in the existing skin driver.
 
+The same export provides `bipedClips(bones, options)` and
+`bipedBinding(id, options)`. The biped pack supplies idle, walk, hit and
+die by sampling Driftwood's sailor poses on the Kit rig. Pass
+`{ defaults: ['die'] }` to keep the biped's procedural walk and use
+the pack's death clip. Supply `owned` clips to replace pack clips of the
+same name. Pass the same options to both helpers. For a quadruped
+without cosmetic joints, pass its bones and options to
+`quadrupedBinding(id, bones, options)` to match the exported tracks.
+
 From the SDK checkout, `node scripts/extract-kit-clips.mjs --check` verifies
 the immutable original content. `node scripts/build-kit-creatures.mjs --check`
 compares every animated asset and admits its clip/binding contracts. Omit
