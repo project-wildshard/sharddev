@@ -78,7 +78,7 @@ export default function codemod({ project, to }) {
     const config = join(root, name);
     if (sdkName === undefined || !existsSync(config)) continue;
     const before = readFileSync(config, 'utf8');
-    const after = before.replaceAll('./node_modules/@wildshard/engine/lint/wildshard-plugin.js', `./node_modules/${sdkName}/lint/engine-plugin.mjs`);
+    const after = before.replaceAll(/(?:\.\/)?node_modules\/@wildshard\/engine\/lint\/wildshard-plugin\.js/gu, `./node_modules/${sdkName}/lint/engine-plugin.mjs`);
     if (before === after) continue;
     writeFileSync(config, after);
     changes.push(`${name}: lint with the sdk's engine plugin`);
