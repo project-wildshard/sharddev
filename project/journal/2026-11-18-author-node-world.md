@@ -24,3 +24,7 @@ sample was 462 ms for ground, 365 ms for colliders and 8,463 ms for gameplay.
 The worker sample was 392 ms, 374 ms and 8,746 ms. It used the previous
 working engine dev client, v0.1.35, because the original v0.1.45 worker
 failed to load the Template's boar skin. All three changes are within 20%.
+
+The dev package declares the socket service's exact PGlite extension peers,
+as engine does. A fresh strict pnpm install passed without peer exceptions.
+The author world opens its database with core PGlite.
