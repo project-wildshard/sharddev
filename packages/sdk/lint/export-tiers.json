@@ -112,6 +112,7 @@
     "./formatJsonSchema": "contract",
     "./bake/rig": "bake kit",
     "./bake/skinned": "bake kit",
+    "./bake/hullLook": "bake kit",
     "./bake/creaturePhone": "bake kit",
     "./bake/riggedHullRecipes": "bake kit",
     "./bake/signPlacements": "bake kit",
