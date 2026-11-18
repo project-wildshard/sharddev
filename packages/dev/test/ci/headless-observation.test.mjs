@@ -48,7 +48,7 @@ test('runtime owners refuse offline observation without changing their checkpoin
   const sim = await HeadlessSimulation.create(source, new Map());
   try {
     const before = sim.checkpoint;
-    await assert.rejects(sim.observe(), /trusted offline/);
+    await assert.rejects(sim.observe(), { message: 'Observation requires advisory offline timing' });
     assert.deepEqual(sim.checkpoint, before);
   } finally { await sim.dispose(); }
 });
