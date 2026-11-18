@@ -6,6 +6,8 @@ import {
 
 import bear from '../content/creatures/bear.json' with { type: 'json' }
 import boar from '../content/creatures/boar.json' with { type: 'json' }
+import deer from '../content/creatures/deer.json' with { type: 'json' }
+import wolf from '../content/creatures/wolf.json' with { type: 'json' }
 import { legacyHarvestItems } from './legacyHarvest.ts'
 
 import type { ShardItems } from '@wildshard/shard-format/items'
@@ -28,14 +30,38 @@ function commonCreature(
   kind: CommonCreatureKind,
   options: Readonly<CreatureOptions>,
 ): CreatureContent {
-  const content = plain[kind]
-  const strikeId = options.strike ?? `${options.id}.charge`
+  return copyCreature(plain[kind], options, 'charge')
+}
+
+function deerCreature(
+  options: Readonly<Omit<CreatureOptions, 'strike'>>,
+): CreatureContent {
+  return copyCreature(deer, options, 'bite')
+}
+
+function wolfCreature(options: Readonly<CreatureOptions>): CreatureContent {
+  return copyCreature(wolf, options, 'bite')
+}
+
+interface PlainCreature {
+  readonly species: {
+    readonly body: object
+    readonly abilities?: readonly { readonly use: string }[]
+  }
+  readonly strikes: readonly { readonly id: string }[]
+}
+
+function copyCreature(
+  content: PlainCreature,
+  options: Readonly<CreatureOptions>,
+  action: string,
+): CreatureContent {
+  const strikeId = options.strike ?? `${options.id}.${action}`
   const rows = parseRows({
-    strikes: content.strikes.map(strike => {
-      const row = structuredClone(strike)
-      row.id = strikeId
-      return row
-    }),
+    strikes: content.strikes.map(strike => ({
+      ...structuredClone(strike),
+      id: strikeId,
+    })),
     weather: [],
     days: [],
     compendiums: [],
@@ -45,11 +71,14 @@ function commonCreature(
         ...content.species,
         id: options.id,
         body: { ...content.species.body, look: options.look },
-        abilities: content.species.abilities.map(ability => {
-          const row = structuredClone(ability)
-          row.use = strikeId
-          return row
-        }),
+        ...(content.species.abilities === undefined
+          ? {}
+          : {
+              abilities: content.species.abilities.map(ability => ({
+                ...structuredClone(ability),
+                use: strikeId,
+              })),
+            }),
       },
     ],
     looks: [
@@ -72,5 +101,5 @@ function commonCreature(
   }
 }
 
-export { commonCreature }
+export { commonCreature, deerCreature, wolfCreature }
 export type { CommonCreatureKind, CreatureOptions, CreatureContent }

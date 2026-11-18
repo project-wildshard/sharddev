@@ -94,5 +94,11 @@
     "label": "Silver fur",
     "icon": "hide",
     "travels": false
+  },
+  {
+    "id": "wolf-hide",
+    "label": "Wolf hide",
+    "icon": "hide",
+    "travels": true
   }
 ]
