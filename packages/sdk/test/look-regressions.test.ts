@@ -4,7 +4,7 @@ import sky from '../src/shards/far-reach/data/lookGraphs.json';
 import nalati from '../src/shards/nalati-grasslands/data/lookGraphs.json';
 
 function graph(input: unknown): GraphIr {
-  const checked = validateGraph(input, {trustedBudget: true});
+  const checked = validateGraph(input, {declaredBudget: true});
   if (!checked.ok) throw new Error(checked.errors.join('; '));
   return checked.graph;
 }

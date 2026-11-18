@@ -138,14 +138,14 @@ test('Nine weave bakes retain every texel and the sealed samplers as lent raster
 
 test('Nine canopy graphs retain vertex fog and fit both catalogue caps', () => {
   for (const id of ['nine-canopy-cards', 'nine-canopy-depth', 'nine-canopy-inner'] as const) {
-    const checked = validateGraph(NINE_GRAPHS[id], { trustedBudget: true });
+    const checked = validateGraph(NINE_GRAPHS[id], { declaredBudget: true });
     if (!checked.ok) throw new Error(checked.errors.join('\n'));
     const graph = checked.graph;
     expect(checked.cost.nodes).toBeLessThanOrEqual(4096);
     expect(new TextEncoder().encode(JSON.stringify(graph)).byteLength).toBeLessThanOrEqual(64_000);
     expect(graph.effectState?.fog).toBe(false);
     expect(graph.stages.surface?.targetAlpha).toBeDefined();
-    const compiled = compileClassicGraph(graph, { trustedBudget: true });
+    const compiled = compileClassicGraph(graph, { declaredBudget: true });
     if (id === 'nine-canopy-cards') {
       const texture = new DataTexture(new Uint8Array(4), 1, 1);
       compiled.setTexture('atlas', texture); compiled.setParam('atlasSize', [1024, 1024]); texture.dispose();
@@ -159,7 +159,7 @@ test('Nine canopy graphs retain vertex fog and fit both catalogue caps', () => {
 });
 
 test('canopy mip coverage matches log2 across float32 minification', () => {
-  const checked = validateGraph(NINE_GRAPHS['nine-canopy-cards'], { trustedBudget: true });
+  const checked = validateGraph(NINE_GRAPHS['nine-canopy-cards'], { declaredBudget: true });
   if (!checked.ok) throw new Error(checked.errors.join('\n'));
   const graph = checked.graph;
   const coverage = Object.values(graph.nodes).find(node => node.op === 'fwidth')?.in?.[0];

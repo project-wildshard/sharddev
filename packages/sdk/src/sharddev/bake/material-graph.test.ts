@@ -7,7 +7,7 @@ test('author graph admission preserves full normalized rows and input ownership'
     nodes: { colour: { op: 'const', value: [0.1, 0.2, 0.3] }, alpha: { op: 'param', param: 'gain' } },
     stages: { post: { colour: 'colour', alpha: 'alpha' } } };
   const before = structuredClone(input);
-  expect(checkAuthorGraph(input)).toEqual(validateGraph(input, { trustedBudget: true }));
+  expect(checkAuthorGraph(input)).toEqual(validateGraph(input, { declaredBudget: true }));
   expect(input).toEqual(before);
 });
 
@@ -17,7 +17,7 @@ test.each([
   { version: 1, kind: 'post', nodes: { x: { op: 'add', in: ['missing', 1] } }, stages: { post: { colour: 'x' } } },
   { version: 1, kind: 'post', nodes: { x: { op: 'const', value: Number.NaN } }, stages: { post: { colour: 'x' } } },
 ])('author graph diagnostics retain the defining refusal %#', input => {
-  const original = validateGraph(input, { trustedBudget: true });
+  const original = validateGraph(input, { declaredBudget: true });
   expect(original.ok).toBe(false);
   expect(checkAuthorGraph(input)).toEqual(original);
 });

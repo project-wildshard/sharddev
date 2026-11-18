@@ -54,8 +54,8 @@ function renderer(): THREE.WebGLRenderer {
  * sets for that draw (a fogged scene; an instanced mesh with colours; a skinned mesh) and the material's own defines.
  */
 function build(graph: GraphIr, instanced: boolean, skinned = false): { vertex: string; fragment: string } {
-  const fogGraph = compileClassicGraph(fog['nine-silk-fog'], { trustedBudget: true });
-  const compiled = compileClassicGraph(graph, { trustedBudget: true, fog: () => { if (fogGraph.fog === null) throw new Error('Missing silk fog'); return fogGraph.fog; } });
+  const fogGraph = compileClassicGraph(fog['nine-silk-fog'], { declaredBudget: true });
+  const compiled = compileClassicGraph(graph, { declaredBudget: true, fog: () => { if (fogGraph.fog === null) throw new Error('Missing silk fog'); return fogGraph.fog; } });
   try {
     const own: Record<string, MacroValue> = {};
     for (const [name, value] of Object.entries(compiled.material.defines ?? {})) own[name] = typeof value === 'number' ? value : typeof value === 'string' && value !== '' ? value : true;
@@ -99,7 +99,7 @@ test('every Nine graph value is assigned on every path that reads it, in its own
   // lines')`; each lines' was assigned inside its costly arm, so every other kind read it unassigned and the kit drew no ink.
   // A shared operand builds before the branch, but never across a varying (the lantern's instance transform is the vertex's)
   const looks = Object.entries(fog).filter(([id]) => id !== 'nine-silk-fog' && id !== 'nine-portal-sparks').map(([id, graph]): [string, GraphIr] => {
-    const checked = validateGraph(graph, { trustedBudget: true }); if (!checked.ok) throw new Error(`${id}: ${checked.errors.join('; ')}`); return [id, checked.graph];
+    const checked = validateGraph(graph, { declaredBudget: true }); if (!checked.ok) throw new Error(`${id}: ${checked.errors.join('; ')}`); return [id, checked.graph];
   });
   for (const [id, graph] of [...Object.entries(graphs), ...looks]) {
     const fragment = build(graph, true).fragment;
@@ -110,7 +110,7 @@ test('every Nine graph value is assigned on every path that reads it, in its own
 
 test('each existing material fits both caps and compiles its real instance channels', () => {
   for (const [id, graph] of Object.entries(graphs)) {
-    expect(validateGraph(graph, { trustedBudget: true }).ok, id).toBe(true);
+    expect(validateGraph(graph, { declaredBudget: true }).ok, id).toBe(true);
     expect(Object.keys(graph.nodes).length, id).toBeLessThanOrEqual(4096);
     expect(new TextEncoder().encode(JSON.stringify(graph)).length, id).toBeLessThanOrEqual(GRAPH_ADMISSION_LIMITS.bytes);
     const shaders = build(graph, true);
@@ -208,14 +208,14 @@ test('the base body, every held body mesh (and every hull) is one graph shape, i
     const params = graph.params ?? {}, kind = params['uHullK'] === undefined ? 'body' : 'hull';
     const shape = JSON.stringify({ ...graph, params: Object.fromEntries(Object.entries(params).map(([name, row]) => [name, row.type])) });
     shapes.set(kind, (shapes.get(kind) ?? new Set()).add(shape));
-    expect(validateGraph(graph, { trustedBudget: true }).ok, id).toBe(true);
+    expect(validateGraph(graph, { declaredBudget: true }).ok, id).toBe(true);
   }
   expect([...shapes.values()].map(set => set.size)).toEqual([...shapes.keys()].map(() => 1));
 });
 
 test('held draw rows compile aliased GLB buffers and ribbon channels', () => {
   for (const [id, graph] of Object.entries(viewmodelGraphs(heldProfile)).filter(([key]) => key.startsWith('nine-vm-rig-') || key === 'nine-vm-edge' || key === 'nine-vm-trail')) {
-    expect(validateGraph(graph, { trustedBudget: true }).ok, id).toBe(true);
+    expect(validateGraph(graph, { declaredBudget: true }).ok, id).toBe(true);
     const shaders = build(graph, false, id.startsWith('nine-vm-rig-'));
     expect(shaders.fragment, id).not.toContain('NaN');
     if (id.startsWith('nine-vm-rig-')) expect(shaders.vertex + shaders.fragment, id).toContain('aMat');
@@ -230,7 +230,7 @@ test('Nalati grades on the post-graph look: scene pass, desktop bloom side, the 
   await prepareScaledPost(render);
   const grade = rows.postGraph.passes['grade']?.programs['grade']?.graph;
   if (grade === undefined) throw new Error('Missing grade graph');
-  expect(validateGraph(grade, { trustedBudget: true }).ok).toBe(true);
+  expect(validateGraph(grade, { declaredBudget: true }).ok).toBe(true);
   expect(build(grade, false).fragment).not.toContain('NaN');
   const levelScope = new Scope('nalati-grade');
   lendGrade(levelScope, 'nalati-grade', uniformsFrom(rows.uniforms));

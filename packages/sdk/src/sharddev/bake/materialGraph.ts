@@ -28,5 +28,5 @@ export type AuthorPostGraphLook = PostGraphLookRow;
 /** Validate an offline author's complete graph under the existing host-owned author budget.
  * Keep diagnostics and graph normalization identical; runtime admission still owns its own caps. */
 export function checkAuthorGraph(input: unknown): ReturnType<typeof validateGraph> {
-  return validateGraph(input, { trustedBudget: true });
+  return validateGraph(input, { declaredBudget: true });
 }

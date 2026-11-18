@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { join, resolve } from 'node:path';
-import { DEV_CLIENT_ASSET, devClientTag, enginePin, fetchDevClient, fetchPreparationClient } from './devClient';
+import { DEV_CLIENT_ASSET, devClientTag, engineClientTag, enginePin, fetchDevClient, fetchPreparationClient } from './devClient';
 
 // SD-2 (HOW-WE-BUILD, SHARD-AUTHORING SA15): an installed `wildshard dev` fetches engine's devserver client at its pin.
 const directories: string[] = [];
@@ -55,6 +55,18 @@ test('an installed engine the shard overrode names the pin, a commit pin stays',
   const sha = '867f3b968429d8b90ae33b363dae3f15f16f6b84';
   write(dev, { name: '@wildshard/dev', dependencies: { '@wildshard/engine': `github:project-wildshard/engine#${sha}` } });
   expect(enginePin(dev)).toBe(`github:project-wildshard/engine#${sha}`);
+});
+
+test('the staging npm pin fetches both clients from its exact build release', () => {
+  const root = scratch(), engine = join(root, 'node_modules', '@wildshard', 'engine');
+  const build = '867f3b968429d8b90ae33b363dae3f15f16f6b84';
+  writeFileSync(join(root, 'package.json'), JSON.stringify({ dependencies: { '@wildshard/engine': '0.1.44' },
+    wildshardStagingClients: { '0.1.44': build } }));
+  expect(enginePin(root)).toBe('0.1.44');
+  expect(engineClientTag(root)).toBe(`server-staging-${build}`);
+  mkdirSync(engine, { recursive: true });
+  writeFileSync(join(engine, 'package.json'), JSON.stringify({ version: '0.1.45' }));
+  expect(engineClientTag(root)).toBe('v0.1.45');
 });
 
 test('the client is fetched once into the cache, then read from it', async () => {

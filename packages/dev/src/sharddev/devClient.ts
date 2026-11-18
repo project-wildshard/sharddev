@@ -41,6 +41,15 @@ export function enginePin(root = resolve(import.meta.dirname, '../..')): string 
   return installed ?? pin;
 }
 
+/** An npm staging pin has clients on the immutable staging release until the engine gets a version tag. */
+export function engineClientTag(root = resolve(import.meta.dirname, '../..')): string {
+  const pin = enginePin(root);
+  const manifest: { wildshardStagingClients?: Record<string, string> } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const build = manifest.wildshardStagingClients?.[pin];
+  return devClientTag(typeof build === 'string' && /^[0-9a-f]{40}$/u.test(build)
+    ? `github:project-wildshard/engine#${build}` : pin);
+}
+
 /** The version of the `@wildshard/engine` this package resolves: its own `node_modules` (npm nesting, a workspace), else
  *  the `node_modules` it is installed in (npm hoisting, pnpm's sibling links). */
 function installedEngineVersion(root: string): string | undefined {
@@ -114,7 +123,8 @@ export function fetchDevClient(options: { pin?: string; cache?: string; url?: st
 
 interface ClientAsset { asset: string; suffix: string; verb: string; label: string; check: (folder: string) => void }
 async function fetchClient(options: { pin?: string; cache?: string; url?: string | undefined }, kind: ClientAsset): Promise<string> {
-  const tag = devClientTag(options.pin ?? enginePin()), cache = options.cache ?? devClientCache(), folder = join(cache, `${tag}${kind.suffix}`);
+  const tag = options.pin === undefined ? engineClientTag() : devClientTag(options.pin);
+  const cache = options.cache ?? devClientCache(), folder = join(cache, `${tag}${kind.suffix}`);
   if (existsSync(join(folder, 'index.html'))) return folder;
   const url = options.url ?? `${RELEASES}/${tag}/${kind.asset}`;
   // prepare prints its result as JSON on stdout, so its progress goes to stderr

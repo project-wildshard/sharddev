@@ -56,7 +56,7 @@ test('project ABI survives named reconstruction, disk, browser and native withou
   expect(index.files.find(row=>row.hash===f.blob.file.hash)).not.toHaveProperty('script');
   expect(validateOutputProduct(f.root).assets.get(f.blob.file.hash)).toStrictEqual(f.bytes);
   const base='https://example.test/projection/';
-  const options:FolderOptions={base,offline:false,firstParty:false,hash:wire=>Promise.resolve(hashImmutableBytes(wire)),
+  const options:FolderOptions={base,offline:false,hash:wire=>Promise.resolve(hashImmutableBytes(wire)),
     fetch:url=>Promise.resolve(new Response(Uint8Array.from(readFileSync(resolve(f.root,url.slice(base.length))))))};
   expect((await admitFolder(await readFolderDescriptor(options),options)).assets.get(f.blob.file.hash)).toStrictEqual(f.bytes);
   const sim=await HeadlessSimulation.create(f.shard,f.assets,undefined,{deadline:'advisory',sections:f.sections});

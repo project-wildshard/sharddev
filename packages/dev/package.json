@@ -58,8 +58,8 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
-    "@wildshard/engine": "0.1.35",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.26.0",
+    "@wildshard/engine": "0.1.44",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.37.1",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",
@@ -97,6 +97,9 @@
     "./bake/splatLayers": "./src/sharddev/bake/splatLayers.ts",
     "./projectEntryProof": "./src/sharddev/projectEntryProof.ts",
     "./scripts/*": "./scripts/*"
+  },
+  "wildshardStagingClients": {
+    "0.1.44": "f61079f816be881c405796b597e5523fdd9061df"
   },
   "publishConfig": {
     "access": "public"

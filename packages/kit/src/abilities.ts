@@ -3,7 +3,7 @@ import {
   type CreatureAbility,
 } from '@wildshard/shard-format/creatureLayers'
 import { RowsSchema, type StrikeRows } from '@wildshard/shard-format/rows'
-import { parse, strictObject, type GenericSchema } from 'valibot'
+import { parse, strictObject } from 'valibot'
 
 import bite from '../content/abilities/bite.json' with { type: 'json' }
 import charge from '../content/abilities/charge.json' with { type: 'json' }
@@ -30,7 +30,7 @@ const ROW_ENTRIES = 2
 const ARRAY_SCHEMA = 0
 const StrikeSchema =
   RowsSchema.pipe[ROW_ENTRIES].entries.strikes.pipe[ARRAY_SCHEMA].item
-const TemplateSchema: GenericSchema<AbilityTemplate> = strictObject({
+const TemplateSchema = strictObject({
   ability: CreatureAbilitySchema,
   strike: StrikeSchema,
 })

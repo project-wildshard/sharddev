@@ -385,7 +385,7 @@ export function graph(spec: GraphSpec, host: { readonly budget?: GraphBudget } =
     ...(Object.keys(paramDefs).length === 0 ? {} : { params: paramDefs }), nodes, stages,
   };
   // `host.budget`: the ceilings a host grants this kind of graph (a look's sky, AP14), checked here and never written in it
-  const checked = validateGraph(structuredClone(ir), { trustedBudget: true, ...(host.budget === undefined ? {} : { budget: host.budget }) });
+  const checked = validateGraph(structuredClone(ir), { declaredBudget: true, ...(host.budget === undefined ? {} : { budget: host.budget }) });
   if (!checked.ok) throw new Error(`graph: ${checked.errors.join('; ')}`);
   return checked.graph;
 }
@@ -524,7 +524,7 @@ export class GraphMaterial extends MeshStandardMaterial {
   toMaterialEntry(): MaterialEntry { return { family: 'graph', graph: this.graph }; }
 }
 function checkedGraph(ir: GraphIr): GraphIr {
-  const checked = validateGraph(structuredClone(ir), { trustedBudget: true });
+  const checked = validateGraph(structuredClone(ir), { declaredBudget: true });
   if (!checked.ok) throw new Error(`graph: ${checked.errors.join('; ')}`);
   return checked.graph;
 }
