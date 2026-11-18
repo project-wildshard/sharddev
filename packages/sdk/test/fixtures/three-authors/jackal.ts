@@ -1,7 +1,5 @@
 // The dune jackal in TypeScript: the kit's quadruped body, pursue temperament and bite, plus its own rows.
-import { abilities } from '@wildshard/kit/abilities';
-import { quadruped } from '@wildshard/kit/body';
-import { temperament } from '@wildshard/kit/temperament';
+import { abilities, quadruped, temperament } from '@wildshard/kit';
 
 const bite = abilities.bite({ id: 'jackal.bite', damage: 9, range: 1.6 });
 const { temperament: pursue, senses } = temperament.pursue({ aggro: 16, leash: 30 });
