@@ -299,10 +299,13 @@ jobs:
         working-directory: packages/sdk
         if: ${{ !cancelled() }}
         run: node --test --test-concurrency=1 ../dev/test/ci/installed-author.test.mjs ../dev/test/ci/template-play.test.mjs ../dev/test/ci/template-warden.test.mjs ../dev/test/ci/template-chest.test.mjs ../dev/test/ci/package-products.test.mjs
+      # The headless shell only, no --with-deps: the runner image carries
+      # Chromium's system libraries, and the apt half fetched 32 MB of fonts
+      # at 86 kB/s for 6 min on 2026-11-18 (run 44387745051), past the cap.
       - name: Install Chromium for e2e
         working-directory: packages/dev
         if: ${{ !cancelled() }}
-        run: pnpm exec playwright install --with-deps chromium
+        run: pnpm exec playwright install --only-shell chromium
       - name: End-to-end
         if: ${{ !cancelled() }}
         run: pnpm test:e2e
