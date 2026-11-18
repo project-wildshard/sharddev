@@ -185,6 +185,7 @@
     "./formatJsonSchema": "./src/sharddev/formatJsonSchema.ts",
     "./bake/rig": "./src/sharddev/bake/rig.ts",
     "./bake/skinned": "./src/sharddev/bake/skinned.ts",
+    "./bake/creaturePhone": "./src/sharddev/bake/creaturePhone.ts",
     "./bake/riggedHullRecipes": "./src/sharddev/bake/riggedHullRecipes.ts",
     "./bake/signPlacements": "./src/sharddev/bake/signPlacements.ts",
     "./bake/image": "./src/sharddev/bake/image.ts",
