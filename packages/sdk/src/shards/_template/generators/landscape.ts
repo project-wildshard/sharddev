@@ -2,6 +2,7 @@ import { roadSocketMetrics } from '@wildshard/sdk/entries';
 import layout from '../data/layout.json' with { type: 'json' };
 import { cellGround } from './ground';
 import { templateNoise } from './landscapeNoise';
+import { Color, SRGBColorSpace } from 'three';
 
 // Retained authored entry grading: 15 m road, reaching 60 m into the cell.
 const ROAD_WIDTH = 15, ROAD_LENGTH = 60;
@@ -68,4 +69,45 @@ export function templateHeightAt(seed = 357): (x: number, z: number) => number {
     }
     return height;
   };
+}
+
+/**
+ * TEMPLATES-CLEANROOM M2: the cleanroom's moss floor as vertex colours (no texture): dark, mid and light olive moss mixed
+ * by a broad and a clumpy noise, a warm dirt ring round the pond. sRGB palette, returned linear.
+ */
+export function mossFloor(): (x: number, z: number) => [number, number, number] {
+  const big = templateNoise(11), clump = templateNoise(12), drift = templateNoise(13);
+  const dark = [72, 90, 36], mid = [102, 120, 48], lite = [134, 146, 64], dirt = [120, 104, 80];
+  const clamp = (x: number): number => Math.min(1, Math.max(0, x));
+  const mix = (a: number[], b: number[], t: number): number[] => a.map((x, i) => x + ((b[i] ?? 0) - x) * t);
+  const c = new Color();
+  return (x, z) => {
+    const b = big(x * 0.06, z * 0.06) * 0.5 + 0.5, k = clump(x * 0.21, z * 0.21) * 0.5 + 0.5, w = drift(x * 0.018, z * 0.018) * 0.5 + 0.5;
+    let col = mix(dark, mid, clamp(b * 1.5 - 0.15));
+    col = mix(col, lite, clamp((k - 0.5) * 2.5));
+    const tint = [0.96 + (b - 0.5) * 0.3, 0.98 + (b - 0.5) * 0.22, 0.86 + (w - 0.5) * 0.3];
+    col = col.map((v, i) => v * (tint[i] ?? 1) * (0.9 + k * 0.15));
+    const shore = pondSDF(x, z); // the water's edge (data/water.json)
+    if (shore < 1.2) col = mix(col, dirt, clamp((1.2 - shore) / 1.6));
+    c.setRGB(clamp((col[0] ?? 0) / 255), clamp((col[1] ?? 0) / 255), clamp((col[2] ?? 0) / 255), SRGBColorSpace);
+    return [c.r, c.g, c.b];
+  };
+}
+
+type Site = [number, number, number];
+/** Where the gameplay rows stand on this ground: the hut door, braziers A to C, the NPCs' feet and the props' prompts. */
+export function templateSites(heightAt: (x: number, z: number) => number): { door: Site; braziers: Site[]; lamplighter: Site; chest: Site; hermit: Site; rack: Site; lever: Site } {
+  return { door: [layout.HUT.x, heightAt(layout.HUT.x, layout.HUT.z) + 1.2, layout.HUT.doorZ],
+    // MH-2, MH-3: braziers A, B and C's use points, 1.7 m over their pads: above the stand's collider (1.5 m), or the prompt's sight line hits it
+    braziers: layout.BRAZIERS.map(([x = 0, z = 0]): Site => [x, heightAt(x, z) + 1.7, z]),
+    // MH-5: the Lamplighter's feet, on the ground (a talk's `at` is where its figure stands)
+    lamplighter: [layout.LAMPLIGHTER.x, heightAt(layout.LAMPLIGHTER.x, layout.LAMPLIGHTER.z), layout.LAMPLIGHTER.z],
+    // TC-M5: the old chest's lid, where its prompt stands
+    chest: [layout.CHEST.x, heightAt(layout.CHEST.x, layout.CHEST.z) + 0.6, layout.CHEST.z],
+    // TC-M6: the Pond Hermit's feet, on the pond's north bank
+    hermit: [layout.HERMIT.x, heightAt(layout.HERMIT.x, layout.HERMIT.z), layout.HERMIT.z],
+    // TC-M5b (J361): the iron sword's rack by the yard, where its prompt stands
+    rack: [layout.RACK.x, heightAt(layout.RACK.x, layout.RACK.z) + 1, layout.RACK.z],
+    // TC-M4: the south gate's lever, inside the yard by the south wall, where its prompt stands
+    lever: [layout.LEVER.x, heightAt(layout.LEVER.x, layout.LEVER.z) + 1, layout.LEVER.z] };
 }

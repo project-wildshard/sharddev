@@ -531,11 +531,27 @@ function checkedGraph(ir: GraphIr): GraphIr {
 
 function rgb(values: readonly number[]): Color { return new Color().setRGB(values[0] ?? 0, values[1] ?? 0, values[2] ?? 0, SRGBColorSpace); }
 
+/**
+ * SHARD-SOURCE AP36a1: a surface drawn as a look entry the author writes whole (format `materials`): a `pbr` entry with its
+ * procedural `detail`, an `emissive` flame. A preview draws the standard model in `preview`; the bake writes `entry` as it
+ * is. Vertex colours ride through when the entry reads them (`vertexColours`), so many meshes share the entry's one draw.
+ */
+export class LookMaterial extends MeshStandardMaterial {
+  readonly isLookEntryMaterial = true;
+  readonly entry: MaterialEntry;
+  constructor(entry: MaterialEntry, preview: ColorRepresentation = 0xffffff) {
+    super({ color: preview, vertexColors: 'vertexColours' in entry && entry.vertexColours === true });
+    this.entry = structuredClone(entry);
+  }
+  /** The catalogue entry: the one written. */
+  toMaterialEntry(): MaterialEntry { return structuredClone(this.entry); }
+}
+
 /** An SDK material the scene reader bakes to a catalogue entry. */
-export type CatalogueMaterial = ToonMaterial | PainterlyMaterial | GraphMaterial;
+export type CatalogueMaterial = ToonMaterial | PainterlyMaterial | GraphMaterial | LookMaterial;
 /** Whether a material is one of this module's catalogue materials. */
 export function isCatalogueMaterial(material: unknown): material is CatalogueMaterial {
-  return material instanceof ToonMaterial || material instanceof PainterlyMaterial || material instanceof GraphMaterial;
+  return material instanceof ToonMaterial || material instanceof PainterlyMaterial || material instanceof GraphMaterial || material instanceof LookMaterial;
 }
 /** Rebuild the SDK material a catalogue entry came from (the scene graph restore path). */
 export function catalogueMaterial(entry: MaterialEntry): CatalogueMaterial {

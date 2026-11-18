@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## Unreleased
+
+- `LookMaterial` (`@wildshard/sdk/materials`) draws a scene mesh in a look entry you write whole, such as a stone `pbr` with its moss and grain detail, and meshes that share it share one draw.
+- The Template is a three.js scene module now, like Brasscap: its world is parts in `generators/scene.ts`, its gameplay the same rows as before.
+
 ## v0.4.9 (2026-11-18)
 
 - Nine Dragon Stack scenery takes less graphics memory with compact slabs.

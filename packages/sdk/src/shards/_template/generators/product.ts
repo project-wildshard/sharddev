@@ -26,7 +26,8 @@ import skins from '../data/skins.json' with { type: 'json' };
 import CARD from '../data/card.json' with { type: 'json' };
 import idle from '../data/clientScripts.json' with { type: 'json' };
 import { liftMover } from './lift';
-import { templateHeightAt } from './landscape';
+import { templateHeightAt, templateSites } from './landscape';
+import { HIDDEN_PANELS } from './scene';
 
 // Skin projections belong to this build-time declaration, with no runtime wrapper.
 const TEMPLATE_SKIN_LOOKS = skins.map(entry => ({ id: entry.look, species: entry.species, recipe: 'platform.skin', material: null, parameters: { skin: entry.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }));
@@ -60,37 +61,60 @@ const TC_M4_GATE = { resident: 20_000, compressed: 8_000 } as const;
 /** TEMPLATE-E2E TC-M4b: the lift's deck and the ledge, two panels in the library (measured 37 032 resident, 19 808 compressed). */
 const TC_M4_LIFT = { resident: 40_000, compressed: 21_000 } as const;
 // The idle reserve retains three pairs of Wasm pages and six particle slots.
+/** The compendium's sketch rasters' resident share (format asset admission adds them to the library's): 2 633 280, the
+ *  number the old budget carried bare. */
+const COMPENDIUM_SKETCHES = 2_633_280;
 const TEMPLATE_ROWS = parseRows({ ...rows, looks: TEMPLATE_SKIN_LOOKS });
 /** LF1-5: every props GLB names its surface (templatePropsSource.ts). The stone draws in the look's plain `pbr` (M2: no measure layer); the red
  *  mushroom caps draw in the look's emissive `mossgate.mushroom-cap` (LF1-2: it keeps its colour under the measure look). */
 const TEMPLATE_PROP_MATERIALS = { [TEMPLATE_STONE]: { id: 'pbr' }, [TEMPLATE_MUSHROOM_CAP]: { id: TEMPLATE_MUSHROOM_CAP }, [TEMPLATE_LAMP]: { id: TEMPLATE_LAMP }, [TEMPLATE_FLAME]: { id: TEMPLATE_FLAME }, [TEMPLATE_TELL]: { id: TEMPLATE_TELL } };
-/** Assemble the original authored product from this build's terrain rows. */
-export function templateProduct(terrain: Omit<ReturnType<typeof templateTerrain>, 'assets'>, props: BakedProps, behaviour: TemplateBehaviour, boss: { compressed: number }): Shardfile {
-const door = behaviour.door, itemModule = behaviour.items.hash;
-const CLIENT_IDLE_HASH = behaviour.idle.hash, CLIENT_IDLE_BYTES = behaviour.idle.compressed;
-const CLIENT_IDLE_RESIDENT = idle.module.resident - idle.module.bytes + CLIENT_IDLE_BYTES;
-const clientScripts = structuredClone(idle.scripts);
-for (const binding of clientScripts.bindings) {
-  binding.module = CLIENT_IDLE_HASH;
-  // MH-2, MH-3: each brazier's fire rises from its bowl (1.6 m over the pad, just under the use point)
-  const site = binding.target.kind === 'particles' ? terrain.sites.braziers[BRAZIER_FLAMES.indexOf(binding.target.id)] : undefined;
-  if (site !== undefined) binding.target.at = [site[0], site[1] - 0.1, site[2]];
+/** The places the gameplay rows stand: the hut door, the braziers' pads and the NPCs' and props' prompts (landscape.ts). */
+type Sites = ReturnType<typeof templateSites>;
+/** The rows the old bake and the scene source share: gameplay, scripts and their files, the look's own entries. */
+function templateGameplay(sites: Sites, behaviour: TemplateBehaviour, boss: { compressed: number }) {
+  const door = behaviour.door, itemModule = behaviour.items.hash;
+  const CLIENT_IDLE_HASH = behaviour.idle.hash, CLIENT_IDLE_BYTES = behaviour.idle.compressed;
+  const CLIENT_IDLE_RESIDENT = idle.module.resident - idle.module.bytes + CLIENT_IDLE_BYTES;
+  const clientScripts = structuredClone(idle.scripts);
+  for (const binding of clientScripts.bindings) {
+    binding.module = CLIENT_IDLE_HASH;
+    // MH-2, MH-3: each brazier's fire rises from its bowl (1.6 m over the pad, just under the use point)
+    const site = binding.target.kind === 'particles' ? sites.braziers[BRAZIER_FLAMES.indexOf(binding.target.id)] : undefined;
+    if (site !== undefined) binding.target.at = [site[0], site[1] - 0.1, site[2]];
+  }
+  // Keep generated door positions and the shared teaching text authoritative.
+  const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: sites.door }, ui.oil, ui.jump,
+    { ...ui.notes, tab: { ...ui.notes.tab, title: text.notes }, paragraphs: [text.note] }, ...ENCOUNTERS.ui];
+  const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: sites.door, label: text.door }, ...targets.braziers.map((row, i) => {
+    const at = sites.braziers[i], label = text.braziers[i]; if (at === undefined || label === undefined) throw new Error(`${row.id} needs a pad in layout.BRAZIERS and a label`);
+    return { id: row.id, radius: row.radius, scene: row.scene, unless: row.unless, at, label };
+  }), { ...targets.chest, at: sites.chest, label: text.chest }, { ...targets.rack, at: sites.rack, label: text.rack },
+    { ...targets.lever, at: sites.lever, label: text.lever }],
+    // MH-5: the Lamplighter (TE-ENG3's `targets.talks`), on the ground east of the spawn-to-hut path; the engine draws its stand-in
+    talks: [{ ...targets.talk, at: sites.lamplighter }, { ...hermit.npc.talk, at: sites.hermit }] };
+  const playerHandle = 1106943697; // fnv1a32('actor.player') & 0x7fffffff; admission compares this with the session map.
+  const script = { hash: door.hash, kind: 'wasm', compressed: door.compressed, decoded: door.compressed, gpu: 0, triangles: 0, draws: 0, dependencies: [], critical: true };
+  const itemScript = { ...script, hash: itemModule, compressed: behaviour.items.compressed, decoded: behaviour.items.compressed };
+  const clientScript = { ...script, hash: CLIENT_IDLE_HASH, compressed: CLIENT_IDLE_BYTES, decoded: CLIENT_IDLE_BYTES, critical: false };
+  const sim = { resident: 16_000_000, compressed: 1_000_000 - boss.compressed };
+  return { files: [...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], library: [...TEMPLATE_SKIN_LIBRARY, CLIENT_IDLE_HASH], critical: [door.hash, itemModule],
+    library_cost: { resident: TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT, compressed: CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed }, simBudget: sim,
+    rows: { accent: 'sand', manifest: CARD, rows: TEMPLATE_ROWS, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI, items: ITEMS, targets: TEMPLATE_TARGETS, clientScripts,
+      // TC-M4b: the lift (lift.ts), stepped by the server and drawn as its panel
+      movers: [liftMover(templateHeightAt())],
+      water: TEMPLATE_WATER, creatures: CREATURES, encounters: ENCOUNTERS.encounters,
+      quests: TEMPLATE_QUESTS, directors: TEMPLATE_DIRECTORS, ledger: TEMPLATE_LEDGER, audio: TEMPLATE_AUDIO, state: hooks.state, hooks: hooks.hooks },
+    sim: (base: Shardfile['sim']) => ({ ...base, scriptTickDivisor: 1, scripts: [door.hash, itemModule], bindings: [{ module: door.hash, entity: playerHandle, actorId: 'actor.player', kind: 'server' }] }) };
 }
-// Keep generated door positions and the shared teaching text authoritative.
-const TEMPLATE_UI = [{ ...ui.marker, label: text.hut, at: terrain.sites.door }, ui.oil, ui.jump,
-  { ...ui.notes, tab: { ...ui.notes.tab, title: text.notes }, paragraphs: [text.note] }, ...ENCOUNTERS.ui];
-const TEMPLATE_TARGETS = { ...targets.rows, interactions: [{ ...targets.interaction, at: terrain.sites.door, label: text.door }, ...targets.braziers.map((row, i) => {
-  const at = terrain.sites.braziers[i], label = text.braziers[i]; if (at === undefined || label === undefined) throw new Error(`${row.id} needs a pad in layout.BRAZIERS and a label`);
-  return { id: row.id, radius: row.radius, scene: row.scene, unless: row.unless, at, label };
-}), { ...targets.chest, at: terrain.sites.chest, label: text.chest }, { ...targets.rack, at: terrain.sites.rack, label: text.rack },
-  { ...targets.lever, at: terrain.sites.lever, label: text.lever }],
-  // MH-5: the Lamplighter (TE-ENG3's `targets.talks`), on the ground east of the spawn-to-hut path; the engine draws its stand-in
-  talks: [{ ...targets.talk, at: terrain.sites.lamplighter }, { ...hermit.npc.talk, at: terrain.sites.hermit }] };
+// The terrain's draw rows, written out at the platform's defaults: its tiles cast (inside the shadow disc) and receive
+// shadows, and the residency re-centres after the viewer moves 5 m. A ground that wants neither shadow, or a coarser
+// follow, changes these numbers.
+const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as const;
+
+/** Assemble the original authored product from this build's terrain rows (the props bake's back end; test fixtures). */
+export function templateProduct(terrain: Omit<ReturnType<typeof templateTerrain>, 'assets'>, props: BakedProps, behaviour: TemplateBehaviour, boss: { compressed: number }): Shardfile {
+const play = templateGameplay(terrain.sites, behaviour, boss);
 const base = emptyShardfile({ slug: 'template', name: 'Template shard', author: 'Wildshard', revision: 2, seed: 357 });
-const playerHandle = 1106943697; // fnv1a32('actor.player') & 0x7fffffff; admission compares this with the session map.
-const script = { hash: door.hash, kind: 'wasm', compressed: door.compressed, decoded: door.compressed, gpu: 0, triangles: 0, draws: 0, dependencies: [], critical: true };
-const itemScript = { ...script, hash: itemModule, compressed: behaviour.items.compressed, decoded: behaviour.items.compressed };
-const clientScript = { ...script, hash: CLIENT_IDLE_HASH, compressed: CLIENT_IDLE_BYTES, decoded: CLIENT_IDLE_BYTES, critical: false };
 const tiles = terrain.tiles.map((tile) => {
   const addition = props.tiles.find((row) => row.lod === tile.lod && row.x === tile.x && row.z === tile.z);
   if (addition === undefined) return tile;
@@ -98,23 +122,38 @@ const tiles = terrain.tiles.map((tile) => {
     bounds: { min: tile.bounds.min.map((value, axis) => Math.min(value, addition.bounds.min[axis] ?? value)), max: tile.bounds.max.map((value, axis) => Math.max(value, addition.bounds.max[axis] ?? value)) },
     compressed: tile.compressed + addition.compressed, decoded: tile.decoded + addition.decoded, gpu: tile.gpu + addition.gpu, triangles: tile.triangles + addition.triangles, draws: tile.draws + addition.draws };
 });
-// The terrain's draw rows, written out at the platform's defaults: its tiles cast (inside the shadow disc) and receive
-// shadows, and the residency re-centres after the viewer moves 5 m. A ground that wants neither shadow, or a coarser
-// follow, changes these numbers.
-const TERRAIN_DRAW = { shadow: { cast: true, receive: true }, follow: 5 } as const;
-// This declaration is the live source; the manifest supplies only picker metadata.
 // Retain the old producer's JSON boundary, including signed-zero normalization.
 // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
-return parseShardfile(JSON.parse(JSON.stringify({ ...base, accent: 'sand', manifest: CARD,
-  budgets: { library: { resident: 100_000 + TEMPLATE_SKIN_COST.resident + CLIENT_IDLE_RESIDENT + 2_633_280 + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident + TC_M4_LIFT.resident, compressed: 100_000 + CLIENT_IDLE_BYTES + TEMPLATE_SKIN_COST.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed + TC_M4_LIFT.compressed }, sim: { resident: 16_000_000, compressed: 1_000_000 - boss.compressed }, overlap: 0 },
+return parseShardfile(JSON.parse(JSON.stringify({ ...base, ...play.rows,
+  budgets: { library: { resident: 100_000 + play.library_cost.resident + COMPENDIUM_SKETCHES + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + LF19_LIBRARY.resident + M2_MASONRY_RESIDENT + M410_FLAMES.resident + TC_M4_GATE.resident + TC_M4_LIFT.resident, compressed: 100_000 + play.library_cost.compressed + LF19_LIBRARY.compressed + M410_FLAMES.compressed + TC_M4_GATE.compressed + TC_M4_LIFT.compressed }, sim: play.simBudget, overlap: 0 },
   serverBudget: { ...base.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
-  look: TEMPLATE_LOOK, spawn: SPAWN, rows: TEMPLATE_ROWS, plumbing: TEMPLATE_PLUMBING, ui: TEMPLATE_UI,
-  terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...TEMPLATE_SKIN_FILES, script, itemScript, clientScript], edge: terrain.edge,
-  library: [...props.library, ...TEMPLATE_SKIN_LIBRARY, CLIENT_IDLE_HASH], far: props.far, props: { ...props.props, materials: TEMPLATE_PROP_MATERIALS }, items: ITEMS, targets: TEMPLATE_TARGETS, clientScripts,
-  // TC-M4b: the lift (lift.ts), stepped by the server and drawn as its panel
-  movers: [liftMover(templateHeightAt())],
-  critical: [...terrain.critical, door.hash, itemModule], water: TEMPLATE_WATER, creatures: CREATURES, encounters: ENCOUNTERS.encounters,
-  quests: TEMPLATE_QUESTS, directors: TEMPLATE_DIRECTORS, ledger: TEMPLATE_LEDGER, audio: TEMPLATE_AUDIO, state: hooks.state, hooks: hooks.hooks,
-  sim: { ...base.sim, scriptTickDivisor: 1, scripts: [door.hash, itemModule], bindings: [{ module: door.hash, entity: playerHandle, actorId: 'actor.player', kind: 'server' }] },
+  look: TEMPLATE_LOOK, spawn: SPAWN,
+  terrain: { ...terrain.terrain, ...TERRAIN_DRAW }, tiles, files: [...terrain.files, ...props.files, ...play.files], edge: terrain.edge,
+  library: [...props.library, ...play.library], far: props.far, props: { ...props.props, materials: TEMPLATE_PROP_MATERIALS },
+  critical: [...terrain.critical, ...play.critical], sim: play.sim(base.sim),
 })));
+}
+
+/**
+ * SHARD-SOURCE AP36a2: the Template's rows over its scene source's shardfile (shard.config.ts's `extend`). The scene writes
+ * the ground, tiles, panels and their files; this adds the gameplay, the scripts, the look (the ground draws in its `pbr`
+ * entry, as before), the water, the hidden panels' start, the held lantern's model and the authored colliders.
+ */
+export function templateRows(scene: Shardfile, behaviour: TemplateBehaviour, boss: { compressed: number }, colliders: Shardfile['props']['colliders']): Shardfile {
+  const play = templateGameplay(templateSites(templateHeightAt()), behaviour, boss), lantern = scene.props.panels.find((panel) => panel.id === 'template.lantern');
+  if (lantern === undefined) throw new Error('template: the scene has no lantern panel');
+  const panels = scene.props.panels.filter((panel) => panel !== lantern).map((panel) => HIDDEN_PANELS.has(panel.id) ? { id: panel.id, file: panel.file, visible: false } : panel);
+  const families = [...new Set([...TEMPLATE_LOOK.families, ...scene.look.families])];
+  const materials = Object.fromEntries(Object.entries(scene.look.materials).filter(([id]) => id !== scene.terrain.family));
+  const library = scene.budgets.library;
+  // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
+  return parseShardfile(JSON.parse(JSON.stringify({ ...scene, ...play.rows,
+    // the scene's files, the skins and the idle script, plus the particle pools' share (MH-3, MH-4), the sketches and the old 100 000 margin
+    budgets: { ...scene.budgets, library: { resident: 100_000 + library.resident + play.library_cost.resident + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + COMPENDIUM_SKETCHES, compressed: 100_000 + library.compressed + play.library_cost.compressed }, sim: play.simBudget },
+    serverBudget: { ...scene.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
+    look: { ...TEMPLATE_LOOK, families, materials: { ...materials, ...TEMPLATE_LOOK.materials } }, spawn: SPAWN,
+    terrain: { ...scene.terrain, family: 'pbr' }, files: [...scene.files, ...play.files], library: [...scene.library, ...play.library],
+    props: { ...scene.props, panels, models: [{ id: lantern.id, file: lantern.file }], colliders },
+    critical: [...scene.critical, ...play.critical], sim: play.sim(scene.sim),
+  })));
 }
