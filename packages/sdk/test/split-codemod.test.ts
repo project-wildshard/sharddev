@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep fixtures inside the test's owned scratch folder.
 import { join, resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import codemod, { rewriteSplitImports } from '../codemods/0.4.1.mjs';
+import codemod, { rewriteEngineRenames, rewriteSplitImports } from '../codemods/0.4.1.mjs';
 
 // SDK-SPLIT SP13: the split codemod moves the modules that left the sdk and pins the cli; the engine follows its imports.
 const sdk = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { devDependencies: Record<string, string> };
@@ -22,6 +22,18 @@ test('moved modules go to dev and build under both package names; the rest stay'
   expect(rewriteSplitImports("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';")).toBe("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';");
   for (const source of ["'@wildshard/sdk/projectGeneration'", "'@wildshard/sdk/rows'", "'@wildshard/sdk/project/x'", "'@wildshard/engine/sim'"])
     expect(rewriteSplitImports(source)).toBe(source);
+});
+
+test('the CI tests take dev engine\'s folder names and run the cli\'s bin', () => {
+  expect(rewriteEngineRenames("const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');"))
+    .toBe("const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');");
+  expect(rewriteEngineRenames("import {builtProduct} from '@wildshard/engine/test/builtProduct';\nbuiltProduct(slug);"))
+    .toBe("import {builtFolder} from '@wildshard/engine/test/builtFolder';\nbuiltFolder(slug);");
+  expect(rewriteEngineRenames('sections:productHeadlessSections(product)')).toBe('sections:folderHeadlessSections(product)');
+  expect(rewriteEngineRenames("const bin=join(dirname(require.resolve('@wildshard/sharddev/package.json')),'bin/wildshard.mjs');"))
+    .toBe("const bin=join(dirname(require.resolve('@wildshard/cli/package.json')),'bin/wildshard.mjs');");
+  for (const kept of ["const sdk=require.resolve('@wildshard/sharddev/package.json');", 'const mybuiltProductList=[];'])
+    expect(rewriteEngineRenames(kept)).toBe(kept);
 });
 
 test('a repo that imports the engine keeps it as a dev pin at dev\'s engine; the cli and homes are pinned; idempotent', () => {
