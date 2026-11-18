@@ -23,7 +23,8 @@ test('Template author modules and temporary discovery have zero P0 and sim viola
   visit('src/shards/_template/behaviour'); entries.push('src/shards/_template/shard.config.ts');
   for (const file of entries) expect(shardfileBoundaryViolations(root, file, readFileSync(file, 'utf8'))).toEqual([]);
   expect(simClosure(root, entries.filter(simRoot))).toEqual([]);
-  const discovery = authoredManifestSource(root, '_template');
+  // ONE-FORMAT OF6b: Template's card is data/card.json alone; the engine's producer takes it composed.
+  const discovery = authoredManifestSource(root, '_template', { composed: JSON.parse(readFileSync(resolve(root, 'src/shards/_template/data/card.json'), 'utf8')) });
   expect(shardfileBoundaryViolations(root, 'src/shards/_template/discovery.generated.ts', discovery)).toEqual([]);
   expect(discovery).toContain('budgets: {');
   expect(discovery).not.toContain("from \"./data/budgets\"");

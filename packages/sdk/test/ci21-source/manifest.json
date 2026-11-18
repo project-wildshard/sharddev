@@ -136,7 +136,7 @@
         "Template author modules and temporary discovery have zero P0 and sim violations",
         "legacy map layout remains the fallback until a source map exists"
       ],
-      "changes": "Preserve both complete original cases with public engine lint/build imports and the actual SDK boundary checker. Replace the foreign far-reach map assertions with the SDK-owned pastel-plain as mapped. Own source-layout policy retains all defining engine rules and admits only registered SDK hero.json and card source names.",
+      "changes": "Preserve both complete original cases with public engine lint/build imports and the actual SDK boundary checker. Replace the foreign far-reach map assertions with the SDK-owned pastel-plain as mapped. Own source-layout policy retains all defining engine rules and admits only registered SDK hero.json and card source names. ONE-FORMAT OF6b: Template's card is data/card.json alone, so its discovery source is produced from the card, composed.",
       "state": "source verified locally; blocking/default admission and paired removal owed",
       "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
       "localRuntime": {
@@ -150,7 +150,7 @@
         "Template author modules and temporary discovery have zero P0 and sim violations",
         "legacy map layout remains the fallback until a source map exists"
       ],
-      "targetSha256": "e4c9436c4a7d0a3c6ef784f0f5143e03d33c0575c729843607afbeb965ab07bd"
+      "targetSha256": "12a333b01922288b464dc2b19d699d260bd0ff2258c9244b0e1b3d18d383a9b2"
     },
     {
       "sourcePath": "test/map-source-inputs.test.ts",
