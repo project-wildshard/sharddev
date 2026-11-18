@@ -31,7 +31,7 @@
     "test": "pnpm test:kit && pnpm test:author && pnpm test:content",
     "test:ci": "pnpm --filter @wildshard/dev run test:ci",
     "test:e2e": "pnpm --filter @wildshard/dev run test:e2e",
-    "test:kit": "pnpm --filter @wildshard/dev run test:kit && node --test 'packages/upload/src/**/*.test.ts'",
+    "test:kit": "pnpm --filter @wildshard/dev run test:kit && node --test 'packages/upload/src/**/*.test.ts' test/tooling/one-format.test.mjs",
     "test:author": "pnpm --filter @wildshard/sdk run test:author && pnpm --filter @wildshard/build run test:author && pnpm --filter @wildshard/dev run test:author && pnpm --filter @wildshard/cli test",
     "test:content": "pnpm --dir packages/kit test",
     "check:asks": "node kit/scripts/asks.mjs check",
