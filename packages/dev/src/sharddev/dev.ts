@@ -58,6 +58,19 @@ export function projectSourceStamp(source: string): string {
   }
   return rows.sort().join('\n');
 }
+/** The file a dev request reads: the shard's own root first (SD-2: `/shardfiles/<slug>/` is the product's root), then
+ *  the product's own `shardfiles/<slug>/` folder, where the folder build writes the shard's discovery document (SP13c:
+ *  an engine 0.1.35 client asks `/shardfiles/<slug>/discovery.json`, which only the second path holds). */
+export function devFile(dirs: readonly string[], shardRoot: string, path: string): { dir: string; file: string } | undefined {
+  const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
+  for (const each of served === path ? [path] : [served, path]) {
+    const local = each === '/' ? 'index.html' : each.slice(1);
+    const file = dirs.filter((dir) => dir !== '').map((dir) => ({ dir, file: resolve(dir, local) }))
+      .find(({ dir, file: candidate }) => candidate.startsWith(`${dir}${sep}`) && existsSync(candidate) && statSync(candidate).isFile() && realpathSync(candidate).startsWith(`${dir}${sep}`));
+    if (file !== undefined) return file;
+  }
+  return undefined;
+}
 /** A rebuilt static author client. Closing it releases its socket, private build products and watchers; `exiting` neither
  *  waits for a running rebuild nor closes the watchers, which the process's exit drops (SD-6: closing a recursive watch
  *  on macOS blocks the event loop for seconds). */
@@ -102,10 +115,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
       if (path === '/sw.js') { response.setHeader('Content-Type', 'text/javascript'); response.end(DEV_SERVICE_WORKER); return; }
       // SD-2: the page's in-page server reads the shard where a release serves it, `/shardfiles/<slug>/`; here that is
       // the product's own root.
-      const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
-      const local = served === '/' ? 'index.html' : served.slice(1);
-      const file = [current, previous].filter((dir) => dir !== '').map((dir) => ({ dir, file: resolve(dir, local) }))
-        .find(({ dir, file: candidate }) => candidate.startsWith(`${dir}${sep}`) && existsSync(candidate) && statSync(candidate).isFile() && realpathSync(candidate).startsWith(`${dir}${sep}`));
+      const file = devFile([current, previous], shardRoot, path);
       if (file === undefined) { response.writeHead(404); response.end(); return; }
       response.setHeader('Content-Type', MIME[extname(file.file)] ?? 'application/octet-stream');
       if (request.method === 'HEAD') response.end(); else createReadStream(file.file).on('error', () => { response.destroy(); }).pipe(response);
