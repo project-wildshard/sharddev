@@ -45,3 +45,8 @@ it('moves the headless session and native plan names (SP13g: Sky Reach did it by
   const source = "import {beginProductSession, openProductSession} from '@wildshard/engine/test/headless/folderSession';\nconst { prepareProductPlan } = await import('@wildshard/engine/test/headless-native');\n";
   expect(moveSource(source)).toBe("import {beginFolderSession, openFolderSession} from '@wildshard/engine/test/headless/folderSession';\nconst { prepareFolderPlan } = await import('@wildshard/engine/test/headless-native');\n");
 });
+
+it('moves a destructured dynamic import after a block brace, and the admitted cache (SP13: Driftwood and Nalati)', () => {
+  const source = "export const run = async () => {\n  const {prepareProductPlan} = await import('@wildshard/engine/test/headless-native');\n};\nimport {admittedProduct} from '@wildshard/engine/test/headless/admittedProductCache';\nawait admittedProduct(directory,'full');\n";
+  expect(moveSource(source)).toBe("export const run = async () => {\n  const {prepareFolderPlan} = await import('@wildshard/engine/test/headless-native');\n};\nimport {admittedFolder} from '@wildshard/engine/test/headless/admittedFolderCache';\nawait admittedFolder(directory,'full');\n");
+});

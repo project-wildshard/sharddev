@@ -18,6 +18,7 @@ const MODULES = {
   '@wildshard/engine/scripts/built-product.mjs': '@wildshard/engine/scripts/built-folder.mjs',
   '@wildshard/engine/scripts/product-build-times.mjs': '@wildshard/engine/scripts/folder-build-times.mjs',
   '@wildshard/engine/test/builtProduct': '@wildshard/engine/test/builtFolder',
+  '@wildshard/engine/test/headless/admittedProductCache': '@wildshard/engine/test/headless/admittedFolderCache',
   '@wildshard/engine/test/headless/productSession': '@wildshard/engine/test/headless/folderSession',
 };
 /** Old exported name to new, each one a consumer imports today. @type {Readonly<Record<string, string>>} */
@@ -35,12 +36,13 @@ const NAMES = {
   readProductDescriptor: 'readFolderDescriptor', recordProductBuildTimes: 'recordFolderBuildTimes', replayProductInputs: 'replayFolderInputs',
   representativeProduct: 'representativeFolder', retainProductInputs: 'retainFolderInputs', shardProductData: 'shardFolderData',
   shardProducts: 'builtShardFolders', builtProduct: 'builtFolder', beginProductSession: 'beginFolderSession',
-  openProductSession: 'openFolderSession', prepareProductPlan: 'prepareFolderPlan',
+  openProductSession: 'openFolderSession', prepareProductPlan: 'prepareFolderPlan', admittedProduct: 'admittedFolder',
+  createAdmittedProductCache: 'createAdmittedFolderCache', ProductMode: 'FolderMode',
 };
 
 const SKIP = new Set(['.git', '.worktrees', 'dist', 'node_modules', 'out', 'public', 'tmp']);
 const SOURCE = /\.(?:ts|tsx|mts|cts|mjs|js)$/u;
-const IMPORTED = /(?:import\s*(?:type\s*)?\{(?<statics>[^}]*)\}\s*from\s*|\{(?<dynamics>[^}]*)\}\s*=\s*await\s+import\(\s*)(?<quote>['"])(?<module>@wildshard\/engine\/[^'"]+)\k<quote>/gu;
+const IMPORTED = /(?:import\s*(?:type\s*)?\{(?<statics>[^{}]*)\}\s*from\s*|\{(?<dynamics>[^{}]*)\}\s*=\s*await\s+import\(\s*)(?<quote>['"])(?<module>@wildshard\/engine\/[^'"]+)\k<quote>/gu;
 /** @param {string} text */
 const escape = text => text.replaceAll(/[.*+?^${}()|[\]\\]/gu, String.raw`\$&`);
 
