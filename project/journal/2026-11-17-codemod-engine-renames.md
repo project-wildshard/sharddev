@@ -9,3 +9,6 @@
 - The shards' own `.oxlintrc.author.json` loaded engine's lint plugin directly, so sharddev `ba73597e`'s layer fix (dev
   is a layer package) never ran there and Sky Reach's `@wildshard/dev/bake/mapRest` import stayed refused. The codemod
   points the config at the sdk's `lint/engine-plugin.mjs`, as Brasscap's already was.
+- sdk 0.4.3's `scripts/product-build-tools.mjs` resolved engine's bake loader from the sdk, which has no engine
+  dependency, so `wildshard build-shards` failed in Sky Reach's CI (far-reach is the one product that prepares Basis).
+  dev's `build-shardfiles.mjs` now resolves the loader and hands it in (`basisPreparer`); the sdk default refuses.

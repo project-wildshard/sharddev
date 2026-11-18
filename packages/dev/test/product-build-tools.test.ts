@@ -1,4 +1,6 @@
 import { expect, test } from 'vitest';
+// oxlint-disable-next-line import/no-nodejs-modules -- Read the sdk script's own source.
+import { readFileSync } from 'node:fs';
 import { prepareProductBuildTools } from '../../sdk/scripts/product-build-tools.mjs';
 import { runShardBuildPool } from '../scripts/shard-build-pool.mjs';
 
@@ -40,4 +42,12 @@ test('a pinned native prerequisite failure refuses without starting any product'
     () => prepareProductBuildTools(['far-reach'], undefined,
       { basis: () => Promise.reject(new Error('Pinned Basis configure failed')) }))).rejects.toThrow('Pinned Basis configure failed');
   expect(workers).toBe(0);
+});
+
+// SDK-SPLIT SP13g: the sdk has no engine dependency, so its script never resolves an engine path; dev hands the loader in.
+test('the sdk resolves no engine path; dev hands it the bake loader', async () => {
+  const sdk = readFileSync(new URL('../../sdk/scripts/product-build-tools.mjs', import.meta.url), 'utf8');
+  expect(sdk).not.toMatch(/import\.meta\.resolve\(['"]@wildshard\/engine/u);
+  expect(readFileSync(new URL('../scripts/build-shardfiles.mjs', import.meta.url), 'utf8')).toContain("basisPreparer(import.meta.resolve('@wildshard/engine/scripts/bake-loader.mjs'))");
+  await expect(prepareProductBuildTools(['far-reach'])).rejects.toThrow('engine bake loader');
 });

@@ -19,7 +19,7 @@ import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discover
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
 import { orderFolderBuilds, readFolderBuildTimes, recordFolderBuildTimes } from '@wildshard/engine/scripts/folder-build-times.mjs';
-import { prepareProductBuildTools } from '@wildshard/sdk/scripts/product-build-tools.mjs';
+import { basisPreparer, prepareProductBuildTools } from '@wildshard/sdk/scripts/product-build-tools.mjs';
 import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
 import { runtimeCopyIssues, folderMapInput, publishFolderMap, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
@@ -192,7 +192,8 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
       onFailure(name,error);
     }
   }, recorded ? async () => {
-    await prepareProductBuildTools(products.filter(row => selected === undefined || selected.includes(row.name)).map(row => row.name));
+    await prepareProductBuildTools(products.filter(row => selected === undefined || selected.includes(row.name)).map(row => row.name), undefined,
+      { basis: basisPreparer(import.meta.resolve('@wildshard/engine/scripts/bake-loader.mjs')) });
     // Keep the compiler receipt independent of modules loaded by generation's
     // parent. Otherwise unrelated table generators become every product's input.
     await runShardBuild(['--prepare-compiler'],new AbortController().signal,report=>{counters.merge(report);});
