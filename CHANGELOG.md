@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.10 (2026-11-18)
+
+- Prepare and preview tiered shard products with the exact engine v0.1.44 author clients.
+
 ## v0.4.9 (2026-11-18)
 
 - Nine Dragon Stack scenery takes less graphics memory with compact slabs.
