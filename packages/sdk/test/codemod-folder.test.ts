@@ -40,3 +40,8 @@ it('moves engine test/builtProduct and its name (SP13: Dunes and Sky Reach did i
   const source = "import {builtProduct} from '@wildshard/engine/test/builtProduct';\nconst directory=builtProduct(slug);\n";
   expect(moveSource(source)).toBe("import {builtFolder} from '@wildshard/engine/test/builtFolder';\nconst directory=builtFolder(slug);\n");
 });
+
+it('moves the headless session and native plan names (SP13g: Sky Reach did it by hand)', () => {
+  const source = "import {beginProductSession, openProductSession} from '@wildshard/engine/test/headless/folderSession';\nconst { prepareProductPlan } = await import('@wildshard/engine/test/headless-native');\n";
+  expect(moveSource(source)).toBe("import {beginFolderSession, openFolderSession} from '@wildshard/engine/test/headless/folderSession';\nconst { prepareFolderPlan } = await import('@wildshard/engine/test/headless-native');\n");
+});
