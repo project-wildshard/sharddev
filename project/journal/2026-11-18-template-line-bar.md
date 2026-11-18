@@ -15,3 +15,8 @@
   (`generators/` is what `wildshard build` runs).
 - Bar: 8,187 lines to 4,089 (generators 2,133, data 1,956), half the Template before the port. The plan's 2,926 was
   half of the 11-13 tree; the TC-M rows, OF4's creatures and M4.10's Warden and look have been added since.
+- Fix forward (main CI's ci21 suite): the Template's `data/map.json` inputs name exactly the SDK files its
+  generators now reach (96, from 81 after the bake left), and `lint/shard-layout.json` allows a `sources/` folder.
+- Main's products job had been red since the scene port (`10aad0ff`): the scene Template's far (LOD 1) tiles carry 4
+  to 6 draws where the bake's carried none. `lint/tile-bake-debt.json` records the twelve as exact `_template` rows;
+  the far tiles' draws are a look follow-up, not a gameplay change.

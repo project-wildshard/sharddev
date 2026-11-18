@@ -17,6 +17,7 @@
     "folders": [
       "data",
       "generators",
+      "sources",
       "bake",
       "behaviour",
       "assets",
