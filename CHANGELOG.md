@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.4 (2026-11-17)
+
+- wildshard dev builds shards whose generators read /assets/ inputs, and serves the shard's public assets.
+- wildshard build-shards prepares Basis again when installed from npm (the sdk no longer looks for the engine).
+- update --pins keeps a newer shard-format pin and moves the CI tests and lint config to the split packages.
+
 ## v0.4.3 (2026-11-17)
 
 - `wildshard new` pins the sdk and `@wildshard/cli` at a release npm has, so a new starter always installs.
