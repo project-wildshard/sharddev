@@ -410,10 +410,13 @@ export async function watchProject(project: string, options: { port?: number; cl
     if (stopped) return;
     stopped = true; scope.dispose(); building?.kill('SIGTERM');
     for (const client of clients) client.close();
-    await closeServer();
-    await work;
-    await world?.close();
-    for (const watcher of watchers) watcher.close();
-    rmSync(scratch, { recursive: true, force: true });
+    try {
+      // A world already starting can still read its release during shutdown.
+      await work.finally(() => world?.close());
+    } finally {
+      await closeServer();
+      for (const watcher of watchers) watcher.close();
+      rmSync(scratch, { recursive: true, force: true });
+    }
   } };
 }
