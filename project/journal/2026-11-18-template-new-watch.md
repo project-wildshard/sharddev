@@ -10,3 +10,6 @@
   `behaviour/` bytes instead, so a rows edit builds a new shell (the page reloads) and part edits still swap live.
 - Proof: a fresh `new` project under `watch`, `proof.mjs --edit template --runs 3` (the hut stone in
   `generators/world.ts`): on screen in a median 516 ms (392 to 526), no reload, player still.
+- Fix forward: main CI's ci21 tsc (`test/ci21-source/tsconfig.json`, not in `pnpm check`) refused the Template's rows,
+  since a shard's `terrain` and `props` may be null; and the push gate's isolated-declarations test refused an untyped
+  default parameter in `repoPackageJson`. Both guarded or annotated; the hero recaptured again.

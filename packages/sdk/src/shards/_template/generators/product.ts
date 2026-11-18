@@ -80,12 +80,14 @@ function templateGameplay(sites: Sites, behaviour: TemplateBehaviour, boss: { co
  * the ground, tiles, panels and their files; this adds the gameplay, the scripts, the look (the ground draws in its `pbr`
  * entry, as before), the water, the hidden panels' start, the held lantern's model and the authored colliders.
  */
-export function templateRows(scene: Shardfile, behaviour: TemplateBehaviour, boss: { compressed: number }, colliders: Shardfile['props']['colliders']): Shardfile {
-  const play = templateGameplay(templateSites(templateHeightAt()), behaviour, boss), lantern = scene.props.panels.find((panel) => panel.id === 'template.lantern');
+export function templateRows(scene: Shardfile, behaviour: TemplateBehaviour, boss: { compressed: number }, colliders: NonNullable<Shardfile['props']>['colliders']): Shardfile {
+  const { props, terrain } = scene;
+  if (props === null || terrain === null) throw new Error('template: the scene wrote no props or terrain');
+  const play = templateGameplay(templateSites(templateHeightAt()), behaviour, boss), lantern = props.panels.find((panel) => panel.id === 'template.lantern');
   if (lantern === undefined) throw new Error('template: the scene has no lantern panel');
-  const panels = scene.props.panels.filter((panel) => panel !== lantern).map((panel) => HIDDEN_PANELS.has(panel.id) ? { id: panel.id, file: panel.file, visible: false } : panel);
+  const panels = props.panels.filter((panel) => panel !== lantern).map((panel) => HIDDEN_PANELS.has(panel.id) ? { id: panel.id, file: panel.file, visible: false } : panel);
   const families = [...new Set([...TEMPLATE_LOOK.families, ...scene.look.families])];
-  const materials = Object.fromEntries(Object.entries(scene.look.materials).filter(([id]) => id !== scene.terrain.family));
+  const materials = Object.fromEntries(Object.entries(scene.look.materials).filter(([id]) => id !== terrain.family));
   const library = scene.budgets.library;
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, not cloning: structuredClone retains forbidden signed zero.
   return parseShardfile(JSON.parse(JSON.stringify({ ...scene, ...play.rows,
@@ -93,8 +95,8 @@ export function templateRows(scene: Shardfile, behaviour: TemplateBehaviour, bos
     budgets: { ...scene.budgets, library: { resident: 100_000 + library.resident + play.library_cost.resident + MH3_LIBRARY_RESIDENT + MH4_LIBRARY_RESIDENT + COMPENDIUM_SKETCHES, compressed: 100_000 + library.compressed + play.library_cost.compressed }, sim: play.simBudget },
     serverBudget: { ...scene.serverBudget, tickMicros: 5_000, memory: 16_000_000 },
     look: { ...TEMPLATE_LOOK, families, materials: { ...materials, ...TEMPLATE_LOOK.materials } }, spawn: SPAWN,
-    terrain: { ...scene.terrain, family: 'pbr' }, files: [...scene.files, ...play.files], library: [...scene.library, ...play.library],
-    props: { ...scene.props, panels, models: [{ id: lantern.id, file: lantern.file }], colliders },
+    terrain: { ...terrain, family: 'pbr' }, files: [...scene.files, ...play.files], library: [...scene.library, ...play.library],
+    props: { ...props, panels, models: [{ id: lantern.id, file: lantern.file }], colliders },
     critical: [...scene.critical, ...play.critical], sim: play.sim(scene.sim),
   })));
 }

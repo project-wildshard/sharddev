@@ -26,6 +26,7 @@ const TEMPLATE_GAMEPLAY = 'c1379c41a8284478c54f735e7578c66e0a1fb999046bbafe544bb
 const TEMPLATE_MAP = '4465db6cc11fdd95a997048d59adae04791c1665d80710c7949208deeda08eb8';
 function gameplayDigest(shard: Awaited<ReturnType<typeof generate>>['shard']): string {
   const { budgets: _budgets, look: _look, files: _files, tiles: _tiles, library: _library, far: _far, props, ...gameplay } = shard;
+  if (props === null) throw new Error('Missing Template props');
   const panels = props.panels.map(panel => `${panel.id} ${String(panel.visible)}`).sort(), models = props.models.map(model => model.id);
   return hashImmutableBytes(new TextEncoder().encode(JSON.stringify({ gameplay, colliders: props.colliders, panels, models })));
 }

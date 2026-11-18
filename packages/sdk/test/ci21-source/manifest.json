@@ -359,7 +359,7 @@
       ],
       "changes": "Whole original cases and byte assertions retained. Defining SDK guard and immutable fixture relocation only. Real source bug fixed: buildTemplateWorld resets its masonry seed counter for each generation. SHARD-SOURCE AP36a (2026-11-18): the world is scene source, so the first case keeps every non-world row, the colliders, panel ids, models and look entries of the bake byte for byte, and checks every asset against its hash and the shard's files. SHARD-SOURCE AP36c (2026-11-18): the bake modules are deleted, so the first case pins the build's gameplay (every non-world section, the colliders, panel and model ids) and its map pixels to stored digests, and checks every asset against its hash and the shard's files.",
       "state": "C10 default blocking source suite",
-      "targetSha256": "71e591f77a973f6f3979ec7247274f4da3b1a63874487834fc869be3e598c6b6"
+      "targetSha256": "9c754124f9e1459e61e250fbadb0e19c2a17fa14d3f4972bdbaadc2116546309"
     }
   ]
 }

@@ -28,6 +28,7 @@ async function build(ctx: ProjectGenerationContext): Promise<GeneratedProject> {
   compiled = { behaviour: await templateBehaviour(ctx), boss: await templateBoss(ctx) };
   const { shard, assets } = await builtSceneShardfile(watched.describe(), ctx.compileScript, { extend: rows });
   for (const [hash, bytes] of assets) if (ctx.asset(bytes) !== hash) throw new Error('template: an asset hash differs from the product store');
+  if (shard.terrain === null || shard.props === null) throw new Error('template: the scene wrote no terrain or props');
   const map = await rasterGroundMap({ terrain: shard.terrain, assets }, { props: shard.props, assets }, mapSettings.style);
   return { shard, output: templateOutput(compiled.boss), map: { pixels: map.pixels, name: 'ui/map' } };
 }

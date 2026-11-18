@@ -124,7 +124,7 @@ export function releasePin(version: string, sdkVersions: readonly string[] | und
 }
 
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
-export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions, scene = template !== 'blender'): string {
+export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions, scene: boolean = template !== 'blender'): string {
   const sdk = sdkPackage(), release = releasePin(sdk.version, published('@wildshard/sdk'), published('@wildshard/cli'));
   const dependencies: Record<string, string> = { '@wildshard/sdk': release };
   for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
