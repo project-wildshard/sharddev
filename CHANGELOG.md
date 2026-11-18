@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.7 (2026-11-18)
+
+- `@wildshard/kit` really is on shard-format 0.26.0 now (0.4.6 still pinned 0.28.0), so builds stop failing on "Named JSON provenance".
+- Drop any `pnpm.overrides` that forced kit's shard-format; one format version is now enforced across all six packages.
+- Kit's breath, shoot, throw and spit templates wait until every package moves to a newer shard format together.
+
 ## v0.4.6 (2026-11-18)
 
 - `@wildshard/kit` is back on shard-format 0.26.0 like the sdk, so a build no longer stops on "Named JSON provenance".
