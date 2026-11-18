@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/sdk",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "The author library: scene source, rows, random, noise, the bake builders, script compile and schemas (SDK-SPLIT). The `wildshard` CLI and the local game are @wildshard/dev until SP10 gives the bin its own package.",
   "license": "UNLICENSED",
   "repository": {
