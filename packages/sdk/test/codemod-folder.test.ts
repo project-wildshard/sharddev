@@ -35,3 +35,8 @@ it('moves the engine imports a shard repo has today, and nothing it owns', () =>
   expect(readFileSync(join(repo, 'node_modules/x/index.js'), 'utf8')).toContain('headlessProduct');
   expect(moveSource(own)).toBe(own);
 });
+
+it('moves engine test/builtProduct and its name (SP13: Dunes and Sky Reach did it by hand)', () => {
+  const source = "import {builtProduct} from '@wildshard/engine/test/builtProduct';\nconst directory=builtProduct(slug);\n";
+  expect(moveSource(source)).toBe("import {builtFolder} from '@wildshard/engine/test/builtFolder';\nconst directory=builtFolder(slug);\n");
+});

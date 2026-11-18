@@ -4,7 +4,7 @@
 //   inventory and every `scripts/` file the sdk no longer ships to @wildshard/dev, the project builder and synth to
 //   @wildshard/build; the repo pins each home it now imports.
 // - The repo pins @wildshard/cli (the `wildshard` command) beside the sdk, at the release version (D5); a file that runs
-//   the `wildshard` bin resolves it from the cli. dev's engine names its built-product helpers after folders.
+//   the `wildshard` bin resolves it from the cli, and the author lint config loads the sdk's engine plugin.
 // - The engine is no longer the repo's to pin for the build: a repo whose code imports it (sim tests) keeps it as a dev
 //   dependency at the engine the release's dev runs; a repo that never imports it drops the pin and its override.
 /* oxlint-disable node/no-sync, import/no-nodejs-modules -- A codemod is a one-shot synchronous edit of the shard repo on disk. */
@@ -31,17 +31,11 @@ export function rewriteSplitImports(source) {
   });
 }
 
-/** SDK-SPLIT SP13: the engine dev pin moves to dev's engine, which renamed its built-product helpers to folders; and the
- * `wildshard` bin is the cli's (the sdk has none since 0.4.0). Each shard's CI tests made these edits by hand. */
-const ENGINE_RENAMES = [['@wildshard/engine/host/headlessProduct', '@wildshard/engine/host/headlessFolder'],
-  ['@wildshard/engine/test/builtProduct', '@wildshard/engine/test/builtFolder'], ['loadHeadlessProduct', 'loadHeadlessFolder'],
-  ['productHeadlessSections', 'folderHeadlessSections'], ['builtProduct', 'builtFolder']];
+/** SDK-SPLIT SP13: the `wildshard` bin is the cli's (the sdk has none since 0.4.0); each shard's CI tests that run it
+ * resolved it from the sdk's package. Only a file that runs `bin/wildshard.mjs` changes. */
 const SDK_PACKAGE = /(["'`])@wildshard\/(?:sdk|sharddev)\/package\.json\1/gu;
-export function rewriteEngineRenames(source) {
-  let after = source;
-  for (const [from, to] of ENGINE_RENAMES) after = after.replaceAll(new RegExp(`(?<![\\w$])${from.replaceAll('/', '\\/')}(?![\\w$])`, 'gu'), to);
-  // A file that runs the `wildshard` bin resolves it from the cli's package, not the sdk's.
-  return after.includes('bin/wildshard.mjs') ? after.replaceAll(SDK_PACKAGE, (_whole, quote) => `${quote}@wildshard/cli/package.json${quote}`) : after;
+export function rewriteCliBin(source) {
+  return source.includes('bin/wildshard.mjs') ? source.replaceAll(SDK_PACKAGE, (_whole, quote) => `${quote}@wildshard/cli/package.json${quote}`) : source;
 }
 
 /** The engine the release's dev runs: the sdk pins the same one as its dev dependency (test/dev-engine-pin). */
@@ -63,12 +57,12 @@ export default function codemod({ project, to }) {
       const file = join(folder, entry.name);
       if (entry.isDirectory()) { visit(file); continue; }
       if (!entry.isFile() || !/\.(?:[cm]?[jt]sx?)$/u.test(entry.name)) continue;
-      const before = readFileSync(file, 'utf8'), after = rewriteEngineRenames(rewriteSplitImports(before));
+      const before = readFileSync(file, 'utf8'), after = rewriteCliBin(rewriteSplitImports(before));
       for (const home of ['dev', 'build']) if (after.includes(`@wildshard/${home}/`)) homes.add(home);
       if (ENGINE.test(after)) usesEngine = true;
       if (before === after) continue;
       writeFileSync(file, after);
-      changes.push(`${relative(root, file)}: import moved sdk and engine modules from their new homes`);
+      changes.push(`${relative(root, file)}: import moved sdk modules from their new packages`);
     }
   };
   visit(root);

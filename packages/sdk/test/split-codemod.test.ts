@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep fixtures inside the test's owned scratch folder.
 import { join, resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import codemod, { rewriteEngineRenames, rewriteSplitImports } from '../codemods/0.4.1.mjs';
+import codemod, { rewriteCliBin, rewriteSplitImports } from '../codemods/0.4.1.mjs';
 
 // SDK-SPLIT SP13: the split codemod moves the modules that left the sdk and pins the cli; the engine follows its imports.
 const sdk = JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { devDependencies: Record<string, string> };
@@ -24,16 +24,11 @@ test('moved modules go to dev and build under both package names; the rest stay'
     expect(rewriteSplitImports(source)).toBe(source);
 });
 
-test('the CI tests take dev engine\'s folder names and run the cli\'s bin', () => {
-  expect(rewriteEngineRenames("const {loadHeadlessProduct}=await import('@wildshard/engine/host/headlessProduct');"))
-    .toBe("const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');");
-  expect(rewriteEngineRenames("import {builtProduct} from '@wildshard/engine/test/builtProduct';\nbuiltProduct(slug);"))
-    .toBe("import {builtFolder} from '@wildshard/engine/test/builtFolder';\nbuiltFolder(slug);");
-  expect(rewriteEngineRenames('sections:productHeadlessSections(product)')).toBe('sections:folderHeadlessSections(product)');
-  expect(rewriteEngineRenames("const bin=join(dirname(require.resolve('@wildshard/sharddev/package.json')),'bin/wildshard.mjs');"))
+test('a CI test that runs the wildshard bin resolves it from the cli', () => {
+  expect(rewriteCliBin("const bin=join(dirname(require.resolve('@wildshard/sharddev/package.json')),'bin/wildshard.mjs');"))
     .toBe("const bin=join(dirname(require.resolve('@wildshard/cli/package.json')),'bin/wildshard.mjs');");
-  for (const kept of ["const sdk=require.resolve('@wildshard/sharddev/package.json');", 'const mybuiltProductList=[];'])
-    expect(rewriteEngineRenames(kept)).toBe(kept);
+  const kept = "const sdk=require.resolve('@wildshard/sharddev/package.json');";
+  expect(rewriteCliBin(kept)).toBe(kept);
 });
 
 test('the author lint config loads the sdk\'s engine plugin', () => {

@@ -34,7 +34,7 @@ const NAMES = {
   publishProductInputs: 'publishFolderInputs', publishProductMap: 'publishFolderMap', readProductBuildTimes: 'readFolderBuildTimes',
   readProductDescriptor: 'readFolderDescriptor', recordProductBuildTimes: 'recordFolderBuildTimes', replayProductInputs: 'replayFolderInputs',
   representativeProduct: 'representativeFolder', retainProductInputs: 'retainFolderInputs', shardProductData: 'shardFolderData',
-  shardProducts: 'builtShardFolders',
+  shardProducts: 'builtShardFolders', builtProduct: 'builtFolder',
 };
 
 const SKIP = new Set(['.git', '.worktrees', 'dist', 'node_modules', 'out', 'public', 'tmp']);
