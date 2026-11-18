@@ -3,7 +3,7 @@ import { bakeTerrain, type BakedTerrain } from '@wildshard/sdk/bake/terrain';
 import { Color } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 
-/** Host-owned build-time landscape, bound to the `ground` preset material (SF59 / G169): the legacy seed/noise/trail/pool, levelled under G220's roads and plazas (`cellGround`); no callback enters the shardfile. */
+/** Trusted build-time landscape, bound to the `ground` preset material (SF59 / G169): the legacy seed/noise/trail/pool, levelled under G220's roads and plazas (`cellGround`); no callback enters the shardfile. */
 export function pastelTerrain(): BakedTerrain & { sites: { door: [number, number, number] } } {
   const heightAt = pastelHeightAt();
   const colour = new Color(0x7e8388);

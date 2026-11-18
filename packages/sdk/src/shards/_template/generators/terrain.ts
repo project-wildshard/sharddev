@@ -4,7 +4,7 @@ import { bakeTerrain, type BakedTerrain } from '@wildshard/sdk/bake/terrain';
 import { Color, SRGBColorSpace } from 'three';
 import layout from '../data/layout.json' with { type: 'json' };
 
-/** Host-owned build-time landscape: the legacy seed/noise/trail/pool, levelled under G220's roads and plazas (`cellGround`); no callback enters the shardfile. */
+/** Trusted build-time landscape: the legacy seed/noise/trail/pool, levelled under G220's roads and plazas (`cellGround`); no callback enters the shardfile. */
 export function templateTerrain(): BakedTerrain & { sites: { door: [number, number, number]; braziers: [number, number, number][]; lamplighter: [number, number, number]; chest: [number, number, number]; hermit: [number, number, number]; rack: [number, number, number]; lever: [number, number, number] } } {
   const heightAt = templateHeightAt();
   const colourAt = mossFloor();
