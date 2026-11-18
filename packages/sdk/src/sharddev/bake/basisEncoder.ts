@@ -1,8 +1,8 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Only the trusted host executes its verified native encoder.
+// oxlint-disable-next-line import/no-nodejs-modules -- Only the host executes its verified native encoder.
 import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fingerprint actual installed decoder binaries and shared libraries.
 import { readdirSync, realpathSync } from 'node:fs';
-// oxlint-disable-next-line import/no-nodejs-modules -- Resolve the installed decoder from the trusted SDK, never an author path.
+// oxlint-disable-next-line import/no-nodejs-modules -- Resolve the installed decoder from the host-owned SDK, never an author path.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Package-relative names, not installation paths, enter the fingerprint.
 import { dirname, extname, relative, resolve, sep } from 'node:path';

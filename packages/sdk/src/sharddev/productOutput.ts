@@ -16,7 +16,7 @@ import { hashAssetBytes } from './assetHandle';
 // Author-only facade: direct synchronous writers need the same readiness as the CLI.
 await prepareAssetDecoders();
 
-/** Refuse the same target overages as the author CLI; warning policy belongs only to trusted checkout callers. */
+/** Refuse the same target overages as the author CLI; warning policy belongs only to host-owned checkout callers. */
 export function assertProductTargets(source: Shardfile, policy: 'warn' | 'refuse'): void {
   // Execution has not run yet; report only the targets actually checked.
   assertTargets(source, policy);
@@ -110,7 +110,7 @@ export function readmitted(input: unknown, assets: ReadonlyMap<string, Uint8Arra
 
 /** Emit a complete product: canonical shard.json, every charged local/commons asset and the informational validation receipt.
  * Config builds and author-only cold producers share this writer. No client, runtime, cache or retained product is read.
- * Default admission refuses overages; a trusted caller alone may request the existing warning policy. */
+ * Default admission refuses overages; an engine caller alone may request the existing warning policy. */
 export function writeProduct(input: unknown, assets: ReadonlyMap<string, Uint8Array>, destination: string, policy: 'warn' | 'refuse' = 'refuse'): Shardfile {
   const shard = admitProduct(input, assets, policy);
   shard.files.sort((a, b) => a.hash.localeCompare(b.hash));

@@ -108,7 +108,7 @@ export function bakeQueryTerrain(source: NativeTerrainSource, options: QueryTerr
 
 /** An ordered build-time patch, blended across a circular footprint; it changes rendering and collision together. */
 export interface TerrainOverride { x: number; z: number; radius: number; height: number; mode: 'replace' | 'lower' | 'raise' }
-/** Trusted generator inputs. These closures run only while baking and never enter shard.json or the client. */
+/** Host-owned generator inputs. These closures run only while baking and never enter shard.json or the client. */
 export interface TerrainBakeSource {
   heightAt: (x: number, z: number) => number;
   colourAt: (x: number, z: number, height: number) => readonly [number, number, number];

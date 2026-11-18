@@ -178,7 +178,7 @@ export async function bakeAuthoredWorld(input: unknown, bytes: Uint8Array, graph
       props: { ...baked.props, panels, far: farFile.hash }, library: [...new Set([...oldLibrary, ...library])], critical: [...new Set([...oldCritical, ...baked.critical])],
       meshCollision: { version: 1, tiles: collision.tiles.map(({ x, z, file }) => ({ x, z, file })), panels: panelCollision },
       far: { bounds: { min: farBox.min.toArray(), max: farBox.max.toArray() }, files: [farFile.hash], compressed: farFile.compressed, decoded: farFile.decoded, gpu: farFile.gpu, triangles: farFile.triangles, draws: farFile.draws }, edge: edges(world) }, sections);
-    // NM5: its own near view from its coarse tiles (a first-party product builds with no placeholders)
+    // NM5: its own near view from its coarse tiles (a built-in product builds with no placeholders)
     // its light (additive pools, unlit or emissive glows) has no lit vertex-colour form: the near view draws it in its own
     // additive light layer (NM13, `coarseNearView`)
     const lightNames = new Set(world.materials.flatMap((row, index) => { const entry = materials[row.id];

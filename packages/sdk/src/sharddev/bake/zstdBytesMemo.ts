@@ -4,7 +4,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The default cache is the existing build-cache root.
 import { homedir } from 'node:os';
-// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths use only trusted roots and hashes.
+// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths use only host-owned roots and hashes.
 import { resolve } from 'node:path';
 import { reportBuildCache } from '../buildCacheMetrics';
 import { readBoundedFile } from '../sourceReader';

@@ -22,7 +22,7 @@ import type { MaterialEntry } from '@wildshard/format/materials';
  *   (`@wildshard/format/materialGraph`), validated under the author caps. Only the approved vocabulary converts; a TSL
  *   node with no graph op (a `Fn`, `uniform()`, a code node, a texture not declared through `sample`) is refused with
  *   its class name. Graph-only inputs (the sun, irradiance, the lit colour, noise, the post taps) are the exports below.
- *   A trusted shard's own programs also have `atan(y, x)`, `mod`, `varying(node)`, `attribute('aName', type)`,
+ *   A host-owned shard's own programs also have `atan(y, x)`, `mod`, `varying(node)`, `attribute('aName', type)`,
  *   `screenCoordinate` (the `fragCoord` input) and `surface.discard`; a code-fed uniform is an unbound `param()`.
  */
 

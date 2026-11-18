@@ -83,7 +83,7 @@ const entryKey = (material: string, motion: SceneMotion | null, card = false, sw
   motion === null && !card && !swing ? material : `${material}${card ? '.card' : ''}${swing ? '.swing' : ''}${motion === null ? '' : `.${hashOf((h) => h.json(motion))}`}`;
 const luminance = ([r, g, b]: Rgb): number => 0.2126 * r + 0.7152 * g + 0.0722 * b;
 const clamp01 = (value: number): number => Math.min(1, Math.max(0, value));
-/** SS-GF2a: scene movers' entities, clear of the scene's creatures (from 1) and a data shard's hand-placed movers (9201). */
+/** SS-GF2a: scene movers' entities, clear of the scene's creatures (from 1) and a shard's hand-placed movers (9201). */
 const MOVER_ENTITY_BASE = 9101;
 
 const round = (value: number, digits = 4): number => { const k = 10 ** digits; const out = Math.round(value * k) / k; return out === 0 ? 0 : out; };

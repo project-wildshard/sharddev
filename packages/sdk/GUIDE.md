@@ -238,7 +238,7 @@ because that report combines the two flag scopes). This is observation only: no 
 - **`requiredFacts`** are the quest facts (`onComplete.fact`) the tape must file. **`requiredItems`** (optional) are
   the stacks the player must hold when the tape ends, at least this many of each, counted across every pack.
 - The report's `inventory` lists every pack's stacks when the tape ends; `ledger.facts` lists the facts filed. A scene
-  or data shard's player holds what the tape was paid under `player`: `coins` from quest `onComplete.coins` and kills,
+  or shard's player holds what the tape was paid under `player`: `coins` from quest `onComplete.coins` and kills,
   each kill's roll off the shard's loot tables by item, and the ledger's item rewards. A native shard's own packs
   appear under their own ids (`pack`).
 - `checkpointTick` is where the proof saves, unloads and restores the shard mid-tape; it must fall inside the tape.
@@ -342,7 +342,7 @@ wildshard upload status <upload-id> --server https://api.wildshard.io
 The status command needs no shard file, version or channel. An older API
 without async status retains the immediate `committed:` behavior.
 
-**First-party shards upload from GitHub Actions.** A `project-wildshard/shard-*` repo carries repo-kit's
+**Built-in shards upload from GitHub Actions.** A `project-wildshard/shard-*` repo carries repo-kit's
 `.github/workflows/publish.yml`, which does steps 3, 4 and 6 on a hosted runner with the org's secrets, so no laptop
 needs a key. Commit and push the hero first (steps 1 and 2), wait for `ci` on `main` to go green, then:
 
@@ -469,7 +469,7 @@ four: `shard.config.ts`, `identity.json` (slug, name, author, revision, seed), `
 and `generators/world.ts` (the scene), with `generators/sky.ts` and `generators/textures.ts` beside it. To turn a repo
 `new` made from the reference world into a scene shard, replace `src/shard.config.ts` with one like the one below and
 delete everything else under `src/`: `manifest.json`, `data/`, `behaviour/`, `assets/` and the reference's
-`generators/` are the data shard's and a scene shard reads none of them. Keep the repo files around `src/`
+`generators/` are the shard's and a scene shard reads none of them. Keep the repo files around `src/`
 (`package.json`, `.oxlintrc.author.json`, this guide).
 
 The smallest one, `src/shard.config.ts`:

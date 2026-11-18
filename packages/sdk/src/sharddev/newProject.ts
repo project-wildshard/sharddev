@@ -241,7 +241,7 @@ function writeRepoFiles(project: string, slug: string, template: RepoShape, empt
 
 /** Copy the shipped teaching world into `source`; generation and gameplay remain authored there. */
 function writeReferenceSource(source: string, slug: string): void {
-  // The trusted CLI bundle defines dirname as its installed source directory.
+  // The host-owned CLI bundle defines dirname as its installed source directory.
   const template = resolve(import.meta.dirname, '../shards/_template');
   cpSync(template, source, { recursive: true, errorOnExist: true, force: false,
     filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(template, 'card') && from !== resolve(template, 'hero.json')
@@ -267,7 +267,7 @@ function writeReferenceSource(source: string, slug: string): void {
 /** AP37a: copy Mossgate Hollow's scene module (AP15) into `source` under this project's identity. Its only source is
  * three.js: `generators/world.ts` builds the scene, `wildshard build` compiles it, `wildshard watch` streams each save. */
 function writeSceneSource(source: string, slug: string): void {
-  // The trusted CLI bundle defines dirname as its installed source directory.
+  // The host-owned CLI bundle defines dirname as its installed source directory.
   const scene = resolve(import.meta.dirname, '../shards/mossgate');
   cpSync(scene, source, { recursive: true, errorOnExist: true, force: false,
     filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') });

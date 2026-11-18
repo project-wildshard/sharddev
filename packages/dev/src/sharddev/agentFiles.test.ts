@@ -140,11 +140,11 @@ describe('wildshard update and the agent files (SA28)', () => {
     expect(new Map(syncAgentFiles(project).map(change => [change.file, change.action])).get(AGENTS_FILE)).toBe('left');
   });
 
-  it('a new repo with a first-party slug still gets the outside policy, though new wrote it an AGENTS.md', () => {
+  it('a new repo with a built-in slug still gets the outside policy, though new wrote it an AGENTS.md', () => {
     const project = resolve(scratch, 'driftwood-isle'), source = { identity: { slug: 'driftwood-isle' } } as Pick<Shardfile, 'identity'>;
     writeShardRepo(project, 'driftwood-isle');
     expect(projectPerformancePolicy(resolve(project, 'src'), source, project)).toBe('refuse');
-    // The gate is the first-party package name, which `new` never writes.
+    // The gate is the built-in package name, which `new` never writes.
     writeFileSync(resolve(project, 'package.json'), JSON.stringify({ name: '@wildshard/shard-driftwood' }));
     expect(projectPerformancePolicy(resolve(project, 'src'), source, project)).toBe('warn');
   });

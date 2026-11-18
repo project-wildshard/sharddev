@@ -73,10 +73,10 @@ test('failed author evaluation removes its private module and preserves independ
   } finally { execution.close(); rmSync(directory, { recursive: true, force: true }); }
 });
 
-test('raw execution keeps missing-scene and trusted-runtime source refusals', async () => {
+test('raw execution keeps missing-scene and native-runtime source refusals', async () => {
   for (const [source, message] of [
     ["export const identity={slug:'missing-scene'};", 'must export a real three.js scene'],
-    ["import {Scope} from '@wildshard/engine/app/scope'; export const scene=new Scope('refused');", 'cannot import trusted runtime'],
+    ["import {Scope} from '@wildshard/engine/app/scope'; export const scene=new Scope('refused');", 'cannot import native runtime'],
   ]) {
     if (source === undefined || message === undefined) throw new Error('Missing refusal fixture');
     const directory = project(source);

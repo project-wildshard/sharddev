@@ -17,7 +17,7 @@ export function sceneCardUrls(source: string, folder: string): Partial<Record<Ca
 }
 
 /** C3: what a page needs before it admits a shard, for an author who wrote no level metadata: `withDiscovery` writes this
- *  as the product's discovery, so the shard wears its own card and enters on its own page, with no first-party manifest
+ *  as the product's discovery, so the shard wears its own card and enters on its own page, with no built-in manifest
  *  source. Every value is the platform's plain default or the shard's own; a shard's `manifest` replaces all of it. */
 const NEUTRAL = [1, 1, 1];
 const PHONE = {fps: 30, variability: 1.3, cpuMs: 9.6, gcMs: 0.3, systems: {physics: 0.3, ai: 0.3, animation: 0.3, player: 0.2, world: 0.2, hud: 0.1, audio: 0.1},

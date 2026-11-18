@@ -38,7 +38,7 @@ export default { scene: readScene(input.scene), slug: input.identity.slug };`;
     plugins: [{ name: 'author-scene-three-identity', resolveId(id, importer) {
       if (id === virtual) return virtual;
       const author = importer?.startsWith(root + sep) === true && !importer.startsWith(resolve(root, 'node_modules') + sep);
-      if (author && (/^@wildshard\/(?:game|engine)\//u.test(id) || /^@wildshard\/(?:sdk|sharddev)\/runtime\//u.test(id))) throw new Error('Scene synth cannot import trusted runtime');
+      if (author && (/^@wildshard\/(?:game|engine)\//u.test(id) || /^@wildshard\/(?:sdk|sharddev)\/runtime\//u.test(id))) throw new Error('Scene synth cannot import native runtime');
       return id === 'three' ? { id: three, external: true } : null;
     }, load(id) {
       if (id === virtual) return wrapper;
@@ -59,6 +59,6 @@ export default { scene: readScene(input.scene), slug: input.identity.slug };`;
   const data = loaded.default;
   if (typeof data !== 'object' || data === null || !('slug' in data) || typeof data.slug !== 'string'
     || !('scene' in data) || typeof data.scene !== 'object' || data.scene === null || !('version' in data.scene) || data.scene.version !== 1) throw new Error('Invalid scene reader result');
-  // Only the defining readScene inside this trusted author bundle creates this result. Wire admission is separate.
+  // Only the defining readScene inside this host-owned author bundle creates this result. Wire admission is separate.
   return publishScene(data.scene as SceneDescription, root, data.slug);
 }

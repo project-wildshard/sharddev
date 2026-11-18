@@ -37,7 +37,7 @@ test('build and validate run no simulation; check measures CPU again and refuses
   const measured = vi.spyOn(HeadlessSimulation, 'create').mockImplementation(async (...args) => {
     const sim = await start(...args), validate = sim.validate.bind(sim);
     created++;
-    // Craft a bad fresh measurement at the trusted worker boundary; all actual physics/tick execution still runs.
+    // Craft a bad fresh measurement at the host-owned worker boundary; all actual physics/tick execution still runs.
     vi.spyOn(sim, 'validate').mockImplementation(async () => {
       const report = await validate(); ticks += report.observation.samples.length;
       if (overBudget) for (const row of report.observation.samples) row.scriptMicros = 5000;

@@ -140,7 +140,7 @@ function geometryData(geometry: BufferGeometry): SceneGeometry {
 }
 function materialData(material: Material): SceneMaterial {
     if (material instanceof ShaderMaterial || material.onBeforeCompile !== Material.prototype.onBeforeCompile)
-        throw new Error('Raw shaders and material callbacks are trusted runtime code');
+        throw new Error('Raw shaders and material callbacks are native runtime code');
     if (!(material instanceof MeshStandardMaterial) && !(material instanceof MeshToonMaterial) && !(material instanceof MeshBasicMaterial))
         throw new Error(`Unsupported authoring material ${material.type}`);
     if (material.type !== 'MeshStandardMaterial' && material.type !== 'MeshToonMaterial' && material.type !== 'MeshBasicMaterial')

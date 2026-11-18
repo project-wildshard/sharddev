@@ -55,7 +55,7 @@ export const BehaviourSourceSchema: v.SchemaWithPipe<readonly [
 })), v.maxLength(64), v.check(rows => new Set(rows.map(row => row.id)).size === rows.length, 'unique behaviour source ids'));
 
 /** Compile explicitly listed source files in memory with pinned portable tools. No project compiler script executes.
- * The trusted loader bounds and confines every read. Symbolic references are replaced only in module/script fields.
+ * The host-owned loader bounds and confines every read. Symbolic references are replaced only in module/script fields.
  * Server scripts are critical and their three admitted memory copies are charged before geometry admission. */
 export async function compileBehaviourSource(input: unknown, declaration: unknown, read: (path: string) => string): Promise<{ declaration: unknown; assets: Map<string, Uint8Array> }> {
   if (!isJsonData(input) || !isJsonData(declaration) || typeof declaration !== 'object' || declaration === null || Array.isArray(declaration)) throw new Error('Behaviour source needs plain JSON declarations');

@@ -49,7 +49,7 @@ function readAsset(url) {
   if (typeof url !== 'string' || !url.startsWith('/assets/')) throw new Error('generate-json: asset URL required');
   return new Uint8Array(readFileSync(confined(`public${url}`)));
 }
-/** An author-only file recipe reads only its own explicit authored files, never trusted runtime or another shard.
+/** An author-only file recipe reads only its own explicit authored files, never native runtime or another shard.
  * @param {string} path */
 function readSource(path) {
   const owner = sourceOwner, parts = typeof path === 'string' ? path.split('/') : [];

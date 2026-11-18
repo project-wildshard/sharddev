@@ -2,7 +2,7 @@
 import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Atomic tool installation and verification stay outside author bundles.
 import { existsSync, mkdirSync, mkdtempSync, renameSync, rmSync, writeFileSync } from 'node:fs';
-// oxlint-disable-next-line import/no-nodejs-modules -- The trusted tool cache belongs to the build user.
+// oxlint-disable-next-line import/no-nodejs-modules -- The host-owned tool cache belongs to the build user.
 import { homedir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Only pinned relative source names enter these paths.
 import { dirname, resolve } from 'node:path';

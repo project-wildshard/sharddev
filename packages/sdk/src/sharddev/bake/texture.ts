@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Trusted author tools run the local, pinned texture encoder at build time.
+// oxlint-disable-next-line import/no-nodejs-modules -- Host-owned author tools run the local, pinned texture encoder at build time.
 import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Encoder throwaways belong to one temporary directory and are always removed.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

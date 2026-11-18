@@ -94,7 +94,7 @@ export interface ProjectGenerationContext {
   /** The meshopt GLB choice (`blobs.ts` meshoptNoLarger, for nameMeshoptBlob) with its exact memo in the gen cache (CI6);
    *  older adapters may omit it. */
   meshoptNoLarger?: (packed: Uint8Array, input: Uint8Array) => Promise<boolean>;
-  /** Trusted original UASTC build recipe; older adapters may omit this capability. */
+  /** Host-owned original UASTC build recipe; older adapters may omit this capability. */
   basisEncoder?: typeof createBasisEncoder;
   /** DL9: a phone-tier UASTC KTX2 as ASTC 4×4 (`bake/phoneAstc.ts`, three's own transcoder at build time); older
    *  adapters may omit it, and the phone keeps transcoding at load. */
@@ -111,7 +111,7 @@ export interface ProjectGenerationContext {
   /** Dual stateless projection compilation, retaining the original witness and every source/admission check. */
   compileReturnProjection?: typeof compileReturnProjectionV2;
 }
-/** Build entries are trusted functions; their returned declaration still crosses normal shardfile admission. */
+/** Build entries are host-owned functions; their returned declaration still crosses normal shardfile admission. */
 export function isProjectGenerator(input: unknown): input is (ctx: ProjectGenerationContext) => unknown { return typeof input === 'function'; }
 const stores = new WeakMap<ProjectGenerationContext, ReturnType<typeof generationCache>>();
 /** Seal completed generation's current keys, release its lease and schedule G430. */

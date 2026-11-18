@@ -10,7 +10,7 @@ export interface NativeMeadowField {
   readonly trailGrass: (height: number, trailDistance: number) => number;
 }
 
-/** Bake all original four-metre meadow corners from trusted explicit native samplers.
+/** Bake all original four-metre meadow corners from host-owned explicit native samplers.
  * Own the numeric snapshot and query state without selecting a page, installing a field or retaining scene objects.
  * Snapshot edits never change the queries; separate builds share no mutable samples.
  * The author includes every supplied policy/sampler in its native source cache key. */

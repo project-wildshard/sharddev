@@ -12,7 +12,7 @@ import { positionErrorScale, floatPositionError, gridPositionError } from './geo
 
 /** A reusable scatter shape and its world-local positive TRS matrices; generators run only at build time. */
 export interface PropScatter { model: Object3D; transforms: readonly Matrix4[] }
-/** Trusted static content. Named panels remain separate, and coarse/far replacements are optional build-time inputs. */
+/** Host-owned static content. Named panels remain separate, and coarse/far replacements are optional build-time inputs. */
 export interface PropsBakeSource {
   static: Object3D; scatter?: readonly PropScatter[];
   /** A panel draws in `materialName` (a `props.materials` name; omitted: the merged surfaces' own) and casts a shadow unless

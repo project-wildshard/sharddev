@@ -1,4 +1,4 @@
-/** Unmodified Basis Universal v2.50 build inputs (Apache-2.0); fetched only by the trusted build host. */
+/** Unmodified Basis Universal v2.50 build inputs (Apache-2.0); fetched only by the host-owned build host. */
 export const BASIS_REVISION = '9bebe16726b3a61c8c213eeee3b7cffb462ef34e';
 export const BASIS_INPUTS: readonly (readonly [string, string])[] = [
   [

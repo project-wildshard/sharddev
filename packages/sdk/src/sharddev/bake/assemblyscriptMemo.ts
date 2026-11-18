@@ -1,10 +1,10 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Optional compiler storage is owned only by the trusted build host.
+// oxlint-disable-next-line import/no-nodejs-modules -- Optional compiler storage is owned only by the host-owned build host.
 import { mkdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Unique temporary names never enter the compiler key.
 import { randomBytes } from 'node:crypto';
 // oxlint-disable-next-line import/no-nodejs-modules -- Reuse the existing CI-cached generation root.
 import { homedir } from 'node:os';
-// oxlint-disable-next-line import/no-nodejs-modules -- Construct paths from trusted roots and content hashes.
+// oxlint-disable-next-line import/no-nodejs-modules -- Construct paths from host-owned roots and content hashes.
 import { resolve } from 'node:path';
 import { reportBuildCache } from '../buildCacheMetrics';
 import { projectCompilerIdentity, rawAssemblyScriptCompilerIdentity } from '../projectCompilerIdentity';

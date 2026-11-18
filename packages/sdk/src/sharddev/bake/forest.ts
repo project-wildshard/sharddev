@@ -29,7 +29,7 @@ export interface NativeForestPlacements {
   readonly nearby: (x: number, z: number, radius?: number) => readonly NativeForestTree[];
 }
 
-/** Bake the existing forest algorithm from trusted explicit policy and native samplers.
+/** Bake the existing forest algorithm from host-owned explicit policy and native samplers.
  * Return detached numeric records with stable query identity; never select a page or install terrain.
  * The caller owns the result and includes every supplied policy/sampler in its native source cache key. */
 export function bakeForestPlacements(source: ForestPlacementSource, variants: readonly PlantSpec[]): NativeForestPlacements {

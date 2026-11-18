@@ -62,7 +62,7 @@ export class ClientChannels {
   deformTube(row: NonNullable<ClientChannelProgram['geometry']>): void { this.geometryRow = structuredClone(row); }
   /** Declare bounded exact connector poses on borrowed private objects or existing instance slots. */
   connector(row: NonNullable<ClientChannelProgram['connectors']>[number]): void { this.connectorRows.push(structuredClone(row)); }
-  /** Declare a normal input prompt; channel evaluation never dispatches its separate trusted action. */
+  /** Declare a normal input prompt; channel evaluation never dispatches its separate host-owned action. */
   prompt(row: NonNullable<ClientChannelProgram['prompt']>): void { this.promptRow = structuredClone(row); }
   /** Select already evaluated scalar nodes without a call, loop or side effect. */
   select(test: number, yes: number, no: number): number { return this.append({ op: 'select', test, yes, no }); }

@@ -25,7 +25,7 @@ export type AuthorScaledPost = ScaledPostRow;
 /** Complete authored post look, including ordered pass topology and resource wiring. */
 export type AuthorPostGraphLook = PostGraphLookRow;
 
-/** Validate an offline author's complete graph under the existing trusted author budget.
+/** Validate an offline author's complete graph under the existing host-owned author budget.
  * Keep diagnostics and graph normalization identical; runtime admission still owns its own caps. */
 export function checkAuthorGraph(input: unknown): ReturnType<typeof validateGraph> {
   return validateGraph(input, { trustedBudget: true });

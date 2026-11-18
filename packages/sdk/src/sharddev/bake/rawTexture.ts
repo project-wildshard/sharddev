@@ -4,7 +4,7 @@ import type { ImagePixels } from './image';
 
 /** Pack owned bounded RGBA pixels into the original single-level Zstd KTX2, without file/image services.
  * Rows retain their supplied order. Linear stores numerical channels; the default transfer is sRGB.
- * An optional trusted build encoder preserves the same Zstd level; raster and KTX2 admission always run here. */
+ * An optional host-owned build encoder preserves the same Zstd level; raster and KTX2 admission always run here. */
 export function bakeRawColourPixels(image: ImagePixels, options: { colourSpace?: 'srgb' | 'linear' } = {}, encode?: (input: Uint8Array, level: number) => Uint8Array): Uint8Array {
   const { width, height, pixels } = image;
   if (!Number.isSafeInteger(width) || !Number.isSafeInteger(height) || width < 1 || height < 1 || width > 4096 || height > 4096

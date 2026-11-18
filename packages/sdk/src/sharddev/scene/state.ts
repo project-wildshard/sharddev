@@ -24,7 +24,7 @@ import { countMax, SceneRefusalError } from './lower';
  * tool's `fuel` and `lit` as the owner's player fields projected by `itemFields`, which is how a page shows a lantern the
  * server burns; those projections need a state lane, so a scene with pickups always has the module.
  *
- * No format change: these are the sections a data shard declares today.
+ * No format change: these are the sections a shard declares today.
  */
 
 /** The first state field id and event type the sdk takes (clear of Brasscap's 101 to 302 and the item hooks' 102). */

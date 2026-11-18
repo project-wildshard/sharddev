@@ -1,12 +1,12 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Trusted author tooling resolves only its pinned dependency artifacts.
+// oxlint-disable-next-line import/no-nodejs-modules -- Host-owned author tooling resolves only its pinned dependency artifacts.
 import { createRequire } from 'node:module';
-// oxlint-disable-next-line import/no-nodejs-modules -- Temporary CommonJS glue is a verified third-party module, removed after loading.
+// oxlint-disable-next-line import/no-nodejs-modules -- Temporary CommonJS glue is a verified external module, removed after loading.
 import { mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The encoder owns this unique portable temporary directory.
 import { tmpdir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Local dependency artifacts, never an author-supplied path or URL.
 import { dirname, join } from 'node:path';
-// oxlint-disable-next-line import/no-nodejs-modules -- The trusted build runner opts into its private transform cache.
+// oxlint-disable-next-line import/no-nodejs-modules -- The host-owned build runner opts into its private transform cache.
 import process from 'node:process';
 import { readImagePixels } from './image';
 import { worldImageInfo } from './worldImage';

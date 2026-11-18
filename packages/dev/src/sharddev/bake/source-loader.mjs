@@ -23,12 +23,12 @@ const shard = entry?.split('/')[2];
 if (shard === undefined) throw new Error('Authoring loader requires an explicit shard-owned generator');
 const folders = new Set(['generators', 'data', 'quests', 'blender', 'assets', 'behaviour']);
 
-/** Refuse even computed imports into trusted code after Node resolves workspace links. @param {string} url */
+/** Refuse even computed imports into host-owned code after Node resolves workspace links. @param {string} url */
 function authoringOnly(url) {
   if (!url.startsWith('file:')) return;
   const file = relative(root, fileURLToPath(url)).split(sep).join('/');
   if (file.startsWith('../') && !file.includes('/node_modules/')) throw new Error(`Authoring dependency escapes the source tree: ${file}`);
-  if (!file.startsWith('src/')) return; // Node and installed third-party dependencies are build infrastructure.
+  if (!file.startsWith('src/')) return; // Node and installed external dependencies are build infrastructure.
   const parts = file.split('/'), layer = parts[1];
   if (parts.includes('runtime') || parts.some(part => part.endsWith('-legacy')) ||
       (layer === 'shards' ? parts[2] !== shard || !folders.has(parts[3]) : !['sdk', 'sharddev', 'commons', 'format'].includes(layer))) {

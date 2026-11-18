@@ -2,7 +2,7 @@
 import { existsSync, linkSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync, utimesSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Content identities and private lease names never enter products.
 import { createHash, randomUUID } from 'node:crypto';
-// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths contain only trusted roots and validated hashes.
+// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths contain only host-owned roots and validated hashes.
 import { basename, dirname, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Pruning runs as a low-priority background process on Mac and Linux.
 import { execFileSync, spawn } from 'node:child_process';

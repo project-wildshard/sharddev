@@ -42,7 +42,7 @@ test('baked tiles lend their graph looks over an earlier presentation fallback',
   } finally { compile.mockRestore(); presentation.dispose(); resident.dispose(); fallback.dispose(); compiled.dispose(); }
 });
 
-// G532 standalone and grid entry in one run. Standalone, the plan feature (the data client's scope) and the trusted runtime's
+// G532 standalone and grid entry in one run. Standalone, the plan feature (the data client's scope) and the native runtime's
 // world build (the resident's) both ask for the tiles in one world; in a grid the runtime's resident world asks first, on a
 // second admitted product object of the same shard. Each world draws once and registers one bounce system, as a world's
 // system registry refuses a duplicate id.
@@ -62,7 +62,7 @@ test('baked tiles draw once and tick once per world, standalone and grid entry',
     const system = vi.fn<ShardContext['system']>((spec) => { if (ids.has(spec.id)) throw new Error(`Duplicate system id: ${spec.id}`); ids.add(spec.id); });
     const context = (scope: Scope): ShardContext => {
       const base: Pick<ShardContext, 'product' | 'scope' | 'root' | 'system'> = { product: product(), scope, root, system }, typed = base as ShardContext;
-      // a data client and a trusted runtime see different world wrappers over the one app
+      // a data client and a native runtime see different world wrappers over the one app
       Object.defineProperty(typed, 'game', { enumerable: true, value: { runtime: { world: { ...world } } } });
       Object.defineProperty(typed, 'app', { enumerable: true, value: app });
       return typed;

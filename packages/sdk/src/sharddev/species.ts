@@ -7,7 +7,7 @@ import { SocketRigCreatureSchema } from '@wildshard/format/socketRigCreature';
 export const StrikeSchema: typeof CreatureStrikeSchema = CreatureStrikeSchema;
 /** Serializable native strike accepted by the SDK, without an authored callback. */
 export type StrikeData = v.InferOutput<typeof StrikeSchema>;
-/** Validate a serializable native strike before its trusted engine adapter is constructed. */
+/** Validate a serializable native strike before its host-owned engine adapter is constructed. */
 export function strike(data: unknown): StrikeData { return v.parse(StrikeSchema, data); }
 /** Gameplay-only species fields; the defining declaration lives in the format layer. */
 export type SpeciesData = ReturnType<typeof readSpecies>;

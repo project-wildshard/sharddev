@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Trusted author execution owns and removes only its temporary module directory.
+// oxlint-disable-next-line import/no-nodejs-modules -- Host-owned author execution owns and removes only its temporary module directory.
 import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep execution scratch in the source workspace tmp, outside authored trees.
 import { dirname, resolve } from 'node:path';
@@ -8,14 +8,14 @@ import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 // oxlint-disable-next-line import/no-nodejs-modules -- Preserve native ESM's previous content-addressed namespace identity.
 import { createHash } from 'node:crypto';
-// oxlint-disable-next-line import/no-nodejs-modules -- Pin trusted bundle execution to Node ESM rather than a transforming test host.
+// oxlint-disable-next-line import/no-nodejs-modules -- Pin host-owned bundle execution to Node ESM rather than a transforming test host.
 import { Script, constants } from 'node:vm';
 
 // A data URL was the same ESM identity for the same source, including rejected
 // evaluations. Keep that identity without retaining its 4/3-sized encoded URL.
 const namespaces = new Map<string, Promise<unknown>>();
 
-/** Execute one trusted single-chunk build bundle. Its non-builtin imports must
+/** Execute one host-owned single-chunk build bundle. Its non-builtin imports must
  * already be absolute, as for the previous data URL. The caller validates that
  * boundary and retains source/input receipts. Only this module's own scratch
  * is removed, after top-level await settles; exported closures remain usable. */

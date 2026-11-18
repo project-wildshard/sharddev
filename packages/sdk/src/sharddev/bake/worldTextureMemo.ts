@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- A trusted build-only cache owns its immutable encoder results.
+// oxlint-disable-next-line import/no-nodejs-modules -- A host-owned build-only cache owns its immutable encoder results.
 import {lstatSync,mkdirSync,readFileSync,readdirSync,renameSync,rmSync,writeFileSync} from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Keys, never author paths, select cache files.
 import {join} from 'node:path';

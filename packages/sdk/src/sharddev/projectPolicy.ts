@@ -6,8 +6,8 @@ import * as v from 'valibot';
 import { readBoundedFile } from './sourceReader';
 
 const policy = v.strictObject({ version: v.literal(1), decisionLegacyLines: v.pipe(v.number(), v.safeInteger(), v.minValue(1)) });
-/** A portable generated policy input carries the first-party denominator to every project reader.
- * The SDK never imports repository policy or guesses a first-party identity from a folder name. */
+/** A portable generated policy input carries the built-in denominator to every project reader.
+ * The SDK never imports repository policy or guesses a built-in identity from a folder name. */
 export function projectDecisionBudget(project: string, explicit?: number): number | undefined {
   if (explicit !== undefined) return explicit;
   const root = realpathSync(project), path = resolve(root, '.wildshard/build-policy.json');

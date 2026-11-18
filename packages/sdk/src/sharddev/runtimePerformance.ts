@@ -8,7 +8,7 @@ import { readBoundedFile } from './sourceReader';
 
 /**
  * Most runtime/ source files a project may hold. Outside projects, the Template and any shard without a line refuse above
- * 128. A first-party checkout shard (policy 'warn', see performancePolicy.ts) reads its shrink-only ceiling from
+ * 128. A built-in checkout shard (policy 'warn', see performancePolicy.ts) reads its shrink-only ceiling from
  * lint/runtime-files.json, seeded for the W2 client moves (G450 (5)) and lowered as W3 converts sim and data out.
  * The builder supplies the admitted identity for a single-shard src/ root; policy still decides provenance.
  */

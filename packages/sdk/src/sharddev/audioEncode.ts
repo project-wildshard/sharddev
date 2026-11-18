@@ -6,7 +6,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The default cache is the existing build-cache root.
 import { availableParallelism, homedir, release, tmpdir } from 'node:os';
-// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths use only trusted roots and hashes.
+// oxlint-disable-next-line import/no-nodejs-modules -- Cache paths use only host-owned roots and hashes.
 import { join, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- execFile's promise form.
 import { promisify } from 'node:util';

@@ -20,7 +20,7 @@ export type AuthorRiggedHullUrls = RiggedHullUrls;
  * A part's base-colour map rides inside the GLB as the source's exact image bytes (never re-encoded), so the client decodes
  * it as it decoded the source, and the engine's KTX2 bake (`scripts/bake-ktx2.mjs`, geometry bytes untouched) makes its GPU
  * stand-in exactly as it did for the source. (A shardfile asset declares its textures separately: `parseGlb` refuses
- * embedded images, so a textured skinned bake is for a trusted runtime's own loads.)
+ * embedded images, so a textured skinned bake is for a native runtime's own loads.)
  */
 
 type Json = string | number | boolean | null | Json[] | { [key: string]: Json };

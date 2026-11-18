@@ -32,7 +32,7 @@ test('one call batches all bindings and only the next authoritative fixed step c
   expect(f.committed).toEqual([3,6]);expect(f.commits).toEqual([1]);expect(captures).toBe(1);
   expect(f.lane.advance(6,capture(6),f.prepare).status).toBe('staged');f.lane.advance(7,capture(7),f.prepare);expect(f.committed).toEqual([4,8]);expect(f.commits).toEqual([1,7]);
 });
-test('a trusted due hint permits exactly one rewind/re-step from the original captured frame', async () => {
+test('a host-owned due hint permits exactly one rewind/re-step from the original captured frame', async () => {
   const f = await fixture();let captures = 0, prepares = 0;
   const result = f.lane.advance(0,() => { captures++;return f.capture(0,true); },candidate => { prepares++;expect(candidate.excluded).toBe(2);return f.prepare(candidate); });
   expect(result).toMatchObject({ status: 'staged',attempts: 2,excluded: 2 });expect(captures).toBe(1);expect(prepares).toBe(1);expect(f.committed).toEqual([2,4]);expect(f.lane.failures).toBe(1);

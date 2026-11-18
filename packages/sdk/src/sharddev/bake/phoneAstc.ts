@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Trusted author tooling resolves only three's packaged transcoder artifacts.
+// oxlint-disable-next-line import/no-nodejs-modules -- Host-owned author tooling resolves only three's packaged transcoder artifacts.
 import { createRequire } from 'node:module';
 // oxlint-disable-next-line import/no-nodejs-modules -- Temporary CommonJS glue is the packaged transcoder, removed after loading.
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
