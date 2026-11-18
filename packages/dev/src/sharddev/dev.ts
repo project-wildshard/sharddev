@@ -5,6 +5,7 @@ import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, r
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
 import { buildProject } from '@wildshard/build/project';
+import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';
@@ -71,12 +72,21 @@ export function devFile(dirs: readonly string[], shardRoot: string, path: string
   }
   return undefined;
 }
+/** SDK-SPLIT SP13f: a file under one of the manifest's image roots (`/assets/` is the repo's `public/assets/`), which a
+ *  release serves beside the shard and the page asks for at run time (Signal Dunes' painted skies). */
+export function imageRootFile(manifest: ProjectManifestSource | undefined, path: string): { dir: string; file: string } | undefined {
+  const root = manifest?.imageRoots.find(each => path.startsWith(each.prefix));
+  return root === undefined || !existsSync(root.directory) ? undefined : devFile([realpathSync(root.directory)], '', `/${path.slice(root.prefix.length)}`);
+}
 /** A rebuilt static author client. Closing it releases its socket, private build products and watchers; `exiting` neither
  *  waits for a running rebuild nor closes the watchers, which the process's exit drops (SD-6: closing a recursive watch
  *  on macOS blocks the event loop for seconds). */
 export interface DevProject { url: string; close: (options?: { exiting?: boolean }) => Promise<void> }
 /** Only the author command chooses DEVSERVER; requests, cookies and URL switches cannot enable it. */
-export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string } = {}): Promise<DevProject> {
+/** SDK-SPLIT SP13f: `manifest` is the source `wildshard build` is given (its image roots name `/assets/` and the shard's own
+ *  folder), so a generator that reads `/assets/...` inputs builds under dev as it does under build. `build` stands in for
+ *  buildProject in a test. */
+export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string; manifest?: ProjectManifestSource; build?: typeof buildProject } = {}): Promise<DevProject> {
   const source = resolve(project), scratch = createDevScratch(source);
   let revision = 0, error: string | null = null, current = '', previous = '', stopped = false, shardRoot = '';
   const scope = new Scope('sdk.dev');
@@ -85,7 +95,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
     if (stopped) return;
     const target = join(scratch, `build-${revision + 1}`);
     try {
-      const built = await buildProject(source, target, { devserver: true, ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.client === undefined ? {} : { client: options.client }) });
+      const built = await (options.build ?? buildProject)(source, target, { devserver: true, ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.client === undefined ? {} : { client: options.client }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
       const page = join(target, 'index.html');
       if (!existsSync(page)) throw new Error('wildshard dev requires the SDK devserver client; build/pack the SDK first');
       const flags: unknown = JSON.parse(readFileSync(join(target, 'build-flags.json'), 'utf8'));
@@ -115,7 +125,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
       if (path === '/sw.js') { response.setHeader('Content-Type', 'text/javascript'); response.end(DEV_SERVICE_WORKER); return; }
       // SD-2: the page's in-page server reads the shard where a release serves it, `/shardfiles/<slug>/`; here that is
       // the product's own root.
-      const file = devFile([current, previous], shardRoot, path);
+      const file = devFile([current, previous], shardRoot, path) ?? imageRootFile(options.manifest, path);
       if (file === undefined) { response.writeHead(404); response.end(); return; }
       response.setHeader('Content-Type', MIME[extname(file.file)] ?? 'application/octet-stream');
       if (request.method === 'HEAD') response.end(); else createReadStream(file.file).on('error', () => { response.destroy(); }).pipe(response);

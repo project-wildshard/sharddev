@@ -88,6 +88,14 @@ const GITHUB_PIN = /^github:([\w.-]+\/[\w.-]+)#(.+)$/u;
  * hold a `>` of its own, as in `three@>=0.180`). */
 const overriddenPackage = (key: string): string => (key.split(/>(?=[@A-Za-z])/u).at(-1) ?? key).replace(/(?<=.)@[^@/]*$/u, '');
 
+const FORMAT_SPEC = /^(?:npm:@wildshard\/shard-format@)?(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/u;
+/** SDK-SPLIT SP13: the format pin never moves back. A repo that pins a newer shard format than the release (Signal Dunes
+ * and Open Plots pin memory epoch 3, 0.26.0, while sdk 0.4.1 pinned 0.23.0) keeps its own: its shards are written to it. */
+function formatTarget(from: string, to: string | undefined): string | undefined {
+  const [have, want] = [FORMAT_SPEC.exec(from)?.[1], to === undefined ? undefined : FORMAT_SPEC.exec(to)?.[1]];
+  return have !== undefined && want !== undefined && compareVersions(have, want) > 0 ? from : to;
+}
+
 /** The repo's package.json text with every listed pin moved to `release`; each pin keeps its field (a blender repo's
  * sdk stays a dev dependency) and the sdk keeps its name and form: an exact version moves to the release, an
  * `npm:@wildshard/sdk@<v>` alias to the release's alias, and a GitHub pin to `sdkSpec`, which `updatePins` resolves
@@ -101,6 +109,7 @@ export function movePins(text: string, release: SdkRelease, sdkSpec?: string): {
   const moves: PinMove[] = [];
   const target = (name: string, from: string): string | undefined => {
     if (LOCKSTEP.has(name)) return SEMVER.test(from) ? release.version : undefined;
+    if (name === '@wildshard/format') return formatTarget(from, release.pins[name]);
     if (!isSdkName(name)) return release.pins[name];
     if (SDK_ALIAS.test(from)) return `npm:@wildshard/sdk@${release.version}`;
     if (GITHUB_PIN.test(from)) return sdkSpec;

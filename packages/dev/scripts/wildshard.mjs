@@ -92,7 +92,7 @@ export async function runWildshard(args) {
   const selected = args.find(arg => arg.startsWith('--output='))?.slice(9);
   const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, folder)?.find(row => row.slug === selected);
   if (selected !== undefined && output === undefined) throw new Error(`wildshard: ${basename(project ?? '')} declares no output ${selected}`);
-  const manifest = project === undefined || !['build', 'check', 'validate', 'prove'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
+  const manifest = project === undefined || !['build', 'check', 'validate', 'prove', 'dev'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
     folder: output?.slug ?? folder, ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
     imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };

@@ -128,7 +128,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   if (command === 'dev') {
     const port = output === undefined ? 0 : Number(output);
     if (!Number.isInteger(port) || port < 0 || port > 65535) throw new Error('dev port must be 0..65535');
-    const server = await devProject(resolve(input), { port, client: await devClient(), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }) });
+    const server = await devProject(resolve(input), { port, client: await devClient(), ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }), ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
     // SD-6: a signal handler replaces Node's default exit, so the handler ends the process itself: free the port and the
     // build products, then exit 0 (exit drops the watchers and any rebuild still running). A second signal exits at once.
     let stopping = false;

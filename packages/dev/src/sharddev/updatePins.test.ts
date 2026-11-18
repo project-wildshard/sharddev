@@ -103,6 +103,15 @@ describe('wildshard update --pins (SA18)', () => {
     expect(engines.moves.map(move => move.name)).toEqual(['@wildshard/sdk', 'engines.node']);
   });
 
+  it('never moves the format pin back to an older format (SP13)', () => {
+    const release = { ...NEXT, pins: { ...NEXT.pins, '@wildshard/format': 'npm:@wildshard/shard-format@0.23.0' } };
+    const newer = movePins(JSON.stringify({ dependencies: { '@wildshard/sdk': '0.4.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.26.0' } }), release);
+    expect(JSON.parse(newer.text).dependencies['@wildshard/format']).toBe('npm:@wildshard/shard-format@0.26.0');
+    expect(newer.moves.map(move => move.name)).toEqual(['@wildshard/sdk']);
+    const older = movePins(JSON.stringify({ dependencies: { '@wildshard/sdk': '0.4.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.22.0' } }), release);
+    expect(JSON.parse(older.text).dependencies['@wildshard/format']).toBe('npm:@wildshard/shard-format@0.23.0');
+  });
+
   it('moves a direct kit pin to the kit version carried by the SDK release', () => {
     const moved = movePins(JSON.stringify({ dependencies: { '@wildshard/sdk': '0.4.0', '@wildshard/kit': '0.1.0' } }),
       { ...NEXT, pins: { ...NEXT.pins, '@wildshard/kit': '0.2.0' } });
