@@ -81,7 +81,9 @@ describe('the refusal table (SA21)', () => {
   // SA41: shard-format gives every issue a stable code; each one must name a rule, so a code added upstream with no row
   // here fails this test (and GUIDE.md's anchor test covers the row's heading).
   it('names every format, engine-check and author warning code by exactly one row', () => {
-    const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure', 'spawn-aware-radius'];
+    const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure', 'spawn-aware-radius',
+      // ONE-FORMAT CC47: the creature caps (sdk creatureCaps.ts).
+      'creature-bone-cap', 'creature-volume-cap', 'creature-triangles', 'creature-textures'];
     expect(codes.length).toBeGreaterThanOrEqual(53);
     expect(codes).toContain('audio-container');
     const named = REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row.id] as const));

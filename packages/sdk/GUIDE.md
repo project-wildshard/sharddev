@@ -755,6 +755,28 @@ spawn. The warning names its spawn id, brain, horizontal distance and radius (he
 Move the creature or player spawn farther apart, or reduce the brain's `awareRadius`. An intentional arrival encounter
 can keep the warning: it does not fail validation or the check verdict. `check --json` retains it in `warnings`.
 
+#### creature-bones
+
+`wildshard check` refuses a creature whose rig has more than 64 bones (every skin variant counts). The phone poses and
+skins each bone every frame. Merge twist and helper bones in the modelling tool, or split the body into two creatures.
+The report card prints each creature's bones, hit volumes and triangles beside the shard's budget tier.
+
+#### creature-volumes
+
+A creature has at most 16 hit volumes: its skeleton's default volumes plus its own `body.volumes`, counted by part.
+Keep one volume per part a hit should tell apart (head, body, a shield); merge the rest.
+
+#### creature-triangles
+
+Each size class has a triangle mark per creature: tiny 1,500, small 3,000, medium 6,000, large 12,000, giant 24,000.
+Over its class's mark `check` warns and the upload still takes it; the creature still counts inside the shard's total
+and its budget tier. Give it a phone LOD with fewer triangles, or a larger size class if the body really is larger.
+
+#### creature-textures
+
+Each size class has a decoded-bytes mark per creature, mostly its textures: tiny 1 MB, small 2 MB, medium 4 MB, large
+8 MB, giant 16 MB. Over it `check` warns. Use a smaller atlas or fewer maps.
+
 #### validate-refused
 
 Shard-format's checks refused the built shard. The message names the check; RUNTIME-CONTRACT §8 lists what is refused.
