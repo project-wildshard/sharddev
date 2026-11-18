@@ -27,10 +27,9 @@ The first-party manifest keeps the canonical `_template` slug, grey picker art a
 The existing Game admits the product before its normal world/kit/play stages, sharing
 one player, physics world, fixed-step driver and HUD. There is no custom runtime chunk.
 `shard.config.ts` includes build-time `data/card.json` metadata;
-`generators/productOutput.ts` declares named blobs and platform sections. Budgets live in `data/` too. Root
-`manifest.json` is a temporary discovery bridge only: P3 catalog activation
-removes it, together with the generated discovery module. Runtime code never
-imports `data/card.ts`. Keep bridge metadata synchronized until that switch.
+`generators/productOutput.ts` declares named blobs and platform sections. Budgets live in `data/` too.
+`data/card.json` is the card's one home (ONE-FORMAT OF6b removed the root `manifest.json` copy). Runtime code never
+imports `data/card.json`.
 
 The T2 reference in `behaviour/boss.as` binds the `combat/encounters` row
 `template.boss` through the single `sim/scripts` row in `generators/productOutput.ts`.

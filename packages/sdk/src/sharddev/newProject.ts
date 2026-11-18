@@ -175,7 +175,7 @@ function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
     : template === 'scene' ? 'Mossgate Hollow, a three.js scene module (`--template scene`)' : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : template === 'scene'
     ? '`identity.json` (the slug and name)\n  and `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save)'
-    : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `manifest.json` (the card)';
+    : '`data/`,\n  `generators/`, `behaviour/`, `assets/` and `data/card.json` (the card)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
   \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`
@@ -251,14 +251,14 @@ function writeReferenceSource(source: string, slug: string): void {
       && from !== resolve(template, 'README.md')
       // A checkout's built Template output (gitignored, under public/) is Template's; build output goes to the repo root.
       && from !== resolve(template, 'public') });
-  const card: unknown = JSON.parse(readFileSync(resolve(source, 'manifest.json'), 'utf8'));
-  if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project manifest is missing');
+  // ONE-FORMAT OF6b: data/card.json is the card's one home; no manifest.json copy is written.
+  const card: unknown = JSON.parse(readFileSync(resolve(source, 'data/card.json'), 'utf8'));
+  if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project card is missing');
   // The template's card is Mossgate's own in-engine hero (template/card/): a new project wears a generated card until its
   // author captures one, never another shard's art.
   const art = authorCard(slug, 1);
   // UP5 (2026-11-13): the boot loads `shardfile`; Template's path booted a file this project never builds and hung.
   const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental', card: { thumb: art, portrait: art, landscape: art }, shardfile: `/shardfiles/${slug}/shard.json` }).replaceAll('/assets/_template/', `/assets/${slug}/`);
-  writeFileSync(resolve(source, 'manifest.json'), manifest);
   writeFileSync(resolve(source, 'data/card.json'), manifest);
   writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author' }));
   // TC-NE4: the identity merge is a generator; shard.config.ts stays declaration-only, as the author lint requires.

@@ -170,8 +170,8 @@ hero:
 2. Run `wildshard hero . --base <url>` with the URL `dev` printed. It opens that page in headless Chromium, enters your
    shard, shoots the view `hero.json`'s `camera` names (or the spawn view), writes the three files and stamps
    `hero.json` with a hash of your content. A `data:` card becomes `card/thumb.jpg`, `card/portrait.jpg` and
-   `card/landscape.jpg`, named in both `manifest.json` and `data/card.json`. A scene shard (a `shard.config.ts` and no
-   `manifest.json`) gets the same three files; its next build's card wears them.
+   `card/landscape.jpg`, named in `data/card.json`. A scene shard (a `shard.config.ts` and no `data/card.json`) gets
+   the same three files; its next build's card wears them.
 3. Look at the three images, then stop `dev` with Ctrl-C.
 
 A refusal is one line that starts with its rule, `[hero-<rule>]`, never a stack: `hero-no-source` (no shard here),
@@ -382,7 +382,7 @@ A project made by `wildshard new` is a repo with one shard source at `src/`. Ins
 | `behaviour/` | AssemblyScript (`.as`) scripts and `hooks.json`. Build compiles them to Wasm | The compiled Wasm |
 | `assets/` | Source assets, named by their SHA-256 | The ones the shard uses, by hash |
 | `look/` | Recorded entry reads for the build | No |
-| `manifest.json` | The card and discovery fields: name, `card` images, `shardfile` path | The card, as data |
+| `data/card.json` | The card and discovery fields: name, `card` images, `shardfile` path | The card, as data |
 | `hero.json` | The hero stamp (`wildshard hero` writes it) | No |
 | `proof.json` | Optional: a proof tape `check` plays with `prove` | No |
 | `audio-waiver.json` | Optional: a dated waiver for the audio budget | Into the shard file's admission data |
@@ -400,8 +400,8 @@ At the repo root, around `src/`:
 | `AGENTS.md`, `CLAUDE.md` | For agents: read this guide first; the skills are in `.claude/skills/`. `CLAUDE.md` is `@AGENTS.md`, so Claude Code reads the same file. Yours to change: `update` keeps your edits | No |
 | `public/shardfiles/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
 
-**Two files to change together.** `src/manifest.json` and `src/data/card.json` hold the same card: `new` writes
-both, build refuses a shard whose two copies differ, and hero capture reads `manifest.json`, so change both together.
+**The card is `src/data/card.json`.** It names the shard (slug, name, status, card art) and is its one home: `new`
+writes it, build reads it, and hero capture writes the captured slots into it.
 
 Blender files (`.blend`), mockups and other working files never ship: keep them in a folder of your own, such as
 `blender/`, and export what the shard needs into `assets/`. A shard never ships runtime TypeScript: everything that
@@ -418,7 +418,7 @@ build supplies: `shared(i)` and `player(i)` read state fields in their declared 
 **Repo layout (J317).** A repo with one shard keeps its shard source at `src/` (`src/shard.config.ts`,
 `src/data/`, ...); a repo with several keeps `src/shards/<slug>/`. Commands take the repo (`.`) and find the shard
 source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo with several, name the shard source
-(`src/shards/<slug>`). The slug is `manifest.json`'s, whatever the repo folder is called. A `src/` source builds
+(`src/shards/<slug>`). The slug is `data/card.json`'s, whatever the repo folder is called. A `src/` source builds
 into the repo's `public/shardfiles/`; a `src/shards/<slug>/` source into its own folder's. SA24 moves the existing
 single-shard repos to `src/`.
 
@@ -460,7 +460,7 @@ scripts) and [`PLATFORM-FILE-FAMILIES.md`](https://github.com/project-wildshard/
 
 A shard can also be one three.js scene, written in TypeScript: `wildshard new my-shard --template scene` makes one
 (Mossgate Hollow, under your slug). It is the same shard format as section 2; only the source is shorter. It needs no
-`manifest.json` and no `data/` rows: `defineShard` takes the slug and name, the scene builds the world, and build
+`data/card.json` and no `data/` rows: `defineShard` takes the slug and name, the scene builds the world, and build
 writes the rest. `wildshard check .` builds it, `wildshard watch .` shows each saved edit in a running page, and
 `wildshard synth` is not for it (synth takes the older scene form only).
 
@@ -468,7 +468,7 @@ writes the rest. `wildshard check .` builds it, `wildshard watch .` shows each s
 four: `shard.config.ts`, `identity.json` (slug, name, author, revision, seed), `generators/shard.ts` (`defineShard`)
 and `generators/world.ts` (the scene), with `generators/sky.ts` and `generators/textures.ts` beside it. To turn a repo
 `new` made from the reference world into a scene shard, replace `src/shard.config.ts` with one like the one below and
-delete everything else under `src/`: `manifest.json`, `data/`, `behaviour/`, `assets/` and the reference's
+delete everything else under `src/`: `data/` (the card included), `behaviour/`, `assets/` and the reference's
 `generators/` are the shard's and a scene shard reads none of them. Keep the repo files around `src/`
 (`package.json`, `.oxlintrc.author.json`, this guide).
 
@@ -556,7 +556,7 @@ guide names them and points at what prints them:
 
 - **Every saved file in the shard source rebuilds the whole shard**, about 0.1 s after the last save, and the open page
   reloads itself when the new build is ready. Nothing is patched in place: data, generators, behaviour scripts,
-  assets, `shard.config.ts` and `manifest.json` all take the same path.
+  assets, `shard.config.ts` and `data/card.json` all take the same path.
 - **A failed rebuild keeps the last good build** on the page and prints the refusal in the terminal and the browser
   console. Fix it and save again.
 - **Not watched:** `node_modules/`, `.git/`, `dist/`, `public/` and `.worktrees/`. After `pnpm install` or an sdk

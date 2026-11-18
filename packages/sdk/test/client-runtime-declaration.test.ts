@@ -13,7 +13,7 @@ import { writeOutputProduct, validateOutputProduct } from '../src/sharddev/outpu
 import { writeRuntimeFiles } from '../src/sharddev/outputRuntime';
 import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs';
-import metadata from '../src/shards/_template/manifest.json' with {type:'json'};
+import metadata from '../src/shards/_template/data/card.json' with {type:'json'};
 import { FIXTURE_RUNTIME_COST } from './fixtures/clientPlanRuntime';
 
 // Synthetic accounting for the current format model, not a captured runtime reading.

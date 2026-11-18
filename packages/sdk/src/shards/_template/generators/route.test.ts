@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import layout from '../data/layout.json' with { type: 'json' };
 import creatures from '../data/creatures.json' with { type: 'json' };
-import manifest from '../manifest.json' with { type: 'json' };
+import manifest from '../data/card.json' with { type: 'json' };
 
 // TEMPLATE-E2E TC-M7b (J361: "a bigger route, about 400 m"): the three quests in their chain order, station to station in
 // straight lines (the walls round the yard and the pond garden only lengthen it): the sword's rack, the first adventure

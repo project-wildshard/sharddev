@@ -119,7 +119,7 @@ test('handwritten native declarations emit explicit effects and cap flags withou
 
 test('ordinary cap compilation keeps conditional request tags and authored overrides', () => {
   const source = fixture();
-  const metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/manifest.json'), 'utf8'));
+  const metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/data/card.json'), 'utf8'));
   source.manifest = { ...metadata, fight: { capExempt: ['crab', 'state.rage', 'effect.hot'] } };
   const first = source.rows.species[0], second = source.rows.species[1];
   if (first === undefined || second === undefined) throw new Error('Missing explicit controls');
@@ -142,7 +142,7 @@ test('the original captain keeps the level cap exemption when native hunt has no
   expect(native.hunt?.fight.capExempt).toBeUndefined();
   const captain = native.program?.species.find(species => species.kind === 'captain');
   expect(captain).toBeDefined(); expect(captain?.capExempt).toBeUndefined();
-  const source = fixture(), metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/manifest.json'), 'utf8'));
+  const source = fixture(), metadata = JSON.parse(readFileSync(resolve('../sdk/src/shards/_template/data/card.json'), 'utf8'));
   source.manifest = { ...metadata, fight: { maxHitDamage: 20, capExempt: ['captain'] } };
   const sections = new Map([['actors/species-programs', native]]);
   const result = expandCombatSource(parseShardfile(source, sections), () => undefined, sections);

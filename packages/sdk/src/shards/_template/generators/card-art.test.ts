@@ -3,7 +3,6 @@ import { existsSync, readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Read the template's card files from disk.
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import manifest from '../manifest.json' with { type: 'json' };
 import card from '../data/card.json' with { type: 'json' };
 
 // Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the templates". Template rev 2 shipped the grey
@@ -22,10 +21,11 @@ function jpegSize(bytes: Uint8Array): readonly [number, number] {
   throw new Error('No JPEG frame header');
 }
 
-test('the Template card is its own captured hero, the same in manifest.json and data/card.json', () => {
-  expect(card.card).toEqual(manifest.card);
+// ONE-FORMAT OF6b: data/card.json is the card's one home; Template keeps no manifest.json copy.
+test('the Template card is its own captured hero, in data/card.json alone', () => {
+  expect(existsSync(resolve(FOLDER, 'manifest.json'))).toBe(false);
   for (const [slot, [width, height]] of Object.entries(SIZE)) {
-    const url = (manifest.card as Record<string, string>)[slot] ?? '';
+    const url = (card.card as Record<string, string>)[slot] ?? '';
     expect(url.startsWith(PREFIX), `${slot}: ${url.slice(0, 40)}`).toBe(true);
     const file = resolve(FOLDER, url.slice(PREFIX.length));
     expect(existsSync(file), file).toBe(true);
