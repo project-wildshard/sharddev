@@ -7,7 +7,7 @@ import { execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixtures remain under the ignored test scratch root.
 import { join, resolve } from 'node:path';
-import { DEV_CLIENT_ASSET, devClientTag, fetchDevClient, fetchPreparationClient } from './devClient';
+import { DEV_CLIENT_ASSET, devClientTag, enginePin, fetchDevClient, fetchPreparationClient } from './devClient';
 
 // SD-2 (HOW-WE-BUILD, SHARD-AUTHORING SA15): an installed `wildshard dev` fetches engine's devserver client at its pin.
 const directories: string[] = [];
@@ -41,6 +41,20 @@ test('the engine pin names the release that holds its dev client', () => {
   expect(devClientTag('0.1.17')).toBe('v0.1.17');
   expect(devClientTag('^0.1.17')).toBe('v0.1.17');
   expect(() => devClientTag('github:project-wildshard/engine#main')).toThrow(/engine pin/u);
+});
+
+// SHARD-SOURCE (opus-ss10k found it): a shard that overrides @wildshard/engine (pnpm.overrides, npm overrides) runs that
+// engine, so prepare and dev must fetch its clients, not the ones at the version the dev package declares.
+test('an installed engine the shard overrode names the pin, a commit pin stays', () => {
+  const root = scratch(), modules = join(root, 'node_modules', '@wildshard'), dev = join(modules, 'dev');
+  const write = (dir: string, manifest: unknown): void => { mkdirSync(dir, { recursive: true }); writeFileSync(join(dir, 'package.json'), JSON.stringify(manifest)); };
+  write(dev, { name: '@wildshard/dev', dependencies: { '@wildshard/engine': '0.1.35' } });
+  expect(enginePin(dev)).toBe('0.1.35');
+  write(join(modules, 'engine'), { name: '@wildshard/engine', version: '0.1.39' });
+  expect(enginePin(dev)).toBe('0.1.39');
+  const sha = '867f3b968429d8b90ae33b363dae3f15f16f6b84';
+  write(dev, { name: '@wildshard/dev', dependencies: { '@wildshard/engine': `github:project-wildshard/engine#${sha}` } });
+  expect(enginePin(dev)).toBe(`github:project-wildshard/engine#${sha}`);
 });
 
 test('the client is fetched once into the cache, then read from it', async () => {

@@ -9,7 +9,7 @@ import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- The default cache is under the user's home.
 import { homedir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- Cache paths.
-import { join, resolve } from 'node:path';
+import { join, resolve, sep } from 'node:path';
 
 /** The release asset engine's `scripts/devserver-client.mjs` writes. */
 export const DEV_CLIENT_ASSET = 'devserver-client.tar.gz';
@@ -28,13 +28,32 @@ export function devClientTag(pin: string): string {
   throw new Error(`wildshard: the engine pin ${pin} names no release (a 40-character commit or an exact version)`);
 }
 
-/** This package's engine pin, from its own package.json. */
-export function enginePin(): string {
-  const manifest: unknown = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8'));
+/** This package's engine pin, from its own package.json, unless the engine installed beside it is another version: a shard
+ *  that overrides `@wildshard/engine` (pnpm.overrides, npm overrides) runs that engine, so its clients are fetched at that
+ *  version (SHARD-SOURCE, opus-ss10l). A commit pin stays: an engine built from a commit carries no commit in its manifest. */
+export function enginePin(root = resolve(import.meta.dirname, '../..')): string {
+  const manifest: unknown = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
   const pin: unknown = typeof manifest === 'object' && manifest !== null && 'dependencies' in manifest && typeof manifest.dependencies === 'object' && manifest.dependencies !== null
     ? (manifest.dependencies as Record<string, unknown>)['@wildshard/engine'] : undefined;
   if (typeof pin !== 'string') throw new Error('wildshard dev: this package names no @wildshard/engine dependency');
-  return pin;
+  if (/#[0-9a-f]{40}$/u.test(pin)) return pin;
+  const installed = installedEngineVersion(root);
+  return installed ?? pin;
+}
+
+/** The version of the `@wildshard/engine` this package resolves: its own `node_modules` (npm nesting, a workspace), else
+ *  the `node_modules` it is installed in (npm hoisting, pnpm's sibling links). */
+function installedEngineVersion(root: string): string | undefined {
+  const parts = resolve(root).split(sep), enclosing = parts.lastIndexOf('node_modules');
+  const homes = [join(root, 'node_modules'), ...(enclosing > 0 ? [parts.slice(0, enclosing + 1).join(sep)] : [])];
+  for (const home of homes) {
+    const file = join(home, '@wildshard', 'engine', 'package.json');
+    if (!existsSync(file)) continue;
+    const engine: unknown = JSON.parse(readFileSync(file, 'utf8'));
+    const version = typeof engine === 'object' && engine !== null && 'version' in engine && typeof engine.version === 'string' ? engine.version : undefined;
+    return version !== undefined && /^\d+\.\d+\.\d+$/u.test(version) ? version : undefined;
+  }
+  return undefined;
 }
 
 /** `$WILDSHARD_DEV_CLIENT_CACHE`, else `$XDG_CACHE_HOME/wildshard/dev-client`, else `~/.cache/wildshard/dev-client`. */
