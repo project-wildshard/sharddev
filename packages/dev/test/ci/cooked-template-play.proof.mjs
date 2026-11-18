@@ -21,7 +21,7 @@ const {loadRapier}=await import('@wildshard/engine/physics/rapier');
 const {cookShard,servedAsIs}=await import('@wildshard/engine/game/shardCook');
 const {readServerPack,serverPackFile}=await import('@wildshard/engine/game/shardfile/serverPack');
 const {snapshotSimHostBytes,serializeSimSnapshot}=await import('@wildshard/engine/sim/snapshot');
-const {manifestFolders,builtShardFolders}=await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const {manifestFolders,builtShardFolders}=await import('@wildshard/build/scripts/shard-outputs.mjs');
 const {NET_BUTTONS}=await import('@wildshard/engine/input/netButtons');
 const expected=builtShardFolders(process.cwd(),manifestFolders(process.cwd())).map(row=>row.slug).sort();
 assert.deepEqual(expected,['_template','ink-cel-valley','pastel-plain'],'The complete SDK template family is required');

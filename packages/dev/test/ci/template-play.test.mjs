@@ -13,7 +13,7 @@ const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
 const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
-const { manifestFolders, builtShardFolders } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const { manifestFolders, builtShardFolders } = await import('@wildshard/build/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
 const products = readdirSync('out', { withFileTypes: true }).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars');
 assert.ok(products.length, 'Build this shard before running its product proof');

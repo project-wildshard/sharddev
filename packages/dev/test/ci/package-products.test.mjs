@@ -8,7 +8,7 @@ import { join, resolve } from 'node:path';
 import { test } from 'node:test';
 
 const { readTar } = await import('@wildshard/format/tar');
-const { manifestFolders, builtShardFolders } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const { manifestFolders, builtShardFolders } = await import('@wildshard/build/scripts/shard-outputs.mjs');
 const bin = resolve(import.meta.dirname, '../../bin/wildshard.mjs');
 const expected = builtShardFolders(process.cwd(), manifestFolders(process.cwd()));
 assert.ok(expected.length, 'This checkout must declare its products');

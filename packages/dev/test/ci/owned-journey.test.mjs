@@ -14,7 +14,7 @@ const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
 const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
 const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
-const { manifestFolders, builtShardFolders } = await import('@wildshard/engine/scripts/shard-outputs.mjs');
+const { manifestFolders, builtShardFolders } = await import('@wildshard/build/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
 const routes = JSON.parse(readFileSync(new URL('./walk-routes.json', import.meta.url), 'utf8'));
 const products = builtShardFolders(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort();
