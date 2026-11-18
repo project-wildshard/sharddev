@@ -116,6 +116,8 @@ export function releasePin(version: string, sdkVersions: readonly string[] | und
   if (sdkVersions === undefined || cliVersions === undefined) return version;
   const both = sdkVersions.filter(each => cliVersions.includes(each) && !each.includes('-'));
   if (both.includes(version)) return version;
+  // A version newer than every sdk on npm is a release being cut (its own publish brings both packages), not a gap.
+  if (sdkVersions.every(each => newer(version, each) > 0)) return version;
   const latest = [...both].sort(newer).at(-1);
   if (latest === undefined) throw new Error(`new: npm has no release of both @wildshard/sdk and @wildshard/cli to pin (this sdk is ${version})`);
   return latest;
