@@ -14,7 +14,7 @@ import { writeShardfile } from '@wildshard/upload/cli/shardfile/shardfile';
 import { refusalCode, refusalHint, refusalNote } from '@wildshard/upload/sharddev/refusals';
 import { findShardSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource';
 import { decisionLegacyLines } from '../../scripts/decision-legacy-lines.mjs';
-import { outputManifest, shardOutputs } from '../../scripts/shard-outputs.mjs';
+import { outputManifest, shardCardFile, shardOutputs } from '../../scripts/shard-outputs.mjs';
 import { runBuild, ShardfileRefusalError, type BuildVerbOptions } from './buildVerb';
 
 const USAGE = 'usage: wildshard-build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>]';
@@ -26,9 +26,11 @@ function buildOptions(root: string, project: string, selected: string | undefine
   // SF88g: `--output=<slug>` builds one declared output of the folder, under its own slug and composed manifest.
   const output = selected === undefined ? undefined : new Map((shardOutputs(root, folder) ?? []).map(row => [row.slug, row])).get(selected);
   if (selected !== undefined && output === undefined) throw new Error(`wildshard-build: ${basename(project)} declares no output ${selected}`);
+  // ONE-FORMAT OF6a: the card is `data/card.json` (a legacy `manifest.json` first while one is left).
+  const card = shardCardFile(project);
   const manifest: ProjectManifestSource | undefined = !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
     folder: output?.slug ?? folder,
-    ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
+    ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : card !== null ? { file: card } : {}),
     imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
   const legacy = decisionLegacyLines(root, folder);

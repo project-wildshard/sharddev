@@ -13,7 +13,7 @@ import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile
 import { rapierAlias } from '@wildshard/engine/vite/rapier.ts';
 import { authorBundleCached } from '@wildshard/engine/scripts/author-bundle-cache.mjs';
 import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-lines.mjs';
-import { outputManifest, shardOutputs } from '@wildshard/build/scripts/shard-outputs.mjs';
+import { outputManifest, shardCardFile, shardOutputs } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { findShardSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
 
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
@@ -93,7 +93,7 @@ export async function runWildshard(args) {
   const output = project === undefined || selected === undefined ? undefined : shardOutputs(root, folder)?.find(row => row.slug === selected);
   if (selected !== undefined && output === undefined) throw new Error(`wildshard: ${basename(project ?? '')} declares no output ${selected}`);
   const manifest = project === undefined || !['build', 'check', 'validate', 'prove', 'dev'].includes(args[0] ?? '') || !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
-    folder: output?.slug ?? folder, ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : existsSync(resolve(project, 'manifest.json')) ? { file: resolve(project, 'manifest.json') } : {}),
+    folder: output?.slug ?? folder, ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : shardCardFile(project) !== null ? { file: shardCardFile(project) } : {}),
     imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
   };
   // TS21: `check` on a folder that declares outputs (and no --output) checks each output with its own composed manifest,

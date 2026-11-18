@@ -19,6 +19,7 @@ import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-li
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { shardCardFile } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { installBakeEnvironment } from '@wildshard/sdk/scripts/bake/environment.mjs';
@@ -34,7 +35,7 @@ const at = path => import(pathToFileURL(resolve(root, path)).href);
 // a shardfile project (its shard.config.ts): what `wildshard build` reads, for its tiles, its look and its terrain; read
 // before the bake environment's browser stand-ins exist (its behaviour compiler takes them for a browser)
 // (its generation input roots as the author CLI declares them, scripts/wildshard.mjs: a generator listing its own files needs them)
-const folder = resolve(root, 'src/shards', slug), manifestSource = { folder: slug, ...(existsSync(resolve(folder, 'manifest.json')) ? { file: resolve(folder, 'manifest.json') } : {}),
+const folder = resolve(root, 'src/shards', slug), card = shardCardFile(folder), manifestSource = { folder: slug, ...(card !== null ? { file: card } : {}),
   imageRoots: [{ prefix: `/src/shards/${slug}/`, directory: folder }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }] };
 const legacy = decisionLegacyLines(root, slug);
 const project = existsSync(resolve(folder, 'shard.config.ts')) ? await (await import('@wildshard/build/project')).readProjectAssets(folder, undefined, manifestSource, legacy === undefined ? {} : { decisionLegacyLines: legacy }) : null;

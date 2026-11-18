@@ -2,7 +2,6 @@ import { access } from 'node:fs/promises'
 import path from 'node:path'
 
 import {
-  MANIFEST,
   NONE,
   STAMP,
   heroSlotFiles,
@@ -11,6 +10,7 @@ import {
   readJson,
   writeHeroStamp,
 } from '@wildshard/upload/cli/hero/stamp.ts'
+import { shardCardPath } from '@wildshard/upload/sharddev/shardSource.ts'
 
 // `wildshard hero <shard> --stamp-existing`: a shard repo gains the hero check
 // (stamp.ts) when it bumps its sharddev pin, with curated heroes and no stamp.
@@ -46,7 +46,7 @@ async function assertCardFiles(shard: string): Promise<void> {
   const files = Object.entries(await heroSlotFiles(shard))
   if (files.length === NONE) {
     throw new Error(
-      `${path.join(shard, MANIFEST)}: the card is generated (data: urls), so there are no hero files to stamp`,
+      `${shardCardPath(shard)}: the card is generated (data: urls), so there are no hero files to stamp`,
     )
   }
   const present = await Promise.all(

@@ -1,9 +1,9 @@
 import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
+import { shardCardPath } from '../../sharddev/shardSource.ts'
 import { isSceneShard } from './scene-card.ts'
 import {
-  MANIFEST,
   NONE,
   STAMP,
   UNKNOWN_TIME,
@@ -90,7 +90,7 @@ async function otherOutput(
     'identity',
     'slug',
   ])
-  const own = stringAt(await readJson(path.join(shard, MANIFEST)), ['slug'])
+  const own = stringAt(await readJson(shardCardPath(shard)), ['slug'])
   return output !== undefined && own !== undefined && output !== own
     ? output
     : undefined
@@ -142,10 +142,10 @@ async function assertHeroCurrent(
   const shard = source ?? sourceShard(product)
   // F28: a scene shard keeps no manifest; its folder (a shard.config.ts) is still the source a hero shows
   if (
-    (await readJson(path.join(shard, MANIFEST))) === undefined &&
+    (await readJson(shardCardPath(shard))) === undefined &&
     !(await isSceneShard(shard))
   ) {
-    report(`hero: no source shard with a ${MANIFEST} at ${shard}; not checked`)
+    report(`hero: no source shard with a card at ${shard}; not checked`)
     return
   }
   const hero = await heroState(shard)

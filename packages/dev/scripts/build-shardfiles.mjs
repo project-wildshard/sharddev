@@ -14,7 +14,7 @@ import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
 import { folderInputKey, folderToolchainKey, matchingFolderInputKey, publishFolderInputs } from '@wildshard/engine/scripts/shardfile-inputs.mjs';
 import { quietCli } from '@wildshard/engine/scripts/quiet-cli.mjs';
-import { manifestFolders, outputManifest, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
+import { manifestFolders, outputManifest, shardCardFile, shardOutputs, shardSourceDir, shardSourceFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
 import { usesProgramDiscovery } from '@wildshard/engine/scripts/program-discovery.mjs';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 import { runShardBuild, runShardBuildPool } from './shard-build-pool.mjs';
@@ -79,7 +79,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   };
   // SA42 (SA16's rule): a single-shard repo's source is `src/` (its folder named by its slug), a multi-shard repo's is
   // `src/shards/<folder>/`. The engine's shard-outputs owns the layout, so every product helper below agrees with it.
-  // SHARD-SOURCE AP7: a `src/shards/<folder>` with no manifest declares no product (the products tests read the manifests),
+  // SHARD-SOURCE AP7: a `src/shards/<folder>` with no manifest or card (OF6a: `data/card.json`) declares no product (the products tests read the manifests),
   // so it is a source proof that `wildshard check` and `watch` take by path (src/shards/authoring-slice), never built here.
   const declared = new Set(manifestFolders(root));
   const proofs = shardSourceFolders(root, ['shard.config.ts']).filter(folder => !declared.has(folder) && existsSync(resolve(root, 'src/shards', folder)));
@@ -96,8 +96,8 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
   }
   for (const slug of scope ?? only ?? []) if (!built.includes(slug)) throw new Error(`wildshard build: --shard=${slug} is not an output this repo builds (${built.join(', ')})`);
   const bound = (only === undefined || strict ? [] : products).filter(({ folder, output }) => {
-    const manifest = resolve(shardSourceDir(root, folder), 'manifest.json');
-    if (!existsSync(manifest)) return false;
+    const manifest = shardCardFile(shardSourceDir(root, folder));
+    if (manifest === null) return false;
     const row = output === undefined ? undefined : shardOutputs(root, folder)?.find(entry => entry.slug === output);
     return usesProgramDiscovery(row === undefined ? JSON.parse(readFileSync(manifest, 'utf8')) : outputManifest(root, folder, row));
   }).map(row => row.name).filter(name => only?.includes(name) !== true);

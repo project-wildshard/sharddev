@@ -2,7 +2,7 @@ import { createHash, randomUUID } from 'node:crypto'
 import { readFile, readdir, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 
-import { shardFolderName } from '../../sharddev/shardSource.ts'
+import { shardCardPath, shardFolderName } from '../../sharddev/shardSource.ts'
 import { sceneCardUrls } from './scene-card.ts'
 
 // A shard's hero (its SHARD SELECT card: thumb, portrait and landscape) is a
@@ -10,14 +10,13 @@ import { sceneCardUrls } from './scene-card.ts'
 // 2026-11-12 17:14 Cancún: "you have to update the hero images for the
 // templates"). Rendering it needs a real GPU and a served build of the exact
 // candidate, which no cut step or CI runner has, so the cut refuses instead:
-// `hero.json` beside `manifest.json` records the hash of the shard's content
+// `hero.json` beside the card (`data/card.json`) records the hash of the shard's content
 // when the hero was captured, and `wildshard build` refuses a product whose
 // source hashes differently now, whose hero files are not the ones stamped,
 // or which does not carry the stamped hero files as blobs (built before the
 // capture). `wildshard hero` captures and re-stamps.
 
 const STAMP = 'hero.json'
-const MANIFEST = 'manifest.json'
 const SLOTS = ['thumb', 'portrait', 'landscape'] as const
 // Generated, ignored, test or prose files are not the world a hero shows.
 // The directories are skipped at the shard folder's top level only.
@@ -100,7 +99,7 @@ function field(value: unknown, key: string): unknown {
 async function cardUrls(
   shard: string,
 ): Promise<Readonly<Record<string, string>>> {
-  const manifest = await readJson(path.join(shard, MANIFEST))
+  const manifest = await readJson(shardCardPath(shard))
   const card = field(manifest, 'card')
   const urls: Record<string, string> = {}
   for (const slot of SLOTS) {
@@ -284,7 +283,6 @@ async function writeHeroStamp(
 export {
   type HeroState,
   type HeroStamp,
-  MANIFEST,
   STAMP,
   NONE,
   UNKNOWN_TIME,

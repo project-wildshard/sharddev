@@ -5,6 +5,17 @@ import { basename, dirname, resolve } from 'node:path';
 
 /** The build entry that marks a folder as a shard source. */
 export const SHARD_CONFIG = 'shard.config.ts';
+/** ONE-FORMAT OF6a: where a source's card lives, in reading order: a legacy `manifest.json` while one is left, else
+ *  `data/card.json`, the card's one home. */
+export const CARD_FILES = ['manifest.json', 'data/card.json'] as const;
+/** OF6a: a source's card file (`manifest.json`, else `data/card.json`), or undefined for a source with no card. */
+export function shardCardFile(source: string): string | undefined {
+  return CARD_FILES.map(name => resolve(source, name)).find(file => existsSync(file));
+}
+/** OF6a: the card file a source reads or would write: its card file, else `data/card.json`. */
+export function shardCardPath(source: string): string {
+  return shardCardFile(source) ?? resolve(source, 'data/card.json');
+}
 /** A hand-written shard source (`new --template blender`, J314) is a shard file folder held by hand: its index. */
 export const SHARD_INDEX = 'shard.json';
 
@@ -56,7 +67,7 @@ export function shardOutputRoot(source: string): string {
 
 /**
  * The folder name build checks a manifest's slug against (`project-folder-slug`). A `src/` source names no slug by its
- * folder, so its `manifest.json` slug is the folder; any other source is named by its folder, as before.
+ * folder, so its card's slug (OF6a: `manifest.json`, else `data/card.json`) is the folder; any other source is named by its folder, as before.
  */
 export function shardFolderName(source: string): string {
   if (!isRepoSource(source)) return basename(source);
@@ -66,8 +77,8 @@ export function shardFolderName(source: string): string {
     if (typeof parsed === 'object' && parsed !== null && 'identity' in parsed && typeof parsed.identity === 'object' && parsed.identity !== null
       && 'slug' in parsed.identity && typeof parsed.identity.slug === 'string') return parsed.identity.slug;
   }
-  const manifest = resolve(source, 'manifest.json');
-  if (existsSync(manifest)) {
+  const manifest = shardCardFile(source);
+  if (manifest !== undefined) {
     const parsed: unknown = JSON.parse(readFileSync(manifest, 'utf8'));
     if (typeof parsed === 'object' && parsed !== null && 'slug' in parsed && typeof parsed.slug === 'string') return parsed.slug;
   }
