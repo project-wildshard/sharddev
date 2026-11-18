@@ -180,6 +180,7 @@
     "./internal/authorError": "internal",
     "./internal/diagnosticClock": "internal",
     "./internal/spawnWarnings": "internal",
+    "./internal/creatureCaps": "internal",
     "./internal/handwritten": "internal",
     "./internal/handwrittenCreatureLayers": "internal",
     "./internal/authorLint": "internal",
