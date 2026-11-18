@@ -1,5 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffolding owns only a fresh author directory.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+// oxlint-disable-next-line import/no-nodejs-modules -- Asks npm which sdk and cli releases a new repo can install.
+import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
 import { resolve } from 'node:path';
 import { encodeCanonicalJson } from './immutable';
@@ -87,11 +89,44 @@ export const REPO_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format', 'three'
  * dependencies; no three. */
 export const HANDWRITTEN_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format'] as const;
 
+/** The versions npm lists for a package, or undefined when the registry can't be read (offline). */
+export type PublishedVersions = (name: string) => readonly string[] | undefined;
+const listed = new Map<string, readonly string[] | undefined>();
+function registryVersions(name: string): readonly string[] | undefined {
+  if (!listed.has(name)) {
+    let versions: readonly string[] | undefined;
+    try {
+      const parsed: unknown = JSON.parse(execFileSync('pnpm', ['view', name, 'versions', '--json'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'], timeout: 30_000 }));
+      versions = Array.isArray(parsed) ? parsed.filter((entry): entry is string => typeof entry === 'string') : typeof parsed === 'string' ? [parsed] : undefined;
+    } catch { versions = undefined; }
+    listed.set(name, versions);
+  }
+  return listed.get(name);
+}
+function newer(a: string, b: string): number {
+  const parts = (version: string): number[] => version.split(/[.-]/u).slice(0, 3).map(Number);
+  const [x, y] = [parts(a), parts(b)];
+  for (let index = 0; index < 3; index++) if ((x[index] ?? 0) !== (y[index] ?? 0)) return (x[index] ?? 0) - (y[index] ?? 0);
+  return 0;
+}
+/** The release a new repo pins the sdk and the cli at (TEMPLATE-E2E TC-NE5): the running sdk's own version when npm has
+ * both at it, else the newest release npm has both at. A source checkout's version may be one npm never got (the cli first
+ * shipped at 0.4.0, so a starter made on 0.3.9 pinned a cli nobody could install). Offline, the sdk's version stands. */
+export function releasePin(version: string, sdkVersions: readonly string[] | undefined, cliVersions: readonly string[] | undefined): string {
+  if (sdkVersions === undefined || cliVersions === undefined) return version;
+  const both = sdkVersions.filter(each => cliVersions.includes(each) && !each.includes('-'));
+  if (both.includes(version)) return version;
+  const latest = [...both].sort(newer).at(-1);
+  if (latest === undefined) throw new Error(`new: npm has no release of both @wildshard/sdk and @wildshard/cli to pin (this sdk is ${version})`);
+  return latest;
+}
+
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
-export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE): string {
-  const sdk = sdkPackage(), dependencies: Record<string, string> = { '@wildshard/sdk': sdk.version };
+export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions): string {
+  const sdk = sdkPackage(), release = releasePin(sdk.version, published('@wildshard/sdk'), published('@wildshard/cli'));
+  const dependencies: Record<string, string> = { '@wildshard/sdk': release };
   for (const name of template === 'blender' ? HANDWRITTEN_DEPENDENCIES : REPO_DEPENDENCIES) {
-    const spec = sdk.dependencies[name];
+    const spec = name === '@wildshard/cli' ? release : sdk.dependencies[name];
     if (spec === undefined) throw new Error(`new: the installed @wildshard/sdk does not pin ${name}`);
     dependencies[name] = spec;
   }
