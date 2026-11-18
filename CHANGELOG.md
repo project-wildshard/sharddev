@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.9 (2026-11-18)
+
+- Nine Dragon Stack scenery takes less graphics memory with compact slabs.
+
 ## v0.4.8 (2026-11-18)
 
 - A `world.part` vehicle (the land-sail) has a hull now: its solid meshes stop players on foot and ride with it, never blocking its rider.
