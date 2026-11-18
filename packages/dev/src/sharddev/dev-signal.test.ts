@@ -9,6 +9,7 @@ import { join, resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
 import { closeFixtures, fixtureRoot } from '../../../sdk/src/sharddev/test/ownedScratch';
+import { enginePin } from './devClient';
 
 // HOW-WE-BUILD SD-6: Ctrl-C (SIGINT) or SIGTERM ends `wildshard dev` and frees its port within 2 s, page open or not.
 const BIN = resolve(import.meta.dirname, '../../bin/wildshard.mjs');
@@ -19,6 +20,9 @@ beforeAll(() => {
   mkdirSync(client);
   writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
   writeFileSync(join(client, 'build-flags.json'), JSON.stringify({ devserver: true }));
+  writeFileSync(join(client, 'version.json'), JSON.stringify({
+    build: 'dev-signal', clientVersion: enginePin(), saveEpoch: 2,
+  }));
   writeShardRepo(join(root, 'shard'), 'dev-signal');
 });
 afterAll(() => { rmSync(root, { recursive: true, force: true }); closeFixtures(); });
