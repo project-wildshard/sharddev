@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.2 (2026-11-17)
+
+- A scene part can be a vehicle a player boards and steers: `world.part(..., { panel, vehicle })`, with an optional wind push for a sail.
+
 ## v0.4.1 (2026-11-17)
 
 - `wildshard update --pins` moves a shard onto the split packages: it pins `@wildshard/cli` and fixes moved imports.
