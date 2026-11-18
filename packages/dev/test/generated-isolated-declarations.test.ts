@@ -23,8 +23,10 @@ function checkGenerated(fileName:string,source:string,annotation:string):void {
  expect(runtime(source)).toBe(runtime(inferred));
 }
 
+// ONE-FORMAT OF6b: Template keeps its card in data/card.json alone; the engine's producer reads a manifest.json, so a
+// sample shard that still has one (pastel-plain) stands for the producer.
 test('the discovery producer emits isolated manifest declarations',()=>{
- checkGenerated(resolve(SDK,'src/shards/_template/discovery.generated.ts'),authoredManifestSource(SDK,'_template'),
+ checkGenerated(resolve(SDK,'src/shards/pastel-plain/discovery.generated.ts'),authoredManifestSource(SDK,'pastel-plain'),
   ': ReturnType<typeof defineAuthoredShard>');
 });
 
