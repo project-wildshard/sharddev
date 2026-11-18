@@ -221,7 +221,7 @@ export interface ScenePart {
   readonly touch?: SceneTouch;
   /** SS-GF2a: a mover panel's track (format `movers`): its solids ride it, never a static collider */
   readonly move?: SceneMove;
-  /** SS-MS2a4: a vehicle panel's driving (format `movers`, a native steer carry): no collider, every page poses its GLB */
+  /** SS-MS2a4: a vehicle panel's driving (format `movers`, a native steer carry): every page poses its GLB; its solids are its hull (SS-GP5) */
   readonly vehicle?: SceneVehicle;
   /** SS-GF0: a panel shown while a state field holds a value (`world.part(..., { panel, shownWhen })`) */
   readonly shownWhen?: { readonly field: string; readonly equals: number };

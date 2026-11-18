@@ -99,7 +99,8 @@ export interface MoverOptions {
  * SS-MS2a4: a vehicle a player boards and steers (format `movers`, a native carry with a `steer` driver). It stands where it
  * is built, its rest the centre of its footprint at the bottom of its bounds, facing `heading`. A player near it boards with
  * the `board` prompt and rides at `seat`; the stick steers (forward goes, back brakes, it never reverses), sprint boosts, and
- * the `leave` prompt sets the rider down beside it. A riderless vehicle slows to a stand. Its solids do not block anyone.
+ * the `leave` prompt sets the rider down beside it. A riderless vehicle slows to a stand. Its solids are its hull: they ride with
+ * it and stop anyone on foot, never its rider (SS-GP5, engine 3165a100 and later; an engine before leaves them off).
  */
 export interface VehicleOptions {
   /** top speed in m/s (0.005 to 60) */

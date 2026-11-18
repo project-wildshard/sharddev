@@ -8,15 +8,18 @@ import { sceneShardfile } from './shardfile';
 
 // SHARD-SOURCE SS-MS2a4: a vehicle panel part (Mirror Salt's land-sail) lowers to one format `movers` row: a native carry
 // `channel` with a `steer` driver, its rest the base centre of its bounds facing its heading, a board prompt beside it and a
-// leave prompt at the seat, both in its own frame, a landing beside it, the wind push, and no collider.
+// leave prompt at the seat, both in its own frame, a landing beside it and the wind push. SS-GP5: its solids are its hull, the
+// panel's collider row written inactive (a carry channel holds no boxes in the format): engine 3165a100 rides it with the
+// vehicle as a kinematic body, and an engine before that leaves it off rather than stand a static copy at the parking spot.
 const wood = new THREE.MeshStandardMaterial({ color: '#6b4a2a', roughness: 0.9 });
 const sail = (part: THREE.Group): void => { const hull = solid(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood)); hull.position.set(-6, 0.45, 20); part.add(hull); };
 const options: PartOptions = { panel: 'salt.sail', vehicle: { speed: 9, heading: 0, wind: { toward: [0.8, -0.6], push: 4 }, board: 'Board the land-sail', leave: 'Leave the land-sail' } };
 
-test('a vehicle part lowers to a native steer carry that the format admits, with no collider', () => {
+test('a vehicle part lowers to a native steer carry that the format admits, its solid hull an inactive panel collider', () => {
   const { shard } = sceneShardfile(lowerShard({ slug: 'ms2a4', name: 'MS2a4' }, (world) => { world.part('sail', sail, options); }));
   expect(shard.props?.panels.map((p) => p.id)).toEqual(['salt.sail']);
-  expect(shard.props?.colliders.some((c) => c.panel === 'salt.sail')).toBe(false);
+  expect(shard.props?.colliders.filter((c) => c.panel === 'salt.sail')).toEqual([
+    { id: 'salt.sail', panel: 'salt.sail', initialActive: false, shapes: [{ kind: 'box', x: -6, y: 0.45, z: 20, hx: 0.6, hy: 0.25, hz: 1.8 }] }]);
   const [row] = parseMovers(shard.movers);
   expect(row).toMatchObject({
     id: 'salt.sail', entity: 9101, kind: 'channel', execution: 'native', at: { x: -6, y: 0.2, z: 20 }, euler: { x: 0, y: 0, z: 0 }, boxes: [],
@@ -64,4 +67,16 @@ test('a vehicle needs a panel and no mover, and its numbers stay in the format r
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, turn: 0 } }, /turn 0 is outside 0.005/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [0, 0], push: 3 } } }, /blows toward no direction/u);
   refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [1, 0], push: 30 } } }, /wind push 30 is outside/u);
+});
+
+const round = (n: number): number => Math.round(n * 1e4) / 1e4;
+test('a vehicle with no solid has no hull row, and a turned hull keeps its world turn (SS-GP5)', () => {
+  const bare = (part: THREE.Group): void => { const hull = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood); hull.position.set(0, 0.45, 0); part.add(hull); };
+  const plain = sceneShardfile(lowerShard({ slug: 'b', name: 'B' }, (world) => { world.part('sail', bare, options); })).shard;
+  expect(plain.props?.colliders.some((c) => c.panel === 'salt.sail')).toBe(false);
+  const turned = (part: THREE.Group): void => { const hull = solid(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood)); hull.position.set(0, 0.45, 0); hull.rotation.y = Math.PI / 2; part.add(hull); };
+  const { shard } = sceneShardfile(lowerShard({ slug: 't', name: 'T' }, (world) => { world.part('sail', turned, { ...options, vehicle: { ...options.vehicle, speed: 9, heading: Math.PI / 2 } }); }));
+  const [row] = shard.props?.colliders.filter((c) => c.panel === 'salt.sail') ?? [];
+  expect(row?.initialActive).toBe(false);
+  expect(row?.shapes).toEqual([{ kind: 'box', x: 0, y: 0.45, z: 0, hx: 0.6, hy: 0.25, hz: 1.8, yaw: round(Math.PI / 2) }]);
 });

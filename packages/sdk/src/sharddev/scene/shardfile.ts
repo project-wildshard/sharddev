@@ -802,7 +802,10 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     .map(({ id, vehicle }, i) => vehicleRow(id, vehicle, MOVER_ENTITY_BASE + tracks.length + i))];
   // SS-GF1a2: a part a player's own field shows (their socket) has no collider: one collider stands for every player
   const playerFields = new Set((scene.anchored.writes ?? []).filter((w) => w.scope === 'player').map((w) => w.field));
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && part.vehicle === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
+  // SS-GP5: a vehicle's solids are its hull, its panel's row written inactive (a carry channel holds no boxes in the format):
+  // engine 3165a100 rides it with the vehicle (`vehicleHulls`), and an engine before that leaves it off rather than stand a
+  // static copy where it parks
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: part.vehicle === undefined, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
