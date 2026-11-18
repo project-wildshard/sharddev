@@ -530,6 +530,134 @@ surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uv
 needs no item rows to fight. To add quests, items or any other section, pass `{ extend: (shard) => ({ ...shard,
 quests: ... }) }` as `defineShard`'s third argument; `wildshard schema list` names every section and its shape.
 
+## 2c. Creatures
+
+A creature is three plain rows: a species row (`actors/species`), the strike rows its abilities use, and a look row
+(its skin). The species row carries layers: `type` (a label for quests and the journal; it chooses no mechanics),
+`body` (`skeleton`, `size`, `scale` and the `look` it draws with), `temperament` (its brain, reaction, leash, assist and
+home), `senses`, `abilities` (strike references, in priority order) and `presentation`. Place it with a
+`creatures.spawns` row (`world.spawnAt` in a scene shard). The kit (`@wildshard/kit`) has bodies, temperaments and
+abilities to start from; `wildshard schema list` prints every field.
+
+The same creature can be written three ways, and the shard file holds the same bytes from each:
+`test/one-creature-three-authors.test.ts` (in the sdk) builds all three and compares them.
+
+**SDK TypeScript**, with the kit's helpers:
+
+```ts
+// The dune jackal in TypeScript: the kit's quadruped body, pursue temperament and bite, plus its own rows.
+import { abilities } from '@wildshard/kit/abilities';
+import { quadruped } from '@wildshard/kit/body';
+import { temperament } from '@wildshard/kit/temperament';
+
+const bite = abilities.bite({ id: 'jackal.bite', damage: 9, range: 1.6 });
+const { temperament: pursue, senses } = temperament.pursue({ aggro: 16, leash: 30 });
+
+export const jackal = {
+  species: [{
+    id: 'jackal', kind: 'jackal', label: 'Dune jackal', type: 'beast', aggressive: true, lockable: true,
+    dims: { bodyY: 0.5, bodyHalfLen: 0.45, bodyRadius: 0.22, headRadius: 0.12, legLen: 0.42, feet: [], halfWidth: 0.18 },
+    variants: [{ id: 'tawny', label: 'Tawny jackal', rarity: 'common', weight: 1, scale: [0.9, 1.1], hp: 40,
+      mods: { speed: 1, chargeDist: 1, damageTaken: 1, chargeDamage: 0, relentless: false } }],
+    body: quadruped({ look: 'jackal.look' }),
+    temperament: pursue, senses, abilities: [bite.ability],
+  }],
+  strikes: [bite.strike],
+  looks: [{ id: 'jackal.look', species: 'jackal', recipe: 'platform.skin', material: null, parameters: {},
+    animation: { recipe: 'platform.clips', parameters: {} } }],
+};
+```
+
+**Hand-written JSON**, as `data/` rows:
+
+```json
+{
+  "species": [
+    {
+      "id": "jackal",
+      "kind": "jackal",
+      "label": "Dune jackal",
+      "type": "beast",
+      "aggressive": true,
+      "lockable": true,
+      "dims": { "bodyY": 0.5, "bodyHalfLen": 0.45, "bodyRadius": 0.22, "headRadius": 0.12, "legLen": 0.42, "feet": [], "halfWidth": 0.18 },
+      "variants": [
+        {
+          "id": "tawny", "label": "Tawny jackal", "rarity": "common", "weight": 1, "scale": [0.9, 1.1], "hp": 40,
+          "mods": { "speed": 1, "chargeDist": 1, "damageTaken": 1, "chargeDamage": 0, "relentless": false }
+        }
+      ],
+      "body": { "skeleton": "quadruped", "size": "medium", "scale": 1, "look": "jackal.look" },
+      "temperament": {
+        "brain": "pursue",
+        "reaction": "aggressive",
+        "leash": 30,
+        "assist": 0,
+        "home": { "speed": 2, "stop": 1.5 },
+        "tuning": {
+          "awareRadius": 12, "leashRadius": 25, "speed": 1, "returnSpeed": 2, "stopDistance": 1.5,
+          "turnRate": 4, "thinkDivisor": 3, "attackCooldownTicks": 60, "wanderRadius": 4, "wanderEveryTicks": 420
+        }
+      },
+      "senses": { "notice": 16 },
+      "abilities": [{ "use": "jackal.bite", "range": 1.6, "cooldown": 1, "weight": 2 }]
+    }
+  ],
+  "strikes": [
+    {
+      "id": "jackal.bite",
+      "shape": { "kind": "point", "radius": 1.8 },
+      "windup": 0.7, "active": 0.15, "recover": 0.8, "cooldown": 1, "range": 1.6, "damage": 9,
+      "tags": ["creature.bite"], "weight": 2, "speed": 0
+    }
+  ],
+  "looks": [
+    {
+      "id": "jackal.look", "species": "jackal", "recipe": "platform.skin", "material": null, "parameters": {},
+      "animation": { "recipe": "platform.clips", "parameters": {} }
+    }
+  ]
+}
+```
+
+**A Python script** (no SDK), printing the canonical JSON the shard file stores (sorted keys, no spaces):
+
+```python
+# The dune jackal in Python: plain dicts, printed as the shard file's canonical JSON.
+import json
+
+bite = {"id": "jackal.bite", "shape": {"kind": "point", "radius": 1.8}, "windup": 0.7, "active": 0.15,
+        "recover": 0.8, "cooldown": 1, "range": 1.6, "damage": 9, "tags": ["creature.bite"], "weight": 2, "speed": 0}
+
+jackal = {
+    "id": "jackal", "kind": "jackal", "label": "Dune jackal", "type": "beast", "aggressive": True, "lockable": True,
+    "dims": {"bodyY": 0.5, "bodyHalfLen": 0.45, "bodyRadius": 0.22, "headRadius": 0.12, "legLen": 0.42,
+             "feet": [], "halfWidth": 0.18},
+    "variants": [{"id": "tawny", "label": "Tawny jackal", "rarity": "common", "weight": 1, "scale": [0.9, 1.1],
+                  "hp": 40, "mods": {"speed": 1, "chargeDist": 1, "damageTaken": 1, "chargeDamage": 0,
+                                     "relentless": False}}],
+    "body": {"skeleton": "quadruped", "size": "medium", "scale": 1, "look": "jackal.look"},
+    "temperament": {
+        "brain": "pursue", "reaction": "aggressive", "leash": 30, "assist": 0, "home": {"speed": 2, "stop": 1.5},
+        "tuning": {"awareRadius": 12, "leashRadius": 25, "speed": 1, "returnSpeed": 2, "stopDistance": 1.5,
+                   "turnRate": 4, "thinkDivisor": 3, "attackCooldownTicks": 60, "wanderRadius": 4,
+                   "wanderEveryTicks": 420},
+    },
+    "senses": {"notice": 16},
+    "abilities": [{"use": "jackal.bite", "range": 1.6, "cooldown": 1, "weight": 2}],
+}
+
+look = {"id": "jackal.look", "species": "jackal", "recipe": "platform.skin", "material": None, "parameters": {},
+        "animation": {"recipe": "platform.clips", "parameters": {}}}
+
+rows = {"species": [jackal], "strikes": [bite], "looks": [look]}
+print(json.dumps(rows, sort_keys=True, separators=(",", ":"), ensure_ascii=False))
+```
+
+A shard that still keeps a species program (`actors/species-programs`) moves to these rows with
+`speciesProgramToRows` from `@wildshard/sdk/species/toRows`: each species keeps its numbers, its declared brain
+becomes a `creatures.brains` row its temperament names, and strike fields a plain row cannot hold are listed.
+
 ## 3. Budgets
 
 A budget is a limit on what your shard costs a player's phone or desktop: bytes to download, memory, draw calls,

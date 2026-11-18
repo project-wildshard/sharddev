@@ -1,0 +1,47 @@
+{
+  "species": [
+    {
+      "id": "jackal",
+      "kind": "jackal",
+      "label": "Dune jackal",
+      "type": "beast",
+      "aggressive": true,
+      "lockable": true,
+      "dims": { "bodyY": 0.5, "bodyHalfLen": 0.45, "bodyRadius": 0.22, "headRadius": 0.12, "legLen": 0.42, "feet": [], "halfWidth": 0.18 },
+      "variants": [
+        {
+          "id": "tawny", "label": "Tawny jackal", "rarity": "common", "weight": 1, "scale": [0.9, 1.1], "hp": 40,
+          "mods": { "speed": 1, "chargeDist": 1, "damageTaken": 1, "chargeDamage": 0, "relentless": false }
+        }
+      ],
+      "body": { "skeleton": "quadruped", "size": "medium", "scale": 1, "look": "jackal.look" },
+      "temperament": {
+        "brain": "pursue",
+        "reaction": "aggressive",
+        "leash": 30,
+        "assist": 0,
+        "home": { "speed": 2, "stop": 1.5 },
+        "tuning": {
+          "awareRadius": 12, "leashRadius": 25, "speed": 1, "returnSpeed": 2, "stopDistance": 1.5,
+          "turnRate": 4, "thinkDivisor": 3, "attackCooldownTicks": 60, "wanderRadius": 4, "wanderEveryTicks": 420
+        }
+      },
+      "senses": { "notice": 16 },
+      "abilities": [{ "use": "jackal.bite", "range": 1.6, "cooldown": 1, "weight": 2 }]
+    }
+  ],
+  "strikes": [
+    {
+      "id": "jackal.bite",
+      "shape": { "kind": "point", "radius": 1.8 },
+      "windup": 0.7, "active": 0.15, "recover": 0.8, "cooldown": 1, "range": 1.6, "damage": 9,
+      "tags": ["creature.bite"], "weight": 2, "speed": 0
+    }
+  ],
+  "looks": [
+    {
+      "id": "jackal.look", "species": "jackal", "recipe": "platform.skin", "material": null, "parameters": {},
+      "animation": { "recipe": "platform.clips", "parameters": {} }
+    }
+  ]
+}
