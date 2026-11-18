@@ -47,6 +47,7 @@
   "scripts": {
     "typecheck": "tsc -p tsconfig.json",
     "build:skeletons": "node --import ./test-hook.mjs scripts/build-skeletons.ts",
+    "build:wildlife": "node --import ./test-hook.mjs scripts/build-wildlife.ts",
     "test": "node --import ./test-hook.mjs --test 'src/**/*.test.ts'"
   },
   "dependencies": {

@@ -11,6 +11,8 @@ import {
 } from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 
+import deer from '../content/creatures/deer.json' with { type: 'json' }
+import wolf from '../content/creatures/wolf.json' with { type: 'json' }
 import { biped, type BodyOptions } from './body.ts'
 
 import type {
@@ -131,6 +133,67 @@ const COLOUR = {
   head: [0.67, 0.63, 0.57],
 } as const
 
+type Wildlife = 'deer' | 'wolf'
+const QUADRUPED_LEGS = ['front.L', 'front.R', 'back.L', 'back.R'] as const
+const WILDLIFE = {
+  deer: {
+    dims: deer.species.dims,
+    coat: [0.35, 0.18, 0.08],
+    face: [0.49, 0.29, 0.15],
+    legs: [0.16, 0.095, 0.06],
+    chestLift: 0.15,
+    headLift: 0.66,
+    snout: 0.18,
+    ears: 0.12,
+    tail: 0.16,
+  },
+  wolf: {
+    dims: wolf.species.dims,
+    coat: [0.26, 0.26, 0.24],
+    face: [0.42, 0.39, 0.33],
+    legs: [0.18, 0.17, 0.15],
+    chestLift: 0.04,
+    headLift: 0.22,
+    snout: 0.25,
+    ears: 0.09,
+    tail: 0.37,
+  },
+} as const
+
+/** Source bodies on the same named chains as the quadruped clip pack. */
+export function wildlifeSource(kind: Wildlife): ReferenceSkeletonSource {
+  return buildReference('quadruped', {}, kind)
+}
+
+function wildlifePoints(kind: Wildlife): Readonly<Record<string, Point>> {
+  const profile = WILDLIFE[kind],
+    { bodyY, bodyHalfLen, feet } = profile.dims
+  const points: Record<string, Point> = {
+    body: [0, bodyY, 0],
+    neck1: [0, bodyY + profile.chestLift, bodyHalfLen * 0.76],
+    neck2: [0, bodyY + profile.headLift * 0.7, bodyHalfLen * 1.03],
+    head: [0, bodyY + profile.headLift, bodyHalfLen * 1.28],
+    tail: [0, bodyY + 0.03, -bodyHalfLen],
+  }
+  for (const [index, name] of QUADRUPED_LEGS.entries()) {
+    const [upper, knee, foot] =
+        CREATURE_SKELETONS.quadruped.chains[name]?.bones ?? [],
+      at = feet[index]
+    if (
+      upper === undefined ||
+      knee === undefined ||
+      foot === undefined ||
+      at === undefined
+    )
+      throw new Error('Missing Kit wildlife leg')
+    const [x = 0, z = 0] = at
+    points[upper] = [x, bodyY - 0.04, z]
+    points[knee] = [x, bodyY * 0.48, z + (index < 2 ? -0.045 : 0.065)]
+    points[foot] = [x, 0.075, z]
+  }
+  return points
+}
+
 /** Build-time reference data. The defining table owns hierarchy/names; these
  * coordinates and simple surfaces are authored kit geometry, with no SDK host. */
 export function referenceSkeletonSource(
@@ -141,9 +204,11 @@ export function referenceSkeletonSource(
 function buildReference(
   skeleton: CreatureSkeleton,
   options: Readonly<Pick<HumanoidOptions, 'head' | 'attachments'>> = {},
+  wildlife?: Wildlife,
 ): ReferenceSkeletonSource {
   const contract = CREATURE_SKELETONS[skeleton],
-    positions = POINTS[skeleton]
+    positions =
+      wildlife === undefined ? POINTS[skeleton] : wildlifePoints(wildlife)
   const point = (name: string): Point => {
     const value = positions[name]
     if (value === undefined)
@@ -265,13 +330,73 @@ function buildReference(
       limb(`shin.${side}`, `foot.${side}`, 0.105, COLOUR.dark)
       box(`foot.${side}`, point(`foot.${side}`), [0.14, 0.1, 0.27], COLOUR.dark)
     }
+  } else if (wildlife !== undefined) {
+    const profile = WILDLIFE[wildlife],
+      dims = profile.dims
+    const [hx, hy, hz] = point('head'),
+      [tx, ty, tz] = point('tail')
+    sphere(
+      'body',
+      point('body'),
+      [dims.halfWidth, dims.bodyRadius * 0.8, dims.bodyHalfLen],
+      profile.coat,
+    )
+    limb('neck1', 'neck2', dims.bodyRadius * 0.72, profile.coat)
+    limb('neck2', 'head', dims.bodyRadius * 0.58, profile.coat)
+    sphere(
+      'head',
+      [hx, hy, hz],
+      [dims.headRadius * 0.8, dims.headRadius, dims.headRadius],
+      profile.coat,
+    )
+    sphere(
+      'head',
+      [hx, hy - 0.055, hz + profile.snout * 0.62],
+      [0.09, 0.08, profile.snout * 0.74],
+      profile.face,
+    )
+    sphere(
+      'head',
+      [hx, hy - 0.04, hz + profile.snout * 1.26],
+      [0.055, 0.043, 0.041],
+      profile.legs,
+    )
+    sphere(
+      'tail',
+      [tx, ty - 0.09, tz - profile.tail * 0.65],
+      [0.057, 0.072, profile.tail * 0.76],
+      profile.coat,
+    )
+    for (const side of [-1, 1]) {
+      sphere(
+        'head',
+        [hx + side * 0.104, hy + profile.ears, hz - 0.048],
+        [0.052, profile.ears, 0.039],
+        profile.face,
+      )
+      sphere(
+        'head',
+        [hx + side * 0.107, hy + 0.025, hz + 0.103],
+        [0.025, 0.021, 0.024],
+        profile.legs,
+      )
+    }
+    for (const chain of QUADRUPED_LEGS) {
+      const [a, b, c] = contract.chains[chain]?.bones ?? []
+      if (a === undefined || b === undefined || c === undefined)
+        throw new Error(`Missing kit leg ${chain}`)
+      limb(a, b, wildlife === 'deer' ? 0.095 : 0.12, profile.coat)
+      limb(b, c, wildlife === 'deer' ? 0.065 : 0.084, profile.legs)
+      const [x, y, z] = point(c)
+      box(c, [x, y - 0.03, z + 0.023], [0.1, 0.088, 0.145], profile.legs)
+    }
   } else {
     sphere('body', point('body'), [0.32, 0.28, 0.62], COLOUR.body)
     limb('neck1', 'neck2', 0.19, COLOUR.body)
     limb('neck2', 'head', 0.2, COLOUR.body)
     sphere('head', point('head'), [0.18, 0.18, 0.27], COLOUR.head)
     box('tail', [0, 0.59, -0.86], [0.065, 0.065, 0.3], COLOUR.dark)
-    for (const chain of ['front.L', 'front.R', 'back.L', 'back.R']) {
+    for (const chain of QUADRUPED_LEGS) {
       const [a, b, c] = contract.chains[chain]?.bones ?? []
       if (a === undefined || b === undefined || c === undefined)
         throw new Error(`Missing kit leg ${chain}`)
@@ -306,33 +431,40 @@ function buildReference(
   if (geometry === null)
     throw new Error('Kit reference surfaces differ in channels')
   const dims =
-    skeleton === 'biped'
+    wildlife !== undefined
       ? {
-          bodyY: 0.84,
-          bodyHalfLen: 0.12,
-          bodyRadius: 0.25,
-          headRadius: 0.16,
-          legLen: 0.84,
-          halfWidth: 0.25,
-          feet: [
-            [0.14, 0.1],
-            [-0.14, 0.1],
-          ] as [number, number][],
+          ...WILDLIFE[wildlife].dims,
+          feet: WILDLIFE[wildlife].dims.feet.map(
+            ([x = 0, z = 0]): [number, number] => [x, z],
+          ),
         }
-      : {
-          bodyY: 0.62,
-          bodyHalfLen: 0.52,
-          bodyRadius: 0.32,
-          headRadius: 0.27,
-          legLen: 0.55,
-          halfWidth: 0.32,
-          feet: [
-            [0.23, 0.47],
-            [-0.23, 0.47],
-            [0.23, -0.43],
-            [-0.23, -0.43],
-          ] as [number, number][],
-        }
+      : skeleton === 'biped'
+        ? {
+            bodyY: 0.84,
+            bodyHalfLen: 0.12,
+            bodyRadius: 0.25,
+            headRadius: 0.16,
+            legLen: 0.84,
+            halfWidth: 0.25,
+            feet: [
+              [0.14, 0.1],
+              [-0.14, 0.1],
+            ] as [number, number][],
+          }
+        : {
+            bodyY: 0.62,
+            bodyHalfLen: 0.52,
+            bodyRadius: 0.32,
+            headRadius: 0.27,
+            legLen: 0.55,
+            halfWidth: 0.32,
+            feet: [
+              [0.23, 0.47],
+              [-0.23, 0.47],
+              [0.23, -0.43],
+              [-0.23, -0.43],
+            ] as [number, number][],
+          }
   if (options.head !== undefined) {
     const headPositions = options.head.getAttribute('position')
     let radius = 0
@@ -348,13 +480,13 @@ function buildReference(
     dims.headRadius = radius
   }
   return {
-    name: `kit.${skeleton}`,
+    name: `kit.${wildlife ?? skeleton}`,
     skeleton,
     bones,
     dims,
     parts: [
       {
-        name: `kit.${skeleton}.body`,
+        name: `kit.${wildlife ?? skeleton}.body`,
         geometry,
         material: new MeshStandardMaterial({
           vertexColors: true,

@@ -275,3 +275,15 @@ The returned GLB stays in unit metres. `source.body.scale` is the sole
 free-scale policy for runtime mesh, volumes and sockets; do not multiply
 the GLB or dimensions again. `size` uses the existing optional class policy.
 Clipless skin metadata is admitted by the defining format0.24.0.
+
+## Deer and wolf bodies
+
+Read the plain species and strike rows from `content/creatures`. Pair each
+with its `content/wildlife/<name>.glb` and `<name>.skin.json` through
+the normal `platform.skin` look. The GLBs carry the canonical quadruped
+clip pack. The skin file includes its loops, pose layers and decoded cost.
+
+`bakeWildlife('deer' | 'wolf')` from `@wildshard/kit/geometry/wildlife`
+returns the same GLB and skin bytes at build time. The source body is
+available through `wildlifeSource` from `@wildshard/kit/skeletons`.
+`pnpm --filter @wildshard/kit build:wildlife` regenerates the plain assets.
