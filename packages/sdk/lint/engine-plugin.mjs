@@ -58,8 +58,9 @@ const wrapped = {
 
 // J366 restores kit as a public content package, and SDK-SPLIT SP2b makes upload the sdk's workspace sibling. Validate
 // the package's actual export map before accepting its name; unknown subpaths must still refuse.
-// SP9c: @wildshard/build (project, synth) is dev's sibling too.
-const LAYER_PACKAGES = ['@wildshard/kit', '@wildshard/upload', '@wildshard/build'];
+// SP9c: @wildshard/build (project, synth) is dev's sibling too. SP13: the split codemod moves a shard's imports of the map
+// rest, the native raster, the watch page and the script scenario to @wildshard/dev, so dev is a layer package as well.
+const LAYER_PACKAGES = ['@wildshard/kit', '@wildshard/upload', '@wildshard/build', '@wildshard/dev'];
 function packageExports(source) {
   const name = LAYER_PACKAGES.find(candidate => source === candidate || source.startsWith(`${candidate}/`));
   if (name === undefined) return false;
