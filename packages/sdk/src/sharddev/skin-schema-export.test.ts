@@ -16,7 +16,12 @@ test('one-pass skin tables export the original bounded numeric array grammar', (
   // Run the generation entrypoint too: skin bindings embed these same tables.
   const documents = formatJsonSchemas();
   expect(documents['skinLayers.SkinPoseLayer']).toBeDefined();
-  expect(documents['skinData.SkinBinding']).toBeDefined();
+  expect(documents['skinData.SkinBinding']).toMatchObject({ properties: { poseLayers: {
+    type: 'object', propertyNames: { anyOf: [
+      { type: 'string', pattern: expect.any(String) },
+      { type: 'string', pattern: expect.any(String), maxLength: 64 },
+    ] }, additionalProperties: { type: 'array', maxItems: 32 },
+  } } });
 });
 
 test('an unrelated raw transform is still refused by the strict exporter', () => {

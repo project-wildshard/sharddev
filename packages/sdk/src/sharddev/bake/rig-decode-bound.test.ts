@@ -122,7 +122,7 @@ it('borrows a complete immutable GLB while every parse keeps private geometry', 
   }
 });
 
-it.each(['shared', 'offset'] as const)('copies %s GLB storage before the parser owns its binary data', async storage => {
+it.each(['shared', 'offset'] as const)('keeps geometry private when the GLB storage is %s', async storage => {
   const geometry = new BoxGeometry(), material = new MeshStandardMaterial();
   const original = staticGlb([{ geometry, material }]);
   const shared = storage === 'shared' ? new Uint8Array(new SharedArrayBuffer(original.byteLength)) : new Uint8Array(original.byteLength + 8).subarray(4, original.byteLength + 4);
@@ -130,8 +130,12 @@ it.each(['shared', 'offset'] as const)('copies %s GLB storage before the parser 
   const copy = vi.spyOn(Uint8Array, 'from');
   const file = await createRigLoader().parseBytesAsync(shared, '');
   try {
-    expect(copy.mock.calls.some(([input]) => input === shared)).toBe(true);
+    // The parser can read an offset ArrayBuffer directly. Shared memory still needs a copy.
+    expect(copy.mock.calls.some(([input]) => input === shared)).toBe(storage === 'shared');
     expect(shared).toEqual(original);
+    const mesh = file.scene.getObjectByProperty('isMesh', true);
+    if (mesh === undefined || !isMesh(mesh)) throw new Error('Missing decoded fixture geometry');
+    expect(mesh.geometry.getAttribute('position').array.buffer).not.toBe(shared.buffer);
   } finally {
     file.scene.traverse(node => { if (isMesh(node)) { node.geometry.dispose(); for (const value of Array.isArray(node.material) ? node.material : [node.material]) value.dispose(); } });
     geometry.dispose(); material.dispose();

@@ -169,7 +169,7 @@ import { LiftRiderSchema } from '@wildshard/format/liftRider';
 import { ScriptSpeciesSchema } from '@wildshard/format/speciesScripts';
 import { EliteScriptSchema } from '@wildshard/format/eliteScripts';
 import { SkinLookParametersSchema, SkinClipParametersSchema, ShardSkinFileSchema } from '@wildshard/format/skins';
-import { SkinClipNameSchema, SkinRowSchema, SkinBindingSchema } from '@wildshard/format/skinData';
+import { CreatureSkinClipNameSchema, SkinClipNameSchema, SkinRowSchema, SkinBindingSchema } from '@wildshard/format/skinData';
 
 import { ShardNaturalSchema, ShardFiniteSchema, ShardHashSchema, ShardReferenceSchema, ShardReferencesSchema, ShardNamesSchema, CellBoundsSchema, IdentitySchema, RequiresSchema, BudgetsSchema, SimSchema, AuthorCapsSchema, ServerBudgetSchema, FilesSchema, TilesSchema, LibrarySchema, CriticalSchema, FarSchema, SpawnSchema } from '@wildshard/format/shardSections';
 
@@ -198,6 +198,9 @@ customSchemas.set(ScaledPostInputSchema, { type: 'object', required: ['programs'
 customSchemas.set(HeldCueSchema, { type: 'string', pattern: '^cue\\.[a-z][a-zA-Z0-9.-]*$' });
 customSchemas.set(ArcWeaponItemSchema, { type: 'string', pattern: '^weapon\\.[a-z][a-zA-Z0-9.-]*$' });
 const postIdentityTransforms = new Set([...postGraphIdentityTransforms, ...uniformIdentityTransforms]);
+const namedClipTransform = schemaAt(CreatureSkinClipNameSchema, '/options/1/pipe/3');
+const skinPoseLayersRecord = schemaAt(SkinBindingSchema, '/entries/poseLayers/wrapped');
+const skinPoseLayerValues = schemaAt(SkinBindingSchema, '/entries/poseLayers/wrapped/value') as GenericSchema;
 customSchemas.set(HeldMeleeActionSchema, { type: 'string', pattern: '^[a-z][a-zA-Z0-9-]*\\.[a-zA-Z0-9.-]+$' });
 const bowVariant = BowVariantSchema.pipe[2].entries;
 customSchemas.set(bowVariant.id, { type: 'string', pattern: '^weapon\\.[a-z0-9.-]+$' });
@@ -627,7 +630,13 @@ export function formatJsonSchema(schema: GenericSchema, target: 'draft-07' | 'dr
     // native grammars; the defining parser and every wire constraint remain.
     ...(schema === WildlifePopulationSchema ? { definitions: { legacyReturn: ReturnProgramSchema, projection: ReturnProjectionV2Schema } } : {}),
     ...(schema === PopulationProjectionSchema || schema === PerchBodyFileSchema ? { definitions: { legacyReturn: ReturnProgramSchema, wireReturn: ReturnProgramWireDocumentSchema, projection: ReturnProjectionV2Schema } } : {}),
-    overrideSchema: ({ valibotSchema }) => customSchemas.get(valibotSchema),
+    overrideSchema: ({ valibotSchema }) => {
+      if (valibotSchema !== skinPoseLayersRecord) return customSchemas.get(valibotSchema);
+      // The converter cannot project a union as a record key. Keep both exact key rules and the value grammar.
+      const { $schema: _keyDialect, ...propertyNames } = formatJsonSchema(CreatureSkinClipNameSchema, target);
+      const { $schema: _valueDialect, ...additionalProperties } = formatJsonSchema(skinPoseLayerValues, target);
+      return { type: 'object', propertyNames, additionalProperties };
+    },
     overrideAction: ({ valibotAction, jsonSchema, errors }) => {
       if (postIdentityTransforms.has(valibotAction)) return jsonSchema;
       // The defining steer-wind action requires at least one nonzero axis.
@@ -659,8 +668,8 @@ export function formatJsonSchema(schema: GenericSchema, target: 'draft-07' | 'dr
         ...jsonSchema, required: [...jsonSchema.required ?? [], 'collider'],
         'x-wildshard-checks': ['@wildshard/format/terrain#TerrainSchema.options.1.pipe.1'],
       } satisfies FormatJsonSchema;
-      // The retained clip transform returns its input unchanged; identity is checked against its defining object.
-      if (valibotAction === SkinClipNameSchema.pipe[2]) return jsonSchema;
+      // Both defining clip transforms brand the validated string without changing it.
+      if (valibotAction === SkinClipNameSchema.pipe[2] || valibotAction === namedClipTransform) return jsonSchema;
       const check = wireChecks.get(valibotAction);
       if (check !== undefined) {
         const before = (jsonSchema as FormatJsonSchema)['x-wildshard-checks'] ?? [];
