@@ -13,6 +13,7 @@ import * as skinAssets from '@wildshard/format/skinAssets';
 import * as skinPlayback from '../src/client/game/shardfile/skinPlayback';
 import * as skinLayers from '../src/client/game/shardfile/skinLayerPlayback';
 import { loadClientSkins, SkinDriver, type ClientSkin } from '../src/client/game/shardfile/clientSkins';
+import { TEMPLATE_RAW_ROWS } from '../src/shards/_template/generators/rows';
 
 afterEach(() => { vi.restoreAllMocks(); });
 
@@ -46,7 +47,7 @@ test(name, async () => {
       }
       return file;
     });
-    const rows = parseRows(JSON.parse(readFileSync('src/shards/_template/data/rows.json', 'utf8')));
+    const rows = parseRows(TEMPLATE_RAW_ROWS);
     const metadata = v.parse(v.array(v.object({ files: FilesSchema })), JSON.parse(readFileSync('src/shards/_template/data/skins.json', 'utf8')));
     const files = metadata.flatMap(row => row.files), assets = new Map(files.map(file => [file.hash,
       Uint8Array.from(readFileSync(`src/shards/_template/assets/${file.hash}`))]));
@@ -86,7 +87,7 @@ test(extractedName, async () => {
     const captureLayers = vi.spyOn(skinLayers, 'skinPoseLayers').mockImplementation((...args) => {
       const playback = layers(...args); refs.push(new WeakRef(playback)); return playback;
     });
-    const rows = parseRows(JSON.parse(readFileSync('src/shards/_template/data/rows.json', 'utf8')));
+    const rows = parseRows(TEMPLATE_RAW_ROWS);
     const metadata = v.parse(v.array(v.object({ files: FilesSchema })), JSON.parse(readFileSync('src/shards/_template/data/skins.json', 'utf8')));
     const files = metadata.flatMap(row => row.files), assets = new Map(files.map(file => [file.hash,
       Uint8Array.from(readFileSync(`src/shards/_template/assets/${file.hash}`))]));
@@ -161,7 +162,7 @@ test(mixerName, async () => {
       }
       return result;
     });
-    const rows = parseRows(JSON.parse(readFileSync('src/shards/_template/data/rows.json', 'utf8')));
+    const rows = parseRows(TEMPLATE_RAW_ROWS);
     const metadata = v.parse(v.array(v.object({ files: FilesSchema })), JSON.parse(readFileSync('src/shards/_template/data/skins.json', 'utf8')));
     const files = metadata.flatMap(row => row.files), assets = new Map(files.map(file => [file.hash,
       Uint8Array.from(readFileSync(`src/shards/_template/assets/${file.hash}`))]));

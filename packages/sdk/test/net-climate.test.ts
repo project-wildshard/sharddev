@@ -19,6 +19,7 @@ import { loadRapier, type Rapier } from '../src/shared/engine/physics/rapier';
 import { SIM_LEVEL } from './fixtures/sim-level/level';
 import { parseRows } from '@wildshard/format/rows';
 import { parseWeatherProgram } from '@wildshard/format/weatherProgram';
+import { TEMPLATE_RAW_ROWS } from '../src/shards/_template/generators/rows';
 
 // Flip checklist 5 and 6: a data shard's day and weather step on the server and reach the page as rows, and a page's weather
 // setting and a dev's jump reach that sky as an act.
@@ -63,7 +64,7 @@ test('a world with no weather has nothing to say to a word', () => {
   expect(() => { netWorldInput(actRoutes(fakeHost()), [{ command: null, acts: [{ ...act }] }]); }).not.toThrow();
 });
 
-const { days, weather } = parseRows(JSON.parse(readFileSync('src/shards/_template/data/rows.json', 'utf8')));
+const { days, weather } = parseRows(TEMPLATE_RAW_ROWS);
 test('a data shard\'s own clock hears a page back from a room, as a director\'s does', () => {
   const host = fakeHost(); installDeclaredClimate(host, { days, weather });
   const said = { kind: 'climate', seq: 5, op: 'day', name: 'room', at: 0.75 } as const;

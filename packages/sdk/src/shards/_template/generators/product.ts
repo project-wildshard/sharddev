@@ -6,7 +6,7 @@ import type { TemplateBehaviour } from './behaviour';
 import type { BakedProps } from '@wildshard/sdk/bake/props';
 import { TEMPLATE_FLAME, TEMPLATE_LAMP, TEMPLATE_MUSHROOM_CAP, TEMPLATE_STONE, TEMPLATE_TELL } from './templatePropsSource';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
-import rows from '../data/rows.json' with { type: 'json' };
+import { TEMPLATE_RAW_ROWS as rows } from './rows';
 import { parseRows } from '@wildshard/sdk/rows';
 import TEMPLATE_PLUMBING from '../data/plumbing.json' with { type: 'json' };
 import ui from '../data/ui.json' with { type: 'json' };

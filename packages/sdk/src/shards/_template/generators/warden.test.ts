@@ -6,7 +6,7 @@ import { expect, test } from 'vitest';
 import { validateSkinAssets } from '@wildshard/format/skinAssets';
 import { bakeWardenSkin, WARDEN_PARTS } from './warden';
 import skins from '../data/skins.json' with { type: 'json' };
-import rows from '../data/rows.json' with { type: 'json' };
+import { TEMPLATE_RAW_ROWS as rows } from './rows';
 import creatures from '../data/creatures.json' with { type: 'json' };
 import look from '../data/look.json' with { type: 'json' };
 

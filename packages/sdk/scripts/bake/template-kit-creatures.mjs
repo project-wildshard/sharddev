@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
@@ -14,6 +14,14 @@ const { parseRows } = await import('@wildshard/format/rows');
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const json = value => `${JSON.stringify(value, null, 2)}\n`;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
+// SHARD-SOURCE AP36b: the Template keeps its rows section as one file per row kind under data/rows/; pastel keeps data/rows.json.
+const split = project => existsSync(resolve(project, 'data/rows'));
+const readRows = project => split(project)
+  ? Object.fromEntries(['strikes', 'weather', 'days', 'species', 'looks', 'compendiums', 'loot'].map(key => [key, JSON.parse(readFileSync(resolve(project, `data/rows/${key}.json`), 'utf8'))]))
+  : JSON.parse(readFileSync(resolve(project, 'data/rows.json'), 'utf8'));
+const rowFiles = (project, source) => split(project)
+  ? readdirSync(resolve(project, 'data/rows')).map(file => [resolve(project, 'data/rows', file), json(source[file.replace(/\.json$/u, '')])])
+  : [[resolve(project, 'data/rows.json'), json(source)]];
 
 /** Regenerate only the two projects' kit boar; every authored gameplay override remains. */
 export function templateKitCreatures(check = false) {
@@ -29,7 +37,7 @@ export function templateKitCreatures(check = false) {
   };
   for (const name of ['_template', 'pastel-plain']) {
     const project = resolve(root, 'src/shards', name);
-    const source = JSON.parse(readFileSync(resolve(project, 'data/rows.json'), 'utf8'));
+    const source = readRows(project);
     const skins = JSON.parse(readFileSync(resolve(project, 'data/skins.json'), 'utf8'));
     const creatures = JSON.parse(readFileSync(resolve(project, 'data/creatures.json'), 'utf8'));
     const original = source.species.find(value => value.id === 'boar'), look = skins.find(value => value.species === 'boar');
@@ -63,7 +71,8 @@ export function templateKitCreatures(check = false) {
     parseRows({ ...source, looks: output.map(value => ({ id: value.look, species: value.species, recipe: 'platform.skin', material: null,
       parameters: { skin: value.skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } })) });
     put(resolve(project, 'assets', asset.glbHash), glb); put(resolve(project, 'assets', asset.skinHash), skin);
-    put(resolve(project, 'data/rows.json'), json(source)); put(resolve(project, 'data/skins.json'), json(output));
+    for (const [path, bytes] of rowFiles(project, source)) put(path, bytes);
+    put(resolve(project, 'data/skins.json'), json(output));
   }
   console.log(`Template and pastel kit boar ${check ? 'checked' : 'written'}: ${asset.glbHash.slice(0, 12)}`);
 }

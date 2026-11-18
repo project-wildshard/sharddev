@@ -1,0 +1,151 @@
+[
+  {
+    "id": "template.blob.bump",
+    "shape": {
+      "kind": "point",
+      "radius": 1.8
+    },
+    "windup": 0.7,
+    "active": 0.15,
+    "recover": 0.8,
+    "cooldown": 1,
+    "range": 2,
+    "damage": 8,
+    "tags": [
+      "creature.greyBlob"
+    ],
+    "weight": 2,
+    "speed": 0
+  },
+  {
+    "id": "template.blob.lane",
+    "shape": {
+      "kind": "lane",
+      "length": 5,
+      "width": 1.4
+    },
+    "windup": 1,
+    "active": 0.6,
+    "recover": 1,
+    "cooldown": 3,
+    "range": 6,
+    "damage": 12,
+    "tags": [
+      "creature.greyBlob"
+    ],
+    "weight": 1,
+    "speed": 5
+  },
+  {
+    "id": "boar.charge",
+    "shape": {
+      "kind": "lane",
+      "length": 8,
+      "width": 0.9
+    },
+    "windup": 0.55,
+    "active": 0.6,
+    "recover": 0.8,
+    "cooldown": 2,
+    "range": 10,
+    "damage": 25,
+    "tags": [
+      "creature.boar"
+    ],
+    "weight": 1,
+    "speed": 7.5
+  },
+  {
+    "id": "template.warden.slam",
+    "shape": {
+      "kind": "point",
+      "radius": 1.6
+    },
+    "windup": 1.2,
+    "active": 0.2,
+    "recover": 0.6,
+    "cooldown": 0.5,
+    "range": 4,
+    "damage": 20,
+    "tags": [
+      "creature.barrowWarden"
+    ],
+    "weight": 3,
+    "speed": 0
+  },
+  {
+    "id": "template.sow.ram",
+    "shape": {
+      "kind": "lane",
+      "length": 5,
+      "width": 1.2
+    },
+    "windup": 0.7,
+    "active": 0.5,
+    "recover": 0.9,
+    "cooldown": 3,
+    "range": 6,
+    "damage": 12,
+    "tags": [
+      "creature.boar"
+    ],
+    "weight": 1,
+    "speed": 7
+  },
+  {
+    "id": "template.wisp.dive",
+    "shape": {
+      "kind": "sphere",
+      "radius": 1.6
+    },
+    "windup": 1,
+    "active": 1,
+    "recover": 0.6,
+    "cooldown": 5,
+    "range": 12,
+    "damage": 8,
+    "tags": [
+      "creature.greyBlob"
+    ],
+    "weight": 1,
+    "speed": 0
+  },
+  {
+    "id": "template.warden.sweep",
+    "shape": {
+      "kind": "arc",
+      "radius": 2.2,
+      "halfAngle": 1.3
+    },
+    "windup": 0.9,
+    "active": 0.3,
+    "recover": 1,
+    "cooldown": 2.5,
+    "range": 7,
+    "damage": 16,
+    "tags": [
+      "creature.barrowWarden"
+    ],
+    "weight": 1,
+    "speed": 0
+  },
+  {
+    "id": "template.warden.throw",
+    "shape": {
+      "kind": "wedge",
+      "length": 6,
+      "halfAngle": 0.1
+    },
+    "windup": 1.3,
+    "active": 0.2,
+    "recover": 0.8,
+    "cooldown": 3,
+    "range": 18,
+    "damage": 14,
+    "tags": [
+      "creature.barrowWarden"
+    ],
+    "weight": 1,
+    "speed": 0
+  }
+]

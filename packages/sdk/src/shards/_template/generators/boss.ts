@@ -5,7 +5,7 @@ import type { ProjectGenerationContext } from '@wildshard/sdk/projectGeneration'
 import decision from '../data/bossDecision.json' with { type: 'json' };
 import moves from '../data/moves.json' with { type: 'json' };
 import creatures from '../data/creatures.json' with { type: 'json' };
-import rows from '../data/rows.json' with { type: 'json' };
+import { TEMPLATE_RAW_ROWS as rows } from './rows';
 import hooks from '../behaviour/hooks.json' with { type: 'json' };
 import { BUILD_OPTIONS } from './buildOptions';
 import { TEMPLATE_BEHAVIOUR_INPUTS } from './behaviour';
