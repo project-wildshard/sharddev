@@ -7,10 +7,6 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
-## Unreleased
-
-- A `world.part` vehicle (the land-sail) has a hull now: its solid meshes stop players on foot and ride with it, never blocking its rider. It needs an engine with `3165a100`; an older engine leaves the hull off.
-
 ## v0.4.7 (2026-11-18)
 
 - `@wildshard/kit` really is on shard-format 0.26.0 now (0.4.6 still pinned 0.28.0), so builds stop failing on "Named JSON provenance".
