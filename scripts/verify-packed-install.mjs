@@ -5,6 +5,8 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { basename, delimiter, isAbsolute, join, resolve, sep } from 'node:path';
 
+const pnpm = process.argv[3];
+assert.ok(pnpm && isAbsolute(pnpm), 'Pass the bootstrapped pnpm executable as an absolute path');
 const artifacts = JSON.parse(readFileSync(resolve(process.argv[2], 'release-artifacts.json'), 'utf8'));
 const names = ['build', 'cli', 'dev', 'kit', 'sdk', 'upload'].map(name => `@wildshard/${name}`);
 assert.deepEqual(artifacts.map(({ name }) => name).sort(), names);
@@ -38,7 +40,7 @@ function install() {
   writeFileSync(join(app, 'package.json'), JSON.stringify({
     name: 'packed-install-proof', private: true, dependencies: pins, pnpm: { overrides: pins },
   }));
-  console.info(run('pnpm', installArgs));
+  console.info(run(pnpm, installArgs));
   const lock = readFileSync(join(app, 'pnpm-lock.yaml'), 'utf8');
   for (const { name, version, archive } of artifacts) {
     const path = realpathSync(join(app, 'node_modules', name, 'package.json'));
@@ -57,7 +59,7 @@ function buildAndProve(pins) {
   const manifest = JSON.parse(readFileSync(file, 'utf8'));
   manifest.pnpm = { ...manifest.pnpm, overrides: { ...manifest.pnpm?.overrides, ...pins } };
   writeFileSync(file, JSON.stringify(manifest));
-  console.info(run('pnpm', installArgs, project));
+  console.info(run(pnpm, installArgs, project));
   console.info(author('build', source, 'built', '--folder-only'));
   const report = JSON.parse(author('prove', 'built/shard.json', `${source}/proof.json`));
   assert.ok(report.ticks > 0 && report.ledger.facts.length > 0, 'starter tape must file a fact');
