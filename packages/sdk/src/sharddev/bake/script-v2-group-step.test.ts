@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { AnimalSim } from '@wildshard/engine/entities/AnimalSim';
 import { Scope } from '@wildshard/engine/app/scope';
-import { Rng } from '@wildshard/engine/core/rng';
+import { Rng } from '@wildshard/format/seededRng';
 import { GroupBankV2 } from '@wildshard/engine/script/groupBankV2';
 import { GroupStepV2 } from '@wildshard/engine/script/groupStepV2';
 import { ScriptModuleV2 } from '@wildshard/engine/script/moduleV2';

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { Scope } from '@wildshard/engine/app/scope';
-import { Rng } from '@wildshard/engine/core/rng';
+import { Rng } from '@wildshard/format/seededRng';
 import { ReturnProgram } from '@wildshard/engine/game/population/returnProgram';
 import { parseGroupStepV2 } from '@wildshard/format/scriptGroupStepV2';
 import { compileReturnProjectionV2 } from '../returnProjectionV2';

@@ -7,7 +7,7 @@ import { SampledAmbience } from '@wildshard/engine/audio/AmbienceBeds';
 import { requireAudioProfile } from '@wildshard/engine/audio/audioProfiles';
 import { AudioSampleMixSchema } from '@wildshard/format/audioProfiles';
 import { app } from '@wildshard/engine/app/runtime';
-import { Rng } from '@wildshard/engine/core/rng';
+import { Rng } from '@wildshard/format/seededRng';
 import type { CueOpts } from '@wildshard/engine/audio/Cues';
 import { Thrown } from './fixtures/weapon-oracle/thrown';
 import audioDeclaration from './fixtures/nalati-audio-original.json' with {type:'json'};

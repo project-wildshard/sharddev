@@ -1,6 +1,6 @@
 import { zlibSync } from 'fflate';
 import { afterAll, expect, test, vi } from 'vitest';
-import { Rng } from '@wildshard/engine/core/rng';
+import { Rng } from '@wildshard/format/seededRng';
 import { HullLookBook } from '@wildshard/engine/game/looks/speciesBook';
 import { Bone, BufferGeometry, MeshBasicMaterial, Skeleton, SkinnedMesh, Vector3 } from 'three';
 import { legacyDouble } from '@wildshard/engine/test/FakeGame';

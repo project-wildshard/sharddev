@@ -1,7 +1,7 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import { SphereGeometry, type BufferGeometry } from 'three';
 import { Rng } from '../random';
-import { Rng as NativeRng } from '@wildshard/engine/core/rng';
+import { Rng as NativeRng } from '@wildshard/format/seededRng';
 import { loft as nativeLoft, skinPlain as nativeSkin, S as nativeStation, isLowPoly, setLowPoly, registerToonPaint } from '@wildshard/engine/entities/species/loft';
 import { BEAR_LOOK } from '@wildshard/engine/game/systems/species/view/bear';
 import { BOAR_LOOK } from '@wildshard/engine/game/systems/species/view/boar';

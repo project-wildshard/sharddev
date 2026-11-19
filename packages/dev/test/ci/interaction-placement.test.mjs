@@ -10,7 +10,7 @@ import {
   autoFlag,
   bindInteractPlacements,
   readInteractPlacements,
-} from '@wildshard/engine/world/interact/types'
+} from '@wildshard/format/interactTable'
 
 import { installWildshard } from '../../src/test/helpers/install.ts'
 

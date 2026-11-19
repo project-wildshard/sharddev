@@ -1,5 +1,5 @@
 import { expect,test } from 'vitest';
-import { Rng } from '@wildshard/engine/core/rng';
+import { Rng } from '@wildshard/format/seededRng';
 import { prepareV2Rng,type V2RngInput } from '@wildshard/format/scriptRngV2';
 import { layoutV2,writeV2Frame,validateV2Frame } from '@wildshard/format/scriptWireV2';
 import { prepareV2Observations } from '@wildshard/engine/script/observationsV2';

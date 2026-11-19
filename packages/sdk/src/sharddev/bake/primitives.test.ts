@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { BoxGeometry, BufferAttribute, Vector3, type BufferGeometry } from 'three';
-import { Rng as NativeRng } from '@wildshard/engine/core/rng';
+import { Rng as NativeRng } from '@wildshard/format/seededRng';
 import { rock, tris, log, beam, plank, rope, sagLine, wobble } from '@wildshard/engine/world/geometryKit';
 import { Rng } from '../random';
 import { bakeRock, bakeTriangles, bakeLog, bakeBeam, bakePlank, bakeRope, bakeSagLine, bakeWobble } from './primitives';

@@ -1,7 +1,7 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import { sampleCreatureGroup as nativeGroup, selectCreatureSites as nativeSites,
   type CreatureGroupSpec as NativeSpec } from '@wildshard/engine/game/plugin/brain';
-import { Rng as NativeRng } from '@wildshard/engine/core/rng';
+import { Rng as NativeRng } from '@wildshard/format/seededRng';
 import { Rng } from '../random';
 import { sampleCreatureGroup, selectCreatureSites, type CreatureGroupSpec } from './creaturePlacement';
 

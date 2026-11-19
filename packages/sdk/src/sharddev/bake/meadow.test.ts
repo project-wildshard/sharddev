@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import { bundle } from '../bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Inspect the author's real production bundle.
 import { resolve } from 'node:path';
-import { GrassField, type GrassFieldPorts } from '@wildshard/engine/game/systems/looks/grassField';
+import { GrassField, type GrassFieldPorts } from '@wildshard/format/grassField';
 import { selectedLevel } from '@wildshard/engine/level/selection';
 import { bakeMeadowField } from './meadow';
 import { assertConfigBoundary } from '../configBoundary';

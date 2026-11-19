@@ -3,7 +3,7 @@ import {AnimalSim} from '@wildshard/engine/entities/AnimalSim';
 import {GroupBrain,type GroupGuestFrameV2,type GroupGuestProjectionV2,type GroupGuestPublicationV2} from '@wildshard/engine/ai/GroupBrain';
 import {GroupStepV2,type GroupStepNativeResultV2} from '@wildshard/engine/script/groupStepV2';
 import {Scope} from '@wildshard/engine/app/scope';
-import {Rng} from '@wildshard/engine/core/rng';
+import {Rng} from '@wildshard/format/seededRng';
 import type {GroupBankValueV2} from '@wildshard/format/scriptGroupBankV2';
 import {parseGroupStepV2,groupStepLayoutV2} from '@wildshard/format/scriptGroupStepV2';
 import {compileScriptV2} from './compileScriptV2';
