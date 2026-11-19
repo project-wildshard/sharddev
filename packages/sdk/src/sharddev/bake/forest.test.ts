@@ -3,7 +3,7 @@ import { bundle } from '../bundle';
 // oxlint-disable-next-line import/no-nodejs-modules -- Inspect the author module's real production bundle.
 import { resolve } from 'node:path';
 import { bakeForestPlacements } from './forest';
-import { buildTerrain } from '@wildshard/engine/world/terrainField';
+import { buildTerrain } from '@wildshard/format/terrainField';
 import { selectedLevel } from '@wildshard/engine/level/selection';
 import { assertConfigBoundary } from '../configBoundary';
 import { isJsonData } from '@wildshard/format/json';

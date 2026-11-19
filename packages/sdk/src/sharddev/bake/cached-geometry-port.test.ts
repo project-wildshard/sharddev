@@ -1,7 +1,7 @@
 import { BoxGeometry, BufferAttribute, type BufferGeometry } from 'three';
-import { expect, expectTypeOf, test } from 'vitest';
-import * as engine from '@wildshard/engine/world/geometryBake';
-// SDK-SPLIT SP6b: the recorder and the scoped tables are the sdk's own copy; the engine reads the same table bytes
+import { expect, test } from 'vitest';
+// SDK-SPLIT SP6b: the recorder and the scoped tables are the sdk's own copy. SP14 retired the engine's copy (engine
+// 0.1.47 has no world/geometryBake), so the native half of this parity test left with it.
 import { addGeometryBake, encodeGeometryBake, geometryBakeStats, recordGeometryBake } from './geometryBake';
 import { Rng } from '../random';
 import { bakeCachedGeometry } from './facetedGeometry';
@@ -13,7 +13,6 @@ function channels(geometry: BufferGeometry) {
 }
 
 test('author geometry retains native recording producer, owned hits and complete RNG continuation', () => {
-  expectTypeOf<typeof bakeCachedGeometry>().toEqualTypeOf<typeof engine.bakedGeometry>();
   for (const rng of [null, new Rng(7), Rng.scrambled(23)]) {
     const start = rng?.snapshot(), id = 'sdk.cache.author', inputs = [1.25, -0, 0.1];
     let calls = 0;
@@ -31,9 +30,7 @@ test('author geometry retains native recording producer, owned hits and complete
     } finally { recorder.stop(); }
     const expected = channels(source), groups = structuredClone(source.groups), after = rng?.snapshot();
     source.dispose();
-    expect(engine.encodeGeometryBake(engine.decodeGeometryBake(Uint8Array.from(table).buffer) ?? new Map())).toEqual(table);
-    const sides = [{ add: addGeometryBake, compile: bakeCachedGeometry, stats: geometryBakeStats },
-      { add: engine.addGeometryBake, compile: engine.bakedGeometry, stats: engine.geometryBakeStats }];
+    const sides = [{ add: addGeometryBake, compile: bakeCachedGeometry, stats: geometryBakeStats }];
     for (const side of sides) {
       const release = side.add(Uint8Array.from(table).buffer);
       try {
