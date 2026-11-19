@@ -26,20 +26,6 @@ export function bootFilePolicy(tier: BootTier, mode: BootTextures, table: BootGp
   return { phone, gpu };
 }
 
-/** S4: a shard's phone stand-ins, read off the baked files: `/assets/<folder>/astc6/<the path under /assets/gpu>`, each with its
- * own hash (scripts/bake-astc6.mjs). The overlay is the listing, so no table sits in the source. */
-export function phoneOverlayRows(phone: Readonly<Record<string, string>>, listed: readonly string[], folder: string): Readonly<Record<string, string>> {
-  const plain = (url: string): string => url.replace(/-[a-f0-9]{8}(?=\.[a-z0-9]+$)/u, '');
-  const baked = new Map(listed.map(url => [plain(url), url]));
-  if (baked.size !== listed.length) throw new Error('Two phone overlay files share one name');
-  const rows: Record<string, string> = {};
-  for (const [served, gpu] of Object.entries(phone)) {
-    const file = baked.get(plain(gpu).replace('/assets/gpu/', `/assets/${folder}/astc6/`));
-    if (file !== undefined) rows[served] = file;
-  }
-  return rows;
-}
-
 /** Shared sky bytes participate only when explicitly present in the author inventory. */
 export function sharedBootTextures(inventory: BootInventory): string[] {
   return CLOUD_FIELD_URL in inventory ? [CLOUD_FIELD_URL] : [];
