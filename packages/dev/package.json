@@ -46,8 +46,7 @@
     "test:e2e": "playwright test --config src/e2e/playwright.config.ts",
     "test:kit": "node --test 'src/cli/**/*.test.ts' 'src/server/*.test.ts' 'src/test/**/*.test.ts'",
     "test:author": "vitest run",
-    "check:watch-build": "node src/sharddev/watch/parity.mjs --check",
-    "prepack": "node scripts/pack-headless.mjs"
+    "check:watch-build": "node src/sharddev/watch/parity.mjs --check"
   },
   "dependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
@@ -59,12 +58,11 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
-    "@wildshard/engine": "0.1.47",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.45.0",
+    "@wildshard/engine": "0.1.48",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.46.1",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",
-    "@wildshard/wire": "1.2.0",
     "esbuild": "0.28.2",
     "fflate": "0.8.3",
     "happy-dom": "21.0.4",

@@ -10,7 +10,7 @@ import { fixtureNativeJson } from './fixtures/productFile';
 
 import {parseReturnProjectionV2} from '@wildshard/format/returnProjectionV2';
 import {buildGroupFixture} from './fixtures/return-group';
-/** Engine 0.1.47 bundles its frozen format, so its Rng is the same class from that copy. */
+/** The engine names its own format copy, so its Rng is the same class from that copy. */
 type EngineRng = NonNullable<Parameters<ReturnProgram['project']>[2]>;
 const Rng = FormatRng as unknown as new (seed: number) => EngineRng;
 
