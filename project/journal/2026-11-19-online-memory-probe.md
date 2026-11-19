@@ -25,3 +25,11 @@ it for: the release document (the page chose the online path) and any
 `serverWorker-*.js` script (an in-page server). The meter's own fields
 win when the engine has them; otherwise these decide. That lets a shard
 repo run the online probe on the engine it already pins.
+
+The online page asks the device's Name once before the world, and the
+0.1.48 probe does not answer it, so the boot sat on the prompt until
+the 240 s timeout. The preview page now starts with the device marked
+as asked. sharddev's own ci reads Mossgate online after the e2e, as the
+under-line control a shard repo's probe has (first local reading: 820
+MB phone online, 670 MB standalone on the same folder: the online boot
+reads higher, not lower).

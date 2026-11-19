@@ -42,8 +42,16 @@ async function memoryProduct(folder, out) {
   const scratch = mkdtempSync(resolve(parent, 'wildshard-memory-'));
   let preview;
   try {
+    // An online page asks the device's Name once before the world (engine namePrompt.ts); the probe of engine 0.1.48 does
+    // not answer it, so the page starts with the device marked as asked.
+    const { NAME_ASKED, saveFixtureCode } = await import(pathToFileURL(resolve(dirname(engine), 'scripts/debug-settings.mjs')).href);
+    const asked = `<script>${saveFixtureCode(NAME_ASKED)}</script>`;
     preview = await preparationPreview(client, folder, { clientPage, online: {
-      releasePath: DEV_RELEASE, open: origin => createDevWorld(origin, scratch, engine),
+      releasePath: DEV_RELEASE, open: async origin => {
+        const world = await createDevWorld(origin, scratch, engine), stamp = world.stamp.bind(world);
+        world.stamp = page => stamp(page).replace('<head>', `<head>${asked}`);
+        return world;
+      },
     } });
     const run = await measureBootMemory({ url: preview.url, chunk: '' });
     const slug = preview.slug;
