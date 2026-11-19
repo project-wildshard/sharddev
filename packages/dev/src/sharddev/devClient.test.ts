@@ -133,6 +133,21 @@ test('the installed SDK defaults to the v0.1.48 preparation client', async () =>
   } finally { fetch.mockRestore(); }
 });
 
+test('a preparation client URL from another engine release is fetched, named and cached as that release', async () => {
+  // meta NET-LAG NL12: publish.yml's `preparation` input sets the URL; the log named the sdk's pin, so it read as ignored.
+  const root = scratch(), tag = `server-staging-${'2'.repeat(40)}`;
+  const file = archive(root, { devserver: false }, { preparationOnly: true });
+  const url = `https://github.com/project-wildshard/engine/releases/download/${tag}/preparation-client.tar.gz`;
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(readFileSync(file)));
+  const progress = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+  try {
+    const cache = join(root, 'cache');
+    expect(await fetchPreparationClient({ pin: '0.1.17', cache, url })).toBe(join(cache, `${tag}-preparation`));
+    expect(fetch).toHaveBeenCalledWith(url);
+    expect(progress.mock.calls.flat().join('\n')).toContain(`preparation client (${tag})`);
+  } finally { fetch.mockRestore(); progress.mockRestore(); }
+});
+
 test('preparation announces the download size before receiving the archive body', async () => {
   const root = scratch(), bytes = readFileSync(archive(root, { devserver: false }, { preparationOnly: true }));
   let announced = false, sent = false;

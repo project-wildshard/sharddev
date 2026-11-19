@@ -124,9 +124,12 @@ export function fetchDevClient(options: { pin?: string; cache?: string; url?: st
     asset: DEV_CLIENT_ASSET, suffix: '', verb: 'dev', label: 'dev client', check: assertDevserver });
 }
 
+const RELEASE_TAG = /\/releases\/download\/(?<tag>[^/]+)\//u;
 interface ClientAsset { asset: string; suffix: string; verb: string; label: string; check: (folder: string) => void }
 async function fetchClient(options: { pin?: string; cache?: string; url?: string | undefined }, kind: ClientAsset): Promise<string> {
-  const tag = options.pin === undefined ? engineClientTag(undefined, kind.verb === 'prepare') : devClientTag(options.pin);
+  // A URL from an engine release (publish.yml's `preparation` input) names that release, not the pin (NET-LAG NL12).
+  const released = options.url === undefined ? undefined : RELEASE_TAG.exec(options.url)?.groups?.['tag'];
+  const tag = released ?? (options.pin === undefined ? engineClientTag(undefined, kind.verb === 'prepare') : devClientTag(options.pin));
   const cache = options.cache ?? devClientCache(), folder = join(cache, `${tag}${kind.suffix}`);
   if (existsSync(join(folder, 'index.html'))) return folder;
   const url = options.url ?? `${RELEASES}/${tag}/${kind.asset}`;
