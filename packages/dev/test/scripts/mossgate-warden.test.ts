@@ -35,7 +35,8 @@ test('Mossgate\'s Warden runs published Wasm decisions and resumes a logical sav
   const quiet=[['stop','boss'],['field',0,'tell',0],['field',0,'core',0],['timer','arm',0],['timer','beat',0],['timer','open',0],['timer','shut',0]];
   expect(scenario.product.sectionHash).toMatch(/^[a-f0-9]{64}$/u);
   scenario.send('start');
-  expect(scenario.commands()).toEqual([['encounter','phase',0],['timer','arm',0.1],['timer','beat',1.6]]);
+  // MOSSGATE-ZONE MZ31: a fresh Warden puts the Hollow's relit glow out
+  expect(scenario.commands()).toEqual([['encounter','phase',0],['field',0,'relit',0],['timer','arm',0.1],['timer','beat',1.6]]);
   expect(scenario.state()).toEqual({phase:1,swingNext:true,beat:0});
   // Current onStart rearms from health; it does not replay the phase-zero beat.
   scenario.send('start');
@@ -71,7 +72,8 @@ test('Mossgate\'s Warden runs published Wasm decisions and resumes a logical sav
   resumed.send('start');expect(resumed.commands()).toEqual([['timer','arm',0.1],['timer','beat',0.9]]);
   resumed.advance(0.1);expect(resumed.commands()).toEqual([['encounter','guard',1]]);
   resumed.advance(0.8);expect(resumed.commands()).toEqual(strike('slam'));
-  resumed.send('death','boss');expect(resumed.commands()).toEqual([...quiet,['encounter','win',0]]);
+  // MZ31: its fall relights the Hollow (play.ts `hollowRelit`)
+  resumed.send('death','boss');expect(resumed.commands()).toEqual([...quiet,['encounter','win',0],['field',0,'relit',1]]);
   resumed.send('death','boss');expect(resumed.commands()).toEqual([]);
   resumed.advance(2);expect(resumed.commands()).toEqual([]);
   expect(resumed.state()).toEqual({phase:3,swingNext:true,beat:1});
