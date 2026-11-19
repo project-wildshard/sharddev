@@ -48,8 +48,8 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   // new
   { id: 'new-target', anchor: 'new-target', steps: ['new'], match: /new requires a fresh directory and kebab-case slug/u,
     fix: 'Name a folder that does not exist yet and a kebab-case slug: `wildshard new my-isle`.' },
-  { id: 'new-template', anchor: 'new-template', steps: ['new'], match: /^new: (?:unknown template |--template blender is retired)/u,
-    fix: 'Leave out --template (sdk is the only one). blender is retired: write three.js scene source; Blender makes models.' },
+  { id: 'new-template', anchor: 'new-template', steps: ['new'], match: /^new: (?:unknown template |--template (?:blender|sdk) is retired)/u,
+    fix: 'Leave out --template (scene, Mossgate Hollow, is the only one). sdk and blender are retired: write three.js scene source; Blender makes models.' },
   { id: 'new-refused', anchor: 'new-refused', steps: ['new'],
     fix: 'Reinstall @wildshard/sdk (`pnpm install`); `new` copies the reference world shipped with it.' },
   // update (SA28)

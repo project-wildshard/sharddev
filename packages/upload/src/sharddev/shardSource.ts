@@ -16,6 +16,8 @@ export function shardCardFile(source: string): string | undefined {
 export function shardCardPath(source: string): string {
   return shardCardFile(source) ?? resolve(source, 'data/card.json');
 }
+/** A scene starter's identity (`new`, AP37a): the slug, name and author its `defineShard` reads. */
+export const SCENE_IDENTITY = 'identity.json';
 /** A hand-written shard source (`new --template blender`, J314) is a shard file folder held by hand: its index. */
 export const SHARD_INDEX = 'shard.json';
 
@@ -67,7 +69,7 @@ export function shardOutputRoot(source: string): string {
 
 /**
  * The folder name build checks a manifest's slug against (`project-folder-slug`). A `src/` source names no slug by its
- * folder, so its card's slug (OF6a: `manifest.json`, else `data/card.json`) is the folder; any other source is named by its folder, as before.
+ * folder, so its card's slug (OF6a: `manifest.json`, else `data/card.json`; a scene starter's `identity.json`) is the folder; any other source is named by its folder, as before.
  */
 export function shardFolderName(source: string): string {
   if (!isRepoSource(source)) return basename(source);
@@ -80,6 +82,13 @@ export function shardFolderName(source: string): string {
   const manifest = shardCardFile(source);
   if (manifest !== undefined) {
     const parsed: unknown = JSON.parse(readFileSync(manifest, 'utf8'));
+    if (typeof parsed === 'object' && parsed !== null && 'slug' in parsed && typeof parsed.slug === 'string') return parsed.slug;
+  }
+  // AP37a, TEMPLATE-E2E TR-2 (J434): a scene starter (`new`'s Mossgate Hollow) has no card file; its slug is in the
+  // `identity.json` its generator's defineShard reads.
+  const identity = resolve(source, SCENE_IDENTITY);
+  if (existsSync(identity)) {
+    const parsed: unknown = JSON.parse(readFileSync(identity, 'utf8'));
     if (typeof parsed === 'object' && parsed !== null && 'slug' in parsed && typeof parsed.slug === 'string') return parsed.slug;
   }
   return basename(dirname(source));

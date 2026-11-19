@@ -48,7 +48,7 @@ describe('wildshard update and the agent files (SA28)', () => {
   beforeEach(() => { mkdirSync(resolve(ROOT, 'tmp'), { recursive: true }); scratch = mkdtempSync(resolve(ROOT, 'tmp', 'agent-files-')); });
   afterEach(() => { rmSync(scratch, { recursive: true, force: true }); });
 
-  it.each([['sdk', false], ['sdk', true], ['blender', false]] as const)('new --template %s (empty: %s) writes the guide, the skills, their links, AGENTS.md and CLAUDE.md', (template, empty) => {
+  it.each([['scene', false], ['scene', true], ['blender', false]] as const)('new --template %s (empty: %s) writes the guide, the skills, their links, AGENTS.md and CLAUDE.md', (template, empty) => {
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { template, empty });
     expect(readFileSync(resolve(project, 'GUIDE.md'), 'utf8')).toBe(readFileSync(GUIDE_SOURCE, 'utf8'));
@@ -70,7 +70,7 @@ describe('wildshard update and the agent files (SA28)', () => {
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard');
     // The author's own work: shard source, README, package.json, a rule of their own in AGENTS.md, a file of their own.
-    appendFileSync(resolve(project, 'src/data/identity.json'), '\n');
+    appendFileSync(resolve(project, 'src/identity.json'), '\n');
     appendFileSync(resolve(project, 'README.md'), '\nMy notes.\n');
     writeFileSync(resolve(project, 'package.json'), readFileSync(resolve(project, 'package.json'), 'utf8').replace('"0.0.1"', '"0.4.0"'));
     appendFileSync(resolve(project, AGENTS_FILE), '- Keep the river on the east side.\n');

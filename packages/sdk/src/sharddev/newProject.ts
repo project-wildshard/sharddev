@@ -5,7 +5,6 @@ import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
 import { resolve } from 'node:path';
 import { encodeCanonicalJson } from './immutable';
-import { authorCard } from './authorManifest';
 import { writeHandwrittenSource } from './handwritten';
 import { syncAgentFiles } from './agentFiles';
 import { AUTHOR_LINT_CONFIG } from './authorLint';
@@ -34,25 +33,27 @@ function writeInstallScriptPolicy(project: string): void {
   writeFileSync(resolve(project, 'pnpm-workspace.yaml'), INSTALL_SCRIPT_POLICY);
 }
 
-/** SA16 (J314, J317): `new --template <name>`. `sdk` is the Template (sharddev's `_template`, Mossgate's gameplay);
- * `scene` (AP37a) is Mossgate Hollow's three.js scene module (`src/shards/mossgate`, AP15), the shape every template
- * moves to (AP36). SS5 (J341): a shard is TypeScript three.js scene source, and Blender makes the models it loads. */
-export const TEMPLATES = ['sdk', 'scene'] as const;
+/** SA16 (J314, J317): `new --template <name>`. `scene` (AP37a) is Mossgate Hollow's three.js scene module
+ * (`src/shards/mossgate`, AP15). TEMPLATE-E2E TR-2 (J434): Mossgate and Brasscap are the templates, and `new` starts from
+ * Mossgate, the simpler; the legacy Template (`sdk`, sharddev's `_template`) is retired. SS5 (J341): a shard is TypeScript
+ * three.js scene source, and Blender makes the models it loads. */
+export const TEMPLATES = ['scene'] as const;
 export type TemplateName = (typeof TEMPLATES)[number];
 /** What `writeShardRepo` can still lay out. `blender` is the retired hand-written shape (shard-format's
  * `blender-template`, a shard file folder held by hand): `new` refuses it, but repos made that way still check and upload,
  * so tests keep making one to prove that. */
 export type RepoShape = TemplateName | 'blender';
 /** The template `new` makes with no flag. */
-export const DEFAULT_TEMPLATE: TemplateName = 'sdk';
+export const DEFAULT_TEMPLATE: TemplateName = 'scene';
 /** J317: a repo with one shard keeps its shard source at `src/`. */
 export const SHARD_SOURCE_FOLDER = 'src';
 
 /** The template named by `--template`, or a refusal, thrown before anything is written. */
 export function templateNamed(name: string): TemplateName {
   if (name === 'blender') throw new Error('new: --template blender is retired (J341): a shard is TypeScript three.js scene source, and Blender makes the .glb models that code loads; leave out --template. Repos made with it still check and upload');
+  if (name === 'sdk') throw new Error('new: --template sdk is retired (J434): the legacy Template is gone; leave out --template for Mossgate Hollow, a three.js scene module. Repos made with it still check and upload');
   const found = TEMPLATES.find(template => template === name);
-  if (found === undefined) throw new Error(`new: unknown template ${name}: leave out --template, or pass --template sdk or --template scene`);
+  if (found === undefined) throw new Error(`new: unknown template ${name}: leave out --template, or pass --template scene`);
   return found;
 }
 
@@ -172,11 +173,10 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
 
 function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
-  const world = empty ? 'a bare shard source (`--empty`)' : template === 'sdk' ? 'the Template, Mossgate\'s gameplay on a three.js scene module'
-    : template === 'scene' ? 'Mossgate Hollow, a three.js scene module (`--template scene`)' : 'the hand-written Blender template (`blender-template`)';
-  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`' : template === 'scene'
-    ? '`identity.json` (the slug and name)\n  and `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save)'
-    : '`data/` (the gameplay rows),\n  `generators/` (`scene.ts` is the world; `wildshard watch .` shows each save), `behaviour/`, `assets/` and\n  `data/card.json` (the card)';
+  const world = empty ? 'a bare shard source (`--empty`)' : template === 'scene' ? 'Mossgate Hollow, a three.js scene module'
+    : 'the hand-written Blender template (`blender-template`)';
+  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`'
+    : '`identity.json` (the slug and name),\n  `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save; `quests.ts` its\n  quest) and `proof.json` (the proof tape `check` plays)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
   \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`
@@ -242,44 +242,20 @@ function writeRepoFiles(project: string, slug: string, template: RepoShape, empt
   syncAgentFiles(project);
 }
 
-/** Copy the shipped teaching world into `source`; generation and gameplay remain authored there. */
-function writeReferenceSource(source: string, slug: string): void {
-  // The host-owned CLI bundle defines dirname as its installed source directory.
-  const template = resolve(import.meta.dirname, '../shards/_template');
-  cpSync(template, source, { recursive: true, errorOnExist: true, force: false,
-    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(template, 'card') && from !== resolve(template, 'hero.json')
-      // The template's README is sharddev's own notes; the repo gets a README of its own (SA16).
-      && from !== resolve(template, 'README.md')
-      // A checkout's built Template output (gitignored, under public/) is Template's; build output goes to the repo root.
-      && from !== resolve(template, 'public') });
-  // TEMPLATE-E2E TC-NE5: the starter's proof tape (the chest) lives beside this module, not in the template, so adding
-  // or editing it never makes the Template's captured hero stale; `check .` plays it from the repo's src/proof.json.
-  cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
-  // ONE-FORMAT OF6b: data/card.json is the card's one home; no manifest.json copy is written.
-  const card: unknown = JSON.parse(readFileSync(resolve(source, 'data/card.json'), 'utf8'));
-  if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project card is missing');
-  // The template's card is Mossgate's own in-engine hero (template/card/): a new project wears a generated card until its
-  // author captures one, never another shard's art.
-  const art = authorCard(slug, 1);
-  // UP5 (2026-11-13): the boot loads `shardfile`; Template's path booted a file this project never builds and hung.
-  const manifest = encodeCanonicalJson({ ...card, slug, name: slug, status: 'experimental', card: { thumb: art, portrait: art, landscape: art }, shardfile: `/shardfiles/${slug}/shard.json` }).replaceAll('/assets/_template/', `/assets/${slug}/`);
-  writeFileSync(resolve(source, 'data/card.json'), manifest);
-  // AP37b: the Template reads its identity from data/identity.json (its scene module's describe() and the build alike), so
-  // the project's own slug, name and author replace it there; the revision and seed stay the Template's.
-  const identity: unknown = JSON.parse(readFileSync(resolve(source, 'data/identity.json'), 'utf8'));
-  if (typeof identity !== 'object' || identity === null || Array.isArray(identity)) throw new Error('Reference project identity is missing');
-  writeFileSync(resolve(source, 'data/identity.json'), encodeCanonicalJson({ ...identity, slug, name: slug, author: 'Local author' }));
-}
-
 /** AP37a: copy Mossgate Hollow's scene module (AP15) into `source` under this project's identity. Its only source is
  * three.js: `generators/world.ts` builds the scene, `wildshard build` compiles it, `wildshard watch` streams each save. */
 function writeSceneSource(source: string, slug: string): void {
   // The host-owned CLI bundle defines dirname as its installed source directory.
   const scene = resolve(import.meta.dirname, '../shards/mossgate');
   cpSync(scene, source, { recursive: true, errorOnExist: true, force: false,
-    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') });
+    // Mossgate's captured card and hero stamp are its own art: a new project wears a generated card until its author
+    // captures one (NEW-SHARD-E2E F28), never another shard's.
+    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
+  // TEMPLATE-E2E TC-NE5, TR-2: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`) lives
+  // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.
+  cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
   writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 357 }));
-  writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { buildMossgate } from './world';\n\n/** This shard: the scene \`world.ts\` builds, under this project's identity. */\nexport const shard = defineShard(identity, buildMossgate);\n`);
+  writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { QUESTS } from './quests';\nimport { buildMossgate } from './world';\n\n/** This shard: the scene \`world.ts\` builds, under this project's identity, with the quest \`quests.ts\` declares. */\nexport const shard = defineShard(identity, buildMossgate, { extend: (rows) => ({ ...rows, quests: QUESTS }) });\n`);
   writeFileSync(resolve(source, 'shard.config.ts'), `// The shard is one three.js scene module: \`generators/world.ts\`. \`wildshard build\` runs it as the generator;\n// \`wildshard watch\` reads its describe() and streams each saved edit to a running page.\nimport { shard } from './generators/shard';\n\nexport const generate: typeof shard = shard;\n// oxlint-disable-next-line import/no-default-export -- The author CLI executes this project entry.\nexport default generate;\n`);
 }
 
@@ -300,7 +276,7 @@ export function writeEmptyShardSource(source: string, slug: string): void {
   writeEmptySource(source, slug);
 }
 
-/** `wildshard new <dir> [slug] [--template sdk|scene] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. */
+/** `wildshard new <dir> [slug] [--template scene] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. */
 export function writeShardRepo(project: string, slug: string, options: { readonly template?: RepoShape; readonly empty?: boolean } = {}): void {
   const template = options.template ?? DEFAULT_TEMPLATE;
   assertTarget(project, slug);
@@ -309,8 +285,7 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
   try {
     if (options.empty === true) writeEmptySource(source, slug);
     else if (template === 'blender') writeHandwrittenSource(source, slug);
-    else if (template === 'scene') writeSceneSource(source, slug);
-    else writeReferenceSource(source, slug);
+    else writeSceneSource(source, slug);
     writeRepoFiles(project, slug, template, options.empty === true);
   } catch (error) {
     // A refused `new` leaves no half-written repo, so running it again names the real cause, not `new-target`.
@@ -319,7 +294,7 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
   }
 }
 
-/** `new <dir>`: the reference world as a whole repo. */
+/** `new <dir>`: the reference world (Mossgate Hollow, J434) as a whole repo. */
 export function writeReferenceProject(project: string, slug: string): void { writeShardRepo(project, slug); }
 
 /** `new <dir> --empty`: the bare shard source as a whole repo. */

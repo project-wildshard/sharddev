@@ -17,7 +17,7 @@ describe('a new repo lints from its first check (TC-NE4)', () => {
   beforeAll(() => { mkdirSync('tmp', { recursive: true }); scratch = mkdtempSync(resolve('tmp', 'new-lint-')); });
   afterAll(() => { rmSync(scratch, { recursive: true, force: true }); });
 
-  it.each([['sdk', {}], ['scene', { template: 'scene' }], ['empty', { empty: true }]] as const)('%s: the config names the installed sdk\'s plugins and the source passes it', (name, options) => {
+  it.each([['scene', {}], ['empty', { empty: true }]] as const)('%s: the config names the installed sdk\'s plugins and the source passes it', (name, options) => {
     const repo = resolve(scratch, name);
     writeShardRepo(repo, `lint-${name}`, options);
     const config = readFileSync(resolve(repo, AUTHOR_LINT_CONFIG), 'utf8');

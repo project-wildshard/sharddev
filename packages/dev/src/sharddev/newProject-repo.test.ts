@@ -11,16 +11,17 @@ import { validateOutputProduct } from '../../../sdk/src/sharddev/outputProduct';
 import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
 import { REFUSAL_RULES } from '@wildshard/upload/sharddev/refusals';
 
-// SA16 (J314, J317): `wildshard new <dir> [--template sdk]` writes a whole single-shard repo, its shard source at
-// `src/`. A flag only, never a prompt; no flag is `sdk`; an unknown template refuses before anything is written. SS5
-// (J341): `blender` is retired and refuses too, but a repo made that way still checks.
+// SA16 (J314, J317): `wildshard new <dir> [--template scene]` writes a whole single-shard repo, its shard source at
+// `src/`. A flag only, never a prompt; no flag is `scene` (Mossgate Hollow, TEMPLATE-E2E TR-2, J434); an unknown
+// template refuses before anything is written. SS5 (J341) retired `blender` and J434 `sdk`: both refuse, but a repo
+// made with either still checks.
 describe('wildshard new writes a shard repo (SA16)', () => {
   let scratch = '';
   const sdk = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; dependencies: Record<string, string>; peerDependencies: Record<string, string> };
   beforeAll(() => { mkdirSync('tmp', { recursive: true }); scratch = mkdtempSync(resolve('tmp', 'new-repo-')); });
   afterAll(() => { rmSync(scratch, { recursive: true, force: true }); });
 
-  it.each([['no flag', 'none', []], ['--template sdk', 'spaced', ['--template', 'sdk']], ['--template=sdk', 'equals', ['--template=sdk']], ['--empty', 'empty', ['--empty']]] as const)('%s: src/shard.config.ts, no src/shards/, the repo files and exact pins', async (_, folder, flags) => {
+  it.each([['no flag', 'none', []], ['--template scene', 'spaced', ['--template', 'scene']], ['--template=scene', 'equals', ['--template=scene']], ['--empty', 'empty', ['--empty']]] as const)('%s: src/shard.config.ts, no src/shards/, the repo files and exact pins', async (_, folder, flags) => {
     const repo = resolve(scratch, folder);
     await runCli(['new', repo, 'my-shard', ...flags]);
     expect(existsSync(resolve(repo, 'src/shard.config.ts'))).toBe(true);
@@ -41,43 +42,37 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(existsSync(resolve(repo, 'src/README.md'))).toBe(false);
   });
 
-  it('no flag gives the sdk template: Mossgate at src/', async () => {
-    const repo = resolve(scratch, 'default');
-    await runCli(['new', repo]);
-    expect(existsSync(resolve(repo, 'src/generators/generate.ts'))).toBe(true);
-    expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate');
-    // SHARD-SOURCE AP37b: the Template is a scene module (AP36): the repo runs `pnpm watch`, and its generator keeps the
-    // describe() watch reads, under the project's identity from data/identity.json (no wrapper over shard.config.ts)
-    expect(existsSync(resolve(repo, 'src/generators/scene.ts'))).toBe(true);
-    expect((JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { scripts: Record<string, string> }).scripts).toEqual({ check: 'wildshard check .', watch: 'wildshard watch .' });
-    expect(JSON.parse(readFileSync(resolve(repo, 'src/data/identity.json'), 'utf8'))).toEqual({ author: 'Local author', name: 'default', revision: 2, seed: 357, slug: 'default' });
-    expect(existsSync(resolve(repo, 'src/generators/identity.ts'))).toBe(false);
-    const { generate } = await import(resolve(repo, 'src/generators/generate.ts')) as { generate: { describe: () => { identity: { slug: string } } } };
-    expect(generate.describe().identity.slug).toBe('default');
-  });
-
-  // SHARD-SOURCE AP37a: `--template scene` is Mossgate Hollow's three.js scene module under the project's identity.
-  it('--template scene gives Mossgate Hollow as one scene module, named for the project', async () => {
+  // SHARD-SOURCE AP37a, TEMPLATE-E2E TR-2 (J434): no flag is Mossgate Hollow's three.js scene module under the project's
+  // identity, with its starter quest and proof tape.
+  it('no flag gives Mossgate Hollow as one scene module, named for the project', async () => {
     const repo = resolve(scratch, 'scene');
-    await runCli(['new', repo, 'my-scene', '--template', 'scene']);
-    for (const file of ['src/shard.config.ts', 'src/identity.json', 'src/generators/shard.ts', 'src/generators/world.ts']) expect(existsSync(resolve(repo, file)), file).toBe(true);
-    // No Template data, no tests, and no mossgate identity carried over.
-    for (const gone of ['src/data', 'src/generators/generate.ts', 'src/generators/mossgate.test.ts']) expect(existsSync(resolve(repo, gone)), gone).toBe(false);
+    await runCli(['new', repo, 'my-scene']);
+    for (const file of ['src/shard.config.ts', 'src/identity.json', 'src/generators/shard.ts', 'src/generators/world.ts', 'src/generators/quests.ts', 'src/proof.json']) expect(existsSync(resolve(repo, file)), file).toBe(true);
+    // No legacy Template data, no tests, no Mossgate card or hero stamp, and no mossgate identity carried over.
+    for (const gone of ['src/data', 'src/generators/generate.ts', 'src/generators/mossgate.test.ts', 'src/card', 'src/hero.json']) expect(existsSync(resolve(repo, gone)), gone).toBe(false);
     expect(JSON.parse(readFileSync(resolve(repo, 'src/identity.json'), 'utf8'))).toMatchObject({ slug: 'my-scene', name: 'my-scene' });
     expect(readFileSync(resolve(repo, 'src/generators/shard.ts'), 'utf8')).not.toContain('mossgate');
-    expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('--template scene');
+    expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate Hollow');
     // AP22: the scene repo runs `pnpm watch`.
     expect((JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { scripts: Record<string, string> }).scripts).toEqual({ check: 'wildshard check .', watch: 'wildshard watch .' });
     const { shard } = await import(resolve(repo, 'src/generators/shard.ts')) as { shard: { describe: () => { identity: { slug: string } } } };
     expect(shard.describe().identity.slug).toBe('my-scene');
   });
 
-  it('an unknown template refuses before writing, naming sdk', async () => {
+  it('an unknown template refuses before writing, naming scene', async () => {
     const repo = resolve(scratch, 'unknown');
-    await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x: leave out --template, or pass --template sdk/u);
+    await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x: leave out --template, or pass --template scene/u);
     expect(existsSync(repo)).toBe(false);
     await expect(runCli(['new', repo, '--template'])).rejects.toThrow(/usage: wildshard new/u);
     expect(existsSync(repo)).toBe(false);
+  });
+
+  it('--template sdk is retired (J434): it refuses before writing and points at Mossgate Hollow', async () => {
+    const repo = resolve(scratch, 'retired-sdk');
+    for (const flags of [['--template', 'sdk'], ['--template=sdk']]) {
+      await expect(runCli(['new', repo, 'old-template', ...flags])).rejects.toThrow(/^new: --template sdk is retired \(J434\): the legacy Template is gone; leave out --template for Mossgate Hollow/u);
+      expect(existsSync(repo)).toBe(false);
+    }
   });
 
   it('--template blender is retired (SS5, J341): it refuses before writing and points at scene source', async () => {

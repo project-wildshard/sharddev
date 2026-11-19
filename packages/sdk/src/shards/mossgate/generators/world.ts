@@ -1019,7 +1019,12 @@ export function buildMossgate(world: ShardWorld): void {
   world.part('district', (part) => { district(part); });
   world.part('paths', (part) => { paths(part, M); });
   world.part('braziers', (part) => { braziers(part, M, tex); });
-  world.part('hut', (part) => { hut(part, M, tex); });
+  world.part('hut', (part) => {
+    hut(part, M, tex);
+    // TR-2: the starter quest's place, a step out from the hut door (quests.ts); its trigger row reads this node
+    const door = new THREE.Object3D(); door.name = 'hut-door'; door.position.set(LAYOUT.HUT.x, 0, LAYOUT.HUT.z + LAYOUT.HUT.d / 2 + 1); part.add(door);
+    world.trigger('hut.door', door, { radius: 2.5 });
+  });
   world.part('sign', (part) => { signpost(part, M, tex); });
   world.part('crate', (part) => { crate(part, M); }, { panel: 'mossgate.crate', touchable: { material: 'wood', density: 250 } });
   world.part('gate', (part) => { gate(part, M, tex); });

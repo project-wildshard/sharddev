@@ -19,7 +19,7 @@ import { formatJsonSchemas, schemaAt, schemaDeclaration } from '@wildshard/sdk/f
 import { decisionModuleContracts } from '@wildshard/format/scriptContract';
 import { outputPlatformPayloads, outputScriptAdmissionRows, validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { locatedError } from '@wildshard/sdk/internal/authorError';
-import { templateNamed, writeShardRepo } from '@wildshard/sdk/internal/newProject';
+import { DEFAULT_TEMPLATE, templateNamed, writeShardRepo } from '@wildshard/sdk/internal/newProject';
 import { updateShardRepo } from '@wildshard/sdk/internal/agentFiles';
 import { updatePins } from '@wildshard/sdk/internal/updatePins';
 import { findShardSource, isHandwrittenSource, isRepoSource } from '@wildshard/upload/sharddev/shardSource';
@@ -91,7 +91,8 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     console.info(`synthesized ${result.path} (${result.hash})`); return;
   }
   if (command === 'new') {
-    // SA16: `--template <name>` (or `--template=<name>`) picks the template; a flag only, never a prompt; default sdk.
+    // SA16: `--template <name>` (or `--template=<name>`) picks the template; a flag only, never a prompt; default scene
+    // (Mossgate Hollow, TEMPLATE-E2E TR-2, J434).
     const newArguments = args.slice(2), names: string[] = [], templates: string[] = [];
     let empty = 0, unknown = false;
     for (let index = 0; index < newArguments.length; index += 1) {
@@ -102,9 +103,9 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       else if (value.startsWith('--')) unknown = true;
       else names.push(value);
     }
-    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template sdk|scene] [--empty]');
+    if (input.startsWith('--') || names.length > 1 || unknown || empty > 1 || templates.length > 1) throw new Error('usage: wildshard new <dir> [slug] [--template scene] [--empty]');
     // An unknown template refuses here, before anything is written.
-    const template = templateNamed(templates[0] ?? 'sdk');
+    const template = templateNamed(templates[0] ?? DEFAULT_TEMPLATE);
     const slug = names[0] ?? input.split('/').reverse().find((part) => part !== '') ?? '';
     writeShardRepo(resolve(input), slug, { template, empty: empty === 1 });
     // NEW-SHARD-E2E F8: say what was made and what to run next, never exit silently

@@ -12,9 +12,10 @@ test('a new reference project points at its own shard file, never the template',
   const parent = mkdtempSync(resolve(scratch, 'new-project-shardfile-')), project = resolve(parent, 'my-shard');
   try {
     writeReferenceProject(project, 'my-shard');
-    const text = readFileSync(resolve(project, 'src/data/card.json'), 'utf8');
-    expect((JSON.parse(text) as { shardfile: string }).shardfile).toBe('/shardfiles/my-shard/shard.json');
-    expect(text).not.toContain('_template');
+    // TR-2 (J434): the starter is a scene module, named only by its own identity.json; nothing names the template's slug.
+    const text = readFileSync(resolve(project, 'src/identity.json'), 'utf8');
+    expect((JSON.parse(text) as { slug: string }).slug).toBe('my-shard');
+    expect(readFileSync(resolve(project, 'src/generators/shard.ts'), 'utf8')).not.toMatch(/_template|mossgate/u);
     // The checkout's own built Template output is never copied into a new project.
     expect(existsSync(resolve(project, 'src/public/shardfiles'))).toBe(false);
   } finally { rmSync(parent, { recursive: true, force: true }); }

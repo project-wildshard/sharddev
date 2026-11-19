@@ -22,7 +22,7 @@ instead where a step is not built yet.
 1. **new**: `wildshard new <dir>` started this repo. `GUIDE.md#1-the-loop`; every flag in `GUIDE.md#every-verb`.
 2. **dev**: `wildshard dev .` serves the shard on localhost; open the URL it prints. `GUIDE.md#walking-your-shard`,
    and what reloads on save in `GUIDE.md#4-what-reloads-under-dev`. Done when you have walked it. A shard written as
-   a three.js scene (the Template's `src/generators/scene.ts`, or `src/generators/world.ts` from `new --template scene`;
+   a three.js scene (`src/generators/world.ts` from `new`, or an older repo's `src/generators/scene.ts`;
    `GUIDE.md#2b-a-scene-shard`): `pnpm watch` (`wildshard watch .`)
    swaps each saved edit into the running page with no reload; `GUIDE.md#every-verb`.
 3. **check**: `wildshard check .` after every change. `GUIDE.md#1-the-loop`; what it measures in
