@@ -48,13 +48,16 @@ async function memoryProduct(folder, out) {
     const run = await measureBootMemory({ url: preview.url, chunk: '' });
     const slug = preview.slug;
     if (!run.ready) throw new Error(`${slug} did not reach its world: ${run.failure ?? 'no error card'}`);
-    if (run.boot !== 'online' || run.serverWorker !== false) throw new Error(`${slug}: engine ${pin} did not verify a worker-free online boot`);
+    // Engines before the meter's boot fields (0.1.48) are judged by what the page fetched from the preview server.
+    const served = preview.served();
+    const boot = run.boot ?? (served.release ? 'online' : 'standalone'), serverWorker = run.serverWorker ?? served.serverWorker;
+    if (boot !== 'online' || serverWorker !== false) throw new Error(`${slug}: engine ${pin} did not verify a worker-free online boot (boot ${boot}, server worker ${String(serverWorker)})`);
     const verdict = bootMemoryVerdict(run.samples, run.dumps);
     const line = `${bootMemoryLine(slug, verdict)} · boot online`;
     if (out !== undefined) {
       const path = resolve(out);
       mkdirSync(dirname(path), { recursive: true });
-      writeFileSync(path, `${JSON.stringify({ ...run, chunk: slug, engine: pin, dumps: Object.fromEntries(run.dumps), verdict, line }, null, 1)}\n`);
+      writeFileSync(path, `${JSON.stringify({ ...run, boot, serverWorker, chunk: slug, engine: pin, dumps: Object.fromEntries(run.dumps), verdict, line }, null, 1)}\n`);
     }
     console.log(line);
     return verdict.pass ? 0 : 1;

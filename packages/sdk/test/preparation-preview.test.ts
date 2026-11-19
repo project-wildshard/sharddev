@@ -6,7 +6,7 @@ import { mkdirSync, mkdtempSync, rmSync, symlinkSync, writeFileSync } from 'node
 import { dirname, join, resolve } from 'node:path';
 import { clientPage } from '../src/sharddev/clientPage';
 
-interface Preview { url: string; slug: string; close: () => Promise<void> }
+interface Preview { url: string; slug: string; close: () => Promise<void>; served: () => { release: boolean; serverWorker: boolean } }
 interface PreviewWorld {
   readonly signed: string;
   stamp: (page: string) => string;
@@ -86,6 +86,9 @@ test('the online preview serves its release while the local world starts', async
   } });
   try {
     expect(await (await fetch(preview.url)).text()).toContain('globalThis.__WS_WORLD__={};');
+    expect(preview.served()).toEqual({ release: true, serverWorker: false });
+    await fetch(preview.url + 'assets/serverWorker-abc.js');
+    expect(preview.served()).toEqual({ release: true, serverWorker: true });
   } finally { await preview.close(); }
   expect(closed).toBe(true);
 });

@@ -30,13 +30,18 @@ export async function preparationPreview(client,dir,{clientPage,online}){
   const cook=existsSync(resolve(dir,'cook.json'))?JSON.parse(readFileSync(resolve(dir,'cook.json'),'utf8')):{};
   const mounts=new Map((Array.isArray(cook.mounts)?cook.mounts:[]).filter(row=>typeof row?.url==='string'&&typeof row.path==='string').map(row=>[row.url,row.path]));
   let world;
+  // What the page asked this server for: its release (an online boot) and any in-page server worker script. An engine
+  // without the meter's own `boot`/`serverWorker` fields is judged by these (MEMORY-STRUCTURE STR10).
+  const served={release:false,serverWorker:false};
   const server=createServer((request,response)=>{
     response.setHeader('Cache-Control','no-store');
     try{
       if(request.method!=='GET'&&request.method!=='HEAD'){response.writeHead(405);response.end();return;}
       const path=decodeURIComponent(new URL(request.url??'/','http://localhost').pathname);
       if(path==='/'||path==='/index.html'){response.setHeader('Content-Type','text/html');response.end(request.method==='HEAD'?undefined:world?.stamp(page)??page);return;}
+      if(/\/serverWorker[^/]*\.js$/u.test(path))served.serverWorker=true;
       if(online!==undefined&&path===online.releasePath&&world!==undefined){
+        served.release=true;
         response.setHeader('Content-Type','application/json');response.end(request.method==='HEAD'?undefined:world.signed);return;
       }
       // The inline product reads beside the page, as `wildshard build` lays the client over the product folder (the
@@ -57,6 +62,6 @@ export async function preparationPreview(client,dir,{clientPage,online}){
   };
   try{
     if(online!==undefined){world=await online.open(origin);await world.move(dir,slug,client);}
-    return {url:origin+'/',slug,close};
+    return {url:origin+'/',slug,close,served:()=>({...served})};
   }catch(error){await close();throw error;}
 }
