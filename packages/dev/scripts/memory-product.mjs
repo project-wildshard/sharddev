@@ -50,13 +50,13 @@ async function memoryProduct(folder, out) {
     if (!run.ready) throw new Error(`${slug} did not reach its world: ${run.failure ?? 'no error card'}`);
     if (run.boot !== 'online' || run.serverWorker !== false) throw new Error(`${slug}: engine ${pin} did not verify a worker-free online boot`);
     const verdict = bootMemoryVerdict(run.samples, run.dumps);
-    const line = bootMemoryLine(slug, verdict);
+    const line = `${bootMemoryLine(slug, verdict)} · boot online`;
     if (out !== undefined) {
       const path = resolve(out);
       mkdirSync(dirname(path), { recursive: true });
       writeFileSync(path, `${JSON.stringify({ ...run, chunk: slug, engine: pin, dumps: Object.fromEntries(run.dumps), verdict, line }, null, 1)}\n`);
     }
-    console.log(`Online boot · ${line}`);
+    console.log(line);
     return verdict.pass ? 0 : 1;
   } finally {
     try { await preview?.close(); } finally { rmSync(scratch, { recursive: true, force: true }); }

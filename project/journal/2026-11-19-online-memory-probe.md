@@ -14,4 +14,6 @@ The first local call reached control on the built Template with
 `boot: online` and `serverWorker: false`. Its matched comparison
 recorded 676 MB standalone and 774 MB online Chromium peak. The
 standalone arm started a server worker. That pair does not establish
-a reduction. STR10 remains open for repeated proof and shard CI.
+a peak reduction. The last 2.5 seconds of samples at control had
+median renderer plus GPU footprint of 671 MB standalone and 603 MB
+online. STR10 remains open for shard CI.
