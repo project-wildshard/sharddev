@@ -926,7 +926,7 @@ takes it. Give the heaviest models a phone LOD or a simplified mesh, and reuse m
 WebKit draws through ANGLE's Metal back end, which reads a vertex channel in place only when its stride is a multiple
 of 4 bytes. A tightly packed 3-byte channel (an Int8 normal, a Uint8 colour) or a 6-byte one (three Int16 or Uint16)
 is copied into a second buffer, so the phone holds it twice. `check` prints each such channel on the report card. The
-three layouts the cook already wrote (an Int8 normal, a Uint8 colour, a Uint16 colour, 3 wide and packed) report; any
+three layouts the build already wrote (an Int8 normal, a Uint8 colour, a Uint16 colour, 3 wide and packed) report; any
 other copied layout refuses. Write it aligned: `staticGlb` with `meshoptReady` pads it.
 
 #### validate-refused

@@ -99,7 +99,7 @@ function pointTriangle2(xyz: Float32Array, p: number, a: number, b: number, c: n
 
 /** The source vertices (at most `limit`) neither within `bound` of the kept surface nor in a wholly dropped island
  *  (index-connected) no wider than twice it. A vertex that only zero-area triangles read is never a miss. */
-export function boundMisses(positions: Float32Array, indices: Uint32Array, kept: Uint32Array, bound: number, limit = Infinity): number[] {
+export function boundMisses(positions: Float32Array, indices: Uint32Array, kept: Uint32Array, bound: number, limit?: number): number[] {
   const count = positions.length / 3, used = new Uint8Array(count);
   for (const v of kept) used[v] = 1;
   // a vertex only zero-area source triangles read draws nothing: dropping it is no error
@@ -134,7 +134,7 @@ export function boundMisses(positions: Float32Array, indices: Uint32Array, kept:
     }
   }
   const reach = bound * bound, misses: number[] = [];
-  for (let v = 0; v < count && misses.length < limit; v++) {
+  for (let v = 0; v < count && misses.length < (limit ?? Infinity); v++) {
     if (used[v] === 1) continue;
     const p = v * 3;
     let near = false;
@@ -155,13 +155,13 @@ export function withinBound(positions: Float32Array, indices: Uint32Array, kept:
   return boundMisses(positions, indices, kept, bound, 1).length === 0;
 }
 
-/** Simplify one slab key's joined geometry for the phone. `frameScale` is the key frame's `positionErrorScale`, so the
+/** Simplify one slab key's joined geometry for the phone. `frameScale` (default 1) is the key frame's `positionErrorScale`, so the
  *  error stays in world metres. The source is left as it was; the caller owns the returned geometry. */
-export async function phoneSlabGeometry(source: BufferGeometry, lod: SlabPhoneLod, frameScale = 1): Promise<SlabPhoneGeometry> {
+export async function phoneSlabGeometry(source: BufferGeometry, lod: SlabPhoneLod, frameScale?: number): Promise<SlabPhoneGeometry> {
   const weight = lod.attributeWeight ?? DEFAULT_WEIGHT;
   if (!(lod.error > 0 && lod.error <= MAX_ERROR)) throw new Error(`Slab phone error ${lod.error} is outside 0 to ${MAX_ERROR} m`);
   if (!(weight >= 0 && weight <= 10)) throw new Error(`Slab phone attribute weight ${weight} is outside 0 to 10`);
-  if (!(frameScale > 0 && Number.isFinite(frameScale))) throw new Error('Slab phone frame scale must be positive');
+  if (frameScale !== undefined && !(frameScale > 0 && Number.isFinite(frameScale))) throw new Error('Slab phone frame scale must be positive');
   const position = source.getAttribute('position'), index = source.getIndex();
   if (!(position instanceof BufferAttribute) || position.itemSize !== 3 || index === null || index.count % 3 !== 0) throw new Error('Slab phone geometry needs indexed triangles');
   const count = position.count, positions = new Float32Array(count * 3), attributes = new Float32Array(count * 6);
@@ -175,7 +175,7 @@ export async function phoneSlabGeometry(source: BufferGeometry, lod: SlabPhoneLo
     for (let vertex = 0; vertex < count; vertex++) for (let lane = 0; lane < 3; lane++)
       attributes[vertex * 6 + slot * 3 + lane] = lane < attribute.itemSize ? attribute.getComponent(vertex, lane) : 0;
   });
-  const indices = Uint32Array.from(index.array), local = lod.error / frameScale, protect = seamProtection(source, positions);
+  const indices = Uint32Array.from(index.array), local = lod.error / (frameScale ?? 1), protect = seamProtection(source, positions);
   await MeshoptSimplifier.ready;
   // The simplifier lets a thin part (a cable, a rail) collapse to nothing at any error wider than it. Each round locks
   // the vertices that missed (from the seventh, their whole parts) and simplifies again from the source, until none miss.
