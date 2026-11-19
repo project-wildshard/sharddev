@@ -12,6 +12,7 @@ import { admitScriptContract, decisionScriptsFromSections } from '@wildshard/for
 import { SCRIPT_V1_READS, SCRIPT_V1_LISTS, type ScriptV1ReadName, type ScriptV1ListName } from '@wildshard/format/scriptAbiV1';
 import { outputDescriptor } from '@wildshard/engine/game/shardfile/outputDescriptor';
 import { loadHeadlessFolder } from '@wildshard/engine/host/headlessFolder';
+import { decisionStrikeRows } from '@wildshard/sdk/projectDecisions';
 import { createScriptScenario, type ScenarioActor, type DiskScenarioOptions, type DiskScriptScenario } from './scriptScenario';
 
 /** Disk admission and the game use the same defining catalogue; the fixture never allocates actor ids. */
@@ -32,7 +33,7 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const moves = parseActorMoves(sections.get('actors/moves') ?? []), targets = sections.get('world/targets');
   const nativePlan = sections.get('sim/runtime-plan');
   const nativeActors = shard.runtime === null && nativePlan !== undefined ? nativeRuntimeActorIds(nativePlan) : [];
-  const registries = buildDecisionRegistries(shard, moves, targets === undefined ? undefined : parseWorldTargets(targets), readCreatureStrikes(sections.get('actors/strikes') ?? []), rows, nativeActors);
+  const registries = buildDecisionRegistries(shard, moves, targets === undefined ? undefined : parseWorldTargets(targets), decisionStrikeRows(shard, readCreatureStrikes(sections.get('actors/strikes') ?? [])), rows, nativeActors);
   const map = decisionBindingMap(row, registries), handles = Object.values(map.ids.actors ?? {});
   const script: DecisionScript = { ...row, side: row.side, ids: map.ids, state: [...row.state], reads: row.reads.filter((name): name is ScriptV1ReadName => Object.hasOwn(SCRIPT_V1_READS, name)),
     lists: row.reads.filter((name): name is ScriptV1ListName => Object.hasOwn(SCRIPT_V1_LISTS, name)) };

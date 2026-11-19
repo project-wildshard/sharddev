@@ -88,6 +88,12 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Lower the creature\'s triangles to its size class\'s mark (a phone LOD), or give it a larger size class.' },
   { id: 'creature-textures', anchor: 'creature-textures', steps: 'any', codes: ['creature-textures'],
     fix: 'Shrink the creature\'s textures (a smaller atlas, fewer maps) to its size class\'s mark.' },
+  // MEMORY-STRUCTURE STR13: the phone triangle budget (sdk triangleBudget.ts), a warning.
+  { id: 'triangle-budget', anchor: 'triangle-budget', steps: 'any', codes: ['triangle-budget'],
+    fix: 'Hold fewer static triangles: a phone LOD or simplified mesh for the heaviest models, fewer unique far models.' },
+  // MEMORY-STRUCTURE STR17: a vertex channel Metal cannot read in place (sdk vertexLayout.ts).
+  { id: 'vertex-layout', anchor: 'vertex-layout', steps: 'any', codes: ['vertex-layout-copy'],
+    fix: 'Write the channel 4-byte aligned: staticGlb with `meshoptReady` pads a 3-byte or 6-byte channel to 4 or 8, or use a 4-wide channel.' },
   { id: 'source-schema', anchor: 'source-schema', steps: ['build'], match: /(?:^|: |; )Invalid [a-z]+: /u,
     fix: 'Give the field at the path shown the value it expects; `wildshard schema shardfile <pointer>` prints its shape.' },
   { id: 'build-refused', anchor: 'build-refused', steps: ['build'],

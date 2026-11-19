@@ -1,10 +1,11 @@
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { clientPage } from '@wildshard/sdk/internal/clientPage';
 import { preparationPreview } from '@wildshard/sdk/scripts/preparation-preview.mjs';
 import { fetchPreparationClient, preparationClient } from '../src/sharddev/devClient.ts';
+import { createDevWorld, DEV_RELEASE } from './dev-world.mjs';
 
 const ENGINE = '@wildshard/engine';
 const PROBE = `${ENGINE}/scripts/boot-memory-peak.mjs`;
@@ -18,7 +19,7 @@ function installedEngine() {
   const manifest = JSON.parse(readFileSync(engine, 'utf8'));
   const pin = callerEngine ? JSON.parse(readFileSync(callerManifest, 'utf8')).dependencies?.[ENGINE] ?? manifest.version : manifest.version;
   try {
-    return { pin, probe: (callerEngine ? caller : sdk).resolve(PROBE) };
+    return { engine, pin, probe: (callerEngine ? caller : sdk).resolve(PROBE) };
   } catch (error) {
     throw new Error(`wildshard memory: engine ${pin} does not export the boot memory probe`, { cause: error });
   }
@@ -33,25 +34,43 @@ function resolveEngine(require) {
 }
 
 async function memoryProduct(folder, out) {
-  const { pin, probe } = installedEngine();
+  const { engine, pin, probe } = installedEngine();
   const { measureBootMemory, bootMemoryVerdict, bootMemoryLine } = await import(pathToFileURL(probe).href);
   const client = process.env.WILDSHARD_PREPARATION_CLIENT ? await preparationClient() : await fetchPreparationClient({ pin });
-  const preview = await preparationPreview(client, folder, { clientPage });
+  const parent = resolve('tmp');
+  mkdirSync(parent, { recursive: true });
+  const scratch = mkdtempSync(resolve(parent, 'wildshard-memory-'));
+  let preview;
   try {
+    // An online page asks the device's Name once before the world (engine namePrompt.ts); the probe of engine 0.1.48 does
+    // not answer it, so the page starts with the device marked as asked.
+    const { NAME_ASKED, saveFixtureCode } = await import(pathToFileURL(resolve(dirname(engine), 'scripts/debug-settings.mjs')).href);
+    const asked = `<script>${saveFixtureCode(NAME_ASKED)}</script>`;
+    preview = await preparationPreview(client, folder, { clientPage, online: {
+      releasePath: DEV_RELEASE, open: async origin => {
+        const world = await createDevWorld(origin, scratch, engine), stamp = world.stamp.bind(world);
+        world.stamp = page => stamp(page).replace('<head>', `<head>${asked}`);
+        return world;
+      },
+    } });
     const run = await measureBootMemory({ url: preview.url, chunk: '' });
     const slug = preview.slug;
     if (!run.ready) throw new Error(`${slug} did not reach its world: ${run.failure ?? 'no error card'}`);
+    // Engines before the meter's boot fields (0.1.48) are judged by what the page fetched from the preview server.
+    const served = preview.served();
+    const boot = run.boot ?? (served.release ? 'online' : 'standalone'), serverWorker = run.serverWorker ?? served.serverWorker;
+    if (boot !== 'online' || serverWorker !== false) throw new Error(`${slug}: engine ${pin} did not verify a worker-free online boot (boot ${boot}, server worker ${String(serverWorker)})`);
     const verdict = bootMemoryVerdict(run.samples, run.dumps);
-    const line = bootMemoryLine(slug, verdict);
+    const line = `${bootMemoryLine(slug, verdict)} · boot online`;
     if (out !== undefined) {
       const path = resolve(out);
       mkdirSync(dirname(path), { recursive: true });
-      writeFileSync(path, `${JSON.stringify({ ...run, chunk: slug, engine: pin, dumps: Object.fromEntries(run.dumps), verdict, line }, null, 1)}\n`);
+      writeFileSync(path, `${JSON.stringify({ ...run, boot, serverWorker, chunk: slug, engine: pin, dumps: Object.fromEntries(run.dumps), verdict, line }, null, 1)}\n`);
     }
     console.log(line);
     return verdict.pass ? 0 : 1;
   } finally {
-    await preview.close();
+    try { await preview?.close(); } finally { rmSync(scratch, { recursive: true, force: true }); }
   }
 }
 

@@ -18,6 +18,7 @@
   },
   "files": [
     "bin",
+    "dist/dev-server",
     "src",
     "!src/**/*.test.*",
     "!src/e2e",
@@ -33,6 +34,7 @@
     "tsconfig*.json"
   ],
   "scripts": {
+    "prepack": "node scripts/pack-dev-server.mjs",
     "dev": "node src/tools/build-web.ts --dev",
     "build": "node src/tools/build-web.ts",
     "drafts:dev": "vite --config drafts/vite.config.ts",
@@ -50,6 +52,15 @@
   },
   "dependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
+    "@electric-sql/pglite": "0.5.15",
+    "@electric-sql/pglite-age": "0.0.16",
+    "@electric-sql/pglite-pg_hashids": "0.0.16",
+    "@electric-sql/pglite-pg_ivm": "0.0.16",
+    "@electric-sql/pglite-pg_textsearch": "0.0.17",
+    "@electric-sql/pglite-pg_uuidv7": "0.0.16",
+    "@electric-sql/pglite-pgtap": "0.0.16",
+    "@electric-sql/pglite-pgvector": "0.0.16",
+    "@electric-sql/pglite-socket": "0.2.18",
     "@gltf-transform/core": "4.5.0",
     "@gltf-transform/extensions": "4.5.0",
     "@hono/node-server": "2.1.8",
@@ -58,8 +69,8 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
-    "@wildshard/engine": "0.1.48",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.46.1",
+    "@wildshard/engine": "0.1.50",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.48.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",

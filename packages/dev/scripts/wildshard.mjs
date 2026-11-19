@@ -57,6 +57,7 @@ export function prepareWildshard() {
       const owner = file.startsWith(SDK_DIR + sep) ? SDK_SRC : DEV_SRC;
       return { code: code.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
     }, resolveId(id, importer) {
+      if (id.endsWith('/scripts/dev-world.mjs')) return { id: pathToFileURL(resolve(import.meta.dirname, 'dev-world.mjs')).href, external: true };
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
       // SP9b: the sdk bundles with rolldown; its bundles record their inputs through dev's bridge, as vite's did.
       if (id === 'rolldown') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-rolldown.mjs')).href, external: true };

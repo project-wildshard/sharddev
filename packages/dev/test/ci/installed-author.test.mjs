@@ -6,7 +6,7 @@ import { spawnSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { after, test } from 'node:test';
 import { pathToFileURL } from 'node:url';
 import { heroImages } from '../../src/test/helpers/hero.ts';
@@ -242,6 +242,9 @@ test('the installed dev command fetches the devserver client and serves the shar
   mkdirSync(client, { recursive: true });
   writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
   writeFileSync(join(client, 'build-flags.json'), JSON.stringify({ devserver: true }));
+  // MEMORY-STRUCTURE STR5: dev starts the installed engine's Node world, which reads the client's version.json (a release epoch starts at 1).
+  const engine = dirname(createRequire(join(bin, '../../package.json')).resolve('@wildshard/engine/package.json'));
+  writeFileSync(join(client, 'version.json'), JSON.stringify({ build: 'fixture', clientVersion: JSON.parse(readFileSync(join(engine, 'package.json'), 'utf8')).version, saveEpoch: 1 }));
   const archive = join(root, 'devserver-client.tar.gz');
   execFileSync('tar', ['-czf', archive, '-C', client, '.']);
   let reads = 0;

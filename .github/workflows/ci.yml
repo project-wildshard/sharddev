@@ -319,6 +319,12 @@ jobs:
       - name: End-to-end
         if: ${{ !cancelled() }}
         run: pnpm test:e2e
+      # MEMORY-STRUCTURE STR10, MEMORY-GATES MG2: the phone memory probe a shard repo runs, booted online with the
+      # local Node world and no in-page server, on the starter (an under-line control).
+      - name: Online phone memory reading of Mossgate
+        working-directory: packages/sdk
+        if: ${{ !cancelled() }}
+        run: node ../dev/bin/wildshard.mjs memory tmp/ci-mossgate/mossgate
       - if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:

@@ -17,8 +17,8 @@ function inside(root,local){
   return realpathSync(file).startsWith(`${root}${sep}`)?file:undefined;
 }
 
-/** Serve `client` with the candidate `dir` (a built shard file folder) inline; resolves to {url, close}. */
-export async function preparationPreview(client,dir,{clientPage}){
+/** Serve `client` with the candidate `dir` inline, optionally with a local world. */
+export async function preparationPreview(client,dir,{clientPage,online}){
   client=realpathSync(resolve(client));dir=realpathSync(resolve(dir));
   const header=readFileSync(resolve(dir,'shard.json'),'utf8'),slug=JSON.parse(header).identity.slug;
   // The inline descriptor is the candidate's own index bytes, `<` escaped as `wildshard build` writes it.
@@ -29,12 +29,21 @@ export async function preparationPreview(client,dir,{clientPage}){
   // served at their URLs from where cook.json says the product keeps them (mounts/, or the blob with the same bytes).
   const cook=existsSync(resolve(dir,'cook.json'))?JSON.parse(readFileSync(resolve(dir,'cook.json'),'utf8')):{};
   const mounts=new Map((Array.isArray(cook.mounts)?cook.mounts:[]).filter(row=>typeof row?.url==='string'&&typeof row.path==='string').map(row=>[row.url,row.path]));
+  let world;
+  // What the page asked this server for: its release (an online boot) and any in-page server worker script. An engine
+  // without the meter's own `boot`/`serverWorker` fields is judged by these (MEMORY-STRUCTURE STR10).
+  const served={release:false,serverWorker:false};
   const server=createServer((request,response)=>{
     response.setHeader('Cache-Control','no-store');
     try{
       if(request.method!=='GET'&&request.method!=='HEAD'){response.writeHead(405);response.end();return;}
       const path=decodeURIComponent(new URL(request.url??'/','http://localhost').pathname);
-      if(path==='/'||path==='/index.html'){response.setHeader('Content-Type','text/html');response.end(request.method==='HEAD'?undefined:page);return;}
+      if(path==='/'||path==='/index.html'){response.setHeader('Content-Type','text/html');response.end(request.method==='HEAD'?undefined:world?.stamp(page)??page);return;}
+      if(/\/serverWorker[^/]*\.js$/u.test(path))served.serverWorker=true;
+      if(online!==undefined&&path===online.releasePath&&world!==undefined){
+        served.release=true;
+        response.setHeader('Content-Type','application/json');response.end(request.method==='HEAD'?undefined:world.signed);return;
+      }
       // The inline product reads beside the page, as `wildshard build` lays the client over the product folder (the
       // client's file wins); the in-page server reads where a release serves the shard.
       const mounted=mounts.get(path);
@@ -46,5 +55,13 @@ export async function preparationPreview(client,dir,{clientPage}){
   });
   await new Promise((done,fail)=>{server.once('error',fail);server.listen(0,'127.0.0.1',()=>{done(undefined);});});
   const address=server.address();if(address===null||typeof address==='string')throw new Error('No preparation preview address');
-  return {url:`http://127.0.0.1:${address.port}/`,slug,close:()=>new Promise(done=>{server.close(()=>{done(undefined);});server.closeAllConnections();})};
+  const origin=`http://127.0.0.1:${address.port}`;
+  const close=async()=>{
+    try{await world?.close();}
+    finally{await new Promise(done=>{server.close(()=>{done(undefined);});server.closeAllConnections();});}
+  };
+  try{
+    if(online!==undefined){world=await online.open(origin);await world.move(dir,slug,client);}
+    return {url:origin+'/',slug,close,served:()=>({...served})};
+  }catch(error){await close();throw error;}
 }

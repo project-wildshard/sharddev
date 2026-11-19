@@ -1,5 +1,6 @@
 import * as schema from 'valibot';
 import { BufferAttribute, Float16BufferAttribute, Matrix4, type Color, type InterleavedBufferAttribute, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3, Group, Mesh, type Material, type Object3D, BufferGeometry, Euler } from 'three';
+import { packStaticGlb, staticVertexPacking } from './packedVertex';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { parseGlb } from '../assets';
 import { parsePrivateScene, compileTubeCurve, type TubeCurveProfile, type TubeCurveFrame, type PrivateScene } from '@wildshard/format/clientChannels';
@@ -338,7 +339,9 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
   v.setUint32(0, 0x46546c67, true); v.setUint32(4, 2, true); v.setUint32(8, bytes.length, true); v.setUint32(12, length, true); v.setUint32(16, 0x4e4f534a, true); bytes.fill(32, 20, 20 + length); bytes.set(raw, 20);
   v.setUint32(20 + length, offset, true); v.setUint32(24 + length, 0x004e4942, true);
   let at = 28 + length; for (const chunk of chunks) { bytes.set(chunk, at); at += chunk.length; }
-  parseGlb(bytes); return bytes;
+  parseGlb(bytes);
+  // STR16: the packed static vertex, when the cook asks for it (off by default)
+  return staticVertexPacking() ? packStaticGlb(bytes) : bytes;
 }
 
 /** Read ordered whole-partition identities from a bounded standard GLB JSON
