@@ -3,6 +3,7 @@ import type { PoolSurface } from '@wildshard/format/pool-surface';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../author';
 import { parseGlb, parseKtx2 } from '../assets';
+import { parseSkinFile, skinFileDependencies } from '@wildshard/format/skinAssets';
 import { hashImmutableBytes } from '../immutable';
 import type { GeneratedProject, ProjectGenerationContext } from '../projectGeneration';
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
@@ -781,10 +782,23 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
   // ONE-FORMAT CC24: a world.creature's rig GLB and its skin file (the skin loads with the shard: the library)
   const creatures = scene.creatures ?? [];
-  const skins = creatures.map((creature) => {
-    const glb = store(creature.glb, 'glb').hash, hash = hashImmutableBytes(creature.skin);
-    if (!assets.has(hash)) { assets.set(hash, creature.skin); files.push({ hash, kind: 'json', compressed: creature.skin.length, decoded: creature.skin.length * 2, gpu: 0, triangles: 0, draws: 0, dependencies: [glb], critical: false }); }
+  const json = (bytes: Uint8Array, dependencies: string[]): string => {
+    const hash = hashImmutableBytes(bytes);
+    if (!assets.has(hash)) { assets.set(hash, bytes); files.push({ hash, kind: 'json', compressed: bytes.length, decoded: bytes.length * 2, gpu: 0, triangles: 0, draws: 0, dependencies, critical: false }); }
     return hash;
+  };
+  // OF27b: a skin file depends on its GLB, then its material's textures (format `skinFileDependencies`)
+  const skinFile = (bytes: Uint8Array): string => {
+    const { row, binding } = parseSkinFile(bytes);
+    return json(bytes, skinFileDependencies(row, binding));
+  };
+  const skins = creatures.flatMap((creature) => {
+    store(creature.glb, 'glb');
+    if (creature.files === undefined) return [skinFile(creature.skin)];
+    for (const glb of creature.files.glbs) store(glb, 'glb');
+    for (const texture of creature.files.textures) store(texture, 'ktx2');
+    const variants = creature.files.skins.map(skinFile), skin = skinFile(creature.skin);
+    return [skin, json(creature.files.table, [...new Set([skin, ...variants])].sort())];
   });
   const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort(), ...skins];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)

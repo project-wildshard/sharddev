@@ -310,6 +310,11 @@ export interface SceneCreature {
   readonly look: ShardRows['looks'][number];
   readonly bones: number;
   readonly triangles: number;
+  /** ONE-FORMAT OF27b: a look's further files (`bake/hullLook`): its variants' rig GLBs, its KTX2 maps, every variant's
+   *  skin file and the variant table its look names; each skin depends on its GLB, then its material's textures */
+  readonly files?: {
+    readonly glbs: readonly Uint8Array[]; readonly textures: readonly Uint8Array[]; readonly skins: readonly Uint8Array[]; readonly table: Uint8Array;
+  };
 }
 
 /**
