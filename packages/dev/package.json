@@ -101,6 +101,9 @@
   "wildshardStagingClients": {
     "0.1.44": "f61079f816be881c405796b597e5523fdd9061df"
   },
+  "wildshardPreparationClients": {
+    "0.1.44": "0.1.46"
+  },
   "publishConfig": {
     "access": "public"
   }

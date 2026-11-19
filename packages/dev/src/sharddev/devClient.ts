@@ -41,10 +41,13 @@ export function enginePin(root = resolve(import.meta.dirname, '../..')): string 
   return installed ?? pin;
 }
 
-/** An npm staging pin has clients on the immutable staging release until the engine gets a version tag. */
-export function engineClientTag(root = resolve(import.meta.dirname, '../..')): string {
+/** An npm staging pin has clients on its immutable staging release. The stock author package may need a newer preparation client. */
+export function engineClientTag(root = resolve(import.meta.dirname, '../..'), preparation = false): string {
   const pin = enginePin(root);
-  const manifest: { wildshardStagingClients?: Record<string, string> } = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const manifest: { wildshardStagingClients?: Record<string, string>; wildshardPreparationClients?: Record<string, string> } =
+    JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+  const preparationPin = preparation ? manifest.wildshardPreparationClients?.[pin] : undefined;
+  if (preparationPin !== undefined) return devClientTag(preparationPin);
   const build = manifest.wildshardStagingClients?.[pin];
   return devClientTag(typeof build === 'string' && /^[0-9a-f]{40}$/u.test(build)
     ? `github:project-wildshard/engine#${build}` : pin);
@@ -123,7 +126,7 @@ export function fetchDevClient(options: { pin?: string; cache?: string; url?: st
 
 interface ClientAsset { asset: string; suffix: string; verb: string; label: string; check: (folder: string) => void }
 async function fetchClient(options: { pin?: string; cache?: string; url?: string | undefined }, kind: ClientAsset): Promise<string> {
-  const tag = options.pin === undefined ? engineClientTag() : devClientTag(options.pin);
+  const tag = options.pin === undefined ? engineClientTag(undefined, kind.verb === 'prepare') : devClientTag(options.pin);
   const cache = options.cache ?? devClientCache(), folder = join(cache, `${tag}${kind.suffix}`);
   if (existsSync(join(folder, 'index.html'))) return folder;
   const url = options.url ?? `${RELEASES}/${tag}/${kind.asset}`;

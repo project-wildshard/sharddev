@@ -61,12 +61,14 @@ test('the staging npm pin fetches both clients from its exact build release', ()
   const root = scratch(), engine = join(root, 'node_modules', '@wildshard', 'engine');
   const build = '867f3b968429d8b90ae33b363dae3f15f16f6b84';
   writeFileSync(join(root, 'package.json'), JSON.stringify({ dependencies: { '@wildshard/engine': '0.1.44' },
-    wildshardStagingClients: { '0.1.44': build } }));
+    wildshardStagingClients: { '0.1.44': build }, wildshardPreparationClients: { '0.1.44': '0.1.46' } }));
   expect(enginePin(root)).toBe('0.1.44');
   expect(engineClientTag(root)).toBe(`server-staging-${build}`);
+  expect(engineClientTag(root, true)).toBe('v0.1.46');
   mkdirSync(engine, { recursive: true });
   writeFileSync(join(engine, 'package.json'), JSON.stringify({ version: '0.1.45' }));
   expect(engineClientTag(root)).toBe('v0.1.45');
+  expect(engineClientTag(root, true)).toBe('v0.1.45');
 });
 
 test('the client is fetched once into the cache, then read from it', async () => {
@@ -118,6 +120,17 @@ test('the preparation client is a preparation-only production build, kept beside
       await expect(fetchPreparationClient({ pin: '0.1.17', cache: join(other, 'cache'), url: refused.url })).rejects.toThrow(/preparation-only production build/u);
     } finally { await refused.close(); }
   }
+});
+
+test('the installed SDK defaults to the v0.1.46 preparation client', async () => {
+  const root = scratch();
+  const file = archive(root, { devserver: false }, { preparationOnly: true });
+  const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(readFileSync(file)));
+  try {
+    const cache = join(root, 'cache');
+    expect(await fetchPreparationClient({ cache })).toBe(join(cache, 'v0.1.46-preparation'));
+    expect(fetch).toHaveBeenCalledWith('https://github.com/project-wildshard/engine/releases/download/v0.1.46/preparation-client.tar.gz');
+  } finally { fetch.mockRestore(); }
 });
 
 test('preparation announces the download size before receiving the archive body', async () => {
