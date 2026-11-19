@@ -32,6 +32,8 @@ export interface ConvertedSpecies {
 /** The format's largest radius: the program brain owns its own home, so the layer's leash never trips first. */
 const LAYER_LEASH = 500;
 const DEFAULT_CHARGE_DAMAGE = 25;
+/** A hunt's motion numbers, each optional as the program species' own (engine `HuntMotionSchema`). */
+const HUNT_MOTION = ['walkSpeed', 'chargeSpeed', 'chargeWindup', 'ringRadius', 'trampleRadius'] as const;
 /** What a program keeper body adds to every hit it lands (engine `bindSpeciesBody`): a blow that knocks the player back,
  *  its cover already checked. OF11b: a strike row its declared brain names carries them, so the data host hits the same. */
 const BLOW_TAGS: readonly `${string}.${string}`[] = ['feel.blow', 'cover.checked'];
@@ -74,13 +76,11 @@ function temperamentOf(row: BrainedSpecies, brains: BrainRow[], decisions: Progr
   const brain = row.brain;
   if (brain === undefined) {
     if (row.tuning === undefined) return { ...base, brain: 'none' };
-    const motion = [row.walkSpeed, row.chargeSpeed, row.chargeWindup, row.ringRadius, row.trampleRadius];
-    if (motion.some(value => value !== undefined) && motion.some(value => value === undefined)) {
-      refuse(row.id, 'a hunt keeps all five motion numbers (walkSpeed, chargeSpeed, chargeWindup, ringRadius, trampleRadius) or none');
-    }
-    const [walkSpeed, chargeSpeed, chargeWindup, ringRadius, trampleRadius] = motion;
-    return { ...base, brain: 'hunt', tuning: { ...row.tuning, ...(walkSpeed === undefined ? {} : {
-      motion: { walkSpeed, chargeSpeed, chargeWindup, ringRadius, trampleRadius } }) } as NonNullable<CreatureTemperament['tuning']> };
+    // OF23a: the numbers the species authors, any subset (Pine's deer and elk give walk and trample only); an absent one
+    // keeps the hunt's own default, which is not one number (a grazer walks 1.3, a provoked charger 1.1)
+    const motion = Object.fromEntries(HUNT_MOTION.flatMap(key => row[key] === undefined ? [] : [[key, row[key]]]));
+    return { ...base, brain: 'hunt', tuning: { ...row.tuning, ...(Object.keys(motion).length === 0 ? {} : { motion }) } as
+      NonNullable<CreatureTemperament['tuning']> };
   }
   if (brain.archetype === 'decision') { decisions.push({ species: row.id, decision: brain.data }); return { ...base, brain: 'none' }; }
   if (brain.archetype === 'script') refuse(row.id, 'a script brain moves with its module as a `creatures.brains` script row');

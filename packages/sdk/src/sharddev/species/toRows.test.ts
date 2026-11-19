@@ -100,6 +100,24 @@ describe('species programs become layered rows (ONE-FORMAT OF11a)', () => {
     expect(programSpawnPhase(program.species[0]?.brain, 3)).toBeUndefined();
   });
 
+  test("a hunt carries the motion numbers its species authors, any subset (OF23a: Pine's deer and elk)", () => {
+    const strider = program.species[2];
+    if (strider === undefined) throw new Error('fixture');
+    const tuning = { hp: 60, sightRange: 18, sightRangeGraze: 12, sightCone: 1, hearStill: 2, hearCrouch: 4, hearWalk: 8, hearSprint: 16,
+      noticeRate: 0.5, forgetRate: 0.2, alertAt: 0.3, boltAt: 1, freezeMin: 1, freezeMax: 2, relaxAfter: 3, panicDist: 5,
+      runSpeed: 4, trotSpeed: 2, fleeMinTime: 1, fleeUntil: 20, fleeUntilMax: 30, fleeMaxTime: 8, lookBack: 2,
+      waryTime: 10, waryBoost: 1.2, herdAlertRadius: 8, herdBoltDelayMin: 0.2, herdBoltDelayMax: 0.5, impactSpook: 6, impactAlert: 12 };
+    const { brain: _brain, body: _body, ...plain } = strider;
+    const hunt = (extra: Partial<BrainedSpecies>) => speciesProgramToRows({ species: [{ ...plain, tuning, ...extra } as BrainedSpecies],
+      strikes: [] }, looks).species[0]?.temperament;
+    // the deer: walk and trample only; the hunt's own defaults keep the charge, windup and ring
+    expect(hunt({ walkSpeed: 1.3, trampleRadius: 0.5 })).toMatchObject({ brain: 'hunt', tuning: { ...tuning, motion: { walkSpeed: 1.3, trampleRadius: 0.5 } } });
+    const boar = { walkSpeed: 1.1, chargeSpeed: 7.5, chargeWindup: 0.55, ringRadius: 6.5, trampleRadius: 0.45 };
+    expect(hunt(boar)).toMatchObject({ brain: 'hunt', tuning: { motion: boar } });
+    expect(hunt({})).toEqual(expect.objectContaining({ brain: 'hunt', tuning }));
+    expect(hunt({})?.tuning).not.toHaveProperty('motion');
+  });
+
   test('refuses what a layered row cannot carry, naming the species or strike', () => {
     const [ray] = program.species;
     if (ray === undefined) throw new Error('fixture');
