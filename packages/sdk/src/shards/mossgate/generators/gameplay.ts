@@ -6,6 +6,7 @@ import { STARTER_SWORD } from '@wildshard/sdk/scene/shardfile';
 import { HERMIT_DIALOGUE, LAMPLIGHTER_DIALOGUE, FLAGS, QUESTS } from './quests';
 import { PLAY, RACK_SCENE } from './play';
 import { groundHeight, LAYOUT } from './world';
+import { fights } from './fights';
 
 type Items = Shardfile['items'];
 type Weapon = Items['rows'][number];
@@ -38,16 +39,21 @@ export const LEDGER = [
   achievement('mossgate.hermit', 'mossgate.hermit', 'Fresh air'),
   achievement('mossgate.chest', 'mossgate.chest', 'Finders keepers'),
   achievement('mossgate.ledge', 'mossgate.ledge', 'High ground'),
+  // TR-12b: the fights
+  achievement('mossgate.warden', 'mossgate.warden', 'Barrow Warden'),
+  achievement('mossgate.greyback', 'mossgate.greyback', 'Greyback'),
+  achievement('mossgate.mosslings', 'mossgate.mosslings', 'Pack hunter'),
 ];
 
-/** The Hollow's rows over the scene's shardfile: `defineShard(identity, buildHollow, { extend: gameplay })`. */
+/** The Hollow's rows over the scene's shardfile: `defineShard(identity, buildHollow, { extend: gameplay, decisions })`;
+ *  the fights' rows (fights.ts) go on last. */
 export function gameplay(shard: Shardfile): Shardfile {
-  return {
+  return fights({
     ...shard,
     quests: QUESTS as unknown as Shardfile['quests'],
     ledger: [...shard.ledger, ...LEDGER] as Shardfile['ledger'],
     items: { ...shard.items, rows: [...shard.items.rows, MOSS_BLADE] },
     hooks: { ...shard.hooks, scenes: [...shard.hooks.scenes, RACK_TAKE.scene] },
     targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS] },
-  };
+  });
 }

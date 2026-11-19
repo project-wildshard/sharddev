@@ -148,13 +148,21 @@ describe('content bar', () => {
       },
       'actors/npcs': { questNpcs: [{}] },
       'quests/host': { dialogue: [{ nodes: [{}, {}] }] },
-      'quests/quests': { quests: [{ steps: [{}, {}, {}, {}] }] },
+      // Eight marked places (content-pois.test.ts has the counting rules)
+      'quests/quests': {
+        quests: [
+          {
+            steps: [1, 2, 3, 4, 5, 6, 7, 8].map(x => ({
+              markers: [{ at: { poi: 'world', x, z: 1 } }],
+            })),
+          },
+        ],
+      },
       'world/movers': { movers: [{}] },
       'world/targets': {
         rows: {
           itemScenes: [{}, {}],
           interactables: [{}, {}, {}],
-          pois: Array.from({ length: 8 }, () => ({})),
         },
       },
       'economy/ledger': {

@@ -733,10 +733,10 @@ export function pond(part: THREE.Group, M: Materials, tex: Textures): void {
   k.flush();
 }
 
-/** The arena (cleanroom world.js 699-813): a sunk checker floor, a mossy ring wall, a stone arch, rim braziers and the
- *  Barrow Warden, a hulking golem of mossy blocks in its idle pose. */
+/** The arena (cleanroom world.js 699-813): a sunk checker floor, a mossy ring wall, a stone arch and rim braziers. The
+ *  Barrow Warden that stood in it idle is a live creature since TR-12b (creatures.ts). */
 export function arena(part: THREE.Group, M: Materials, tex: Textures): void {
-  const k = kit(part, 699, M, tex), { R, rand, stoneBlocks, addBlock, addCap, collider, drape, ivy, bracketLamp, capGeo } = k;
+  const k = kit(part, 699, M, tex), { R, rand, stoneBlocks, addBlock, addCap, collider, drape, ivy, bracketLamp } = k;
   const { x: ax, z: az, r } = LAYOUT.ARENA;
   const t = tex.checker?.clone();
   if (t !== undefined) { t.repeat.set(r * 2 / 8, r * 2 / 8); t.needsUpdate = true; }
@@ -783,37 +783,7 @@ export function arena(part: THREE.Group, M: Materials, tex: Textures): void {
     decal(part, l, bx - Math.cos(a) * 0.44, 1.7, bz - Math.sin(a) * 0.44, Math.atan2(-Math.cos(a), -Math.sin(a)), 0.4);
     if (STATE.lit.includes(l)) k.fire(bx, 2.25, bz, 0.8);
   }
-  // the Barrow Warden, idle: legs, hips, a torso with its core, a head with glowing eyes, arms hanging, moss on top
-  const golem = new THREE.Group();
-  const eyeM = new THREE.MeshBasicMaterial({ color: new THREE.Color('#ffb040').multiplyScalar(2.2) });
-  const coreM = new THREE.MeshBasicMaterial({ color: new THREE.Color('#ff9a30').multiplyScalar(1.2) });
-  const block = (w: number, h: number, d: number, x: number, y: number, z: number, parent: THREE.Object3D = golem): THREE.Mesh => {
-    const m = new THREE.Mesh(new RoundedBoxGeometry(w, h, d, 3, 0.12), M.stone); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; parent.add(m); return m;
-  };
-  const body = new THREE.Group(); golem.add(body);
-  for (const s of [-1, 1]) { block(0.75, 1.1, 0.8, s * 0.55, 0.55, 0); block(0.9, 0.35, 1.0, s * 0.55, 0.17, 0.08); }
-  body.position.y = 1.1;
-  block(1.5, 0.6, 1.0, 0, 0.3, 0, body); // hips
-  block(2.3, 1.5, 1.35, 0, 1.35, 0, body); // torso
-  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.22, 0), coreM); core.position.set(0, 1.35, 0.7); body.add(core);
-  block(0.95, 0.8, 0.9, 0, 2.5, 0.15, body); // head
-  for (const s of [-1, 1]) { const e = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.08, 0.03), eyeM); e.position.set(s * 0.2, 2.55, 0.61); body.add(e); }
-  const hm = new THREE.Mesh(capGeo, M.moss); hm.scale.set(1.05, 0.3, 1.0); hm.position.set(0, 2.92, 0.12); body.add(hm);
-  const sm = new THREE.Mesh(capGeo, M.moss); sm.scale.set(2.5, 0.32, 1.45); sm.position.set(0, 2.12, 0); body.add(sm);
-  for (const s of [-1, 1]) {
-    const sh = new THREE.Group(); sh.position.set(s * 1.45, 1.85, 0); body.add(sh);
-    const pm = new THREE.Mesh(capGeo, M.moss); pm.scale.set(0.95, 0.28, 0.95); pm.position.set(0, 0.42, 0); sh.add(pm);
-    block(0.85, 0.8, 0.85, 0, 0, 0, sh); block(0.65, 1.0, 0.65, 0, -0.85, 0, sh); block(0.9, 0.85, 0.9, 0, -1.75, 0.05, sh);
-    sh.rotation.set(0, 0, s * 0.12);
-  }
-  golem.position.set(ax, -0.34, az);
-  golem.rotation.y = -Math.PI / 2; // facing the arch (west)
-  golem.scale.setScalar(1.45);
-  part.add(golem);
-  // vines over the shoulders
-  for (let i = 0; i < 6; i++) { const z = R(-1.2, 1.2); ivy(ax - 1.05, 4.3, az + z * 1.3, R(1.0, 2.2), Math.PI / 2, 0.4); }
-  const eyeLight = new THREE.PointLight('#ffa040', 5, 6, 1.5); eyeLight.position.set(ax - 1.6, 3.8, az); part.add(eyeLight);
-  collider({ x: ax, y: 1.5, z: az, hx: 1.2, hy: 2.0, hz: 1.0, rotY: 0 });
+  // TR-12b: the Barrow Warden is a live creature now (creatures.ts), no longer the arena's idle golem
   k.flush();
 }
 

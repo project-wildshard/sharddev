@@ -21,6 +21,8 @@ import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
 import { detailFileFaults, detailMeshBytes } from '@wildshard/format/look-details';
 import { withSceneState } from './state';
+import type { DecisionScripts } from '@wildshard/format/decisionScripts';
+import { emitPlatformSections } from '../platformSections';
 
 /**
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
@@ -55,6 +57,10 @@ export interface ShardfileOptions {
   readonly creaturePhone?: CreaturePhoneOptions | false;
   /** ONE-FORMAT CC51c: pack the small creatures into one GLB (`bake/creaturePack`); off by default. */
   readonly creaturePack?: CreaturePackOptions | false;
+  /** TEMPLATE-E2E TR-12b: the shard's decision scripts (a boss's `behaviour/*.as`, bound to its encounter), as `sim/scripts`
+   *  rows; the build compiles each source beside `shard.config.ts` (whose `buildOptions.asLineCeiling` caps them), the one
+   *  path every decision script takes */
+  readonly decisions?: DecisionScripts;
 }
 
 /**
@@ -514,7 +520,7 @@ export async function compileShardfile(scene: ShardScene, ctx: ProjectGeneration
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
   // AP9a: the per-part budget table, each tier's overruns named by tile and part (reported, J338; AP8: draws are a view's)
   for (const line of budgetReport(partBudgets(scene), report.tiles)) console.info(`scene: ${line}`);
-  return { shard, output: {} };
+  return { shard, output: options.decisions === undefined || options.decisions.length === 0 ? {} : { platform: emitPlatformSections(new Map([['sim/scripts', options.decisions]])) } };
 }
 
 /**

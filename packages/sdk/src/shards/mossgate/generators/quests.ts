@@ -3,6 +3,7 @@
 // the `<prompt>.spent` condition the sdk writes for a shared prompt, SS-GF0), or the rack's take (its `setsFlag`).
 import { LAYOUT } from './world';
 import { LEDGE_FLAG, PLAY, USES } from './play';
+import { BODIES, HAUNTS } from './creatures';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
 const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
@@ -25,7 +26,12 @@ export const FLAGS = {
   chestOpened: 'mossgate.chest.opened', chestPaid: 'mossgate.chest.paid',
   ledgePaid: 'mossgate.ledge.paid',
   rackTaken: 'mossgate.rack.taken', rackPaid: 'mossgate.rack.paid',
+  // TR-12b: the fights' flags (a `dead:<spawn>` flag is the engine's, raised when that body dies)
+  blob: 'mossgate.blob', blobPaid: 'mossgate.blob.paid', wardenPaid: 'mossgate.warden.paid', greybackPaid: 'mossgate.greyback.paid',
+  mosslingsPaid: 'mossgate.mosslings.paid',
 } as const;
+const dead = (spawn: string): string => `dead:${spawn}`;
+const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
 
 /** The Lamplighter's tree: she gives the relighting, then thanks you once all three burn. */
 export const LAMPLIGHTER_DIALOGUE = {
@@ -53,8 +59,10 @@ export const HERMIT_DIALOGUE = {
 
 /** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
-  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG],
+  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
   triggers: [
+    // TR-12b: any grey blob's death raises the blob quest's flag
+    { id: 'blob', kind: 'death' as const, flag: FLAGS.blob, tag: 'creature.greyBlob' },
     ...LETTERS.map((l) => ({ id: `brazier-${l.toLowerCase()}.lit`, kind: 'script' as const, flag: lit(l), condition: `${USES.brazier(l)}.spent` })),
     ...LETTERS.map((l) => ({ id: `lamp.${l.toLowerCase()}`, kind: 'script' as const, flag: lamp(l), condition: `${USES.brazier(l)}.spent`, when: { all: [FLAGS.lampAccepted] } })),
     { id: 'north-gate.opened', kind: 'script' as const, flag: FLAGS.northGate, condition: `${USES.lever}.spent` },
@@ -86,10 +94,31 @@ export const QUESTS = {
       ],
       onComplete: { fact: 'mossgate.hermit', coins: 15 } },
     { id: 'mossgate.chest', title: 'The old chest', track: false, completeFlag: FLAGS.chestPaid,
-      steps: [{ id: 'chest', objective: 'Open the old chest by the sign', done: { all: [FLAGS.chestOpened] } }], onComplete: { fact: 'mossgate.chest', coins: 10 } },
+      steps: [{ id: 'chest', objective: 'Open the old chest by the sign', done: { all: [FLAGS.chestOpened] }, markers: [marker('chest.marker', 'Old chest', 'Chest', PLAY.CHEST, FLAGS.chestOpened)] }],
+      onComplete: { fact: 'mossgate.chest', coins: 10 } },
     { id: 'mossgate.ledge', title: 'The ledge cache', track: false, completeFlag: FLAGS.ledgePaid,
-      steps: [{ id: 'ledge', objective: 'Ride the lift up to the ledge cache', done: { all: [LEDGE_FLAG] } }], onComplete: { fact: 'mossgate.ledge', coins: 15 } },
+      steps: [{ id: 'ledge', objective: 'Ride the lift up to the ledge cache', done: { all: [LEDGE_FLAG] }, markers: [marker('ledge.marker', 'Ledge cache', 'Ledge', PLAY.LEDGE, LEDGE_FLAG)] }],
+      onComplete: { fact: 'mossgate.ledge', coins: 15 } },
     { id: 'mossgate.rack', title: 'The moss blade', track: false, completeFlag: FLAGS.rackPaid,
-      steps: [{ id: 'rack', objective: 'Take the moss blade from its rack', done: { all: [FLAGS.rackTaken] } }], onComplete: { fact: 'mossgate.rack', coins: 5 } },
+      steps: [{ id: 'rack', objective: 'Take the moss blade from its rack', done: { all: [FLAGS.rackTaken] }, markers: [marker('rack.marker', 'Blade rack', 'Rack', PLAY.RACK, FLAGS.rackTaken)] }],
+      onComplete: { fact: 'mossgate.rack', coins: 5 } },
+    // TR-12b: the fights (creatures.ts places the bodies, fights.ts the encounters and the Warden's script)
+    { id: 'mossgate.blob', title: 'The grey blobs', track: false, completeFlag: FLAGS.blobPaid,
+      steps: [{ id: 'blob', objective: 'Beat a grey blob', done: { all: [FLAGS.blob] }, hint: 'Grey blobs wander the yard and past the north gate',
+        markers: [marker('blob.marker', 'Grey blob', 'Blob', { x: HAUNTS.BLOBS[0][0], z: HAUNTS.BLOBS[0][1] }, FLAGS.blob)] }],
+      onComplete: { fact: 'mossgate.blob', coins: 5 } },
+    { id: 'mossgate.mosslings', title: 'The mossling pack', track: false, completeFlag: FLAGS.mosslingsPaid,
+      steps: [{ id: 'pack', objective: 'Drive off the mossling pack', chip: 'Mosslings', count: MOSSLINGS_DEAD, done: { all: MOSSLINGS_DEAD },
+        hint: 'They circle, then bite: strike the one that comes in', markers: [marker('mosslings.marker', 'Mossling meadow', 'Pack', HAUNTS.MEADOW, MOSSLINGS_DEAD[0])] }],
+      onComplete: { fact: 'mossgate.mosslings', coins: 15 } },
+    { id: 'mossgate.greyback', title: 'Greyback', track: false, completeFlag: FLAGS.greybackPaid,
+      steps: [{ id: 'greyback', objective: 'Bring down Greyback', done: { all: [dead(BODIES.greyback)] }, hint: 'The old boar holds the clearing north-east of the yard: sidestep its charge',
+        markers: [marker('greyback.marker', 'Greyback\'s clearing', 'Greyback', HAUNTS.GREYBACK, dead(BODIES.greyback))] }],
+      onComplete: { fact: 'mossgate.greyback', coins: 15 } },
+    { id: 'mossgate.warden', title: 'The Barrow Warden', track: false, completeFlag: FLAGS.wardenPaid,
+      steps: [{ id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] },
+        hint: 'The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core',
+        markers: [marker('warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] }],
+      onComplete: { fact: 'mossgate.warden', coins: 25 } },
   ],
 };

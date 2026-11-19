@@ -1,7 +1,8 @@
 // TEMPLATE-E2E TR-12 (J434): Mossgate's gameplay, ported from the legacy Template (`_template`'s `data/` and `behaviour/`,
 // built under TC-M) onto this scene at its own node positions. Every switch is the scene's own state (SS-GF0): a use prompt
 // `sets` a shared field and a panel part's `shownWhen` reads it, so no hand-written script is needed. The quests, the talks
-// and the rack's take are rows `extend` adds (gameplay.ts). The creatures and the Barrow Warden's fight are TR-12b.
+// and the rack's take are rows `extend` adds (gameplay.ts). TR-12b: the creatures (creatures.ts) and the Barrow Warden's
+// tell, its ground ring and open core, as panels its decision script's fields show (fights.ts).
 //
 // - braziers A, B and C: each prompt lights its own; its flames burn on the brazier, its row twin and the arena's rim
 // - brazier A lit sinks the moss gate's bars; brazier B lit raises the pond's stepping stones
@@ -11,6 +12,8 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { buildMossgate, groundHeight, LAYOUT } from './world';
+import { buildCreatures, HAUNTS } from './creatures';
+import { WARDEN_PANELS } from './fights';
 
 /** Where the gameplay stands (the Template's `data/layout.json`, which was this scene's plan). */
 export const PLAY = {
@@ -197,6 +200,21 @@ function liftAndLedge(world: ShardWorld): void {
   }, { panel: 'mossgate.lift', mover: { path: [[x, rest, z], [x, rest + rise, z]], seconds: 4, start: 'always', loop: 'pingpong' } });
 }
 
+/** TR-12b: the Warden's tell, a ring of ember spikes round its feet while it rears, and the gem over its crown while its core
+ *  is open. Panels with no `shownWhen`: their rows read the decision script's own fields (fights.ts). */
+function wardenTell(world: ShardWorld): void {
+  const { x, z } = HAUNTS.WARDEN, gy = groundHeight(x, z), ember = plain('#ff8a2a', 1, '#ff6a10'), gem = plain('#ffc070', 0.4, '#ffa030');
+  world.part('warden-ring', (part) => {
+    for (let k = 0; k < 12; k++) {
+      const a = (k * Math.PI) / 6, spike = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.9, 6), ember);
+      spike.position.set(x + Math.sin(a) * 2.8, gy + 0.45, z + Math.cos(a) * 2.8); part.add(spike);
+    }
+  }, { panel: WARDEN_PANELS.ring });
+  world.part('warden-core', (part) => {
+    const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.45, 0), gem); core.position.set(x, gy + 5.2, z); part.add(core);
+  }, { panel: WARDEN_PANELS.core });
+}
+
 /** Everything the player uses in the Hollow (TR-12), at the scene's own places. */
 export function buildPlay(world: ShardWorld): void {
   braziers(world);
@@ -209,8 +227,10 @@ export function buildPlay(world: ShardWorld): void {
   liftAndLedge(world);
 }
 
-/** The whole Hollow: the cleanroom's scene (world.ts) and what the player uses in it. */
+/** The whole Hollow: the cleanroom's scene (world.ts), what the player uses in it and what it fights (TR-12b). */
 export function buildHollow(world: ShardWorld): void {
   buildMossgate(world);
   buildPlay(world);
+  buildCreatures(world);
+  wardenTell(world);
 }

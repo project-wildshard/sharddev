@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
 import { skinCreatures } from './content-creatures.ts'
+import { markedPlaces } from './content-pois.ts'
 
 import type { ContentCreature } from './content-creatures.ts'
 
@@ -198,12 +199,6 @@ function readContent(dir: string, bar?: string): ContentReport {
     ...array(get(questData, 'dialogue')).map(record),
     ...array(get(questSection, 'dialogue')).map(record),
   ]
-  const manifest = get(record(section(dir, 'ui/level')), 'manifest')
-  const manifestPois = array(get(manifest, 'pois'))
-  const targetPois = [
-    ...array(get(targets, 'pois')),
-    ...array(get(targetRows, 'pois')),
-  ]
   const count: ContentCounts = {
     weapons: weapons.length,
     loadoutWeapons: loadoutIds.filter(id =>
@@ -261,7 +256,7 @@ function readContent(dir: string, bar?: string): ContentReport {
         ).length,
       0,
     ),
-    pois: manifestPois.length + targetPois.length,
+    pois: markedPlaces(quests),
   }
   const short =
     bar === 'templates'
