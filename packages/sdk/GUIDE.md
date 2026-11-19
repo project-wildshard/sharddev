@@ -29,6 +29,16 @@ This guide writes `wildshard <verb>`. `wildshard --help` lists every verb;
 run `pnpm install` in the new project, then `pnpm exec wildshard <verb>` to use the copy it pins.
 Add npm packages of your own with `pnpm add <name>`.
 
+**The six packages.** `new` pins `@wildshard/cli` (the `wildshard` command) and `@wildshard/sdk` (what your source
+imports); the cli brings `@wildshard/build` and `@wildshard/upload` (both engine-free) and `@wildshard/dev` (the local
+game, `check`, `prove`, `watch`: the only one with the engine). `@wildshard/kit` holds shared creatures. All six share
+one version.
+
+**Install size.** A fresh `new` repo installs about 580 MB into `node_modules` (`du -sh`, cli 0.4.11 with engine
+0.1.44, measured 2026-11-18). pnpm hard-links it from its global store, so a second repo on the same sdk adds little.
+The largest parts are binaryen, the script compiler (two copies, about 200 MB), the engine (about 50 MB), then
+TypeScript, three, kit, happy-dom, sharp and rolldown (12 to 23 MB each). The first build adds about 20 MB in `public/`.
+
 Run `wildshard memory <folder>` on a built shard folder to measure its phone-tier boot with the installed engine.
 The command prints the process peak, the phone estimate and the verdict. It exits 1 above the 1.5 GB phone limit.
 

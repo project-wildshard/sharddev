@@ -11,7 +11,7 @@
  - AGENTS.md: agents edit only below the J241 marker, never above it; README.md stays humans-only unless Jake says otherwise
  - Every request for work from Jake -> kit/scripts/ask-new.sh "<his words>", rules in docs/tasks/asks/README.md
  - Follow-up work is a row in a live plan, never a new ask.
- - Layout (meta SDK-SPLIT SP2b): the root is a private tooling workspace; the sdk is `packages/sdk` (its `src/`, `test/`, `scripts/`, `bin/`), beside `packages/kit` and `packages/upload`. Root `pnpm` scripts forward to it; run a direct `node` command from `packages/sdk`. docs/dev.md has the commands.
+ - Layout (meta SDK-SPLIT SP2b): the root is a private tooling workspace; the six published packages are `packages/{cli,sdk,kit,build,upload,dev}` at one version (SDK-SPLIT SP15; README.md says what each holds); only `dev` depends on the engine. The sdk's own `src/`, `test/` and `scripts/` are in `packages/sdk`. Root `pnpm` scripts forward to it; run a direct `node` command from `packages/sdk`. docs/dev.md has the commands.
 
 Git hygiene
 
