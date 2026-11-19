@@ -15,6 +15,7 @@
   ],
   "exclude": [
     "src/sharddev/**/*.test.ts",
-    "src/sharddev/test"
+    "src/sharddev/test",
+    "src/sharddev/guide"
   ]
 }
