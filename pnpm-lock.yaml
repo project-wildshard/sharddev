@@ -11,11 +11,6 @@ overrides:
 
 packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 
-patchedDependencies:
-  '@wildshard/engine@0.1.44':
-    hash: 4ec3e2db41c0ebe3ce566b4beeaf69f460e10c98428e39e8641f89ea394a7344
-    path: patches/@wildshard__engine@0.1.44.patch
-
 importers:
 
   .:
@@ -149,8 +144,8 @@ importers:
         specifier: workspace:*
         version: link:../build
       '@wildshard/engine':
-        specifier: 0.1.44
-        version: 0.1.44(patch_hash=4ec3e2db41c0ebe3ce566b4beeaf69f460e10c98428e39e8641f89ea394a7344)(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.47
+        version: 0.1.47(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.45.0
         version: '@wildshard/shard-format@0.45.0(typescript@6.0.3)'
@@ -311,8 +306,8 @@ importers:
         specifier: 24.3.1
         version: 24.3.1
       '@wildshard/engine':
-        specifier: 0.1.44
-        version: 0.1.44(patch_hash=4ec3e2db41c0ebe3ce566b4beeaf69f460e10c98428e39e8641f89ea394a7344)(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.47
+        version: 0.1.47(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
@@ -820,8 +815,8 @@ packages:
   '@vitest/spy@5.0.3':
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
-  '@wildshard/engine@0.1.44':
-    resolution: {integrity: sha512-3YUzJ4lND7yE3/HuAHRCyXGOQWG7+sSBx+PNbZOHbBjw1tihEeZE/cF+zBG0nQLwD7W4UHqRwPMm7UmmwRA/rg==}
+  '@wildshard/engine@0.1.47':
+    resolution: {integrity: sha512-4j/qBm+ZLSfjJQaMnj3/z8AkeawYBUBrOEzOICuC976QKu4mHoFFns8WB6IKpujVgCiMuxobpH/BfF1dlPCyEw==}
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
@@ -837,14 +832,16 @@ packages:
         optional: true
       sharp:
         optional: true
+    bundledDependencies:
+      - '@wildshard/format'
 
   '@wildshard/shard-format@0.45.0':
     resolution: {integrity: sha512-0mu9f9qvWoKnM9hyYPnDPQRp0kifPiTq81g4DgJ19MCt1zGz2pNMrqcaQucCXRM3b+8Od+J8oAy9cQo7A0htDg==}
     engines: {node: '>=24.18.0'}
     hasBin: true
 
-  '@wildshard/wire@0.1.0':
-    resolution: {integrity: sha512-a4AmUHeyOnokw3z2I8PA91d7DKtZ1BJvSwGjHVDH/diXEquH5psFpwCEUFqhkxLkENTcPrlbd2Vmvr/OnYsFRA==}
+  '@wildshard/wire@1.5.0':
+    resolution: {integrity: sha512-YIeHAS7mWQZ9NHwnyYZOrqfDRFN5bq+7vXVXD1Ei1UCkBrwy/Aj3Kyvs0JnWZ3fQbM3l1eRL/hVr7Dl7XEACGg==}
     hasBin: true
 
   ajv@6.15.0:
@@ -1858,7 +1855,7 @@ snapshots:
 
   '@vitest/spy@5.0.3': {}
 
-  '@wildshard/engine@0.1.44(patch_hash=4ec3e2db41c0ebe3ce566b4beeaf69f460e10c98428e39e8641f89ea394a7344)(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
+  '@wildshard/engine@0.1.47(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.8(hono@4.13.19)
@@ -1867,11 +1864,11 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@6.0.3))
-      '@wildshard/format': '@wildshard/shard-format@0.45.0(typescript@6.0.3)'
-      '@wildshard/wire': 0.1.0(typescript@6.0.3)
+      '@wildshard/wire': 1.5.0(typescript@6.0.3)
       ajv: 6.15.0
       fflate: 0.8.3
       hono: 4.13.19
+      meshoptimizer: 1.2.0
       n8ao: 2.0.1(@types/three@0.186.0)(postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0))(three@0.186.0)
       navcat: 0.4.1(@types/three@0.186.0)(three@0.186.0)
       pg: 8.23.1
@@ -1899,7 +1896,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@wildshard/wire@0.1.0(typescript@6.0.3)':
+  '@wildshard/wire@1.5.0(typescript@6.0.3)':
     dependencies:
       valibot: 1.5.0(typescript@6.0.3)
     transitivePeerDependencies:
