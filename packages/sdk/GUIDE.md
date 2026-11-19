@@ -545,7 +545,10 @@ with a quest and loot, every row and how they connect, is worked through below (
 source in `behaviour/<name>.as` beside `shard.config.ts`, pass its `sim/scripts` row as `defineShard`'s `decisions`
 (`{ extend, decisions: [row] }`; the row names its `source`, its `binding.encounter` and the strikes and fields it
 drives), and cap its length with `export const buildOptions = { asLineCeiling: 100 }` in `shard.config.ts`. The build
-compiles it. The starter's Barrow Warden is the worked example: `generators/fights.ts` and `behaviour/warden.as`.
+compiles it. The starter's Barrow Warden is the worked example: `generators/fights.ts` and `behaviour/warden.as`. A
+script that moves its actor (burrow, relocate, surface, leap) declares those moves as `moves` (`actors/moves` rows) and
+the spots they land on as `spots` (`world/targets` spots, `{ id, at: [x, y, z], yaw }`), beside `decisions` in the same
+options; Brasscap's Dust Wyrm is the worked example.
 
 **A creature, from rows to a kill.** A scene shard's creature is one `world.creature` call (its body, skin, species
 row, look row and the strike rows its abilities name) and a `world.spawnAt` per creature. Jackal

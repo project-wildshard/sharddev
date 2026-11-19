@@ -29,3 +29,16 @@ test('a scene shard with no decisions has no platform sections', async () => {
   const { output } = await defineShard({ slug: 'den', name: 'Den' }, build)(ctx);
   expect(output.platform).toBeUndefined();
 });
+
+// meta ONE-FORMAT CC26: a boss's decision script runs its actor's moves (`actors/moves`) and lands on named spots
+// (`world/targets`); `defineShard` takes both beside `decisions`, emitted on the same path, so a serpent's burrow and leap
+// need no hand-written platform sections.
+test('a scene shard declares its moves and spots beside its decisions, and the output carries them', async () => {
+  const moves = [{ id: 'den.boss.leap', kind: 'leap', to: { kind: 'spot', spot: 'den.mound' }, height: 9 }] as const;
+  const spots = [{ id: 'den.mound', at: [2, 0, -10], yaw: 0 }] as [{ id: string; at: [number, number, number]; yaw: number }];
+  const { output } = await defineShard({ slug: 'den', name: 'Den' }, build, { decisions: [ROW], moves, spots })(ctx);
+  expect(output.platform?.sections.map((row) => row.name)).toEqual(['actors/moves', 'sim/scripts', 'world/targets']);
+  const read = (name: string): unknown => JSON.parse(new TextDecoder().decode(output.platform?.files.get(`sections/${name}.json`)));
+  expect(read('actors/moves')).toMatchObject([...moves]);
+  expect(read('world/targets')).toEqual({ targets: [], spots });
+});

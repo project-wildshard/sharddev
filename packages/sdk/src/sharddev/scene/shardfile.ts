@@ -22,7 +22,9 @@ import { hashOf } from './hash';
 import { detailFileFaults, detailMeshBytes } from '@wildshard/format/look-details';
 import { withSceneState } from './state';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
-import { emitPlatformSections } from '../platformSections';
+import type { ActorMoveInput } from '@wildshard/format/actorMoves';
+import type { WorldTargets } from '@wildshard/format/worldTargets';
+import { emitPlatformSections, type PlatformSectionName } from '../platformSections';
 
 /**
  * AUTHORING-PARITY AP2, AP3, AP4: the shardfile back end. It reads only the scene description and writes the sections an
@@ -61,6 +63,19 @@ export interface ShardfileOptions {
    *  rows; the build compiles each source beside `shard.config.ts` (whose `buildOptions.asLineCeiling` caps them), the one
    *  path every decision script takes */
   readonly decisions?: DecisionScripts;
+  /** ONE-FORMAT CC26: the moves those scripts run (`actors/moves`: burrow, relocate, surface, leap), on the same path */
+  readonly moves?: readonly ActorMoveInput[];
+  /** ONE-FORMAT CC26: the named spots a move lands on (`world/targets`' spots), on the same path */
+  readonly spots?: WorldTargets['spots'];
+}
+
+/** The platform sections a scene shard declares: its decision scripts, their moves and spots, each only when given. */
+function declaredPlatform({ decisions = [], moves = [], spots = [] }: ShardfileOptions): GeneratedProject['output'] {
+  const sections = new Map<PlatformSectionName, unknown>();
+  if (decisions.length > 0) sections.set('sim/scripts', decisions);
+  if (moves.length > 0) sections.set('actors/moves', moves);
+  if (spots.length > 0) sections.set('world/targets', { targets: [], spots });
+  return sections.size === 0 ? {} : { platform: emitPlatformSections(sections) };
 }
 
 /**
@@ -520,7 +535,7 @@ export async function compileShardfile(scene: ShardScene, ctx: ProjectGeneration
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
   // AP9a: the per-part budget table, each tier's overruns named by tile and part (reported, J338; AP8: draws are a view's)
   for (const line of budgetReport(partBudgets(scene), report.tiles)) console.info(`scene: ${line}`);
-  return { shard, output: options.decisions === undefined || options.decisions.length === 0 ? {} : { platform: emitPlatformSections(new Map([['sim/scripts', options.decisions]])) } };
+  return { shard, output: declaredPlatform(options) };
 }
 
 /**
