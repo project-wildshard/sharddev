@@ -43,6 +43,11 @@ const commands: Record<keyof typeof SCRIPT_V1_COMMANDS, Method> = {
   'view.vfx':{args:'actor:i32,cue:i32',values:'actor,f64(cue)'},'view.sound':{args:'actor:i32,cue:i32',values:'actor,f64(cue)'},
   'view.visible':{args:'actor:i32,value:bool',values:'actor,value?1.0:0.0'},
   'view.field':{args:'field:i32,value:f64',values:'0,f64(field),value'},
+  // ONE-FORMAT CC32, CC28, CC59: the creature commands, in the host's [target, a, b] slots (engine decision.ts).
+  lockable:{args:'actor:i32,on:bool',values:'actor,on?1.0:0.0'},heal:{args:'actor:i32,hp:f64',values:'actor,hp'},
+  pull:{args:'player:i32,metres:f64,actor:i32',values:'player,metres,f64(actor)'},root:{args:'player:i32,seconds:f64',values:'player,seconds'},
+  ability:{args:'actor:i32,strike:i32',values:'actor,f64(strike)'},
+  actorChannel:{args:'actor:i32,channel:i32,value:f64',values:'actor,f64(channel),value'},
 };
 /** Handlers follow the design's implicit-subject form; Event.subject retains the full current subject for multi-actor bindings. */
 export const DECISION_HANDLERS: Record<ScriptV1EventName, { name: string; args: string }> = {
@@ -57,6 +62,7 @@ export const DECISION_HANDLERS: Record<ScriptV1EventName, { name: string; args: 
   spawned:{name:'onSpawned',args:'i32(__ws.value(2))'},stop:{name:'onStop',args:''},
   field:{name:'onField',args:'i32(__ws.value(1)),i32(__ws.value(2)),__ws.value(3)'},cue:{name:'onCue',args:'i32(__ws.value(1)),i32(__ws.value(2))'},
   channel:{name:'onChannel',args:'i32(__ws.value(1)),__ws.value(2)'},
+  'part.broken':{name:'onPartBroken',args:'i32(__ws.value(2))'},
 };
 const namespaces = {actors:'Actor',moves:'Move',strikes:'Strike',cues:'Cue',fields:'Field',flags:'Flag',zones:'Zone',spots:'Spot',targets:'Target',spawns:'Spawn',signals:'Signal',facts:'Fact',rewards:'Reward',channels:'Channel',impulses:'Impulse',weather:'Weather',bodies:'Body',colliders:'Collider'} as const;
 /** Safe generated filename shared by the compiler and author imports. */

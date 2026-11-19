@@ -1,0 +1,138 @@
+diff --git a/src/server/game/shardfile/creatureLayers.ts b/src/server/game/shardfile/creatureLayers.ts
+index d18d37a957a2d9557c4b64d2a6ea9c5782c95c66..ef584912a8740b7f13fde237cd06e15188176843 100644
+--- a/src/server/game/shardfile/creatureLayers.ts
++++ b/src/server/game/shardfile/creatureLayers.ts
+@@ -1,7 +1,8 @@
+ import { parse, strictObject, pipe, number, finite, minValue, maxValue, type InferOutput, type GenericSchema } from 'valibot';
+ import { CreatureBodySchema, CreatureTemperamentSchema, CreatureSensesSchema, CreatureAbilitySchema, CreaturePresentationSchema,
+   type CreatureBody, type CreatureTemperament, type CreatureSenses, type CreatureAbility, type CreaturePresentation } from '@wildshard/format/creatureLayers';
+-import { CREATURE_SKELETONS, type SkeletonContract } from '@wildshard/format/creatureSkeletons';
++import type { SkeletonContract } from '@wildshard/format/creatureSkeletons';
++import { bodyContract } from '../../../shared/game/shardfile/creatureContract';
+ import { CreaturesSchema, type ShardCreatures } from '@wildshard/format/creatures';
+ import { HuntTuningSchema } from '@wildshard/format/speciesPrograms';
+ import type { ShardRows, StrikeRows } from '@wildshard/format/rows';
+@@ -85,7 +86,7 @@ export function resolveCreatureLayers(rows: ShardRows, brains: readonly BrainRow
+       const body = row.body === undefined ? undefined : parse(CreatureBodySchema, row.body);
+       const look = body === undefined ? undefined : looks.get(body.look);
+       if (body !== undefined && (look === undefined || look.species !== row.id)) throw new Error(`unknown body look ${body.look} for this species`);
+-      const skeleton = body?.skeleton === undefined ? undefined : CREATURE_SKELETONS[body.skeleton];
++      const skeleton = body === undefined ? undefined : bodyContract(body);
+       const senses = row.senses === undefined ? undefined : parse(CreatureSensesSchema, row.senses);
+       const presentation = row.presentation === undefined ? undefined : parse(CreaturePresentationSchema, row.presentation);
+       const abilities = (row.abilities ?? []).map(input => {
+diff --git a/src/server/game/shardfile/creatureVolumes.ts b/src/server/game/shardfile/creatureVolumes.ts
+index 2a28147270b4adaf27e28946118255ea493cfadf..2b350b73d86023db5ac078db2425ce098c3114ec 100644
+--- a/src/server/game/shardfile/creatureVolumes.ts
++++ b/src/server/game/shardfile/creatureVolumes.ts
+@@ -1,7 +1,7 @@
+ import { parse } from 'valibot';
+ import { CreatureBodySchema } from '@wildshard/format/creatureLayers';
+ import { CREATURE_SIZES } from '@wildshard/format/creatureSizes';
+-import { CREATURE_SKELETONS } from '@wildshard/format/creatureSkeletons';
++import { bodyContract } from '../../../shared/game/shardfile/creatureContract';
+ import { resolveSkinLookFiles, skinLookParameters } from '@wildshard/format/skinAssets';
+ import { SKIN_LOOK_RECIPE } from '@wildshard/format/skins';
+ import type { Shardfile } from '@wildshard/format/shardSchema';
+@@ -46,7 +46,7 @@ export function installCreatureVolumes(host: SimHost, shard: Pick<Shardfile, 'ro
+     const pose = body.hits === 'clip' ? new ClipCreatureVolumes(body, bytes, joints, actor, () => host.clock.now, parameters.attackSpan, parameters.clipMap)
+       : body.skeleton === undefined && body.volumes === undefined ? undefined : new RestCreatureVolumes(body, joints, root);
+     checkCreatureHeight(body, bytes, actor, pose);
+-    const canonicalSockets = body.skeleton === undefined ? undefined : CREATURE_SKELETONS[body.skeleton].sockets;
++    const canonicalSockets = bodyContract(body)?.sockets;
+     for (const name of strikeNames) {
+       if (canonicalSockets?.[name] === undefined && !skin.row.rig.sockets.includes(name)) throw new Error(`species ${spawn.species}: unknown strike socket ${name}`);
+     }
+diff --git a/src/server/game/shardfile/decisions.ts b/src/server/game/shardfile/decisions.ts
+index 9efc2405c8d1f42425aff4ede116db7cce3d155d..68ccb4e2a5d7b66dfab8d391ca888b0f272a1143 100644
+--- a/src/server/game/shardfile/decisions.ts
++++ b/src/server/game/shardfile/decisions.ts
+@@ -397,7 +397,7 @@ export class ShardDecisions {
+       const row = requireValue(this.rows[index], 'decision row');
+       const binding = row.binding;
+       const control = this.sim.borrowedControls?.get(row.id);
+-      const active = control === undefined ? 'shard' in binding || 'spawnGroup' in binding || ('encounter' in binding ? this.encounters.get(binding.encounter)?.boss.state === 'fight'
++      const active = control === undefined ? 'shard' in binding || 'spawnGroup' in binding || 'brain' in binding || ('encounter' in binding ? this.encounters.get(binding.encounter)?.boss.state === 'fight'
+         : 'quest' in binding ? (this.quest?.quests.some(value => value.def.id === binding.quest && value.isStarted && !value.isComplete) ?? false)
+         : this.inside(binding.zone, DECISION_PLAYER_HANDLE)) : control.fighting;
+       const id = index + 1;
+diff --git a/src/shared/game/shardfile/creatureClipVolumes.ts b/src/shared/game/shardfile/creatureClipVolumes.ts
+index 9b5f85fddc9f6a6d3b5aa3eb87f5dccebd0478bd..e24515afd754124714d8551d8cce25f82adcee77 100644
+--- a/src/shared/game/shardfile/creatureClipVolumes.ts
++++ b/src/shared/game/shardfile/creatureClipVolumes.ts
+@@ -1,6 +1,7 @@
+ import { Vector3, type Quaternion } from 'three';
+ import type { CreatureBody } from '@wildshard/format/creatureLayers';
+-import { CREATURE_SKELETONS, MIN_VOLUME_RADIUS } from '@wildshard/format/creatureSkeletons';
++import { MIN_VOLUME_RADIUS } from '@wildshard/format/creatureSkeletons';
++import { bodyContract } from './creatureContract';
+ import type { CreatureVolume } from '@wildshard/format/creatureVolumes';
+ import type { AnimalSim } from '@wildshard/engine/entities/AnimalSim';
+ import type { CreatureVolumeFrame, CreatureVolumePose } from '@wildshard/engine/physics/creatureVolumes';
+@@ -24,7 +25,7 @@ export class ClipCreatureVolumes implements CreatureVolumePose {
+     if (body.size !== 'giant' || body.hits !== 'clip') throw new Error('Clip hit authority needs an opted-in giant');
+     this.sampler = new CreatureClipSampler(bytes, joints);
+     if (!this.sampler.has(creatureClipName('idle', clipMap, this.sampler))) throw new Error('Clip hit authority needs an idle clip');
+-    const defaults = body.skeleton === undefined ? [] : CREATURE_SKELETONS[body.skeleton].volumes;
++    const defaults = bodyContract(body)?.volumes ?? [];
+     const rows = new Map<string, CreatureVolume>(defaults.map(row => [row.part, row]));
+     for (const row of body.volumes ?? []) rows.set(row.part, row);
+     if (rows.size === 0 || rows.size > 16) throw new Error('Invalid clip creature volumes');
+diff --git a/src/shared/game/shardfile/creatureContract.ts b/src/shared/game/shardfile/creatureContract.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..4701c6357449057a0b1f1a2f8def27a1ce96477d
+--- /dev/null
++++ b/src/shared/game/shardfile/creatureContract.ts
+@@ -0,0 +1,8 @@
++import type { CreatureBody } from '@wildshard/format/creatureLayers';
++import { creatureContract, type SkeletonContract } from '@wildshard/format/creatureSkeletons';
++
++/** A body's skeleton contract: a fixed skeleton's, a serpent's built from its trail row (ONE-FORMAT CC23), or none for a
++ * GLB with its own rig. The one lookup, so no reader indexes the fixed table by a serpent. */
++export function bodyContract(body: Pick<CreatureBody, 'skeleton' | 'trail'>): SkeletonContract | undefined {
++  return body.skeleton === undefined ? undefined : creatureContract({ skeleton: body.skeleton, ...(body.trail === undefined ? {} : { trail: body.trail }) });
++}
+diff --git a/src/shared/game/shardfile/creatureSockets.ts b/src/shared/game/shardfile/creatureSockets.ts
+index 3ef552dbeb58416f750e8d5073e67c497abbebc2..9038ccd034e54f2a8b43683fbfd5658b4e233e63 100644
+--- a/src/shared/game/shardfile/creatureSockets.ts
++++ b/src/shared/game/shardfile/creatureSockets.ts
+@@ -1,6 +1,6 @@
+ import { Matrix4, Vector3 } from 'three';
+ import type { CreatureBody } from '@wildshard/format/creatureLayers';
+-import { CREATURE_SKELETONS } from '@wildshard/format/creatureSkeletons';
++import { bodyContract } from './creatureContract';
+ import type { CreatureLockPoints } from '@wildshard/engine/physics/creatureVolumes';
+ import { CollisionPose } from '../plugin/animation';
+ import type { CreatureRestJoint } from './creatureVolumes';
+@@ -13,7 +13,7 @@ export class CreatureSockets implements CreatureLockPoints {
+     private readonly root: { readonly position: Vector3; readonly yaw: number; readonly scale: number },
+     private readonly strike?: { readonly names: readonly string[];
+       readonly posed?: (index: number, at: readonly [number, number, number], out: Vector3) => Vector3 }) {
+-    const skeleton = body.skeleton === undefined ? undefined : CREATURE_SKELETONS[body.skeleton];
++    const skeleton = bodyContract(body);
+     this.names = strike?.names ?? body.lock ?? (skeleton === undefined ? [] : [skeleton.lock]);
+     if (this.names.length === 0 || this.names.length > (strike === undefined ? 16 : 32) || new Set(this.names).size !== this.names.length) {
+       throw new Error(`Invalid creature ${strike === undefined ? 'lock' : 'strike'} sockets`);
+diff --git a/src/shared/game/shardfile/creatureVolumes.ts b/src/shared/game/shardfile/creatureVolumes.ts
+index d4c47de0eb4028769b04f3f94706d343378c860f..20add6d6f3ba913d49d114d1ec151504e87c737c 100644
+--- a/src/shared/game/shardfile/creatureVolumes.ts
++++ b/src/shared/game/shardfile/creatureVolumes.ts
+@@ -1,7 +1,8 @@
+ import { Matrix4, Vector3 } from 'three';
+ import { parse } from 'valibot';
+ import { CreatureBodySchema, type CreatureBody } from '@wildshard/format/creatureLayers';
+-import { CREATURE_SKELETONS, MIN_VOLUME_RADIUS } from '@wildshard/format/creatureSkeletons';
++import { MIN_VOLUME_RADIUS } from '@wildshard/format/creatureSkeletons';
++import { bodyContract } from './creatureContract';
+ import type { CreatureVolume } from '@wildshard/format/creatureVolumes';
+ import type { CreatureVolumePose, CreatureHitVolume } from '@wildshard/engine/physics/creatureVolumes';
+ import { CollisionPose, type CollisionJoint } from '../plugin/animation';
+@@ -23,7 +24,7 @@ export class RestCreatureVolumes implements CreatureVolumePose {
+     if (body.hits === 'clip') throw new Error('Clip hits require a published clip-volume pose');
+     if (!Number.isFinite(root.scale) || root.scale <= 0) throw new Error('Invalid creature volume scale');
+     this.root = root; this.scale = root.scale;
+-    const defaults = body.skeleton === undefined ? [] : CREATURE_SKELETONS[body.skeleton].volumes;
++    const defaults = bodyContract(body)?.volumes ?? [];
+     const definitions = new Map<string, CreatureVolume>(defaults.map(row => [row.part, row]));
+     for (const row of body.volumes ?? []) definitions.set(row.part, row);
+     if (definitions.size === 0) throw new Error('Creature volumes need a skeleton or authored volumes');

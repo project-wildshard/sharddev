@@ -44,7 +44,7 @@ const PRESETS: Readonly<Record<CreatureImportPreset, CreatureChainMap>> = {
 export async function importCreatureGlb(bytes: Uint8Array, options: CreatureImportOptions): Promise<ImportedCreatureRig> {
   if (bytes.length < 20 || bytes.length > 64_000_000) throw new Error('creature import requires bounded GLB bytes');
   await prepareGlbCost(); parseGlbData(bytes);
-  const document = await readRigDocument(bytes), root = document.getRoot(), contract = CREATURE_SKELETONS[options.skeleton];
+  const document = await readRigDocument(bytes), root = document.getRoot(), contract = options.skeleton === 'serpent' ? undefined : CREATURE_SKELETONS[options.skeleton];
   if (root.listNodes().length > 4096 || contract === undefined) throw new Error('chain root: invalid skeleton or node count');
   if (typeof options.map === 'string' && options.skeleton !== 'biped') throw new Error(`chain root: ${options.map} requires biped`);
   const map = typeof options.map === 'string' ? PRESETS[options.map] : options.map;

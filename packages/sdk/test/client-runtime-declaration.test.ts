@@ -71,8 +71,13 @@ test('actual output transport preserves compiled cost and binds while refusing a
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,entry:'runtime/index.ts'}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,lines:1}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,files:[{path:'runtime/index.ts',hash:'a'.repeat(64),bytes:1,lines:1}]}})).toThrow();
+    // J424/J426 (format 0.40.0): a stale reading refuses an armed zone; any other shard reports it.
+    const unarmed = structuredClone(source);
+    if (unarmed.runtime === null) throw new Error('Missing synthetic client plan');
+    Reflect.deleteProperty(unarmed.runtime.cost, 'epoch');
+    expect(() => { writeOutputProduct(unarmed, new Map(), join(root, 'stale-unarmed')); validateOutputProduct(join(root, 'stale-unarmed')); }).not.toThrow();
     for (const epoch of [undefined, 1, 2]) {
-      const stale = structuredClone(source);
+      const stale = structuredClone({ ...source, identity: { ...source.identity, slug: 'pastel-plain' } });
       if (stale.runtime === null) throw new Error('Missing synthetic client plan');
       if (epoch === undefined) Reflect.deleteProperty(stale.runtime.cost, 'epoch'); else stale.runtime.cost.epoch = epoch;
       expect(() => { writeOutputProduct(stale, new Map(), join(root, `stale-${epoch ?? 'omitted'}`)); validateOutputProduct(join(root, `stale-${epoch ?? 'omitted'}`)); }).toThrow('native resident measurement is stale');

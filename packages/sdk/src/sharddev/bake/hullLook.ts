@@ -34,6 +34,8 @@ export interface HullCreatureOptions {
 
 /** A kit skeleton's chain map in its own names: a rig that already follows the contract maps to itself. */
 export function kitChainMap(skeleton: CreatureSkeleton): CreatureChainMap {
+  // A serpent's bones come from its trail row, so it has no fixed chain map (format 0.40.0 CC23).
+  if (skeleton === 'serpent') throw new Error('chain root: a serpent has no kit chain map');
   const contract = CREATURE_SKELETONS[skeleton];
   return { root: contract.root, chains: Object.fromEntries(Object.entries(contract.chains).map(([key, chain]) => [key, [...chain.bones]])) };
 }

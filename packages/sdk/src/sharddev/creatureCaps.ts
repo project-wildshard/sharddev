@@ -7,7 +7,7 @@
  * still counts inside the shard's total (J338) and its budget tier (OF10c); the report card prints each creature's
  * numbers beside the tier.
  */
-import { CREATURE_SKELETONS } from '@wildshard/format/creatureSkeletons';
+import { creatureContract } from '@wildshard/format/creatureSkeletons';
 import type { CreatureSize } from '@wildshard/format/creatureLayers';
 import { resolveSkinLookFiles } from '@wildshard/format/skinAssets';
 import type { BudgetTier } from '@wildshard/format/budget-tiers';
@@ -48,7 +48,7 @@ type CapSource = Pick<Shardfile, 'rows' | 'files'>;
 export function creatureNumbers(source: CapSource, assets: ReadonlyMap<string, Uint8Array>): CreatureNumbers[] {
   return source.rows.species.map((row): CreatureNumbers => {
     const body = row.body, size: CreatureSize = body?.size ?? 'medium';
-    const defaults = body?.skeleton === undefined ? [] : CREATURE_SKELETONS[body.skeleton].volumes;
+    const defaults = body?.skeleton === undefined ? [] : creatureContract({ skeleton: body.skeleton, ...(body.trail === undefined ? {} : { trail: body.trail }) }).volumes;
     const volumes = new Set([...defaults, ...body?.volumes ?? []].map(volume => volume.part)).size;
     const look = source.rows.looks.find(entry => entry.species === row.id && (body === undefined || entry.id === body.look));
     if (look?.recipe !== 'platform.skin') return { species: row.id, size, bones: null, volumes, triangles: null, decodedBytes: null };

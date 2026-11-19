@@ -1,4 +1,7 @@
-import { CREATURE_SKELETONS } from '@wildshard/shard-format/creatureSkeletons'
+import {
+  CREATURE_SKELETONS,
+  type FixedSkeleton,
+} from '@wildshard/shard-format/creatureSkeletons'
 import {
   BoxGeometry,
   BufferAttribute,
@@ -84,49 +87,48 @@ function validateSurface(geometry: BufferGeometry, label: string): void {
     )
       throw new Error(`Kit ${label} has a non-finite position`)
 }
-const POINTS: Readonly<
-  Record<CreatureSkeleton, Readonly<Record<string, Point>>>
-> = {
-  biped: {
-    body: [0, 0, 0],
-    hips: [0, 0.9, 0],
-    spine: [0, 1.08, 0],
-    chest: [0, 1.3, 0],
-    neck: [0, 1.48, 0],
-    head: [0, 1.68, 0],
-    'upperArm.L': [0.24, 1.36, 0],
-    'forearm.L': [0.4, 1.14, 0.02],
-    'hand.L': [0.45, 0.96, 0.04],
-    'upperArm.R': [-0.24, 1.36, 0],
-    'forearm.R': [-0.4, 1.14, 0.02],
-    'hand.R': [-0.45, 0.96, 0.04],
-    'thigh.L': [0.14, 0.9, 0],
-    'shin.L': [0.14, 0.47, 0.02],
-    'foot.L': [0.14, 0.06, 0.1],
-    'thigh.R': [-0.14, 0.9, 0],
-    'shin.R': [-0.14, 0.47, 0.02],
-    'foot.R': [-0.14, 0.06, 0.1],
-  },
-  quadruped: {
-    body: [0, 0.62, 0],
-    neck1: [0, 0.72, 0.5],
-    neck2: [0, 0.85, 0.67],
-    head: [0, 0.87, 0.91],
-    tail: [0, 0.63, -0.72],
-    FL_shoulder: [0.23, 0.58, 0.4],
-    FL_carpus: [0.23, 0.3, 0.43],
-    FL_fetlock: [0.23, 0.06, 0.47],
-    FR_shoulder: [-0.23, 0.58, 0.4],
-    FR_carpus: [-0.23, 0.3, 0.43],
-    FR_fetlock: [-0.23, 0.06, 0.47],
-    BL_hip: [0.23, 0.6, -0.43],
-    BL_stifle: [0.23, 0.32, -0.4],
-    BL_hock: [0.23, 0.06, -0.43],
-    BR_hip: [-0.23, 0.6, -0.43],
-    BR_stifle: [-0.23, 0.32, -0.4],
-    BR_hock: [-0.23, 0.06, -0.43],
-  },
-}
+const POINTS: Readonly<Record<FixedSkeleton, Readonly<Record<string, Point>>>> =
+  {
+    biped: {
+      body: [0, 0, 0],
+      hips: [0, 0.9, 0],
+      spine: [0, 1.08, 0],
+      chest: [0, 1.3, 0],
+      neck: [0, 1.48, 0],
+      head: [0, 1.68, 0],
+      'upperArm.L': [0.24, 1.36, 0],
+      'forearm.L': [0.4, 1.14, 0.02],
+      'hand.L': [0.45, 0.96, 0.04],
+      'upperArm.R': [-0.24, 1.36, 0],
+      'forearm.R': [-0.4, 1.14, 0.02],
+      'hand.R': [-0.45, 0.96, 0.04],
+      'thigh.L': [0.14, 0.9, 0],
+      'shin.L': [0.14, 0.47, 0.02],
+      'foot.L': [0.14, 0.06, 0.1],
+      'thigh.R': [-0.14, 0.9, 0],
+      'shin.R': [-0.14, 0.47, 0.02],
+      'foot.R': [-0.14, 0.06, 0.1],
+    },
+    quadruped: {
+      body: [0, 0.62, 0],
+      neck1: [0, 0.72, 0.5],
+      neck2: [0, 0.85, 0.67],
+      head: [0, 0.87, 0.91],
+      tail: [0, 0.63, -0.72],
+      FL_shoulder: [0.23, 0.58, 0.4],
+      FL_carpus: [0.23, 0.3, 0.43],
+      FL_fetlock: [0.23, 0.06, 0.47],
+      FR_shoulder: [-0.23, 0.58, 0.4],
+      FR_carpus: [-0.23, 0.3, 0.43],
+      FR_fetlock: [-0.23, 0.06, 0.47],
+      BL_hip: [0.23, 0.6, -0.43],
+      BL_stifle: [0.23, 0.32, -0.4],
+      BL_hock: [0.23, 0.06, -0.43],
+      BR_hip: [-0.23, 0.6, -0.43],
+      BR_stifle: [-0.23, 0.32, -0.4],
+      BR_hock: [-0.23, 0.06, -0.43],
+    },
+  }
 const COLOUR = {
   body: [0.45, 0.48, 0.52],
   dark: [0.24, 0.27, 0.31],
@@ -197,12 +199,12 @@ function wildlifePoints(kind: Wildlife): Readonly<Record<string, Point>> {
 /** Build-time reference data. The defining table owns hierarchy/names; these
  * coordinates and simple surfaces are authored kit geometry, with no SDK host. */
 export function referenceSkeletonSource(
-  skeleton: CreatureSkeleton,
+  skeleton: FixedSkeleton,
 ): ReferenceSkeletonSource {
   return buildReference(skeleton)
 }
 function buildReference(
-  skeleton: CreatureSkeleton,
+  skeleton: FixedSkeleton,
   options: Readonly<Pick<HumanoidOptions, 'head' | 'attachments'>> = {},
   wildlife?: Wildlife,
 ): ReferenceSkeletonSource {
