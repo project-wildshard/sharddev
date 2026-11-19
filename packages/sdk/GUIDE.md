@@ -1013,7 +1013,7 @@ player can reach it there yet.
 
 `wildshard upload --no-place` uploads without taking a cell, for a proof upload you will delete. Only a shard's
 first upload can take a cell, so a shard uploaded with `--no-place` never gets one from a later upload. A shard made
-only to prove tooling (a `wildshard new` scaffold, a publish or cook check) takes a `proof-<name>` slug: the API never
+only to prove tooling (a `wildshard new` scaffold or a publish check) takes a `proof-<name>` slug: the API never
 gives a `proof-*` slug a cell, whatever upload sends, so a proof cannot land on the player grid; delete it when its proof
 is done (J453). The links point at the share page, which is not built yet (below), and each says `(page not built
 yet)`.
