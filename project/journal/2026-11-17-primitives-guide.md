@@ -12,3 +12,6 @@ name those sections, and the Template-style fixture reports `collision, plumbing
 OF18b (same lane): the riding page carries an SDK TypeScript example (`src/sharddev/guide/riding.example.ts`,
 type-checked with the sdk) and its hand-written JSON rows; the test parses every section-8 JSON block with the rows
 schema and rules, holds the ts block to the file and the JSON to its rows, and a planted bad gait fails.
+
+Follow-up: `./internal/primitivesReport` takes the internal tier (EXPORT-TIERS.md regenerated) and the riding example
+names its rows type, so the sdk still emits isolated declarations.

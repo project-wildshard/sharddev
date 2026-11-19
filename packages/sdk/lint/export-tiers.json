@@ -185,6 +185,7 @@
     "./internal/diagnosticClock": "internal",
     "./internal/spawnWarnings": "internal",
     "./internal/creatureCaps": "internal",
+    "./internal/primitivesReport": "internal",
     "./internal/handwritten": "internal",
     "./internal/handwrittenCreatureLayers": "internal",
     "./internal/authorLint": "internal",

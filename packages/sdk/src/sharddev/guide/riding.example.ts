@@ -1,9 +1,10 @@
 // A rideable dune camel: the kit's quadruped body and passive temperament, and a mount row with its four gaits.
 import { quadruped, temperament } from '@wildshard/kit';
+import type { ShardRowsInput } from '@wildshard/format/rows';
 
 const { temperament: calm, senses } = temperament.passive();
 
-export const camel = {
+export const camel: Pick<ShardRowsInput, 'species' | 'looks'> = {
   species: [{
     id: 'camel', kind: 'camel', label: 'Dune camel', type: 'beast', aggressive: false, lockable: true,
     dims: { bodyY: 1.4, bodyHalfLen: 0.9, bodyRadius: 0.5, headRadius: 0.2, legLen: 1.1, feet: [], halfWidth: 0.45 },
