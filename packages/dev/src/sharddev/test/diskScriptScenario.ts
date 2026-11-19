@@ -32,7 +32,7 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const moves = parseActorMoves(sections.get('actors/moves') ?? []), targets = sections.get('world/targets');
   const nativePlan = sections.get('sim/runtime-plan');
   const nativeActors = shard.runtime === null && nativePlan !== undefined ? nativeRuntimeActorIds(nativePlan) : [];
-  const registries = buildDecisionRegistries(shard, moves, targets === undefined ? undefined : parseWorldTargets(targets), readCreatureStrikes(sections.get('actors/strikes') ?? []), rows, nativeActors);
+  const registries = buildDecisionRegistries(shard as unknown as Parameters<typeof buildDecisionRegistries>[0], moves, targets === undefined ? undefined : parseWorldTargets(targets), readCreatureStrikes(sections.get('actors/strikes') ?? []), rows, nativeActors);
   const map = decisionBindingMap(row, registries), handles = Object.values(map.ids.actors ?? {});
   const script: DecisionScript = { ...row, side: row.side, ids: map.ids, state: [...row.state], reads: row.reads.filter((name): name is ScriptV1ReadName => Object.hasOwn(SCRIPT_V1_READS, name)),
     lists: row.reads.filter((name): name is ScriptV1ListName => Object.hasOwn(SCRIPT_V1_LISTS, name)) };

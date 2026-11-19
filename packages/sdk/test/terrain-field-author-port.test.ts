@@ -1,9 +1,9 @@
 import { expect, expectTypeOf, test } from 'vitest';
 import { createTerrainField, terrainFieldPolicy } from '../src/sharddev/bake/nativeTerrainField';
 import { forestDefaultTreeSpecs } from '../src/sharddev/bake/forest';
-import { buildTerrain } from '@wildshard/engine/world/terrainField';
+import { buildTerrain } from '@wildshard/format/terrainField';
 import type { buildTerrain as formatBuildTerrain } from '@wildshard/format/terrainField';
-import { CHUNK_HALF, ROAD_WIDTH, ROAD_LENGTH } from '@wildshard/engine/core/config';
+import { CHUNK_HALF, ROAD_WIDTH, ROAD_LENGTH } from '@wildshard/format/contentBounds';
 import { TREE_SPECS } from '@wildshard/engine/world/forest/treeSpec';
 
 

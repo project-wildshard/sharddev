@@ -27,6 +27,8 @@ import { refusalCode } from '@wildshard/upload/sharddev/refusals';
 import { DRAFT_SDK, draftMessage } from '@wildshard/upload/sharddev/draft';
 import { authorLintPlan } from '@wildshard/sdk/internal/authorLint';
 import { assertCreatureDeclarations } from '@wildshard/sdk/internal/creatureLayers';
+/** Engine 0.1.47 bundles its own frozen format (0.44.0); sharddev's format types are a newer copy of the same rows. */
+type EngineShardfile = Parameters<typeof checkShardfile>[0];
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
 export const PROOF_FILE = 'proof.json';
@@ -68,7 +70,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
   let primitiveLine: string | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
     assertCreatureDeclarations(shard.rows);
-    admitted = { check: await checkShardfile(shard, assets, {sections, policy}) };
+    admitted = { check: await checkShardfile(shard as unknown as EngineShardfile, assets, {sections, policy}) };
   };
   // SA16 (J314): a hand-written source (`--template blender`) has nothing to build: format's pack settles it into the
   // built folder, which is then admitted as a built shard is.
@@ -123,7 +125,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       if (shard.runtime !== null) return { status: 'skip', note: 'native gameplay: the author proof needs data-only gameplay' };
       const plan = readProofTape(tape);
       // The output's sections name each decision's ABI; without them a v1 decision fails `Import signature outside ABI`.
-      const report = await proveAuthorSimulation(shard, assets, plan, sections);
+      const report = await proveAuthorSimulation(shard as unknown as EngineShardfile, assets, plan, sections);
       return { status: 'pass', note: `${report.ticks} ticks, ${report.ledger.facts.length} facts filed` };
     },
     report: async (): Promise<StepOutcome> => {

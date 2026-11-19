@@ -23,7 +23,7 @@ export async function proveStaticPortalEntries(input: Shardfile, pieces: unknown
   const physics = new Physics(await loadRapier(readBoundedFile(binary, 25_000_000).slice()));
   try {
     addBakedPieces(physics, pieces); physics.step();
-    const proof = proveEntryways(source, new Map(), { world: () => ({ physics,
+    const proof = proveEntryways(source as unknown as Parameters<typeof proveEntryways>[0], new Map(), { world: () => ({ physics,
       fixedStep: () => { /* Static portal entries have no moving owner. */ },
       dispose: () => { /* This operation owns the single physics world. */ } }) });
     if (proof.portalTransfers === undefined) throw new Error('Static portal proof produced no transfer evidence');

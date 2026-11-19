@@ -8,6 +8,7 @@ overrides:
   binaryen: npm:@pre-bundled/binaryen@132.0.0-patch-1
   assemblyscript>binaryen: npm:@pre-bundled/binaryen@131.0.0-nightly.20260721-patch-1
   '@wildshard/format': npm:@wildshard/shard-format@0.45.0
+  '@wildshard/engine>@wildshard/wire': 1.2.0
 
 packageExtensionsChecksum: sha256-4P1RJ7hiMsYRXNZzR/7SRp0cgnOnjqO4CXUbDAZm8KE=
 
@@ -840,8 +841,8 @@ packages:
     engines: {node: '>=24.18.0'}
     hasBin: true
 
-  '@wildshard/wire@1.5.0':
-    resolution: {integrity: sha512-YIeHAS7mWQZ9NHwnyYZOrqfDRFN5bq+7vXVXD1Ei1UCkBrwy/Aj3Kyvs0JnWZ3fQbM3l1eRL/hVr7Dl7XEACGg==}
+  '@wildshard/wire@1.2.0':
+    resolution: {integrity: sha512-knJg+cSiiguoFESbxJy0yMAlrVeoMz2t391mXh07bVCjgX7t08SJa3re0fxsWl2qleC6/dXgguUcDxsZP9CfBQ==}
     hasBin: true
 
   ajv@6.15.0:
@@ -1864,7 +1865,7 @@ snapshots:
       '@sentry/core': 11.0.0
       '@typescript/typescript6': 6.0.2
       '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@6.0.3))
-      '@wildshard/wire': 1.5.0(typescript@6.0.3)
+      '@wildshard/wire': 1.2.0(typescript@6.0.3)
       ajv: 6.15.0
       fflate: 0.8.3
       hono: 4.13.19
@@ -1896,7 +1897,7 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@wildshard/wire@1.5.0(typescript@6.0.3)':
+  '@wildshard/wire@1.2.0(typescript@6.0.3)':
     dependencies:
       valibot: 1.5.0(typescript@6.0.3)
     transitivePeerDependencies:

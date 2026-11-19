@@ -158,7 +158,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       ? validateOutputProduct(resolve(input.endsWith('.json') ? dirname(input) : input))
       : await readProjectAssets(resolve(input), undefined, options.manifest, options).then(read => ({ ...read, sections: outputPlatformPayloads(read.output.platform) }));
     const plan = readProofTape(resolve(output));
-    console.info(JSON.stringify(await proveAuthorSimulation(shard, assets, plan, sections), null, 2)); return;
+    console.info(JSON.stringify(await proveAuthorSimulation(shard as unknown as Parameters<typeof proveAuthorSimulation>[0], assets, plan, sections), null, 2)); return;
   }
   if (command === 'validate') {
     if (input.endsWith('.json') && basename(input) !== 'shard.json') throw new Error('validate requires a format-2 shard.json or shard source');
