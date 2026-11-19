@@ -14,3 +14,5 @@ the 1800-tick journey, the determinism bake and the cooked play proof take Mossg
 borrowed the Template's data (combat source, runtime declaration) read Pastel Plain's. What went for good: pins that
 bounded only the retired bake (its gameplay digest and map pixels) and the orphaned SF23 far board, whose imports had not
 resolved since the split.
+
+Fix forward (main ci 44518323923): the CI21 source compile is strict SDK author rules, and the generation port's static import pulled all of Mossgate's generators into it. The port now loads Mossgate's config by path.

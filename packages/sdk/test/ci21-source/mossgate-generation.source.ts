@@ -14,13 +14,19 @@ import { Buffer } from 'node:buffer';
 import { expect, test } from 'vitest';
 import { build, parseSync } from 'vite';
 import { generatorImportViolation } from '../../lint/sdk-plugin.mjs';
-import { generate } from '../../src/shards/mossgate/shard.config';
 import { createProjectGeneration, isProjectGenerator } from '../../src/sharddev/projectGeneration';
 import { hashImmutableBytes } from '../../src/sharddev/immutable';
 import { assertConfigBoundary } from '../../src/sharddev/configBoundary';
-import { parseShardfile } from '@wildshard/format/shardSchema';
+import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 
 const ROOT = resolve('src/shards/mossgate');
+// Loaded by path, not imported: this compiler's strict author rules are the SDK's, and Mossgate's generators are shard
+// source under the author lint (an import here would put them in the CI21 compile).
+const loadedConfig: unknown = await import(resolve(ROOT, 'shard.config.ts'));
+if (typeof loadedConfig !== 'object' || loadedConfig === null || !('generate' in loadedConfig) || !isProjectGenerator(loadedConfig.generate)) throw new Error('Missing Mossgate generator');
+const mossgateGenerate = loadedConfig.generate;
+interface Generated { shard: Shardfile; output?: { platform?: { sections?: readonly { name: string; path: string; hash: string; bytes: number }[]; files?: ReadonlyMap<string, Uint8Array> } } }
+const generate = async (context: Parameters<typeof mossgateGenerate>[0]): Promise<Generated> => await mossgateGenerate(context) as Generated;
 
 test('template direct generation and a cache hit retain every original world row and asset byte', async () => {
   mkdirSync('tmp', { recursive: true }); const cache = mkdtempSync(resolve('tmp', 'mossgate-generation-'));
