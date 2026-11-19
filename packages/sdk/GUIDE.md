@@ -915,6 +915,14 @@ and its budget tier. Give it a phone LOD with fewer triangles, or a larger size 
 Each size class has a decoded-bytes mark per creature, mostly its textures: tiny 1 MB, small 2 MB, medium 4 MB, large
 8 MB, giant 16 MB. Over it `check` warns. Use a smaller atlas or fewer maps.
 
+#### vertex-layout
+
+WebKit draws through ANGLE's Metal back end, which reads a vertex channel in place only when its stride is a multiple
+of 4 bytes. A tightly packed 3-byte channel (an Int8 normal, a Uint8 colour) or a 6-byte one (three Int16 or Uint16)
+is copied into a second buffer, so the phone holds it twice. `check` prints each such channel on the report card. The
+three layouts the cook already wrote (an Int8 normal, a Uint8 colour, a Uint16 colour, 3 wide and packed) report; any
+other copied layout refuses. Write it aligned: `staticGlb` with `meshoptReady` pads it.
+
 #### validate-refused
 
 Shard-format's checks refused the built shard. The message names the check; RUNTIME-CONTRACT §8 lists what is refused.
