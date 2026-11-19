@@ -252,7 +252,7 @@ function writeSceneSource(source: string, slug: string): void {
     // captures one (NEW-SHARD-E2E F28), never another shard's.
     filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
   // TEMPLATE-E2E TC-NE5, TR-2, TR-12: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`,
-  // then on to brazier A, whose lighting files `mossgate.first-light`) lives
+  // then on to brazier A and through the moss gate it opens, which files `mossgate.first-light`) lives
   // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.
   cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
   writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 357 }));

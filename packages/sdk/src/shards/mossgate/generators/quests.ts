@@ -2,7 +2,7 @@
 // a quest reads is raised by the scene: a region (`world.trigger`), a brazier, the lever or the chest (a `script` trigger on
 // the `<prompt>.spent` condition the sdk writes for a shared prompt, SS-GF0), or the rack's take (its `setsFlag`).
 import { LAYOUT } from './world';
-import { LEDGE_FLAG, PLAY, USES } from './play';
+import { GATE_PASS, GATE_PASSED_FLAG, LEDGE_FLAG, PLAY, USES } from './play';
 import { BODIES, HAUNTS } from './creatures';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
@@ -24,7 +24,7 @@ export const FLAGS = {
   northGate: 'mossgate.north-gate.opened',
   hermitAccepted: 'mossgate.hermit.accepted', hermitReported: 'mossgate.hermit.reported', hermitDone: 'mossgate.hermit.done',
   chestOpened: 'mossgate.chest.opened', chestPaid: 'mossgate.chest.paid',
-  ledgePaid: 'mossgate.ledge.paid',
+  ledgePaid: 'mossgate.ledge.paid', ledgeSearched: 'mossgate.ledge.searched',
   rackTaken: 'mossgate.rack.taken', rackPaid: 'mossgate.rack.paid',
   // TR-12b: the fights' flags (a `dead:<spawn>` flag is the engine's, raised when that body dies)
   blob: 'mossgate.blob', blobPaid: 'mossgate.blob.paid', wardenPaid: 'mossgate.warden.paid', greybackPaid: 'mossgate.greyback.paid',
@@ -63,7 +63,7 @@ export const HERMIT_DIALOGUE = {
 
 /** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
-  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
+  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
   triggers: [
     // TR-12b: any grey blob's death raises the blob quest's flag
     { id: 'blob', kind: 'death' as const, flag: FLAGS.blob, tag: 'creature.greyBlob' },
@@ -71,6 +71,7 @@ export const QUESTS = {
     ...LETTERS.map((l) => ({ id: `lamp.${l.toLowerCase()}`, kind: 'script' as const, flag: lamp(l), condition: `${USES.brazier(l)}.spent`, when: { all: [FLAGS.lampAccepted] } })),
     { id: 'north-gate.opened', kind: 'script' as const, flag: FLAGS.northGate, condition: `${USES.lever}.spent` },
     { id: 'chest.opened', kind: 'script' as const, flag: FLAGS.chestOpened, condition: `${USES.chest}.spent` },
+    { id: 'ledge.searched', kind: 'script' as const, flag: FLAGS.ledgeSearched, condition: `${USES.ledgeCache}.spent` },
   ],
   dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE],
   quests: [
@@ -81,7 +82,10 @@ export const QUESTS = {
     // the first flame: brazier A opens the moss gate (play.ts), and its fact is the one the proof tape lights
     { id: 'mossgate.first-light', title: 'The first flame', track: true, completeFlag: FLAGS.firstLight,
       steps: [{ id: 'a', objective: 'Light brazier A', done: { all: [lit('A')] }, hint: 'Brazier A stands by the training ground, east of the hut',
-        markers: [marker('first-light.marker', 'Brazier A', 'A', brazierAt('A'), lit('A'))] }],
+        markers: [marker('first-light.marker', 'Brazier A', 'A', brazierAt('A'), lit('A'))] },
+        // MZ4 (J454): the flame opens the moss gate; the quest ends on the far side of it, not at the bowl
+        { id: 'gate', objective: 'Go through the moss gate', done: { all: [GATE_PASSED_FLAG] }, hint: 'Brazier A sank the gate\'s bars: the gate is in the yard\'s west wall, by the pond',
+          markers: [marker('gate.marker', 'Moss gate', 'Gate', GATE_PASS, GATE_PASSED_FLAG)] }],
       onComplete: { fact: FLAGS.firstLight, coins: 5 } },
     { id: 'mossgate.lamplighter', title: 'Relight the Hollow', completeFlag: FLAGS.lampDone, startWhen: { all: [FLAGS.lampAccepted] },
       steps: [
@@ -100,13 +104,19 @@ export const QUESTS = {
       ],
       onComplete: { fact: 'mossgate.hermit', coins: 15 } },
     { id: 'mossgate.chest', title: 'The old chest', track: false, completeFlag: FLAGS.chestPaid,
-      steps: [{ id: 'chest', objective: 'Open the old chest by the sign', done: { all: [FLAGS.chestOpened] }, markers: [marker('chest.marker', 'Old chest', 'Chest', PLAY.CHEST, FLAGS.chestOpened)] }],
+      // MZ4 (J454): the key first, from the ledge cache, then the chest
+      steps: [{ id: 'key', objective: 'Find the chest key in the ledge cache', done: { all: [FLAGS.ledgeSearched] }, hint: 'Ride the lift by the south wall up to the ledge',
+        markers: [marker('chest-key.marker', 'Ledge cache', 'Key', PLAY.LEDGE, FLAGS.ledgeSearched)] },
+        { id: 'chest', objective: 'Open the old chest by the sign', done: { all: [FLAGS.chestOpened] }, markers: [marker('chest.marker', 'Old chest', 'Chest', PLAY.CHEST, FLAGS.chestOpened)] }],
       onComplete: { fact: 'mossgate.chest', coins: 10 } },
     { id: 'mossgate.ledge', title: 'The ledge cache', track: false, completeFlag: FLAGS.ledgePaid,
-      steps: [{ id: 'ledge', objective: 'Ride the lift up to the ledge cache', done: { all: [LEDGE_FLAG] }, markers: [marker('ledge.marker', 'Ledge cache', 'Ledge', PLAY.LEDGE, LEDGE_FLAG)] }],
+      steps: [{ id: 'ledge', objective: 'Ride the lift up to the ledge cache', done: { all: [LEDGE_FLAG] }, markers: [marker('ledge.marker', 'Ledge cache', 'Ledge', PLAY.LEDGE, LEDGE_FLAG)] },
+        { id: 'search', objective: 'Search the ledge cache', done: { all: [FLAGS.ledgeSearched] } }],
       onComplete: { fact: 'mossgate.ledge', coins: 15 } },
     { id: 'mossgate.rack', title: 'The moss blade', track: false, completeFlag: FLAGS.rackPaid,
-      steps: [{ id: 'rack', objective: 'Take the moss blade from its rack', done: { all: [FLAGS.rackTaken] }, markers: [marker('rack.marker', 'Blade rack', 'Rack', PLAY.RACK, FLAGS.rackTaken)] }],
+      steps: [{ id: 'rack', objective: 'Take the moss blade from its rack', done: { all: [FLAGS.rackTaken] }, markers: [marker('rack.marker', 'Blade rack', 'Rack', PLAY.RACK, FLAGS.rackTaken)] },
+        // MZ4 (J454): a blade is proved on something
+        { id: 'blob', objective: 'Try the blade on a grey blob', done: { all: [FLAGS.blob] }, hint: 'Grey blobs wander the yard and past the north gate' }],
       onComplete: { fact: 'mossgate.rack', coins: 5 } },
     // TR-12b: the fights (creatures.ts places the bodies, fights.ts the encounters and the Warden's script)
     { id: 'mossgate.blob', title: 'The grey blobs', track: false, completeFlag: FLAGS.blobPaid,

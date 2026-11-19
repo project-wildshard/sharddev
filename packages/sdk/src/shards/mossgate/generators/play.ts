@@ -37,6 +37,7 @@ export const FIELDS = {
   brazier: (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}`,
   northGate: 'mossgate.north-gate.open',
   chest: 'mossgate.chest.open',
+  ledgeCache: 'mossgate.ledge-cache.open',
 } as const;
 export const USES = {
   brazier: (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.use`,
@@ -44,6 +45,7 @@ export const USES = {
   chest: 'mossgate.chest.use',
   rack: 'mossgate.rack.use',
   lantern: 'mossgate.lantern.take',
+  ledgeCache: 'mossgate.ledge-cache.use',
 } as const;
 /** The hut lantern a player takes off its stand (`world.pickup`: the sdk writes the tool, its take and its light). */
 export const HUT_LANTERN = { id: 'tool.hut-lantern', name: 'Hut lantern', blurb: 'The lantern from the hut door; its stand refills it.', colour: '#c9a25a', intensity: 3, fuelSeconds: 300 } as const;
@@ -51,6 +53,10 @@ export const HUT_LANTERN = { id: 'tool.hut-lantern', name: 'Hut lantern', blurb:
 export const RACK_SCENE = 'mossgate.rack.take';
 /** The quest flag the ledge cache's region raises. */
 export const LEDGE_FLAG = 'mossgate.ledge.found';
+/** MZ4 (J454): the flag the region just past the moss gate raises, the first flame's second step. */
+export const GATE_PASSED_FLAG = 'mossgate.gate.passed';
+/** Where that region stands: west of the gate (world.ts `LAYOUT.GATE`), short of the pond. */
+export const GATE_PASS = { x: -11.8, z: 0, radius: 1.6 } as const;
 
 /** A panel's own material: its textures load with the shard, and the yard's far tiles may not share them (SS9e). */
 const plain = (color: string, roughness = 0.9, emissive?: string): THREE.MeshStandardMaterial =>
@@ -113,6 +119,8 @@ function gateBars(world: ShardWorld): void {
     for (let i = 0; i < 6; i++) { const bar = box(0.26, 2.6, 0.26, stone, 0.06); bar.position.set(gx, 1.45, gz - half + 0.3 + i * ((half * 2 - 0.6) / 5)); part.add(bar); }
     part.add(block(gx, 1.2, gz, 0.15, 1.2, half));
   }, { panel: 'mossgate.gate', shownWhen: { field: FIELDS.brazier('A'), equals: false } });
+  // MZ4 (J454): through the opened gate, the first flame's second step
+  world.part('gate-pass', (part) => { world.trigger(GATE_PASSED_FLAG, node(part, GATE_PASS.x, groundHeight(GATE_PASS.x, GATE_PASS.z), GATE_PASS.z), { radius: GATE_PASS.radius }); });
 }
 
 /** The pond's stepping stones (world.ts `pond`), raised out of the water once brazier B burns. */
@@ -199,6 +207,8 @@ function liftAndLedge(world: ShardWorld): void {
     const cache = box(0.8, 0.5, 0.5, wood, 0.03); cache.position.set(L.x, top + 0.29, L.z + L.hz - 0.6); part.add(cache);
     part.add(block(L.x, base + h / 2, L.z, L.hx, h / 2, L.hz));
     world.trigger(LEDGE_FLAG, node(part, L.x, top, L.z), { radius: 1.4 });
+    // MZ4 (J454): the cache is searched, not found by standing on it; it holds the old chest's key (quests.ts)
+    world.interact(USES.ledgeCache, node(part, L.x, top + 0.8, L.z + L.hz - 0.6), { label: 'Search the ledge cache', radius: 1.8, sets: { field: FIELDS.ledgeCache, scope: 'shared', value: true } });
   });
   const { x, z } = PLAY.LIFT, floor = groundHeight(x, z), half = 1.2, thick = 0.12, rest = floor - thick + 0.1, rise = top - floor - 0.1;
   world.part('lift', (part) => {

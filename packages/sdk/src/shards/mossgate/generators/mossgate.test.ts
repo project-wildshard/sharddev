@@ -157,3 +157,25 @@ test('Mossgate pays off a step and the chain', () => {
   const decision = DECISIONS[0] as unknown as { fields: Record<string, string> };
   expect(decision.fields['relit']).toBe(WARDEN_FIELDS.relit.name);
 });
+
+/** MOSSGATE-ZONE MZ4 (J454, QA 11-19 row 26: "you go to the heart and then you complete ... you can't do that"): no quest
+ *  but the starter's `hut.visit` completes on one trigger. Each has two steps or more, or a fight; and nothing completes
+ *  the zone before the main chain, which ends at the Warden. */
+test('Mossgate has no one-step quest', { timeout: 120_000 }, async () => {
+  const { shard } = await builtSceneShardfile(mossgate.describe(), compileScript, { extend: gameplay }), quests = shard.quests.quests;
+  const fightFlags = new Set(shard.quests.triggers.filter((t) => t.kind === 'death').map((t) => t.flag));
+  const fight = (flag: string): boolean => flag.startsWith('dead:') || fightFlags.has(flag);
+  for (const quest of quests) {
+    if (quest.id === 'hut.visit') continue;
+    const fought = quest.steps.some((step) => (step.done.all ?? []).some(fight));
+    expect(quest.steps.length >= 2 || fought, quest.id).toBe(true);
+  }
+  // the first flame ends past the gate it opens, not at its bowl
+  expect(quests.find((q) => q.id === 'mossgate.first-light')?.steps.map((s) => s.id)).toEqual(['a', 'gate']);
+  // the main chain: the three braziers, the Warden down, then the turn-in; no completion card opens before it (a scene
+  // shard declares none: MZ30 adds the one after the boss)
+  const chain = quests.find((q) => q.id === 'mossgate.lamplighter');
+  expect(chain?.steps.at(-2)?.done.all).toEqual(['dead:barrow-warden']);
+  expect(chain?.steps.at(-1)?.id).toBe('report');
+  expect('completion' in shard).toBe(false);
+});
