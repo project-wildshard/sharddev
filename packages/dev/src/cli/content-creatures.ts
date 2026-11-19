@@ -20,14 +20,35 @@ function get(value: unknown, key: string): unknown {
   return record(value)[key]
 }
 
+/** A skin file's row, by its hash. */
+function skinRow(
+  dir: string,
+  paths: ReadonlyMap<string, string>,
+  hash: unknown,
+): Json | undefined {
+  const path = paths.get(text(hash))
+  if (path === undefined || path === '') {
+    return undefined
+  }
+  return record(
+    get(record(JSON.parse(readFileSync(resolve(dir, path), 'utf8'))), 'row'),
+  )
+}
+function triangleCount(row: Json): number {
+  const triangles = get(record(get(row, 'cost')), 'triangles')
+  return typeof triangles === 'number' ? triangles : 0
+}
+
 /** ONE-FORMAT CC24: one skinned creature's rig, read from its skin file. */
 export interface ContentCreature {
   readonly id: string
   readonly bones: number
   readonly triangles: number
+  /** CC51b: the phone tier's mesh, when the look names one */
+  readonly phone?: number
 }
 
-/** CC24: each `platform.skin` look's species with its skin file's joint and triangle counts. */
+/** CC24: each `platform.skin` look's species with its skin file's joint and triangle counts (CC51b: and its phone mesh's). */
 export function skinCreatures(
   dir: string,
   index: Json,
@@ -42,23 +63,19 @@ export function skinCreatures(
   return looks
     .filter(look => text(get(look, 'recipe')) === 'platform.skin')
     .flatMap(look => {
-      const path = paths.get(text(get(record(get(look, 'parameters')), 'skin')))
-      if (path === undefined || path === '') {
+      const parameters = record(get(look, 'parameters'))
+      const row = skinRow(dir, paths, get(parameters, 'skin'))
+      if (row === undefined) {
         return []
       }
-      const row = record(
-        get(
-          record(JSON.parse(readFileSync(resolve(dir, path), 'utf8'))),
-          'row',
-        ),
-      )
+      const phone = skinRow(dir, paths, get(parameters, 'phone'))
       const joints = array(array(get(record(get(row, 'rig')), 'joints'))[0])
-      const triangles = get(record(get(row, 'cost')), 'triangles')
       return [
         {
           id: text(get(look, 'species')),
           bones: joints.length,
-          triangles: typeof triangles === 'number' ? triangles : 0,
+          triangles: triangleCount(row),
+          ...(phone === undefined ? {} : { phone: triangleCount(phone) }),
         },
       ]
     })

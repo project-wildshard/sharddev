@@ -310,6 +310,9 @@ export interface SceneCreature {
   readonly look: ShardRows['looks'][number];
   readonly bones: number;
   readonly triangles: number;
+  /** ONE-FORMAT CC51b: the phone tier's lighter mesh (`bake/creaturePhone`): its rig GLB, its skin file (the same rig,
+   *  clips, sockets and material) and its triangles. The look's `phone` names the skin; the build adds it. */
+  readonly phone?: { readonly glb: Uint8Array; readonly skin: Uint8Array; readonly triangles: number };
   /** ONE-FORMAT OF27b: a look's further files (`bake/hullLook`): its variants' rig GLBs, its KTX2 maps, every variant's
    *  skin file and the variant table its look names; each skin depends on its GLB, then its material's textures */
   readonly files?: {

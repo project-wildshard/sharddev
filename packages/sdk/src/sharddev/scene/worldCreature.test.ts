@@ -8,8 +8,8 @@ import { shardfileRules } from '@wildshard/format/shardSchema';
 import { validateSkinAssets } from '@wildshard/format/skinAssets';
 import { creatureNumbers } from '../creatureCaps';
 import { lowerShard } from './lower';
-import { sceneShardfile } from './shardfile';
-import type { CreatureWorldOptions } from './worldCreature';
+import { builtSceneShardfile, sceneShardfile } from './shardfile';
+import { withCreaturePhones, type CreatureWorldOptions } from './worldCreature';
 
 // The kit boar's sim rows, without its strikes and harvest (they name strikes and items the shard declares).
 const { species: { id: _id, body: _body, abilities: _abilities, harvest: _harvest, ...species } } = commonCreature('boar', { id: 'fixture.unused', look: 'fixture.unused.look' });
@@ -105,4 +105,44 @@ test('world.creature refuses a serpent with no trail, a trail bone the rig lacks
   expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', body(), { ...OPTIONS, trail: { count: 3, spacing: 1 } }); })).toThrow('a trail on a creature that is no serpent');
   expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', serpent(), { ...SERPENT, trail: { count: 8, spacing: 0.5 } }); })).toThrow('trail bone seg5 is not a bone of the rig');
   expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', serpent(), { ...SERPENT, clipMap: { states: { die: 'collapse' } } }); })).toThrow('the clip map names collapse, which is no clip of the rig');
+});
+
+/** A round body worth lightening: a 32 x 16 sphere on the body bone. */
+function roundBody(): THREE.Group {
+  const root = body(), sphere = new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 16), new THREE.MeshStandardMaterial());
+  const bone = root.children[0]; bone?.clear(); bone?.add(sphere);
+  const head = new THREE.Group(); head.name = 'head'; head.position.set(0, 0, 0.3); bone?.add(head);
+  const tail = new THREE.Group(); tail.name = 'tail'; tail.position.set(0, 0, 0.3); head.add(tail);
+  return root;
+}
+
+test('the build writes each creature a phone mesh its look names, with both triangle counts (ONE-FORMAT CC51b)', async () => {
+  await prepareAssetDecoders();
+  const scene = lowerShard({ slug: 'critters', name: 'Critters' }, (world) => {
+    world.spawn(0, 0, 0);
+    world.creature('critters.critter', roundBody(), OPTIONS);
+  });
+  const phoned = await withCreaturePhones(scene), creature = phoned.creatures?.[0];
+  if (creature?.phone === undefined) throw new Error('no phone mesh');
+  expect(creature.phone.triangles).toBeGreaterThan(0);
+  expect(creature.phone.triangles).toBeLessThan(creature.triangles);
+  const { shard, assets } = sceneShardfile(phoned);
+  const look = shard.rows.looks.find(entry => entry.id === 'critters.critter.look');
+  const phone = String(look?.parameters['phone']);
+  expect(shard.library).toContain(String(look?.parameters['skin']));
+  expect(shard.library).toContain(phone);
+  // format admission: the phone skin is the skin's rig, clips, sockets and material, drawing fewer triangles
+  expect(() => { validateSkinAssets(shard, assets); }).not.toThrow();
+  expect(shardfileRules(shard)).toEqual([]);
+  const read = (hash: string) => JSON.parse(new TextDecoder().decode(assets.get(hash))) as { row: { cost: { triangles: number }; rig: unknown; file: string } };
+  const desktop = read(String(look?.parameters['skin'])), lighter = read(phone);
+  expect(lighter.row.cost.triangles).toBe(creature.phone.triangles);
+  expect(lighter.row.rig).toEqual(desktop.row.rig);
+  expect(lighter.row.file).not.toBe(desktop.row.file);
+  // the build's own step adds it, and `creaturePhone: false` keeps one mesh
+  const compile = () => Promise.reject(new Error('no state lane'));
+  const built = await builtSceneShardfile(scene, compile as never);
+  expect(built.shard.rows.looks.find(entry => entry.id === 'critters.critter.look')?.parameters['phone']).toBe(phone);
+  const single = await builtSceneShardfile(scene, compile as never, { creaturePhone: false });
+  expect(single.shard.rows.looks.find(entry => entry.id === 'critters.critter.look')?.parameters['phone']).toBeUndefined();
 });

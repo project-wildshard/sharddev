@@ -13,8 +13,9 @@ import { parseGlb } from '@wildshard/format/shardfileAssets';
 import type { ShardRows } from '@wildshard/format/rows';
 import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { CREATURE_BONE_CAP } from '../creatureCaps';
+import { creaturePhoneGlb, type CreaturePhoneOptions } from '../bake/creaturePhone';
 import { creatureGlb, creatureSkin, type CreatureBinding } from './creature';
-import type { SceneCreature } from './description';
+import type { SceneCreature, ShardScene } from './description';
 import { SceneRefusalError } from './refusal';
 
 type SpeciesRow = ShardRows['species'][number];
@@ -78,4 +79,30 @@ export function compileWorldCreature(id: string, body: Object3D, options: Creatu
   const look: ShardRows['looks'][number] = { id: lookId, species: id, recipe: 'platform.skin', material: null, parameters: { skin: hashImmutableBytes(bytes) },
     animation: { recipe: 'platform.clips', parameters: { attackSpan: options.attackSpan ?? 1 }, ...(clipMap === undefined ? {} : { clipMap: clipMap.output }) } };
   return { id, glb: rig.glb, skin: bytes, species, look, bones: rig.bones.length, triangles: parseGlb(rig.glb).triangles };
+}
+
+/**
+ * ONE-FORMAT CC51b: a creature's phone mesh, as its look's `phone` skin. `creaturePhoneGlb` simplifies the rig GLB; the
+ * phone skin file is the desktop one with the lighter GLB's hash and cost (the same rig, clips, sockets and material, as
+ * format `skin-variants` checks). A creature with a variant table (a look that cannot also name a phone skin), one that
+ * already has a phone mesh, or one the simplifier cannot lighten keeps its single mesh.
+ */
+export async function withCreaturePhone(creature: SceneCreature, options: CreaturePhoneOptions = {}): Promise<SceneCreature> {
+  if (creature.files !== undefined || creature.phone !== undefined) return creature;
+  const mesh = await creaturePhoneGlb(creature.glb, options);
+  if (mesh.triangles.phone >= mesh.triangles.desktop) return creature;
+  const { row, binding } = JSON.parse(new TextDecoder().decode(creature.skin)) as { row: Record<string, unknown>; binding: Record<string, unknown> };
+  const cost = parseGlb(mesh.glb);
+  const skin = new TextEncoder().encode(encodeCanonicalJson({ row: { ...row, cost: { decoded: cost.decoded, draws: cost.draws, gpu: cost.gpu, triangles: cost.triangles },
+    file: hashImmutableBytes(mesh.glb) }, binding }));
+  const look = { ...creature.look, parameters: { ...creature.look.parameters, phone: hashImmutableBytes(skin) } };
+  return { ...creature, look, phone: { glb: mesh.glb, skin, triangles: cost.triangles } };
+}
+
+/** CC51b: every `world.creature` with its phone mesh (the build's step before the shard file; `false` skips it). */
+export async function withCreaturePhones(scene: ShardScene, options: CreaturePhoneOptions | false = {}): Promise<ShardScene> {
+  if (options === false || scene.creatures === undefined || scene.creatures.length === 0) return scene;
+  const creatures: SceneCreature[] = [];
+  for (const creature of scene.creatures) creatures.push(await withCreaturePhone(creature, options));
+  return { ...scene, creatures };
 }

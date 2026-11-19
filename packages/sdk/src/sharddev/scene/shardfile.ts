@@ -5,6 +5,8 @@ import { emptyShardfile } from '../author';
 import { parseGlb, parseKtx2 } from '../assets';
 import { parseSkinFile, skinFileDependencies } from '@wildshard/format/skinAssets';
 import { hashImmutableBytes } from '../immutable';
+import type { CreaturePhoneOptions } from '../bake/creaturePhone';
+import { withCreaturePhones } from './worldCreature';
 import type { GeneratedProject, ProjectGenerationContext } from '../projectGeneration';
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
@@ -47,6 +49,9 @@ import { withSceneState } from './state';
 export interface ShardfileOptions {
   /** extra rows merged into the generated shardfile (manifest, card, quests...) */
   readonly extend?: (shard: Shardfile) => Shardfile;
+  /** ONE-FORMAT CC51b: how far each creature's phone mesh goes (`bake/creaturePhone`), or `false` for none (the default
+   *  halves its vertices within 1% of its radius) */
+  readonly creaturePhone?: CreaturePhoneOptions | false;
 }
 
 /**
@@ -514,7 +519,7 @@ export async function compileShardfile(scene: ShardScene, ctx: ProjectGeneration
  * build's `ctx.compileScript`) and bound.
  */
 export async function builtSceneShardfile(scene: ShardScene, compile: ProjectGenerationContext['compileScript'], options: ShardfileOptions = {}): Promise<{ shard: Shardfile; assets: Map<string, Uint8Array>; report: ShardfileReport }> {
-  const built = sceneShardfile(scene, options), lane = await withSceneState(built.shard, scene, compile);
+  const built = sceneShardfile(await withCreaturePhones(scene, options.creaturePhone), options), lane = await withSceneState(built.shard, scene, compile);
   if (lane === null) return built;
   built.assets.set(lane.module.hash, lane.module.bytes);
   return { ...built, shard: parseShardfile(lane.shard) };
@@ -794,7 +799,9 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   };
   const skins = creatures.flatMap((creature) => {
     store(creature.glb, 'glb');
-    if (creature.files === undefined) return [skinFile(creature.skin)];
+    // CC51b: the phone tier's mesh and its skin file load with the shard beside the desktop one
+    if (creature.phone !== undefined) store(creature.phone.glb, 'glb');
+    if (creature.files === undefined) return creature.phone === undefined ? [skinFile(creature.skin)] : [skinFile(creature.skin), skinFile(creature.phone.skin)];
     for (const glb of creature.files.glbs) store(glb, 'glb');
     for (const texture of creature.files.textures) store(texture, 'ktx2');
     const variants = creature.files.skins.map(skinFile), skin = skinFile(creature.skin);

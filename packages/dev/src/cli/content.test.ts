@@ -212,7 +212,7 @@ describe('content bar', () => {
 })
 
 describe('content creatures (ONE-FORMAT CC24)', () => {
-  it("lists each skinned creature with its skin file's bones and triangles", async () => {
+  it("lists each skinned creature with its skin file's bones and triangles (CC51b: and its phone mesh's)", async () => {
     const dir = await product({
       'look/materials': {
         rows: {
@@ -222,6 +222,12 @@ describe('content creatures (ONE-FORMAT CC24)', () => {
               species: 'critter',
               recipe: 'platform.skin',
               parameters: { skin: 'aa' },
+            },
+            {
+              id: 'beast.look',
+              species: 'beast',
+              recipe: 'platform.skin',
+              parameters: { skin: 'aa', phone: 'bb' },
             },
             {
               id: 'ball.look',
@@ -237,7 +243,10 @@ describe('content creatures (ONE-FORMAT CC24)', () => {
       resolve(dir, 'shard.json'),
       JSON.stringify({
         identity: { slug: 'test-content' },
-        files: [{ hash: 'aa', path: 'blobs/json/aa.json' }],
+        files: [
+          { hash: 'aa', path: 'blobs/json/aa.json' },
+          { hash: 'bb', path: 'blobs/json/bb.json' },
+        ],
       }),
     )
     await mkdir(resolve(dir, 'blobs/json'), { recursive: true })
@@ -251,13 +260,19 @@ describe('content creatures (ONE-FORMAT CC24)', () => {
         binding: {},
       }),
     )
+    // CC51b: a look's phone skin prints its triangles beside the skin's
+    await writeFile(
+      resolve(dir, 'blobs/json/bb.json'),
+      JSON.stringify({ row: { cost: { triangles: 6 } }, binding: {} }),
+    )
     const report = readContent(dir)
     assert.deepEqual(report.creatures, [
       { id: 'critter', bones: 3, triangles: 12 },
+      { id: 'beast', bones: 3, triangles: 12, phone: 6 },
     ])
     assert.match(
       formatContent(report),
-      /\n {2}creature critter: 3 bones, 12 triangles\n/u,
+      /\n {2}creature critter: 3 bones, 12 triangles\n {2}creature beast: 3 bones, 12 triangles, phone 6\n/u,
     )
   })
 })

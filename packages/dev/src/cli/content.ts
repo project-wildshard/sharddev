@@ -290,7 +290,7 @@ function formatContent(report: ContentReport, bar?: string): string {
   const creatures = report.creatures
     .map(
       row =>
-        `  creature ${row.id}: ${row.bones} bones, ${row.triangles} triangles`,
+        `  creature ${row.id}: ${row.bones} bones, ${row.triangles} triangles${row.phone === undefined ? '' : `, phone ${row.phone}`}`,
     )
     .join('\n')
   return `content ${report.slug}\n${values}${creatures === '' ? '' : `\n${creatures}`}${verdict}\n`
