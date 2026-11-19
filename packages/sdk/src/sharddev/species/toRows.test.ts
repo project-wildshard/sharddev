@@ -80,8 +80,9 @@ describe('species programs become layered rows (ONE-FORMAT OF11a)', () => {
         range: strike.range, damage: strike.damage, shape: strike.shape, tags: strike.tags, speed: strike.motion?.speed ?? 0 });
       expect(row?.weight).toBe(strike.weight.kind === 'constant' ? strike.weight.value : 1);
     }
-    // The strider's charge scores by distance and overshoots: a plain row drops both, the catalogue keeps them exactly.
-    expect(converted.lossy).toEqual([{ strike: 'sunscar.strider.charge', fields: ['weight', 'motion.overshoot'] }]);
+    // OF11b: the strider's charge keeps its overshoot as a row field; its distance score is the challenge brain's tuning.
+    expect(converted.lossy).toEqual([{ strike: 'sunscar.strider.charge', fields: ['weight'] }]);
+    expect(converted.strikes.find(row => row.id === 'sunscar.strider.charge')?.overshoot).toBe(3);
     expect(converted.catalogue).toEqual(program.strikes);
     const strider = program.species.find(row => row.kind === 'duneStrider');
     for (const seed of [0, 1, 7, 12345, 0.5]) expect(programSpawnPhase(strider?.brain, seed)).toBe(seedHash(seed) % 6);

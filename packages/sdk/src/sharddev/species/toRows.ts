@@ -37,15 +37,17 @@ function refuse(species: string, message: string): never { throw new Error(`spec
 
 /**
  * A creature strike as a plain strike row. Fields a row cannot carry (a scored weight, actor units, alternatives,
- * eligibility, motion beyond speed) are listed in `lost`; the exact strike stays in the `actors/strikes` catalogue.
+ * eligibility, motion beyond speed and overshoot) are listed in `lost`; the exact strike stays in the `actors/strikes`
+ * catalogue. A challenge brain scores its charge by its own tuning, so a charge's scored weight changes nothing there.
  */
 function strikeRow(strike: StrikeData): { row: StrikeRows; lost: string[] } {
   const { id, shape, windup, active, recover, cooldown, range, damage, tags, weight, units, alternatives, motion, eligibility, debris } = strike;
   const lost = [...weight.kind === 'constant' ? [] : ['weight'], ...units === 'actor' ? ['units'] : [],
     ...alternatives === undefined ? [] : ['alternatives'], ...eligibility === undefined ? [] : ['eligibility'],
-    ...Object.keys(motion ?? {}).filter(key => key !== 'speed').map(key => `motion.${key}`)];
+    ...Object.keys(motion ?? {}).filter(key => key !== 'speed' && key !== 'overshoot').map(key => `motion.${key}`)];
   return { lost, row: { id, shape, windup, active, recover, cooldown, range, damage, tags,
-    weight: weight.kind === 'constant' ? weight.value : 1, speed: motion?.speed ?? 0, ...(debris === undefined ? {} : { debris }) } as StrikeRows };
+    weight: weight.kind === 'constant' ? weight.value : 1, speed: motion?.speed ?? 0,
+    ...(motion?.overshoot === undefined ? {} : { overshoot: motion.overshoot }), ...(debris === undefined ? {} : { debris }) } as StrikeRows };
 }
 
 /** The strikes a brain names, in its own order. */
