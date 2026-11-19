@@ -17,3 +17,8 @@ stand-in client of two files. STR5's Node world reads the client's
 `version.json` (engine version, build, save epoch) to start, so both
 stand-ins now write one: the installed engine's version, build
 `fixture`, epoch 1 (the server's release schema refuses epoch 0).
+
+On hosted ci the packed proof could not resolve the engine from the
+installed dev package's symlinked path (pnpm keeps it in .pnpm), so it
+resolves from the real path; and the watch e2e's release read hit one
+ECONNRESET during a rebuild, so that read retries a few times.

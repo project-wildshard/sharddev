@@ -9,6 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import path from 'node:path'
+import { setTimeout as sleep } from 'node:timers/promises'
 
 import { number, object, parse, string } from 'valibot'
 
@@ -164,8 +165,24 @@ function edit(file: string, from: string, to: string): void {
   writeFileSync(file, original.replace(from, to))
 }
 
+// A watch rebuild can drop a connection mid-read (hosted ci saw ECONNRESET), so the read retries a few times.
+async function readRelease(
+  url: string,
+  tries: number,
+): Promise<globalThis.Response> {
+  try {
+    return await fetch(new URL('/__dev/release.json', url))
+  } catch (error) {
+    if (tries <= 1) {
+      throw error
+    }
+    await sleep(250)
+    return await readRelease(url, tries - 1)
+  }
+}
+
 async function serial(url: string): Promise<number> {
-  const response = await fetch(new URL('/__dev/release.json', url))
+  const response = await readRelease(url, 5)
   const envelope = parse(object({ body: string() }), await response.json())
   return parse(object({ serial: number() }), JSON.parse(envelope.body)).serial
 }
