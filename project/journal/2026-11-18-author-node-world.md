@@ -11,7 +11,7 @@ rebuild the shell and replace the server process, keeping the loopback
 socket address and the session's database. A failed replacement can reopen
 the previous build.
 
-The dev and watch e2e run the packed outside author's Template and assert
+The dev and watch E2E run the packed outside author's starter and assert
 player control without a server worker. Watch checks both control replies,
 then the new release serial and the edited quest visible in play.
 
@@ -45,3 +45,19 @@ The published dev 0.4.12 tarball is 264,042 bytes compressed. The
 0.44.0 candidate is 4,033,466 bytes, an increase of 3,769,424 bytes
 for the 15 server and launcher files. The plan's registry pin awaits
 the compatible engine archive and matching client.
+
+On that same paired 0.44.0 build, worker and Node edit-to-play took
+437 and 425 ms for ground, 422 and 426 ms for colliders, and 9,137 and
+8,694 ms for gameplay. Only the worker path started a server worker.
+
+The engine retired the old author bake implementations in `1c9ab9d3`.
+The SDK's geometry, voxel AO, placeholder and meadow parity tests
+continue to compare with those independent implementations through a
+test-only alias to engine 0.1.44. RNG and terrain tests use the same
+format modules as the current engine.
+
+After J434 changed the starter to Mossgate, both packed offline E2E
+tests passed again on sharddev `cbc6a95`. The matching engine source
+`161063f3` uses format 0.45.0 and the archive includes the exact wire
+pin from `f773a958`. The watch test changes ground, one hut collider
+and the starter's quest objective.

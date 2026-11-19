@@ -147,13 +147,13 @@ async function authorWorld(
   }
 }
 
-test('the packed dev command plays the authored Template over loopback', async ({
+test('the packed dev command plays the Mossgate starter over loopback', async ({
   browser,
 }): Promise<void> => {
   test.setTimeout(120_000)
   await authorWorld(browser, 'dev', async (page): Promise<void> => {
     await expect(
-      page.getByText('Reach the hut', { exact: true }).first(),
+      page.getByText('Walk up to the hut door', { exact: true }).first(),
     ).toBeVisible()
   })
 })
@@ -179,7 +179,11 @@ const controlFor =
 
 async function liveEdit(
   page: Readonly<Page>,
-  file: string,
+  watch: {
+    readonly worldFile: string
+    readonly url: string
+    readonly serial: number
+  },
   change: {
     readonly control: string
     readonly from: string
@@ -187,9 +191,10 @@ async function liveEdit(
   },
 ): Promise<void> {
   const pending = page.waitForResponse(controlFor(change.control))
-  edit(file, change.from, change.to)
+  edit(watch.worldFile, change.from, change.to)
   const response = await pending
   expect(response.ok()).toBe(true)
+  expect(await serial(watch.url)).toBe(watch.serial)
 }
 
 test('watch applies ground and collider edits and restarts the world for gameplay edits', async ({
@@ -203,31 +208,33 @@ test('watch applies ground and collider edits and restarts the world for gamepla
       await page.waitForFunction(
         '(window.__wsDevScene?.framedRevision ?? 0) > 0',
       )
-      const before = await serial(url)
-      await liveEdit(page, path.join(source, 'generators/scene.ts'), {
+      const watch = {
+        worldFile: path.join(source, 'generators/world.ts'),
+        url,
+        serial: await serial(url),
+      }
+      await liveEdit(page, watch, {
         control: 'wildshardDevGround',
-        from: 'world.ground(heightAt,',
-        to: 'world.ground((x, z) => heightAt(x, z) + 0.4 * Math.max(0, 1 - Math.hypot(x, z) / 5),',
+        from: 'world.ground(groundHeight,',
+        to: 'world.ground((x, z) => groundHeight(x, z) + 0.4 * Math.max(0, 1 - Math.hypot(x, z) / 5),',
       })
-      expect(await serial(url)).toBe(before)
-      await liveEdit(page, path.join(source, 'generators/world.ts'), {
-        control: '"wildshardDevColliders":"yard-walls"',
-        from: 'T = 0.75, SINK = 0.25',
-        to: 'T = 0.9, SINK = 0.25',
+      await liveEdit(page, watch, {
+        control: '"wildshardDevColliders":"hut"',
+        from: 'hx: W / 2, hy: Hh / 2, hz: 0.25, rotY: 0',
+        to: 'hx: W / 2, hy: Hh / 2, hz: 0.3, rotY: 0',
       })
-      expect(await serial(url)).toBe(before)
       edit(
-        path.join(source, 'data/quests.json'),
-        '"Reach the hut"',
-        '"Find the grey hut"',
+        path.join(source, 'generators/quests.ts'),
+        "'Walk up to the hut door'",
+        "'Find the hut door'",
       )
       await expect
         .poll(async (): Promise<number> => await serial(url), {
           timeout: 25_000,
         })
-        .toBeGreaterThan(before)
+        .toBeGreaterThan(watch.serial)
       await expect(
-        page.getByText('Find the grey hut', { exact: true }).first(),
+        page.getByText('Find the hut door', { exact: true }).first(),
       ).toBeVisible({ timeout: 25_000 })
       await page.waitForFunction(control)
     },
