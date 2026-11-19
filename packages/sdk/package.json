@@ -131,6 +131,7 @@
     "./bake/glbCompression": "./src/sharddev/bake/glbCompression.ts",
     "./bake/generatorGlb": "./src/sharddev/bake/generatorGlb.ts",
     "./bake/compactGlb": "./src/sharddev/bake/compactGlb.ts",
+    "./bake/packedVertex": "./src/sharddev/bake/packedVertex.ts",
     "./bake/nearPlaceholder": "./src/sharddev/bake/nearPlaceholder.ts",
     "./bake/placeholders": "./src/sharddev/bake/placeholders.ts",
     "./bake/farImpostor": "./src/sharddev/bake/farImpostor.ts",

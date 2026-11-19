@@ -4,6 +4,7 @@ import { WebIO, type Accessor, type Document, type Mesh, type Node } from '@gltf
 import { ALL_EXTENSIONS, KHRMeshQuantization, type InstancedMesh } from '@gltf-transform/extensions';
 import { MeshoptDecoder } from 'meshoptimizer';
 import { compressGlb } from './glbCompression';
+import { packStaticGlb, staticVertexPacking } from './packedVertex';
 import { hashImmutableBytes } from '../immutable';
 import { nameBlob, nameMeshoptBlob, type BlobOptions, type NamedBlob } from '../blobs';
 import { entryFootprints, obstructsEntry } from '@wildshard/format/entryGeometry';
@@ -39,7 +40,7 @@ const compacted = new Map<string, Uint8Array | null>();
 export async function compactPhoneGlb(input: Uint8Array, options: { readonly contain?: true; readonly each?: true } = {}): Promise<Uint8Array> {
   // the pick is a pure function of the bytes: a producer that prepares its output again (a test's second prepareOutput, a
   // rebuild in one process) reuses it instead of re-running the meshopt and brotli trials; a hit hands back its own copy
-  const key = `${options.contain === true ? 'contain' : 'grid'}${options.each === true ? '-each' : ''}:${hashImmutableBytes(input)}`, known = compacted.get(key);
+  const key = `${options.contain === true ? 'contain' : 'grid'}${options.each === true ? '-each' : ''}${staticVertexPacking() ? '-packed' : ''}:${hashImmutableBytes(input)}`, known = compacted.get(key);
   if (known === null) return input;
   if (known !== undefined) return Uint8Array.from(known);
   const result = await compactOnce(input, options);
@@ -143,8 +144,10 @@ async function compactOnce(input: Uint8Array, options: { readonly contain?: true
   // a meshopt input was decoded on read: the quantized file is written plain, and packed again below
   for (const extension of root.listExtensionsUsed()) if (extension.extensionName === 'EXT_meshopt_compression') extension.dispose();
   // the quantized file with and without meshopt: a triangle soup often packs better under brotli alone
-  const plain = await io.writeBinary(doc), packed = compressGlb(plain);
-  const sizes = [input, plain, packed].map(bytes => ({ bytes, size: brotliBytes(bytes) }));
+  // STR16: with the cook's packed static vertex on, every candidate carries it (a meshopt input stays as it is)
+  const pack = staticVertexPacking() ? packStaticGlb : (bytes: Uint8Array): Uint8Array => bytes;
+  const plain = pack(await io.writeBinary(doc)), packed = compressGlb(plain);
+  const sizes = [pack(input), plain, packed].map(bytes => ({ bytes, size: brotliBytes(bytes) }));
   return sizes.reduce((best, row) => row.size < best.size ? row : best).bytes;
 }
 

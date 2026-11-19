@@ -1155,6 +1155,12 @@ is copied into a second buffer, so the phone holds it twice. `check` prints each
 three layouts the build already wrote (an Int8 normal, a Uint8 colour, a Uint16 colour, 3 wide and packed) report; any
 other copied layout refuses. Write it aligned: `staticGlb` with `meshoptReady` pads it.
 
+A packed static vertex (MEMORY-STRUCTURE STR16) writes every static channel aligned and small: Int8 normals and
+tangents, Uint8 colour, Uint16 UVs, a 4-byte stride for every channel; positions keep their storage, and a colour or
+UV outside 0 to 1 stays float. It is a cook option, off by default: call `setStaticVertexPacking(true)` from
+`@wildshard/sdk/bake/packedVertex` at the top of your generator, and `staticGlb` and `compactPhoneGlb` write it.
+Delete the call to go back. The engine reads both layouts.
+
 #### validate-refused
 
 Shard-format's checks refused the built shard. The message names the check; RUNTIME-CONTRACT §8 lists what is refused.
