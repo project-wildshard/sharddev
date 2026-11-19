@@ -15,16 +15,16 @@ The dev and watch e2e run the packed outside author's Template and assert
 player control without a server worker. Watch checks both control replies,
 then the new release serial and the edited quest visible in play.
 
-The dev tarball grew from 264,292 to 4,088,832 bytes compressed
-(+3,824,540 bytes). Both e2e passed with the local v0.1.46 candidate
-installed from its npm tarball, the matching client provisioned, and
-non-loopback traffic denied.
+The dev tarball grew from 264,042 to 4,102,009 bytes compressed
+(+3,837,967 bytes). This compares sharddev main `e512107` to the Node
+author package built with the local engine archive from `0a1cc721`.
+Both packed e2e passed after provisioning its matching dev client
+and denying non-loopback traffic. Engine, SDK and kit used format 0.41.1.
 
-Using that same v0.1.46 dev client on both paths and the same authored
-Template, the worker and Node edit-to-play samples were 342 and 354 ms
-for ground, 328 and 341 ms for colliders, and 7,526 and 8,108 ms for
-gameplay. The Node differences were +3.5%, +4.0% and +7.7%.
-Playwright observed a server worker only on the worker path.
+With the same client and authored Template on both paths, worker and
+Node edit-to-play measured 459 and 493 ms for ground, 432 and 458 ms
+for colliders, and 9,393 and 10,028 ms for gameplay. The Node deltas
+were +7.4%, +6.0% and +6.8%. Only the worker path started a server worker.
 
 The dev package declares the socket service's exact PGlite extension peers,
 as engine does. A fresh strict pnpm install passed without peer exceptions.
