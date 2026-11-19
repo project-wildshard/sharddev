@@ -114,6 +114,8 @@ export async function prepareProduct(dir,base,inline=false){
       child.once('close',(status,signal)=>{done({error:undefined,status,stderr,timedOut:child.killed&&signal==='SIGTERM'});});
     });
     if(run.error!==undefined||run.status!==0){
+      // CI can't rerun with the debug flag cheaply: the recorder's last lines go to stderr with the refusal (NET-LAG NL12).
+      if(process.env.WILDSHARD_PREPARATION_DEBUG!=='1'&&run.stderr!=='')console.error(`wildshard prepare: the recorder's last output:\n${run.stderr.split('\n').slice(-40).join('\n')}`);
       const detail=run.timedOut?'Recorder exceeded its 300 second limit':run.error?.message??run.stderr.split('\n').reverse().find(line=>/^[A-Za-z]*Error(?: \[[^\]]+\])?: /u.test(line))??`Recorder exited ${run.status??'without a status'}; rerun with WILDSHARD_PREPARATION_DEBUG=1 for details`;
       throw new Error(detail?.includes('Candidate left as a draft.')?detail:`Phone WebKit preparation did not pass${detail===undefined?'':`: ${detail}`}; candidate left as a draft`);
     }
