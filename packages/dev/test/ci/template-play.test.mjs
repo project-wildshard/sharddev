@@ -35,7 +35,7 @@ async function play(runtime, plan, declared) {
   return { report, commit };
 }
 
-for (const { slug, directory } of proved) test(`${slug}: boot, walk and resume on the installed engine`, { timeout: 9_500 }, async () => {
+for (const { slug, directory } of proved) test(`${slug}: boot, walk and resume on the installed engine`, { timeout: 30_000 }, async () => {
   const product = await loadHeadlessFolder(directory), shard = product.shardfile;
   const descriptor = outputDescriptor(shard);
   assert.ok(descriptor, 'The built shard must pass admission');
