@@ -68,6 +68,7 @@
     "./bake/glbCompression": "bake kit",
     "./bake/generatorGlb": "bake kit",
     "./bake/compactGlb": "bake kit",
+    "./bake/packedVertex": "bake kit",
     "./bake/nearPlaceholder": "bake kit",
     "./bake/placeholders": "bake kit",
     "./bake/farImpostor": "bake kit",

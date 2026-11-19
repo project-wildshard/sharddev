@@ -1157,7 +1157,7 @@ other copied layout refuses. Write it aligned: `staticGlb` with `meshoptReady` p
 
 A packed static vertex (MEMORY-STRUCTURE STR16) writes every static channel aligned and small: Int8 normals and
 tangents, Uint8 colour, Uint16 UVs, a 4-byte stride for every channel; positions keep their storage, and a colour or
-UV outside 0 to 1 stays float. It is a cook option, off by default: call `setStaticVertexPacking(true)` from
+UV outside 0 to 1 stays float. It is a build option, off by default: call `setStaticVertexPacking(true)` from
 `@wildshard/sdk/bake/packedVertex` at the top of your generator, and `staticGlb` and `compactPhoneGlb` write it.
 Delete the call to go back. The engine reads both layouts.
 
