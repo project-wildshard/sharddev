@@ -106,7 +106,9 @@ test('check refuses a 65-bone creature by name, passes 64 and prints its numbers
   expect(at.refusals).toEqual([]); expect(at.verdict).toBe('pass');
   expect(at.steps.find(step => step.name === 'report')?.note).toMatch(/creatures: tier small; author\.caps \(small\) 64 bones, 0 volumes, 12 triangles/u);
   // OF17c: the derived primitives follow; the fixture's spawn switches population on, it has no weather or day rows.
-  expect(at.steps.find(step => step.name === 'report')?.note).toMatch(/; primitives: collision, plumbing, population$/u);
+  expect(at.steps.find(step => step.name === 'report')?.note).toMatch(/; primitives: collision, plumbing, population;/u);
+  // MEMORY-STRUCTURE STR13 and STR17: the static triangles against the phone budget, then the vertex layout.
+  expect(at.steps.find(step => step.name === 'report')?.note).toMatch(/; triangles: \d+ k static triangles of 600 k \(phone Low\), \d+ k vertices in \d+ GLBs?; vertex layout: every vertex channel 4-byte aligned$/u);
 }, 120_000);
 
 test('check refuses 17 hit volumes by name', async () => {

@@ -915,6 +915,12 @@ and its budget tier. Give it a phone LOD with fewer triangles, or a larger size 
 Each size class has a decoded-bytes mark per creature, mostly its textures: tiny 1 MB, small 2 MB, medium 4 MB, large
 8 MB, giant 16 MB. Over it `check` warns. Use a smaller atlas or fewer maps.
 
+#### triangle-budget
+
+The report card prints the shard's static triangles: every GLB's, each geometry once (instances share it). A phone at
+Low holds about 600 k before geometry costs more than its share of memory; over that `check` warns and the upload still
+takes it. Give the heaviest models a phone LOD or a simplified mesh, and reuse models rather than baking unique ones.
+
 #### vertex-layout
 
 WebKit draws through ANGLE's Metal back end, which reads a vertex channel in place only when its stride is a multiple

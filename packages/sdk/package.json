@@ -259,6 +259,7 @@
     "./internal/spawnWarnings": "./src/sharddev/spawnWarnings.ts",
     "./internal/creatureCaps": "./src/sharddev/creatureCaps.ts",
     "./internal/primitivesReport": "./src/sharddev/primitivesReport.ts",
+    "./internal/triangleBudget": "./src/sharddev/triangleBudget.ts",
     "./internal/vertexLayout": "./src/sharddev/vertexLayout.ts",
     "./internal/handwritten": "./src/sharddev/handwritten.ts",
     "./internal/handwrittenCreatureLayers": "./src/sharddev/handwrittenCreatureLayers.ts",

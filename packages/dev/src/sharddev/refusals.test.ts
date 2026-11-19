@@ -84,8 +84,8 @@ describe('the refusal table (SA21)', () => {
     const codes: readonly string[] = [...issueCodeRows().map(row => row.code), 'check-execution', 'check-infrastructure', 'spawn-aware-radius',
       // ONE-FORMAT CC47: the creature caps (sdk creatureCaps.ts).
       'creature-bone-cap', 'creature-volume-cap', 'creature-triangles', 'creature-textures',
-      // MEMORY-STRUCTURE STR17: the vertex layout ratchet (sdk vertexLayout.ts).
-      'vertex-layout-copy'];
+      // MEMORY-STRUCTURE STR13 and STR17: the triangle budget and the vertex layout ratchet.
+      'triangle-budget', 'vertex-layout-copy'];
     expect(codes.length).toBeGreaterThanOrEqual(53);
     expect(codes).toContain('audio-container');
     const named = REFUSAL_RULES.flatMap(row => (row.codes ?? []).map(code => [code, row.id] as const));
