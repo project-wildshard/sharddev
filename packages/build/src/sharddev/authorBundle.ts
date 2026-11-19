@@ -1,4 +1,4 @@
-// oxlint-disable-next-line import/no-nodejs-modules -- Resolve the trusted Node author's entry.
+// oxlint-disable-next-line import/no-nodejs-modules -- Resolve the native Node author's entry.
 import { resolve } from 'node:path';
 import { bundle, type BundleOptions } from '@wildshard/sdk/internal/bundle';
 

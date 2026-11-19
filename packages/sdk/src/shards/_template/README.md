@@ -26,7 +26,7 @@ the roads: a hover test course, a block district, a ziggurat and an overpass in 
 row, hangars and crate yard in the side strips, a second set piece at each entry, and four 40 m copy plots that a grid
 copy fills with its own seeded landmarks (`src/client/game/grid/copyLayout.ts`).
 
-The first-party manifest keeps the canonical `_template` slug, grey picker art and
+The built-in manifest keeps the canonical `_template` slug, grey picker art and
 `template-solo` save identity, and points at `/shardfiles/_template/shard.json`.
 The existing Game admits the product before its normal world/kit/play stages, sharing
 one player, physics world, fixed-step driver and HUD. There is no custom runtime chunk.

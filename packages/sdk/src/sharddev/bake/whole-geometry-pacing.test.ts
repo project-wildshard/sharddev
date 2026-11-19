@@ -37,7 +37,7 @@ function source(owner: Scope, levels = false, indexed = false): { geometry: Buff
       panels: [], models: [], far: null, colliders: [], textures: [] };
   }
   provideRuntimeFolder({ source: product, assets, cached: false }, owner, {
-    base: 'https://test.example/shardfiles/whole-pace/', offline: false, firstParty: true,
+    base: 'https://test.example/shardfiles/whole-pace/', offline: false, dangerousGrant: true,
     fetch: () => Promise.reject(new Error('All test bytes must be admitted')), hash: wire => Promise.resolve(hashImmutableBytes(wire)),
   });
   return { geometry, ref, matrix, product, coarse };
