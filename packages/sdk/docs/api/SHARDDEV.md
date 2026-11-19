@@ -597,7 +597,7 @@
 | `pruneGenerationCache` | function | @wildshard/sdk/internal/generationCache | G430: retain the three most recently used keys per job, expire older history |
 | `generationRecipes` | function | @wildshard/sdk/internal/generationRecipe | Bind each cached callback to its lexical source dependencies after bundling. |
 | `handwrittenIdentity` | function | @wildshard/sdk/internal/handwritten | The identity in a hand-written source's `shard.json`. |
-| `handwrittenTemplate` | function | @wildshard/sdk/internal/handwritten | The hand-written template, as the installed shard-format ships it (`files`: `corpus/handwritten/**`). |
+| `handwrittenTemplate` | function | @wildshard/sdk/internal/handwritten | The shard file folder a hand-written source starts from, as the installed shard-format ships it: Brasscap Mesa's |
 | `settleHandwritten` | function | @wildshard/sdk/internal/handwritten | Settle the hand-written folder `source` into `into` (the same folder, or a built folder it replaces): format's |
 | `writeHandwrittenSource` | function | @wildshard/sdk/internal/handwritten | Copy the installed hand-written template into `source` as shard `slug`: its slug and name become the new shard's in |
 | `settleHandwrittenCreatureLayers` | function | @wildshard/sdk/internal/handwrittenCreatureLayers | Hand-held JSON enters the same source expansion, then format settles the changed section's real hashes again. |

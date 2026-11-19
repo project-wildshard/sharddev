@@ -4,8 +4,8 @@ import { heroImages, withHero } from './hero.ts'
 
 import type { HeroImages } from './hero.ts'
 
-// Meta HERO-GATE HG2: Template 2 carries one 600x1400 card image for all
-// three slots, which upload now refuses (`hero-size`). The test shard file
+// Meta HERO-GATE HG2: the corpus product (Template 2, then Brasscap Mesa)
+// carries card images upload may refuse (`hero-size`). The test shard file
 // gets a real hero instead: three images at the hero sizes, mounted beside
 // its discovery document and named by its discovery card (the card upload
 // and api-server check first), with the cook rows to match.
@@ -22,8 +22,8 @@ type Row = Readonly<{ path: string; hash: string; bytes: number }>
 const COOK = 'cook.json'
 const MOUNTS = 'mounts'
 const SHADES = 200
-/** Template 2's product folder, where its discovery mount sits. */
-const FOLDER = 'blender-template'
+/** Brasscap Mesa's product folder, where its discovery mount sits. */
+const FOLDER = 'brasscap-mesa'
 
 function sha256(bytes: Readonly<Uint8Array>): string {
   return createHash('sha256').update(bytes).digest('hex')
@@ -71,7 +71,7 @@ function mountRows(
   )
 }
 
-/** HG2: Template 2's discovery card swapped for the hero a test asks for; the new cook row. */
+/** HG2: the corpus discovery card swapped for the hero a test asks for; the new cook row. */
 async function heroFixture(
   files: Files,
   hero: HeroOption | undefined,

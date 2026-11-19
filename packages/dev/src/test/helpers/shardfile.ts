@@ -19,15 +19,16 @@ import { makeTar } from './tar.ts'
 
 import type { HeroOption } from './hero-fixture.ts'
 
-// Test shardfiles: Template 2 as the format pin ships it, re-stamped with a
+// Test shardfiles: Brasscap Mesa's export as the format pin ships it (J434
+// retired the handwritten Template 2, meta TEMPLATE-E2E TR-10), re-stamped with a
 // slug, name and seed, its source hash recomputed with format's own functions
 // so the real validator admits it. `seed` varies the bytes (and so the hash)
 // of a revision. `shardfileFiles` is a draft (sdk 0.2), as `wildshard build`
 // writes it; `makeShardfile` is prepared (sdk 0.3), as upload sends it (J198).
 
-const TEMPLATE_2 = fileURLToPath(
+const CORPUS = fileURLToPath(
   new URL(
-    '../../../../sdk/node_modules/@wildshard/format/corpus/handwritten',
+    '../../../../sdk/node_modules/@wildshard/format/corpus/exports/brasscap-mesa',
     import.meta.url,
   ),
 )
@@ -62,7 +63,7 @@ function sha256(bytes: Readonly<Uint8Array>): string {
 }
 
 async function templateFiles(): Promise<ProductFiles> {
-  const entries = await readdir(TEMPLATE_2, {
+  const entries = await readdir(CORPUS, {
     recursive: true,
     withFileTypes: true,
   })
@@ -72,7 +73,7 @@ async function templateFiles(): Promise<ProductFiles> {
       .map(
         async (entry: ProductEntry): Promise<readonly [string, Uint8Array]> => {
           const file = path.join(entry.parentPath, entry.name)
-          const relative = path.relative(TEMPLATE_2, file).split(path.sep)
+          const relative = path.relative(CORPUS, file).split(path.sep)
           return [relative.join('/'), new Uint8Array(await readFile(file))]
         },
       ),

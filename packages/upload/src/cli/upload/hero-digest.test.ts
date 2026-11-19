@@ -24,14 +24,14 @@ import { validateShardfile } from './validate.ts'
 // pre-check never refused. Format v0.5.7 moved it to `corpus/exports/`,
 // re-exported from `shard-brasscap` (SHARD-SOURCE SS4), so its card and
 // digest are new; the digest is the same algorithm's, which the
-// handwritten and presentation-only cases pin to api-server's.
+// presentation-only case pins to api-server's. J434 retired the handwritten
+// Template 2 and its packed-card case (meta TEMPLATE-E2E TR-10): Brasscap's
+// export carries a packed manifest card itself.
 
 const CORPUS = fileURLToPath(
   new URL('../../../node_modules/@wildshard/format/corpus/', import.meta.url),
 )
 const API_DIGEST = {
-  handwritten:
-    'e3774b1d1ea3c3c44d14d6aa286d561c1c0be384f085fdbe096ca5ab858134c2',
   brasscapMesa:
     'afc0cbbda24a14adc615c4eb4658c1858b87422e14dcb62d6f689db312882e0b',
   presentationOnly:
@@ -67,14 +67,6 @@ async function templateShaped(): Promise<
 }
 
 test("a packed manifest card's digest is the API's", async (): Promise<void> => {
-  const shard = await validateShardfile(
-    await tarOf(path.join(CORPUS, 'handwritten')),
-  )
-
-  assert.equal(shard.heroHash, API_DIGEST.handwritten)
-})
-
-test("a generated data: card's digest is the API's", async (): Promise<void> => {
   const shard = await validateShardfile(
     await tarOf(path.join(CORPUS, 'exports', 'brasscap-mesa')),
   )

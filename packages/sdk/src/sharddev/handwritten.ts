@@ -1,6 +1,6 @@
-// SA16 (J314): `new --template blender` is shard-format's hand-written template, `blender-template`
-// (`corpus/handwritten`): a shard file folder held by hand, its sections JSON edited in place and its blobs frozen
-// Blender output (J88), with no `shard.config.ts`, no sdk at runtime and no three.js. Format's own `shard-format pack`
+// SA16 (J314): `new --template blender` (retired, J341; tests keep the shape) starts from a shard file folder format
+// ships (`corpus/handwritten` until J434, now Brasscap Mesa's export): held by hand, its sections JSON edited in place
+// and its blobs frozen Blender output (J88), with no `shard.config.ts`, no sdk at runtime and no three.js. Format's own `shard-format pack`
 // settles what the sections measure (hashes, sizes, packs, the source hash), so `new` and `check` run it, never a copy
 // of its rules.
 // oxlint-disable-next-line import/no-nodejs-modules -- Format's pack CLI runs as a child, as an author runs it.
@@ -22,8 +22,9 @@ const SDK_ROOT = resolve(import.meta.dirname, '../..');
 function formatRoot(): string {
   return resolve(dirname(createRequire(resolve(SDK_ROOT, 'package.json')).resolve('@wildshard/format/outputIndex')), '../..');
 }
-/** The hand-written template, as the installed shard-format ships it (`files`: `corpus/handwritten/**`). */
-export function handwrittenTemplate(): string { return resolve(formatRoot(), 'corpus/handwritten'); }
+/** The shard file folder a hand-written source starts from, as the installed shard-format ships it: Brasscap Mesa's
+ *  export (`corpus/exports/brasscap-mesa`), since J434 retired the hand-written Template 2 (meta TEMPLATE-E2E TR-10). */
+export function handwrittenTemplate(): string { return resolve(formatRoot(), 'corpus/exports/brasscap-mesa'); }
 
 interface Identity { readonly slug: string; readonly name: string }
 interface Row { hash: string; bytes: number; path: string; url?: string }
