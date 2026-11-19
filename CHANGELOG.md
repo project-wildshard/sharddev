@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.15 (2026-11-19)
+
+- Use engine 0.1.47 and its released preparation client.
+- Bake scene creatures as one skinned mesh per skin.
+- Keep the upload deadline and read-only resume command from 0.4.14.
+
 ## v0.4.14 (2026-11-19)
 
 - A slow upload prints its resume command and finishes waiting before the publish job runs out of time.
