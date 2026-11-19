@@ -19,9 +19,9 @@ import { parseShardfile } from '@wildshard/format/shardSchema';
 /**
  * SHARD-SOURCE AP36c: the Template's gameplay, pinned: every section but the world's (budgets, look, files, tiles, library,
  * far, props), plus the authored collider rows and the panels' and models' ids. The bake it was once compared to is gone;
- * this is the AP36b build's gameplay with the idle bindings derived (clientScripts.ts: spawn order, then the anchors).
+ * this is the AP36b build's gameplay with derived idle bindings and the OF3c2 factory-fur skin for the boar.
  */
-const TEMPLATE_GAMEPLAY = 'c1379c41a8284478c54f735e7578c66e0a1fb999046bbafe544bb2a18588e72c';
+const TEMPLATE_GAMEPLAY = '67e9aebd493b7f6d70aaeab604244381c5510b3579d03d2bdeba488cc31e4b1e';
 /** The scene build's map, every RGBA byte (the ground-map test pinned the bake's before AP36c). */
 const TEMPLATE_MAP = '4465db6cc11fdd95a997048d59adae04791c1665d80710c7949208deeda08eb8';
 function gameplayDigest(shard: Awaited<ReturnType<typeof generate>>['shard']): string {
