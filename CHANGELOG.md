@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.17 (2026-11-19)
+
+- Use engine 0.1.50 and shard format 0.48.0.
+- Run `wildshard dev` and `wildshard watch` worlds in Node on loopback.
+- Name each creature decision strike once, so declared decisions pack cleanly.
+- Leave creatures out of a hand-written seed.
+- Print the preparation recorder's last output when it fails.
+
 ## v0.4.16 (2026-11-19)
 
 - Define scene moves and spots directly in `defineShard`.
