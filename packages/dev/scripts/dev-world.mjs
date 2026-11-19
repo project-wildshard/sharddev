@@ -10,12 +10,10 @@ import { PGlite } from '@electric-sql/pglite';
 import { PGLiteSocketServer } from '@electric-sql/pglite-socket';
 
 const here = import.meta.dirname;
-const engineManifest = fileURLToPath(import.meta.resolve('@wildshard/engine/package.json'));
-const engineRoot = dirname(engineManifest);
-const engineScript = name => pathToFileURL(join(engineRoot, 'scripts', name)).href;
+const installedEngine = fileURLToPath(import.meta.resolve('@wildshard/engine/package.json'));
 export const DEV_RELEASE = '/__dev/release.json';
 
-async function devBundle(version) {
+async function devBundle(engineRoot, version) {
   const packed = join(here, '../dist/dev-server');
   try {
     const builtFor = (await readFile(join(packed, 'engine-version'), 'utf8')).trim();
@@ -38,7 +36,9 @@ function stopChild(child) {
   });
 }
 
-export async function createDevWorld(origin, work) {
+export async function createDevWorld(origin, work, engineManifest = installedEngine) {
+  const engineRoot = dirname(engineManifest);
+  const engineScript = name => pathToFileURL(join(engineRoot, 'scripts', name)).href;
   const { devKey } = await import(engineScript('dev-world.mjs'));
   const { childListener, rigFront } = await import(engineScript('rig-listeners.mjs'));
   await mkdir(work, { recursive: true });
@@ -73,12 +73,12 @@ export async function createDevWorld(origin, work) {
   return {
     get signed() { return signed; },
     stamp(html) { return html.replace(/<head(?:\s[^>]*)?>/iu, head => head + stamp); },
-    async move(product, slug) {
-      const { build, clientVersion, saveEpoch: epoch } = JSON.parse(await readFile(join(product, 'version.json'), 'utf8'));
+    async move(product, slug, client = product) {
+      const { build, clientVersion, saveEpoch: epoch } = JSON.parse(await readFile(join(client, 'version.json'), 'utf8'));
       if (clientVersion !== version || typeof build !== 'string' || !/^[\w.-]+$/u.test(build) || !Number.isSafeInteger(epoch)) {
         throw new Error(`wildshard: the dev client must be built with the installed engine (${version})`);
       }
-      bundle ??= await devBundle(version);
+      bundle ??= await devBundle(engineRoot, version);
       const next = { build, epoch, slug, product, bundle };
       await stopChild(room);
       try {

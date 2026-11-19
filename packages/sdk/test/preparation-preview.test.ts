@@ -7,7 +7,15 @@ import { dirname, join, resolve } from 'node:path';
 import { clientPage } from '../src/sharddev/clientPage';
 
 interface Preview { url: string; slug: string; close: () => Promise<void> }
-type Serve = (client: string, dir: string, ports: { clientPage: typeof clientPage }) => Promise<Preview>;
+interface PreviewWorld {
+  readonly signed: string;
+  stamp: (page: string) => string;
+  move: (folder: string, slug: string, client: string) => Promise<void>;
+  close: () => Promise<void>;
+}
+type Serve = (client: string, dir: string, ports: { clientPage: typeof clientPage; online?: {
+  releasePath: string; open: (origin: string) => Promise<PreviewWorld>;
+} }) => Promise<Preview>;
 const roots: string[] = [];
 afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: true, force: true }); });
 function folder(files: Record<string, string>): string {
@@ -57,4 +65,27 @@ test("S12f: the candidate's mounts are served at their URLs, from mounts/ or the
     expect(await get('/assets/isle/rock.glb')).toEqual([200, 'rock']);
     expect((await get('/assets/isle/escape.bin'))[0]).toBe(404);
   } finally { await preview.close(); }
+});
+
+test('the online preview serves its release while the local world starts', async () => {
+  const client = folder({ 'index.html': '<html><head></head><body></body></html>' });
+  const candidate = folder({ 'shard.json': '{"identity":{"slug":"isle"}}' });
+  const { preparationPreview } = await import('../scripts/preparation-preview.mjs') as { preparationPreview: Serve };
+  let closed = false;
+  const preview = await preparationPreview(client, candidate, { clientPage, online: {
+    releasePath: '/__dev/release.json',
+    open: origin => Promise.resolve({
+      signed: '{"body":"exact release"}',
+      stamp: page => page.replace('<head>', '<head><script>globalThis.__WS_WORLD__={};</script>'),
+      move: async (product, slug, servedClient) => {
+        expect([product, slug, servedClient]).toEqual([candidate, 'isle', client]);
+        expect(await (await fetch(origin + '/__dev/release.json')).json()).toEqual({ body: 'exact release' });
+      },
+      close: () => { closed = true; return Promise.resolve(); },
+    }),
+  } });
+  try {
+    expect(await (await fetch(preview.url)).text()).toContain('globalThis.__WS_WORLD__={};');
+  } finally { await preview.close(); }
+  expect(closed).toBe(true);
 });
