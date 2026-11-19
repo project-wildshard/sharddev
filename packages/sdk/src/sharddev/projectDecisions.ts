@@ -19,6 +19,12 @@ export function projectDecisionOptions(input: unknown, decisionLegacyLines?: num
   const options = v.parse(v.strictObject({ asLineCeiling: v.exactOptional(v.pipe(v.number(), v.safeInteger(), v.minValue(0))) }), input ?? {});
   return { ...options, ...(decisionLegacyLines === undefined ? {} : { decisionLegacyLines }) };
 }
+/** OF19b: a converted species program keeps its exact strikes in `actors/strikes` beside plain `rows.strikes` of the same
+ *  ids (OF11b1); the decision catalogue names each id once, as engine `ShardDecisions` does. */
+export function decisionStrikeRows<Row extends { readonly id: string }>(source: Pick<Shardfile, 'rows'>, strikes: readonly Row[]): Row[] {
+  const plain = new Set(source.rows.strikes.map(row => row.id));
+  return strikes.filter(row => !plain.has(row.id));
+}
 /** Replace the declared decision payload with freshly compiled rows; no old Wasm bytes are needed to build it. */
 export async function prepareProjectDecisions(project: string, source: Shardfile, platform: EmittedSections | undefined, options: DecisionBuildOptions): Promise<{
   platform?: EmittedSections; blobs: readonly NamedBlob[]; replaced: ReadonlySet<string>;
@@ -45,7 +51,7 @@ export async function prepareProjectDecisions(project: string, source: Shardfile
   const bodyEntry = platform?.sections.find(row => row.name === 'sim/bodies'), bodyBytes = bodyEntry === undefined ? undefined : platform?.files.get(bodyEntry.path);
   if (bodyEntry !== undefined && (bodyBytes === undefined || bodyBytes.length !== bodyEntry.bytes || hashAssetBytes(bodyBytes) !== bodyEntry.hash)) throw new Error('Declared body section hash or size mismatch');
   const bodies = bodyBytes === undefined ? {} : declaredBodyRegistries(v.parse(DeclaredBodyOpsSchema, JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(bodyBytes))));
-  const built = await compileDecisionScripts(rows, { ...buildDecisionRegistries(source, moves, worldTargets, strikes, rows, nativeActors), ...bodies }, authored, options);
+  const built = await compileDecisionScripts(rows, { ...buildDecisionRegistries(source, moves, worldTargets, decisionStrikeRows(source, strikes), rows, nativeActors), ...bodies }, authored, options);
   const emitted = emitPlatformSections(new Map([['sim/scripts', built.rows]])), sections = [...(platform?.sections ?? []).filter(row => row.name !== 'sim/scripts'), ...emitted.sections];
   const files = new Map(platform?.files);
   for (const row of platform?.sections ?? []) if (row.name === 'sim/scripts') files.delete(row.path);
