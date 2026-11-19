@@ -15,7 +15,9 @@ export const WARDEN_FIELDS = {
   // MZ31 (QA 11-19 rows 26, 35): the Hollow burns bright while the Warden is down, the climax of the Lamplighter's chain
   relit: { id: 112, name: 'mossgate.hollow-relit' },
 } as const;
-export const ENCOUNTERS = { greyback: 'mossgate.greyback', warden: 'mossgate.warden' } as const;
+/** MZ15: Gritmaw's one shared field, the ring of grit its script raises round its feet before each strike. */
+export const GRITMAW_FIELDS = { tell: { id: 113, name: 'mossgate.gritmaw-tell' } } as const;
+export const ENCOUNTERS = { greyback: 'mossgate.greyback', warden: 'mossgate.warden', gritmaw: 'mossgate.gritmaw' } as const;
 
 /** The Template's brains: the blobs pursue, the sows ram and the wisps circle the pond and dive. */
 const BRAINS = [
@@ -47,6 +49,10 @@ const ENCOUNTER_ROWS = [
   { id: ENCOUNTERS.greyback, entity: BODIES.greyback, kind: 'elite', panel: null, name: 'Greyback', title: 'Greyback', retry: 'Try Greyback again',
     arena: { at: [HAUNTS.GREYBACK.x, 0, HAUNTS.GREYBACK.z], radius: HAUNTS.GREYBACK.r }, intro: 0, introShort: 0, respawn: RESPAWN,
     phases: [{ at: 1, name: 'First phase', caption: 'First phase', speed: 2, stopDistance: 2, turnRate: 3 }] },
+  // MZ15: Gritmaw, the quarry's elite on the pit's floor; its decision script strikes and raises its tell
+  { id: ENCOUNTERS.gritmaw, entity: BODIES.gritmaw, kind: 'elite', panel: null, name: 'Gritmaw', title: 'Gritmaw', retry: 'Try Gritmaw again',
+    arena: { at: [HAUNTS.GRITMAW.x, 0, HAUNTS.GRITMAW.z], radius: HAUNTS.GRITMAW.r }, intro: 0, introShort: 0, respawn: RESPAWN,
+    phases: [{ at: 1, name: 'First phase', caption: 'First phase', speed: 1, stopDistance: 0, turnRate: 3 }] },
   { id: ENCOUNTERS.warden, entity: BODIES.warden, kind: 'boss', panel: WARDEN_PANEL, name: 'Barrow Warden', title: 'Keeper of the hollow',
     retry: 'Try the Barrow Warden again', arena: { at: [HAUNTS.WARDEN.x, 0, HAUNTS.WARDEN.z], radius: HAUNTS.WARDEN.r }, intro: 1, introShort: 0.2,
     respawn: RESPAWN,
@@ -72,10 +78,27 @@ export const WARDEN_DECISION = {
   ],
   params: { firstBeat: 1.6, secondBeat: 0.9, windup: 1.2, window: 3 },
 } as unknown as DecisionScripts[number];
-export const DECISIONS: DecisionScripts = [WARDEN_DECISION];
+/** MZ15: Gritmaw's decision script: each beat the grit ring rises, a strike lands (the slam, then the quake), and the ring
+ *  falls (`behaviour/gritmaw.as`). */
+export const GRITMAW_DECISION = {
+  id: 'mossgate.gritmaw.decision', abi: '1.0', side: 'sim', module: `blobs/wasm/${'0'.repeat(64)}.wasm`, source: 'behaviour/gritmaw.as',
+  binding: { encounter: ENCOUNTERS.gritmaw }, pages: 1, onFail: 'reset', on: ['start', 'timer', 'death', 'stop'], tick: null,
+  reads: ['nearestPlayer'], commands: ['strike', 'stop', 'timer', 'field'], actors: { boss: BODIES.gritmaw }, moves: {},
+  strikes: { slam: STRIKES.gritmawSlam.id, quake: STRIKES.gritmawQuake.id }, cues: {},
+  fields: { tell: GRITMAW_FIELDS.tell.name }, flags: {}, zones: {}, spots: {}, targets: {}, spawns: {}, signals: {},
+  facts: {}, rewards: {}, channels: {}, impulses: {}, weather: {}, timers: ['beat', 'land'], stateVersion: 1,
+  state: [
+    { name: 'awake', type: 'bool', default: false, scope: 'binding' },
+    { name: 'beat', type: 'i32', default: 0, scope: 'binding', min: 0, max: 1 },
+  ],
+  params: { firstBeat: 1.2, rest: 1.6, windup: 1.1 },
+} as unknown as DecisionScripts[number];
+export const DECISIONS: DecisionScripts = [WARDEN_DECISION, GRITMAW_DECISION];
 
 /** The panel parts the Warden's fields show (play.ts draws them): the ground ring while it rears, the gem while its core is open. */
 export const WARDEN_PANELS = { ring: 'mossgate.warden-ring', core: 'mossgate.warden-core', relit: 'mossgate.hollow-relit' } as const;
+/** MZ15: the panel Gritmaw's tell shows, a ring of grit spikes round its feet (play.ts). */
+export const GRITMAW_PANELS = { ring: 'mossgate.gritmaw-ring' } as const;
 
 /** The fight rows over the shardfile: `gameplay` calls this after the quests. */
 export function fights(shard: Shardfile): Shardfile {
@@ -86,7 +109,9 @@ export function fights(shard: Shardfile): Shardfile {
     creatures: { ...shard.creatures, brains: [...shard.creatures.brains, ...BRAINS], groups: [...shard.creatures.groups, PACK, STONES_PACK] } as Shardfile['creatures'],
     encounters: [...shard.encounters, ...ENCOUNTER_ROWS] as Shardfile['encounters'],
     ui: [...shard.ui, { kind: 'bossPanel', id: WARDEN_PANEL, encounter: ENCOUNTERS.warden, name: 'Barrow Warden', title: 'Keeper of the hollow', retry: 'Try the Barrow Warden again' }] as Shardfile['ui'],
-    state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id), field(WARDEN_FIELDS.relit.name, WARDEN_FIELDS.relit.id)] },
-    targets: { ...shard.targets, panels: [...shard.targets.panels, panel(WARDEN_PANELS.ring, WARDEN_FIELDS.tell.id), panel(WARDEN_PANELS.core, WARDEN_FIELDS.core.id), panel(WARDEN_PANELS.relit, WARDEN_FIELDS.relit.id)] },
+    state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id), field(WARDEN_FIELDS.relit.name, WARDEN_FIELDS.relit.id),
+      field(GRITMAW_FIELDS.tell.name, GRITMAW_FIELDS.tell.id)] },
+    targets: { ...shard.targets, panels: [...shard.targets.panels, panel(WARDEN_PANELS.ring, WARDEN_FIELDS.tell.id), panel(WARDEN_PANELS.core, WARDEN_FIELDS.core.id), panel(WARDEN_PANELS.relit, WARDEN_FIELDS.relit.id),
+      panel(GRITMAW_PANELS.ring, GRITMAW_FIELDS.tell.id)] },
   };
 }

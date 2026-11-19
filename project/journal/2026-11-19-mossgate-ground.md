@@ -25,3 +25,11 @@ MZ14, the Bog (`generators/bog.ts`): Wisp Mere's dark water with reeds and drown
 Shrine with a drowned chest. The chest is shared like the yard's, so its quest pays each player who stands at it once it
 is open. The bog's floor came up about a metre: with the mere's water near y -2.8 the wisps never got down to a walker
 (they hold about 0.5 to 1 m and never climbed back to their orbit), and at the pond's level they dive and hit.
+
+MZ15, the Old Quarry (`generators/quarry.ts`): Gritmaw, a smaller sandstone cut of the Warden's golem body, stands on the
+pit's floor as the Hollow's second elite, with its own decision script (`behaviour/gritmaw.as`): each beat its ring of grit
+rises (a shared field and a panel), it strikes, and the ring falls. It never turns, so its slam lands in front (up the haul
+path, where a walker arrives) and its quake all round. Four grey blobs keep a camp on the west floor. The Spoil Cut
+(`ground.ts` `CUT`), a 5.5 m trench, crosses the haul path, which spans it on a timber bridge. A collider keeps only a yaw:
+any tilt turns into its world bounding box, which made the first sloped deck and its rails one block the walker could not
+climb. The deck is drawn sloped and its collider is twelve level steps of under 0.2 m.

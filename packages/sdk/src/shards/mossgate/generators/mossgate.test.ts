@@ -109,35 +109,34 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
 
 // TEMPLATE-E2E TR-12b (J434): the Template's creatures and the Barrow Warden's fight on Mossgate. Each species is a
 // `world.creature` (a skinned body, its skin file, its species and look rows); the brains, the pack, both encounters and
-// the Warden's script's fields are rows `extend` adds; its decision script is the shard's one `decisions` row.
+// the Warden's script's fields are rows `extend` adds; its decision script is a `decisions` row (MZ15 adds Gritmaw's).
 test('Mossgate carries the Template creatures and the Warden fight', { timeout: 120_000 }, async () => {
   const { shard } = await builtSceneShardfile(mossgate.describe(), compileScript, { extend: gameplay });
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, as the build writes it
   expect(() => parseShardfile(JSON.parse(JSON.stringify(shard)))).not.toThrow();
   const species = new Map(shard.rows.species.map((row) => [row.id, row]));
-  // four hostile species and the Warden, each with its own skin look
-  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'mere.wisp', 'boar', 'barrow.warden']);
+  // five hostile species, the Warden and Gritmaw (MZ15), each with its own skin look
+  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'mere.wisp', 'boar', 'barrow.warden', 'quarry.gritmaw']);
   for (const row of species.values()) {
     expect(row.aggressive, row.id).toBe(true);
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // twenty-six bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
-  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback and the Warden
+  // thirty-one bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
+  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback, the Warden, and Gritmaw and its camp's four blobs (MZ15)
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(26);
+  expect(spawns).toHaveLength(31);
   expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));
   expect(shard.creatures.groups.map((row) => [row.id, row.members.length])).toEqual([['mossgate.mosslings', 4], ['mossgate.mosslings-stones', 4]]);
   for (const row of spawns) if (row.brain !== null) expect(shard.creatures.brains.some((b) => b.id === row.brain) || shard.creatures.groups.some((g) => g.id === row.brain), row.id).toBe(true);
-  // Greyback is an elite, the Warden a boss with two phases and a panel, three strikes its script names
-  expect(shard.encounters.map((row) => [row.id, row.kind, row.entity])).toEqual([[ENCOUNTERS.greyback, 'elite', 'greyback'], [ENCOUNTERS.warden, 'boss', 'barrow-warden']]);
+  // Greyback and Gritmaw are elites, the Warden a boss with two phases and a panel, three strikes its script names
+  expect(shard.encounters.map((row) => [row.id, row.kind, row.entity])).toEqual([[ENCOUNTERS.greyback, 'elite', 'greyback'], [ENCOUNTERS.gritmaw, 'elite', 'gritmaw'], [ENCOUNTERS.warden, 'boss', 'barrow-warden']]);
   // MZ1: a shared world's fight comes back for the next player (a body that respawns re-arms its encounter)
   for (const row of shard.encounters) expect(spawns.find((s) => s.id === row.entity)?.respawn, row.entity).toBe(BOSS_RESPAWN);
   const strikes = new Set(shard.rows.strikes.map((row) => row.id));
-  const [decision] = DECISIONS;
-  for (const id of Object.values(decision?.strikes ?? {})) expect(strikes.has(id), id).toBe(true);
+  for (const decision of DECISIONS) for (const id of Object.values(decision.strikes ?? {})) expect(strikes.has(id), id).toBe(true);
   for (const field of Object.values(WARDEN_FIELDS)) expect(shard.state.shared.find((row) => row.name === field.name)?.id).toBe(field.id);
   // its tell shows the ground ring, its open core the gem
   expect(shard.targets.panels.filter((row) => row.fieldId === WARDEN_FIELDS.tell.id || row.fieldId === WARDEN_FIELDS.core.id).map((row) => row.panel)).toEqual(['mossgate.warden-ring', 'mossgate.warden-core']);

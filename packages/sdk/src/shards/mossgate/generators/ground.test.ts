@@ -2,6 +2,8 @@
 // the roads and paths stay walkable, and the cell's edges and entry roads meet the grid's road height.
 import { expect, test } from 'vitest';
 import { HALF, PATHS, PLACES } from './layout';
+import { CUT, cutDepth } from './ground';
+import { QUARRY } from './quarry';
 import { groundHeight } from './world';
 
 const SPACING = 500 / 256;
@@ -36,13 +38,25 @@ test('the cell edges sit at road height, where the grid seams meet the next cell
 
 test('the roads and paths are walkable: no step along them steeper than 25 degrees', () => {
   const steep: string[] = [];
+  // MZ15: the haul path crosses the Spoil Cut on the bridge (quarry.ts), not on the ground
+  const onBridge = (x: number, z: number): boolean => Math.hypot(x - QUARRY.BRIDGE.x, z - QUARRY.BRIDGE.z) < CUT.floor + CUT.wall + 2;
   for (const path of PATHS) for (let i = 1; i < path.points.length; i++) {
     const [ax, az] = path.points[i - 1] ?? [0, 0], [bx, bz] = path.points[i] ?? [0, 0], len = Math.hypot(bx - ax, bz - az);
     for (let d = 0; d + 1 <= len; d += 1) {
       const t0 = d / len, t1 = (d + 1) / len;
       const rise = Math.abs(groundHeight(ax + (bx - ax) * t1, az + (bz - az) * t1) - groundHeight(ax + (bx - ax) * t0, az + (bz - az) * t0));
-      if (Math.atan(rise) * 180 / Math.PI > 25) steep.push(`${path.from} to ${path.to} at ${(ax + (bx - ax) * t0).toFixed(0)},${(az + (bz - az) * t0).toFixed(0)}`);
+      if (Math.atan(rise) * 180 / Math.PI > 25 && !onBridge(ax + (bx - ax) * t0, az + (bz - az) * t0)) steep.push(`${path.from} to ${path.to} at ${(ax + (bx - ax) * t0).toFixed(0)},${(az + (bz - az) * t0).toFixed(0)}`);
     }
   }
   expect(steep).toEqual([]);
+});
+
+test('the Spoil Cut is a steep trench the bridge spans from bank to bank', () => {
+  const { BRIDGE } = QUARRY;
+  expect(cutDepth(BRIDGE.x, BRIDGE.z)).toBe(-CUT.depth);
+  expect(groundHeight(BRIDGE.x, BRIDGE.z)).toBeLessThan(Math.min(BRIDGE.north.y, BRIDGE.south.y) - 4);
+  // each end of the deck stands on its bank, past the cut's walls
+  for (const end of [BRIDGE.north, BRIDGE.south]) expect(cutDepth(end.x, end.z), `${end.x},${end.z}`).toBeCloseTo(0, 6);
+  // the deck climbs gently: under 10 degrees
+  expect(Math.atan2(Math.abs(BRIDGE.south.y - BRIDGE.north.y), Math.hypot(BRIDGE.south.x - BRIDGE.north.x, BRIDGE.south.z - BRIDGE.north.z)) * 180 / Math.PI).toBeLessThan(10);
 });

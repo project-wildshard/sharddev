@@ -97,7 +97,17 @@ export function regionRelief(x: number, z: number): number {
   const relief = baseRelief(x, z);
   // roads and paths keep the regional shape but lose the small bumps: a rider's line stays smooth
   const road = 1 - sstep(roadDistance(x, z), 2, 9);
-  return road <= 0 ? relief : relief - road * 0.5 * (relief - smoothRelief(x, z));
+  // the cut keeps its walls under a road: the path crosses it on the bridge
+  return (road <= 0 ? relief : relief - road * 0.5 * (relief - smoothRelief(x, z))) + cutDepth(x, z);
+}
+
+/** MZ15: the Spoil Cut, a steep-walled drainage trench across the quarry's north side, from beside the south road to the
+ *  quarry's east edge. The haul path to the pit crosses it on a timber bridge (quarry.ts); a walker can go round its west end. */
+export const CUT = { a: [13, 152], b: [72.5, 126], floor: 3.5, wall: 3, depth: 5.5 } as const;
+/** The cut's sink at (x, z): its full depth on its floor, 0 past its walls. */
+export function cutDepth(x: number, z: number): number {
+  const d = segment(x, z, CUT.a[0], CUT.a[1], CUT.b[0], CUT.b[1]);
+  return -CUT.depth * (1 - sstep(d, CUT.floor, CUT.floor + CUT.wall));
 }
 
 /** The relief averaged over a 6 m cross, what a road levels its bumps toward. */

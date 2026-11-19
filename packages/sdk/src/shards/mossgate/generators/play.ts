@@ -14,7 +14,8 @@ import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { fire } from '@wildshard/sdk/scene/fire';
 import { buildMossgate, groundHeight, LAYOUT } from './world';
 import { buildCreatures, HAUNTS } from './creatures';
-import { WARDEN_PANELS } from './fights';
+import { GRITMAW_PANELS, WARDEN_PANELS } from './fights';
+import { buildQuarry } from './quarry';
 import { buildMeadow } from './meadow';
 import { buildThicket } from './thicket';
 import { buildBog } from './bog';
@@ -237,6 +238,17 @@ function wardenTell(world: ShardWorld): void {
   }, { panel: WARDEN_PANELS.core });
 }
 
+/** MZ15: Gritmaw's tell, a ring of grit spikes round its feet while it rears (its script's `tell` field, fights.ts). */
+function gritmawTell(world: ShardWorld): void {
+  const { x, z } = HAUNTS.GRITMAW, gy = groundHeight(x, z), grit = plain('#d8b878', 1, '#c08a30');
+  world.part('gritmaw-ring', (part) => {
+    for (let k = 0; k < 10; k++) {
+      const a = (k * Math.PI) / 5, spike = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.8, 5), grit);
+      spike.position.set(x + Math.sin(a) * 2.4, gy + 0.4, z + Math.cos(a) * 2.4); spike.rotation.z = Math.sin(a) * 0.2; part.add(spike);
+    }
+  }, { panel: GRITMAW_PANELS.ring });
+}
+
 /** MZ31 (QA 11-19 rows 26, 35): the chain's payoff. The Warden down (its script's `relit` field, fights.ts), the Hollow
  *  answers: a ring of moss runes burns round the barrow floor, and a trail of lit stones leads from the ring back to the
  *  Lamplighter, the next goal. It goes out when the Warden re-arms. */
@@ -281,6 +293,8 @@ export function buildHollow(world: ShardWorld): void {
   buildMeadow(world);
   buildThicket(world);
   buildBog(world);
+  buildQuarry(world);
   wardenTell(world);
+  gritmawTell(world);
   hollowRelit(world);
 }
