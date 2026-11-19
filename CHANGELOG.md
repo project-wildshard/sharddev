@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.11 (2026-11-18)
+
+- `world.creature` makes a serpent from a `trail` row, and a `clipMap` says which clip plays each state or ability.
+- Rigged hulls keep the hull book's look: maps, fur sheen and rim or a painterly surface, a pressed flap, a skin per variant.
+- Species programs turn into plain layered creature rows (`@wildshard/sdk/species/toRows`).
+- Built on shard-format 0.41.0: legless flyers and camelCase species ids in spawns are admitted.
+
 ## v0.4.10 (2026-11-18)
 
 - Prepare and preview tiered shard products with the exact engine v0.1.44 author clients.
