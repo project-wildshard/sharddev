@@ -37,3 +37,18 @@ export const output = { platform: emitPlatformSections(new Map([['actors/moves',
     // J186: old monorepo layout lists and README prose are not product contracts.
   } finally { rmSync(scratch, { recursive: true, force: true }); }
 });
+// Meta MOSSGATE-ZONE MZ8 (QA 11-19 row 30): Jake's flat mauve sky, painted over the tree crowns, was Cinder Orchard's, a
+// pre-J434 `wildshard new` of the legacy Template (no sky dome of its own; its compendium refused at `level.kit`). Mossgate
+// draws its sunset dome. A new repo starts from Mossgate's own sky, and the legacy Template cannot be asked for.
+test('wildshard new starts from Mossgate\'s sky dome, never the legacy Template', async () => {
+  mkdirSync('tmp', { recursive: true });
+  const scratch = mkdtempSync(resolve('tmp', 'new-sky-'));
+  try {
+    const repo = resolve(scratch, 'sky-world');
+    await runCli(['new', repo, 'sky-world']);
+    const template = resolve(import.meta.dirname, '../../sdk/src/shards/mossgate/generators');
+    expect(readFileSync(resolve(repo, 'src/generators/sky.ts'), 'utf8')).toBe(readFileSync(resolve(template, 'sky.ts'), 'utf8'));
+    expect(readFileSync(resolve(repo, 'src/generators/world.ts'), 'utf8')).toContain('world.sky(sunsetSky()');
+    await expect(runCli(['new', resolve(scratch, 'legacy'), 'legacy', '--template', 'sdk'])).rejects.toThrow(/retired/u);
+  } finally { rmSync(scratch, { recursive: true, force: true }); }
+});
