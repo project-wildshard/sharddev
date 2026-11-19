@@ -27,7 +27,9 @@ owner receives no hunting numbers. The SDK rehashes changed section bytes before
 admission; no content is selected in the engine.
 
 `commonCreature('boar' | 'bear', { id, look, strike? })` copies the complete
-layered species and its strike rows. Its body uses the caller's look; its ordered
+layered species and its strike rows. Its `species` goes straight into
+`rows.species` and its `strikes` into `rows.strikes`; add the look row your
+`look` names (`kitCreature` in the SDK copies a kit body for it). Its body uses the caller's look; its ordered
 variants retain their authored dimensions, health and modifiers. Hunting includes
 explicit walk, charge, windup, ring and trample numbers in `tuning.motion`, beside
 the existing hunt numbers. The consumer reads those parameters at setup. Sounds,
@@ -80,7 +82,8 @@ is available under the content subpath, including content/temperaments.json,
 content/tuning/*.json and content/abilities/*.json.
 
 commonSpeciesRows reads fresh complete boar/bear gameplay metadata with an
-authored species id. The species subpath and content/species/*.json expose
+authored species id. It is the older species-program shape, not a row:
+`rows.species` refuses it, so author rows with `commonCreature`. The species subpath and content/species/*.json expose
 these same values for existing bake callers. These compatibility definitions
 preserve current bytes; OF3 supplies the layered species and GLB body assets.
 

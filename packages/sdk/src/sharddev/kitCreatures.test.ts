@@ -31,3 +31,16 @@ test('explicit aliases reuse the shipped body and asset closure, and unknown ove
   await expect(kitCreature('boar', { id: 'author.boar', look: 'author.skin', family: 'toon', skins: { invented: 'boar' } })).rejects.toThrow('Unknown kit creature variant');
   await expect(kitCreature('boar', { id: 'author.boar', look: 'author.skin', family: 'toon', skins: { sow: 'invented' } })).rejects.toThrow('Unknown kit boar toon body');
 });
+
+// ONE-FORMAT OF-NE22 (NEW-SHARD-E2E F22): the kit's row for `rows.species` is `commonCreature`'s species (dims, mods,
+// body); `commonSpeciesRows` is the older species-program shape and is refused there, as the GUIDE says.
+test.each(['boar', 'bear'] as const)('commonCreature %s goes straight into rows.species; commonSpeciesRows does not', async kind => {
+  const { commonCreature, commonSpeciesRows } = await import('@wildshard/kit');
+  const { species, strikes } = commonCreature(kind, { id: `author.${kind}`, look: `author.${kind}.look`, strike: `author.${kind}.charge` });
+  const look = { id: `author.${kind}.look`, species: species.id, recipe: 'platform.skin', material: null, parameters: { skin: 'a'.repeat(64) },
+    animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } };
+  const rows = parseRows({ species: [species], strikes, looks: [look], weather: [], days: [], compendiums: [], loot: [] });
+  expect(rows.species[0]?.dims).toBeDefined();
+  expect(rows.species[0]?.variants.every(variant => variant.mods !== undefined)).toBe(true);
+  expect(() => parseRows({ species: [commonSpeciesRows(kind, `author.${kind}`)], strikes: [], looks: [], weather: [], days: [], compendiums: [], loot: [] })).toThrow();
+});
