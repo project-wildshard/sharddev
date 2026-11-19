@@ -11,6 +11,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
+import { fire } from '@wildshard/sdk/scene/fire';
 import { buildMossgate, groundHeight, LAYOUT } from './world';
 import { buildCreatures, HAUNTS } from './creatures';
 import { WARDEN_PANELS } from './fights';
@@ -64,12 +65,10 @@ const block = (x: number, y: number, z: number, hx: number, hy: number, hz: numb
 /** A node the prompt or trigger reads its place from. */
 const node = (part: THREE.Group, x: number, y: number, z: number): THREE.Object3D => { const o = new THREE.Object3D(); o.position.set(x, y, z); part.add(o); return o; };
 
-/** One burning bowl: three emissive tongues over the coal at (x, y, z). */
-function flame(into: THREE.Group, x: number, y: number, z: number, size: number, outer: THREE.Material, inner: THREE.Material): void {
-  for (const [dx, dz, h, r, m] of [[0, 0, 0.9, 0.3, outer], [-0.16, 0.1, 0.6, 0.2, outer], [0.15, -0.1, 0.55, 0.18, outer], [0, 0, 0.5, 0.16, inner]] as const) {
-    const tongue = new THREE.Mesh(new THREE.ConeGeometry(r * size, h * size, 7), m);
-    tongue.position.set(x + dx * size, y + (h * size) / 2, z + dz * size); into.add(tongue);
-  }
+/** One burning bowl: the sdk's fire (MZ7, QA 11-19 row 29) on the coals at (x, y, z): additive tongues that lick and
+ *  breathe, embers, thin smoke and a glow on the coals, all in graph materials, so the panel that shows it carries them. */
+function flame(into: THREE.Group, x: number, y: number, z: number, size: number): void {
+  const f = fire({ size, seed: Math.abs(Math.round(x * 13 + z * 7)) + 1 }); f.position.set(x, y, z); into.add(f);
 }
 
 /** MZ31 (QA 11-19 row 35, "nothing happens"): a lit fire's light on the ground round it, three soft warm discs laid flat
@@ -90,7 +89,6 @@ function rimSeat(letter: string): [number, number, number] {
 
 /** The braziers: a prompt over each bowl, and each letter's flames as a panel its field shows. */
 function braziers(world: ShardWorld): void {
-  const outer = plain('#ff9a3a', 1, '#ff7a1c'), inner = plain('#ffe08a', 1, '#ffd060');
   world.part('brazier-uses', (part) => {
     for (const [x, z, letter] of PLAY.BRAZIERS) {
       world.interact(USES.brazier(letter), node(part, x, groundHeight(x, z) + 1.7, z), { label: `Light brazier ${letter}`, radius: 2.5, sets: { field: FIELDS.brazier(letter), scope: 'shared', value: true } });
@@ -98,11 +96,11 @@ function braziers(world: ShardWorld): void {
   });
   for (const [x, z, letter] of PLAY.BRAZIERS) {
     world.part(`flame-${letter.toLowerCase()}`, (part) => {
-      flame(part, x, groundHeight(x, z) + 1.16, z, 1, outer, inner);
+      flame(part, x, groundHeight(x, z) + 1.16, z, 1);
       glowPool(part, x, groundHeight(x, z), z, 1);
       // its row twin by brazier A (world.ts `LAYOUT.ROW`, scale 0.92) and its rim brazier in the arena
-      for (const [rx, rz, l] of LAYOUT.ROW) if (l === letter) flame(part, rx, groundHeight(rx, rz) + 1.09, rz, 0.92, outer, inner);
-      const [ax, ay, az] = rimSeat(letter); flame(part, ax, ay, az, 0.8, outer, inner);
+      for (const [rx, rz, l] of LAYOUT.ROW) if (l === letter) flame(part, rx, groundHeight(rx, rz) + 1.09, rz, 0.92);
+      const [ax, ay, az] = rimSeat(letter); flame(part, ax, ay, az, 0.8);
     }, { panel: `mossgate.flame-${letter.toLowerCase()}`, shownWhen: { field: FIELDS.brazier(letter), equals: true } });
   }
 }
