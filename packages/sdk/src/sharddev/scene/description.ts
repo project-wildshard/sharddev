@@ -319,7 +319,8 @@ export interface SceneCreature {
    *  skin file and the variant table its look names; each skin depends on its GLB, then its material's textures */
   readonly files?: {
     readonly glbs: readonly Uint8Array[]; readonly textures: readonly Uint8Array[]; readonly skins: readonly Uint8Array[]; readonly table: Uint8Array;
-  };
+  };  /** ONE-FORMAT OF27c: look materials its skin binding's `materials` name (a hull look's rigid parts), by look material id */
+  readonly materials?: Readonly<Record<string, Readonly<Record<string, unknown>>>>;
 }
 
 /**

@@ -113,3 +113,38 @@ test('nalati.wolf: a painterly look over a colourless rig draws without vertex c
   const material = (bytes: Uint8Array): Record<string, unknown> => (JSON.parse(new TextDecoder().decode(bytes)) as { binding: { material: Record<string, unknown> } }).binding.material;
   for (const skin of creature.files?.skins ?? []) expect(material(skin)).toMatchObject({ family: 'painterly', rim: 0.8, bands: 0.85, vertexColours: false });
 });
+
+// OF27c: Pine's thrall extras (the hull book's `RiggedHullUrls.parts`, `boar_thrall` of `thrall-extras.glb`; boar rig and
+// parts copied from shard-pine-hollow 1c829c0) join the rig as two primitives on its bones, drawn by their own look
+// materials: their vertex colour, and the overgrown glow on the glowing half. Every variant of the look carries them.
+const BOAR_FUR = { roughness: 0.9, sheen: 0.25, sheenColor: [0.4, 0.33, 0.25], envMapIntensity: 0.5, rim: [0.9, 0.7, 0.45] } as const;
+test('pine.boar.thrall: the thrall extras ride the rig as parts with their own look materials', async () => {
+  await prepareAssetDecoders();
+  const thrall = { ...species, variants: variantsNamed(['thrall']) } as HullCreatureOptions['species'];
+  const parts = { glb: rig('pine-thrall-extras.phone.glb'), node: 'boar_thrall' };
+  const plain = await hullCreature('pine.boar.thrall', rig('pine-boar.phone.rigged.glb'), { species: thrall, size: 'medium', skeleton: 'quadruped',
+    look: { maps: { base: pixel(1) }, surface: { family: 'pbr', fur: BOAR_FUR } } });
+  const creature = await hullCreature('pine.boar.thrall', rig('pine-boar.phone.rigged.glb'), { species: thrall, size: 'medium', skeleton: 'quadruped',
+    look: { maps: { base: pixel(1) }, surface: { family: 'pbr', fur: BOAR_FUR }, variants: { thrall: { parts } } } });
+  expect(creature.triangles).toBeGreaterThan(plain.triangles);
+  expect(Object.keys(creature.materials ?? {})).toEqual(['pine.boar.thrall.parts', 'pine.boar.thrall.parts.glow']);
+  expect(creature.materials?.['pine.boar.thrall.parts.glow']).toMatchObject({ family: 'pbr', vertexColours: true, emissiveIntensity: expect.closeTo(2.86, 5) });
+  const binding = (JSON.parse(new TextDecoder().decode(creature.skin)) as { binding: { materials?: Record<string, string> } }).binding;
+  expect(binding.materials).toEqual({ parts: 'pine.boar.thrall.parts', 'parts.glow': 'pine.boar.thrall.parts.glow' });
+  const scene = lowerShard({ slug: 'hulls', name: 'Hulls' }, (world) => {
+    world.spawn(0, 0, 0);
+    const den = new THREE.Object3D(); den.position.set(20, 0, 20); world.scene.add(den);
+    world.spawnAt('hulls.one', den, { species: 'pine.boar.thrall', variant: 'thrall', brain: null, strike: null, seed: 1, scale: 1 });
+  });
+  const { shard, assets } = sceneShardfile({ ...scene, creatures: [creature] });
+  expect(shard.look.materials['pine.boar.thrall.parts']).toBeDefined();
+  expect(() => { validateSkinAssets(shard, assets); }).not.toThrow();
+  expect(shardfileRules(shard)).toEqual([]);
+});
+
+test('parts on some variants only refuse: one material contract per variant table', async () => {
+  const mixed = { ...species, variants: variantsNamed(['plain', 'thrall']) } as HullCreatureOptions['species'];
+  await expect(hullCreature('pine.boar', rig('pine-boar.phone.rigged.glb'), { species: mixed, size: 'medium', skeleton: 'quadruped',
+    look: { maps: { base: pixel(1) }, surface: { family: 'pbr', fur: BOAR_FUR },
+      variants: { thrall: { parts: { glb: rig('pine-thrall-extras.phone.glb'), node: 'boar_thrall' } } } } })).rejects.toThrow(/own species/u);
+});

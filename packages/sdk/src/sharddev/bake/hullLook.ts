@@ -9,9 +9,15 @@
  * fur's sheen, rim and glow) in the look's variant table; a generator flap is pressed into the hull at build. `pbr` is the
  * hull book's fur material (Pine: sheen, backlit rim, normal map), `painterly` the shard's painterly surface over the coat
  * (Nalati). The embedded images leave the rig: the maps are separate files the skin depends on.
+ *
+ * OF27c, `parts`: a variant's rigid parts (Pine's thrall extras, the hull book's `RiggedHullUrls.parts`) join its rig as
+ * two more primitives on the hull's bones, drawn in their own colour by the look materials `<id>.parts` and (glowing, as
+ * the hull book's `aOvergrown` glow) `<id>.parts.glow` through the skin binding's `materials`. A variant table shares one
+ * material contract, so every variant of a look with parts has its own.
  */
 import type { CreatureBody, CreatureSkeleton } from '@wildshard/format/creatureLayers';
 import type { RiggedHullFlap } from '@wildshard/format/riggedHulls';
+import type { Document, TypedArray } from '@gltf-transform/core';
 import { readRigDocument, writeRigDocument } from './rig';
 import { pressHullFlap } from './hullFlap';
 import { CREATURE_SKELETONS } from '@wildshard/format/creatureSkeletons';
@@ -53,9 +59,13 @@ export interface HullFur {
 /** A hull's base colour and tangent-space normal map, KTX2 bytes. */
 export interface HullMaps { readonly base: Uint8Array; readonly normal?: Uint8Array }
 export type HullSurface = { readonly family: 'pbr'; readonly fur: HullFur } | { readonly family: 'painterly'; readonly rim: number; readonly bands: number };
-/** One variant's own hull, maps, flap, baked coat (KTX2) and fur override; absent fields are the look's. */
+/** OF27c: one node of a parts GLB whose primitive carries POSITION, NORMAL, TEXCOORD_0, COLOR_0, `_BONE` (the hull's
+ * joint index) and `_GLOW` (0 or 1): the hull book's rigid parts for one variant. */
+export interface HullParts { readonly glb: Uint8Array; readonly node: string }
+/** One variant's own hull, maps, flap, baked coat (KTX2), fur override and rigid parts; absent fields are the look's. */
 export interface HullVariant {
   readonly rig?: Uint8Array; readonly maps?: HullMaps; readonly flap?: RiggedHullFlap; readonly coat?: Uint8Array; readonly fur?: Partial<HullFur>;
+  readonly parts?: HullParts;
 }
 export interface HullLook {
   readonly maps: HullMaps;
@@ -74,8 +84,68 @@ function furMaterial(fur: HullFur, colour: string, normal: string | undefined): 
     ...(fur.emissive === undefined ? {} : { emissive: fur.emissive.map(srgb), emissiveIntensity: fur.emissiveIntensity ?? 1 }) };
 }
 
+type PartKind = 'parts' | 'parts.glow';
+/** OF27c: the parts node's triangles as two primitives on the hull's skinned mesh, rigid on their `_BONE` joint: `parts`
+ * and `parts.glow` (a triangle glows where its first vertex does). The hull's own primitives take a white colour channel
+ * so the merged skin carries one set of channels. Returns the GLB material names it added. */
+async function addHullParts(document: Document, parts: HullParts): Promise<PartKind[]> {
+  const node = (await readRigDocument(parts.glb)).getRoot().listNodes().find((value) => value.getName() === parts.node);
+  const source = node?.getMesh()?.listPrimitives()[0];
+  if (source === undefined) throw new Error(`hull parts: no node ${parts.node}`);
+  const read = (name: string, size: number): Float32Array => {
+    const accessor = source.getAttribute(name);
+    if (accessor === null) throw new Error(`hull parts ${parts.node}: no ${name}`);
+    const out = new Float32Array(accessor.getCount() * size), element: number[] = [];
+    for (let i = 0; i < accessor.getCount(); i++) { accessor.getElement(i, element); out.set(element.slice(0, size), i * size); }
+    return out;
+  };
+  const channels = { POSITION: read('POSITION', 3), NORMAL: read('NORMAL', 3), TEXCOORD_0: read('TEXCOORD_0', 2), COLOR_0: read('COLOR_0', 3) };
+  const bone = read('_BONE', 1), glow = read('_GLOW', 1), count = bone.length;
+  const index = source.getIndices()?.getArray() ?? Uint32Array.from({ length: count }, (_, i) => i);
+  const root = document.getRoot(), mesh = root.listNodes().find((value) => value.getSkin() !== null && value.getMesh() !== null)?.getMesh();
+  const buffer = root.listBuffers()[0];
+  if (mesh === null || mesh === undefined || buffer === undefined) throw new Error('hull parts: a skinned hull mesh');
+  const accessor = (type: 'SCALAR' | 'VEC2' | 'VEC3' | 'VEC4', array: TypedArray) => document.createAccessor().setType(type).setArray(array).setBuffer(buffer);
+  for (const primitive of mesh.listPrimitives()) if (primitive.getAttribute('COLOR_0') === null) {
+    primitive.setAttribute('COLOR_0', accessor('VEC3', new Float32Array((primitive.getAttribute('POSITION')?.getCount() ?? 0) * 3).fill(1)));
+  }
+  const added: PartKind[] = [];
+  for (const kind of ['parts', 'parts.glow'] as const) {
+    const remap = new Map<number, number>(), triangles: number[] = [];
+    for (let t = 0; t + 2 < index.length; t += 3) {
+      if (((glow[index[t] ?? 0] ?? 0) >= 0.5) !== (kind === 'parts.glow')) continue;
+      for (let k = 0; k < 3; k++) { const v = index[t + k] ?? 0; let at = remap.get(v); if (at === undefined) { at = remap.size; remap.set(v, at); } triangles.push(at); }
+    }
+    if (triangles.length === 0) continue;
+    const used = [...remap.keys()], take = (from: Float32Array, size: number): Float32Array<ArrayBuffer> => {
+      const out = new Float32Array(used.length * size);
+      used.forEach((v, i) => { out.set(from.subarray(v * size, v * size + size), i * size); });
+      return out;
+    };
+    const joints = new Uint16Array(used.length * 4), weights = new Float32Array(used.length * 4);
+    used.forEach((v, i) => { joints[i * 4] = Math.round(bone[v] ?? 0); weights[i * 4] = 1; });
+    const material = document.createMaterial(kind).setBaseColorFactor([1, 1, 1, 1]).setMetallicFactor(0).setRoughnessFactor(1);
+    const primitive = document.createPrimitive().setMaterial(material).setIndices(accessor('SCALAR', Uint32Array.from(triangles)))
+      .setAttribute('POSITION', accessor('VEC3', take(channels.POSITION, 3))).setAttribute('NORMAL', accessor('VEC3', take(channels.NORMAL, 3)))
+      .setAttribute('TEXCOORD_0', accessor('VEC2', take(channels.TEXCOORD_0, 2))).setAttribute('COLOR_0', accessor('VEC3', take(channels.COLOR_0, 3)))
+      .setAttribute('JOINTS_0', accessor('VEC4', joints)).setAttribute('WEIGHTS_0', accessor('VEC4', weights));
+    mesh.addPrimitive(primitive);
+    added.push(kind);
+  }
+  return added;
+}
+
+/** OF27c: the look materials a look's parts draw with: their own vertex colour under the hull's fur sheen and rim, and the
+ * hull book's overgrown glow (linear (0.45, 0.95, 1.1) x 2.6) on the glowing ones. */
+function partMaterials(id: string, kinds: readonly PartKind[], fur: HullFur): Record<string, Record<string, unknown>> {
+  const plain = { family: 'pbr', colour: [1, 1, 1], vertexColours: true, roughness: fur.roughness, metalness: 0, envStrength: fur.envMapIntensity,
+    sheen: { amount: Math.max(0.01, fur.sheen), colour: [...fur.sheenColor], roughness: 0.7 }, rim: [...fur.rim] };
+  return Object.fromEntries(kinds.map((kind) => [`${id}.${kind}`, kind === 'parts' ? plain
+    : { ...plain, emissive: [0.45 / 1.1, 0.95 / 1.1, 1].map(srgb), emissiveIntensity: 2.6 * 1.1 }]));
+}
+
 /** the rig without its embedded images (its maps are separate files), with its generator flap pressed in */
-async function hullRig(glb: Uint8Array, flap: RiggedHullFlap | undefined): Promise<Uint8Array> {
+async function hullRig(glb: Uint8Array, flap: RiggedHullFlap | undefined, parts?: HullParts): Promise<{ glb: Uint8Array; parts: PartKind[] }> {
   const document = await readRigDocument(glb), root = document.getRoot();
   for (const material of root.listMaterials()) { material.setBaseColorTexture(null); material.setNormalTexture(null); material.setMetallicRoughnessTexture(null); material.setOcclusionTexture(null); material.setEmissiveTexture(null); }
   for (const texture of root.listTextures()) texture.dispose();
@@ -89,7 +159,8 @@ async function hullRig(glb: Uint8Array, flap: RiggedHullFlap | undefined): Promi
     if (pressHullFlap(p, n, index, flap) !== null) { position?.setArray(p); normal.setNormalized(false).setArray(n); }
   }
   for (const extension of root.listExtensionsUsed()) if (['KHR_texture_basisu', 'EXT_texture_webp'].includes(extension.extensionName)) extension.dispose();
-  return writeRigDocument(document);
+  const added = parts === undefined ? [] : await addHullParts(document, parts);
+  return { glb: await writeRigDocument(document), parts: added };
 }
 
 /** The look's files beside the default skin: every variant rig GLB, KTX2 map and skin file, and the variant table. */
@@ -139,25 +210,33 @@ async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOpti
   const variants = options.species.variants.map((variant) => variant.id), first = variants[0];
   if (first === undefined) throw new Error(`hull ${id}: a species with no variants`);
   for (const key of Object.keys(look.variants ?? {})) if (!variants.includes(key)) throw new Error(`hull ${id}: no species variant ${key}`);
-  const rigs = new Map<string, Promise<Awaited<ReturnType<typeof importCreatureGlb>>>>(), textures = new Map<string, Uint8Array>();
+  const withParts = variants.filter((variantId) => look.variants?.[variantId]?.parts !== undefined);
+  if (withParts.length > 0 && withParts.length !== variants.length)
+    throw new Error(`hull ${id}: a variant table shares one material contract, so parts go on every variant (give ${withParts.join(', ')} its own species)`);
+  if (withParts.length > 0 && look.surface.family !== 'pbr') throw new Error(`hull ${id}: parts draw under a pbr fur surface`);
+  const rigs = new Map<string, Promise<{ imported: Awaited<ReturnType<typeof importCreatureGlb>>; parts: PartKind[] }>>(), textures = new Map<string, Uint8Array>();
   const texture = (bytes: Uint8Array): string => { const hash = hashImmutableBytes(bytes); textures.set(hash, bytes); return hash; };
   const made = await Promise.all(variants.map(async (variantId) => {
     const own = look.variants?.[variantId] ?? {}, source = own.rig ?? rig, flap = own.flap ?? (own.rig === undefined ? look.flap : undefined);
-    const key = `${hashImmutableBytes(source)}:${JSON.stringify(flap ?? null)}`;
+    const key = `${hashImmutableBytes(source)}:${JSON.stringify(flap ?? null)}:${own.parts === undefined ? '' : `${hashImmutableBytes(own.parts.glb)}:${own.parts.node}`}`;
     let imported = rigs.get(key);
     if (imported === undefined) {
-      imported = hullRig(source, flap).then((bytes) => importCreatureGlb(bytes, { skeleton: options.skeleton, map: options.map ?? kitChainMap(options.skeleton) }));
+      imported = hullRig(source, flap, own.parts).then(async (rigged) => ({ parts: rigged.parts,
+        imported: await importCreatureGlb(rigged.glb, { skeleton: options.skeleton, map: options.map ?? kitChainMap(options.skeleton) }) }));
       rigs.set(key, imported);
     }
-    const fitted = await imported;
+    const { imported: fitted, parts } = await imported;
     if (fitted.bones.length > CREATURE_BONE_CAP) throw new Error(`hull ${id}: ${fitted.bones.length} bones, over the cap of ${CREATURE_BONE_CAP}`);
     const maps = own.maps ?? look.maps, colour = texture(own.coat ?? maps.base), normal = maps.normal === undefined ? undefined : texture(maps.normal);
     const material = look.surface.family === 'pbr' ? furMaterial({ ...look.surface.fur, ...own.fur }, colour, normal)
       : { family: 'painterly', rim: look.surface.rim, bands: look.surface.bands, map: colour, vertexColours: carriesColour(fitted.glb) };
-    const binding: CreatureBinding = { loops: options.loops ?? [], material };
+    const materials = Object.fromEntries(parts.map((kind) => [kind, `${id}.${kind}`]));
+    const binding: CreatureBinding = { loops: options.loops ?? [], material, ...(parts.length === 0 ? {} : { materials }) };
     const skin = new TextEncoder().encode(encodeCanonicalJson(creatureSkin(fitted, { id, family: 'pbr', binding })));
-    return { variantId, fitted, skin };
+    return { variantId, fitted, skin, parts };
   }));
+  const kinds = made[0]?.parts ?? [];
+  if (made.some((row) => row.parts.join(',') !== kinds.join(','))) throw new Error(`hull ${id}: every variant's parts need the same glowing and plain halves`);
   const table = new TextEncoder().encode(encodeCanonicalJson({ version: 1, skins: Object.fromEntries(made.map((row) => [row.variantId, hashImmutableBytes(row.skin)])) }));
   const head = made[0];
   if (head === undefined) throw new Error(`hull ${id}: no skins`);
@@ -170,5 +249,6 @@ async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOpti
   const glbs = [...new Map(made.map((row) => [hashImmutableBytes(row.fitted.glb), row.fitted.glb])).values()];
   const skins = [...new Map(made.map((row) => [hashImmutableBytes(row.skin), row.skin])).values()];
   return { id, glb: head.fitted.glb, skin: head.skin, species, look: lookRow, bones: head.fitted.bones.length,
-    triangles: parseGlb(head.fitted.glb).triangles, files: { glbs, textures: [...textures.values()], skins, table } };
+    triangles: parseGlb(head.fitted.glb).triangles, files: { glbs, textures: [...textures.values()], skins, table },
+    ...(kinds.length === 0 || look.surface.family !== 'pbr' ? {} : { materials: partMaterials(id, kinds, look.surface.fur) }) };
 }

@@ -628,6 +628,11 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     propMaterials[name] = { id: lookId(key), ...(file === undefined ? {} : { colour: { file: file.hash, wrapS: 10497, wrapT: 10497, minFilter: 9987, magFilter: 9729, anisotropy: 4 } }) };
   }
   lookMaterials[GROUND_MATERIAL] = groundEntry(scene);
+  // OF27c: a creature's own look materials (a hull look's rigid parts), each id once
+  for (const creature of scene.creatures ?? []) for (const [id, entry] of Object.entries(creature.materials ?? {})) {
+    if (id in lookMaterials) throw new SceneRefusalError(creature.id, `look material ${id} is already taken`, 'Give the creature another id');
+    lookMaterials[id] = entry;
+  }
   // AP32c: detail layers: the card, mask and heights as plain binary files (engine G649: never base64), the card's own look
   // entry (no vertex colours: the cards have none, the engine tints each clump)
   const binary = (bytes: Uint8Array, gpu: number, triangles: number): string => {
