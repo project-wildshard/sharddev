@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/build",
-  "version": "0.4.12",
+  "version": "0.4.13",
   "description": "The build: read a shard source, run its generators, write and validate the shard file (SDK-SPLIT SP9c; the build verb, SP9d1). Engine-free; published with the sdk at one version (D5, SP12).",
   "type": "module",
   "engines": {
