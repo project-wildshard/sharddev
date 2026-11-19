@@ -252,6 +252,9 @@ function writeReferenceSource(source: string, slug: string): void {
       && from !== resolve(template, 'README.md')
       // A checkout's built Template output (gitignored, under public/) is Template's; build output goes to the repo root.
       && from !== resolve(template, 'public') });
+  // TEMPLATE-E2E TC-NE5: the starter's proof tape (the chest) lives beside this module, not in the template, so adding
+  // or editing it never makes the Template's captured hero stale; `check .` plays it from the repo's src/proof.json.
+  cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
   // ONE-FORMAT OF6b: data/card.json is the card's one home; no manifest.json copy is written.
   const card: unknown = JSON.parse(readFileSync(resolve(source, 'data/card.json'), 'utf8'));
   if (typeof card !== 'object' || card === null || Array.isArray(card)) throw new Error('Reference project card is missing');
