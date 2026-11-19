@@ -17,7 +17,7 @@ test('Mossgate whole lowers with every section', () => {
   const shard = mossgate.describe();
   console.info(`lowered in ${(performance.now() - t0).toFixed(0)} ms`, sceneSummary(shard));
   const names = shard.parts.map((p) => p.name);
-  for (const name of ['light', 'walls', 'district', 'paths', 'braziers', 'hut', 'sign', 'gate', 'lamplighter', 'pond', 'arena', 'trees', 'boulders', 'flora', 'fireflies']) expect(names).toContain(name);
+  for (const name of ['light', 'walls', 'paths', 'braziers', 'hut', 'sign', 'gate', 'lamplighter', 'pond', 'arena', 'trees', 'boulders', 'flora', 'fireflies']) expect(names).toContain(name);
   const part = (name: string) => shard.parts.find((p) => p.name === name);
   // the walls' runs, the gate's pillars and bars, the arena's ring: colliders said at the cleanroom's numbers
   expect(part('walls')?.colliders.length).toBeGreaterThan(8);

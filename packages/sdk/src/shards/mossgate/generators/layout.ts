@@ -37,7 +37,7 @@ export const PLACES: readonly Place[] = [
   { id: 'downs.cairn', name: 'The Old Cairn', region: 'downs', x: 210, z: 80 },
   { id: 'bog.shrine', name: 'The Sunken Shrine', region: 'bog', x: -160, z: 20 },
   { id: 'bog.mere', name: 'Wisp Mere', region: 'bog', x: -200, z: 80 },
-  { id: 'quarry.pit', name: 'The Old Quarry', region: 'quarry', x: 10, z: 200 },
+  { id: 'quarry.pit', name: 'The Old Quarry', region: 'quarry', x: 45, z: 200 },
   { id: 'ridge.lookout', name: 'The Lookout', region: 'ridge', x: -190, z: -200 },
 ];
 
@@ -61,7 +61,7 @@ export const PATHS: readonly Path[] = [
   { from: 'downs.barrow', to: 'downs.cairn', points: [[170, 0], [195, 40], [210, 80]] },
   { from: 'hollow.yard', to: 'bog.shrine', points: [[-50, 0], [-110, 10], [-160, 20]] },
   { from: 'bog.shrine', to: 'bog.mere', points: [[-160, 20], [-185, 50], [-200, 80]] },
-  { from: 'hollow.yard', to: 'quarry.pit', points: [[0, 50], [5, 120], [10, 200]] },
+  { from: 'hollow.yard', to: 'quarry.pit', points: [[0, 50], [10, 120], [45, 200]] },
 ];
 
 /** Whether (x, z) lies in `rect`. */

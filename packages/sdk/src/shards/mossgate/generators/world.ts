@@ -13,6 +13,7 @@ import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferG
 import { animate, drift, flicker, hang, pulse, rise, solid, Water, type HangOptions, type ShardWorld } from '@wildshard/sdk/scene/author';
 import * as T from './textures';
 import { sunsetSky } from './sky';
+import { regionRelief, regionTint, reliefShare } from './ground';
 
 export const LAYOUT = {
   SPAWN: { x: 0.3, z: 1.8, yaw: 0.04 },
@@ -52,10 +53,10 @@ export function groundHeight(x: number, z: number): number {
   if (dp < 0.6) y -= 1.1 * (1 - sstep(dp, -1.6, 0.6));
   const da = Math.hypot(x - LAYOUT.ARENA.x, z - LAYOUT.ARENA.z);
   if (da < LAYOUT.ARENA.r) y -= 0.35;
-  // Keep the outer 55m flat: the cook walks 50m entry lanes and the
-  // ground mesh interpolates between samples (the cleanroom had no edge).
-  const far = sstep(Math.hypot(x - 4, z + 2), 48, 95) * (1 - sstep(Math.hypot(x, z), 170, 195));
-  y += far * (noise.fbm(x * 0.02 + 50, z * 0.02 + 50, 3) - 0.35) * 7;
+  // MZ10: past the yard the ground is the cell map's, each region its own relief (ground.ts); the yard floor, the cell's
+  // edges and the entry roads' last 60 m stay at 0 (the cook walks 50 m lanes and the mesh interpolates between samples)
+  const share = reliefShare(x, z);
+  if (share > 0) y += share * regionRelief(x, z);
   return y;
 }
 
@@ -66,7 +67,9 @@ export function groundColour(x: number, z: number): [number, number, number] {
   const dp = pondSDF(x, z);
   if (dp < 0.9) c.lerp(new THREE.Color(0.42, 0.38, 0.3), 1 - sstep(dp, -0.4, 0.9));
   const moss = new THREE.Color().setRGB(102 / 255, 120 / 255, 48 / 255, THREE.SRGBColorSpace);
-  return [c.r * moss.r, c.g * moss.g, c.b * moss.b];
+  // MZ10: each region's ground reads apart (the bog darker, the quarry stonier), faded in where its relief is
+  const share = reliefShare(x, z), tint = regionTint(x, z), t = (k: number): number => 1 + ((tint[k] ?? 1) - 1) * share;
+  return [Math.min(1, c.r * moss.r * t(0)), Math.min(1, c.g * moss.g * t(1)), Math.min(1, c.b * moss.b * t(2))];
 }
 
 /** The textures and materials every part shares (`buildWorld`'s `tex` and `M`). */
@@ -331,35 +334,6 @@ export function walls(part: THREE.Group, M: Materials, tex: Textures): void {
   k.lanternPost(13.4, -5.0, Math.PI / 2);
   k.bracketLamp(Y.x1 - 0.4, 1.0, -12.6, -Math.PI / 2, true);
   k.flush();
-}
-
-/** The distant dev district (cleanroom world.js 246-274): towers, slabs and scaffold frames the haze eats. */
-export function district(part: THREE.Group): void {
-  const rand = T.rng(246), R = (a: number, b: number): number => a + (b - a) * rand();
-  const solids: { x: number; z: number; w: number; h: number; d: number; r: number }[] = [];
-  const beams: { x: number; y: number; z: number; sx: number; sy: number; sz: number; r: number }[] = [];
-  for (let i = 0; i < 110; i++) {
-    const a = R(0, Math.PI * 2), d = R(85, 200);
-    const x = 4 + Math.cos(a) * d, z = -2 + Math.sin(a) * d;
-    const kind = rand();
-    if (kind < 0.62) solids.push({ x, z, w: R(4, 16), h: R(3, 10) * (rand() < 0.2 ? 1.6 : 1), d: R(4, 16), r: R(0, 3) });
-    else {
-      // a scaffold frame: four posts and two rings of beams
-      const w = R(5, 10), h = R(6, 13), r = R(0, 3);
-      const cs = Math.cos(r), sn = Math.sin(r);
-      const P2 = (px: number, pz: number): [number, number] => [x + px * cs - pz * sn, z + px * sn + pz * cs];
-      for (const [px, pz] of [[-1, -1], [1, -1], [1, 1], [-1, 1]] as const) { const [qx, qz] = P2(px * w / 2, pz * w / 2); beams.push({ x: qx, y: h / 2, z: qz, sx: 0.5, sy: h, sz: 0.5, r }); }
-      for (const yy of [h * 0.5, h]) {
-        for (const [px, pz, sx, sz] of [[0, -1, w, 0.45], [0, 1, w, 0.45], [-1, 0, 0.45, w], [1, 0, 0.45, w]] as const) { const [qx, qz] = P2(px * w / 2, pz * w / 2); beams.push({ x: qx, y: yy, z: qz, sx, sy: 0.45, sz, r }); }
-      }
-    }
-  }
-  const im = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: '#8a7a8c', roughness: 0.95 }), solids.length + beams.length);
-  const o = new THREE.Object3D();
-  let k = 0;
-  for (const b of solids) { o.position.set(b.x, groundHeight(b.x, b.z) + b.h / 2 - 0.5, b.z); o.scale.set(b.w, b.h, b.d); o.rotation.set(0, b.r, 0); o.updateMatrix(); im.setMatrixAt(k++, o.matrix); }
-  for (const b of beams) { o.position.set(b.x, groundHeight(b.x, b.z) + b.y - 0.3, b.z); o.scale.set(b.sx, b.sy, b.sz); o.rotation.set(0, b.r, 0); o.updateMatrix(); im.setMatrixAt(k++, o.matrix); }
-  part.add(im);
 }
 
 interface Slab { x: number; z: number; sx: number; sz: number; r: number }
@@ -985,7 +959,6 @@ export function buildMossgate(world: ShardWorld): void {
   // clumps (4 m a tile, blotches about a quarter metre across, fine speckle) as the PBR detail layer
   world.ground(groundHeight, { colourAt: groundColour, material: new THREE.MeshStandardMaterial({ roughness: 0.97 }), detail: { scale: 0.35, mottle: 0.3, grain: 0.15, relief: 0.5 } });
   world.part('walls', (part) => { walls(part, M, tex); });
-  world.part('district', (part) => { district(part); });
   world.part('paths', (part) => { paths(part, M); });
   world.part('braziers', (part) => { braziers(part, M, tex); });
   world.part('hut', (part) => {
