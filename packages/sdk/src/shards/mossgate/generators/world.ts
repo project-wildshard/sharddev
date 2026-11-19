@@ -727,7 +727,8 @@ export function pond(part: THREE.Group, M: Materials, tex: Textures): void {
   const shape = new THREE.Shape();
   shape.moveTo(-w + rr, -h); shape.lineTo(w - rr, -h); shape.quadraticCurveTo(w, -h, w, -h + rr); shape.lineTo(w, h - rr); shape.quadraticCurveTo(w, h, w - rr, h);
   shape.lineTo(-w + rr, h); shape.quadraticCurveTo(-w, h, -w, h - rr); shape.lineTo(-w, -h + rr); shape.quadraticCurveTo(-w, -h, -w + rr, -h);
-  const water = new Water(shape, { tint: '#3a3458', reflect: 'planar' });
+  // MZ6 (QA 11-19 row 27): a mossy teal, so the pond reads as water on every tier (the dusk-violet tint read as a bare pit)
+  const water = new Water(shape, { tint: '#356159', reflect: 'planar' });
   water.position.set(P.x, -0.12, P.z);
   part.add(water);
   k.flush();

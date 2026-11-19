@@ -29,6 +29,8 @@ const readsMeshMap = (entry: object): boolean =>
 
 const rgb = (colour: Color, scale = 1): Rgb => [colour.r * scale, colour.g * scale, colour.b * scale];
 const v3 = (v: Vector3): Vec3 => [v.x, v.y, v.z];
+/** MZ6: metres a `Water`'s drawn surface sits under its water row's level, so a page that also draws the row's mirror shows that. */
+export const WATER_SURFACE_SINK = 0.02;
 
 interface Tables {
   materials: Map<string, SceneMaterial>; textures: Map<string, SceneTexture>; geometries: Map<string, SceneGeometry>;
@@ -220,6 +222,12 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
       for (let i = 0; i < n; i++) { const p = new Vector3().fromBufferAttribute(position, index?.getX(i) ?? i).applyMatrix4(object.matrixWorld); triangles.set([p.x, p.y, p.z], i * 3); }
       const level = new Vector3().setFromMatrixPosition(object.matrixWorld).y;
       water.push({ path, outline: outline.map((p) => [p.x, p.z] as const), level, tint: rgb(object.material.color), reflect: object.reflect, triangles });
+      // MOSSGATE-ZONE MZ6 (QA 11-19 row 27, "the water is clear"): the water row is the swim body and, where the page draws
+      // it, the mirror; staging's phone and desktop pages drew no pool surface over Mossgate's pond (lily pads over a bare
+      // pit). The surface is also an ordinary draw in its tint, a little under the row's level, so every tier shows water
+      // and a drawn mirror covers it.
+      const sunk = new Matrix4().makeTranslation(0, -WATER_SURFACE_SINK, 0).multiply(object.matrixWorld);
+      draws.push({ path: `${path}#surface`, geometry: lowerGeometry(object.geometry, path, tables), material: lowerMaterial(object.material, path, tables), matrix: [...sunk.elements], instances: null, castShadow: false, receiveShadow: true, motion: null });
       return;
     }
     if (object instanceof Mesh) {

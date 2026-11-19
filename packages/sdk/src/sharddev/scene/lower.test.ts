@@ -1,8 +1,8 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
-import { lowerShard } from './lower';
+import { lowerShard, WATER_SURFACE_SINK } from './lower';
 import { SceneRefusalError } from './refusal';
-import { solid } from './author';
+import { solid, Water } from './author';
 import { sceneShardfile } from './shardfile';
 
 test('a re-run changes only the edited part\'s hash', () => {
@@ -131,4 +131,26 @@ test('a textured detail card draws its map: the look entry\'s colour map, a libr
   const bytes = assets.get(row?.mesh.file ?? ''), vertices = row?.mesh.vertices ?? 0;
   const uv = bytes === undefined ? new Float32Array() : new Float32Array(bytes.buffer, bytes.byteOffset + vertices * 6 * 4, vertices * 2);
   expect(Math.max(...uv.filter((_, i) => i % 2 === 0))).toBeCloseTo(2); expect(Math.max(...uv.filter((_, i) => i % 2 === 1))).toBeCloseTo(1);
+});
+
+test('a Water lowers to its water row and a drawn surface in its tint on every tier (MOSSGATE-ZONE MZ6)', () => {
+  const scene = lowerShard({ slug: 's', name: 's' }, (world) => {
+    world.part('pond', (part) => {
+      const shape = new THREE.Shape([new THREE.Vector2(-2, -1), new THREE.Vector2(2, -1), new THREE.Vector2(2, 1), new THREE.Vector2(-2, 1)]);
+      const water = new Water(shape, { tint: '#2f4a46', reflect: 'planar' });
+      water.position.set(-19, -0.12, 0); part.add(water);
+    });
+  });
+  const pond = scene.parts[0];
+  expect(pond?.water).toHaveLength(1);
+  expect(pond?.water[0]?.level).toBeCloseTo(-0.12);
+  const surface = pond?.draws.find((d) => d.path.endsWith('#surface'));
+  expect(surface).toBeDefined();
+  // laid flat at the pond, just under the row's level, so a mirror the page draws covers it
+  expect(surface?.matrix[12]).toBeCloseTo(-19);
+  expect(surface?.matrix[13]).toBeCloseTo(-0.12 - WATER_SURFACE_SINK);
+  // in the Water's own tint, a little see-through: water you can see, never a bare pit
+  const material = scene.materials[surface?.material ?? ''];
+  expect(material?.transparent).toBe(true);
+  expect(material?.opacity ?? 0).toBeGreaterThan(0.5);
 });
