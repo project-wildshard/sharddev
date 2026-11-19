@@ -6,7 +6,7 @@
  * every vertex channel in its own view with a 4-byte-aligned stride (Metal reads it in place: no 3-byte channel, no
  * stride-6 16-bit channel, so ANGLE makes no second copy; STR17). Positions keep their storage (float stays float).
  * Every other channel keeps its storage and only loses an interleaved or unaligned layout. A colour outside [0, 1] or a
- * UV outside [0, 1] stays float. Skinned and morphed primitives, and a file this cannot read exactly (meshopt or Draco
+ * UV outside [0, 1] stays float. Skinned and morphed primitives, whole-partition pieces, and a file this cannot read exactly (meshopt or Draco
  * compression, sparse accessors, an external buffer), come back unchanged.
  *
  * The cook writes this layout only when asked (`setStaticVertexPacking(true)`, off by default) until the look check
@@ -103,10 +103,17 @@ export function packStaticGlb(input: Uint8Array): Uint8Array {
   if ([...(json.extensionsUsed ?? []), ...(json.extensionsRequired ?? [])].some(name => OPAQUE.has(name))) return input;
   if (views.some(view => view['extensions'] !== undefined)) return input;
   // every vertex channel of a static primitive (no skin, no morph targets), by accessor; a semantic is kept for the pick
+  // A whole-partition piece (one source draw split across files, ONE-FORMAT's slabs) keeps its layout: the engine
+  // reassembles the pieces only when every piece declares the same channels, and the [0, 1] pick is per file.
+  const partitioned = new Set<number>();
+  for (const node of json.nodes ?? []) {
+    const extras = node['extras'], mesh = node['mesh'];
+    if (typeof mesh === 'number' && typeof extras === 'object' && extras !== null && (extras as Json)['wholePartition'] !== undefined) partitioned.add(mesh);
+  }
   const channels = new Map<number, string>(), held = new Set<number>();
-  for (const primitive of (json.meshes ?? []).flatMap(mesh => mesh.primitives ?? [])) {
+  for (const [meshIndex, mesh] of (json.meshes ?? []).entries()) for (const primitive of mesh.primitives ?? []) {
     const attributes = Object.entries(primitive.attributes ?? {});
-    const still = (primitive.targets ?? []).length === 0 && !attributes.some(([semantic]) => /^(JOINTS|WEIGHTS)_\d+$/u.test(semantic));
+    const still = !partitioned.has(meshIndex) && (primitive.targets ?? []).length === 0 && !attributes.some(([semantic]) => /^(JOINTS|WEIGHTS)_\d+$/u.test(semantic));
     for (const [semantic, index] of attributes) {
       if (still && !held.has(index)) channels.set(index, channels.get(index) === undefined || channels.get(index) === semantic ? semantic : `_${semantic}`);
       else { held.add(index); channels.delete(index); }

@@ -88,7 +88,7 @@ test('the tight 3-byte and stride-6 channels STR17 reports take a 4-byte stride 
   material.dispose(); geometry.dispose();
 });
 
-test('an interleaved glTF-Transform file comes apart into packed channels; a skinned or meshopt file is left alone', async () => {
+test('an interleaved glTF-Transform file comes apart into packed channels; a partition piece, skinned or meshopt file is left alone', async () => {
   const doc = new Document(), buffer = doc.createBuffer();
   const accessor = (type: 'VEC2' | 'VEC3', values: number[]) => doc.createAccessor().setType(type).setArray(new Float32Array(values)).setBuffer(buffer);
   const primitive = doc.createPrimitive().setAttribute('POSITION', accessor('VEC3', [0, 0, 0, 1, 0, 0, 0, 1, 0]))
@@ -101,6 +101,12 @@ test('an interleaved glTF-Transform file comes apart into packed channels; a ski
   expect(layout(packed, 'NORMAL')).toBe('i8x3n/4');
   expect(layout(packed, 'TEXCOORD_0')).toBe('u16x2n/tight');
   expect(read3((await read(packed)).getAttribute('position'), 1, 3)).toEqual([1, 0, 0]);
+  // a whole-partition piece (ONE-FORMAT's slabs) keeps its layout: its sibling pieces must declare the same channels
+  const node = doc.getRoot().listNodes()[0];
+  node?.setExtras({ wholePartition: { id: 'slab' } });
+  const piece = await new WebIO().writeBinary(doc);
+  expect(packStaticGlb(piece)).toBe(piece);
+  node?.setExtras({});
   primitive.setAttribute('JOINTS_0', doc.createAccessor().setType('VEC4').setArray(new Uint8Array(12)).setBuffer(buffer));
   const skinned = await new WebIO().writeBinary(doc);
   expect(packStaticGlb(skinned)).toBe(skinned);
