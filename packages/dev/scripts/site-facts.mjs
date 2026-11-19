@@ -4,8 +4,8 @@
 //   node scripts/site-facts.mjs --out <file>       writes <file> (`pnpm build` writes dist/site-facts.json)
 // The site lives in project-wildshard/www.wildshard.io, which commits a copy as src/site/facts.json and refreshes it by
 // hand at a release (its docs/dev.md). Nothing here checks that copy.
-// Sources: the single-player grid (src/shared/game/grid/singleplayer.json), the cell size and memory caps
-// (@wildshard/format/contentBounds), the road width (@wildshard/engine/core/config), the shard.json schema's path count
+// Sources: the single-player grid (src/shared/game/grid/singleplayer.json), the cell size, road width and
+// memory caps (@wildshard/format/contentBounds), the shard.json schema's path count
 // (@wildshard/format/shardSchema through scripts/docs/schema-reference.mjs) and an excerpt of the template's built
 // shard.json (out/_template/shard.json: run node scripts/build-shardfiles.mjs first). The site formats the numbers.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
@@ -57,8 +57,7 @@ function shardfileExcerpt() {
 /** every fact, in the published shape (numbers stay numbers; the site words them) */
 export async function siteFacts() {
   await import('@wildshard/engine/scripts/sim-node-loader.mjs');
-  const { CHUNK_SIZE, MEMORY_GATES } = await import('@wildshard/format/contentBounds');
-  const { ROAD_WIDTH } = await import('@wildshard/engine/core/config');
+  const { CHUNK_SIZE, MEMORY_GATES, ROAD_WIDTH } = await import('@wildshard/format/contentBounds');
   const { ShardfileSchema } = await import('@wildshard/format/shardSchema');
   const { schemaInventory } = await import('@wildshard/sdk/scripts/docs/schema-reference.mjs');
   const { pitch, cells } = grid();

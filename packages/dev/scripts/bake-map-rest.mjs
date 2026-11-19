@@ -3,7 +3,8 @@
 import { readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { BufferGeometry, Group, InstancedMesh, MeshBasicMaterial } from 'three';
-import { createClientChannelView, moverChannelValues } from '@wildshard/engine/game/plugin/clientChannelView';
+import { createClientChannelView } from '@wildshard/engine/game/plugin/clientChannelView';
+import { moverChannelValues } from '@wildshard/format/moverPose';
 
 export function mapRest(scene, programs, poses) {
   const targets = new Map(), coverage = new Map(), nodes = {}, movers = new Map(poses.map(pose => [pose.id, pose]));
