@@ -93,7 +93,7 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
   expect(shard.props?.panels.map((p) => p.id)).toContain('mossgate.lamplighter');
   // TC-M7a: the quests chain (the starter's hut, the first flame, the Lamplighter's relighting, the Hermit's gate, three side quests)
   expect(shard.quests.quests.map((q) => q.id)).toEqual(['hut.visit', 'mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.rack',
-    'mossgate.blob', 'mossgate.mosslings', 'mossgate.greyback', 'mossgate.warden']);
+    'mossgate.blob', 'mossgate.mosslings', 'mossgate.meadow.den', 'mossgate.greyback', 'mossgate.warden']);
   // MOSSGATE-ZONE MZ1 (J453): Cinder Orchard's legacy-Template chain folds in: the relighting ends at the Warden, and the
   // mossling pack turns in at the Pond Hermit
   const quest = (id: string) => shard.quests.quests.find((q) => q.id === id);
@@ -121,13 +121,13 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // fourteen bodies: four blobs, the mossling pack of four, two sows, two wisps, Greyback and the Warden
+  // eighteen bodies: four blobs, two mossling packs of four (MZ12), two sows, two wisps, Greyback and the Warden
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(14);
+  expect(spawns).toHaveLength(18);
   expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'greyback']);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));
-  expect(shard.creatures.groups.map((row) => [row.id, row.members.length])).toEqual([['mossgate.mosslings', 4]]);
+  expect(shard.creatures.groups.map((row) => [row.id, row.members.length])).toEqual([['mossgate.mosslings', 4], ['mossgate.mosslings-stones', 4]]);
   for (const row of spawns) if (row.brain !== null) expect(shard.creatures.brains.some((b) => b.id === row.brain) || shard.creatures.groups.some((g) => g.id === row.brain), row.id).toBe(true);
   // Greyback is an elite, the Warden a boss with two phases and a panel, three strikes its script names
   expect(shard.encounters.map((row) => [row.id, row.kind, row.entity])).toEqual([[ENCOUNTERS.greyback, 'elite', 'greyback'], [ENCOUNTERS.warden, 'boss', 'barrow-warden']]);

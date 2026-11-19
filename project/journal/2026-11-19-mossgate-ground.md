@@ -7,3 +7,10 @@ flat rim, with 110 grey dev-district boxes standing in the haze. Now each region
 own relief in `generators/ground.ts`, and the boxes are gone so the regions (MZ11 onward) fill that ground. The yard floor,
 the cell edges and the last 60 m of each entry road stay at 0: the grid's seams and the cook's 50 m entry walks need flat
 road. The quarry pit moved to (45, 200) because the south entry road ran through it.
+
+MZ12, Mossling Meadow: the region's first content, in its own file (`generators/meadow.ts`). The den pack moved from
+(36, -98) to the den at (-20, -150), a second pack ranges at the Standing Stones, the den and the stones are region
+triggers, and the hoard behind the den's mound is the meadow's find, paying a small side quest. A walk proof on a dev page
+(meta `project/evidence/mossgate-zone/mz12-meadow.walk.mjs`) walks there from the spawn and is bitten by the pack.
+`fight` in a walk proof could not do it: it fights a species kind until none is left anywhere, and the mossling's kind is
+the grey blob's.

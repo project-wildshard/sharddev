@@ -12,6 +12,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import type { ShardRows } from '@wildshard/format/rows';
 import type { ShardWorld } from '@wildshard/sdk/scene/author';
 import { groundHeight, LAYOUT } from './world';
+import { MEADOW_PACKS } from './meadow';
 
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
@@ -22,9 +23,11 @@ export const BOSS_RESPAWN = 120;
 export const HAUNTS = {
   /** the grey blobs, past the north gate (outside their 12 m notice of the spawn and of the starter's walk) */
   BLOBS: [[-4, -27], [-9, -24], [-2, -33], [-7, -31]] as const,
-  /** the mossling pack's meadow, far north of the yard */
-  MEADOW: { x: 36, z: -98 },
-  MOSSLINGS: [[34.5, -97.5], [37.2, -98.8], [36.4, -96.4], [35.4, -99.9]] as const,
+  /** MZ12: the mossling pack's den in Mossling Meadow (meadow.ts), and the second pack at the Standing Stones */
+  MEADOW: MEADOW_PACKS.den.home,
+  MOSSLINGS: MEADOW_PACKS.den.seats,
+  STONES: MEADOW_PACKS.stones.home,
+  STONES_PACK: MEADOW_PACKS.stones.seats,
   /** the sows graze west of the pond; the bog wisps circle over it */
   SOWS: [[-22, 15], [-25, 7]] as const,
   WISPS: [[-17, -2], [-22, 2]] as const,
@@ -38,7 +41,10 @@ export const BODIES = {
   greyback: 'greyback',
   warden: 'barrow-warden',
   mosslings: HAUNTS.MOSSLINGS.map((_, i) => `mossling-${i + 1}`),
+  stonesPack: HAUNTS.STONES_PACK.map((_, i) => `mossling-stones-${i + 1}`),
 } as const;
+/** The two mossling packs' group ids (fights.ts): each body's brain is its pack. */
+export const PACKS = { den: 'mossgate.mosslings', stones: 'mossgate.mosslings-stones' } as const;
 
 const strike = (id: string, tag: string, row: Omit<Strike, 'id' | 'tags'>): Strike => ({ id, tags: [`creature.${tag}`], ...row } as Strike);
 /** The Template's strike rows, renamed into the Hollow. */
@@ -187,7 +193,7 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
   const o = new THREE.Object3D(); o.position.set(x, groundHeight(x, z) + lift, z); o.rotation.y = yaw; world.scene.add(o); return o;
 }
 
-/** The Hollow's creatures: five species, fourteen bodies. */
+/** The Hollow's creatures: five species, eighteen bodies. */
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
@@ -228,7 +234,8 @@ export function buildCreatures(world: ShardWorld): void {
   // ends at the Warden stops at its last step for everyone after the first win (staging rev 5, 11-19). A body that comes
   // back re-arms its encounter (engine ai/phases.ts).
   HAUNTS.BLOBS.forEach(([x, z], i) => world.spawnAt(`grey-blob-${i + 1}`, spot(world, x, z), { species: 'grey.blob', variant: 'grey', brain: 'mossgate.blob-pursuit', strike: i === 3 ? STRIKES.blobLane.id : STRIKES.blobBump.id, seed: 435 + i, scale: 1, respawn: 60 }));
-  HAUNTS.MOSSLINGS.forEach(([x, z], i) => world.spawnAt(`mossling-${i + 1}`, spot(world, x, z), { species: 'mossling', variant: 'moss', brain: 'mossgate.mosslings', strike: null, seed: 501 + i, scale: 1, respawn: 45 }));
+  HAUNTS.MOSSLINGS.forEach(([x, z], i) => world.spawnAt(`mossling-${i + 1}`, spot(world, x, z), { species: 'mossling', variant: 'moss', brain: PACKS.den, strike: null, seed: 501 + i, scale: 1, respawn: 45 }));
+  HAUNTS.STONES_PACK.forEach(([x, z], i) => world.spawnAt(BODIES.stonesPack[i] ?? '', spot(world, x, z), { species: 'mossling', variant: 'moss', brain: PACKS.stones, strike: null, seed: 521 + i, scale: 1, respawn: 45 }));
   // a ram-grazer grazes round its home (the engine refuses one without)
   HAUNTS.SOWS.forEach(([x, z], i) => world.spawnAt(`sow-${i + 1}`, spot(world, x, z), { species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 601 + i, scale: 1,
     home: { x, y: groundHeight(x, z), z, r: 6 } }));

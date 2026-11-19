@@ -15,6 +15,7 @@ import { fire } from '@wildshard/sdk/scene/fire';
 import { buildMossgate, groundHeight, LAYOUT } from './world';
 import { buildCreatures, HAUNTS } from './creatures';
 import { WARDEN_PANELS } from './fights';
+import { buildMeadow } from './meadow';
 
 /** Where the gameplay stands (the Template's `data/layout.json`, which was this scene's plan). */
 export const PLAY = {
@@ -275,6 +276,7 @@ export function buildHollow(world: ShardWorld): void {
   buildMossgate(world);
   buildPlay(world);
   buildCreatures(world);
+  buildMeadow(world);
   wardenTell(world);
   hollowRelit(world);
 }

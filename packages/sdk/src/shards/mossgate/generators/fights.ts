@@ -4,7 +4,7 @@
 // `data/creatures.json`, `encounters.json` and `bossDecision.json`, ported.
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
-import { BODIES, HAUNTS, STRIKES } from './creatures';
+import { BODIES, HAUNTS, PACKS, STRIKES } from './creatures';
 import { LAYOUT } from './world';
 
 /** The Warden's two shared fields: the ground ring's tell (it rears) and its open core (strike now). */
@@ -28,11 +28,13 @@ const BRAINS = [
 ];
 /** The mossling pack: they shadow a player, ring them, then one darts in to bite. */
 const PACK = {
-  id: 'mossgate.mosslings', kind: 'pack', thinkDivisor: 6, members: [...BODIES.mosslings], home: [HAUNTS.MEADOW.x, HAUNTS.MEADOW.z], trotSpeed: 2.5,
+  id: PACKS.den, kind: 'pack', thinkDivisor: 6, members: [...BODIES.mosslings], home: [HAUNTS.MEADOW.x, HAUNTS.MEADOW.z], trotSpeed: 2.5,
   runSpeed: 6.5, shadowMinRadius: 10, shadowMaxRadius: 15, ringMinRadius: 4, ringMaxRadius: 7, biteRadius: 1.3, sightRadius: 20, coneAngle: 1.2,
   smellRadius: 24, hearing: [3, 6, 12, 20], telegraphSeconds: 0.5, dashSeconds: 1.3, breakoffSeconds: 1, attackSeconds: 0.4, leaderVariant: 'moss',
   yipCue: 'mossling_yip', howlCue: 'mossling_howl', snarlCue: 'mossling_snarl', biteCue: 'mossling_bite',
 };
+/** MZ12: the second pack, at the Standing Stones: the same pack, its own home and bodies. */
+const STONES_PACK = { ...PACK, id: PACKS.stones, members: [...BODIES.stonesPack], home: [HAUNTS.STONES.x, HAUNTS.STONES.z] };
 const RESPAWN = { at: [LAYOUT.SPAWN.x, 0, LAYOUT.SPAWN.z], yaw: 0 };
 const WARDEN_PANEL = 'mossgate.warden-panel';
 /** Greyback, an elite boar in its clearing; the Barrow Warden, the boss of the barrow ring, with two phases. */
@@ -76,7 +78,7 @@ export function fights(shard: Shardfile): Shardfile {
   const panel = (id: string, fieldId: number) => ({ panel: id, scope: 'shared' as const, fieldId, equals: 1, visibleWhenMatched: true, colliders: [], activeWhenMatched: true });
   return {
     ...shard,
-    creatures: { ...shard.creatures, brains: [...shard.creatures.brains, ...BRAINS], groups: [...shard.creatures.groups, PACK] } as Shardfile['creatures'],
+    creatures: { ...shard.creatures, brains: [...shard.creatures.brains, ...BRAINS], groups: [...shard.creatures.groups, PACK, STONES_PACK] } as Shardfile['creatures'],
     encounters: [...shard.encounters, ...ENCOUNTER_ROWS] as Shardfile['encounters'],
     ui: [...shard.ui, { kind: 'bossPanel', id: WARDEN_PANEL, encounter: ENCOUNTERS.warden, name: 'Barrow Warden', title: 'Keeper of the hollow', retry: 'Try the Barrow Warden again' }] as Shardfile['ui'],
     state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id), field(WARDEN_FIELDS.relit.name, WARDEN_FIELDS.relit.id)] },
