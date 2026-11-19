@@ -13,7 +13,7 @@
 > every board recommendation (J312, Jake ~23:12 Cancún: "approved go
 > ahead whenever, its not a priority right, we already have the
 > overnight priority to unlock showcase shard"). Build rows queue behind
-> meta `docs/plans/multi-repo/OVERNIGHT-2026-11-12.md` (stability first,
+> meta `project/journal/OVERNIGHT-2026-11-12.md` (stability first,
 > then the Showcase / Template 3 kitchen sink unlock); a lane takes MG1
 > only when that list has no free row. Nothing built yet.
 
@@ -44,7 +44,7 @@ Jake, 2026-11-12 ~23:25 Cancún, after playing Mossgate on preview:
 "Template shard is mostly graphical trash btw", "Every other shard is
 better", "Re-design and re-implement mossgate from scratch, empty slate,
 redo it completely cleanroom, first principles." Recorded as J312 in
-meta `docs/plans/multi-repo/MULTI-REPO-PLAN.md`.
+meta `docs/plans/MULTI-REPO-MASTER-PLAN.md`.
 
 What is wrong today, measured on the rev 3 captures
 (`plan-artifacts/look-loop/mossgate-lut/flat/`, 2026-11-12):
