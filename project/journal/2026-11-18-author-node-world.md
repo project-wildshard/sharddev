@@ -32,3 +32,16 @@ The author world opens its database with core PGlite.
 
 Watch leaves its signed release endpoint available until an in-flight
 rebuild finishes during shutdown, then closes the world and the page.
+
+Both packed offline E2E tests also passed with engine `c7d87608` and
+format 0.43.0 on sharddev 0.4.11. Repeating the proof on sharddev
+`3cbcec3` with the local engine archive and dev client built from
+`1847f5c5` passed both offline E2E tests with format 0.44.0.
+The three SDK parity files now import the format laws the engine uses.
+Their 13 cases passed against both the current 0.1.44 workspace pin and
+the local archive.
+
+The published dev 0.4.12 tarball is 264,042 bytes compressed. The
+0.44.0 candidate is 4,033,466 bytes, an increase of 3,769,424 bytes
+for the 15 server and launcher files. The plan's registry pin awaits
+the compatible engine archive and matching client.
