@@ -1,5 +1,6 @@
 import { spawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 import { creatureCapRefusals, creatureCapWarnings, creatureNumbers, creatureReportLine } from '@wildshard/sdk/internal/creatureCaps';
+import { primitiveReportLine } from '@wildshard/sdk/internal/primitivesReport';
 // The real steps behind `wildshard check` (SA4); check.ts runs them in order and gives the verdict.
 // oxlint-disable-next-line import/no-nodejs-modules -- Lint runs oxlint (the repo's or the SDK's) as a child process.
 import { spawnSync } from 'node:child_process';
@@ -63,6 +64,8 @@ export async function checkProject(projectPath: string, outputPath: string | und
   let output = outputPath === undefined ? undefined : resolve(outputPath), admitted: Admitted | undefined;
   // CC47: the validate step's creature numbers, printed on the report card.
   let creatureLine: string | undefined;
+  // OF17c: the primitives the server derives from the built sections, printed on the report card.
+  let primitiveLine: string | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
     assertCreatureDeclarations(shard.rows);
     admitted = { check: await checkShardfile(shard, assets, {sections, policy}) };
@@ -108,6 +111,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       // ONE-FORMAT CC47: 64 bones and 16 volumes refuse; a size class's triangle and texture marks warn.
       const creatures = creatureNumbers(checked.shard, checked.assets);
       creatureLine = creatureReportLine(creatures, checked.shard.budgets.tier ?? 'small');
+      primitiveLine = primitiveReportLine(checked.sections, checked.index.sections);
       const refusals = creatureCapRefusals(creatures);
       return await Promise.resolve({ status: refusals.length === 0 ? 'pass' : 'fail', note, refusals,
         warnings: [...spawnWarnings(checked.shard), ...creatureCapWarnings(creatures)] });
@@ -132,7 +136,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       // SP7c: the simulation numbers `wildshard validate` printed before it stopped running the engine.
       const { proof } = admitted.check;
       const sim = typeof proof === 'string' ? `simulation ${proof}` : `${proof.ticks} sim ticks, ${proof.lanes} edge lanes, ${proof.steps} capsule steps${proof.portalTransfers === undefined ? '' : `, ${proof.portalTransfers} portal transfers`}`;
-      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}; ${sim}${creatureLine === undefined ? '' : `; creatures: ${creatureLine}`}`;
+      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}; ${sim}${creatureLine === undefined ? '' : `; creatures: ${creatureLine}`}${primitiveLine === undefined ? '' : `; primitives: ${primitiveLine}`}`;
       return await Promise.resolve({ status: admitted.check.pass ? 'pass' : 'fail', note,
         refusals: refused.map(issue => ({ message: issue.message, code: issue.code })),
         warnings: reported.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)} (a report-only cap: upload still takes it)` })) });

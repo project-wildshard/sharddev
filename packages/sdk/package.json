@@ -258,6 +258,7 @@
     "./internal/diagnosticClock": "./src/sharddev/diagnosticClock.ts",
     "./internal/spawnWarnings": "./src/sharddev/spawnWarnings.ts",
     "./internal/creatureCaps": "./src/sharddev/creatureCaps.ts",
+    "./internal/primitivesReport": "./src/sharddev/primitivesReport.ts",
     "./internal/handwritten": "./src/sharddev/handwritten.ts",
     "./internal/handwrittenCreatureLayers": "./src/sharddev/handwrittenCreatureLayers.ts",
     "./internal/authorLint": "./src/sharddev/authorLint.ts",

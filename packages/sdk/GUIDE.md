@@ -1478,3 +1478,162 @@ If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and insta
 start unless `git status` is clean (`update-pins-dirty`, `update-pins-no-git`): a codemod edits your files. Done when
 its last line reads `on @wildshard/sdk <version>, check pass`. Commit `package.json`, `pnpm-lock.yaml`, the guide,
 the skills and any codemod edit together. A refusal is `update-pins` (section 6).
+
+## 8. Primitives
+
+A **primitive** is engine code your shard switches on with data: no host list, no engine change. The server reads your
+shard file's sections and works out which primitives to run (`derivePrimitives` in `@wildshard/format/primitives`).
+Each primitive's version is its section's version, the `@N` in its row of `shard.json`; a change to a primitive is
+additive, and a removal is announced a release ahead.
+
+Some primitives have no section yet: they are opened as they are, switched on by naming their host in
+`server/native-assembly.json`, until their plan row (meta repo `docs/plans/ONE-FORMAT-PLAN.md`, named below) gives
+them one. Every page says which.
+
+### `collision`
+
+Solid ground and walls for players and creatures, plus static collision pieces. **Switched on:** always. **Replaces:**
+`collision`, `collision.pieces`. **Used by:** every shard. **Row:** OF41.
+
+### `plumbing`
+
+The small services every shard leans on: commands, decisions, strings, the content catalogue, audio cues and scenes,
+the player-enter hook, bag finds, adventure state and the creature frame hook. `debug.expose` is one of them and is
+refused on prod (OF18c). **Switched on:** always. **Used by:** every shard. **Row:** OF18.
+
+### `population`
+
+Who lives in a cell, when and how many: rosters, conditional spawn rows (quest stage, time of day, waves, a respawn
+timer, a rank, a player-scaled count), shelter in bad weather, and shared kill credit. **Switched on:** any `creatures.spawns` row in
+`actors/creatures`. **Used by:** Pine Hollow, Driftwood Isle, Nalati, Dunes, Sky Reach. **Row:** OF29.
+
+### `elites`
+
+Ranked creatures (veteran, elite, champion, legendary) with their own hp, damage, size and loot. **Switched on:** a
+`creatures.spawns` row with a `rank` in `actors/creatures`, or an `elite` encounter in `combat/encounters`. **Used by:** Pine Hollow, Nalati. **Row:** OF33.
+
+### `boss`
+
+One fight: an hp bar, phases, adds, a reward and a saved record; it starts placed, spawned or resident. **Switched
+on:** a `boss` encounter in `combat/encounters`, or a `runtime.spawns.bosses` row in `actors/spawns`. **Used by:**
+Pine Hollow, Dunes, Sky Reach, Brasscap. **Row:** OF34.
+
+### `boss.arena`
+
+A boss's bounds, a closed room or open ground; leaving them resets the fight. **Switched on:** an encounter with
+`arena.bounds` in `combat/encounters`. **Used by:** Nalati. **Row:** OF34.
+
+### `riding`
+
+Ride any creature that has a `mount` row: the rider sits at its seat socket (default `seat`) and moves at its gaits,
+slowest first; a flyer (`fly: true`, with the species' `flight` row) takes off and lands. Taming joins it. **Switched
+on:** any species with a `mount` row in `actors/species`. **Used by:** Nalati; the stranger shard's skeleton horse.
+**Row:** CC40.
+
+**SDK TypeScript** (`src/sharddev/guide/riding.example.ts` in the sdk, type-checked with it):
+
+```ts
+// A rideable dune camel: the kit's quadruped body and passive temperament, and a mount row with its four gaits.
+import { quadruped, temperament } from '@wildshard/kit';
+
+const { temperament: calm, senses } = temperament.passive();
+
+export const camel = {
+  species: [{
+    id: 'camel', kind: 'camel', label: 'Dune camel', type: 'beast', aggressive: false, lockable: true,
+    dims: { bodyY: 1.4, bodyHalfLen: 0.9, bodyRadius: 0.5, headRadius: 0.2, legLen: 1.1, feet: [], halfWidth: 0.45 },
+    variants: [{ id: 'sand', label: 'Sand camel', rarity: 'common', weight: 1, scale: [0.95, 1.05], hp: 120,
+      mods: { speed: 1, chargeDist: 1, damageTaken: 1, chargeDamage: 0, relentless: false } }],
+    body: quadruped({ look: 'camel.look' }),
+    temperament: calm, senses,
+    mount: { gaits: { walk: 1.8, trot: 4.5, canter: 8.5, gallop: 13 } },
+  }],
+  looks: [{ id: 'camel.look', species: 'camel', recipe: 'platform.skin', material: null, parameters: {},
+    animation: { recipe: 'platform.clips', parameters: {} } }],
+};
+```
+
+**Hand-written JSON**, as `data/` rows (the same rows; `guide-primitives.test.ts` parses them):
+
+```json
+{
+  "species": [
+    {
+      "id": "camel", "kind": "camel", "label": "Dune camel", "type": "beast", "aggressive": false, "lockable": true,
+      "dims": { "bodyY": 1.4, "bodyHalfLen": 0.9, "bodyRadius": 0.5, "headRadius": 0.2, "legLen": 1.1, "feet": [], "halfWidth": 0.45 },
+      "variants": [
+        {
+          "id": "sand", "label": "Sand camel", "rarity": "common", "weight": 1, "scale": [0.95, 1.05], "hp": 120,
+          "mods": { "speed": 1, "chargeDist": 1, "damageTaken": 1, "chargeDamage": 0, "relentless": false }
+        }
+      ],
+      "body": { "skeleton": "quadruped", "size": "medium", "scale": 1, "look": "camel.look" },
+      "temperament": {
+        "brain": "hunt", "reaction": "passive", "leash": 50, "assist": 8, "home": { "speed": 3.2, "stop": 1.5 },
+        "tuning": {
+          "hp": 60, "sightRange": 30, "sightRangeGraze": 14, "sightCone": 0.9599310885968813, "hearStill": 3,
+          "hearCrouch": 6, "hearWalk": 12, "hearSprint": 24, "noticeRate": 0.3, "forgetRate": 0.3, "alertAt": 0.45,
+          "boltAt": 1, "freezeMin": 4, "freezeMax": 7, "relaxAfter": 3.5, "panicDist": 6, "runSpeed": 6,
+          "trotSpeed": 3.2, "fleeMinTime": 1.5, "fleeUntil": 35, "fleeUntilMax": 50, "fleeMaxTime": 8, "lookBack": 2.5,
+          "waryTime": 10, "waryBoost": 1.2, "herdAlertRadius": 8, "herdBoltDelayMin": 0.4, "herdBoltDelayMax": 1.2,
+          "impactSpook": 4, "impactAlert": 10
+        }
+      },
+      "senses": {
+        "notice": 30, "sight": { "range": 30, "cone": 0.9599310885968813, "graze": 14 },
+        "hearing": { "still": 3, "crouch": 6, "walk": 12, "sprint": 24 }
+      },
+      "mount": { "gaits": { "walk": 1.8, "trot": 4.5, "canter": 8.5, "gallop": 13 } }
+    }
+  ],
+  "looks": [
+    {
+      "id": "camel.look", "species": "camel", "recipe": "platform.skin", "material": null, "parameters": {},
+      "animation": { "recipe": "platform.clips", "parameters": {} }
+    }
+  ]
+}
+```
+
+### `patrol`
+
+A group walks a route, engages what it meets and returns. **Switched on:** any `creatures.patrols` row in `actors/creatures`.
+**Used by:** Nalati. **Row:** OF37.
+
+### `held.melee`
+
+Swung weapons from `held/*` rows. **Switched on:** a `weapon` item row with no `ranged` in `combat/items`. **Used
+by:** Driftwood Isle, Nine Dragon, Dunes, Sky Reach, Nalati. **Row:** OF38.
+
+### `held.ranged`
+
+Bows and bolts from `held/*` rows: ammunition, loadout and aim. **Switched on:** an item row with `ranged` in
+`combat/items`. **Used by:** Pine Hollow, Nalati. **Row:** OF38.
+
+### `sky`
+
+The day cycle and its sky. **Switched on:** any `rows.days` row in `world/days`. **Used by:** Driftwood Isle, Pine
+Hollow, Nalati. **Row:** OF41.
+
+### `weather`
+
+Weather states and their transitions: overcast, rain, wet, wind and fog. **Switched on:** any `rows.weather` row in
+`world/weather`. **Used by:** Pine Hollow, Nalati, Dunes. **Row:** OF41.
+
+### `water.sea`
+
+An open sea with waves. **Switched on:** a `sea` water row in `world/water`. **Used by:** Driftwood Isle. **Row:** OF40.
+
+### `water.field`
+
+Ponds and wet ground across a field. **Switched on:** not yet; today `water.field`. **Used by:** Nalati. **Row:** OF40.
+
+### `grapple`
+
+A grappling hook between hook points. **Switched on:** a `modes.grapple` row in `state/modes`. **Used by:** Nine Dragon.
+**Row:** OF41.
+
+### `portal`
+
+Ride a portal from one place to another. **Switched on:** a `portalLink` entryway in `world/edge`. **Used by:** Nine Dragon.
+**Row:** OF41.
