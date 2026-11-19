@@ -22,7 +22,7 @@ export function sceneCardUrls(source: string, folder: string): Partial<Record<Ca
 const NEUTRAL = [1, 1, 1];
 const PHONE = {fps: 30, variability: 1.3, cpuMs: 9.6, gcMs: 0.3, systems: {physics: 0.3, ai: 0.3, animation: 0.3, player: 0.2, world: 0.2, hud: 0.1, audio: 0.1},
   vertexShare: 0.5, lanes: {opaque: 0.4, shadow: 0.2, transparent: 0.1, viewmodel: 0.1, post: 0.1, reserve: 0.1}, linkMs: 1000};
-/** Frame budgets a boot reports against: the platform's defaults, the same rows `_template` declares. */
+/** Frame budgets a boot reports against: the platform's defaults. */
 export const AUTHOR_BUDGETS: Readonly<Record<'phone' | 'desktop', Readonly<Record<string, unknown>>>> = {phone: PHONE, desktop: {...PHONE, fps: 60, cpuMs: 4.8}};
 /** The name those rows go by in the manifest: no author file, so `withDiscovery` answers it. */
 export const AUTHOR_BUDGETS_MODULE = './data/author-budgets.json';

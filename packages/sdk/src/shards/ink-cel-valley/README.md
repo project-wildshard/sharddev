@@ -1,7 +1,7 @@
 # Ink & Cel Valley (`ink-cel-valley`)
 
 SF59's second G169 fixture shard (SHARD-PLATFORM, E435): the second real-GPU proof of the material-graph and post-stack
-path. Developer only, placed on the grid's south-east plot (+1, −1). A copy of [`_template`](../_template/README.md) per
+path. Developer only, placed on the grid's south-east plot (+1, −1). A copy of the Template (retired by TEMPLATE-E2E TR-11) per
 [SHARDS.md](../../../docs/SHARDS.md): the same playable loop (the hut and its door quest, the blob, the elite and the
 boss, the whip, the lantern, the jump course and the 500 m cell fill), with every `template.*` id renamed to `ink.*`,
 and its yard turned into a north-south valley: two ridges rise east and west of the trail (`generators/terrain.ts`), so

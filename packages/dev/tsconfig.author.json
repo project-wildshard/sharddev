@@ -18,7 +18,7 @@
     "src/sharddev/test"
   ],
   "files": [
-    "test/scripts/_template-boss.test.ts",
+    "test/scripts/mossgate-warden.test.ts",
     "src/sharddev/test/scriptScenario.ts",
     "src/sharddev/test/diskScriptScenario.ts"
   ]

@@ -124,7 +124,7 @@ export function sectionReaders(files:readonly {path:string;source:string}[],grou
 /** Every JSON member is checked against its actual declared hash and size. */
 export function productSectionEntries(folder:string,product:string,shard:string):Product{
   const indexBytes=readFileSync(resolve(folder,'shard.json')),index=outputFormat.parseOutputIndex(JSON.parse(indexBytes.toString('utf8')));
-  if(index.identity.slug!==(product==='_template'?'template':product))throw new Error(`Foreign product identity: ${product}`);
+  if(index.identity.slug!==product)throw new Error(`Foreign product identity: ${product}`);
   const read=(entry:{path:string;hash:string;bytes?:number;compressed?:number}):unknown=>{
     const path=resolve(folder,entry.path);
     for(let at=path;at!==resolve(folder);at=dirname(at))if(lstatSync(at).isSymbolicLink())throw new Error(`Symbolic inventory member: ${entry.path}`);

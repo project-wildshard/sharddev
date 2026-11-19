@@ -92,8 +92,7 @@ try {
         visit: async (entry, tier, read) => {
           const cell = cells.find(row => row.instance === entry.region), source = cell === undefined ? undefined : index.get(cell.slug);
           if (cell === undefined || source === undefined) throw new Error('Crawl region lacks its descriptor');
-          const home = declared.cells.find(row => row.slug === '_template' && row.instance !== cell.instance)
-            ?? declared.cells.find(row => row.slug === 'driftwood-isle' && row.instance !== cell.instance);
+          const home = declared.cells.find(row => row.slug === 'driftwood-isle' && row.instance !== cell.instance);
           if (home === undefined) throw new Error('Crawl requires a distinct cold source');
           const context = await contextFor(browser, tier), demands: (EntryCrawlDemand & { readonly at: number })[] = [];
           try {

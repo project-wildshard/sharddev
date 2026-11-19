@@ -9,7 +9,7 @@ Twenty golden target images for Template 1, Mossgate Hollow v3 (swords, sunset-t
 HUD, one step past the current build and still a lightweight dev-test level. The look loop
 (singleplayer `docs/design/LOOK-LOOP.md`) anchors to them: build a zone, capture the same camera, measure the gap.
 
-These are art, not product: keep them out of `src/shards/_template/` and out of any shipped pack.
+These are art, not product: keep them out of `src/shards/mossgate/` and out of any shipped pack.
 
 ## How they were made
 

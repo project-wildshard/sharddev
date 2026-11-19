@@ -13,7 +13,7 @@ import { writeOutputProduct, validateOutputProduct } from '../src/sharddev/outpu
 import { writeRuntimeFiles } from '../src/sharddev/outputRuntime';
 import { formatJsonSchema } from '@wildshard/engine/host/formatJsonSchema';
 import { authoredManifestSource } from '@wildshard/engine/scripts/authored-manifest.mjs';
-import metadata from '../src/shards/_template/data/card.json' with {type:'json'};
+import metadata from '../src/shards/pastel-plain/manifest.json' with {type:'json'};
 import { FIXTURE_RUNTIME_COST } from './fixtures/clientPlanRuntime';
 
 // Synthetic accounting for the current format model, not a captured runtime reading.
@@ -35,18 +35,18 @@ test('built-in manifest policy emits only the platform constructor and keeps CSS
   mkdirSync('tmp',{recursive:true});
   const root=mkdtempSync(resolve('tmp/compiled-manifest-'));
   try {
-  mkdirSync(resolve(root,'src/shards/_template/data'),{recursive:true});
-  writeFileSync(resolve(root,'src/shards/_template/data/budgets.json'),'{}');
-  writeFileSync(resolve(root,'src/shards/_template/style.css'),'.fixture { color: red; }');
+  mkdirSync(resolve(root,'src/shards/pastel-plain/data'),{recursive:true});
+  writeFileSync(resolve(root,'src/shards/pastel-plain/data/budgets.json'),'{}');
+  writeFileSync(resolve(root,'src/shards/pastel-plain/style.css'),'.fixture { color: red; }');
   const rest=structuredClone(metadata);Reflect.deleteProperty(rest,'runtimeEntry');
   const input={...rest,card:{thumb:'data:image/png;base64,AA==',portrait:'data:image/png;base64,AA==',landscape:'data:image/png;base64,AA=='},minimap:{...rest.minimap,image:'data:image/png;base64,AA=='},bindings:{accent:'#123456',budgets:{module:'./data/budgets.json',export:'default'},entry:{platform:'client-plan',retainHomeRuntime:true,stagesOwner:'runtime',styles:['./style.css']}}};
-  const parsed=parseManifestMetadata(input), source=authoredManifestSource(root,'_template',{composed:input});
+  const parsed=parseManifestMetadata(input), source=authoredManifestSource(root,'pastel-plain',{composed:input});
   expect(parsed.bindings.entry).toEqual(input.bindings.entry);
   expect(source).toContain('declaredClientPlanEntry({"retainHomeRuntime":true,"stagesOwner":"runtime"})');
   expect(source).toContain('await Promise.all([import("./style.css")])');
   expect(source).not.toContain('runtimeModule'); expect(source).not.toContain('nativeModule'); expect(source).not.toContain('resolveTrustedRuntime');
   expect(()=>parseManifestMetadata({...input,bindings:{...input.bindings,entry:{...input.bindings.entry,legacy:'./runtime/hybrid'}}})).toThrow();
-  expect(()=>authoredManifestSource(root,'_template',{composed:{...input,runtimeEntry:'runtime/hybrid.ts'}})).toThrow('names no runtime module');
+  expect(()=>authoredManifestSource(root,'pastel-plain',{composed:{...input,runtimeEntry:'runtime/hybrid.ts'}})).toThrow('names no runtime module');
   } finally {rmSync(root,{recursive:true,force:true});}
 });
 

@@ -22,7 +22,8 @@ function bytes(directory, prefix = '') {
     return row.isDirectory() ? bytes(directory, file) : [[file, createHash('sha256').update(readFileSync(join(directory, file))).digest('hex')]];
   }).sort(([a], [b]) => a.localeCompare(b));
 }
-for (const slug of ['_template', 'ink-cel-valley', 'pastel-plain']) test(`${slug}: two cold bakes and moved source publish identical bytes`, { timeout: 120_000 }, () => {
+// TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, replaced the retired Template here.
+for (const slug of ['mossgate', 'ink-cel-valley', 'pastel-plain']) test(`${slug}: two cold bakes and moved source publish identical bytes`, { timeout: 120_000 }, () => {
   const source = join(app, 'src/shards', slug), moved = join(app, 'relocated', slug);
   cpSync(resolve('src/shards', slug), source, { recursive: true });
   cpSync(source, moved, { recursive: true });

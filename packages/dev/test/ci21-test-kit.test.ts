@@ -7,7 +7,7 @@ import { hashImmutableBytes } from '@wildshard/engine/host/immutable';
 import { emptyShardfile } from '@wildshard/engine/host/author';
 import { fixtureJsonCheck, fixtureProductFile } from '../../sdk/test/fixtures/productFile';
 import { builtProduct } from '../../sdk/test/fixtures/builtProduct';
-import { TEMPLATE_BOSS, TEMPLATE_SOURCE, templateAssets } from '../../sdk/test/fixtures/templateSource';
+import { MOSSGATE_SOURCE, mossgateAssets } from '../../sdk/test/fixtures/mossgateSource';
 
 // CI21.H5 proves the kit's public imports and actual product admission, rather
 // than merely resolving paths. Invalid bytes must still reach the native check.
@@ -34,12 +34,12 @@ test('the public scenario/slab kit and fixture products retain their real bounda
   expect(() => builtProduct('../foreign')).toThrow('Invalid built product name');
 });
 
-test('the Template fixture admits the real producer and returns independent complete assets', () => {
-  expect(TEMPLATE_SOURCE.identity.slug).toBe('template');
-  const files = [...TEMPLATE_SOURCE.files.filter(file => file.kind === 'wasm'), TEMPLATE_BOSS];
+test('the Mossgate fixture admits the real producer and returns independent complete assets', () => {
+  expect(MOSSGATE_SOURCE.identity.slug).toBe('mossgate');
+  const files = MOSSGATE_SOURCE.files.filter(file => file.kind === 'wasm');
   expect(files.length).toBeGreaterThan(0);
   const hashes = new Set(files.map(file => file.hash));
-  const first = templateAssets(hashes), second = templateAssets(hashes);
+  const first = mossgateAssets(hashes), second = mossgateAssets(hashes);
   for (const file of files) {
     expect(first.get(file.hash)?.length).toBe(file.compressed);
     expect(second.get(file.hash)).not.toBe(first.get(file.hash));

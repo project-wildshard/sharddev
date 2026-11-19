@@ -1,9 +1,13 @@
 // Independent original author leaves, never a copied product snapshot.
 import {parseShardfileField} from '@wildshard/format/shardSchema';
-import template from '../../../sdk/src/shards/_template/data/quests.json' with {type:'json'};
-import hermit from '../../../sdk/src/shards/_template/data/npcs/hermit.json' with {type:'json'};
 import pastel from '../../../sdk/src/shards/pastel-plain/data/quests.json' with {type:'json'};
 import ink from '../../../sdk/src/shards/ink-cel-valley/data/quests.json' with {type:'json'};
-// Mossgate keeps one file per NPC (J361): each data/npcs/<name>.json adds its dialogue to the quests.
-const sources={'_template':{...template,dialogue:[...template.dialogue,hermit.npc.dialogue]},'pastel-plain':pastel,'ink-cel-valley':ink};
-export function questSource(slug){return parseShardfileField('quests',sources[slug]);}
+const sources={'pastel-plain':pastel,'ink-cel-valley':ink};
+/** TEMPLATE-E2E TR-11 (J434): Mossgate, which took the retired Template's quests, is TypeScript source: its authored
+ * section is `generators/quests.ts`' QUESTS, and its scene adds the region triggers (and their flags) itself, so a
+ * Mossgate product holds the authored rows plus the scene's. Load the engine's sim-node-loader first. */
+export const SCENE_TRIGGERS=new Set(['mossgate']);
+export async function questSource(slug){
+  if(slug==='mossgate')return parseShardfileField('quests',(await import('../../../sdk/src/shards/mossgate/generators/quests.ts')).QUESTS);
+  return parseShardfileField('quests',sources[slug]);
+}

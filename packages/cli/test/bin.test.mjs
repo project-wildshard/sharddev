@@ -12,7 +12,8 @@ const GUARD = resolve(import.meta.dirname, 'engine-guard.mjs');
 const TMP = resolve(import.meta.dirname, '../tmp');
 const DEV_BIN = inPackage('@wildshard/dev', 'bin/wildshard.mjs');
 const BUILD_BIN = inPackage('@wildshard/build', 'dist/build.mjs');
-const TEMPLATE = inPackage('@wildshard/sdk', 'src/shards/_template');
+// TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, replaced the retired Template.
+const TEMPLATE = inPackage('@wildshard/sdk', 'src/shards/mossgate');
 const run = (args, options = {}) => spawnSync(process.execPath, [...(options.node ?? []), BIN, ...args], { encoding: 'utf8', cwd: options.cwd, timeout: 120_000 });
 
 // An installed build always has its compiled bin (prepack); a checkout compiles it here, as CI's products job does.
@@ -55,7 +56,7 @@ test('wildshard build builds the template without loading the engine', () => {
     assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`);
     assert.doesNotMatch(result.stderr, /engine loaded/u);
     assert.ok(existsSync(join(dir, 'out', 'shard.json')), 'build wrote the folder');
-    assert.ok(existsSync(join(dir, 'template.shardfile')), 'build wrote the shard file');
+    assert.ok(existsSync(join(dir, 'mossgate.shardfile')), 'build wrote the shard file');
   } finally { rmSync(dir, { recursive: true, force: true }); }
 });
 

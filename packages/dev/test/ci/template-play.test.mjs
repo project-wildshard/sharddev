@@ -18,6 +18,10 @@ const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/packa
 const products = readdirSync('out', { withFileTypes: true }).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars');
 assert.ok(products.length, 'Build this shard before running its product proof');
 assert.deepEqual(products.map(row => row.name).sort(), builtShardFolders(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort(), 'Every declared product must be built');
+// TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, is a source shard built on its own (`wildshard build
+// src/shards/mossgate <dir>`), so it sits outside `out`; WS_MOSSGATE_OUT adds it to the walk and resume.
+const proved = [...products.map(row => ({ slug: row.name, directory: resolve('out', row.name) })),
+  ...process.env.WS_MOSSGATE_OUT ? [{ slug: 'mossgate', directory: resolve(process.env.WS_MOSSGATE_OUT) }] : []];
 const tapes = existsSync('test/ci/content-tapes.json') ? JSON.parse(readFileSync('test/ci/content-tapes.json', 'utf8')) : {};
 
 async function play(runtime, plan, declared) {
@@ -31,8 +35,8 @@ async function play(runtime, plan, declared) {
   return { report, commit };
 }
 
-for (const { name: slug } of products) test(`${slug}: boot, walk and resume on the installed engine`, { timeout: 9_500 }, async () => {
-  const directory = resolve('out', slug), product = await loadHeadlessFolder(directory), shard = product.shardfile;
+for (const { slug, directory } of proved) test(`${slug}: boot, walk and resume on the installed engine`, { timeout: 9_500 }, async () => {
+  const product = await loadHeadlessFolder(directory), shard = product.shardfile;
   const descriptor = outputDescriptor(shard);
   assert.ok(descriptor, 'The built shard must pass admission');
   const declared = shard.runtime === null && !product.has('sim/runtime-plan');

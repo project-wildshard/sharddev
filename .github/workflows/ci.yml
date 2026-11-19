@@ -274,7 +274,7 @@ jobs:
         run: pnpm --filter @wildshard/build compile
       - name: Author tests
         run: pnpm test:author
-      - name: Build all three owned templates
+      - name: Build the owned templates
         if: ${{ !cancelled() }}
         run: pnpm build:shards
       - name: Preserve CI21 grid eviction and restore assertions
@@ -291,14 +291,24 @@ jobs:
           name: ci21-grid-owner-${{ github.job }}-${{ github.run_id }}
           path: packages/sdk/tmp/ci21-grid/
           if-no-files-found: ignore
+      # TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, took the retired Template's play proofs. It is a source shard
+      # that build:shards does not list, so it builds on its own and WS_MOSSGATE_OUT hands it to the proofs below.
+      - name: Build Mossgate
+        working-directory: packages/sdk
+        if: ${{ !cancelled() }}
+        run: node ../dev/bin/wildshard.mjs build src/shards/mossgate tmp/ci-mossgate/mossgate
       - name: Walk the owned 1800-tick authored route
         working-directory: packages/sdk
         if: ${{ !cancelled() }}
+        env:
+          WS_MOSSGATE_OUT: tmp/ci-mossgate/mossgate
         run: node --experimental-transform-types --test ../dev/test/ci/owned-journey.test.mjs
       - name: Installed author and template play proofs
         working-directory: packages/sdk
         if: ${{ !cancelled() }}
-        run: node --test --test-concurrency=1 ../dev/test/ci/installed-author.test.mjs ../dev/test/ci/template-play.test.mjs ../dev/test/ci/template-warden.test.mjs ../dev/test/ci/template-chest.test.mjs ../dev/test/ci/package-products.test.mjs
+        env:
+          WS_MOSSGATE_OUT: tmp/ci-mossgate/mossgate
+        run: node --test --test-concurrency=1 ../dev/test/ci/installed-author.test.mjs ../dev/test/ci/template-play.test.mjs ../dev/test/ci/mossgate-warden.test.mjs ../dev/test/ci/mossgate-chest.test.mjs ../dev/test/ci/package-products.test.mjs
       # The headless shell only, no --with-deps: the runner image carries
       # Chromium's system libraries, and the apt half fetched 32 MB of fonts
       # at 86 kB/s for 6 min on 2026-11-18 (run 44387745051), past the cap.

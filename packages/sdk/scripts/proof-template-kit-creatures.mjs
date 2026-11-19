@@ -14,7 +14,7 @@ assert.ok(entry);
 const shippedGlb = readFileSync(new URL(import.meta.resolve(`@wildshard/kit/content/animated/${entry.glb}`)));
 const shippedSkin = readFileSync(new URL(import.meta.resolve(`@wildshard/kit/content/animated/${entry.skin}`)));
 const projects = [];
-for (const name of ['_template', 'pastel-plain']) {
+for (const name of ['pastel-plain']) { // TEMPLATE-E2E TR-11 retired the Template
   const prefix = `src/shards/${name}`, before = original(`${prefix}/data/rows.json`), after = current(`${prefix}/data/rows.json`);
   const oldBoar = before.species.find(row => row.id === 'boar'), boar = after.species.find(row => row.id === 'boar');
   assert.ok(oldBoar); assert.ok(boar);

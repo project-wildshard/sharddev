@@ -19,7 +19,7 @@ import { validateShardfile } from './validate.ts'
 // manifest card first, else the presentation card. The expected digests
 // are the ones api-server's own stream check gives for the same corpus
 // files (its `stream-check-hero.test.ts`), run against format v0.4.4's
-// corpus. Brasscap Mesa is shaped like `_template`: a generated `data:`
+// corpus. Brasscap Mesa is shaped like the retired Template: a generated `data:`
 // card in its manifest and no presentation card, the shape UP3's first
 // pre-check never refused. Format v0.5.7 moved it to `corpus/exports/`,
 // re-exported from `shard-brasscap` (SHARD-SOURCE SS4), so its card and
@@ -54,7 +54,7 @@ async function tarOf(root: string, prepared = false): Promise<Uint8Array> {
   return writeTar(prepared ? await preparedFiles(files) : files)
 }
 
-/** A `_template`-shaped shard: its tarball, slug and the API's digest. */
+/** A Template-shaped shard: its tarball, slug and the API's digest. */
 async function templateShaped(): Promise<
   Readonly<{ tarball: Uint8Array; slug: string; heroHash: string }>
 > {
@@ -79,7 +79,11 @@ test("a generated data: card's digest is the API's", async (): Promise<void> => 
     await tarOf(path.join(CORPUS, 'exports', 'brasscap-mesa')),
   )
 
-  assert.equal(shard.card, undefined, 'no presentation card, as _template')
+  assert.equal(
+    shard.card,
+    undefined,
+    'no presentation card, as the Template had',
+  )
   assert.equal(shard.heroHash, API_DIGEST.brasscapMesa)
 })
 

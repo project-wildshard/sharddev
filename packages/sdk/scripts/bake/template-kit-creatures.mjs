@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 import { installFormatHook } from '@wildshard/format/formatHook';
-import { formatJson } from './json.mjs';
 
 installFormatHook();
 
@@ -13,19 +12,19 @@ const { parseSkinFile } = await import('@wildshard/format/skinAssets');
 const { parseRows } = await import('@wildshard/format/rows');
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
-// SHARD-SOURCE AP36c: the Template's data is written compact (json.mjs); pastel keeps two-space JSON
-const json = (value, project = '') => project.endsWith('_template') ? formatJson(value) : `${JSON.stringify(value, null, 2)}\n`;
+// Pastel keeps two-space JSON (TEMPLATE-E2E TR-11 retired the Template, whose data json.mjs wrote compact).
+const json = (value) => `${JSON.stringify(value, null, 2)}\n`;
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
-// SHARD-SOURCE AP36b: the Template keeps its rows section as one file per row kind under data/rows/; pastel keeps data/rows.json.
+// SHARD-SOURCE AP36b: a project may keep its rows section as one file per row kind under data/rows/; pastel keeps data/rows.json.
 const split = project => existsSync(resolve(project, 'data/rows'));
 const readRows = project => split(project)
   ? Object.fromEntries(['strikes', 'weather', 'days', 'species', 'looks', 'compendiums', 'loot'].map(key => [key, JSON.parse(readFileSync(resolve(project, `data/rows/${key}.json`), 'utf8'))]))
   : JSON.parse(readFileSync(resolve(project, 'data/rows.json'), 'utf8'));
 const rowFiles = (project, source) => split(project)
-  ? readdirSync(resolve(project, 'data/rows')).map(file => [resolve(project, 'data/rows', file), json(source[file.replace(/\.json$/u, '')], project)])
+  ? readdirSync(resolve(project, 'data/rows')).map(file => [resolve(project, 'data/rows', file), json(source[file.replace(/\.json$/u, '')])])
   : [[resolve(project, 'data/rows.json'), json(source)]];
 
-/** Regenerate only the two projects' kit boar; every authored gameplay override remains. */
+/** Regenerate only Pastel Plain's kit boar (the Template retired, TEMPLATE-E2E TR-11); every authored gameplay override remains. */
 export function templateKitCreatures(check = false) {
   const asset = catalogue.find(row => row.kind === 'boar' && row.family === 'toon' && row.variant === 'boar');
   if (asset === undefined) throw new Error('Missing shipped kit boar');
@@ -37,7 +36,7 @@ export function templateKitCreatures(check = false) {
     if (check) { if (!Buffer.from(bytes).equals(readFileSync(path))) throw new Error(`Stale kit creature output: ${path}`); }
     else writeFileSync(path, bytes);
   };
-  for (const name of ['_template', 'pastel-plain']) {
+  for (const name of ['pastel-plain']) {
     const project = resolve(root, 'src/shards', name);
     const source = readRows(project);
     const skins = JSON.parse(readFileSync(resolve(project, 'data/skins.json'), 'utf8'));
@@ -78,7 +77,7 @@ export function templateKitCreatures(check = false) {
     for (const [path, bytes] of rowFiles(project, source)) put(path, bytes);
     put(resolve(project, 'data/skins.json'), json(output, project));
   }
-  console.log(`Template and pastel kit boar ${check ? 'checked' : 'written'}: ${asset.glbHash.slice(0, 12)}`);
+  console.log(`Pastel kit boar ${check ? 'checked' : 'written'}: ${asset.glbHash.slice(0, 12)}`);
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) templateKitCreatures(process.argv.includes('--check'));

@@ -9,7 +9,7 @@ test('only selected product prerequisites run, once, before every product worker
   let calls = 0, release = (): void => undefined;
   const ports = { basis: () => { calls++; return new Promise<void>(resolve => { release = resolve; }); } };
   const pool = runShardBuildPool([1, 2], item => { started.push(item); return Promise.resolve(); },
-    () => prepareProductBuildTools(['_template', 'blender-template', 'other', 'far-reach', 'far-reach'], undefined, ports));
+    () => prepareProductBuildTools(['mossgate', 'brasscap-mesa', 'other', 'far-reach', 'far-reach'], undefined, ports));
   expect(calls).toBe(1); expect(started).toEqual([]);
   release(); await pool;
   expect(started).toEqual([1, 2]); expect(calls).toBe(1);

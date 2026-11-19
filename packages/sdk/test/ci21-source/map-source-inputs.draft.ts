@@ -58,12 +58,14 @@ function generatorClosure(shard: string): Set<string> {
   return seen;
 }
 
-// A map hashes the SDK files it reads, so an export or a file it doesn't read can't rewrite a template's bytes.
-test.each(['_template', 'pastel-plain'])('%s map names exactly the SDK files its generators reach', (slug) => {
+// A map hashes the SDK files it reads, so an export or a file it doesn't read can't rewrite a template's bytes. The retired
+// Template's row went with it (TEMPLATE-E2E TR-11): Mossgate draws its map from its scene with no map inputs, and Ink Cel
+// Valley's map names its program (the case below).
+test.each(['pastel-plain'])('%s map names exactly the SDK files its generators reach', (slug) => {
   const shard = resolve('src/shards', slug), sdk = [`${resolve('src/sharddev')}/`, `${resolve('src/commons')}/`];
   const owned = (file: string): boolean => sdk.some(prefix => `${file}/`.startsWith(prefix));
   // A declared input that no longer exists is never hashed (map-hash skips it), so it reads nothing (SDK-SPLIT SP8a
-  // moved projectEntryProof.ts to dev; the Template drops the name at its next hero capture).
+  // moved projectEntryProof.ts to dev).
   const declared = mapInputRoots(shard).filter(owned).filter(file => existsSync(file)).sort();
   expect(declared).toEqual([...generatorClosure(shard)].filter(owned).sort());
 }, 60_000);

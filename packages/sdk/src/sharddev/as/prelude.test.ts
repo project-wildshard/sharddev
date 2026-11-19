@@ -6,8 +6,8 @@ import { expect, test } from 'vitest';
 import { compileScript } from '../bake/compileScript';
 
 // SHARD-SOURCE AP27: the Template's door is written on the sdk's ABI-v0 prelude, with no literal address.
-// the Template's sources, read as text from the checkout (the test runs at the repo root)
-const template = (name: string): string => readFileSync(join(process.cwd(), 'src', 'shards', '_template', 'behaviour', name), 'utf8');
+// the retired Template's door and items sources, kept as fixtures when J434 retired it (the test runs at the repo root)
+const template = (name: string): string => readFileSync(join(process.cwd(), 'src', 'sharddev', 'as', 'fixtures', name), 'utf8');
 const IN = 16384 / 8, OUT = 24576 / 8;
 
 async function door(): Promise<(shared: readonly number[], events: readonly number[]) => number[][]> {

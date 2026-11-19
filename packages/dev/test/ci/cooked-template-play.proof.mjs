@@ -23,8 +23,10 @@ const {readServerPack,serverPackFile}=await import('@wildshard/engine/game/shard
 const {snapshotSimHostBytes,serializeSimSnapshot}=await import('@wildshard/engine/sim/snapshot');
 const {manifestFolders,builtShardFolders}=await import('@wildshard/build/scripts/shard-outputs.mjs');
 const {NET_BUTTONS}=await import('@wildshard/engine/input/netButtons');
-const expected=builtShardFolders(process.cwd(),manifestFolders(process.cwd())).map(row=>row.slug).sort();
-assert.deepEqual(expected,['_template','ink-cel-valley','pastel-plain'],'The complete SDK template family is required');
+// TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, replaced the retired Template. It is a source shard, so the
+// producer builds it on its own into out/mossgate beside build:shards' products.
+const expected=[...builtShardFolders(process.cwd(),manifestFolders(process.cwd())).map(row=>row.slug),'mossgate'].sort();
+assert.deepEqual(expected,['ink-cel-valley','mossgate','pastel-plain'],'The complete SDK template family is required');
 assert.deepEqual(readdirSync('out',{withFileTypes:true}).filter(row=>row.isDirectory()&&!row.name.startsWith('.')&&row.name!=='tars').map(row=>row.name).sort(),expected);
 const [part,parts]=(process.env.COOKED_PART??'1/1').split('/').map(Number);
 assert.ok(Number.isInteger(part)&&Number.isInteger(parts)&&part>=1&&part<=parts&&parts<=expected.length,'A nonempty bounded partition');

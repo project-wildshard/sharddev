@@ -3,10 +3,6 @@
   "original": "engine:test/grid-reentry.test.ts",
   "products": [
     {
-      "slug": "_template",
-      "directory": "out/_template"
-    },
-    {
       "slug": "pastel-plain",
       "directory": "out/pastel-plain"
     },

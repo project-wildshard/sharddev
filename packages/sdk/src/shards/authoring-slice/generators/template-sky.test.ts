@@ -6,8 +6,9 @@ import { templateSky } from './template-sky';
 
 // SHARD-SOURCE AP13: the Template's 77-node sky post graph, rewritten as TSL of 40 lines or fewer, compiles to the same
 // graph: every output pixel is the same expression of the same inputs (node ids aside), so the frame is equal.
-// the Template shard's folder: its look's sky post graph is what the TSL here must equal
-const TEMPLATE = new URL(['..', '..', '_template', ''].join('/'), import.meta.url);
+// the retired Template's look's sky post graph (its data/look.json post[0], kept here when J434 retired the Template) is
+// what the TSL here must equal
+const GOLDEN = new URL('template-sky.golden.json', import.meta.url);
 function expression(ir: GraphIr, ref: GraphRef): string {
   if (typeof ref !== 'string') return JSON.stringify(ref);
   const node = ir.nodes[ref];
@@ -17,9 +18,7 @@ function expression(ir: GraphIr, ref: GraphRef): string {
 }
 
 test('the Template sky in TSL compiles to its 77-node graph', () => {
-  const look = JSON.parse(readFileSync(new URL('data/look.json', TEMPLATE), 'utf8')) as { post: { graph: GraphIr }[] };
-  const golden = look.post[0]?.graph, ours = templateSky();
-  if (golden === undefined) throw new Error('the Template look has no post graph');
+  const golden = JSON.parse(readFileSync(GOLDEN, 'utf8')) as GraphIr, ours = templateSky();
   const out = (ir: GraphIr): GraphRef => ir.stages.post?.colour ?? '';
   expect(expression(ours, out(ours))).toBe(expression(golden, out(golden)));
   expect(Object.keys(ours.nodes).length).toBeLessThanOrEqual(Object.keys(golden.nodes).length);

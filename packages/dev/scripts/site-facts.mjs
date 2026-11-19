@@ -6,8 +6,9 @@
 // hand at a release (its docs/dev.md). Nothing here checks that copy.
 // Sources: the single-player grid (src/shared/game/grid/singleplayer.json), the cell size, road width and
 // memory caps (@wildshard/format/contentBounds), the shard.json schema's path count
-// (@wildshard/format/shardSchema through scripts/docs/schema-reference.mjs) and an excerpt of the template's built
-// shard.json (out/_template/shard.json: run node scripts/build-shardfiles.mjs first). The site formats the numbers.
+// (@wildshard/format/shardSchema through scripts/docs/schema-reference.mjs) and an excerpt of the starter Mossgate's built
+// shard.json (out/mossgate/shard.json: run wildshard build src/shards/mossgate out/mossgate first; TEMPLATE-E2E TR-11
+// retired the Template it read before). The site formats the numbers.
 import { existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
@@ -43,10 +44,10 @@ function grid() {
   return { pitch: number(g.pitch, 'grid.pitch'), cells: [...at.values()] };
 }
 
-/** the template's built shard.json, cut to the fields the site's shardfile peek shows (MS15) */
+/** the starter's built shard.json, cut to the fields the site's shardfile peek shows (MS15) */
 function shardfileExcerpt() {
-  const file = 'out/_template/shard.json';
-  if (!existsSync(resolve(root, file))) throw new Error(`site-facts: no ${file}; run node scripts/build-shardfiles.mjs first`);
+  const file = 'out/mossgate/shard.json';
+  if (!existsSync(resolve(root, file))) throw new Error(`site-facts: no ${file}; run wildshard build src/shards/mossgate out/mossgate first`);
   const index = json(file), requires = record(index.requires, 'requires'), admission = record(index.admission, 'admission');
   return {
     version: index.version, identity: index.identity, requires: { sdk: requires.sdk },

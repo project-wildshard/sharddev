@@ -6,7 +6,7 @@ import { readFileSync, readdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join, resolve } from 'node:path';
 import { test } from 'node:test';
-const { questSource } = await import('./quest-source.mjs');
+const { questSource, SCENE_TRIGGERS } = await import('./quest-source.mjs');
 
 const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
 const { createTrustedHeadlessAdapter } = await import('@wildshard/engine/host/headlessRuntime');
@@ -20,6 +20,10 @@ const routes = JSON.parse(readFileSync(new URL('./walk-routes.json', import.meta
 const products = builtShardFolders(process.cwd(), manifestFolders(process.cwd())).map(row => row.slug).sort();
 assert.ok(products.length);
 assert.deepEqual(readdirSync('out', {withFileTypes:true}).filter(row => row.isDirectory() && !row.name.startsWith('.') && row.name !== 'tars').map(row=>row.name).sort(), products);
+// TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, is a source shard built on its own (`wildshard build
+// src/shards/mossgate <dir>`), so it sits outside `out`; WS_MOSSGATE_OUT adds it to the walk.
+const walked = [...products.map(slug => ({ slug, directory: resolve('out', slug) })),
+  ...process.env.WS_MOSSGATE_OUT ? [{ slug: 'mossgate', directory: resolve(process.env.WS_MOSSGATE_OUT) }] : []];
 
 function routeFor(slug, spawn) {
   if (routes[slug] === 'spawn-square') return {name:'spawn-square',points:[{x:spawn.x,z:spawn.z},{x:spawn.x+5,z:spawn.z},{x:spawn.x+5,z:spawn.z+5},{x:spawn.x,z:spawn.z+5}]};
@@ -29,9 +33,14 @@ function routeFor(slug, spawn) {
   return {name:nearest.name,points:[{x:nearest.start.x,z:nearest.start.z},...nearest.waypoints]};
 }
 
-for (const slug of products) test(`${slug}: enters and walks 1800 actual authored-route ticks`, {timeout:9500}, async () => {
-  const started = performance.now(), directory = resolve('out', slug), product = await loadHeadlessFolder(directory), shard = product.shardfile;
-  assert.deepEqual(shard.quests,questSource(slug),'The real product must preserve its authored quest inventory');
+for (const { slug, directory } of walked) test(`${slug}: enters and walks 1800 actual authored-route ticks`, {timeout:9500}, async () => {
+  const started = performance.now(), product = await loadHeadlessFolder(directory), shard = product.shardfile, authored = await questSource(slug);
+  if (SCENE_TRIGGERS.has(slug)) {
+    const kept = (rows, own) => rows.filter(row => own.some(mine => JSON.stringify(mine) === JSON.stringify(row)));
+    assert.deepEqual([shard.quests.quests, shard.quests.dialogue], [authored.quests, authored.dialogue], 'The real product must preserve its authored quests and talks');
+    assert.deepEqual(kept(shard.quests.triggers, authored.triggers), authored.triggers, 'The real product must keep every authored trigger');
+    assert.deepEqual(kept(shard.quests.flags, authored.flags), authored.flags, 'The real product must keep every authored flag');
+  } else assert.deepEqual(shard.quests,authored,'The real product must preserve its authored quest inventory');
   const descriptor = outputDescriptor(shard); assert.ok(descriptor);
   const declared = shard.runtime === null && !product.has('sim/runtime-plan');
   const assets = new Map(descriptor.index.files.filter(file => declared || serverReadsFile(file,shard.terrain?.collider) && (file.name === undefined || file.kind === 'wasm' || file.kind === 'tile'))

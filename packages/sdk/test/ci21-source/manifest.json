@@ -128,31 +128,6 @@
       "targetSha256": "26f37da5c9c3bc045133112cfdce22af37c8b832019effec247ec305f4d48e74"
     },
     {
-      "sourcePath": "test/template-source-layout.test.ts",
-      "targetPath": "test/ci21-source/template-source-layout.source.ts",
-      "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
-      "sourceBlob": "d23633e148d4e1c426c89a4b45d2326afe16999a",
-      "originalTests": [
-        "Template author modules and temporary discovery have zero P0 and sim violations",
-        "legacy map layout remains the fallback until a source map exists"
-      ],
-      "changes": "Preserve both complete original cases with public engine lint/build imports and the actual SDK boundary checker. Replace the foreign far-reach map assertions with the SDK-owned pastel-plain as mapped. Own source-layout policy retains all defining engine rules and admits only registered SDK hero.json and card source names. ONE-FORMAT OF6b: Template's card is data/card.json alone, so its discovery source is produced from the card, composed.",
-      "state": "source verified locally; blocking/default admission and paired removal owed",
-      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
-      "localRuntime": {
-        "files": 1,
-        "cases": 2,
-        "seconds": 0.212,
-        "result": "pass"
-      },
-      "fullAuthorCompiler": "Complete inherited author project/source ports passes with pinned TypeScript7; actual native typed author lint pass.",
-      "targetTests": [
-        "Template author modules and temporary discovery have zero P0 and sim violations",
-        "legacy map layout remains the fallback until a source map exists"
-      ],
-      "targetSha256": "12a333b01922288b464dc2b19d699d260bd0ff2258c9244b0e1b3d18d383a9b2"
-    },
-    {
       "sourcePath": "test/map-source-inputs.test.ts",
       "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
       "sourceBlob": "f6e0cf9fa1e2105919f87dffbfeb0e114a453397",
@@ -170,7 +145,7 @@
       ],
       "outstandingOwnerProofs": [],
       "state": "C10 complete cross-owner admission: SDK6 plus live owner8 cases; former Brasscap raster component retired after J342",
-      "changes": "Six SDK cache/closure/raster-input cases pass on actual source. Eight other original owner assertions and Nine extra roots stay owed to content owners. Actual SDK bug fixed: retired src/sdk inputs replaced by exact80/85 reached SDK+commons paths; all three actual source products build. C10 verifies all eight former owner partitions: seven live content repos retain8 cases including Nine roots; only absent Brasscap raster component retired by name under J232/J342.",
+      "changes": "Six SDK cache/closure/raster-input cases pass on actual source. Eight other original owner assertions and Nine extra roots stay owed to content owners. Actual SDK bug fixed: retired src/sdk inputs replaced by exact80/85 reached SDK+commons paths; all three actual source products build. C10 verifies all eight former owner partitions: seven live content repos retain8 cases including Nine roots; only absent Brasscap raster component retired by name under J232/J342. TEMPLATE-E2E TR-11 (J434): the retired Template's row of the map-inputs case went with it; Pastel Plain keeps the case (Mossgate has no map inputs; Ink Cel Valley's map names its program).",
       "localRuntime": {
         "files": 1,
         "cases": 6,
@@ -183,7 +158,7 @@
         "SDK-owned maps declare their program and its defining raster inputs",
         "%s map declarations invalidate on raster and scene edits"
       ],
-      "targetSha256": "992afdac95fcf90cc5ea2a868a3145955de731fce13f6c2e3f32bfecc13229a4",
+      "targetSha256": "24e1604740950ed2d4c67e56eaf3ed522c3d873bb4c43ce8bb0103098b3cbcfa",
       "ownerProofs": [
         {
           "owner": "driftwood-isle",
@@ -343,8 +318,33 @@
       "targetSha256": "20279959e85bfab09dfdcc581362bc12b87e575aab44f6eb596b4bab9af02d03"
     },
     {
+      "sourcePath": "test/template-source-layout.test.ts",
+      "targetPath": "test/ci21-source/mossgate-source-layout.source.ts",
+      "sourceRevision": "b7ed645a30488e847a79a932b8d6ffa7225f4e3c",
+      "sourceBlob": "d23633e148d4e1c426c89a4b45d2326afe16999a",
+      "originalTests": [
+        "Template author modules and temporary discovery have zero P0 and sim violations",
+        "legacy map layout remains the fallback until a source map exists"
+      ],
+      "changes": "Preserve both complete original cases with public engine lint/build imports and the actual SDK boundary checker. Replace the foreign far-reach map assertions with the SDK-owned pastel-plain as mapped. Own source-layout policy retains all defining engine rules and admits only registered SDK hero.json and card source names. ONE-FORMAT OF6b: Template's card is data/card.json alone, so its discovery source is produced from the card, composed. TEMPLATE-E2E TR-11 (J434, Jake 2026-11-19: \u201cDelete the old legacy template & template-blender stuff. Mosscap & brasscap are the NEW TEMPLATES\u201d): the Template retired, so the cases run Mossgate, the template that replaced it; case titles kept. Mossgate is scene source with no card, discovery file or map settings, so the first case checks its generators and config and its sim closure (check-shards' legacy folder rules want a README Mossgate does not have), and keeps Pastel Plain's map settings; the second case is unchanged.",
+      "state": "source verified locally; blocking/default admission and paired removal owed",
+      "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
+      "localRuntime": {
+        "files": 1,
+        "cases": 2,
+        "seconds": 0.212,
+        "result": "pass"
+      },
+      "fullAuthorCompiler": "Complete inherited author project/source ports passes with pinned TypeScript7; actual native typed author lint pass.",
+      "targetTests": [
+        "Template author modules and temporary discovery have zero P0 and sim violations",
+        "legacy map layout remains the fallback until a source map exists"
+      ],
+      "targetSha256": "80a747274a36383b8b3e3c6f541e19b7239c9e1e9e3cb2941f6eba315a2a3f33"
+    },
+    {
       "sourcePath": "test/template-generation.test.ts",
-      "targetPath": "test/ci21-source/template-generation.source.ts",
+      "targetPath": "test/ci21-source/mossgate-generation.source.ts",
       "sourceRevision": "8181914169e4c783e103b846abbec81775c68b40",
       "sourceBlob": "37a45eb198c9f59ffad7e77058e69c17f955dccd",
       "originalTests": [
@@ -357,9 +357,9 @@
         "the actual template build closure bundles and executes through the unchanged config boundary",
         "Template boss and output sources use the unchanged SDK-only author import surface"
       ],
-      "changes": "Whole original cases and byte assertions retained. Defining SDK guard and immutable fixture relocation only. Real source bug fixed: buildTemplateWorld resets its masonry seed counter for each generation. SHARD-SOURCE AP36a (2026-11-18): the world is scene source, so the first case keeps every non-world row, the colliders, panel ids, models and look entries of the bake byte for byte, and checks every asset against its hash and the shard's files. SHARD-SOURCE AP36c (2026-11-18): the bake modules are deleted, so the first case pins the build's gameplay (every non-world section, the colliders, panel and model ids) and its map pixels to stored digests, and checks every asset against its hash and the shard's files.",
+      "changes": "Whole original cases and byte assertions retained. Defining SDK guard and immutable fixture relocation only. Real source bug fixed: buildTemplateWorld resets its masonry seed counter for each generation. SHARD-SOURCE AP36a (2026-11-18): the world is scene source, so the first case keeps every non-world row, the colliders, panel ids, models and look entries of the bake byte for byte, and checks every asset against its hash and the shard's files. SHARD-SOURCE AP36c (2026-11-18): the bake modules are deleted, so the first case pins the build's gameplay (every non-world section, the colliders, panel and model ids) and its map pixels to stored digests, and checks every asset against its hash and the shard's files. TEMPLATE-E2E TR-11 (J434, Jake 2026-11-19: \u201cDelete the old legacy template & template-blender stuff. Mosscap & brasscap are the NEW TEMPLATES\u201d): the Template retired, so the cases run Mossgate, the template that replaced it; case titles kept. Mossgate has no map program, so the map pixel pin went with the Template, as did the Template's pinned gameplay digest (it bounded only the retired bake); the cold and cached generation, the Warden decision's section bytes (its module compiles at build), every asset's hash, the config-boundary bundle and the SDK-only import surface over all of Mossgate's generators are kept.",
       "state": "C10 default blocking source suite",
-      "targetSha256": "2b9f3bdd6f8f5278d16155634ab917b1cb7c15c41d244e08dbcd32375dc8cfd1"
+      "targetSha256": "1ce8fb18ee01454d299d3e2e46c00ec17e7e2c868e58c26101857bbb0b590522"
     }
   ]
 }

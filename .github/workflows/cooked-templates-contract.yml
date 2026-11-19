@@ -79,8 +79,12 @@ jobs:
       - name: Prove the pinned producer before building
         working-directory: packages/sdk
         run: node scripts/assert-candidate-engine.mjs --producer
-      - name: Build all three authored templates once
+      - name: Build the authored templates once
         run: pnpm build:shards
+      # TEMPLATE-E2E TR-11 (J434): Mossgate took the retired Template's place; build:shards does not list source shards.
+      - name: Build Mossgate beside them
+        working-directory: packages/sdk
+        run: node ../dev/bin/wildshard.mjs build src/shards/mossgate out/mossgate
       - name: Carry the immutable producer output and provenance
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:

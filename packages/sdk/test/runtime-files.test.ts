@@ -145,7 +145,7 @@ test('the checked-in ceilings are self-consistent and every SDK source shard fit
   const slugs = readdirSync(join(repo, 'src/shards'), { withFileTypes: true })
     .filter(entry => entry.isDirectory())
     .map(entry => entry.name)
-  expect(slugs).toContain('_template')
+  expect(slugs).toContain('mossgate')
   for (const slug of slugs) {
     expect(
       count(join(repo, 'src/shards', slug, 'runtime')),

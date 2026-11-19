@@ -63,7 +63,7 @@ it('checks copied constants against unchanged mirrors without a custom registry'
 
 it('admits the compiled SDK Template source without copying retired runtime data', () => {
   const { output } = fixture();
-  expect(writeRuntimeFiles(resolve('src/shards/_template'), output)).toEqual({ files: [], lines: 0 });
+  expect(writeRuntimeFiles(resolve('src/shards/mossgate'), output)).toEqual({ files: [], lines: 0 });
 });
 
 it.each(['runtime/sections.ts','runtime/productSections.d.ts'])('refuses retired custom registry %s before deleting any output', path => {
