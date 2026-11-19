@@ -16,8 +16,6 @@ const looks = new Map(Object.entries(physics).map(([kind, row]) =>
 const lookRows = program.species.map(row => ({ id: `sunscar.look.${row.kind}`, species: row.id, recipe: 'sunscar.rig', material: null,
   parameters: {}, animation: { recipe: 'sunscar.clips', parameters: {} } }));
 
-const FLYERS = new Set(['duneRay', 'duneMatriarch']);
-
 /** The converted rows in a full shardfile: `kinds` picks the species, `spawned` adds one home spawn per brained species. */
 function shard(kinds: ReadonlySet<string>, spawned = false) {
   const converted = speciesProgramToRows(program, looks), base = emptyShardfile({ slug: 'of11-dunes', name: 'Dunes rows', author: 'Test', revision: 1, seed: 7 });
@@ -40,20 +38,15 @@ function allRows() {
 }
 
 describe('species programs become layered rows (ONE-FORMAT OF11a)', () => {
-  test("Dunes' ground species admit as plain rows and brains in a full shardfile", () => {
-    const { converted, file } = shard(new Set(['sandSkitterer', 'duneStrider']));
+  test("Dunes' four species admit as plain rows and brains in a full shardfile, spawned", () => {
+    // Format 0.41.0 (shard-format d493da7a) admits the ray's and the Matriarch's legless bake (legLen 0) and a spawn
+    // naming a camelCase species id (`sunscar.creature.duneStrider`).
+    const { converted, file } = shard(new Set(['duneRay', 'sandSkitterer', 'duneStrider', 'duneMatriarch']), true);
     expect(converted.species.map(row => row.kind)).toEqual(['duneRay', 'sandSkitterer', 'duneStrider', 'duneMatriarch']);
-    expect(file.rows.species.map(row => row.kind)).toEqual(['sandSkitterer', 'duneStrider']);
+    expect(file.rows.species.map(row => row.kind)).toEqual(['duneRay', 'sandSkitterer', 'duneStrider', 'duneMatriarch']);
     expect(file.rows.species.every(row => row.temperament !== undefined && row.body?.size === 'medium')).toBe(true);
-    expect(file.creatures.brains.map(row => row.id)).toEqual(['sunscar.brain.strider']);
-  });
-
-  test('flyers and spawns wait on the format pin', () => {
-    // This sdk pins format 0.37.1. It refuses the ray's and the Matriarch's legless bake (legLen 0) and a spawn naming
-    // a camelCase species id (`sunscar.creature.duneStrider`); shard-format d493da7a admits both. When the sdk pins a
-    // format with them, put all four species, spawned, in the test above.
-    expect(() => shard(FLYERS)).toThrow(/>=0\.000001 but received 0/u);
-    expect(() => shard(new Set(['duneStrider']), true)).toThrow(/sunscar\.creature\.duneStrider/u);
+    expect(file.creatures.brains.map(row => row.id)).toEqual(['sunscar.brain.ray', 'sunscar.brain.strider']);
+    expect(file.creatures.spawns.map(row => row.species)).toEqual(['sunscar.creature.duneRay', 'sunscar.creature.duneStrider']);
   });
 
   test('each converted row resolves to the native spec its physics bake already uses', () => {
