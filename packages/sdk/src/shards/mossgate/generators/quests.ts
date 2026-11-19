@@ -6,6 +6,7 @@ import { GATE_PASS, GATE_PASSED_FLAG, LEDGE_FLAG, PLAY, USES } from './play';
 import { BODIES, HAUNTS } from './creatures';
 import { MEADOW, MEADOW_FLAGS } from './meadow';
 import { THICKET_FLAGS, THICKET_SIGN_DIALOGUE } from './thicket';
+import { BOG, BOG_FLAGS, BOG_USE } from './bog';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
 const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
@@ -35,6 +36,8 @@ export const FLAGS = {
   pestsReported: 'mossgate.hermit.pests',
   // MOSSGATE-ZONE MZ12: the meadow den's side quest pays once its hoard is found
   denPaid: 'mossgate.meadow.den.paid',
+  // MZ14: the Bog's drowned chest
+  shrinePaid: 'mossgate.bog.shrine.paid',
 } as const;
 const dead = (spawn: string): string => `dead:${spawn}`;
 const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
@@ -67,7 +70,7 @@ export const HERMIT_DIALOGUE = {
 
 /** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
-  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, ...Object.values(MEADOW_FLAGS), ...Object.values(THICKET_FLAGS), dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
+  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, ...Object.values(MEADOW_FLAGS), ...Object.values(THICKET_FLAGS), ...Object.values(BOG_FLAGS), dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
   triggers: [
     // TR-12b: any grey blob's death raises the blob quest's flag
     { id: 'blob', kind: 'death' as const, flag: FLAGS.blob, tag: 'creature.greyBlob' },
@@ -76,6 +79,7 @@ export const QUESTS = {
     { id: 'north-gate.opened', kind: 'script' as const, flag: FLAGS.northGate, condition: `${USES.lever}.spent` },
     { id: 'chest.opened', kind: 'script' as const, flag: FLAGS.chestOpened, condition: `${USES.chest}.spent` },
     { id: 'ledge.searched', kind: 'script' as const, flag: FLAGS.ledgeSearched, condition: `${USES.ledgeCache}.spent` },
+    { id: 'bog.chest.opened', kind: 'script' as const, flag: BOG_FLAGS.chestOpened, condition: `${BOG_USE}.spent` },
   ],
   dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE],
   quests: [
@@ -139,6 +143,12 @@ export const QUESTS = {
         markers: [marker('den.marker', 'Mossling den', 'Den', MEADOW.DEN, MEADOW_FLAGS.den)] },
         { id: 'hoard', objective: 'Find what the pack hoards behind its mound', done: { all: [MEADOW_FLAGS.hoard] }, hint: 'Round the back of the den, away from the burrow mouth' }],
       onComplete: { fact: 'mossgate.meadow.den', coins: 10 } },
+    // MZ14: the Bog's chest is shared (one lid for the world), so the quest pays each player who stands at it once it is open
+    { id: 'mossgate.bog.shrine', title: 'The sunken shrine', track: false, completeFlag: FLAGS.shrinePaid,
+      steps: [{ id: 'shrine', objective: 'Find the sunken shrine in the Bog', done: { all: [BOG_FLAGS.shrine] }, hint: 'West of the yard, past the moss gate',
+        markers: [marker('shrine.marker', 'Sunken shrine', 'Shrine', BOG.SHRINE, BOG_FLAGS.shrine)] },
+        { id: 'chest', objective: 'Open the drowned chest on the shrine floor', done: { all: [BOG_FLAGS.atChest, BOG_FLAGS.chestOpened] } }],
+      onComplete: { fact: 'mossgate.bog.shrine', coins: 20 } },
     { id: 'mossgate.greyback', title: 'Greyback', track: false, completeFlag: FLAGS.greybackPaid,
       steps: [{ id: 'greyback', objective: 'Bring down Greyback', done: { all: [dead(BODIES.greyback)] }, hint: 'The old boar holds a clearing in the thicket, north-east of the yard: sidestep its charge',
         markers: [marker('greyback.marker', 'Greyback\'s clearing', 'Greyback', HAUNTS.GREYBACK, dead(BODIES.greyback))] }],

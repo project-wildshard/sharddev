@@ -42,10 +42,11 @@ const RELIEF: Record<string, (x: number, z: number) => number> = {
     const crown = 1 - sstep(Math.hypot(x - BARROW.x, z - BARROW.z), 16, 34);
     return rise * (1 - crown) + 4.2 * crown;
   },
-  // sunk below the yard: hollows of standing water and dry hummocks, Wisp Mere the deepest
+  // low and wet: hollows of standing water and dry hummocks, Wisp Mere the deepest (MZ14: its water near the pond's level,
+  // where the wisps' flight reaches a walker)
   bog: (x, z) => {
     const mere = 1 - sstep(Math.hypot(x - MERE.x, z - MERE.z), 8, 34);
-    return -1.3 + roll(x, z, 0.045, 1.1, 53) - 1.6 * mere;
+    return -0.3 + roll(x, z, 0.045, 0.9, 53) - 1.1 * mere;
   },
   // a dug pit with a raised spoil rim; the road from the yard runs down its north side
   quarry: (x, z) => {

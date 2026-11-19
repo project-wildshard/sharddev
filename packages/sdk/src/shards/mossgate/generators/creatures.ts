@@ -14,6 +14,7 @@ import type { ShardWorld } from '@wildshard/sdk/scene/author';
 import { groundHeight, LAYOUT } from './world';
 import { MEADOW_PACKS } from './meadow';
 import { THICKET_CAMP } from './thicket';
+import { BOG_WISPS } from './bog';
 
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
@@ -37,6 +38,8 @@ export const HAUNTS = {
   GREYBACK: THICKET_CAMP.greyback,
   CAMP_SOWS: THICKET_CAMP.sows,
   WALLOW_SOWS: THICKET_CAMP.wallowSows,
+  /** MZ14: three more wisps over Wisp Mere in the Bog (bog.ts) */
+  MERE_WISPS: BOG_WISPS.seats,
   WARDEN: { x: LAYOUT.ARENA.x - 1, z: LAYOUT.ARENA.z, r: 8 },
 } as const;
 
@@ -58,6 +61,8 @@ export const STRIKES = {
   sowRam: strike('mossgate.sow.ram', 'boar', { shape: { kind: 'lane', length: 5, width: 1.2 }, windup: 0.7, active: 0.5, recover: 0.9, cooldown: 3, range: 6, damage: 12, weight: 1, speed: 7 } as Omit<Strike, 'id' | 'tags'>),
   boarCharge: strike('mossgate.boar.charge', 'boar', { shape: { kind: 'lane', length: 8, width: 0.9 }, windup: 0.55, active: 0.6, recover: 0.8, cooldown: 2, range: 10, damage: 25, weight: 1, speed: 7.5 } as Omit<Strike, 'id' | 'tags'>),
   wispDive: strike('mossgate.wisp.dive', 'bogWisp', { shape: { kind: 'sphere', radius: 1.6 }, windup: 1, active: 1, recover: 0.6, cooldown: 5, range: 12, damage: 8, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
+  // MZ14: the mere's wisps are their own species (a species runs one brain), so their dive is their own row
+  mereWispDive: strike('mossgate.mere-wisp.dive', 'mereWisp', { shape: { kind: 'sphere', radius: 1.6 }, windup: 1, active: 1, recover: 0.6, cooldown: 5, range: 12, damage: 8, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   wardenSlam: strike('mossgate.warden.slam', 'barrowWarden', { shape: { kind: 'point', radius: 1.6 }, windup: 1.2, active: 0.2, recover: 0.6, cooldown: 0.5, range: 4, damage: 20, weight: 3, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   wardenSweep: strike('mossgate.warden.sweep', 'barrowWarden', { shape: { kind: 'arc', radius: 2.2, halfAngle: 1.3 }, windup: 0.9, active: 0.3, recover: 1, cooldown: 2.5, range: 7, damage: 16, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   wardenThrow: strike('mossgate.warden.throw', 'barrowWarden', { shape: { kind: 'wedge', length: 6, halfAngle: 0.1 }, windup: 1.3, active: 0.2, recover: 0.8, cooldown: 3, range: 18, damage: 14, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
@@ -197,7 +202,7 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
   const o = new THREE.Object3D(); o.position.set(x, groundHeight(x, z) + lift, z); o.rotation.y = yaw; world.scene.add(o); return o;
 }
 
-/** The Hollow's creatures: five species, twenty-three bodies. */
+/** The Hollow's creatures: six species, twenty-six bodies. */
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
@@ -218,6 +223,15 @@ export function buildCreatures(world: ShardWorld): void {
       variants: [variant('bog', 'Bog wisp', 30)], temperament: temper('mossgate.wisp-dive', 30), senses: { notice: 18 },
       flight: { above: 'ground', altitude: 5, climbRate: 5, diveRate: 14, lockRange: 25 } } as never,
     strikes: [STRIKES.wispDive], size: 'medium', clips: wisp.clips, loops: LOOPS, material: PBR,
+  });
+  // MZ14: Wisp Mere's wisps, the same body as the pond's, circling the mere (a species' temperament names its one brain)
+  const mereWisp = wispBody();
+  world.creature('mere.wisp', mereWisp.body, {
+    species: { kind: 'greyBlob', label: 'Mere wisp', aggressive: true, lockable: true,
+      dims: { bodyY: 0.6, bodyHalfLen: 0.3, bodyRadius: 0.42, headRadius: 0.2, legLen: 0.6, feet: [], halfWidth: 0.42 },
+      variants: [variant('mere', 'Mere wisp', 30)], temperament: temper('mossgate.mere-wisp-dive', 30), senses: { notice: 18 },
+      flight: { above: 'ground', altitude: 5, climbRate: 5, diveRate: 14, lockRange: 25 } } as never,
+    strikes: [STRIKES.mereWispDive], size: 'medium', clips: mereWisp.clips, loops: LOOPS, material: PBR,
   });
   world.creature('boar', boar.body, {
     species: { kind: 'boar', label: 'Boar', aggressive: true, lockable: true, type: 'beast',
@@ -246,6 +260,7 @@ export function buildCreatures(world: ShardWorld): void {
   HAUNTS.WISPS.forEach(([x, z], i) => world.spawnAt(`bog-wisp-${i + 1}`, spot(world, x, z, 0, 5), { species: 'bog.wisp', variant: 'bog', brain: 'mossgate.wisp-dive', strike: null, seed: 701 + i, scale: 1 }));
   [...HAUNTS.CAMP_SOWS, ...HAUNTS.WALLOW_SOWS].forEach(([x, z], i) => world.spawnAt(i < HAUNTS.CAMP_SOWS.length ? `camp-sow-${i + 1}` : `wallow-sow-${i - HAUNTS.CAMP_SOWS.length + 1}`, spot(world, x, z), {
     species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 611 + i, scale: 1, respawn: 60, home: { x, y: groundHeight(x, z), z, r: 6 } }));
+  HAUNTS.MERE_WISPS.forEach(([x, z], i) => world.spawnAt(`mere-wisp-${i + 1}`, spot(world, x, z, 0, BOG_WISPS.home.y - groundHeight(x, z)), { species: 'mere.wisp', variant: 'mere', brain: 'mossgate.mere-wisp-dive', strike: null, seed: 711 + i, scale: 1, respawn: 60 }));
   world.spawnAt(BODIES.greyback, spot(world, HAUNTS.GREYBACK.x, HAUNTS.GREYBACK.z, Math.PI * 0.75), { species: 'boar', variant: 'greyback', brain: null, strike: STRIKES.boarCharge.id, seed: 801, scale: 1, respawn: BOSS_RESPAWN });
   // the Warden faces the arch, west, as the static golem did
   world.spawnAt(BODIES.warden, spot(world, HAUNTS.WARDEN.x, HAUNTS.WARDEN.z, -Math.PI / 2), { species: 'barrow.warden', variant: 'warden', brain: null, strike: STRIKES.wardenSlam.id, seed: 901, scale: 1, respawn: BOSS_RESPAWN });

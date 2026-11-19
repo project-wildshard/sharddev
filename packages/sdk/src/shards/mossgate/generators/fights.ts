@@ -6,6 +6,7 @@ import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
 import { BODIES, HAUNTS, PACKS, STRIKES } from './creatures';
 import { LAYOUT } from './world';
+import { BOG_WISPS } from './bog';
 
 /** The Warden's two shared fields: the ground ring's tell (it rears) and its open core (strike now). */
 export const WARDEN_FIELDS = {
@@ -23,6 +24,10 @@ const BRAINS = [
   { id: 'mossgate.sow-ram', kind: 'ram-grazer', strike: STRIKES.sowRam.id, grazeSpeed: 1, ramSpeed: 7, noticeRadius: 8, rimMargin: 2, fallDrop: 1.5,
     levelTolerance: 2.5, threatSpeed: 1.4, wanderMinSeconds: 2, wanderMaxSeconds: 5, rampRate: 4 },
   { id: 'mossgate.wisp-dive', kind: 'orbit-diver', strike: STRIKES.wispDive.id, home: { x: LAYOUT.POND.x, z: LAYOUT.POND.z, r: 7, y: 5 }, circleSpeed: 5,
+    hangAltitude: 5, stalkSpeed: 7, diveSpeed: 12, restSeconds: 6, noticeRadius: 18, giveUpRadius: 30, initialRestSeconds: 3, stalkMaxSeconds: 8,
+    riseMargin: 1.5, targetHeight: 1.2, alignRadius: 2.5, alignTolerance: 1.4 },
+  // MZ14: the Bog's wisps circle Wisp Mere the same way
+  { id: 'mossgate.mere-wisp-dive', kind: 'orbit-diver', strike: STRIKES.mereWispDive.id, home: BOG_WISPS.home, circleSpeed: 5,
     hangAltitude: 5, stalkSpeed: 7, diveSpeed: 12, restSeconds: 6, noticeRadius: 18, giveUpRadius: 30, initialRestSeconds: 3, stalkMaxSeconds: 8,
     riseMargin: 1.5, targetHeight: 1.2, alignRadius: 2.5, alignTolerance: 1.4 },
 ];

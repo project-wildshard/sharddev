@@ -94,7 +94,7 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
   expect(shard.props?.panels.map((p) => p.id)).toContain('mossgate.lamplighter');
   // TC-M7a: the quests chain (the starter's hut, the first flame, the Lamplighter's relighting, the Hermit's gate, three side quests)
   expect(shard.quests.quests.map((q) => q.id)).toEqual(['hut.visit', 'mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.rack',
-    'mossgate.blob', 'mossgate.mosslings', 'mossgate.meadow.den', 'mossgate.greyback', 'mossgate.warden']);
+    'mossgate.blob', 'mossgate.mosslings', 'mossgate.meadow.den', 'mossgate.bog.shrine', 'mossgate.greyback', 'mossgate.warden']);
   // MOSSGATE-ZONE MZ1 (J453): Cinder Orchard's legacy-Template chain folds in: the relighting ends at the Warden, and the
   // mossling pack turns in at the Pond Hermit
   const quest = (id: string) => shard.quests.quests.find((q) => q.id === id);
@@ -116,16 +116,16 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
   expect(() => parseShardfile(JSON.parse(JSON.stringify(shard)))).not.toThrow();
   const species = new Map(shard.rows.species.map((row) => [row.id, row]));
   // four hostile species and the Warden, each with its own skin look
-  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'boar', 'barrow.warden']);
+  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'mere.wisp', 'boar', 'barrow.warden']);
   for (const row of species.values()) {
     expect(row.aggressive, row.id).toBe(true);
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // twenty-three bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
-  // two wisps, Greyback and the Warden
+  // twenty-six bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
+  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback and the Warden
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(23);
+  expect(spawns).toHaveLength(26);
   expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));

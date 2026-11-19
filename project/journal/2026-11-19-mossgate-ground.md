@@ -19,3 +19,9 @@ MZ13, Greyback's Thicket (`generators/thicket.ts`): Greyback's camp moved from b
 (140, -140), with three sows round its rim and two more in the Sow Wallow; 150 low-poly trees with trunk colliders fill
 the region clear of the places and roads, and a lore sign at the clearing's edge reads as a talk. A walk proof shows the
 camp engage on approach: a sow's ram (12) and Greyback's charge (25) land within seconds of the clearing.
+
+MZ14, the Bog (`generators/bog.ts`): Wisp Mere's dark water with reeds and drowned trees, three wisps of a new species
+(`mere.wisp`: a species' temperament names one brain, so the mere's orbit needs its own) circling it, and the Sunken
+Shrine with a drowned chest. The chest is shared like the yard's, so its quest pays each player who stands at it once it
+is open. The bog's floor came up about a metre: with the mere's water near y -2.8 the wisps never got down to a walker
+(they hold about 0.5 to 1 m and never climbed back to their orbit), and at the pond's level they dive and hit.

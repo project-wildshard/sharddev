@@ -25,8 +25,8 @@ test('each region has its own relief', () => {
   expect(at('hollow.yard')).toBe(0);
   expect(at('ridge.lookout')).toBeGreaterThan(12);
   expect(at('quarry.pit')).toBeLessThan(-4);
-  expect(at('bog.mere')).toBeLessThan(-2);
-  expect(at('bog.shrine')).toBeLessThan(0);
+  expect(at('bog.mere')).toBeLessThan(-0.8);
+  expect(at('bog.shrine')).toBeLessThan(at('meadow.stones'));
   expect(at('downs.barrow')).toBeGreaterThan(3);
 });
 
