@@ -32,22 +32,27 @@ export interface ConvertedSpecies {
 /** The format's largest radius: the program brain owns its own home, so the layer's leash never trips first. */
 const LAYER_LEASH = 500;
 const DEFAULT_CHARGE_DAMAGE = 25;
+/** What a program keeper body adds to every hit it lands (engine `bindSpeciesBody`): a blow that knocks the player back,
+ *  its cover already checked. OF11b: a strike row its declared brain names carries them, so the data host hits the same. */
+const BLOW_TAGS: readonly `${string}.${string}`[] = ['feel.blow', 'cover.checked'];
 
 function refuse(species: string, message: string): never { throw new Error(`species \`${species}\`: ${message}`); }
 
 /**
- * A creature strike as a plain strike row. Fields a row cannot carry (a scored weight, actor units, alternatives,
- * eligibility, motion beyond speed and overshoot) are listed in `lost`; the exact strike stays in the `actors/strikes`
+ * A creature strike as a plain strike row. Fields a row cannot carry (a scored weight, alternatives, eligibility, motion
+ * beyond speed and overshoot) are listed in `lost`; the exact strike stays in the `actors/strikes`
  * catalogue. A challenge brain scores its charge by its own tuning, so a charge's scored weight changes nothing there.
  */
-function strikeRow(strike: StrikeData): { row: StrikeRows; lost: string[] } {
+function strikeRow(strike: StrikeData, blow: boolean): { row: StrikeRows; lost: string[] } {
   const { id, shape, windup, active, recover, cooldown, range, damage, tags, weight, units, alternatives, motion, eligibility, debris } = strike;
-  const lost = [...weight.kind === 'constant' ? [] : ['weight'], ...units === 'actor' ? ['units'] : [],
+  const lost = [...weight.kind === 'constant' ? [] : ['weight'],
     ...alternatives === undefined ? [] : ['alternatives'], ...eligibility === undefined ? [] : ['eligibility'],
     ...Object.keys(motion ?? {}).filter(key => key !== 'speed' && key !== 'overshoot').map(key => `motion.${key}`)];
-  return { lost, row: { id, shape, windup, active, recover, cooldown, range, damage, tags,
+  return { lost, row: { id, shape, windup, active, recover, cooldown, range, damage,
+    tags: blow ? [...tags, ...BLOW_TAGS.filter(tag => !tags.includes(tag))] : tags,
     weight: weight.kind === 'constant' ? weight.value : 1, speed: motion?.speed ?? 0,
-    ...(motion?.overshoot === undefined ? {} : { overshoot: motion.overshoot }), ...(debris === undefined ? {} : { debris }) } as StrikeRows };
+    ...(motion?.overshoot === undefined ? {} : { overshoot: motion.overshoot }), ...(units === undefined ? {} : { units }),
+    ...(debris === undefined ? {} : { debris }) } as StrikeRows };
 }
 
 /** The strikes a brain names, in its own order. */
@@ -123,7 +128,10 @@ export function speciesProgramToRows(program: SpeciesProgramInput, looks: Readon
         ...(sounds.callVariants === undefined ? {} : { callVariants: [...sounds.callVariants] }),
         ...(sounds.callEvery === undefined ? {} : { callEvery: sounds.callEvery }) } } } as SpeciesRow;
   });
-  const rows = program.strikes.map(strike => ({ id: strike.id, ...strikeRow(strike) }));
+  // a strike a keeper-bodied species' declared brain names lands as that body's blow
+  const blows = new Set(program.species.flatMap(row => row.body === undefined || row.brain === undefined || row.brain.archetype === 'decision'
+    ? [] : brainStrikes(row.brain)));
+  const rows = program.strikes.map(strike => ({ id: strike.id, ...strikeRow(strike, blows.has(strike.id)) }));
   return { species, brains, strikes: rows.map(entry => entry.row), catalogue: [...program.strikes],
     lossy: rows.flatMap(entry => entry.lost.length === 0 ? [] : [{ strike: entry.id, fields: entry.lost }]), decisions };
 }

@@ -77,9 +77,20 @@ describe('species programs become layered rows (ONE-FORMAT OF11a)', () => {
     for (const strike of program.strikes) {
       const row = converted.strikes.find(entry => entry.id === strike.id);
       expect(row).toMatchObject({ windup: strike.windup, active: strike.active, recover: strike.recover, cooldown: strike.cooldown,
-        range: strike.range, damage: strike.damage, shape: strike.shape, tags: strike.tags, speed: strike.motion?.speed ?? 0 });
+        range: strike.range, damage: strike.damage, shape: strike.shape, speed: strike.motion?.speed ?? 0 });
       expect(row?.weight).toBe(strike.weight.kind === 'constant' ? strike.weight.value : 1);
+      expect(row?.units).toBe(strike.units);
     }
+    // OF11b: the ray's and strider's keeper bodies land every brain strike as a blow, its cover checked; decision
+    // strikes keep their own tags (their encounter owns contact)
+    const tags = (id: string) => converted.strikes.find(row => row.id === id)?.tags;
+    for (const id of ['sunscar.ray.swoop', 'sunscar.strider.charge', 'sunscar.strider.horns']) {
+      expect(tags(id)).toEqual([...program.strikes.find(strike => strike.id === id)?.tags ?? [], 'feel.blow', 'cover.checked']);
+    }
+    for (const strike of program.strikes.filter(row => !row.id.startsWith('sunscar.ray.') && !row.id.startsWith('sunscar.strider.'))) {
+      expect(tags(strike.id)).toEqual(strike.tags);
+    }
+    expect(converted.strikes.find(row => row.id === 'sunscar.ray.swoop')?.units).toBe('world');
     // OF11b: the strider's charge keeps its overshoot as a row field; its distance score is the challenge brain's tuning.
     expect(converted.lossy).toEqual([{ strike: 'sunscar.strider.charge', fields: ['weight'] }]);
     expect(converted.strikes.find(row => row.id === 'sunscar.strider.charge')?.overshoot).toBe(3);
