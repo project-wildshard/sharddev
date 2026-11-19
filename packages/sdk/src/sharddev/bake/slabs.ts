@@ -19,6 +19,7 @@ import { positionErrorScale } from './geometryError';
 import { deduplicateSlabVertices, partitionSlabGeometry, slabGeometryBytes, type SlabGeometryChunk } from './slabChunks';
 import { gridPositions } from './props';
 import { fitTileGrid, tileGridTransform, type TileGrid } from './worldGeometry';
+import { phoneSlabGeometry, type SlabPhoneLod } from './slabPhone';
 /** A decoded whole piece over three's geometry and matrix (format's shape, SDK-SPLIT SP6a). */
 type WholeGeometryPiece = FormatWholePiece<BufferGeometry, Matrix4>;
 
@@ -41,6 +42,14 @@ export interface SlabBakeTileReport {
 /** New staged data only; callers keep the original whole library and every existing asset unchanged. */
 export interface WholeSlabBake {
   library: WorldSceneSlabLibrary; assets: ReadonlyMap<string, Uint8Array>; report: readonly SlabBakeTileReport[];
+  /** STR14: the phone-Low copy, only when `phone` was asked for. Its own files and tiles, the same keys; `library` and
+   *  `assets` are byte for byte what the bake writes without it. */
+  phone?: WholeSlabPhone;
+}
+/** The phone tier's slab files per tile (MEMORY-STRUCTURE STR14), beside the desktop library they shadow. */
+export interface WholeSlabPhone {
+  lod: SlabPhoneLod; tiles: { tile: number; files: WorldSceneSlabFile[] }[]; assets: ReadonlyMap<string, Uint8Array>;
+  report: readonly SlabBakeTileReport[];
 }
 
 function matrixWords(matrix: Matrix4): number[] { return Array.from(new Uint32Array(Float64Array.from(matrix.elements).buffer)); }
@@ -202,10 +211,13 @@ export function readSlabLibrary(bytes: Uint8Array): WorldSceneSlabLibrary {
 export async function bakeWholeSlabs(input: {
   readonly id: string; readonly library: WholeLibrary; readonly weld: unknown;
   readonly shardfile: Pick<Shardfile, 'tiles' | 'files' | 'ring'>; readonly assets: ReadonlyMap<string, Uint8Array>;
+  /** STR14: also write a phone-Low copy (off unless given). */
+  readonly phone?: SlabPhoneLod;
 }): Promise<WholeSlabBake> {
   await prepareGlbBuffers();
   const weld = parseWorldSceneWeld(input.weld), draws = sources(input.library, weld), keys: GroupedKey[] = [], assets = new Map<string, Uint8Array>();
   const sourceKeys = new Map<string, WorldSceneSlabKey>(), output: WorldSceneSlabLibrary['tiles'] = [], report: SlabBakeTileReport[] = [];
+  const phoneTiles: WholeSlabPhone['tiles'] = [], phoneAssets = new Map<string, Uint8Array>(), phoneReport: SlabBakeTileReport[] = [];
   const wanted = new Set(draws.flatMap(source => source.model.files)), declared = new Map(input.shardfile.files.map(file => [file.hash, file]));
   const available = new Set(input.shardfile.tiles.filter(tile => tile.lod === 0).flatMap(tile => tile.files));
   for (const hash of wanted) if (!available.has(hash) || declared.get(hash)?.kind !== 'glb') throw new Error('Slab source needs a declared fine GLB');
@@ -217,7 +229,7 @@ export async function bakeWholeSlabs(input: {
     geometricError: Math.max(...fine.map(tile => tile.geometricError)) }] : fine;
   for (const tile of partitions) {
     const files = tile.files.filter(hash => wanted.has(hash)); if (files.length === 0) continue;
-    const pieces = new Map<string, readonly WholeGeometryPiece[]>(), staging: WholeGeometryPiece[] = [], chunks: Chunk[] = [];
+    const pieces = new Map<string, readonly WholeGeometryPiece[]>(), staging: WholeGeometryPiece[] = [], chunks: Chunk[] = [], phoneChunks: Chunk[] = [];
     const groups = new Map<string, { key: WorldSceneSlabKey; geometries: BufferGeometry[]; frame: Matrix4; custom: Readonly<Record<string, string>>; error: number }>();
     let sourceTriangles = 0;
     try {
@@ -250,30 +262,39 @@ export async function bakeWholeSlabs(input: {
           else { group.geometries.push(geometry); group.error = Math.max(group.error, error); }
         } catch (error) { geometry.dispose(); throw error; }
       }
+      const chunked = (geometry: BufferGeometry, group: { key: WorldSceneSlabKey; frame: Matrix4; custom: Readonly<Record<string, string>>; error: number }, into: Chunk[]): void => {
+        const parts = partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell, SLAB_VERTICES);
+        const bounds = new Box3();
+        for (const part of parts) if (part.geometry.boundingBox !== null) bounds.union(part.geometry.boundingBox);
+        // Match the engine slab grid and use one origin per key, so its chunks can still merge.
+        const grid = fitTileGrid(bounds, 2 ** -8, 2 ** -6);
+        const error = grid === undefined ? 0 : Math.sqrt(3) * grid.step / 2;
+        for (const part of parts) {
+          if (grid === undefined) {
+            into.push({ key: group.key, part, custom: group.custom, error: group.error });
+            continue;
+          }
+          gridPositions(part.geometry, grid);
+          part.geometry.boundingBox?.expandByScalar(grid.step / 2);
+          const sphere = part.geometry.boundingSphere;
+          if (sphere !== null) sphere.radius += error;
+          // POSITION occupies 8 bytes per vertex both on the wire and with Metal's aligned runtime stride.
+          const compact = deduplicateSlabVertices(part.geometry);
+          const chunkGeometry = compact ?? part.geometry;
+          if (compact !== undefined) part.geometry.dispose();
+          const bytes = slabGeometryBytes(chunkGeometry) + chunkGeometry.getAttribute('position').count * 2;
+          into.push({ key: group.key, part: { ...part, geometry: chunkGeometry, bytes }, custom: group.custom, error: group.error + error * positionErrorScale(group.frame), grid });
+        }
+      };
       for (const group of groups.values()) {
         const geometry = concatenate(group.geometries);
         try {
-          const parts = partitionSlabGeometry(geometry, tile.z * 8 + tile.x, group.frame, GEOMETRY_UPLOAD_BYTES, cell, SLAB_VERTICES);
-          const bounds = new Box3();
-          for (const part of parts) if (part.geometry.boundingBox !== null) bounds.union(part.geometry.boundingBox);
-          // Match the engine slab grid and use one origin per key, so its chunks can still merge.
-          const grid = fitTileGrid(bounds, 2 ** -8, 2 ** -6);
-          const error = grid === undefined ? 0 : Math.sqrt(3) * grid.step / 2;
-          for (const part of parts) {
-            if (grid === undefined) {
-              chunks.push({ key: group.key, part, custom: group.custom, error: group.error });
-              continue;
-            }
-            gridPositions(part.geometry, grid);
-            part.geometry.boundingBox?.expandByScalar(grid.step / 2);
-            const sphere = part.geometry.boundingSphere;
-            if (sphere !== null) sphere.radius += error;
-            // POSITION occupies 8 bytes per vertex both on the wire and with Metal's aligned runtime stride.
-            const compact = deduplicateSlabVertices(part.geometry);
-            const chunkGeometry = compact ?? part.geometry;
-            if (compact !== undefined) part.geometry.dispose();
-            const bytes = slabGeometryBytes(chunkGeometry) + chunkGeometry.getAttribute('position').count * 2;
-            chunks.push({ key: group.key, part: { ...part, geometry: chunkGeometry, bytes }, custom: group.custom, error: group.error + error * positionErrorScale(group.frame), grid });
+          chunked(geometry, group, chunks);
+          // STR14: the phone copy is simplified from the same joined key before its own partition, so its chunks share
+          // their seams; its error adds the simplifier's to the key's.
+          if (input.phone !== undefined) {
+            const phone = await phoneSlabGeometry(geometry, input.phone, positionErrorScale(group.frame));
+            try { chunked(phone.geometry, { ...group, error: group.error + phone.error }, phoneChunks); } finally { phone.geometry.dispose(); }
           }
         } finally { geometry.dispose(); }
       }
@@ -283,8 +304,16 @@ export async function bakeWholeSlabs(input: {
       const packed = encodeFiles(tile.z * 8 + tile.x, chunks, assets); output.push({ tile: tile.z * 8 + tile.x, files: packed });
       report.push({ tile: tile.z * 8 + tile.x, sourceTriangles, triangles, chunks: chunks.length, files: packed.length,
         bytes: chunks.reduce((sum, chunk) => sum + chunk.part.bytes, 0), maxHeight: Math.max(...chunks.map(chunk => chunk.part.worldHeight)), maxTriangleHeight: Math.max(...chunks.map(chunk => chunk.part.maxTriangleHeight)) });
-    } finally { for (const piece of staging) piece.geometry.dispose(); for (const group of groups.values()) for (const geometry of group.geometries) geometry.dispose(); for (const chunk of chunks) chunk.part.geometry.dispose(); }
+      if (input.phone !== undefined) {
+        if (phoneChunks.length === 0 || phoneChunks.length > 64) throw new Error('Slab phone tile exceeds its chunk budget');
+        const phoneTriangles = phoneChunks.reduce((sum, chunk) => sum + chunk.part.triangles.length, 0);
+        if (phoneTriangles > sourceTriangles) throw new Error('Slab phone copy holds more triangles than its source');
+        const phoneFiles = encodeFiles(tile.z * 8 + tile.x, phoneChunks, phoneAssets); phoneTiles.push({ tile: tile.z * 8 + tile.x, files: phoneFiles });
+        phoneReport.push({ tile: tile.z * 8 + tile.x, sourceTriangles, triangles: phoneTriangles, chunks: phoneChunks.length, files: phoneFiles.length,
+          bytes: phoneChunks.reduce((sum, chunk) => sum + chunk.part.bytes, 0), maxHeight: Math.max(...phoneChunks.map(chunk => chunk.part.worldHeight)), maxTriangleHeight: Math.max(...phoneChunks.map(chunk => chunk.part.maxTriangleHeight)) });
+      }
+    } finally { for (const piece of staging) piece.geometry.dispose(); for (const group of groups.values()) for (const geometry of group.geometries) geometry.dispose(); for (const chunk of [...chunks, ...phoneChunks]) chunk.part.geometry.dispose(); }
   }
   const library = v.parse(WorldSceneSlabsSchema, { id: input.id, kind: 'slabs', of: input.library.id, keys: keys.map(entry => entry.key), tiles: output });
-  return { library, assets, report };
+  return input.phone === undefined ? { library, assets, report } : { library, assets, report, phone: { lod: input.phone, tiles: phoneTiles, assets: phoneAssets, report: phoneReport } };
 }
