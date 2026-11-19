@@ -136,8 +136,11 @@ export interface SkinnedBake {
   readonly name: string;
   /** The skeleton, uniquely named, each parent before its children: every part's `skinIndex` indexes this list. */
   readonly bones: readonly SkinnedBone[];
-  /** The skinned meshes, each its own mesh and node over the one skin. */
+  /** The skinned meshes, each its own mesh and node over the one skin (`oneMesh`: each a primitive of one mesh). */
   readonly parts: readonly SkinnedPart[];
+  /** OF-NE20: write every part as a primitive of one mesh and node (named `name`; a single part keeps its own name), the
+   *  one skinned mesh a `platform.skin` look's skin admission wants (format `skinAssets`, at most 8 primitives). */
+  readonly oneMesh?: boolean;
   /** Bone animations (`<bone>.position|quaternion|scale` tracks, linear or step). */
   readonly clips?: readonly AnimationClip[];
   /** The shard's own JSON beside the model (dims, look numbers), read back as `extras`. */
@@ -208,7 +211,8 @@ export function skinnedGlb(bake: SkinnedBake): SkinnedOutput {
     if (parent >= i || bone.pos.some((n) => !Number.isFinite(n))) throw new Error(`Skinned bone ${bone.name}: its parent must come before it`);
   });
   // the joints: nodes after the parts' mesh nodes, each at its offset from its parent, its exact bind position in extras
-  const partNodes = bake.parts.length, joint = (i: number): number => partNodes + i, nodes: Json[] = [];
+  const one = bake.oneMesh === true, partNodes = one ? 1 : bake.parts.length, joint = (i: number): number => partNodes + i, nodes: Json[] = [];
+  const merged: Json[] = [];
   const meshes: Json[] = [], materials: Json[] = [], images: Json[] = [], textures: Json[] = [], samplers: Json[] = [], imageOf = new Map<RawTexture, number>();
   const used = new Set<string>();
   bake.parts.forEach((part, p) => {
@@ -259,9 +263,14 @@ export function skinnedGlb(bake: SkinnedBake): SkinnedOutput {
       pbr['baseColorTexture'] = { index };
     }
     materials.push({ name: material.name, pbrMetallicRoughness: pbr, doubleSided: material.side === 2 });
+    if (one) { merged.push(primitive); return; }
     meshes.push({ name: part.name ?? `${bake.name}.${String(p)}`, primitives: [primitive] });
     nodes.push({ name: part.name ?? `${bake.name}.${String(p)}`, mesh: p, skin: 0 });
   });
+  if (one) {
+    const [only] = bake.parts, name = bake.parts.length === 1 ? only?.name ?? `${bake.name}.0` : bake.name;
+    meshes.push({ name, primitives: merged }); nodes.push({ name, mesh: 0, skin: 0 });
+  }
   bones.forEach((bone) => {
     const parent = bone.parent === null ? undefined : bones[names.get(bone.parent) ?? -1];
     const children = bones.flatMap((child, c) => child.parent === bone.name ? [joint(c)] : []);
@@ -288,7 +297,7 @@ export function skinnedGlb(bake: SkinnedBake): SkinnedOutput {
   const roots = bones.flatMap((bone, i) => bone.parent === null ? [joint(i)] : []);
   const doc: Record<string, Json> = {
     asset: { version: '2.0', generator: 'wildshard-skinned-v1', extras: { wildshard: bake.extras ?? null } },
-    scene: 0, scenes: [{ name: bake.name, nodes: [...bake.parts.map((_, p) => p), ...roots] }], nodes, meshes, materials, skins: [skin], accessors, bufferViews: views,
+    scene: 0, scenes: [{ name: bake.name, nodes: [...(one ? [0] : bake.parts.map((_, p) => p)), ...roots] }], nodes, meshes, materials, skins: [skin], accessors, bufferViews: views,
     buffers: fallback === 0 ? [{ byteLength: offset }] : [{ byteLength: offset }, { byteLength: fallback, extensions: { [MESHOPT]: { fallback: true } } }],
   };
   if (fallback > 0) used.add(MESHOPT);

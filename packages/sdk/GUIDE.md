@@ -531,7 +531,7 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 | `world.pickup(id, at, { label, radius, item: { id: 'tool.<name>', name, colour?, intensity?, fuelSeconds? }, flag? })` | A lantern on a stand: using its prompt puts the tool in the player's kit lit and full, and raises `flag`; a later use refills it. The sdk writes the tool, the take and the fields that show its light. Two pickups may hand over one tool (same options). Needs an engine with SHARD-SOURCE SS-GF1a1a |
 | `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
 | `world.spawnAt(id, object, { species, variant, brain, strike, seed, scale, rank?, count?, when? })` | A creature spawn row (`creatures.spawns`) at `object`'s world position, facing its +z; a boss is a spawn its encounter names by `id` |
-| `world.creature(id, group, { species, size, scale?, skeleton?, volumes?, lock?, hits?, clips?, loops, material, materials?, family?, sockets?, attackSpan? })` | A whole creature from a `Group` of named bone nodes built outside `world.scene`: its skinned GLB rig (each mesh rides its nearest bone, `clips` kept), its skin in the library, and the species row `id` and look `<id>.look`; 64 bones at most, at most 32 `sockets` (default every bone). Place it with `world.spawnAt(…, { species: id, … })`. The build also writes its phone mesh (half the vertices within 1% of its radius; the shard file option `creaturePhone` tunes it, `false` skips it), which the phone tier draws from the same clips; `wildshard content` lists its bones and both triangle counts |
+| `world.creature(id, group, { species, size, scale?, skeleton?, volumes?, lock?, hits?, clips?, loops, material, materials?, family?, sockets?, attackSpan?, strikes? })` | A whole creature from a `Group` of named bone nodes built outside `world.scene`: its skinned GLB rig (each mesh rides its nearest bone, `clips` kept; one skinned mesh, a primitive per material, at most 8 materials), its skin in the library, the species row `id` and look `<id>.look`, and `strikes`, the strike rows its abilities name; 64 bones at most, at most 32 `sockets` (default every bone). Place it with `world.spawnAt(…, { species: id, … })`. The build also writes its phone mesh (half the vertices within 1% of its radius; the shard file option `creaturePhone` tunes it, `false` skips it), which the phone tier draws from the same clips; `wildshard content` lists its bones and both triangle counts |
 
 From `@wildshard/sdk/scene/author`: `solid` (collides), `paint` (a texture from a function), `Water` (a water
 surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uvScroll`.
@@ -539,6 +539,93 @@ surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uv
 **Items and quests.** Every player starts with the Template's iron sword (`weapon.sword-iron`), so a scene shard
 needs no item rows to fight. To add quests, items or any other section, pass `{ extend: (shard) => ({ ...shard,
 quests: ... }) }` as `defineShard`'s third argument; `wildshard schema list` names every section and its shape.
+
+**A creature, from rows to a kill.** A scene shard's creature is one `world.creature` call (its body, skin, species
+row, look row and the strike rows its abilities name) and a `world.spawnAt` per creature. Jackal
+Den has two jackals that bite; the whole `src/shard.config.ts` (`src/sharddev/guide/scene-creature.example.ts` in the
+sdk, built by its tests):
+
+```ts
+// Jackal Den: a scene shard with a creature, from rows to a kill. `world.creature` turns a Group of named bones into
+// the jackal's skinned body, its skin, its species and look rows, and the bite its ability names; `world.spawnAt`
+// places two. Every player holds the starter sword, so the jackals can be fought and killed.
+import * as THREE from 'three';
+import { abilities, temperament } from '@wildshard/kit';
+import { defineShard } from '@wildshard/sdk/scene/shard';
+
+const bite = abilities.bite({ id: 'jackal.bite', damage: 9, range: 1.6 });
+const { temperament: pursue, senses } = temperament.pursue({ aggro: 16, leash: 30 });
+
+/** The jackal's body: a `body` bone carrying a `head` and a `tail` bone, a box on each (each mesh rides its bone). */
+function jackalBody(): THREE.Group {
+  const fur = new THREE.MeshStandardMaterial({ color: '#b08850' });
+  const root = new THREE.Group(), body = new THREE.Group(), head = new THREE.Group(), tail = new THREE.Group();
+  body.name = 'body'; head.name = 'head'; tail.name = 'tail';
+  body.position.set(0, 0.5, 0); head.position.set(0, 0.1, 0.5); tail.position.set(0, 0.05, -0.45);
+  body.add(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.3, 0.9), fur), head, tail);
+  head.add(new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.2, 0.3), fur));
+  tail.add(new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.06, 0.35), fur));
+  root.add(body);
+  return root;
+}
+
+/** A one-second clip that dips the head by `angle` radians and back: idle, walk and the bite's lunge. */
+function nod(name: string, angle: number): THREE.AnimationClip {
+  const dip = [Math.sin(angle / 2), 0, 0, Math.cos(angle / 2)];
+  return new THREE.AnimationClip(name, 1, [new THREE.QuaternionKeyframeTrack('head.quaternion', [0, 0.5, 1], [0, 0, 0, 1, ...dip, 0, 0, 0, 1])]);
+}
+
+export default defineShard({ slug: 'jackal-den', name: 'Jackal Den' }, (world) => {
+  world.ground(() => 0, { colourAt: () => [0.7, 0.6, 0.4] });
+  world.spawn(0, 1, 10, 0);
+  world.creature('jackal', jackalBody(), {
+    species: {
+      kind: 'jackal', label: 'Dune jackal', type: 'beast', aggressive: true, lockable: true,
+      dims: { bodyY: 0.5, bodyHalfLen: 0.45, bodyRadius: 0.22, headRadius: 0.12, legLen: 0.42, feet: [], halfWidth: 0.18 },
+      variants: [{ id: 'tawny', label: 'Tawny jackal', rarity: 'common', weight: 1, scale: [0.9, 1.1], hp: 40,
+        mods: { speed: 1, chargeDist: 1, damageTaken: 1, chargeDamage: 0, relentless: false } }],
+      temperament: pursue, senses, abilities: [bite.ability],
+    },
+    strikes: [bite.strike],
+    size: 'small',
+    clips: [nod('idle', 0.1), nod('walk', 0.3), nod('attack', 0.6)],
+    loops: ['idle', 'walk'],
+    material: { family: 'pbr', vertexColours: true },
+  });
+  // a spawn faces its marker's +z: these two face the player, 22 m north of them
+  for (const [index, x] of [-4, 4].entries()) {
+    const den = new THREE.Object3D();
+    den.position.set(x, 0, -12);
+    world.scene.add(den);
+    world.spawnAt(`jackal-${index + 1}`, den, { species: 'jackal', variant: 'tawny', brain: null, strike: null, seed: index + 1, scale: 1 });
+  }
+});
+```
+
+- **The body** is a `Group` of named bone nodes (`body`, `head`, `tail`; every creature has a `body` and a `head`),
+  built outside `world.scene`, each mesh on its bone. `clips` animate the bones by name: `idle`, `walk` and `attack`
+  play from the creature's state; `loops` are the ones that repeat. A kit skeleton (`skeleton: 'quadruped'`) instead
+  takes the kit's bones and default hit volumes.
+- **The species row** is section 2c's, without `id` and `body`: `world.creature` writes those (its id, its size and
+  the look `jackal.look`). `abilities` name strikes by id; pass those strike rows as `strikes` and they go in
+  `rows.strikes` (two creatures may pass the same row). The kit's `abilities.bite` makes both halves.
+- **The spawns** are `creatures.spawns` rows: `brain: null` and `strike: null` keep the species' own temperament and
+  abilities; `variant` is one of its variants.
+- **The kill.** Every player holds the starter sword. Prove the fight with a walk proof (section 1, *Walk proofs*),
+  `proof/jackals.walk.mjs`:
+
+```js
+// Jackal Den: kill both jackals, then read the server's kill count.
+export default async function jackals({ fight, state }) {
+  await fight('jackal');               // the species kind: swings until no jackal is alive
+  const { kills } = await state();
+  if (kills < 2) throw new Error(`two jackals, but the server counts ${kills} kills`);
+}
+```
+
+  Run `wildshard dev .`, then `wildshard prove . proof/jackals.walk.mjs --base <the URL dev printed>`. A quest that
+  waits on the kill reads it the same way: a `kill` objective on species `jackal`, added through `extend`
+  (`wildshard schema shardfile /quests`).
 
 ## 2c. Creatures
 

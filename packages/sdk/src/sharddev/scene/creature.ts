@@ -19,6 +19,7 @@
  * on the mesh under it instead. Compile time only, like the scene.
  */
 import { BufferAttribute, Matrix4, MeshStandardMaterial, Quaternion, Vector3, type AnimationClip, type BufferGeometry, type Mesh, type Object3D, type PointLight } from 'three';
+import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { parseGlb } from '@wildshard/format/shardfileAssets';
 import { hashImmutableBytes } from '../immutable';
 import { skinnedGlb, type SkinnedBone, type SkinnedPart } from '../bake/skinned';
@@ -118,7 +119,25 @@ export function creatureGlb(root: Object3D, options: CreatureOptions = {}): Crea
     const bone = track.name.slice(0, track.name.lastIndexOf('.'));
     if (!bones.some((b) => b.name === bone)) throw new SceneRefusalError(`${name}/${clip.name}`, `track ${track.name} names no bone of the rig`, `Name a bone node \`${bone}\`, or retarget the track`);
   }
-  return { glb: skinnedGlb({ name, bones, parts, clips }).glb, bones, lamps, clips: clips.map((clip) => clip.name) };
+  // OF-NE20: a skin is one skinned mesh, so the parts are its primitives, one per material (parts sharing a material
+  // merge into one primitive, as they draw in one call anyway)
+  return { glb: skinnedGlb({ name, bones, parts: byMaterial(name, parts), clips, oneMesh: true }).glb, bones, lamps, clips: clips.map((clip) => clip.name) };
+}
+
+/** A skin holds at most 8 primitives (format `skin-materials`): one per material of the creature. */
+const SKIN_PRIMITIVES = 8;
+/** The parts drawn with one material merged into one part (in the order each material first appears). */
+function byMaterial(name: string, parts: readonly SkinnedPart[]): SkinnedPart[] {
+  const groups = new Map<MeshStandardMaterial, SkinnedPart[]>();
+  for (const part of parts) groups.set(part.material, [...groups.get(part.material) ?? [], part]);
+  if (groups.size > SKIN_PRIMITIVES) throw new SceneRefusalError(name, `a creature draws with ${groups.size} materials, over the ${SKIN_PRIMITIVES} a skin holds`, 'Share materials between its meshes, or colour them with vertex colours');
+  return [...groups.values()].flatMap((group): SkinnedPart[] => {
+    const [first] = group;
+    if (first === undefined || group.length === 1) return group;
+    const geometry = mergeGeometries(group.map((part) => part.geometry), false);
+    if (geometry === null) throw new SceneRefusalError(`${name}/${first.name ?? 'Mesh'}`, 'meshes sharing a material differ in their channels', 'Give every mesh of one material the same channels (a colour channel on all or none)');
+    return [{ geometry, material: first.material, name: first.name ?? name }];
+  });
 }
 
 /** The `platform.skin` look's binding beside a rig row (shard-brasscap `src/sources/bandit.skin.json` has the shape). */

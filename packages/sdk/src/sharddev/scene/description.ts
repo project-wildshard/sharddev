@@ -310,6 +310,8 @@ export interface SceneCreature {
   readonly look: ShardRows['looks'][number];
   readonly bones: number;
   readonly triangles: number;
+  /** OF-NE20: the strike rows its abilities name, written into `rows.strikes` (one row per id across the creatures) */
+  readonly strikes?: ShardRows['strikes'];
   /** ONE-FORMAT CC51b: the phone tier's lighter mesh (`bake/creaturePhone`): its rig GLB, its skin file (the same rig,
    *  clips, sockets and material) and its triangles. The look's `phone` names the skin; the build adds it. */
   readonly phone?: { readonly glb: Uint8Array; readonly skin: Uint8Array; readonly triangles: number };

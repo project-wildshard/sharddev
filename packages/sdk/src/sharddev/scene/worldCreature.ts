@@ -40,6 +40,9 @@ export interface CreatureWorldOptions {
   readonly hits?: CreatureBody['hits'];
   /** Bone clips by name (`idle`, `walk`, `attack`, `hit`, `die`); each track names a bone. */
   readonly clips?: readonly AnimationClip[];
+  /** The strike rows its `abilities` name (a kit ability's `strike`), written into `rows.strikes` with it; two creatures
+   *  may name the same row (OF-NE20). */
+  readonly strikes?: ShardRows['strikes'];
   /** The skin's binding: looping clips, its material entry and GLB material names to look materials. */
   readonly loops: CreatureBinding['loops'];
   readonly material: CreatureBinding['material'];
@@ -78,7 +81,8 @@ export function compileWorldCreature(id: string, body: Object3D, options: Creatu
     ...(options.lock === undefined ? {} : { lock: options.lock }), ...(options.hits === undefined ? {} : { hits: options.hits }) } };
   const look: ShardRows['looks'][number] = { id: lookId, species: id, recipe: 'platform.skin', material: null, parameters: { skin: hashImmutableBytes(bytes) },
     animation: { recipe: 'platform.clips', parameters: { attackSpan: options.attackSpan ?? 1 }, ...(clipMap === undefined ? {} : { clipMap: clipMap.output }) } };
-  return { id, glb: rig.glb, skin: bytes, species, look, bones: rig.bones.length, triangles: parseGlb(rig.glb).triangles };
+  return { id, glb: rig.glb, skin: bytes, species, look, bones: rig.bones.length, triangles: parseGlb(rig.glb).triangles,
+    ...(options.strikes === undefined ? {} : { strikes: [...options.strikes] }) };
 }
 
 /**

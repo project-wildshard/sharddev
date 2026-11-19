@@ -37,13 +37,19 @@ test('three bones, two clips; each mesh rides only its nearest bone (AP23a)', as
   const skinned: THREE.SkinnedMesh[] = [];
   gltf.scene.traverse((o) => { if ((o as THREE.SkinnedMesh).isSkinnedMesh) skinned.push(o as THREE.SkinnedMesh); });
   expect(skinned[0]?.skeleton.bones.map((b) => b.name)).toEqual(['hips', 'arm', 'head']);
-  const jointsOf = (name: string): Set<number> => { const mesh = skinned.find((m) => m.name.endsWith(name)); const a = mesh?.geometry.getAttribute('skinIndex'); const out = new Set<number>(); for (let i = 0; i < (a?.count ?? 0); i++) out.add(a?.getX(i) ?? -1); return out; };
-  expect(jointsOf('hand')).toEqual(new Set([1]));
-  expect(jointsOf('torso')).toEqual(new Set([0]));
-  expect(jointsOf('face')).toEqual(new Set([2]));
+  // OF-NE20: a skin is one skinned mesh; the three cloth meshes are one primitive, 12 triangles each in scene order
+  // (hand, face, torso), each triangle's vertices on its own mesh's bone
+  expect(skinned).toHaveLength(1);
+  const geometry = skinned[0]?.geometry, joints = geometry?.getAttribute('skinIndex'), position = geometry?.getAttribute('position'), index = geometry?.getIndex();
+  const vertices = (part: number): number[] => Array.from({ length: 36 }, (_, k) => index?.getX(part * 36 + k) ?? -1);
+  const jointsOf = (part: number): Set<number> => new Set(vertices(part).map((vertex) => joints?.getX(vertex) ?? -1));
+  expect(index?.count).toBe(108);
+  expect(jointsOf(0)).toEqual(new Set([1]));
+  expect(jointsOf(1)).toEqual(new Set([2]));
+  expect(jointsOf(2)).toEqual(new Set([0]));
   // the hand's rest rotation is baked into its mesh: it hangs where the scene drew it, in the creature's own frame
-  const hand = skinned.find((m) => m.name.endsWith('hand')); hand?.geometry.computeBoundingBox();
-  expect(hand?.geometry.boundingBox?.getCenter(new THREE.Vector3()).y).toBeCloseTo(1.1, 2);
+  const hand = new THREE.Box3(); for (const vertex of vertices(0)) hand.expandByPoint(new THREE.Vector3(position?.getX(vertex), position?.getY(vertex), position?.getZ(vertex)));
+  expect(hand.getCenter(new THREE.Vector3()).y).toBeCloseTo(1.1, 2);
 });
 
 test('a rotated bone, an unknown track and a mapped part are refused by name (AP23a)', () => {

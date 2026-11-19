@@ -13,8 +13,9 @@ import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, SceneVehicle, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, SceneVehicle, ShardScene } from './description';
 import { SceneRefusalError } from './refusal';
+import type { ShardRows } from '@wildshard/format/rows';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
 import { hashOf } from './hash';
@@ -845,13 +846,25 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     ...(movers.length === 0 ? {} : { movers }),
     // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
     items: STARTER_ITEMS,
-    ...(creatures.length === 0 ? {} : { rows: { ...base.rows, species: [...base.rows.species, ...creatures.map((c) => c.species)], looks: [...base.rows.looks, ...creatures.map((c) => c.look)] } }),
+    ...(creatures.length === 0 ? {} : { rows: { ...base.rows, species: [...base.rows.species, ...creatures.map((c) => c.species)], looks: [...base.rows.looks, ...creatures.map((c) => c.look)],
+      strikes: [...base.rows.strikes, ...creatureStrikes(creatures)] } }),
   };
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));
   if (options.extend !== undefined) shard = options.extend(shard);
   shard = withAnchored(shard, scene.anchored);
   return { shard, assets, report: { cards, lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
+}
+
+/** OF-NE20: the strike rows the creatures carry, one per id; two creatures naming one id must carry the same row. */
+function creatureStrikes(creatures: readonly SceneCreature[]): ShardRows['strikes'] {
+  const strikes = new Map<string, { row: ShardRows['strikes'][number]; bytes: string; creature: string }>();
+  for (const creature of creatures) for (const row of creature.strikes ?? []) {
+    const bytes = JSON.stringify(row), seen = strikes.get(row.id);
+    if (seen === undefined) strikes.set(row.id, { row, bytes, creature: creature.id });
+    else if (seen.bytes !== bytes) throw new SceneRefusalError(creature.id, `strike ${row.id} differs from the one ${seen.creature} carries`, 'Give one of them another id, or pass the same strike row to both');
+  }
+  return [...strikes.values()].map((entry) => entry.row);
 }
 
 /**
