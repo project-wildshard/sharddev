@@ -1,82 +1,68 @@
 import * as THREE from 'three';
 import { expect, test } from 'vitest';
-import { parseMovers } from '@wildshard/format/movers';
-import { solid, type PartOptions } from './author';
+import { parseVehicles } from '@wildshard/format/vehicles';
+import { solid, type PartOptions, type ShardWorld } from './author';
 import { lowerShard } from './lower';
 import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
 
-// SHARD-SOURCE SS-MS2a4: a vehicle panel part (Mirror Salt's land-sail) lowers to one format `movers` row: a native carry
-// `channel` with a `steer` driver, its rest the base centre of its bounds facing its heading, a board prompt beside it and a
-// leave prompt at the seat, both in its own frame, a landing beside it and the wind push. SS-GP5: its solids are its hull, the
-// panel's collider row written inactive (a carry channel holds no boxes in the format): engine 3165a100 rides it with the
-// vehicle as a kinematic body, and an engine before that leaves it off rather than stand a static copy at the parking spot.
-const wood = new THREE.MeshStandardMaterial({ color: '#6b4a2a', roughness: 0.9 });
-const sail = (part: THREE.Group): void => { const hull = solid(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood)); hull.position.set(-6, 0.45, 20); part.add(hull); };
-const options: PartOptions = { panel: 'salt.sail', vehicle: { speed: 9, heading: 0, wind: { toward: [0.8, -0.6], push: 4 }, board: 'Board the land-sail', leave: 'Leave the land-sail' } };
+// MIRROR-SALT-ZONE MSZ3: `world.vehicle(kind, build, options)` and `world.dock(id, at, { kind })` lower to format
+// `world/vehicles` (MSZ1): seats from `seat.*` empties, leave points from `leave.*` empties or the footprint's side, the hull
+// from `solid()` meshes, the panel posed at its docks (so written hidden); `world.part`'s old `vehicle` is refused.
+const paint = new THREE.MeshStandardMaterial({ color: '#c8b27a', roughness: 0.8 });
+const empty = (name: string, x: number, y: number, z: number): THREE.Object3D => { const node = new THREE.Object3D(); node.name = name; node.position.set(x, y, z); return node; };
+/** A salt buggy: a 2 by 3.6 m tub, a driver on the left and a passenger on the right, the passenger's door a step out. */
+const buggy = (part: THREE.Group): void => {
+  const tub = solid(new THREE.Mesh(new THREE.BoxGeometry(2, 1, 3.6), paint)); tub.position.set(0, 0.5, 0); part.add(tub);
+  part.add(empty('seat.driver', -0.45, 0.6, 0.3), empty('seat.passenger', 0.45, 0.6, 0.3), empty('leave.passenger', 2, 0, 0.3));
+};
+const yard = (world: ShardWorld): THREE.Object3D => { const node = new THREE.Object3D(); node.position.set(-10, 0, 150); node.rotation.y = Math.PI / 2; world.scene.add(node); return node; };
+const lowered = (build: (world: ShardWorld) => void) => sceneShardfile(lowerShard({ slug: 'msz3', name: 'MSZ3' }, build));
 
-test('a vehicle part lowers to a native steer carry that the format admits, its solid hull an inactive panel collider', () => {
-  const { shard } = sceneShardfile(lowerShard({ slug: 'ms2a4', name: 'MS2a4' }, (world) => { world.part('sail', sail, options); }));
-  expect(shard.props?.panels.map((p) => p.id)).toEqual(['salt.sail']);
-  expect(shard.props?.colliders.filter((c) => c.panel === 'salt.sail')).toEqual([
-    { id: 'salt.sail', panel: 'salt.sail', initialActive: false, shapes: [{ kind: 'box', x: -6, y: 0.45, z: 20, hx: 0.6, hy: 0.25, hz: 1.8 }] }]);
-  const [row] = parseMovers(shard.movers);
-  expect(row).toMatchObject({
-    id: 'salt.sail', entity: 9101, kind: 'channel', execution: 'native', at: { x: -6, y: 0.2, z: 20 }, euler: { x: 0, y: 0, z: 0 }, boxes: [],
-    trigger: { kind: 'interact', permission: 0 },
-    driver: { kind: 'steer', speed: 9, turn: 1.2, boost: 1.5, accel: 6, ground: false, wind: { toward: [0.8, -0.6], push: 4 } },
-    carry: { seat: 0.8, landings: [[1.6, 0, 0], [-1.6, 0, 0]], prompts: [{ at: [0, 1, 0], radius: 3.8, label: 'Board the land-sail' }, { at: [0, 2, 0], radius: 2, label: 'Leave the land-sail' }] },
+test('a two-seat buggy and its dock lower to the world/vehicles rows the format admits', () => {
+  const scene = lowerShard({ slug: 'msz3', name: 'MSZ3' }, (world) => {
+    world.vehicle('salt.buggy', buggy, { speed: 22, reverse: 6, grip: 0.8, labels: { drive: 'Drive the buggy', ride: 'Ride in the buggy', leave: 'Get out' } });
+    world.dock('yard.buggy', yard(world), { kind: 'salt.buggy' });
   });
+  const vehicles = parseVehicles(scene.anchored.vehicles);
+  expect(vehicles.kinds).toEqual([{
+    id: 'salt.buggy', panel: 'salt.buggy', labels: { drive: 'Drive the buggy', ride: 'Ride in the buggy', leave: 'Get out' },
+    seats: [
+      { role: 'driver', at: [-0.45, 0.6, 0.3], pose: 'sit', leave: [-1.8, 0, 0.3] },
+      { role: 'passenger', at: [0.45, 0.6, 0.3], pose: 'sit', leave: [2, 0, 0.3] },
+    ],
+    hull: [{ at: [0, 0.5, 0], half: [1, 0.5, 1.8] }],
+    handling: { speed: 22, reverse: 6, accel: 6, brake: 12, turn: 1.2, grip: 0.8, drift: 0.3, boost: 1.5, mass: 500, ground: true },
+  }]);
+  expect(vehicles.docks).toEqual([{ id: 'yard.buggy', kind: 'salt.buggy', at: [-10, 0, 150], yaw: 1.571, per: 'player', respawn: 60 }]);
+  const { shard } = sceneShardfile(scene);
+  // its panel ships hidden (an engine poses it at the docks), and its solids are its hull, never a collider at the origin
+  expect(shard.props?.panels.map((panel) => [panel.id, panel.visible])).toEqual([['salt.buggy', false]]);
+  expect(shard.props?.colliders.some((row) => row.panel === 'salt.buggy') ?? false).toBe(false);
+  expect(shard.movers).toEqual([]);
 });
 
-test('a vehicle built turned faces its heading, and its footprint turns with it', () => {
-  const turned = (part: THREE.Group): void => { const hull = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.5, 1.2), wood); hull.position.set(0, 0.45, 0); part.add(hull); };
-  const { shard } = sceneShardfile(lowerShard({ slug: 't', name: 'T' }, (world) => { world.part('sail', turned, { panel: 'salt.sail', vehicle: { speed: 5, heading: Math.PI / 2 } }); }));
-  const [row] = parseMovers(shard.movers);
-  expect(row?.euler.y).toBeCloseTo(Math.PI / 2, 4);
-  expect(row?.carry?.landings[0][0]).toBeCloseTo(1.6, 4); // across its heading it is 1.2 m wide
-  expect(row?.carry?.prompts.map((p) => p.label)).toEqual(['Board', 'Leave']);
+test('world.part with the old vehicle option is refused, naming world.vehicle', () => {
+  const old = { panel: 'salt.sail', vehicle: { speed: 9 } } as unknown as PartOptions;
+  expect(() => lowered((world) => { world.part('sail', buggy, old); })).toThrow(SceneRefusalError);
+  expect(() => lowered((world) => { world.part('sail', buggy, old); })).toThrow(/world\.vehicle\(kind, build, options\)/u);
 });
 
-test('a vehicle facing +z or -z (heading ±π) is a row the format admits', () => {
-  for (const heading of [Math.PI, -Math.PI]) {
-    const { shard } = sceneShardfile(lowerShard({ slug: 'h', name: 'H' }, (world) => { world.part('sail', sail, { panel: 'salt.sail', vehicle: { speed: 5, heading } }); }));
-    const [row] = parseMovers(shard.movers);
-    expect(Math.abs(row?.euler.y ?? 0)).toBeCloseTo(Math.PI, 4);
-  }
+test('a vehicle needs a seat.driver, a dock a declared kind, and its numbers the format range', () => {
+  const refused = (build: (world: ShardWorld) => void, why: RegExp): void => { expect(() => lowered(build)).toThrow(why); };
+  refused((world) => { world.vehicle('salt.cart', (part) => { part.add(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), paint)); }, { speed: 5 }); }, /no seat\.driver/u);
+  refused((world) => { world.vehicle('salt.buggy', buggy, { speed: 5 }); world.dock('yard.tank', yard(world), { kind: 'salt.tank' }); }, /a vehicle dock names a declared kind/u);
+  refused((world) => { world.vehicle('salt.buggy', buggy, { speed: 61 }); }, /Expected <=60/u);
+  refused((world) => { world.vehicle('salt.buggy', buggy, { speed: 5 }); world.vehicle('salt.buggy', buggy, { speed: 5 }); }, /two vehicles share this id/u);
 });
 
-test('a track mover and a vehicle take their own entities', () => {
-  const { shard } = sceneShardfile(lowerShard({ slug: 'two', name: 'Two' }, (world) => {
-    world.part('sail', sail, options);
-    world.part('raft', (part) => { const deck = solid(new THREE.Mesh(new THREE.BoxGeometry(3, 0.4, 2), wood)); deck.position.set(10, 0.2, -4); part.add(deck); },
-      { panel: 'fen.raft', mover: { path: [[10, 0.2, 26]], seconds: 30 } });
-  }));
-  expect(shard.movers.map((m) => [m.id, m.entity])).toEqual([['fen.raft', 9101], ['salt.sail', 9102]]);
-});
-
-test('a vehicle needs a panel and no mover, and its numbers stay in the format range', () => {
-  const refuse = (opts: PartOptions, why: RegExp): void => {
-    expect(() => lowerShard({ slug: 'r', name: 'R' }, (world) => { world.part('sail', sail, opts); })).toThrow(SceneRefusalError);
-    expect(() => lowerShard({ slug: 'r', name: 'R' }, (world) => { world.part('sail', sail, opts); })).toThrow(why);
-  };
-  refuse({ vehicle: { speed: 9 } }, /a vehicle part is a panel/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 9 }, mover: { path: [[0, 0, 1]], seconds: 1 } }, /not touchable or a mover/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 90 } }, /speed 90 is outside/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 9, boost: 5 } }, /boost 5 is outside/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 9, turn: 0 } }, /turn 0 is outside 0.005/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [0, 0], push: 3 } } }, /blows toward no direction/u);
-  refuse({ panel: 'salt.sail', vehicle: { speed: 9, wind: { toward: [1, 0], push: 30 } } }, /wind push 30 is outside/u);
-});
-
-const round = (n: number): number => Math.round(n * 1e4) / 1e4;
-test('a vehicle with no solid has no hull row, and a turned hull keeps its world turn (SS-GP5)', () => {
-  const bare = (part: THREE.Group): void => { const hull = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood); hull.position.set(0, 0.45, 0); part.add(hull); };
-  const plain = sceneShardfile(lowerShard({ slug: 'b', name: 'B' }, (world) => { world.part('sail', bare, options); })).shard;
-  expect(plain.props?.colliders.some((c) => c.panel === 'salt.sail')).toBe(false);
-  const turned = (part: THREE.Group): void => { const hull = solid(new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.5, 3.6), wood)); hull.position.set(0, 0.45, 0); hull.rotation.y = Math.PI / 2; part.add(hull); };
-  const { shard } = sceneShardfile(lowerShard({ slug: 't', name: 'T' }, (world) => { world.part('sail', turned, { ...options, vehicle: { ...options.vehicle, speed: 9, heading: Math.PI / 2 } }); }));
-  const [row] = shard.props?.colliders.filter((c) => c.panel === 'salt.sail') ?? [];
-  expect(row?.initialActive).toBe(false);
-  expect(row?.shapes).toEqual([{ kind: 'box', x: 0, y: 0.45, z: 0, hx: 0.6, hy: 0.25, hz: 1.8, yaw: round(Math.PI / 2) }]);
+// MSZ4: what check refuses of a dock (a build refuses it too): inside a rock, off the ground, a leave point in its own hull.
+test('a dock inside a rock, off the ground, or with a leave point inside its hull is refused', () => {
+  const rock = (part: THREE.Group): void => { const stone = solid(new THREE.Mesh(new THREE.BoxGeometry(6, 4, 6), paint)); stone.position.set(-10, 2, 150); part.add(stone); };
+  const place = (y: number) => (world: ShardWorld): void => { world.vehicle('salt.buggy', buggy, { speed: 20 }); const node = yard(world); node.position.y = y; world.dock('yard.buggy', node, { kind: 'salt.buggy' }); };
+  expect(() => lowered((world) => { world.part('rock', rock); place(0)(world); })).toThrow(/dock yard\.buggy stands inside the solid/u);
+  expect(() => lowered(place(3))).toThrow(/dock yard\.buggy stands 3\.00 m off the ground/u);
+  const cramped = (part: THREE.Group): void => { buggy(part); part.add(empty('leave.driver', -0.5, 0, 0.3)); };
+  expect(() => lowered((world) => { world.vehicle('salt.buggy', cramped, { speed: 20 }); world.dock('yard.buggy', yard(world), { kind: 'salt.buggy' }); })).toThrow(/driver leave point is inside its hull/u);
+  expect(() => lowered(place(0))).not.toThrow();
 });

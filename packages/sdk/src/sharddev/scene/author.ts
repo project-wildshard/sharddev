@@ -4,6 +4,7 @@ import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 import type { CreatureWorldOptions } from './worldCreature';
+import type { DockOptions, VehicleKindOptions } from './vehicle';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -19,8 +20,9 @@ export interface PartOptions {
   readonly touchable?: TouchableOptions;
   /** SHARD-SOURCE SS-GF2a: a panel that rides a track (a raft, a ferry): the server moves its solids, every page its GLB */
   readonly mover?: MoverOptions;
-  /** SHARD-SOURCE SS-MS2a4: a panel a player boards and steers (a land-sail): the server drives it, every page its GLB */
-  readonly vehicle?: VehicleOptions;
+  /** MIRROR-SALT-ZONE MSZ3: gone. A vehicle is `world.vehicle(kind, build, options)`, placed by `world.dock`; a part with
+   *  `vehicle` is refused with that hint. */
+  readonly vehicle?: never;
   /**
    * SHARD-SOURCE SS-GF0: a panel shown while a state field holds `equals` (a shrine's flame once it is lit), hidden
    * otherwise, its solids with it. The field is one a use prompt's `sets` writes.
@@ -95,35 +97,6 @@ export interface MoverOptions {
   readonly loop?: 'pingpong' | 'once' | 'repeat';
 }
 
-/**
- * SS-MS2a4: a vehicle a player boards and steers (format `movers`, a native carry with a `steer` driver). It stands where it
- * is built, its rest the centre of its footprint at the bottom of its bounds, facing `heading`. A player near it boards with
- * the `board` prompt and rides at `seat`; the stick steers (forward goes, back brakes, it never reverses), sprint boosts, and
- * the `leave` prompt sets the rider down beside it. A riderless vehicle slows to a stand. Its solids are its hull: they ride with
- * it and stop anyone on foot, never its rider (SS-GP5, engine 3165a100 and later; an engine before leaves them off).
- */
-export interface VehicleOptions {
-  /** top speed in m/s (0.005 to 60) */
-  readonly speed: number;
-  /** turn rate in radians a second at full stick (0.005 to 2π, default 1.2) */
-  readonly turn?: number;
-  /** how much faster boost goes (1 to 4, default 1.5) */
-  readonly boost?: number;
-  /** m/s² it gains or sheds speed (default 6, at most 100) */
-  readonly accel?: number;
-  /** follow the ground under it (default false: it keeps the height it is built at) */
-  readonly ground?: boolean;
-  /** the heading it is built facing, radians (default 0: forward is -z; a right turn lowers it) */
-  readonly heading?: number;
-  /** the rider's height above the vehicle's base in metres (default 0.8) */
-  readonly seat?: number;
-  /** a sail: the wind blowing toward (x, z) pushes it up to `push` m/s (0 to 20) along its heading, as far as the stick opens it */
-  readonly wind?: { readonly toward: readonly [number, number]; readonly push: number };
-  /** the board and leave prompts' labels (default `Board` and `Leave`) */
-  readonly board?: string;
-  readonly leave?: string;
-}
-
 /** How a touchable panel's body is made. Its rest is the part's bounds: centred there, the shape fitted round them. */
 export interface TouchableOptions {
   /** the body's shape round the part's bounds (default `box`) */
@@ -147,7 +120,7 @@ export interface ShardWorld {
    * `options.panel` makes the part a panel (SHARD-SOURCE AP16): its meshes ship as one GLB the shard's `targets.panels`
    * rows show and hide by state (a gate that opens, a rifle taken off a rack), and its solids as one collider of that id.
    * `options.mover` (with a panel) makes it ride a track: a raft a player stands on and rides (SHARD-SOURCE SS-GF2a).
-   * `options.vehicle` (with a panel) makes it a vehicle a player boards and steers: a land-sail (SHARD-SOURCE SS-MS2a4).
+   * A vehicle is no part: see `vehicle` and `dock` (MIRROR-SALT-ZONE MSZ3).
    */
   part: (name: string, build: (part: Group) => void, options?: PartOptions) => Group;
   /**
@@ -217,6 +190,21 @@ export interface ShardWorld {
    * the wind (`amount` 0 to 1, `rate` in cycles a second).
    */
   detail: (id: string, mesh: InstancedMesh, options: { cell: number; radius: number; sway?: { amount: number; rate: number }; shadow?: boolean }) => void;
+  /**
+   * MIRROR-SALT-ZONE MSZ3: a vehicle kind (format `world/vehicles`): players get in, sit, drive and get out. Build it about
+   * the part's origin, its base at y 0, facing -z: empties named `seat.driver` (one) and `seat.passenger` (or
+   * `seat.passenger.2`, up to four seats) say where riders sit, `leave.driver` and `leave.passenger` where getting out sets
+   * them down (default a step past the side they sit on), and its `solid()` meshes are its hull (at most 16 boxes, each at
+   * most 8 m half). `kind` is its id and its panel's: the GLB every page poses at its docks. It stands nowhere until a
+   * `world.dock` names it. Needs an engine that reads `world/vehicles` (MSZ6).
+   */
+  vehicle: (kind: string, build: (part: Group) => void, options: VehicleKindOptions) => Group;
+  /**
+   * MIRROR-SALT-ZONE MSZ3: where a `world.vehicle` kind stands, at `at`'s world position and heading (its +z is the
+   * vehicle's back: it faces the node's -z), read once the build has run. `per: 'player'` (the default) hands each
+   * player their own; `shared` parks one for everyone. It comes back `respawn` seconds (default 60) after it goes.
+   */
+  dock: (id: string, at: Object3D, options: DockOptions) => void;
 }
 
 

@@ -4,12 +4,14 @@ import { resolve } from 'node:path'
 
 import { skinCreatures } from './content-creatures.ts'
 import { markedPlaces } from './content-pois.ts'
+import { vehicleCounts } from './content-vehicles.ts'
 
 import type { ContentCreature } from './content-creatures.ts'
+import type { VehicleCounts } from './content-vehicles.ts'
 
 type Json = Record<string, unknown>
 
-interface ContentCounts {
+interface ContentCounts extends VehicleCounts {
   readonly weapons: number
   readonly loadoutWeapons: number
   readonly pickups: number
@@ -248,6 +250,7 @@ function readContent(dir: string, bar?: string): ContentReport {
     ),
     interactables: interactionRows.length,
     movers: movers.length,
+    ...vehicleCounts(section(dir, 'world/vehicles')),
     achievements: ledger.reduce(
       (total, row) =>
         total +

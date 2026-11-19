@@ -13,7 +13,7 @@ import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
-import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, SceneVehicle, ShardScene } from './description';
+import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
 import { SceneRefusalError } from './refusal';
 import type { ShardRows } from '@wildshard/format/rows';
 import { budgetReport, partBudgets } from './budget';
@@ -70,8 +70,10 @@ export interface ShardfileOptions {
 }
 
 /** The platform sections a scene shard declares: its decision scripts, their moves and spots, each only when given. */
-function declaredPlatform({ decisions = [], moves = [], spots = [] }: ShardfileOptions): GeneratedProject['output'] {
+function declaredPlatform({ decisions = [], moves = [], spots = [] }: ShardfileOptions, scene: ShardScene): GeneratedProject['output'] {
   const sections = new Map<PlatformSectionName, unknown>();
+  // MIRROR-SALT-ZONE MSZ3: the scene's vehicle kinds and docks
+  if (scene.anchored.vehicles !== undefined) sections.set('world/vehicles', scene.anchored.vehicles);
   if (decisions.length > 0) sections.set('sim/scripts', decisions);
   if (moves.length > 0) sections.set('actors/moves', moves);
   if (spots.length > 0) sections.set('world/targets', { targets: [], spots });
@@ -535,7 +537,7 @@ export async function compileShardfile(scene: ShardScene, ctx: ProjectGeneration
   if (report.lampsDropped > 0) console.info(`scene: ${report.lampsDropped} point lights past the 16 brightest are not in the shardfile (AP28)`);
   // AP9a: the per-part budget table, each tier's overruns named by tile and part (reported, J338; AP8: draws are a view's)
   for (const line of budgetReport(partBudgets(scene), report.tiles)) console.info(`scene: ${line}`);
-  return { shard, output: declaredPlatform(options) };
+  return { shard, output: declaredPlatform(options, scene) };
 }
 
 /**
@@ -813,7 +815,9 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     // not open to it, so a panel past that is refused here, by name, not at admission
     const size = primitives.reduce((n, primitive) => n + glbBytes(primitive), 0);
     if (size > 18_000_000) throw new SceneRefusalError(id, `a panel part's mesh is ${(size / 1e6).toFixed(1)} MB, over the 18 MB a panel GLB holds`, 'Split it into smaller panel parts, or drop detail from its meshes');
-    return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible: true };
+    // MSZ3: a vehicle kind's panel is built about the origin and posed at its docks, so no engine draws it where it was built
+    const visible = !scene.parts.some((part) => part.vehicleKind === id);
+    return { id, file: store(staticGlb(primitives, `scene.panel.${id}`), 'glb', [...dependencies].sort()).hash, visible };
   });
   // AP32c: a detail layer's three files load with the shard (the charged library), not per tile
   // ONE-FORMAT CC24: a world.creature's rig GLB and its skin file (the skin loads with the shard: the library)
@@ -849,15 +853,11 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // SS-GF2a: a mover panel's solids ride its track (format `movers`), never a static collider
   const tracks = scene.parts.flatMap((part) => part.move === undefined || part.panel === undefined ? [] : [{ id: part.panel, move: part.move }])
     .map(({ id, move }, i) => moverRow(id, move, MOVER_ENTITY_BASE + i));
-  // SS-MS2a4: a vehicle panel is a native steer carry after the track movers, its entity next in line
-  const movers = [...tracks, ...scene.parts.flatMap((part) => part.vehicle === undefined || part.panel === undefined ? [] : [{ id: part.panel, vehicle: part.vehicle }])
-    .map(({ id, vehicle }, i) => vehicleRow(id, vehicle, MOVER_ENTITY_BASE + tracks.length + i))];
+  const movers = tracks;
   // SS-GF1a2: a part a player's own field shows (their socket) has no collider: one collider stands for every player
   const playerFields = new Set((scene.anchored.writes ?? []).filter((w) => w.scope === 'player').map((w) => w.field));
-  // SS-GP5: a vehicle's solids are its hull, its panel's row written inactive (a carry channel holds no boxes in the format):
-  // engine 3165a100 rides it with the vehicle (`vehicleHulls`), and an engine before that leaves it off rather than stand a
-  // static copy where it parks
-  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: part.vehicle === undefined, shapes: part.colliders.map(boxRow) }));
+  // MSZ3: a vehicle kind's solids are its hull (`world/vehicles`), never a static collider at the cell's origin
+  const colliders = scene.parts.filter((part) => part.colliders.length > 0 && part.touch === undefined && part.move === undefined && part.vehicleKind === undefined && !(part.shownWhen !== undefined && playerFields.has(part.shownWhen.field))).map((part) => ({ id: part.panel ?? `scene.${part.name}`, panel: part.panel ?? null, initialActive: true, shapes: part.colliders.map(boxRow) }));
   // water (AP4)
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
@@ -916,26 +916,6 @@ export function moverRow(id: string, move: SceneMove, entity: number): Record<st
   };
   const boxes = move.boxes.map((b) => ({ x: b.x, y: b.y, z: b.z, hx: b.hx, hy: b.hy, hz: b.hz, rot: { x: b.rot[0], y: b.rot[1], z: b.rot[2], w: b.rot[3] } }));
   return { id, entity, kind: 'platform', ...rest, enabled: true, boxes, ...lowerMoverMotion(motion, rest), ...motion, execution: 'native' };
-}
-
-/**
- * SS-MS2a4: one vehicle part as a format `movers` row: a native carry `channel` with a `steer` driver (engine SS-MS2a1b),
- * boarded and left by its two prompts, which ride with it in its own frame (x right, z back), as its landing does: the rider
- * steps off beside it. Its rest is the base of its bounds, so a ground follower stands on the floor it finds.
- */
-export function vehicleRow(id: string, vehicle: SceneVehicle, entity: number): Record<string, unknown> {
-  const [ax, ay, az] = vehicle.at, rest = { at: { x: ax, y: ay, z: az }, euler: { x: 0, y: vehicle.heading, z: 0 } };
-  const motion: MoverMotion = { trigger: { kind: 'interact', permission: 0 }, driver: { kind: 'steer', speed: vehicle.speed, turn: vehicle.turn,
-    boost: vehicle.boost, accel: vehicle.accel, ground: vehicle.ground, ...(vehicle.wind === undefined ? {} : { wind: { toward: [vehicle.wind.toward[0], vehicle.wind.toward[1]], push: vehicle.wind.push } }) } };
-  const step = round(vehicle.side + 1);
-  const carry = {
-    seat: vehicle.seat, landings: [[step, 0, 0], [-step, 0, 0]], yaw: 0,
-    surface: { level: 0, bankRamp: 0, bob: [0, 0], pitch: [0, 0], roll: [0, 0, 0] },
-    // board from beside it on foot; leave from the seat, where the rider's eyes are
-    prompts: [{ at: [0, 1, 0], radius: round(Math.min(10, Math.max(vehicle.side, vehicle.reach) + 2)), label: vehicle.board },
-      { at: [0, round(vehicle.seat + 1.2), 0], radius: 2, label: vehicle.leave }],
-  };
-  return { id, entity, kind: 'channel', ...rest, enabled: true, boxes: [], ...lowerMoverMotion(motion, rest), ...motion, carry, execution: 'native' };
 }
 
 /**

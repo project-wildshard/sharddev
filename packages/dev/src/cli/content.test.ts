@@ -283,4 +283,18 @@ describe('content creatures (ONE-FORMAT CC24)', () => {
       /\n {2}creature critter: 3 bones, 12 triangles\n {2}creature beast: 3 bones, 12 triangles, phone 6\n/u,
     )
   })
+
+  it('counts vehicle kinds, their seats and docks (MIRROR-SALT-ZONE MSZ4)', async () => {
+    const dir = await product({
+      'world/vehicles': {
+        kinds: [{ seats: [{}, {}] }, { seats: [{}] }],
+        docks: [{}, {}, {}],
+      },
+    })
+    const text = formatContent(readContent(dir))
+    assert.match(
+      text,
+      /vehicleKinds: 2\n {2}vehicleSeats: 3\n {2}vehicleDocks: 3/u,
+    )
+  })
 })
