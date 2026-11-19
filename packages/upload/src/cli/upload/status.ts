@@ -1,13 +1,13 @@
 import { setTimeout as sleep } from 'node:timers/promises'
 
-import { ApiRefusalError, readUploadStatus } from './api.ts'
+import { ApiRefusalError, readUploadStatus, readUploadSummary } from './api.ts'
 
-import type { ApiOptions } from './api.ts'
+import type { ApiOptions, ReadOptions } from './api.ts'
 import type { UploadState, UploadStatus } from './wire.ts'
 
 const INITIAL_DELAY_MS = 2000
 const MAX_DELAY_MS = 15_000
-const MAX_WAIT_MS = 1_200_000
+const MAX_WAIT_MS = 1_140_000
 const REQUEST_TIMEOUT_MS = 15_000
 const BACKOFF = 2
 const SERVER_ERROR = 500
@@ -42,7 +42,7 @@ function timedOut(id: string): Error {
 }
 
 function reportStatus(
-  status: UploadStatus,
+  status: Pick<UploadStatus, 'uploadId' | 'status' | 'report'>,
   report: (line: string) => void,
 ): void {
   report(`upload ${status.uploadId}: ${status.status}`)
@@ -51,7 +51,9 @@ function reportStatus(
   }
 }
 
-function requireSuccess(status: UploadStatus): void {
+function requireSuccess(
+  status: Pick<UploadStatus, 'uploadId' | 'status'>,
+): void {
   if (status.status === 'stalled') {
     throw new Error(
       `upload ${status.uploadId}: stalled; it may still settle; read it later with wildshard upload status ${status.uploadId}`,
@@ -154,23 +156,26 @@ async function waitForUpload(
   )
 }
 
-/** One authenticated read, also used by `upload status <id>`. */
+interface StatusOptions extends ReadOptions {
+  readonly apiKey?: string
+}
+
+/** Read the verdict by id. An account key enables the owner's full report. */
 async function printUploadStatus(
-  options: ApiOptions,
+  options: StatusOptions,
   id: string,
   report: (line: string) => void,
-): Promise<UploadStatus> {
-  const status = await readUploadStatus(
-    options,
-    id,
-    AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  )
+): Promise<void> {
+  const signal = AbortSignal.timeout(REQUEST_TIMEOUT_MS)
+  const { apiKey } = options
+  const status = await (apiKey === undefined
+    ? readUploadSummary(options, id, signal)
+    : readUploadStatus({ ...options, apiKey }, id, signal))
   if (status.uploadId !== id) {
     throw new Error('upload status does not match the requested upload')
   }
   reportStatus(status, report)
   requireSuccess(status)
-  return status
 }
 
-export { type PollPorts, printUploadStatus, waitForUpload }
+export { type PollPorts, type StatusOptions, printUploadStatus, waitForUpload }

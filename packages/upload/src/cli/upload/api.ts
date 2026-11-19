@@ -8,6 +8,7 @@ import {
   ErrorBodySchema,
   ShardfileListSchema,
   UploadStatusSchema,
+  UploadSummarySchema,
 } from './wire.ts'
 
 import type { Provenance } from './provenance.ts'
@@ -18,14 +19,9 @@ import type {
   DirectUploadTicket,
   ShardfileSummary,
   UploadStatus,
+  UploadSummary,
 } from './wire.ts'
 import type { BaseIssue, BaseSchema, InferOutput } from 'valibot'
-
-// The large-file protocol of api-server (its docs/design.md, V7): ticket,
-// PUT to R2, commit. Vercel's protection sits in front of the API calls only:
-// the PUT goes straight to R2, so the bypass header never goes with it. The
-// ticket and the commit carry the account key too (meta SHARD-DELETE DEL5,
-// DEL6); the public reads and the PUT never do.
 
 const SIGNATURE_HEADER = 'x-wildshard-signature'
 const BYPASS_HEADER = 'x-vercel-protection-bypass'
@@ -35,13 +31,16 @@ const FIRST_ATTEMPT = 1
 const BYPASS_HINT =
   'not an api-server reply; a protected deployment needs VERCEL_AUTOMATION_BYPASS_SECRET'
 
-interface ApiOptions {
+interface ReadOptions {
   /** The api-server origin. */
   readonly server: string
-  /** The account's `wsk_` key, sent on the ticket and the commit. */
-  readonly apiKey: string
   /** Vercel's automation bypass, for a protected deployment. */
   readonly bypassSecret?: string
+}
+
+interface ApiOptions extends ReadOptions {
+  /** The account's `wsk_` key, sent on the ticket and the commit. */
+  readonly apiKey: string
 }
 
 interface UploadRequest {
@@ -57,7 +56,7 @@ interface PutTarget {
 
 type AnySchema = BaseSchema<unknown, unknown, BaseIssue<unknown>>
 
-function apiHeaders(options: ApiOptions): Record<string, string> {
+function apiHeaders(options: ReadOptions): Record<string, string> {
   return options.bypassSecret === undefined
     ? {}
     : { [BYPASS_HEADER]: options.bypassSecret }
@@ -90,7 +89,6 @@ function refusal(path: string, status: number, body?: unknown): Error {
   )
 }
 
-/** The reply's parsed body; a refusal or anything unparseable throws. */
 async function replyOf<Schema extends AnySchema>(
   path: string,
   reply: Response,
@@ -111,7 +109,7 @@ async function replyOf<Schema extends AnySchema>(
   return parsed.output
 }
 
-/** The status is private to the account, unlike catalogue reads. */
+/** The detailed status is private to the uploading account. */
 async function readUploadStatus(
   options: ApiOptions,
   id: string,
@@ -126,6 +124,20 @@ async function readUploadStatus(
     ...(signal === undefined ? {} : { signal }),
   })
   return await replyOf(path, reply, UploadStatusSchema)
+}
+
+/** A known upload's verdict is readable without an account key. */
+async function readUploadSummary(
+  options: ReadOptions,
+  id: string,
+  signal: Readonly<AbortSignal>,
+): Promise<UploadSummary> {
+  const path = `/api/shardfiles/uploads/${encodeURIComponent(id)}/status`
+  const reply = await fetch(new URL(path, options.server), {
+    headers: apiHeaders(options),
+    signal,
+  })
+  return await replyOf(path, reply, UploadSummarySchema)
 }
 
 async function postUpload<Schema extends AnySchema>(
@@ -148,7 +160,6 @@ async function postUpload<Schema extends AnySchema>(
   return await replyOf(call.path, reply, schema)
 }
 
-/** The stored shardfile with this hash, if there is one. */
 async function findStored(
   options: ApiOptions,
   hash: string,
@@ -274,10 +285,12 @@ async function commitUpload(
 
 export {
   type ApiOptions,
+  type ReadOptions,
   type Channel,
   type UploadRequest,
   ApiRefusalError,
   readUploadStatus,
+  readUploadSummary,
   commitUpload,
   findCatalogued,
   findStored,

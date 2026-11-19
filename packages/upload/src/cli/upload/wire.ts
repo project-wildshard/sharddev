@@ -145,10 +145,20 @@ const CatalogueSchema: GenericSchema<{
   readonly shards: readonly CatalogueShard[]
 }> = object({ shards: array(CatalogueShardSchema) })
 
-interface UploadStatus {
+interface UploadSummary {
   readonly uploadId: string
-  readonly hash: string
   readonly status: UploadState
+}
+
+const UploadSummaryFields = {
+  uploadId: string(),
+  status: UploadStateSchema,
+}
+const UploadSummarySchema: GenericSchema<UploadSummary> =
+  object(UploadSummaryFields)
+
+interface UploadStatus extends UploadSummary {
+  readonly hash: string
   readonly createdAt: number
   readonly updatedAt: number
   readonly report?: unknown
@@ -156,9 +166,8 @@ interface UploadStatus {
   readonly placement?: unknown
 }
 const UploadStatusSchema: GenericSchema<UploadStatus> = object({
-  uploadId: string(),
+  ...UploadSummaryFields,
   hash: string(),
-  status: UploadStateSchema,
   createdAt: number(),
   updatedAt: number(),
   report: optional(unknown()),
@@ -172,7 +181,9 @@ export {
   type Placement,
   type UploadStatus,
   type UploadState,
+  type UploadSummary,
   UploadStatusSchema,
+  UploadSummarySchema,
   CatalogueSchema,
   PlacementSchema,
   CommitAnswerSchema,

@@ -1,7 +1,9 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 
+import { parseCliArgs } from '../args.ts'
 import { ApiRefusalError } from './api.ts'
+import { runUpload } from './command.ts'
 import { waitForUpload } from './status.ts'
 
 import type { PollPorts } from './status.ts'
@@ -109,7 +111,7 @@ test('SP21 a stalled upload exits without waiting again', async (): Promise<void
   assert.deepEqual(fixture.delays, [])
 })
 
-test('SP21 a20-minute timeout keeps the upload id for a later status read', async (): Promise<void> => {
+test('SP21 a 19-minute timeout keeps the upload id for a later status read', async (): Promise<void> => {
   const fixture = clocked([{ ...BASE, status: 'cooking' }])
   await assert.rejects(
     waitForUpload(
@@ -124,7 +126,7 @@ test('SP21 a20-minute timeout keeps the upload id for a later status read', asyn
       (sum: number, delay: number): number => sum + delay,
       0,
     ),
-    1_200_000,
+    1_140_000,
   )
   assert.ok(fixture.delays.every((delay: number): boolean => delay <= 15_000))
 })
@@ -202,4 +204,23 @@ test('SP21 a late authorization refusal retains its real cause', async (): Promi
     /no account key/u,
   )
   assert.deepEqual(fixture.delays, [])
+})
+
+test('MU11 status refuses to send credentials over non-loopback HTTP', async (context): Promise<void> => {
+  const request = context.mock.method(globalThis, 'fetch', (): never =>
+    assert.fail('unexpected status request'),
+  )
+  const result = await runUpload(
+    parseCliArgs([
+      'upload',
+      'status',
+      ID,
+      '--server',
+      'http://api.example.test',
+    ]),
+    { WILDSHARD_API_KEY: 'wsk_fixture' },
+    { version: '0.4.14' },
+  )
+  assert.equal(request.mock.callCount(), 0)
+  assert.equal(result, 1)
 })
