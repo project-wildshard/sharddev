@@ -6,3 +6,7 @@ folder with an empty home, and runs the installed bin. The generated
 project installs from the same archives. The starter chest tape proves
 the shard, the built and packed files match, and dev serves the shard
 through a fixture client shell.
+
+Actions installs pnpm under its setup action's node_modules directory.
+Pass that executable explicitly so the outside proof can keep its clean
+PATH. The real installed bin still resolves inside the fresh project.

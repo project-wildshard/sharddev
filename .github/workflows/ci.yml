@@ -340,4 +340,4 @@ jobs:
           cp scripts/verify-packed-install.mjs "$RUNNER_TEMP/verify-packed-install.mjs"
       - name: Install and run the CLI outside the checkout
         working-directory: ${{ runner.temp }}
-        run: node verify-packed-install.mjs workspace-release
+        run: node verify-packed-install.mjs workspace-release "$(command -v pnpm)"
