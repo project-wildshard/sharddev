@@ -98,6 +98,7 @@ const VERBS: Readonly<Record<string, string>> = {
                        exits non-zero. --no-wait prints the upload id
                        immediately. Read it later without uploading:
                        upload status <id> [--server <url>].
+                       A known upload id can be checked without a key.
                        Sends your account key (WILDSHARD_API_KEY, else
                        the file wildshard account saved; with neither it
                        refuses before anything is sent). Reads

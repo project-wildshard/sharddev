@@ -36,6 +36,9 @@ function announce(
   }
   options.report(`checked: API format accepted (upload ${accepted.uploadId})`)
   options.report(`upload ${accepted.uploadId}: ${accepted.status}`)
+  if (accepted.status !== 'live') {
+    options.report(`resume with wildshard upload status ${accepted.uploadId}`)
+  }
   return { uploadId: accepted.uploadId, status: accepted.status }
 }
 

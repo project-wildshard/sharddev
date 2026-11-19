@@ -1,4 +1,5 @@
 import { apiKeyOf, uploadKeyRefusal } from '../account/command.ts'
+import { keyTransport } from '../account/key.ts'
 import { refuse, reportLine } from '../report.ts'
 import {
   DEFAULT_BROTLI_LEVEL,
@@ -11,12 +12,14 @@ import { uploadShardfile } from './upload.ts'
 
 import type { CliArgs } from '../args.ts'
 import type { Provenance } from './provenance.ts'
+import type { StatusOptions } from './status.ts'
 import type { UploadOptions } from './upload.ts'
 
 type Env = Readonly<Record<string, string | undefined>>
 const EXIT_OK = 0
 const EXIT_USAGE = 1
 const EXIT_FAILED = 3
+const DEFAULT_STATUS_SERVER = 'https://api.wildshard.io'
 
 function parseLevel(raw: string | undefined): number | undefined {
   if (raw === undefined) {
@@ -181,11 +184,11 @@ async function uploadOptions(
 }
 
 async function runConnectedStatus(
-  connection: Connection,
+  connection: StatusOptions,
   id: string,
 ): Promise<number> {
   try {
-    await printUploadStatus(connection, id, connection.report)
+    await printUploadStatus(connection, id, reportLine)
     return EXIT_OK
   } catch (error: unknown) {
     refuse('upload', 'status failed: ', error)
@@ -193,11 +196,28 @@ async function runConnectedStatus(
   }
 }
 
+async function statusConnection(
+  args: CliArgs,
+  env: Env,
+): Promise<StatusOptions | string> {
+  const apiKey = await apiKeyOf(env['WILDSHARD_API_KEY'])
+  if (apiKey instanceof Error) {
+    return apiKey.message
+  }
+  const server = serverOf(args, env) || DEFAULT_STATUS_SERVER
+  const bypass = bypassOption(env)
+  const unsafe =
+    apiKey === undefined && bypass.bypassSecret === undefined
+      ? undefined
+      : keyTransport(server)
+  return (
+    unsafe ?? { server, ...(apiKey === undefined ? {} : { apiKey }), ...bypass }
+  )
+}
+
 async function runStatus(args: CliArgs, env: Env): Promise<number> {
-  const key = await apiKeyOf(env['WILDSHARD_API_KEY'])
-  const connection =
-    key instanceof Error ? key.message : connectionOf(args, key, env)
-  if (typeof connection === 'string' || args.target === undefined) {
+  const connection = await statusConnection(args, env)
+  if (args.target === undefined || typeof connection === 'string') {
     refuse(
       'upload',
       '',

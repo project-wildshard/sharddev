@@ -55,56 +55,67 @@ function answerStatus(
     id: string
     hash: string | undefined
     authorized: boolean
+    summary: boolean
   }>,
 ): void {
-  const { id, hash, authorized } = identity
-  if (!authorized) {
+  const { id, hash, authorized, summary } = identity
+  if (!authorized && !summary) {
     sendJson(exchange.response, 401, { error: 'no account key' })
   } else if (hash === undefined) {
     sendJson(exchange.response, 404, { error: 'no such upload' })
   } else {
     const status = state.sequence.shift() ?? 'live'
-    sendJson(exchange.response, 200, {
-      uploadId: state.replyId ?? id,
-      hash,
-      status,
-      createdAt: 1,
-      updatedAt: 2,
-      ...(status === 'refused' ? { report: state.report } : {}),
-      ...(status === 'live'
-        ? {
-            build: 'test-build',
-            placement: {
-              placed: true,
-              cell: [0, 3],
-              channels: ['preview', 'staging'],
-            },
-          }
-        : {}),
-    })
+    const verdict = { uploadId: state.replyId ?? id, status }
+    sendJson(
+      exchange.response,
+      200,
+      summary
+        ? verdict
+        : {
+            ...verdict,
+            hash,
+            createdAt: 1,
+            updatedAt: 2,
+            ...(status === 'refused' ? { report: state.report } : {}),
+            ...(status === 'live'
+              ? {
+                  build: 'test-build',
+                  placement: {
+                    placed: true,
+                    cell: [0, 3],
+                    channels: ['preview', 'staging'],
+                  },
+                }
+              : {}),
+          },
+    )
   }
 }
+
+const STATUS_ROUTE =
+  /^\/api\/shardfiles\/uploads\/(?<id>[^/]+)(?<summary>\/status)?$/u
 
 function answerAsync(
   state: AsyncUploads,
   exchange: Readonly<{ request: IncomingMessage; response: ServerResponse }>,
   apiKey: string,
 ): boolean {
-  const path = exchange.request.url ?? ''
+  const route = STATUS_ROUTE.exec(exchange.request.url ?? '')?.groups
+  const named = route?.['id']
   if (
     !state.enabled ||
     exchange.request.method !== 'GET' ||
-    !path.startsWith('/api/shardfiles/uploads/')
+    named === undefined
   ) {
     return false
   }
   state.reads.push(exchange.request)
-  const id = decodeURIComponent(path.slice('/api/shardfiles/uploads/'.length))
-  const hash = state.uploads.get(id)
+  const id = decodeURIComponent(named)
   answerStatus(state, exchange, {
     id,
-    hash,
+    hash: state.uploads.get(id),
     authorized: exchange.request.headers.authorization === `Bearer ${apiKey}`,
+    summary: route?.['summary'] !== undefined,
   })
   return true
 }
