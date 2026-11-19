@@ -64,7 +64,7 @@ export function manifestImages(metadata: ManifestMetadata): readonly { readonly 
     ...Object.entries(metadata.explore.art).map(([name,url])=>({name:`explore-${name}`,url})),
     ...(metadata.explore.compare?.flatMap((row,index)=>[{name:`compare-${index}-live`,url:row.live},{name:`compare-${index}-target`,url:row.image}])??[]),
   ];
-  const hdri=metadata.sky.hdri;
+  const hdri=metadata.sky?.hdri;
   if(hdri!==undefined&&(hdri.startsWith('/')||hdri.startsWith('data:image/')))rows.push({name:'sky',url:hdri});
   const horizon=metadata.horizonStrips;
   if(horizon!==undefined){rows.push({name:'horizon-day',url:horizon.day},{name:'horizon-night',url:horizon.night});if(horizon.phone!==undefined)rows.push({name:'horizon-phone-day',url:horizon.phone.day},{name:'horizon-phone-night',url:horizon.phone.night});}
@@ -88,7 +88,7 @@ export function packManifestImages(folder: string, input: unknown, images: Reado
   const image=(url:string):string=>{const value=urls.get(url);if(value===undefined)throw new Error('Manifest image was not packed');return value;};
   const compare=metadata.explore.compare?.map(row=>({...row,live:image(row.live),image:image(row.image)}));
   const horizon=metadata.horizonStrips;
-  const hdri=metadata.sky.hdri;
+  const hdri=metadata.sky?.hdri;
   const manifest=parseManifestMetadata({...metadata,card:{thumb:image(metadata.card.thumb),portrait:image(metadata.card.portrait),landscape:image(metadata.card.landscape)},
     minimap:{...metadata.minimap,image:image(metadata.minimap.image)},
     explore:{...metadata.explore,art:{world:image(metadata.explore.art.world),models:image(metadata.explore.art.models),sets:image(metadata.explore.art.sets),practice:image(metadata.explore.art.practice)},...(compare===undefined?{}:{compare})},
