@@ -670,6 +670,8 @@ export function formatJsonSchema(schema: GenericSchema, target: 'draft-07' | 'dr
       } satisfies FormatJsonSchema;
       // Both defining clip transforms brand the validated string without changing it.
       if (valibotAction === SkinClipNameSchema.pipe[2] || valibotAction === namedClipTransform) return jsonSchema;
+      // `v.readonly()` only narrows the output type (format 0.43.0's grapple owners and hooks); the value is unchanged.
+      if (valibotAction.type === 'readonly') return jsonSchema;
       const check = wireChecks.get(valibotAction);
       if (check !== undefined) {
         const before = (jsonSchema as FormatJsonSchema)['x-wildshard-checks'] ?? [];
