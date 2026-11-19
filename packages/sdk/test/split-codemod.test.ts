@@ -19,7 +19,7 @@ test('moved modules go to dev and build under both package names; the rest stay'
   expect(rewriteSplitImports("import { synthScene } from '@wildshard/sdk/synth';")).toBe("import { synthScene } from '@wildshard/build/synth';");
   // A scripts/ file the sdk no longer ships moved to dev; one it still ships stays.
   expect(rewriteSplitImports("import { ground } from '@wildshard/sharddev/scripts/bake/navmeshGround.ts';")).toBe("import { ground } from '@wildshard/dev/scripts/bake/navmeshGround.ts';");
-  expect(rewriteSplitImports("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';")).toBe("import x from '@wildshard/sdk/scripts/bake-astc6.mjs';");
+  expect(rewriteSplitImports("import x from '@wildshard/sdk/scripts/compile-script.mjs';")).toBe("import x from '@wildshard/sdk/scripts/compile-script.mjs';");
   for (const source of ["'@wildshard/sdk/projectGeneration'", "'@wildshard/sdk/rows'", "'@wildshard/sdk/project/x'", "'@wildshard/engine/sim'"])
     expect(rewriteSplitImports(source)).toBe(source);
 });
