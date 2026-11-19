@@ -30,6 +30,12 @@ async function writeShardfile(dir, source, options = {}) {
 // author tools' dependency links until the host leaves at P3 (P1-F4).
 const authorRequire = createRequire(resolve(import.meta.dirname, '../src/sharddev/package.json'));
 const DEV_SRC = resolve(import.meta.dirname, '../src/sharddev');
+const engineManifest = realpathSync(authorRequire.resolve('@wildshard/engine/package.json'));
+const engineRoot = dirname(engineManifest);
+const engine = JSON.parse(readFileSync(engineManifest, 'utf8'));
+const needsFrozenWire = engine.version === '0.1.47' && engine.dependencies?.['@wildshard/wire'] === '^1.2.0';
+const engineHeadless = resolve(engineRoot, 'src/server/host/headless.ts');
+const engineWorker = resolve(DEV_SRC, 'engine-0.1.47');
 const SDK_DIR = realpathSync(dirname(authorRequire.resolve('@wildshard/sdk/package.json'))), SDK_SRC = resolve(SDK_DIR, 'src/sharddev');
 // The script compilers and the texture tools are the sdk's dependencies; they load from the sdk's own install.
 const sdkRequire = createRequire(resolve(SDK_SRC, 'package.json'));
@@ -53,9 +59,14 @@ export function prepareWildshard() {
       // SDK-SPLIT SP8c: each package keeps its own src/sharddev as import.meta.dirname (the sdk finds its GUIDE.md,
       // template and tools; dev, the engine and upload find dev's): one global value pointed the sdk's modules at dev.
       if (!code.includes('import.meta.dirname')) return null;
-      const file = id.split('?')[0] ?? id, owner = file.startsWith(SDK_DIR + sep) ? SDK_SRC : DEV_SRC;
+      const file = id.split('?')[0] ?? id;
+      const owner = needsFrozenWire && file === engineHeadless ? engineWorker
+        : file.startsWith(SDK_DIR + sep) ? SDK_SRC : DEV_SRC;
       return { code: code.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
-    }, resolveId(id) {
+    }, resolveId(id, importer) {
+      // Engine 0.1.47 declared a wire range, but its row bindings require 1.2.0.
+      // The workspace's pnpm override does not travel with a published install.
+      if (needsFrozenWire && importer?.startsWith(engineRoot + sep) && /^@wildshard\/wire(?:\/|$)/u.test(id)) return authorRequire.resolve(id);
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
       // SP9b: the sdk bundles with rolldown; its bundles record their inputs through dev's bridge, as vite's did.
       if (id === 'rolldown') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-rolldown.mjs')).href, external: true };

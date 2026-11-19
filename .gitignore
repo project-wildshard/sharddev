@@ -29,3 +29,6 @@ out/
 
 # Packed shardfile output written next to a shard by old pack recipes; build:shards writes out/ instead
 /packages/sdk/src/shards/*/public/shardfiles/
+
+# The author package compiles its compatibility worker when packed.
+/packages/dev/src/sharddev/engine-0.1.47/

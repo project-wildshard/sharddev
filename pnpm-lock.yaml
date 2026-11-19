@@ -159,6 +159,9 @@ importers:
       '@wildshard/upload':
         specifier: workspace:*
         version: link:../upload
+      '@wildshard/wire':
+        specifier: 1.2.0
+        version: 1.2.0(typescript@6.0.3)
       esbuild:
         specifier: 0.28.2
         version: 0.28.2
