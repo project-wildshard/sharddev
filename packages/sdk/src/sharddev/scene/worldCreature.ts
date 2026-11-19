@@ -14,6 +14,7 @@ import type { ShardRows } from '@wildshard/format/rows';
 import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
 import { CREATURE_BONE_CAP } from '../creatureCaps';
 import { creaturePhoneGlb, type CreaturePhoneOptions } from '../bake/creaturePhone';
+import { packCreatureGlbs, packNodeName } from '../bake/creaturePack';
 import { creatureGlb, creatureSkin, type CreatureBinding } from './creature';
 import type { SceneCreature, ShardScene } from './description';
 import { SceneRefusalError } from './refusal';
@@ -108,5 +109,35 @@ export async function withCreaturePhones(scene: ShardScene, options: CreaturePho
   if (options === false || scene.creatures === undefined || scene.creatures.length === 0) return scene;
   const creatures: SceneCreature[] = [];
   for (const creature of scene.creatures) creatures.push(await withCreaturePhone(creature, options));
+  return { ...scene, creatures };
+}
+
+/** ONE-FORMAT CC51c: which creatures the pack step takes: each at most `triangles` (default 3,000, the small size mark). */
+export interface CreaturePackOptions {
+  readonly triangles?: number;
+}
+const PACK_TRIANGLES = 3_000;
+
+/**
+ * CC51c: the pack step (optional; the build runs it when `creaturePack` is set). The small creatures (at most
+ * `triangles` each, no variant table or maps of their own, an id that names a node) share one packed GLB
+ * (`bake/creaturePack`), each under a node named by its id; each skin row names that node as `rig.mesh` and carries the
+ * whole file's cost, as format admission checks. The packed GLB is stored once (its hash), a phone mesh keeps its own.
+ * Fewer than two such creatures: nothing to pack.
+ */
+export async function withPackedCreatures(scene: ShardScene, options: CreaturePackOptions | false = false): Promise<ShardScene> {
+  if (options === false || scene.creatures === undefined) return scene;
+  const cap = options.triangles ?? PACK_TRIANGLES;
+  const packs = scene.creatures.filter(creature => creature.files === undefined && creature.triangles <= cap && packNodeName(creature.id));
+  if (packs.length < 2) return scene;
+  const glb = await packCreatureGlbs(packs.map(creature => ({ name: creature.id, glb: creature.glb })));
+  const cost = parseGlb(glb), file = hashImmutableBytes(glb), packed = new Set(packs);
+  const creatures = scene.creatures.map((creature): SceneCreature => {
+    if (!packed.has(creature)) return creature;
+    const { row, binding } = JSON.parse(new TextDecoder().decode(creature.skin)) as { row: Record<string, unknown> & { rig: Record<string, unknown> }; binding: Record<string, unknown> };
+    const skin = new TextEncoder().encode(encodeCanonicalJson({ row: { ...row, file, rig: { ...row.rig, mesh: creature.id },
+      cost: { decoded: cost.decoded, draws: cost.draws, gpu: cost.gpu, triangles: cost.triangles } }, binding }));
+    return { ...creature, glb, skin, look: { ...creature.look, parameters: { ...creature.look.parameters, skin: hashImmutableBytes(skin) } } };
+  });
   return { ...scene, creatures };
 }

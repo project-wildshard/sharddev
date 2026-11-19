@@ -10,6 +10,7 @@
 import { creatureContract } from '@wildshard/format/creatureSkeletons';
 import type { CreatureSize } from '@wildshard/format/creatureLayers';
 import { resolveSkinLookFiles } from '@wildshard/format/skinAssets';
+import { packedTriangles } from './bake/creaturePack';
 import type { BudgetTier } from '@wildshard/format/budget-tiers';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 
@@ -54,9 +55,14 @@ export function creatureNumbers(source: CapSource, assets: ReadonlyMap<string, U
     if (look?.recipe !== 'platform.skin') return { species: row.id, size, bones: null, volumes, triangles: null, decodedBytes: null };
     const resolved = resolveSkinLookFiles(source, look, assets);
     const skins = [resolved.skin, ...resolved.variants?.values() ?? []].map(skin => skin.row);
+    // CC51c: a packed skin's cost is its whole file's; the creature draws only the meshes under its node
+    const triangles = (skin: (typeof skins)[number]): number => {
+      const glb = skin.rig.mesh === undefined ? undefined : assets.get(skin.file);
+      return glb === undefined || skin.rig.mesh === undefined ? skin.cost.triangles : packedTriangles(glb, skin.rig.mesh);
+    };
     return { species: row.id, size, volumes,
       bones: Math.max(...skins.map(skin => skin.rig.joints[0]?.length ?? 0)),
-      triangles: Math.max(...skins.map(skin => skin.cost.triangles)),
+      triangles: Math.max(...skins.map(triangles)),
       decodedBytes: Math.max(...skins.map(skin => skin.cost.decoded)) };
   });
 }

@@ -7,9 +7,10 @@ import { prepareAssetDecoders } from '@wildshard/format/shardfileAssets';
 import { shardfileRules } from '@wildshard/format/shardSchema';
 import { validateSkinAssets } from '@wildshard/format/skinAssets';
 import { creatureNumbers } from '../creatureCaps';
+import { hashImmutableBytes } from '../immutable';
 import { lowerShard } from './lower';
 import { builtSceneShardfile, sceneShardfile } from './shardfile';
-import { withCreaturePhones, type CreatureWorldOptions } from './worldCreature';
+import { withCreaturePhones, withPackedCreatures, type CreatureWorldOptions } from './worldCreature';
 
 // The kit boar's sim rows, without its strikes and harvest (they name strikes and items the shard declares).
 const { species: { id: _id, body: _body, abilities: _abilities, harvest: _harvest, ...species } } = commonCreature('boar', { id: 'fixture.unused', look: 'fixture.unused.look' });
@@ -145,4 +146,28 @@ test('the build writes each creature a phone mesh its look names, with both tria
   expect(built.shard.rows.looks.find(entry => entry.id === 'critters.critter.look')?.parameters['phone']).toBe(phone);
   const single = await builtSceneShardfile(scene, compile as never, { creaturePhone: false });
   expect(single.shard.rows.looks.find(entry => entry.id === 'critters.critter.look')?.parameters['phone']).toBeUndefined();
+});
+
+test('the pack step puts small creatures in one GLB, and each skin reads only its own (ONE-FORMAT CC51c)', async () => {
+  await prepareAssetDecoders();
+  const scene = lowerShard({ slug: 'critters', name: 'Critters' }, (world) => {
+    world.spawn(0, 0, 0);
+    world.creature('critters.one', body(), OPTIONS);
+    // the same skeleton and clip names, one clip fewer
+    world.creature('critters.two', body(), { ...OPTIONS, clips: clips.slice(0, 1), loops: ['idle'] });
+  });
+  expect(await withPackedCreatures(scene)).toBe(scene); // off by default
+  const packed = await withPackedCreatures(scene, {});
+  const [one, two] = packed.creatures ?? [];
+  expect(one?.glb).toBe(two?.glb);
+  const { shard, assets } = sceneShardfile(packed);
+  expect(shard.files.filter(file => file.hash === hashImmutableBytes(one?.glb ?? new Uint8Array()))).toHaveLength(1);
+  expect(() => { validateSkinAssets(shard, assets); }).not.toThrow();
+  expect(shardfileRules(shard)).toEqual([]);
+  const rigs = (packed.creatures ?? []).map(creature => (JSON.parse(new TextDecoder().decode(creature.skin)) as { row: { rig: { mesh?: string; clips: string[] } } }).row.rig);
+  expect(rigs.map(rig => [rig.mesh, rig.clips])).toEqual([['critters.one', ['idle', 'walk']], ['critters.two', ['idle']]]);
+  // each creature still reports its own triangles, not the packed file's
+  expect(creatureNumbers(shard, assets).map(row => [row.species, row.triangles])).toEqual([['critters.one', 12], ['critters.two', 12]]);
+  // a creature over the cap keeps its own GLB; one left alone packs nothing
+  expect(await withPackedCreatures(scene, { triangles: 11 })).toBe(scene);
 });

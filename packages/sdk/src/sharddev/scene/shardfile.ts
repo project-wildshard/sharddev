@@ -6,7 +6,7 @@ import { parseGlb, parseKtx2 } from '../assets';
 import { parseSkinFile, skinFileDependencies } from '@wildshard/format/skinAssets';
 import { hashImmutableBytes } from '../immutable';
 import type { CreaturePhoneOptions } from '../bake/creaturePhone';
-import { withCreaturePhones } from './worldCreature';
+import { withCreaturePhones, withPackedCreatures, type CreaturePackOptions } from './worldCreature';
 import type { GeneratedProject, ProjectGenerationContext } from '../projectGeneration';
 import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
@@ -53,6 +53,8 @@ export interface ShardfileOptions {
   /** ONE-FORMAT CC51b: how far each creature's phone mesh goes (`bake/creaturePhone`), or `false` for none (the default
    *  halves its vertices within 1% of its radius) */
   readonly creaturePhone?: CreaturePhoneOptions | false;
+  /** ONE-FORMAT CC51c: pack the small creatures into one GLB (`bake/creaturePack`); off by default. */
+  readonly creaturePack?: CreaturePackOptions | false;
 }
 
 /**
@@ -520,7 +522,9 @@ export async function compileShardfile(scene: ShardScene, ctx: ProjectGeneration
  * build's `ctx.compileScript`) and bound.
  */
 export async function builtSceneShardfile(scene: ShardScene, compile: ProjectGenerationContext['compileScript'], options: ShardfileOptions = {}): Promise<{ shard: Shardfile; assets: Map<string, Uint8Array>; report: ShardfileReport }> {
-  const built = sceneShardfile(await withCreaturePhones(scene, options.creaturePhone), options), lane = await withSceneState(built.shard, scene, compile);
+  // CC51b phone meshes from each creature's own GLB, then CC51c's optional pack step
+  const creatures = await withPackedCreatures(await withCreaturePhones(scene, options.creaturePhone), options.creaturePack);
+  const built = sceneShardfile(creatures, options), lane = await withSceneState(built.shard, scene, compile);
   if (lane === null) return built;
   built.assets.set(lane.module.hash, lane.module.bytes);
   return { ...built, shard: parseShardfile(lane.shard) };
