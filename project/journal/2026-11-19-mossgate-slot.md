@@ -19,3 +19,9 @@ so a publish that failed or never ran shows red the next morning.
 sharddev now gets the org's `WILDSHARD_API_KEY` and
 `WILDSHARD_CREATOR_PRIVATE_KEY`, as the shard repos do; the ci step that
 waited for the key (SHARD-DELETE DEL6) now prints its account.
+
+The first run (44581702711) built and prepared Mossgate on hosted Linux
+in under two minutes, then upload refused it: the hero was unchanged
+since 0.1.1, because that commit touched only the workflow. A `slot`
+job now runs the drift check against HEAD first, and build and upload
+run only when staging's Mossgate lacks the template's last change.

@@ -31,8 +31,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
+  # A commit that changes only this workflow, or a run by hand on a slot that
+  # is current, has nothing to send: upload refuses a hero unchanged since the
+  # last upload (run 44581702711). So publish only when staging lacks HEAD's
+  # template.
+  slot:
     if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    outputs:
+      current: ${{ steps.slot.outputs.current }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+      - name: Is staging's Mossgate already this template
+        id: slot
+        run: |
+          if node scripts/mossgate-slot.mjs drift --ref=HEAD; then echo current=true >> "$GITHUB_OUTPUT"; else echo current=false >> "$GITHUB_OUTPUT"; fi
+
+  build:
+    needs: slot
+    if: needs.slot.outputs.current == 'false'
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     env:
@@ -161,8 +185,8 @@ jobs:
           echo "mossgate $version from $GITHUB_SHA uploaded to staging" >> "$GITHUB_STEP_SUMMARY"
 
   drift:
-    needs: [build, upload]
-    if: always() && needs.build.result != 'failure' && needs.upload.result != 'failure'
+    needs: [slot, build, upload]
+    if: always() && needs.slot.result != 'failure' && needs.build.result != 'failure' && needs.upload.result != 'failure'
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     steps:
