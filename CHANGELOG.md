@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.13 (2026-11-18)
+
+- Fresh starter shards prepare with the released engine v0.1.46 client, which loads the boar skin.
+
 ## v0.4.12 (2026-11-18)
 
 - Built on shard-format 0.43.0: grapple mode profiles, a strike row's overshoot and fur strands are admitted.
