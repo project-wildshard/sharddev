@@ -1,0 +1,179 @@
+name: mossgate-slot
+
+# Meta MOSSGATE-ZONE MZ3 (J452, J453): Mossgate's staging slot follows the
+# template. A main commit that touches the template builds, prepares and
+# uploads Mossgate to staging (as each shard repo's publish.yml does), and the
+# drift check fails when staging's Mossgate commit does not contain the
+# template's last change. The schedule runs the drift check alone, so a
+# failed or skipped publish shows red the next morning. By hand:
+#   gh workflow run mossgate-slot.yml -R project-wildshard/sharddev
+#   gh workflow run mossgate-slot.yml -R project-wildshard/sharddev -f publish=false   (drift check only)
+on:
+  push:
+    branches: [main]
+    paths:
+      - packages/sdk/src/shards/mossgate/**
+      - .github/workflows/mossgate-slot.yml
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: Build, prepare and upload before the drift check
+        type: boolean
+        default: true
+  schedule:
+    - cron: '20 12 * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mossgate-slot
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    env:
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        if: env.APP_CLIENT_ID != ''
+        with:
+          client-id: ${{ env.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: project-wildshard
+          permission-contents: read
+      - name: Read private org repos with the app token
+        if: steps.app-token.outputs.token != ''
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          base="https://x-access-token:${TOKEN}@github.com/"
+          git config --global url."$base".insteadOf "https://github.com/"
+          git config --global --add url."$base".insteadOf "git@github.com:"
+          git config --global --add url."$base".insteadOf "ssh://git@github.com/"
+      - run: pnpm install --frozen-lockfile --config.ci=false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/npm-bin-deps
+          key: npr-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.bin-deps/package.json', '.bin-deps/package-lock.json') }}
+      - run: pnpm exec npr install --frozen
+      # The phone atlases' Basis encoder, built once per host and C library (publish.yml S12f3, NL12).
+      - name: Name the C library the Basis encoder links against
+        id: libc
+        run: echo "libc=$(node -p "process.report.getReport().header.glibcVersionRuntime ?? 'none'")" >> "$GITHUB_OUTPUT"
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4.3.0
+        with:
+          path: ~/.cache/wildshard/basis
+          key: basis-${{ runner.os }}-${{ runner.arch }}-glibc${{ steps.libc.outputs.libc }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: basis-${{ runner.os }}-${{ runner.arch }}-glibc${{ steps.libc.outputs.libc }}-
+      - name: Build Mossgate (a draft folder)
+        run: node packages/cli/bin/wildshard.mjs build packages/sdk/src/shards/mossgate tmp/publish/mossgate --folder-only
+      - name: Install phone WebKit for prepare
+        run: pnpm --filter @wildshard/dev exec playwright install --with-deps webkit
+      - name: Prepare in phone WebKit
+        env:
+          WILDSHARD_PREPARATION_DEBUG: ${{ runner.debug }}
+        run: |
+          start=$(date +%s)
+          node packages/cli/bin/wildshard.mjs prepare tmp/publish/mossgate
+          echo "prepare: $(( $(date +%s) - start )) s on $RUNNER_OS/$RUNNER_ARCH" | tee -a "$GITHUB_STEP_SUMMARY"
+      - name: Write the prepared shard file
+        run: node packages/cli/bin/wildshard.mjs build tmp/publish/mossgate tmp/publish/mossgate.shardfile
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: mossgate-shardfile
+          path: tmp/publish/mossgate.shardfile
+          if-no-files-found: error
+          retention-days: 7
+
+  upload:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: staging
+    env:
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        if: env.APP_CLIENT_ID != ''
+        with:
+          client-id: ${{ env.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: project-wildshard
+          permission-contents: read
+      - name: Read private org repos with the app token
+        if: steps.app-token.outputs.token != ''
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          base="https://x-access-token:${TOKEN}@github.com/"
+          git config --global url."$base".insteadOf "https://github.com/"
+          git config --global --add url."$base".insteadOf "git@github.com:"
+          git config --global --add url."$base".insteadOf "ssh://git@github.com/"
+      - run: pnpm install --frozen-lockfile --config.ci=false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: mossgate-shardfile
+          path: tmp/publish
+      # The org secrets (SHARD-PUBLISH-ACTIONS SP3); Actions masks them and nothing here prints them.
+      - name: Upload to staging
+        env:
+          WILDSHARD_API_URL: https://api.wildshard.io
+          WILDSHARD_API_KEY: ${{ secrets.WILDSHARD_API_KEY }}
+          WILDSHARD_CREATOR_PRIVATE_KEY: ${{ secrets.WILDSHARD_CREATOR_PRIVATE_KEY }}
+        run: |
+          test -n "$WILDSHARD_API_KEY" || { echo '::error::no WILDSHARD_API_KEY org secret reaches sharddev'; exit 1; }
+          version=$(node scripts/mossgate-slot.mjs version)
+          set -o pipefail
+          node packages/cli/bin/wildshard.mjs upload tmp/publish/mossgate.shardfile --channel staging --version "$version" --commit "$GITHUB_SHA" 2>&1 | tee tmp/publish/upload.log
+          echo "mossgate $version from $GITHUB_SHA uploaded to staging" >> "$GITHUB_STEP_SUMMARY"
+
+  drift:
+    needs: [build, upload]
+    if: always() && needs.build.result != 'failure' && needs.upload.result != 'failure'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+      - name: Staging's Mossgate holds the template's last change
+        run: |
+          set -o pipefail
+          node scripts/mossgate-slot.mjs drift --ref=origin/main | tee -a "$GITHUB_STEP_SUMMARY"
