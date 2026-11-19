@@ -16,6 +16,8 @@ import { groundHeight, LAYOUT } from './world';
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
 
+/** How long a beaten Greyback or Warden stays down before its fight re-arms, in seconds. */
+export const BOSS_RESPAWN = 120;
 /** Where the creatures stand (the Template's `data/layout.json`, moved off the starter's and ring 2's walks). */
 export const HAUNTS = {
   /** the grey blobs, past the north gate (outside their 12 m notice of the spawn and of the starter's walk) */
@@ -222,13 +224,16 @@ export function buildCreatures(world: ShardWorld): void {
     strikes: [STRIKES.wardenSlam, STRIKES.wardenSweep, STRIKES.wardenThrow], size: 'medium', clips: warden.clips, loops: LOOPS, material: PBR, attackSpan: 1.4,
   });
 
+  // MOSSGATE-ZONE MZ1: the world is shared, so a fight someone won must come back for the next player, or the chain that
+  // ends at the Warden stops at its last step for everyone after the first win (staging rev 5, 11-19). A body that comes
+  // back re-arms its encounter (engine ai/phases.ts).
   HAUNTS.BLOBS.forEach(([x, z], i) => world.spawnAt(`grey-blob-${i + 1}`, spot(world, x, z), { species: 'grey.blob', variant: 'grey', brain: 'mossgate.blob-pursuit', strike: i === 3 ? STRIKES.blobLane.id : STRIKES.blobBump.id, seed: 435 + i, scale: 1, respawn: 60 }));
   HAUNTS.MOSSLINGS.forEach(([x, z], i) => world.spawnAt(`mossling-${i + 1}`, spot(world, x, z), { species: 'mossling', variant: 'moss', brain: 'mossgate.mosslings', strike: null, seed: 501 + i, scale: 1, respawn: 45 }));
   // a ram-grazer grazes round its home (the engine refuses one without)
   HAUNTS.SOWS.forEach(([x, z], i) => world.spawnAt(`sow-${i + 1}`, spot(world, x, z), { species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 601 + i, scale: 1,
     home: { x, y: groundHeight(x, z), z, r: 6 } }));
   HAUNTS.WISPS.forEach(([x, z], i) => world.spawnAt(`bog-wisp-${i + 1}`, spot(world, x, z, 0, 5), { species: 'bog.wisp', variant: 'bog', brain: 'mossgate.wisp-dive', strike: null, seed: 701 + i, scale: 1 }));
-  world.spawnAt(BODIES.greyback, spot(world, HAUNTS.GREYBACK.x, HAUNTS.GREYBACK.z, Math.PI * 0.75), { species: 'boar', variant: 'greyback', brain: null, strike: STRIKES.boarCharge.id, seed: 801, scale: 1 });
+  world.spawnAt(BODIES.greyback, spot(world, HAUNTS.GREYBACK.x, HAUNTS.GREYBACK.z, Math.PI * 0.75), { species: 'boar', variant: 'greyback', brain: null, strike: STRIKES.boarCharge.id, seed: 801, scale: 1, respawn: BOSS_RESPAWN });
   // the Warden faces the arch, west, as the static golem did
-  world.spawnAt(BODIES.warden, spot(world, HAUNTS.WARDEN.x, HAUNTS.WARDEN.z, -Math.PI / 2), { species: 'barrow.warden', variant: 'warden', brain: null, strike: STRIKES.wardenSlam.id, seed: 901, scale: 1 });
+  world.spawnAt(BODIES.warden, spot(world, HAUNTS.WARDEN.x, HAUNTS.WARDEN.z, -Math.PI / 2), { species: 'barrow.warden', variant: 'warden', brain: null, strike: STRIKES.wardenSlam.id, seed: 901, scale: 1, respawn: BOSS_RESPAWN });
 }

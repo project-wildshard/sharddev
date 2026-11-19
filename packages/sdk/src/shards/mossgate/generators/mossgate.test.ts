@@ -8,6 +8,7 @@ import { gameplay } from './gameplay';
 import { mossgate } from './shard';
 import { groundHeight } from './world';
 import { DECISIONS, ENCOUNTERS, WARDEN_FIELDS } from './fights';
+import { BOSS_RESPAWN } from './creatures';
 
 /** SHARD-SOURCE AP15: the whole cleanroom (mossgate-cleanroom 9cb4dc6 src/world.js) lowers with no refusal, one part per
  *  section, with the colliders, lights, water and sky the cleanroom has. */
@@ -130,6 +131,8 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
   for (const row of spawns) if (row.brain !== null) expect(shard.creatures.brains.some((b) => b.id === row.brain) || shard.creatures.groups.some((g) => g.id === row.brain), row.id).toBe(true);
   // Greyback is an elite, the Warden a boss with two phases and a panel, three strikes its script names
   expect(shard.encounters.map((row) => [row.id, row.kind, row.entity])).toEqual([[ENCOUNTERS.greyback, 'elite', 'greyback'], [ENCOUNTERS.warden, 'boss', 'barrow-warden']]);
+  // MZ1: a shared world's fight comes back for the next player (a body that respawns re-arms its encounter)
+  for (const row of shard.encounters) expect(spawns.find((s) => s.id === row.entity)?.respawn, row.entity).toBe(BOSS_RESPAWN);
   const strikes = new Set(shard.rows.strikes.map((row) => row.id));
   const [decision] = DECISIONS;
   for (const id of Object.values(decision?.strikes ?? {})) expect(strikes.has(id), id).toBe(true);
