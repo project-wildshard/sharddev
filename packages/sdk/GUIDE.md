@@ -527,7 +527,7 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 | `world.interact(id, object, { label, radius, scene })` | A use prompt that runs a shard scene |
 | `world.interact(id, object, { label, radius, sets })` | A use prompt that sets a state field, no script needed: `sets: { field, scope: 'shared' \| 'player', value }` or `{ field, scope, add, max }` (a count). A shared use's prompt goes once the field holds what it would write |
 | `world.part(name, build, { panel, shownWhen: { field, equals } })` | A panel shown (and solid) only while a field a `sets` prompt writes holds `equals`: a shrine's flame once it is lit. A `player` field's panel is that player's alone (their socket): never solid, and shown on their page by an engine with SHARD-SOURCE SS-GF1a2 |
-| `world.part(name, build, { panel, vehicle: { speed, turn?, boost?, accel?, ground?, heading?, seat?, wind?: { toward: [x, z], push }, board?, leave? } })` | A vehicle a player boards and steers: a land-sail. Forward goes, back brakes, sprint (Shift; a phone's stick pushed all the way) boosts, the wind pushes it along its heading; its board and leave prompts ride with it; its solids are its hull, which stops players on foot but not its rider (engine 3165a100 and later). Its solids block nobody. Needs an engine with SHARD-SOURCE SS-MS2a3 |
+| `world.vehicle(kind, build, { speed, ... })`, `world.dock(id, object, { kind, per?, respawn? })` | A vehicle kind players get into, drive and leave, and where one stands (format `world/vehicles`); see *Vehicles* below. `world.part`'s old `vehicle` option is refused |
 | `world.pickup(id, at, { label, radius, item: { id: 'tool.<name>', name, colour?, intensity?, fuelSeconds? }, flag? })` | A lantern on a stand: using its prompt puts the tool in the player's kit lit and full, and raises `flag`; a later use refills it. The sdk writes the tool, the take and the fields that show its light. Two pickups may hand over one tool (same options). Needs an engine with SHARD-SOURCE SS-GF1a1a |
 | `world.detail(id, instancedMesh, { cell, radius })` | Grass and small clutter the engine scatters near the camera |
 | `world.spawnAt(id, object, { species, variant, brain, strike, seed, scale, rank?, count?, when? })` | A creature spawn row (`creatures.spawns`) at `object`'s world position, facing its +z; a boss is a spawn its encounter names by `id` |
@@ -535,6 +535,60 @@ side, as `h = lerp(h, 0, smooth(186, 197, r) * (1 - smooth(9, 18, Math.min(Math.
 
 From `@wildshard/sdk/scene/author`: `solid` (collides), `paint` (a texture from a function), `Water` (a water
 surface), and `animate` with `flicker`, `pulse`, `drift`, `rise`, `sway` and `uvScroll`.
+
+**Vehicles.** A vehicle is a *kind* (`world.vehicle`) and the *docks* it stands at (`world.dock`), written as the
+shard's `world/vehicles` section (MIRROR-SALT-ZONE MSZ1 to MSZ5; `src/shards/vehicles/` is the worked example).
+
+```ts
+import * as THREE from 'three';
+import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
+
+const red = new THREE.MeshStandardMaterial({ color: '#b5402a' });
+
+/** Built about its own origin, its base at y 0, facing -z. */
+function buggy(part: THREE.Group): void {
+  const tub = solid(new THREE.Mesh(new THREE.BoxGeometry(1.9, 0.7, 3.4), red));
+  tub.position.set(0, 0.75, 0);
+  part.add(tub);
+  const driver = new THREE.Object3D();
+  driver.name = 'seat.driver';
+  driver.position.set(-0.45, 0.9, 0.3);
+  const passenger = new THREE.Object3D();
+  passenger.name = 'seat.passenger';
+  passenger.position.set(0.45, 0.9, 0.3);
+  part.add(driver, passenger);
+}
+
+export function build(world: ShardWorld): void {
+  world.vehicle('salt.buggy', buggy, { speed: 22, reverse: 6, accel: 9, grip: 0.8, labels: { drive: 'Drive the buggy' } });
+  const yard = new THREE.Object3D();
+  yard.position.set(-6, 0, 20);
+  world.scene.add(yard);
+  world.dock('yard.buggy', yard, { kind: 'salt.buggy' });
+}
+```
+
+- **Seats.** Empties named `seat.driver` (exactly one) and `seat.passenger` (or `seat.passenger.2`, up to four seats in
+  all) are where riders sit; `pose: 'stand'` stands them (a sail's deck). `leave.driver` and `leave.passenger` are where
+  getting out sets them down; without one, a rider steps out 0.8 m past the side they sit on.
+- **Hull.** The kind's `solid()` meshes, at most 16 boxes each at most 8 m from its centre to a face: they ride the
+  vehicle and stop anyone on foot, never its riders. A kind's panel is written hidden: the engine poses it at each dock.
+- **Handling, and what the numbers feel like.** `speed` is the top speed in m/s (a run is 6, the hoverboard 14, a buggy
+  20 to 25, at most 60); `reverse` its top speed backwards (default the lesser of 6 and `speed`); `accel` how fast it
+  gets there (default 6 m/s²: 0 to 22 m/s in under 4 s at 9) and `brake` how fast it stops (default twice `accel`);
+  `turn` the radians a second at full stick (default 1.2: a full circle in about 5 s); `grip` from 0 (ice) to 1 (rails,
+  default 0.9) and `drift` how long a slide lasts (0 to 1, default 0.3); `boost` the sprint multiplier (1 to 4, default
+  1.5); `mass` in kg (default 500), which decides who gives way in a crash; `ground: false` keeps it at its dock's height
+  (a boat on still water); `wind: { toward: [x, z], push }` pushes a sail up to `push` m/s along its heading.
+- **Docks.** `world.dock(id, object, { kind })` stands one at `object`'s world position, facing its -z. `per: 'player'`
+  (the default) gives each player their own, gone 60 s after they leave it; `per: 'shared'` parks one for everyone.
+  `respawn` (default 60 s) is how soon it comes back. A dock stands on the ground, clear of solids, with every leave
+  point on the ground and outside its hull, or the build (and `wildshard check`) refuses it.
+- **Sounds and health.** `sounds: { loop, skid, impact, horn }` name `audio.cues` ids; `health` (1 to 100,000) lets
+  crashes wear it down. `labels: { drive, ride, leave }` word its prompts.
+- **Limits.** At most 8 kinds and 32 docks a shard. `wildshard content` counts kinds, seats and docks. Driving needs an
+  engine that reads `world/vehicles` (MSZ6 and later); until its vehicle runtime (MSZ8) it runs each dock as a one-seat
+  steer carry.
 
 **Items and quests.** Every player starts with the Template's iron sword (`weapon.sword-iron`), so a scene shard
 needs no item rows to fight. To add quests, items or any other section, pass `{ extend: (shard) => ({ ...shard,

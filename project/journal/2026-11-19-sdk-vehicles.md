@@ -13,3 +13,7 @@ step past the footprint's side, the hull the kind's `solid()` meshes; its panel 
 at each dock. `world.part`'s old `vehicle` option (the one-seat steer carry) is refused with a hint to the new calls. A
 build, and so `wildshard check`, refuses a dock off the ground or inside a static solid, a leave point off the ground or in
 its own hull, and a hull under the ground; `wildshard content` counts kinds, seats and docks.
+
+MSZ5: `src/shards/vehicles/` docks a two-seat salt buggy and a standing land-sail with wind on a salt flat, and GUIDE.md
+gains *Vehicles*: the calls, what the handling numbers feel like, docks and limits. Its snippet is
+`guide/vehicles.example.ts` byte for byte (`guide-vehicles.test.ts`), so it compiles with the sdk.
