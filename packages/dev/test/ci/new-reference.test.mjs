@@ -7,6 +7,7 @@ import {spawnSync} from 'node:child_process';
 import {existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname, join} from 'node:path';
+import {createRequire} from 'node:module';
 import {createHash} from 'node:crypto';
 import {brotliCompressSync, brotliDecompressSync, constants} from 'node:zlib';
 import {after, test} from 'node:test';
@@ -85,6 +86,69 @@ test('the new author opens and crosses the real gate, then resumes', {timeout:60
   const a=await world.verbTapePart(suffix),b=await resumed.verbTapePart(suffix);
   assert.equal(a.commit.snapshot,b.commit.snapshot); assert.deepEqual(a.commit.effects,b.commit.effects); assert.deepEqual(a.report,b.report);
  } finally {for(const world of worlds)await world.dispose();}
+});
+
+// ONE-FORMAT OF42 (TEST-COVERAGE row 13, J370): the new project finishes its first fight on the declared path, which
+// had no damage owner until OF38b (engine 0.1.47). On the built cell's server with its declared kit, as cellWorld runs
+// it, the player stands past the north gate inside the nearest grey blob's 12 m notice (TR-12b: it pursues and stops
+// 1.5 m off); with no weapon input it lives, and only the loadout sword's swings, aimed along the player's look, beat
+// it. Its death raises `mossgate.blob`, the blob quest completes and files its one fact. The worker's verb tape cannot
+// swing a declared kit weapon yet (its `attack` reaches native catalogue weapons only): OF42b.
+test('the new author beats a grey blob with its sword and the quest fact files', {timeout:90_000},async()=>{
+ const {loadHeadlessFolder}=await import('@wildshard/engine/host/headlessFolder');
+ const {folderHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
+ const {outputDescriptor,serverReadsFile}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
+ const {createShardfileSim}=await import('@wildshard/engine/game/plugin/simulation');
+ const {loadRapier}=await import('@wildshard/engine/physics/rapier');
+ const {installDeclaredKitItems}=await import('@wildshard/engine/game/shardfile/declaredKitItems');
+ const engineRequire=createRequire(import.meta.resolve('@wildshard/engine/package.json'));
+ const product=await loadHeadlessFolder(output), shard=product.shardfile, descriptor=outputDescriptor(shard);
+ const sword=shard.items.rows.find(row=>row.id===shard.items.loadout.primary);
+ assert.ok(sword,'The new project starts with a sword in its loadout');
+ // just past the north gate, where the gate test leaves the player, then 5 m west towards the nearest blob
+ const stand={x:2.3,z:-24}, away=row=>Math.hypot(row.at[0]-stand.x,row.at[2]-stand.z);
+ const spawn=shard.creatures.spawns.filter(row=>row.species==='grey.blob').sort((a,b)=>away(a)-away(b))[0];
+ assert.ok(spawn&&away(spawn)<12,'A grey blob notices the player past the north gate');
+ const assets=new Map(descriptor.index.files.filter(file=>file.kind==='glb'||serverReadsFile(file,shard.terrain?.collider)&&(file.name===undefined||file.kind==='wasm'||file.kind==='tile'))
+  .map(file=>[file.commons===true?`commons:${file.hash}`:file.hash,Uint8Array.from(readFileSync(join(output,file.path)))]));
+ const rapier=await loadRapier(Uint8Array.from(readFileSync(engineRequire.resolve('@dimforge/rapier3d-simd/rapier_wasm3d_bg.wasm'))));
+ const facts=[];
+ const sim=createShardfileSim(shard,assets,{rapier,sections:folderHeadlessSections(product),quest:{fact:name=>{facts.push(name);},coins:()=>undefined}});
+ try {
+  const host=sim.host, player=host.players.get('actor.player'), blob=host.entities.get(spawn.id);
+  assert.ok(player&&blob,`The cell has the player and ${spawn.id}`);
+  const kit=installDeclaredKitItems(host,shard,sim.itemHooks);
+  assert.ok(kit,'The cell installs its declared kit');
+  let landed=0;
+  host.events.on('damage.dealt',({req})=>{if(req.target===blob.combatActor()&&req.weaponId===sword.id)landed++;},host.scope);
+  const put=()=>{player.position.set(stand.x,host.groundHeightAt(stand.x,stand.z)+0.05,stand.z);player.motor.resetAt(player.position);};
+  const gap=()=>Math.hypot(blob.position.x-stand.x,blob.position.z-stand.z), start=gap();
+  // It closes in on the player; with no weapon input it survives.
+  for(let tick=0;tick<360;tick++){put();host.step();}
+  const close=gap();
+  assert.ok(close<2.2&&close<start-3,`The blob pursues into sword reach (${start.toFixed(1)} m to ${close.toFixed(1)} m)`);
+  assert.ok(blob.alive&&!host.flags.has('mossgate.blob'),'The blob must survive without weapon input');
+  let seq=0, swings=0;
+  for(let tick=0;tick<60*60&&blob.alive;tick++){
+   put();
+   const dx=blob.position.x-stand.x, dz=blob.position.z-stand.z;
+   player.yaw=Math.atan2(-dx,-dz);
+   if(tick%30===0){
+    const eye={x:stand.x,y:player.position.y+1.68,z:stand.z}, to={x:dx,y:blob.position.y+0.5-eye.y,z:dz};
+    const length=Math.hypot(to.x,to.y,to.z), direction={x:to.x/length,y:to.y/length,z:to.z/length};
+    swings++; seq++;
+    kit.command('actor.player',{seq,buttons:0,pitch:Math.asin(direction.y),attack:{aim:{origin:eye,direction}}});
+   }
+   host.step();
+  }
+  assert.equal(blob.alive,false,`The sword beats ${spawn.id} (${landed} of ${swings} swings landed)`);
+  assert.ok(landed>0,'Sword swings land on the blob');
+  for(let tick=0;tick<20;tick++)host.step();
+  assert.ok(host.flags.has('mossgate.blob'),'The blob\'s death raises its quest flag');
+  assert.ok(host.flags.has('mossgate.blob.paid'),'The blob quest completes');
+  assert.deepEqual(facts.filter(name=>name==='mossgate.blob'),['mossgate.blob'],'The blob quest files its fact exactly once');
+  console.log(`new author fight: ${spawn.id} beaten by ${landed} of ${swings} sword swings; mossgate.blob filed once`);
+ } finally {sim.dispose();}
 });
 
 // SD-19, Ring 2: fetch and hash-check the complete public Template shardfile
