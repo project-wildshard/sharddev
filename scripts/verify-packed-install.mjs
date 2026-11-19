@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { execFileSync, spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
-import { basename, delimiter, isAbsolute, join, resolve, sep } from 'node:path';
+import { createRequire } from 'node:module';
+import { basename, delimiter, dirname, isAbsolute, join, resolve, sep } from 'node:path';
 
 const pnpm = process.argv[3];
 assert.ok(pnpm && isAbsolute(pnpm), 'Pass the bootstrapped pnpm executable as an absolute path');
@@ -92,6 +93,9 @@ async function serve() {
   mkdirSync(client);
   writeFileSync(join(client, 'index.html'), '<!doctype html><html><head></head><body></body></html>');
   writeFileSync(join(client, 'build-flags.json'), '{"devserver":true}');
+  // MEMORY-STRUCTURE STR5: dev starts the installed engine's Node world, which reads the client's version.json (a release epoch starts at 1).
+  const engine = dirname(createRequire(join(app, 'node_modules/@wildshard/dev/package.json')).resolve('@wildshard/engine/package.json'));
+  writeFileSync(join(client, 'version.json'), JSON.stringify({ build: 'fixture', clientVersion: JSON.parse(readFileSync(join(engine, 'package.json'), 'utf8')).version, saveEpoch: 1 }));
   const dev = spawn(bin, ['dev', source], {
     cwd: app, env: { ...env, WILDSHARD_DEV_CLIENT: client }, stdio: ['ignore', 'pipe', 'inherit'],
   });

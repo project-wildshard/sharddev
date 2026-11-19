@@ -11,3 +11,9 @@ session's folder.
 
 M2's packed vertex made `bake/glb.ts` import `bake/packedVertex.ts`, so
 Pastel Plain's map names it (ci21 map-source-inputs).
+
+The installed-author and packed-install proofs serve `wildshard dev` a
+stand-in client of two files. STR5's Node world reads the client's
+`version.json` (engine version, build, save epoch) to start, so both
+stand-ins now write one: the installed engine's version, build
+`fixture`, epoch 1 (the server's release schema refuses epoch 0).
