@@ -63,3 +63,46 @@ test('world.creature refuses a body in the scene, a rig over 64 bones and a sock
   expect(() => lowerShard({ slug: 'c', name: 'c' }, (world) => { world.creature('c.x', body(), OPTIONS); world.creature('c.x', body(), OPTIONS); }))
     .toThrow('two creatures share this id');
 });
+
+// ONE-FORMAT CC24b: a serpent writes its trail row and a look clip map. Its rig is the `body` bone every skin has (format
+// skinData) with the trail under it: head, seg1…, tail.
+function serpent(count = 6): THREE.Group {
+  const root = new THREE.Group(); root.name = 'wyrm';
+  const trunk = new THREE.Group(); trunk.name = 'body'; root.add(trunk);
+  let parent: THREE.Object3D = trunk;
+  for (let index = 0; index < count; index++) {
+    const bone = new THREE.Group(); bone.name = index === 0 ? 'head' : index === count - 1 ? 'tail' : `seg${index}`;
+    bone.position.set(0, index === 0 ? 0.5 : 0, index === 0 ? 0 : -0.5);
+    parent.add(bone); parent = bone;
+  }
+  trunk.add(new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.9), new THREE.MeshStandardMaterial()));
+  return root;
+}
+const serpentClips = ['slither', 'bite'].map(name => new THREE.AnimationClip(name, 1, [new THREE.QuaternionKeyframeTrack('seg1.quaternion', [0, 1], [0, 0, 0, 1, 0, 0.1, 0, 0.995])]));
+const SERPENT: CreatureWorldOptions = { species, size: 'large', skeleton: 'serpent', trail: { count: 6, spacing: 0.5 }, clips: serpentClips, loops: ['slither'],
+  material: { family: 'pbr', vertexColours: true }, clipMap: { states: { idle: 'slither', walk: 'slither', attack: 'bite' } } };
+
+test('a serpent writes its trail row and clip map, and they check', async () => {
+  await prepareAssetDecoders();
+  const scene = lowerShard({ slug: 'wyrms', name: 'Wyrms' }, (world) => {
+    world.spawn(0, 0, 0);
+    world.creature('wyrms.wyrm', serpent(), SERPENT);
+    const den = new THREE.Object3D(); den.position.set(20, 0, 20); world.scene.add(den);
+    world.spawnAt('wyrms.one', den, { species: 'wyrms.wyrm', variant: species.variants[0]?.id ?? 'boar', brain: null, strike: null, seed: 1, scale: 1 });
+  });
+  const { shard, assets } = sceneShardfile(scene);
+  expect(shard.rows.species.find(entry => entry.id === 'wyrms.wyrm')?.body).toEqual({ size: 'large', scale: 1, look: 'wyrms.wyrm.look', skeleton: 'serpent', trail: { count: 6, spacing: 0.5 } });
+  expect(shard.rows.looks.find(entry => entry.id === 'wyrms.wyrm.look')?.animation.clipMap).toEqual({ states: { idle: 'slither', walk: 'slither', attack: 'bite' } });
+  expect(() => { validateSkinAssets(shard, assets); }).not.toThrow();
+  expect(shardfileRules(shard)).toEqual([]);
+  // the serpent contract's head ball and one capsule a segment
+  expect(creatureNumbers(shard, assets)[0]).toMatchObject({ species: 'wyrms.wyrm', bones: 7, volumes: 6 });
+});
+
+test('world.creature refuses a serpent with no trail, a trail bone the rig lacks and a clip map naming no clip', () => {
+  const { trail: _trail, ...noTrail } = SERPENT;
+  expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', serpent(), noTrail); })).toThrow('a serpent has no trail');
+  expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', body(), { ...OPTIONS, trail: { count: 3, spacing: 1 } }); })).toThrow('a trail on a creature that is no serpent');
+  expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', serpent(), { ...SERPENT, trail: { count: 8, spacing: 0.5 } }); })).toThrow('trail bone seg5 is not a bone of the rig');
+  expect(() => lowerShard({ slug: 'w', name: 'w' }, (world) => { world.creature('w.x', serpent(), { ...SERPENT, clipMap: { states: { die: 'collapse' } } }); })).toThrow('the clip map names collapse, which is no clip of the rig');
+});
