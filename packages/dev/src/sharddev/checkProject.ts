@@ -2,6 +2,7 @@ import { spawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 import { creatureCapRefusals, creatureCapWarnings, creatureNumbers, creatureReportLine } from '@wildshard/sdk/internal/creatureCaps';
 import { primitiveReportLine } from '@wildshard/sdk/internal/primitivesReport';
 import { shardGeometry, vertexLayoutLine, vertexLayoutRefusals } from '@wildshard/sdk/internal/vertexLayout';
+import { triangleBudgetLine, triangleBudgetWarnings } from '@wildshard/sdk/internal/triangleBudget';
 // The real steps behind `wildshard check` (SA4); check.ts runs them in order and gives the verdict.
 // oxlint-disable-next-line import/no-nodejs-modules -- Lint runs oxlint (the repo's or the SDK's) as a child process.
 import { spawnSync } from 'node:child_process';
@@ -71,6 +72,8 @@ export async function checkProject(projectPath: string, outputPath: string | und
   let primitiveLine: string | undefined;
   // MEMORY-STRUCTURE STR17: the vertex channels ANGLE copies, printed on the report card.
   let layoutLine: string | undefined;
+  // MEMORY-STRUCTURE STR13: the static triangles against the phone budget, printed on the report card.
+  let budgetLine: string | undefined;
   const admit = async (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>): Promise<void> => {
     assertCreatureDeclarations(shard.rows);
     admitted = { check: await checkShardfile(shard as unknown as EngineShardfile, assets, {sections, policy}) };
@@ -119,9 +122,10 @@ export async function checkProject(projectPath: string, outputPath: string | und
       primitiveLine = primitiveReportLine(checked.sections, checked.index.sections);
       const geometry = shardGeometry(checked.assets.values());
       layoutLine = vertexLayoutLine(geometry.copied);
+      budgetLine = triangleBudgetLine(geometry);
       const refusals = [...creatureCapRefusals(creatures), ...vertexLayoutRefusals(geometry.copied)];
       return await Promise.resolve({ status: refusals.length === 0 ? 'pass' : 'fail', note, refusals,
-        warnings: [...spawnWarnings(checked.shard), ...creatureCapWarnings(creatures)] });
+        warnings: [...spawnWarnings(checked.shard), ...creatureCapWarnings(creatures), ...triangleBudgetWarnings(geometry)] });
     },
     prove: async (): Promise<StepOutcome> => {
       const tape = resolve(project, PROOF_FILE);
@@ -143,7 +147,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
       // SP7c: the simulation numbers `wildshard validate` printed before it stopped running the engine.
       const { proof } = admitted.check;
       const sim = typeof proof === 'string' ? `simulation ${proof}` : `${proof.ticks} sim ticks, ${proof.lanes} edge lanes, ${proof.steps} capsule steps${proof.portalTransfers === undefined ? '' : `, ${proof.portalTransfers} portal transfers`}`;
-      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}; ${sim}${creatureLine === undefined ? '' : `; creatures: ${creatureLine}`}${primitiveLine === undefined ? '' : `; primitives: ${primitiveLine}`}${layoutLine === undefined ? '' : `; vertex layout: ${layoutLine}`}`;
+      const note = `${(card.download.total / 1024 / 1024).toFixed(2)} MB download, ~${card.estimatedPlayable.seconds.toFixed(1)} s to playable, ${warnings} warning${warnings === 1 ? '' : 's'}; ${sim}${creatureLine === undefined ? '' : `; creatures: ${creatureLine}`}${primitiveLine === undefined ? '' : `; primitives: ${primitiveLine}`}${budgetLine === undefined ? '' : `; triangles: ${budgetLine}`}${layoutLine === undefined ? '' : `; vertex layout: ${layoutLine}`}`;
       return await Promise.resolve({ status: admitted.check.pass ? 'pass' : 'fail', note,
         refusals: refused.map(issue => ({ message: issue.message, code: issue.code })),
         warnings: reported.map(issue => ({ message: `${issue.metric}: ${String(issue.actual)} over ${String(issue.limit)} (a report-only cap: upload still takes it)` })) });

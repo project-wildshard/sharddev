@@ -5,6 +5,7 @@ import * as THREE from 'three';
 import { staticGlb } from '../../../sdk/src/sharddev/bake/glb';
 import { EXISTING_COPIED_LAYOUTS, glbGeometry, shardGeometry, vertexLayoutLine, vertexLayoutRefusals } from '../../../sdk/src/sharddev/vertexLayout';
 import { refusalNote } from '@wildshard/upload/sharddev/refusals';
+import { PHONE_TRIANGLE_BUDGET, triangleBudgetLine, triangleBudgetWarnings } from '../../../sdk/src/sharddev/triangleBudget';
 
 /** A quad (two triangles) with an Int8 normal and a Uint8 colour, both 3 wide: the layout Nine's slabs cook today. */
 function quad(): THREE.BufferGeometry {
@@ -61,4 +62,27 @@ test('a new copied layout refuses by name; the three the cook already wrote repo
   expect(vertexLayoutRefusals(shardGeometry([aligned]).copied)).toEqual([]);
   expect([...EXISTING_COPIED_LAYOUTS]).toEqual(['COLOR_0 u16x3n stride 6', 'COLOR_0 u8x3n stride 3', 'NORMAL i8x3n stride 3']);
   expect(refusalNote('validate', 'words', { code: 'vertex-layout-copy' }).rule).toBe('vertex-layout');
+});
+
+// MEMORY-STRUCTURE STR13: the same reading against the phone-Low triangle budget, a report-only warning (J424).
+test('the triangle budget warns over 600 k static triangles and prints the reading under it', () => {
+  const under = shardGeometry([packed, aligned]);
+  expect(triangleBudgetLine(under)).toBe('0 k static triangles of 600 k (phone Low), 0 k vertices in 2 GLBs');
+  expect(triangleBudgetWarnings(under)).toEqual([]);
+  expect(triangleBudgetWarnings({ ...under, triangles: PHONE_TRIANGLE_BUDGET })).toEqual([]);
+  // a fixture over the budget: two GLBs of 300,001 triangles each (staticGlb takes at most 400 k vertices per geometry)
+  const strip = (quads: number): Uint8Array => {
+    const geometry = new THREE.BufferGeometry(), positions = new Float32Array((quads + 1) * 2 * 3), index: number[] = [];
+    for (let q = 0; q <= quads; q++) positions.set([q, 0, 0, q, 1, 0], q * 6);
+    for (let q = 0; q < quads; q++) index.push(2 * q, 2 * q + 2, 2 * q + 1, 2 * q + 1, 2 * q + 2, 2 * q + 3);
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3)); geometry.setIndex(index);
+    return staticGlb([{ geometry, material }]);
+  };
+  const half = strip(150_000), odd = staticGlb([{ geometry: quad().deleteAttribute('normal').deleteAttribute('color'), material }]);
+  const over = shardGeometry([half, half.slice(), odd]);
+  expect(over.triangles).toBe(600_002);
+  expect(triangleBudgetWarnings(shardGeometry([half, half.slice()]))).toEqual([]);
+  expect(triangleBudgetWarnings(over)).toEqual([{ code: 'triangle-budget',
+    message: 'the shard holds 600 k static triangles, over the phone-Low budget of 600 k (a report-only line: upload still takes it)' }]);
+  expect(refusalNote('validate', 'words', { code: 'triangle-budget' }).rule).toBe('triangle-budget');
 });
