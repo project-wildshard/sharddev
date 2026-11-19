@@ -80,10 +80,51 @@ function heldJson(folder: string, prefix = ''): string[] {
   });
 }
 
+// The creature layer a hand-written author writes for themselves (meta ONE-FORMAT OF25d). Template 2 held one plain
+// creature and no fight; Brasscap's export holds the Dust Wyrm's, whose encounter names its spawn and whose decision
+// guest names its actors, so an author who wrote creatures of their own could no longer pack.
+const SEED_CREATURES: Readonly<Record<string, unknown>> = {
+  'actors/species': { rows: { species: [] } },
+  'actors/creatures': { creatures: { brains: [], groups: [], spawns: [] } },
+  'combat/strikes': { rows: { strikes: [] } },
+  'look/materials': { rows: { looks: [] } },
+  'combat/encounters': { encounters: [] },
+};
+/** Sections only the template's creatures use: they go with them. */
+const SEED_CREATURE_ONLY = new Set(['sim/scripts', 'actors/moves']);
+const HASH = /[0-9a-f]{64}/gu;
+
+/**
+ * Empty the seed's creature layer and drop each blob nothing names any more (its creatures' bodies and decision
+ * guests): the place stays (world, look, items, quests, the player's scripts), and its creatures are the author's.
+ */
+function clearSeedCreatures(source: string): void {
+  const indexFile = resolve(source, SHARD_INDEX), index = readJson(indexFile);
+  const sections = (index['sections'] as { name: string; path: string }[]).filter(row => {
+    if (!SEED_CREATURE_ONLY.has(row.name)) return true;
+    rmSync(resolve(source, row.path), { force: true });
+    return false;
+  });
+  for (const [name, value] of Object.entries(SEED_CREATURES)) {
+    if (sections.some(row => row.name === name)) writeJson(resolve(source, 'sections', `${name}.json`), value);
+  }
+  const files = index['files'] as { hash: string; path: string; dependencies?: readonly string[] }[];
+  const named = new Set(heldJson(source).filter(path => path !== SHARD_INDEX).flatMap(path => readFileSync(resolve(source, path), 'utf8').match(HASH) ?? []));
+  const byHash = new Map(files.map(file => [file.hash, file])), pending = [...named];
+  for (let hash = pending.pop(); hash !== undefined; hash = pending.pop()) {
+    for (const dependency of byHash.get(hash)?.dependencies ?? []) if (!named.has(dependency)) { named.add(dependency); pending.push(dependency); }
+  }
+  for (const file of files) if (!named.has(file.hash)) rmSync(resolve(source, file.path), { force: true });
+  const admission = index['admission'] as Record<string, unknown>;
+  const kept = (hashes: unknown): unknown => Array.isArray(hashes) ? hashes.filter(hash => named.has(String(hash))) : hashes;
+  writeJson(indexFile, { ...index, sections, files: files.filter(file => named.has(file.hash)),
+    admission: { ...admission, critical: kept(admission['critical']), library: kept(admission['library']) } });
+}
+
 /**
  * Copy the installed hand-written template into `source` as shard `slug`: its slug and name become the new shard's in
- * every held JSON file and its mount folder, the cook rows follow the rewritten mounts, and format's pack settles the
- * rest, so `source` is a valid shard file folder from the start.
+ * every held JSON file and its mount folder, its creature layer is emptied for the author's own, the cook rows follow
+ * the rewritten mounts, and format's pack settles the rest, so `source` is a valid shard file folder from the start.
  */
 export function writeHandwrittenSource(source: string, slug: string): void {
   const template = handwrittenTemplate();
@@ -98,6 +139,7 @@ export function writeHandwrittenSource(source: string, slug: string): void {
       .replaceAll(JSON.stringify(from.name), JSON.stringify(slug));
     if (renamed !== text) writeFileSync(file, renamed);
   }
+  clearSeedCreatures(source);
   // The cook receipt names each mount by hash, and the index names the cook receipt: both follow the rewritten files.
   const cookFile = resolve(source, 'cook.json'), indexFile = resolve(source, SHARD_INDEX);
   if (existsSync(cookFile)) {
