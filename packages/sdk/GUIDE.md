@@ -886,6 +886,11 @@ A shard that still keeps a species program (`actors/species-programs`) moves to 
 `speciesProgramToRows` from `@wildshard/sdk/species/toRows`: each species keeps its numbers, its declared brain
 becomes a `creatures.brains` row its temperament names, and strike fields a plain row cannot hold are listed.
 
+**A whole shard written this way:** [`project-wildshard/shard-stranger`](https://github.com/project-wildshard/shard-stranger)
+is a hand-written shard file with no SDK at runtime: plain species, strike and look rows (Python writes two of them), the
+kit's wolf and deer read as plain files, a skeleton horse to ride and a dragon boss. Its README shows the rows and how it
+ships.
+
 ## 3. Budgets
 
 A budget is a limit on what your shard costs a player's phone or desktop: bytes to download, memory, draw calls,
