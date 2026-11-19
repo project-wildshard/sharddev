@@ -70,6 +70,20 @@ test('overrides never mutate catalogue data or the next authored row', (): void 
   assert.notEqual(abilities.bite().strike.damage, 12)
 })
 
+test('the ranged templates: breath channels from the head, the rest fly', (): void => {
+  const breath = abilities.breath()
+  assert.equal(breath.ability.from, 'head')
+  assert.equal(breath.strike.shape.kind, 'wedge')
+  assert.equal(breath.ability.projectile, undefined)
+  for (const name of ['shoot', 'spit', 'throw'] as const) {
+    const ranged = abilities[name]()
+    assert.equal(ranged.strike.id, ranged.ability.use)
+    assert.ok((ranged.ability.projectile?.speed ?? 0) > 0, name)
+    assert.ok((ranged.ability.projectile?.radius ?? 0) > 0, name)
+  }
+  assert.ok((abilities.throw().ability.projectile?.gravity ?? 0) > 0)
+})
+
 test('invalid authored numeric overrides refuse through the format contract', (): void => {
   assert.throws((): void => {
     temperament.pack({ aggro: -1 })

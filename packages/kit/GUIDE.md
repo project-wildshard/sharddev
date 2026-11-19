@@ -81,6 +81,14 @@ body, temperament and abilities subpaths expose them separately. Plain JSON
 is available under the content subpath, including content/temperaments.json,
 content/tuning/*.json and content/abilities/*.json.
 
+`abilities.breath()` channels a wedge from the admitted `head` socket.
+`abilities.shoot()`, `abilities.throw()`, and `abilities.spit()` supply
+projectile speed, gravity, and radius in the ability row. Include each helper's
+strike in your strike table and its ability in the creature's priority list.
+These four templates also ship as plain JSON under `content/abilities/` and
+need shard-format 0.28.0 or later.
+
+
 commonSpeciesRows reads fresh complete boar/bear gameplay metadata with an
 authored species id. It is the older species-program shape, not a row:
 `rows.species` refuses it, so author rows with `commonCreature`. The species subpath and content/species/*.json expose
