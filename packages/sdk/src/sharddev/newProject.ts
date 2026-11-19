@@ -176,7 +176,7 @@ function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const world = empty ? 'a bare shard source (`--empty`)' : template === 'scene' ? 'Mossgate Hollow, a three.js scene module'
     : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`'
-    : '`identity.json` (the slug and name),\n  `generators/` (`world.ts` is the scene; `wildshard watch .` shows each save; `quests.ts` its\n  quest) and `proof.json` (the proof tape `check` plays)';
+    : '`identity.json` (the slug and name),\n  `generators/` (`world.ts` is the scene; `play.ts` the braziers, gates, lever, chest, rack and lift;\n  `quests.ts` and `gameplay.ts` the quests and talks; `wildshard watch .` shows each save) and\n  `proof.json` (the proof tape `check` plays)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
   \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`
@@ -251,11 +251,14 @@ function writeSceneSource(source: string, slug: string): void {
     // Mossgate's captured card and hero stamp are its own art: a new project wears a generated card until its author
     // captures one (NEW-SHARD-E2E F28), never another shard's.
     filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
-  // TEMPLATE-E2E TC-NE5, TR-2: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`) lives
+  // TEMPLATE-E2E TC-NE5, TR-2, TR-12: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`,
+  // then on to brazier A, whose lighting files `mossgate.first-light`) lives
   // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.
   cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
   writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 357 }));
-  writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { QUESTS } from './quests';\nimport { buildMossgate } from './world';\n\n/** This shard: the scene \`world.ts\` builds, under this project's identity, with the quest \`quests.ts\` declares. */\nexport const shard = defineShard(identity, buildMossgate, { extend: (rows) => ({ ...rows, quests: QUESTS }) });\n`);
+  // TR-12: the scene is the cleanroom's (\`world.ts\`) plus what the player uses in it (\`play.ts\`); \`extend\` adds the quests,
+  // talks and rack (\`gameplay.ts\`)
+  writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { gameplay } from './gameplay';\nimport { buildHollow } from './play';\n\n/** This shard: the scene \`world.ts\` and \`play.ts\` build, under this project's identity, with the quests, talks and rack \`gameplay.ts\` adds. */\nexport const shard = defineShard(identity, buildHollow, { extend: gameplay });\n`);
   writeFileSync(resolve(source, 'shard.config.ts'), `// The shard is one three.js scene module: \`generators/world.ts\`. \`wildshard build\` runs it as the generator;\n// \`wildshard watch\` reads its describe() and streams each saved edit to a running page.\nimport { shard } from './generators/shard';\n\nexport const generate: typeof shard = shard;\n// oxlint-disable-next-line import/no-default-export -- The author CLI executes this project entry.\nexport default generate;\n`);
 }
 

@@ -5,7 +5,8 @@
 // numbers, the pond's Reflector is a `Water`, the canvas painters run at compile time, `update(t)` is said once with
 // `animate`, the instanced glow billboard (an `onBeforeCompile` patch) is one additive Sprite per halo, and the phone
 // LODs and static merge are the engine's (AP8). The quest state is fixed: brazier A lit, the gate shut, the bridge sunk,
-// the Warden idle; making it live is stage 6 (AP23 to AP27).
+// the Warden idle. TEMPLATE-E2E TR-12 made it live (play.ts): the braziers start cold, and their flames, the gate's bars
+// and the pond's stones are panels their fields show.
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { mergeGeometries, mergeVertices } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -29,8 +30,9 @@ export const LAYOUT = {
   CRATE: { x: -6.4, z: 1.9, yaw: 0 },
 };
 
-/** The quest state the shard shows (the cleanroom's `?lit=A`): stage 6 makes it live. */
-export const STATE = { lit: 'A', gateOpen: false, bridgeUp: false };
+/** The quest state the static scene draws: every brazier cold, the bridge sunk. TR-12: what the player changes is a panel
+ *  (play.ts): the flames, the moss gate's bars and the raised stones. */
+export const STATE = { lit: '', bridgeUp: false };
 
 const noise = T.makeNoise(99);
 const sstep = THREE.MathUtils.smoothstep;
@@ -316,7 +318,8 @@ export function walls(part: THREE.Group, M: Materials, tex: Textures): void {
   }
   const Y = LAYOUT.YARD, G = LAYOUT.GATE, P = LAYOUT.POND;
   wall(Y.x0, Y.z0, Y.x0, Y.z1, { gaps: [[G.z - Y.z0 - G.half - 0.5, G.z - Y.z0 + G.half + 0.5]] }); // west, the moss gate
-  wall(Y.x0, Y.z0, Y.x1, Y.z0); // north, behind the hut
+  // north, behind the hut; TR-12: the gap the lever's gate fills (play.ts `PLAY.NORTH_GATE`, x 8.5, 1.9 m either side)
+  wall(Y.x0, Y.z0, Y.x1, Y.z0, { gaps: [[8.5 - Y.x0 - 1.9, 8.5 - Y.x0 + 1.9]] });
   wall(Y.x1, Y.z0, Y.x1, Y.z1, { gaps: [[LAYOUT.ARCH.z - Y.z0 - 1.9, LAYOUT.ARCH.z - Y.z0 + 1.9]] }); // east, toward the arch
   wall(Y.x0, Y.z1, Y.x1, Y.z1, { h: 1.2 }); // south
   // the pond's garden: low walls around it, open toward the gate
@@ -622,23 +625,17 @@ export function gate(part: THREE.Group, M: Materials, tex: Textures): void {
     }
     bracketLamp(gx + 0.66, 2.35, pz, Math.PI / 2, true);
   }
-  // the gate: a top rail, a bottom rail and thick round bars, sunk into the ground when open
-  const bars = new THREE.Group();
-  const span = half * 2 + 0.05;
-  for (const y of [0.2, 2.75]) { const rail = new THREE.Mesh(new RoundedBoxGeometry(0.34, 0.3, span, 2, 0.05), M.stone); rail.position.y = y; bars.add(rail); }
-  const barGeo = new RoundedBoxGeometry(0.26, 2.6, 0.26, 2, 0.06);
-  for (let i = 0; i < 6; i++) { const m = new THREE.Mesh(barGeo, M.stone); m.position.set(0, 1.45, -half + 0.3 + i * ((half * 2 - 0.6) / 5)); bars.add(m); }
-  bars.traverse((o) => { if (o instanceof THREE.Mesh) o.castShadow = true; });
-  bars.position.set(gx, STATE.gateOpen ? -2.6 : 0, gz); part.add(bars);
-  if (!STATE.gateOpen) collider({ x: gx, y: 1.2, z: gz, hx: 0.15, hy: 1.2, hz: half, rotY: 0 });
+  // the gate's bars are a panel brazier A's field sinks (play.ts `gateBars`)
   const plaque = new THREE.Mesh(new RoundedBoxGeometry(0.55, 0.55, 0.1, 2, 0.03), M.stoneClean);
   plaque.position.set(gx + 0.66, 1.75, gz - half - 0.6); plaque.rotation.y = Math.PI / 2; part.add(plaque);
   decal(part, 'A', gx + 0.72, 1.75, gz - half - 0.6, Math.PI / 2, 0.6);
   k.flush();
 }
 
-/** The Lamplighter (cleanroom world.js 608-639): a hooded, round-faced keeper with a lantern on a staff, a static pose. */
-export function lamplighter(part: THREE.Group, M: Materials, tex: Textures): void {
+/** The Lamplighter (cleanroom world.js 608-639): a hooded, round-faced keeper with a lantern on a staff, a static pose.
+ *  TR-12: her figure goes in `figure`, a panel her talk names (gameplay.ts), so its belt and staff wear their own plain
+ *  materials (a panel may not share the far tiles' textures); her lantern and collider stay in `part`. */
+export function lamplighter(part: THREE.Group, M: Materials, tex: Textures, figure: THREE.Group = part): void {
   const k = kit(part, 608, M, tex);
   const { x, z } = LAYOUT.LAMPLIGHTER, faceYaw = Math.atan2(0 - x, 0 - z), cloak = '#4a6a2e';
   const g = new THREE.Group();
@@ -655,10 +652,11 @@ export function lamplighter(part: THREE.Group, M: Materials, tex: Textures): voi
   const cheekM = new THREE.MeshStandardMaterial({ color: '#f0a890', roughness: 0.7 });
   for (const ex of [-0.17, 0.17]) { const c = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), cheekM); c.position.set(ex, 1.15, 0.24); c.scale.z = 0.4; g.add(c); }
   for (const sx of [-1, 1]) { const arm = new THREE.Mesh(new THREE.CapsuleGeometry(0.09, 0.42, 4, 8), cloakM); arm.position.set(sx * 0.36, 0.72, 0.1); arm.rotation.set(-0.5, 0, sx * 0.25); arm.castShadow = true; g.add(arm); }
-  const belt = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.035, 6, 24), M.darkWood); belt.rotation.x = Math.PI / 2; belt.position.y = 0.62;
+  const beltM = new THREE.MeshStandardMaterial({ color: '#5e4634', roughness: 0.82 }), poleM = new THREE.MeshStandardMaterial({ color: '#8a6446', roughness: 0.78 });
+  const belt = new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.035, 6, 24), beltM); belt.rotation.x = Math.PI / 2; belt.position.y = 0.62;
   g.add(body, hem, head, hood, tip, belt);
-  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 2.0, 6), M.wood); pole.position.set(0.48, 1.0, 0.2); pole.castShadow = true; g.add(pole);
-  g.position.set(x, groundHeight(x, z), z); g.rotation.y = faceYaw; g.scale.setScalar(1.35); part.add(g);
+  const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 2.0, 6), poleM); pole.position.set(0.48, 1.0, 0.2); pole.castShadow = true; g.add(pole);
+  g.position.set(x, groundHeight(x, z), z); g.rotation.y = faceYaw; g.scale.setScalar(1.35); figure.add(g);
   const wp = new THREE.Vector3(0.48, 1.86, 0.2).multiplyScalar(1.35).applyEuler(g.rotation).add(g.position);
   k.lantern(wp.x, wp.y, wp.z, { on: true, scale: 1.0 });
   k.collider({ x, y: 0.8, z, hx: 0.4, hy: 0.8, hz: 0.4, rotY: 0 });
@@ -1028,7 +1026,9 @@ export function buildMossgate(world: ShardWorld): void {
   world.part('sign', (part) => { signpost(part, M, tex); });
   world.part('crate', (part) => { crate(part, M); }, { panel: 'mossgate.crate', touchable: { material: 'wood', density: 250 } });
   world.part('gate', (part) => { gate(part, M, tex); });
-  world.part('lamplighter', (part) => { lamplighter(part, M, tex); });
+  // TR-12: her figure is the panel her talk names (gameplay.ts)
+  const figure = world.part('lamplighter-figure', () => undefined, { panel: 'mossgate.lamplighter' });
+  world.part('lamplighter', (part) => { lamplighter(part, M, tex, figure); });
   world.part('pond', (part) => { pond(part, M, tex); });
   world.part('arena', (part) => { arena(part, M, tex); });
   world.part('trees', (part) => { trees(part, M, tex); });

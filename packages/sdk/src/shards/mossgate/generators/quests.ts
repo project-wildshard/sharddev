@@ -1,9 +1,95 @@
-// TEMPLATE-E2E TR-2 (J434): the starter's one quest, so a new repo's proof tape has a fact to earn. Walking to the hut
-// door enters the `hut.door` region (the scene's `world.trigger`, at the door node in world.ts); the quest then pays
-// and files `hut.visit`, the fact `src/proof.json` requires.
+// The Hollow's quests (TEMPLATE-E2E TR-2, TR-12; the Template's `data/quests.json` and `data/npcs/`, ported). Every flag
+// a quest reads is raised by the scene: a region (`world.trigger`), a brazier, the lever or the chest (a `script` trigger on
+// the `<prompt>.spent` condition the sdk writes for a shared prompt, SS-GF0), or the rack's take (its `setsFlag`).
+import { LAYOUT } from './world';
+import { LEDGE_FLAG, PLAY, USES } from './play';
+
+/** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
+const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
+const lamp = (letter: string): string => `mossgate.lamp.${letter.toLowerCase()}`;
+const LETTERS = ['A', 'B', 'C'] as const;
+/** Where each brazier stands, by letter (world.ts `LAYOUT.BRAZIERS`). */
+const brazierAt = (letter: string): { x: number; z: number } => {
+  const row = LAYOUT.BRAZIERS.find((seat) => seat[2] === letter); if (row === undefined) throw new Error(`mossgate: no brazier ${letter}`);
+  return { x: row[0], z: row[1] };
+};
+const marker = (id: string, label: string, short: string, at: { x: number; z: number }, hideWhen?: string) =>
+  ({ id, label, short, at: { poi: 'world' as const, x: at.x, z: at.z }, ...(hideWhen === undefined ? {} : { hideWhen: { all: [hideWhen] } }) });
+
+export const FLAGS = {
+  hutDoor: 'hut.door', hutVisit: 'hut.visit',
+  lampAccepted: 'mossgate.lamp.accepted', lampReported: 'mossgate.lamp.reported', lampDone: 'mossgate.lamp.done',
+  firstLight: 'mossgate.first-light',
+  northGate: 'mossgate.north-gate.opened',
+  hermitAccepted: 'mossgate.hermit.accepted', hermitReported: 'mossgate.hermit.reported', hermitDone: 'mossgate.hermit.done',
+  chestOpened: 'mossgate.chest.opened', chestPaid: 'mossgate.chest.paid',
+  ledgePaid: 'mossgate.ledge.paid',
+  rackTaken: 'mossgate.rack.taken', rackPaid: 'mossgate.rack.paid',
+} as const;
+
+/** The Lamplighter's tree: she gives the relighting, then thanks you once all three burn. */
+export const LAMPLIGHTER_DIALOGUE = {
+  id: 'mossgate.lamplighter', name: 'The Lamplighter', start: 'offer',
+  nodes: [
+    { id: 'offer', lines: ['The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring.', 'Light all three for me. Will you?'],
+      choices: [{ id: 'accept', label: "I'll relight them.", next: 'waiting', sets: [FLAGS.lampAccepted] }] },
+    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the barrow ring.'],
+      choices: [{ id: 'report', label: 'All three burn.', next: 'thanks', when: { all: LETTERS.map(lamp) }, sets: [FLAGS.lampReported] }] },
+    { id: 'thanks', lines: ['The Hollow breathes again. Take this for your trouble.'], choices: [] },
+  ],
+};
+
+/** The Pond Hermit's tree: once the Lamplighter is helped, he wants the north gate open. */
+export const HERMIT_DIALOGUE = {
+  id: 'mossgate.hermit', name: 'The Pond Hermit', start: 'offer',
+  nodes: [
+    { id: 'offer', lines: ['Mind your step, traveller. The north gate has been barred since the Warden woke.', "Help the Lamplighter first, then pull the lever by the north wall and I'll make it worth your while."],
+      choices: [{ id: 'accept', label: "I'll open the gate.", next: 'waiting', sets: [FLAGS.hermitAccepted], when: { all: [FLAGS.lampDone] } }] },
+    { id: 'waiting', lines: ['The lever stands inside the yard, by the north wall behind the hut.'],
+      choices: [{ id: 'report', label: 'The north gate is open.', next: 'thanks', when: { all: [FLAGS.northGate] }, sets: [FLAGS.hermitReported] }] },
+    { id: 'thanks', lines: ['Fresh air at last. Take these coins, and my thanks.'], choices: [] },
+  ],
+};
+
+/** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
-  flags: ['hut.door', 'hut.visit'], triggers: [], dialogue: [],
-  quests: [{ id: 'hut.visit', title: 'The hut', completeFlag: 'hut.visit',
-    steps: [{ id: 'door', objective: 'Walk up to the hut door', done: { all: ['hut.door'] } }],
-    onComplete: { fact: 'hut.visit', coins: 5 } }],
+  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG],
+  triggers: [
+    ...LETTERS.map((l) => ({ id: `brazier-${l.toLowerCase()}.lit`, kind: 'script' as const, flag: lit(l), condition: `${USES.brazier(l)}.spent` })),
+    ...LETTERS.map((l) => ({ id: `lamp.${l.toLowerCase()}`, kind: 'script' as const, flag: lamp(l), condition: `${USES.brazier(l)}.spent`, when: { all: [FLAGS.lampAccepted] } })),
+    { id: 'north-gate.opened', kind: 'script' as const, flag: FLAGS.northGate, condition: `${USES.lever}.spent` },
+    { id: 'chest.opened', kind: 'script' as const, flag: FLAGS.chestOpened, condition: `${USES.chest}.spent` },
+  ],
+  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE],
+  quests: [
+    // TR-2: the starter's one quest, so a new repo's proof tape has a fact to earn (the hut door's region, world.ts)
+    { id: 'hut.visit', title: 'The hut', completeFlag: FLAGS.hutVisit,
+      steps: [{ id: 'door', objective: 'Walk up to the hut door', done: { all: [FLAGS.hutDoor] } }],
+      onComplete: { fact: FLAGS.hutVisit, coins: 5 } },
+    // the first flame: brazier A opens the moss gate (play.ts), and its fact is the one the proof tape lights
+    { id: 'mossgate.first-light', title: 'The first flame', track: true, completeFlag: FLAGS.firstLight,
+      steps: [{ id: 'a', objective: 'Light brazier A', done: { all: [lit('A')] }, hint: 'Brazier A stands by the training ground, east of the hut',
+        markers: [marker('first-light.marker', 'Brazier A', 'A', brazierAt('A'), lit('A'))] }],
+      onComplete: { fact: FLAGS.firstLight, coins: 5 } },
+    { id: 'mossgate.lamplighter', title: 'Relight the Hollow', completeFlag: FLAGS.lampDone, startWhen: { all: [FLAGS.lampAccepted] },
+      steps: [
+        ...LETTERS.map((l) => ({ id: l.toLowerCase(), objective: `Light brazier ${l}`, done: { all: [lamp(l)] },
+          markers: [marker(`brazier-${l.toLowerCase()}.marker`, `Brazier ${l}`, l, brazierAt(l), lamp(l))] })),
+        { id: 'report', objective: 'Tell the Lamplighter', done: { all: [FLAGS.lampReported] }, hint: 'The Lamplighter waits on the path north of spawn',
+          markers: [marker('lamplighter.marker', 'The Lamplighter', 'Lamp', LAYOUT.LAMPLIGHTER)] },
+      ],
+      onComplete: { fact: 'mossgate.lamplighter', coins: 25 } },
+    { id: 'mossgate.hermit', title: "The hermit's gate", completeFlag: FLAGS.hermitDone, startWhen: { all: [FLAGS.hermitAccepted] },
+      steps: [
+        { id: 'lever', objective: 'Pull the lever by the north wall', done: { all: [FLAGS.northGate] }, markers: [marker('lever.marker', 'Gate lever', 'Lever', PLAY.LEVER, FLAGS.northGate)] },
+        { id: 'report', objective: 'Tell the Pond Hermit', done: { all: [FLAGS.hermitReported] }, markers: [marker('hermit.marker', 'Pond Hermit', 'Hermit', PLAY.HERMIT)] },
+      ],
+      onComplete: { fact: 'mossgate.hermit', coins: 15 } },
+    { id: 'mossgate.chest', title: 'The old chest', track: false, completeFlag: FLAGS.chestPaid,
+      steps: [{ id: 'chest', objective: 'Open the old chest by the sign', done: { all: [FLAGS.chestOpened] } }], onComplete: { fact: 'mossgate.chest', coins: 10 } },
+    { id: 'mossgate.ledge', title: 'The ledge cache', track: false, completeFlag: FLAGS.ledgePaid,
+      steps: [{ id: 'ledge', objective: 'Ride the lift up to the ledge cache', done: { all: [LEDGE_FLAG] } }], onComplete: { fact: 'mossgate.ledge', coins: 15 } },
+    { id: 'mossgate.rack', title: 'The moss blade', track: false, completeFlag: FLAGS.rackPaid,
+      steps: [{ id: 'rack', objective: 'Take the moss blade from its rack', done: { all: [FLAGS.rackTaken] } }], onComplete: { fact: 'mossgate.rack', coins: 5 } },
+  ],
 };
