@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.16 (2026-11-19)
+
+- Define scene moves and spots directly in `defineShard`.
+- Include the Template creature decisions used by Mossgate.
+
 ## v0.4.15 (2026-11-19)
 
 - Use engine 0.1.47 and its released preparation client.
