@@ -28,6 +28,7 @@ import { join, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 import { chromium } from "../../../scripts/browser-playwright.mjs";
 import sharp from 'sharp';
+import { NAME_ASKED, saveFixtureCode } from '@wildshard/engine/scripts/debug-settings.mjs';
 
 const ROOT = resolve(import.meta.dirname, '../../..');
 // SDK-SPLIT SP8c: the authoring slice is the sdk's sample shard; the bin is this (dev) package's.
@@ -63,6 +64,8 @@ async function shoot(browser, url, live, after = []) {
   const page = await browser.newPage({ viewport: { width: 960, height: 540 } });
   try {
     await page.addInitScript({ content: 'window.__wildshardHarness=Object.assign(window.__wildshardHarness??{},{seed:357});' });
+    // MEMORY-STRUCTURE STR5: dev boots online, and an online page asks the device's Name once before the world.
+    await page.addInitScript({ content: saveFixtureCode(NAME_ASKED) });
     await page.goto(`${url}?skipintro`);
     await page.waitForFunction((watched) => window.__wildshard?.world?.player !== undefined && (!watched || (window.__wsDevScene?.framedRevision ?? 0) > 0),
       live, { timeout: 180_000, polling: 500 });

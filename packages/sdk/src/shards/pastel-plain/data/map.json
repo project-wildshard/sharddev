@@ -73,6 +73,7 @@
     "../../sharddev/bake/mapRaster.ts",
     "../../sharddev/bake/mapScenes.ts",
     "../../sharddev/bake/meshoptChoiceMemo.ts",
+    "../../sharddev/bake/packedVertex.ts",
     "../../sharddev/bake/phoneAstc.ts",
     "../../sharddev/bake/portableBytes.ts",
     "../../sharddev/bake/portableBytesMemo.ts",

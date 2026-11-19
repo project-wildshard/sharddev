@@ -29,7 +29,9 @@ export function createDevScratch(source: string): string {
   let parent: string;
   try { parent = scratchDir(named, 'wildshard dev', { root, env }); }
   catch (cause) {
-    if (!(cause instanceof Error) || !cause.message.includes('already belongs to session')) throw cause;
+    // A second dev process started in the same instant (watch parity runs dev and watch together) can find the folder
+    // before its .owner is written; it takes its own pid folder too.
+    if (!(cause instanceof Error) || !/already belongs to session|already exists with no \.owner/u.test(cause.message)) throw cause;
     parent = scratchDir(`${named.slice(0, 80)}-${process.pid}`, 'wildshard dev', { root, env });
   }
   const record = { ...JSON.parse(readFileSync(join(parent, '.owner'), 'utf8')) as Record<string, unknown>, pid: process.pid };
