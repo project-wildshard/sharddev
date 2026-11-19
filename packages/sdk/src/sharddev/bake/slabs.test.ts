@@ -380,3 +380,43 @@ test.each([[false, false], [true, false], [false, true]])('the sdk whole-piece d
     } finally { for (const piece of [...sdk, ...engine]) piece.geometry.dispose(); release(ours); release(theirs); }
   }
 });
+
+function denseSheet(n: number, size: number): BufferGeometry {
+  const positions: number[] = [], normals: number[] = [], colours: number[] = [], faces: number[] = [], offs: number[] = [], index: number[] = [];
+  for (let z = 0; z <= n; z++) for (let x = 0; x <= n; x++) {
+    const u = 10 + x / n * size, w = 10 + z / n * size;
+    positions.push(u, 20 + 0.2 * Math.sin((u - 10) / size * Math.PI), w); normals.push(0, 127, 0); colours.push(9, 8, 7); faces.push(0x3c00); offs.push(0.5);
+  }
+  for (let z = 0; z < n; z++) for (let x = 0; x < n; x++) { const a = z * (n + 1) + x; index.push(a, a + n + 1, a + 1, a + 1, a + n + 1, a + n + 2); }
+  return new BufferGeometry().setAttribute('position', new Float32BufferAttribute(positions, 3))
+    .setAttribute('normal', new BufferAttribute(new Int8Array(normals), 3, true)).setAttribute('color', new BufferAttribute(new Uint8Array(colours), 3, true))
+    .setAttribute('aFace', new Float16BufferAttribute(new Uint16Array(faces), 1)).setAttribute('aOff', new BufferAttribute(new Float32Array(offs), 1)).setIndex(index);
+}
+
+test('STR14: asking for the phone copy leaves the desktop library and every desktop byte as they were', async () => {
+  const input = fixture(false, false, denseSheet(32, 8)), desktop = await bakeWholeSlabs(input), both = await bakeWholeSlabs({ ...input, phone: { error: 0.05 } });
+  expect(desktop.phone).toBeUndefined();
+  expect(both.library).toEqual(desktop.library);
+  expect([...both.assets.keys()]).toEqual([...desktop.assets.keys()]);
+  for (const [hash, bytes] of desktop.assets) expect(both.assets.get(hash)).toEqual(bytes);
+  const phone = both.phone; if (phone === undefined) throw new Error('No phone copy');
+  // its own files, never one of the desktop's
+  for (const hash of phone.assets.keys()) expect(desktop.assets.has(hash)).toBe(false);
+  expect(phone.tiles.map(row => row.tile)).toEqual(desktop.library.tiles.map(row => row.tile));
+  const keys = new Set(desktop.library.keys.map(key => key.id));
+  for (const row of phone.tiles) for (const file of row.files) for (const chunk of file.chunks) {
+    expect(keys.has(chunk.key)).toBe(true);
+    // the chunk's error carries the phone bound on top of the desktop chunk's
+    expect(chunk.geometricError).toBeGreaterThanOrEqual(0.05);
+  }
+  const [source, simplified] = [desktop.report, phone.report].map(rows => rows.reduce((sum, row) => sum + row.triangles, 0));
+  expect(source).toBe(32 * 32 * 2);
+  expect(simplified).toBeLessThan((source ?? 0) * 0.5);
+  // the phone files decode as slab chunks with their key's tags
+  for (const [hash, bytes] of phone.assets) {
+    const decoded = await meshes(bytes);
+    try { for (const mesh of decoded) expect(mesh.userData['slab']).toMatchObject({ key: expect.any(String) as unknown as string }); }
+    finally { release(decoded); }
+    expect(hash).toMatch(/^[0-9a-f]{64}$/u);
+  }
+});

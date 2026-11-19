@@ -37,7 +37,8 @@ function verifySlabChannelCopy(before: Uint8Array, after: Uint8Array, selected: 
     if (before[vertex * bytes + byte] !== after[at * bytes + byte]) throw new Error('Slab channel copy differs'); });
 }
 
-function subset(source: BufferGeometry, selected: readonly number[], indices: readonly number[]): BufferGeometry {
+/** A geometry of `selected` source vertices (every channel's stored bits, checked) and `indices` into them. */
+export function subset(source: BufferGeometry, selected: readonly number[], indices: readonly number[]): BufferGeometry {
   const output = new BufferGeometry();
   try {
     for (const [name, attribute] of Object.entries(source.attributes)) {
