@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.14 (2026-11-19)
+
+- A slow upload prints its resume command and finishes waiting before the publish job runs out of time.
+- Read an upload verdict on another machine with only its upload ID.
+
 ## v0.4.13 (2026-11-18)
 
 - Fresh starter shards prepare with the released engine v0.1.46 client, which loads the boar skin.
