@@ -21,13 +21,14 @@ const SVG = 'data:image/svg+xml,%3Csvg%2F%3E'
 const BASE = 'http://127.0.0.1:4400'
 // Image blobs the test product carries: a built product holds its card files
 // as `blobs/image/<sha256>.<ext>`, so the shots below are these bytes.
+// Brasscap Mesa's card images (the corpus product since J434 retired Template 2).
 const SHOTS = {
   thumb:
-    'blobs/image/248fe9601e921305ffb35421414bc5f03e9f1b3dba15bf9b5c3387d8f255da17.png',
+    'blobs/image/0579557f9344df6f2c4b1225e6252e53ab86d417a4c9b504b5c714a08a388e47.jpg',
   portrait:
-    'blobs/image/4b47420aff1ded28c9c6cf1eb92d6e2d7b01d057f2654654405445ff8d562e55.webp',
+    'blobs/image/eb453c71cfb1f9441eb00b32281f98e226e49d9dcf75c231455575fcdc652222.jpg',
   landscape:
-    'blobs/image/5dbc818ed0be692e6ba3df87898fd623280a2686eed5a538333e1325764b238d.png',
+    'blobs/image/9e18816a2ec16fbbb1f00f4a39c73ac2cbf6a8cdc17b4c96b1eba4cc9a754dc7.jpg',
 }
 interface Project {
   readonly root: string

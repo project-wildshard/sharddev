@@ -21,8 +21,10 @@ import type { Project } from '../../test/helpers/hero-project.ts'
 // templates." A cut (`wildshard build`) of a shard whose captured hero is
 // older than its content is refused, and the refusal names the capture.
 
+// A new capture of the portrait: other bytes the product carries (Brasscap
+// Mesa's thumb; J434 retired Template 2, whose fourth image this was).
 const RECAPTURED =
-  'blobs/image/d5ae692911bbc2b60b5fdde239b70aad4ce9be0d7665c4a91b438de6077e21e3.jpg'
+  'blobs/image/0579557f9344df6f2c4b1225e6252e53ab86d417a4c9b504b5c714a08a388e47.jpg'
 
 function namesTheCapture(error: unknown): boolean {
   assert.ok(error instanceof Error)
