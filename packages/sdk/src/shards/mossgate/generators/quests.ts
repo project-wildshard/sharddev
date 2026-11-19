@@ -29,6 +29,8 @@ export const FLAGS = {
   // TR-12b: the fights' flags (a `dead:<spawn>` flag is the engine's, raised when that body dies)
   blob: 'mossgate.blob', blobPaid: 'mossgate.blob.paid', wardenPaid: 'mossgate.warden.paid', greybackPaid: 'mossgate.greyback.paid',
   mosslingsPaid: 'mossgate.mosslings.paid',
+  // MOSSGATE-ZONE MZ1 (J453): Cinder Orchard's "pond hermit's pests" turn-in: the pack gone, tell the Hermit
+  pestsReported: 'mossgate.hermit.pests',
 } as const;
 const dead = (spawn: string): string => `dead:${spawn}`;
 const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
@@ -39,8 +41,8 @@ export const LAMPLIGHTER_DIALOGUE = {
   nodes: [
     { id: 'offer', lines: ['The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring.', 'Light all three for me. Will you?'],
       choices: [{ id: 'accept', label: "I'll relight them.", next: 'waiting', sets: [FLAGS.lampAccepted] }] },
-    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the barrow ring.'],
-      choices: [{ id: 'report', label: 'All three burn.', next: 'thanks', when: { all: LETTERS.map(lamp) }, sets: [FLAGS.lampReported] }] },
+    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the barrow ring.', 'Then put the Warden down, or it will snuff them again.'],
+      choices: [{ id: 'report', label: 'All three burn, and the Warden is down.', next: 'thanks', when: { all: [...LETTERS.map(lamp), dead(BODIES.warden)] }, sets: [FLAGS.lampReported] }] },
     { id: 'thanks', lines: ['The Hollow breathes again. Take this for your trouble.'], choices: [] },
   ],
 };
@@ -50,7 +52,9 @@ export const HERMIT_DIALOGUE = {
   id: 'mossgate.hermit', name: 'The Pond Hermit', start: 'offer',
   nodes: [
     { id: 'offer', lines: ['Mind your step, traveller. The north gate has been barred since the Warden woke.', "Help the Lamplighter first, then pull the lever by the north wall and I'll make it worth your while."],
-      choices: [{ id: 'accept', label: "I'll open the gate.", next: 'waiting', sets: [FLAGS.hermitAccepted], when: { all: [FLAGS.lampDone] } }] },
+      choices: [{ id: 'accept', label: "I'll open the gate.", next: 'waiting', sets: [FLAGS.hermitAccepted], when: { all: [FLAGS.lampDone] } },
+        { id: 'pests', label: 'The mossling pack is gone.', next: 'pests', sets: [FLAGS.pestsReported], when: { all: MOSSLINGS_DEAD } }] },
+    { id: 'pests', lines: ['Gone? Then the reeds will grow back. Take these coins for the quiet.'], choices: [] },
     { id: 'waiting', lines: ['The lever stands inside the yard, by the north wall behind the hut.'],
       choices: [{ id: 'report', label: 'The north gate is open.', next: 'thanks', when: { all: [FLAGS.northGate] }, sets: [FLAGS.hermitReported] }] },
     { id: 'thanks', lines: ['Fresh air at last. Take these coins, and my thanks.'], choices: [] },
@@ -83,6 +87,8 @@ export const QUESTS = {
       steps: [
         ...LETTERS.map((l) => ({ id: l.toLowerCase(), objective: `Light brazier ${l}`, done: { all: [lamp(l)] },
           markers: [marker(`brazier-${l.toLowerCase()}.marker`, `Brazier ${l}`, l, brazierAt(l), lamp(l))] })),
+        { id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] }, hint: 'The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core',
+          markers: [marker('relight-warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] },
         { id: 'report', objective: 'Tell the Lamplighter', done: { all: [FLAGS.lampReported] }, hint: 'The Lamplighter waits on the path north of spawn',
           markers: [marker('lamplighter.marker', 'The Lamplighter', 'Lamp', LAYOUT.LAMPLIGHTER)] },
       ],
@@ -109,7 +115,9 @@ export const QUESTS = {
       onComplete: { fact: 'mossgate.blob', coins: 5 } },
     { id: 'mossgate.mosslings', title: 'The mossling pack', track: false, completeFlag: FLAGS.mosslingsPaid,
       steps: [{ id: 'pack', objective: 'Drive off the mossling pack', chip: 'Mosslings', count: MOSSLINGS_DEAD, done: { all: MOSSLINGS_DEAD },
-        hint: 'They circle, then bite: strike the one that comes in', markers: [marker('mosslings.marker', 'Mossling meadow', 'Pack', HAUNTS.MEADOW, MOSSLINGS_DEAD[0])] }],
+        hint: 'They circle, then bite: strike the one that comes in', markers: [marker('mosslings.marker', 'Mossling meadow', 'Pack', HAUNTS.MEADOW, MOSSLINGS_DEAD[0])] },
+        { id: 'report', objective: 'Tell the Pond Hermit', done: { all: [FLAGS.pestsReported] }, hint: 'The Hermit waits on the pond\'s north bank',
+          markers: [marker('pests-hermit.marker', 'Pond Hermit', 'Hermit', PLAY.HERMIT)] }],
       onComplete: { fact: 'mossgate.mosslings', coins: 15 } },
     { id: 'mossgate.greyback', title: 'Greyback', track: false, completeFlag: FLAGS.greybackPaid,
       steps: [{ id: 'greyback', objective: 'Bring down Greyback', done: { all: [dead(BODIES.greyback)] }, hint: 'The old boar holds the clearing north-east of the yard: sidestep its charge',

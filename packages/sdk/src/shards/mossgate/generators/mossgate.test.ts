@@ -93,6 +93,13 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
   // TC-M7a: the quests chain (the starter's hut, the first flame, the Lamplighter's relighting, the Hermit's gate, three side quests)
   expect(shard.quests.quests.map((q) => q.id)).toEqual(['hut.visit', 'mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.rack',
     'mossgate.blob', 'mossgate.mosslings', 'mossgate.greyback', 'mossgate.warden']);
+  // MOSSGATE-ZONE MZ1 (J453): Cinder Orchard's legacy-Template chain folds in: the relighting ends at the Warden, and the
+  // mossling pack turns in at the Pond Hermit
+  const quest = (id: string) => shard.quests.quests.find((q) => q.id === id);
+  expect(quest('mossgate.lamplighter')?.steps.map((s) => s.id)).toEqual(['a', 'b', 'c', 'warden', 'report']);
+  expect(quest('mossgate.mosslings')?.steps.map((s) => s.id)).toEqual(['pack', 'report']);
+  const hermit = shard.quests.dialogue.find((d) => d.id === 'mossgate.hermit');
+  expect(hermit?.nodes.find((n) => n.id === 'offer')?.choices.map((c) => c.id)).toEqual(['accept', 'pests']);
   // a lit brazier raises its flag through the condition the sdk wrote for its prompt
   const conditions = new Set(shard.hooks.conditions.map((c) => c.id));
   for (const t of shard.quests.triggers) if (t.kind === 'script') expect(conditions.has(t.condition), t.condition).toBe(true);
