@@ -24,7 +24,8 @@ function next():void {
 // start resumes from the Warden's health rather than from phase 0 (a reset to 0 replays the threshold beat forever).
 export function onStart():void {
   if(State.phase==3) return;
-  if(State.phase==0) Do.encounterPhase(0);
+  // a fresh Warden (phase 0: re-armed after its respawn) puts the Hollow's relit glow out until it falls again (MZ31)
+  if(State.phase==0) { Do.encounterPhase(0); Do.field(0,Field.relit,0); }
   State.phase=Read.hpShare(Actor.boss)>0.6?1:2; // 0.6: the second phase's `at` (generators/gameplay.ts ENCOUNTERS)
   Do.timer(Timer.arm,0.1); Do.timer(Timer.beat,beatSeconds());
 }
@@ -38,6 +39,8 @@ export function onThreshold(index:i32):void {
 export function onDeath(killer:i32):void {
   if(i32(Event.subject)!=Actor.boss || (State.phase!=1 && State.phase!=2)) return;
   Do.stop(Actor.boss); quiet(); State.phase=3; Do.encounterWin();
+  // MZ31: the chain's climax: the Hollow relights (play.ts `hollowRelit`), and its trail leads back to the Lamplighter
+  Do.field(0,Field.relit,1);
 }
 export function onTimer(timer:i32):void {
   if(State.phase!=1 && State.phase!=2) return;

@@ -72,6 +72,16 @@ function flame(into: THREE.Group, x: number, y: number, z: number, size: number,
   }
 }
 
+/** MZ31 (QA 11-19 row 35, "nothing happens"): a lit fire's light on the ground round it, three soft warm discs laid flat
+ *  (a panel holds meshes only, so the glow is drawn, not a lamp: MZ34 brings real lights to panels). */
+function glowPool(into: THREE.Group, x: number, y: number, z: number, size: number, colour = '#ffb050'): void {
+  for (const [r, opacity, lift] of [[3.4, 0.1, 0.02], [2.3, 0.16, 0.03], [1.3, 0.24, 0.04]] as const) {
+    const material = new THREE.MeshStandardMaterial({ color: colour, emissive: colour, emissiveIntensity: 1.2, roughness: 1, transparent: true, opacity, depthWrite: false });
+    const disc = new THREE.Mesh(new THREE.CircleGeometry(r * size, 28), material);
+    disc.rotation.x = -Math.PI / 2; disc.position.set(x, y + lift, z); disc.receiveShadow = false; into.add(disc);
+  }
+}
+
 /** The rim brazier on the arena's far wall that burns with quest brazier `letter` (world.ts `arena`). */
 function rimSeat(letter: string): [number, number, number] {
   const a = ({ A: -0.42, B: 0, C: 0.42 } as Record<string, number>)[letter] ?? 0, { x, z, r } = LAYOUT.ARENA;
@@ -89,6 +99,7 @@ function braziers(world: ShardWorld): void {
   for (const [x, z, letter] of PLAY.BRAZIERS) {
     world.part(`flame-${letter.toLowerCase()}`, (part) => {
       flame(part, x, groundHeight(x, z) + 1.16, z, 1, outer, inner);
+      glowPool(part, x, groundHeight(x, z), z, 1);
       // its row twin by brazier A (world.ts `LAYOUT.ROW`, scale 0.92) and its rim brazier in the arena
       for (const [rx, rz, l] of LAYOUT.ROW) if (l === letter) flame(part, rx, groundHeight(rx, rz) + 1.09, rz, 0.92, outer, inner);
       const [ax, ay, az] = rimSeat(letter); flame(part, ax, ay, az, 0.8, outer, inner);
@@ -215,6 +226,30 @@ function wardenTell(world: ShardWorld): void {
   }, { panel: WARDEN_PANELS.core });
 }
 
+/** MZ31 (QA 11-19 rows 26, 35): the chain's payoff. The Warden down (its script's `relit` field, fights.ts), the Hollow
+ *  answers: a ring of moss runes burns round the barrow floor, and a trail of lit stones leads from the ring back to the
+ *  Lamplighter, the next goal. It goes out when the Warden re-arms. */
+function hollowRelit(world: ShardWorld): void {
+  const { x: ax, z: az, r } = LAYOUT.ARENA, rune = plain('#ffd27a', 0.6, '#ffb040'), moss = plain('#b8ff7a', 0.8, '#7adf40');
+  world.part('hollow-relit', (part) => {
+    for (let k = 0; k < 16; k++) {
+      const a = (k * Math.PI) / 8, rx = ax + Math.cos(a) * (r - 1.6), rz = az + Math.sin(a) * (r - 1.6), gy = groundHeight(rx, rz);
+      const stone = box(0.34, 0.5, 0.34, k % 2 === 0 ? rune : moss, 0.05); stone.position.set(rx, gy + 0.25, rz); stone.rotation.y = a; part.add(stone);
+    }
+    glowPool(part, ax, groundHeight(ax, az), az, 2.2, '#ffc860');
+    // the trail home: lit stones every 1.6 m from the ring's west gap, along the yard path, to the Lamplighter
+    const route: [number, number][] = [[ax - r + 0.5, az], [8, -2], [LAYOUT.LAMPLIGHTER.x + 1.4, LAYOUT.LAMPLIGHTER.z + 1.2]];
+    for (let leg = 0; leg < route.length - 1; leg++) {
+      const [x0, z0] = route[leg] ?? [0, 0], [x1, z1] = route[leg + 1] ?? [0, 0], n = Math.max(1, Math.round(Math.hypot(x1 - x0, z1 - z0) / 1.6));
+      for (let i = 0; i < n; i++) {
+        const t = i / n, x = x0 + (x1 - x0) * t, z = z0 + (z1 - z0) * t, gy = groundHeight(x, z);
+        const lit = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.08, 10), rune); lit.position.set(x, gy + 0.04, z); part.add(lit);
+        glowPool(part, x, gy, z, 0.22, '#ffc860');
+      }
+    }
+  }, { panel: WARDEN_PANELS.relit });
+}
+
 /** Everything the player uses in the Hollow (TR-12), at the scene's own places. */
 export function buildPlay(world: ShardWorld): void {
   braziers(world);
@@ -233,4 +268,5 @@ export function buildHollow(world: ShardWorld): void {
   buildPlay(world);
   buildCreatures(world);
   wardenTell(world);
+  hollowRelit(world);
 }

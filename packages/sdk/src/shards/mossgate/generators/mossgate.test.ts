@@ -145,3 +145,15 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
   const places = new Set(markers.map((m) => `${m.at.x},${m.at.z}`));
   expect(places.size).toBeGreaterThanOrEqual(8);
 });
+
+/** MOSSGATE-ZONE MZ31 (QA 11-19 rows 26, 35): a lit brazier lights the ground round it, and the Warden's fall relights the
+ *  Hollow: its script raises the shared `relit` field, which shows the rune ring and the trail back to the Lamplighter. */
+test('Mossgate pays off a step and the chain', () => {
+  const shard = mossgate.describe(), part = (name: string) => shard.parts.find((p) => p.name === name);
+  for (const letter of ['a', 'b', 'c']) expect(part(`flame-${letter}`)?.draws.length ?? 0).toBeGreaterThan(8);
+  const relit = part('hollow-relit');
+  expect(relit?.panel).toBe('mossgate.hollow-relit');
+  expect(relit?.draws.length ?? 0).toBeGreaterThan(20);
+  const decision = DECISIONS[0] as unknown as { fields: Record<string, string> };
+  expect(decision.fields['relit']).toBe(WARDEN_FIELDS.relit.name);
+});

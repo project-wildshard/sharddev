@@ -11,6 +11,8 @@ import { LAYOUT } from './world';
 export const WARDEN_FIELDS = {
   tell: { id: 110, name: 'mossgate.warden-tell' },
   core: { id: 111, name: 'mossgate.warden-core' },
+  // MZ31 (QA 11-19 rows 26, 35): the Hollow burns bright while the Warden is down, the climax of the Lamplighter's chain
+  relit: { id: 112, name: 'mossgate.hollow-relit' },
 } as const;
 export const ENCOUNTERS = { greyback: 'mossgate.greyback', warden: 'mossgate.warden' } as const;
 
@@ -54,7 +56,7 @@ export const WARDEN_DECISION = {
   binding: { encounter: ENCOUNTERS.warden }, pages: 1, onFail: 'reset', on: ['start', 'timer', 'threshold', 'death', 'stop'], tick: null,
   reads: ['nearestPlayer', 'hpShare'], commands: ['strike', 'stop', 'timer', 'encounter', 'field'], actors: { boss: BODIES.warden }, moves: {},
   strikes: { slam: STRIKES.wardenSlam.id, sweep: STRIKES.wardenSweep.id, stone: STRIKES.wardenThrow.id }, cues: {},
-  fields: { tell: WARDEN_FIELDS.tell.name, core: WARDEN_FIELDS.core.name }, flags: {}, zones: {}, spots: {}, targets: {}, spawns: {}, signals: {},
+  fields: { tell: WARDEN_FIELDS.tell.name, core: WARDEN_FIELDS.core.name, relit: WARDEN_FIELDS.relit.name }, flags: {}, zones: {}, spots: {}, targets: {}, spawns: {}, signals: {},
   facts: {}, rewards: {}, channels: {}, impulses: {}, weather: {}, timers: ['arm', 'beat', 'open', 'shut'], stateVersion: 1,
   state: [
     { name: 'phase', type: 'i32', default: 0, scope: 'binding', min: 0, max: 3 },
@@ -66,7 +68,7 @@ export const WARDEN_DECISION = {
 export const DECISIONS: DecisionScripts = [WARDEN_DECISION];
 
 /** The panel parts the Warden's fields show (play.ts draws them): the ground ring while it rears, the gem while its core is open. */
-export const WARDEN_PANELS = { ring: 'mossgate.warden-ring', core: 'mossgate.warden-core' } as const;
+export const WARDEN_PANELS = { ring: 'mossgate.warden-ring', core: 'mossgate.warden-core', relit: 'mossgate.hollow-relit' } as const;
 
 /** The fight rows over the shardfile: `gameplay` calls this after the quests. */
 export function fights(shard: Shardfile): Shardfile {
@@ -77,7 +79,7 @@ export function fights(shard: Shardfile): Shardfile {
     creatures: { ...shard.creatures, brains: [...shard.creatures.brains, ...BRAINS], groups: [...shard.creatures.groups, PACK] } as Shardfile['creatures'],
     encounters: [...shard.encounters, ...ENCOUNTER_ROWS] as Shardfile['encounters'],
     ui: [...shard.ui, { kind: 'bossPanel', id: WARDEN_PANEL, encounter: ENCOUNTERS.warden, name: 'Barrow Warden', title: 'Keeper of the hollow', retry: 'Try the Barrow Warden again' }] as Shardfile['ui'],
-    state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id)] },
-    targets: { ...shard.targets, panels: [...shard.targets.panels, panel(WARDEN_PANELS.ring, WARDEN_FIELDS.tell.id), panel(WARDEN_PANELS.core, WARDEN_FIELDS.core.id)] },
+    state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id), field(WARDEN_FIELDS.relit.name, WARDEN_FIELDS.relit.id)] },
+    targets: { ...shard.targets, panels: [...shard.targets.panels, panel(WARDEN_PANELS.ring, WARDEN_FIELDS.tell.id), panel(WARDEN_PANELS.core, WARDEN_FIELDS.core.id), panel(WARDEN_PANELS.relit, WARDEN_FIELDS.relit.id)] },
   };
 }
