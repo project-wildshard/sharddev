@@ -14,3 +14,8 @@ triggers, and the hoard behind the den's mound is the meadow's find, paying a sm
 (meta `project/evidence/mossgate-zone/mz12-meadow.walk.mjs`) walks there from the spawn and is bitten by the pack.
 `fight` in a walk proof could not do it: it fights a species kind until none is left anywhere, and the mossling's kind is
 the grey blob's.
+
+MZ13, Greyback's Thicket (`generators/thicket.ts`): Greyback's camp moved from beside the yard (22, -22) to the clearing at
+(140, -140), with three sows round its rim and two more in the Sow Wallow; 150 low-poly trees with trunk colliders fill
+the region clear of the places and roads, and a lore sign at the clearing's edge reads as a talk. A walk proof shows the
+camp engage on approach: a sow's ram (12) and Greyback's charge (25) land within seconds of the clearing.

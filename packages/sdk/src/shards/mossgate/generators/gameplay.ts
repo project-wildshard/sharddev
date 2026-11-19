@@ -7,6 +7,7 @@ import { HERMIT_DIALOGUE, LAMPLIGHTER_DIALOGUE, FLAGS, QUESTS } from './quests';
 import { PLAY, RACK_SCENE } from './play';
 import { groundHeight, LAYOUT } from './world';
 import { fights } from './fights';
+import { THICKET_TALKS } from './thicket';
 
 type Items = Shardfile['items'];
 type Weapon = Items['rows'][number];
@@ -54,6 +55,6 @@ export function gameplay(shard: Shardfile): Shardfile {
     ledger: [...shard.ledger, ...LEDGER] as Shardfile['ledger'],
     items: { ...shard.items, rows: [...shard.items.rows, MOSS_BLADE] },
     hooks: { ...shard.hooks, scenes: [...shard.hooks.scenes, RACK_TAKE.scene] },
-    targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS] },
+    targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS, ...THICKET_TALKS] },
   });
 }

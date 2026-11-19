@@ -16,6 +16,7 @@ import { buildMossgate, groundHeight, LAYOUT } from './world';
 import { buildCreatures, HAUNTS } from './creatures';
 import { WARDEN_PANELS } from './fights';
 import { buildMeadow } from './meadow';
+import { buildThicket } from './thicket';
 
 /** Where the gameplay stands (the Template's `data/layout.json`, which was this scene's plan). */
 export const PLAY = {
@@ -277,6 +278,7 @@ export function buildHollow(world: ShardWorld): void {
   buildPlay(world);
   buildCreatures(world);
   buildMeadow(world);
+  buildThicket(world);
   wardenTell(world);
   hollowRelit(world);
 }

@@ -88,8 +88,9 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
   // the quests' facts pay achievements (the Template's ledger)
   expect(shard.ledger.map((row) => row.fact)).toEqual(['mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.warden', 'mossgate.greyback', 'mossgate.mosslings']);
   expect(shard.items.loadout.primary).toBe('weapon.sword-iron');
-  // TC-M3, TC-M6: two talks, the Lamplighter drawn by her own figure panel
-  expect(shard.targets.talks?.map((t) => [t.id, t.dialogue, t.figure])).toEqual([['mossgate.lamplighter.talk', 'mossgate.lamplighter', 'mossgate.lamplighter'], ['mossgate.hermit.talk', 'mossgate.hermit', undefined]]);
+  // TC-M3, TC-M6: two talks, the Lamplighter drawn by her own figure panel; MZ13: the thicket's lore sign reads as a talk
+  expect(shard.targets.talks?.map((t) => [t.id, t.dialogue, t.figure])).toEqual([['mossgate.lamplighter.talk', 'mossgate.lamplighter', 'mossgate.lamplighter'], ['mossgate.hermit.talk', 'mossgate.hermit', undefined],
+    ['mossgate.thicket.sign.read', 'mossgate.thicket.sign', undefined]]);
   expect(shard.props?.panels.map((p) => p.id)).toContain('mossgate.lamplighter');
   // TC-M7a: the quests chain (the starter's hut, the first flame, the Lamplighter's relighting, the Hermit's gate, three side quests)
   expect(shard.quests.quests.map((q) => q.id)).toEqual(['hut.visit', 'mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.rack',
@@ -121,10 +122,11 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // eighteen bodies: four blobs, two mossling packs of four (MZ12), two sows, two wisps, Greyback and the Warden
+  // twenty-three bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
+  // two wisps, Greyback and the Warden
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(18);
-  expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'greyback']);
+  expect(spawns).toHaveLength(23);
+  expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));
   expect(shard.creatures.groups.map((row) => [row.id, row.members.length])).toEqual([['mossgate.mosslings', 4], ['mossgate.mosslings-stones', 4]]);

@@ -13,6 +13,7 @@ import type { ShardRows } from '@wildshard/format/rows';
 import type { ShardWorld } from '@wildshard/sdk/scene/author';
 import { groundHeight, LAYOUT } from './world';
 import { MEADOW_PACKS } from './meadow';
+import { THICKET_CAMP } from './thicket';
 
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
@@ -31,8 +32,11 @@ export const HAUNTS = {
   /** the sows graze west of the pond; the bog wisps circle over it */
   SOWS: [[-22, 15], [-25, 7]] as const,
   WISPS: [[-17, -2], [-22, 2]] as const,
-  /** Greyback's clearing north-east of the yard, and the Barrow Warden in the barrow ring (world.ts `arena`) */
-  GREYBACK: { x: 22, z: -22, r: 8 },
+  /** MZ13: Greyback's camp in the thicket's clearing (thicket.ts), its sows and the wallow's; the Barrow Warden in the barrow
+   *  ring (world.ts `arena`) */
+  GREYBACK: THICKET_CAMP.greyback,
+  CAMP_SOWS: THICKET_CAMP.sows,
+  WALLOW_SOWS: THICKET_CAMP.wallowSows,
   WARDEN: { x: LAYOUT.ARENA.x - 1, z: LAYOUT.ARENA.z, r: 8 },
 } as const;
 
@@ -193,7 +197,7 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
   const o = new THREE.Object3D(); o.position.set(x, groundHeight(x, z) + lift, z); o.rotation.y = yaw; world.scene.add(o); return o;
 }
 
-/** The Hollow's creatures: five species, eighteen bodies. */
+/** The Hollow's creatures: five species, twenty-three bodies. */
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
@@ -240,6 +244,8 @@ export function buildCreatures(world: ShardWorld): void {
   HAUNTS.SOWS.forEach(([x, z], i) => world.spawnAt(`sow-${i + 1}`, spot(world, x, z), { species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 601 + i, scale: 1,
     home: { x, y: groundHeight(x, z), z, r: 6 } }));
   HAUNTS.WISPS.forEach(([x, z], i) => world.spawnAt(`bog-wisp-${i + 1}`, spot(world, x, z, 0, 5), { species: 'bog.wisp', variant: 'bog', brain: 'mossgate.wisp-dive', strike: null, seed: 701 + i, scale: 1 }));
+  [...HAUNTS.CAMP_SOWS, ...HAUNTS.WALLOW_SOWS].forEach(([x, z], i) => world.spawnAt(i < HAUNTS.CAMP_SOWS.length ? `camp-sow-${i + 1}` : `wallow-sow-${i - HAUNTS.CAMP_SOWS.length + 1}`, spot(world, x, z), {
+    species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 611 + i, scale: 1, respawn: 60, home: { x, y: groundHeight(x, z), z, r: 6 } }));
   world.spawnAt(BODIES.greyback, spot(world, HAUNTS.GREYBACK.x, HAUNTS.GREYBACK.z, Math.PI * 0.75), { species: 'boar', variant: 'greyback', brain: null, strike: STRIKES.boarCharge.id, seed: 801, scale: 1, respawn: BOSS_RESPAWN });
   // the Warden faces the arch, west, as the static golem did
   world.spawnAt(BODIES.warden, spot(world, HAUNTS.WARDEN.x, HAUNTS.WARDEN.z, -Math.PI / 2), { species: 'barrow.warden', variant: 'warden', brain: null, strike: STRIKES.wardenSlam.id, seed: 901, scale: 1, respawn: BOSS_RESPAWN });
