@@ -159,6 +159,7 @@ function uploadSettings(
         channel,
         place: !args.noPlace,
         wait: !args.noWait,
+        heroSource: process.cwd(),
         ...connection,
       }
 }

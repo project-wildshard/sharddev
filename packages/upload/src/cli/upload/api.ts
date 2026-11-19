@@ -249,12 +249,12 @@ interface CommitBody extends Provenance {
   readonly channel: Channel
   /** False sends `place: false` (SA32's `--no-place`): no grid cell. */
   readonly place: boolean
+  readonly heroCurated?: boolean
 }
 
 /**
- * The commit: the bytes' encoding, the shard version and commit (V1), the
- * channel it is for (J301), the versions it was built with (J306) and,
- * for `--no-place`, `place: false` (SA32; the API places by default).
+ * The commit: encoding, shard version and commit (V1), channel (J301), built-with
+ * versions (J306), `place: false` (SA32) and `heroCurated: true` (NET-LAG NL12).
  */
 async function commitUpload(
   options: ApiOptions,
@@ -262,7 +262,7 @@ async function commitUpload(
   body: CommitBody,
 ): Promise<CommitAnswer> {
   const { contentEncoding, version, commit, channel, place } = body
-  const { sharddev, engine, shardFormat } = body
+  const { sharddev, engine, shardFormat, heroCurated } = body
   return await postUpload(
     options,
     {
@@ -277,6 +277,7 @@ async function commitUpload(
         engine,
         shardFormat,
         ...(place ? {} : { place: false }),
+        ...(heroCurated === true ? { heroCurated: true } : {}),
       },
     },
     CommitAnswerSchema,

@@ -49,7 +49,7 @@ type More = Readonly<
   Partial<
     Pick<
       UploadOptions,
-      'bypassSecret' | 'channel' | 'place' | 'version' | 'wait'
+      'bypassSecret' | 'channel' | 'heroSource' | 'place' | 'version' | 'wait'
     >
   >
 >

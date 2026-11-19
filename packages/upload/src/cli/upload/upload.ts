@@ -1,18 +1,10 @@
 import { readFile } from 'node:fs/promises'
 
-import { DRAFT_SDK, draftMessage } from '../../sharddev/draft.ts'
-import { assertAudio } from '../audio/audio.ts'
-import {
-  commitUpload,
-  findCatalogued,
-  findStored,
-  putObject,
-  requestTicket,
-} from './api.ts'
+import { commitUpload, findStored, putObject, requestTicket } from './api.ts'
+import { checkShardfile } from './checked.ts'
 import { completeUpload } from './completion.ts'
 import { storedForm } from './compress.ts'
 import { hashTarball, signTarball } from './signature.ts'
-import { assertHero, validateShardfile } from './validate.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
 import type { Completion } from './completion.ts'
@@ -49,6 +41,8 @@ interface UploadOptions extends ApiOptions, Provenance {
   readonly channel: Channel
   /** False for `--no-place` (SA32): the commit sends `place: false`. */
   readonly place?: boolean
+  /** The shard project upload runs in; its hero stamp may mark the hero curated (NET-LAG NL12). */
+  readonly heroSource?: string
   /** Base64 PKCS#8: WILDSHARD_CREATOR_PRIVATE_KEY. */
   readonly privateKey?: string
   /** Brotli quality. */
@@ -187,13 +181,13 @@ function reportAnswer(options: UploadOptions, answer: CommitAnswer): void {
 async function commit(
   options: UploadOptions,
   signed: UploadIdentity,
-  contentEncoding: Encoding,
+  sent: Readonly<{ contentEncoding: Encoding; heroCurated: boolean }>,
 ): Promise<UploadOutcome> {
   const { channel, sharddev, engine, shardFormat } = options
   const place = options.place !== false
   const answer = await commitUpload(options, signed, {
     place,
-    contentEncoding,
+    ...sent,
     version: options.version,
     commit: options.commit,
     channel,
@@ -221,50 +215,6 @@ async function commit(
   }
 }
 
-/** What the hero pre-check needs from the validated shardfile. */
-interface Validated {
-  readonly slug: string
-  /** The hero digest, when the shard has a card. */
-  readonly hero: string | undefined
-}
-
-/** Format's check, the draft check (J198), AU5's audio rules and the hero gate (HERO-GATE HG2): each refuses before a byte is sent. */
-async function validated(
-  options: Readonly<UploadOptions>,
-  tarball: Readonly<Uint8Array>,
-): Promise<Validated> {
-  const { slug, name, audio, heroHash, sdk, hero } =
-    await validateShardfile(tarball)
-  options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
-  if (sdk === DRAFT_SDK) {
-    throw new Error(draftMessage(slug))
-  }
-  await assertAudio(audio)
-  assertHero(hero)
-  return { slug, hero: heroHash }
-}
-
-/**
- * UP3's hero pre-check (J306): a hero digest equal to the slug's newest
- * catalogued one refuses here, before any byte moves. A first version, a
- * catalogue with no digest (before UP4) and a retry of the catalogued
- * version pass, as the API's own check does.
- */
-async function checkHero(
-  options: UploadOptions,
-  shard: Validated,
-): Promise<void> {
-  if (shard.hero === undefined) {
-    return
-  }
-  const newest = await findCatalogued(options, shard.slug)
-  if (newest?.heroHash === shard.hero && newest.version !== options.version) {
-    throw new Error(
-      `the hero is unchanged since ${[shard.slug, newest.version].filter(Boolean).join(' ')}: run wildshard hero, then build and upload again`,
-    )
-  }
-}
-
 /** The commit's line, then the grid line and the links (SA32). */
 function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
@@ -282,7 +232,7 @@ function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
 async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
   const tarball = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length)
-  await checkHero(options, await validated(options, tarball))
+  const shard = await checkShardfile(options, tarball)
   const signed =
     options.privateKey === undefined
       ? hashTarball(tarball)
@@ -290,7 +240,10 @@ async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const encoding = (await held(options, signed, tarball.length))
     ? undefined
     : await deliver(options, tarball, signed)
-  const outcome = await commit(options, signed, encoding)
+  const outcome = await commit(options, signed, {
+    contentEncoding: encoding,
+    heroCurated: shard.curated,
+  })
   reportCommitted(options, outcome)
   return outcome
 }
