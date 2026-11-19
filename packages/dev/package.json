@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/dev",
-  "version": "0.4.10",
+  "version": "0.4.11",
   "description": "The local game and the `wildshard` CLI (SDK-SPLIT SP8): dev, watch, check (sim and walk proofs), prove, hero, serve, the local page, the sim test harness, build-shards and the drafts tool. Depends on the engine; the sdk, kit, build and upload never do. Published with the others at one version (D5, SP12).",
   "license": "UNLICENSED",
   "repository": {
