@@ -4,7 +4,7 @@
     "species": "boar",
     "recipe": "platform.skin",
     "material": null,
-    "parameters": { "skin": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e" },
+    "parameters": { "skin": "d579ba64878cdc8c17dfbf1365d902535c5c13bf082ba405e07bf6a11e24a792" },
     "animation": { "recipe": "platform.clips", "parameters": { "attackSpan": 1 } }
   }
 ]

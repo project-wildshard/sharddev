@@ -32,14 +32,14 @@
   {
     "species": "boar",
     "look": "template.look.boar",
-    "skin": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e",
+    "skin": "d579ba64878cdc8c17dfbf1365d902535c5c13bf082ba405e07bf6a11e24a792",
     "glb": "880cc1f436542a66a488c6046e69135307c67171effe34f828dcd305274039e4",
     "files": [
       {
-        "hash": "54a69025b5bd39cd64877299bb29a5fd652e4c7773590f235be0cecefee1bb2e",
+        "hash": "d579ba64878cdc8c17dfbf1365d902535c5c13bf082ba405e07bf6a11e24a792",
         "kind": "json",
-        "compressed": 349256,
-        "decoded": 698512,
+        "compressed": 349454,
+        "decoded": 698908,
         "gpu": 0,
         "triangles": 0,
         "draws": 0,

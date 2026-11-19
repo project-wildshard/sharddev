@@ -8,8 +8,16 @@ import { parseSkinRows, parseSkinBindings } from '@wildshard/format/skinData';
 import { skinLayerDecoded } from '@wildshard/format/skinLayers';
 import { parseGlbData, prepareGlbCost } from '@wildshard/format/glbCost';
 import { exportAnimatedCommonBody } from '@wildshard/kit/geometry/export';
-import { commonBodyVariants } from '@wildshard/kit/bake/species';
+import { BEAR_LOOK, BOAR_LOOK, commonBodyVariants } from '@wildshard/kit/bake/species';
 import { quadrupedBinding } from '@wildshard/kit/clips';
+
+/** ONE-FORMAT OF3c2: the creature factory's fur on the kit skin's PBR surface: its strand grain, sheen and rim. */
+function furMaterial(kind, variant, material) {
+  const look = { boar: BOAR_LOOK, bear: BEAR_LOOK }[kind], fur = { ...look.fur, ...look.variants?.[variant]?.fur };
+  return { ...material, roughness: fur.roughness, envStrength: fur.envMapIntensity,
+    sheen: { amount: Math.max(0.01, fur.sheen), colour: [...fur.sheenColor], roughness: 0.7 }, rim: [...fur.rim],
+    strands: { seed: look.fur.texSeed, ...look.fur.tex } };
+}
 
 await prepareGlbCost();
 const root = fileURLToPath(new URL('../../kit/content/animated/', import.meta.url));
@@ -24,7 +32,7 @@ function output(path, bytes) {
 for (const kind of ['boar', 'bear']) for (const family of ['pbr', 'toon']) for (const variant of commonBodyVariants(kind)) {
   const exported = exportAnimatedCommonBody(kind, variant.id, family), id = `kit.${kind}.${variant.id}.${family}`;
   if (!exported.clips) throw new Error('Missing exported clips');
-  const binding = quadrupedBinding(id), cost = parseGlbData(exported.glb);
+  const plain = quadrupedBinding(id), binding = { ...plain, material: furMaterial(kind, variant.id, plain.material) }, cost = parseGlbData(exported.glb);
   cost.decoded += skinLayerDecoded(binding.poseLayers ?? {}, exported.bones.length);
   const row = { id, file: hash(exported.glb), family, cost, rig: { skeleton: 'kit.quadruped',
     joints: [exported.bones.map(bone => bone.name)], clips: exported.clips, sockets: ['body', 'head'] } };
