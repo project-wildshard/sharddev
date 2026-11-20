@@ -191,6 +191,14 @@ test('Mossgate pays off a step and the chain', () => {
   expect(decision.fields['relit']).toBe(WARDEN_FIELDS.relit.name);
 });
 
+/** MOSSGATE-ZONE MZ23 and MZ31's sound: a wind bed, and no silent score, so quest-step stings are heard; no audio bytes of its
+ *  own (J304). */
+test('Mossgate plays a wind and is not silent', () => {
+  const sound = mossgate.describe().sound;
+  expect(sound?.ambience?.winds).toHaveLength(2);
+  expect(sound?.music ?? null).toBeNull();
+});
+
 /** MOSSGATE-ZONE MZ4 (J454, QA 11-19 row 26: "you go to the heart and then you complete ... you can't do that"): no quest
  *  but the starter's `hut.visit` completes on one trigger. Each has two steps or more, or a fight; and nothing completes
  *  the zone before the main chain, which ends at the Warden. */
