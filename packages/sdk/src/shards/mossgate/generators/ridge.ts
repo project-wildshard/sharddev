@@ -10,6 +10,7 @@ import { inside, PATHS, PLACES, REGIONS } from './layout';
 import { roadDistance } from './ground';
 import { groundHeight } from './world';
 import * as T from './textures';
+import { leave, LORE_FLAGS } from './finds';
 
 const place = (id: string): { x: number; z: number } => {
   const found = PLACES.find((p) => p.id === id);
@@ -51,7 +52,7 @@ export const RIDGE_VIEW_DIALOGUE = {
     'Cut into the stone: SOUTH-EAST, THE HOLLOW AND ITS THREE FLAMES. EAST, THE MEADOW AND THE STANDING STONES.',
     'FAR EAST, THE THICKET WHERE GREYBACK RUNS. SOUTH, THE BOG AND ITS SHRINE. BEYOND THE HOLLOW, THE BARROW DOWNS.',
     'Under it, newer and rougher: when the beacon here burns, the Warden is awake.',
-  ], choices: [] }],
+  ], choices: [leave(LORE_FLAGS.ridge)] }],
 };
 export const RIDGE_TALKS = [{ id: 'mossgate.ridge.view.read', at: [RIDGE.VIEW_STONE.x, groundHeight(RIDGE.VIEW_STONE.x, RIDGE.VIEW_STONE.z), RIDGE.VIEW_STONE.z] as [number, number, number],
   radius: 2.4, label: 'Read the view stone', dialogue: RIDGE_VIEW_DIALOGUE.id }];

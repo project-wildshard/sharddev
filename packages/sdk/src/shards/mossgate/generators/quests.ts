@@ -11,6 +11,7 @@ import { PLACES } from './layout';
 import { PLACE_FLAGS } from './places';
 import { BEACON, RIDGE, RIDGE_VIEW_DIALOGUE } from './ridge';
 import { QUARRY, QUARRYMASTER, QUARRY_BLOBS } from './quarry';
+import { FIND_QUESTS, HERMIT_LORE } from './finds';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
 const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
@@ -82,7 +83,10 @@ export const HERMIT_DIALOGUE = {
       choices: [{ id: 'accept', label: "I'll open the gate.", next: 'waiting', sets: [FLAGS.hermitAccepted], when: { all: [FLAGS.lampDone] } },
         { id: 'pests', label: 'The mossling pack is gone.', next: 'pests', sets: [FLAGS.pestsReported], when: { all: MOSSLINGS_DEAD } },
         // MZ18: the main chain's second turn-in: the three braziers lit, the Lamplighter sends you to him for the old rite
-        { id: 'warden', label: 'The Lamplighter asks how the Warden was put down before.', next: 'rite', sets: [FLAGS.wardenAsked], when: { all: LAMPS_LIT, none: [FLAGS.wardenAsked] } }] },
+        { id: 'warden', label: 'The Lamplighter asks how the Warden was put down before.', next: 'rite', sets: [FLAGS.wardenAsked], when: { all: LAMPS_LIT, none: [FLAGS.wardenAsked] } },
+        // MZ22: the old words read back
+        HERMIT_LORE.choice] },
+    HERMIT_LORE.node,
     { id: 'rite', lines: ['The old rite. Read it where it is cut, at the Standing Stones in the meadow north of here.',
       'Carry it to the Sunken Shrine in the Bog, then light the beacon on Lookout Ridge so the ring sees it burn.',
       'The Quarrymaster at the Old Quarry knows the last of it. She keeps the ring\'s old ways.'], choices: [] },
@@ -122,7 +126,7 @@ const RITE_TRIGGERS = [
 /** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
   flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, ...Object.values(MEADOW_FLAGS), ...Object.values(THICKET_FLAGS), ...Object.values(BOG_FLAGS), dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD,
-    dead(BODIES.gritmaw), ...STONES_DEAD, ...QUARRY_BLOBS_DEAD, ...MERE_DEAD, ...WALLOW_DEAD],
+    dead(BODIES.gritmaw), ...STONES_DEAD, ...QUARRY_BLOBS_DEAD, ...MERE_DEAD, ...WALLOW_DEAD, ...FIND_QUESTS.flags],
   triggers: [
     // TR-12b: any grey blob's death raises the blob quest's flag
     { id: 'blob', kind: 'death' as const, flag: FLAGS.blob, tag: 'creature.greyBlob' },
@@ -133,8 +137,9 @@ export const QUESTS = {
     { id: 'ledge.searched', kind: 'script' as const, flag: FLAGS.ledgeSearched, condition: `${USES.ledgeCache}.spent` },
     { id: 'bog.chest.opened', kind: 'script' as const, flag: BOG_FLAGS.chestOpened, condition: `${BOG_USE}.spent` },
     ...RITE_TRIGGERS,
+    ...FIND_QUESTS.triggers,
   ],
-  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE, RIDGE_VIEW_DIALOGUE, QUARRYMASTER_DIALOGUE],
+  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE, RIDGE_VIEW_DIALOGUE, QUARRYMASTER_DIALOGUE, ...FIND_QUESTS.dialogue],
   quests: [
     // TR-2: the starter's one quest, so a new repo's proof tape has a fact to earn (the hut door's region, world.ts)
     { id: 'hut.visit', title: 'The hut', completeFlag: FLAGS.hutVisit,
@@ -249,5 +254,7 @@ export const QUESTS = {
       steps: [{ id: 'walk', objective: 'Find the twelve places of the Hollow', chip: 'Places', count: [...PLACE_FLAGS], done: { all: [...PLACE_FLAGS] },
         hint: 'Fingerposts on every road name the place at its end', markers: PLACES.map((p) => marker(`place.${p.id}`, p.name, short(p.name), p)) }],
       onComplete: { fact: 'mossgate.places', coins: 20 } },
+    // MZ22: the finds (finds.ts): the twelve pieces of glass, the cairn's chest and the four old signs
+    ...FIND_QUESTS.quests,
   ],
 };

@@ -8,6 +8,7 @@ import { PLACES, REGIONS, inside } from './layout';
 import { roadDistance } from './ground';
 import { groundHeight } from './world';
 import * as T from './textures';
+import { leave, LORE_FLAGS } from './finds';
 
 const place = (id: string): { x: number; z: number } => {
   const found = PLACES.find((p) => p.id === id);
@@ -38,7 +39,7 @@ export const THICKET_SIGN_DIALOGUE = {
   nodes: [{ id: 'read', lines: [
     'GREYBACK. Old boar of the thicket, tusks like plough blades. He has thrown three hunters and a cart.',
     'He charges in a straight line and cannot turn once he starts. Step aside, then strike his flank.',
-  ], choices: [] }],
+  ], choices: [leave(LORE_FLAGS.thicket)] }],
 };
 export const THICKET_TALKS = [{ id: 'mossgate.thicket.sign.read', at: [THICKET.SIGN.x, groundHeight(THICKET.SIGN.x, THICKET.SIGN.z), THICKET.SIGN.z] as [number, number, number],
   radius: 2.2, label: 'Read the sign', dialogue: THICKET_SIGN_DIALOGUE.id }];

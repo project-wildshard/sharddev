@@ -23,6 +23,7 @@ import { buildBog } from './bog';
 import { buildRidge } from './ridge';
 import { buildDowns } from './downs';
 import { buildPlaces } from './places';
+import { buildFinds } from './finds';
 
 /** Where the gameplay stands (the Template's `data/layout.json`, which was this scene's plan). */
 export const PLAY = {
@@ -313,6 +314,7 @@ export function buildHollow(world: ShardWorld): void {
   buildRidge(world);
   buildDowns(world);
   buildPlaces(world);
+  buildFinds(world);
   wardenTell(world);
   gritmawTell(world);
   hollowRelit(world);
