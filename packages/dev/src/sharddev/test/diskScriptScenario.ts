@@ -8,6 +8,7 @@ import { buildDecisionRegistries, decisionBindingMap, decisionSpawnGroups } from
 import { parseActorMoves } from '@wildshard/format/actorMoves';
 import { readCreatureStrikes } from '@wildshard/format/creatures';
 import { parseWorldTargets } from '@wildshard/format/worldTargets';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 import { admitScriptContract, decisionScriptsFromSections } from '@wildshard/format/scriptContract';
 import { SCRIPT_V1_READS, SCRIPT_V1_LISTS, type ScriptV1ReadName, type ScriptV1ListName } from '@wildshard/format/scriptAbiV1';
 import { outputDescriptor } from '@wildshard/engine/game/shardfile/outputDescriptor';
@@ -24,7 +25,8 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const expected = options.productDirectory === undefined ? resolve(realpathSync(root), slug) : directory;
   if (realpathSync(directory) !== expected) throw new Error('Scenario output cannot be a symlink');
   const product = await loadHeadlessFolder(directory), descriptor = outputDescriptor(product.shardfile);
-  const shard = product.shardfile;
+  // The engine's format copy can trail this package's (a pin skew still compiles, as checkProject's EngineShardfile)
+  const shard = product.shardfile as unknown as Shardfile;
   if (descriptor === undefined) throw new Error('Missing admitted scenario descriptor');
   const { index, sections } = descriptor;
   const rows = decisionScriptsFromSections(sections);
