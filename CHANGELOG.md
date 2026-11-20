@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.20 (2026-11-20)
+
+- Preserve exact npm next engine pins when uploading to staging.
+
 ## v0.4.19 (2026-11-20)
 
 - Passive creatures flee when provoked after conversion to declared rows.
