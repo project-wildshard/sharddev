@@ -10,6 +10,7 @@ import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';
 import { createDevWorld, DEV_RELEASE, type DevWorld } from '../../scripts/dev-world.mjs';
+import { renderDevMap } from './devMap';
 
 // NEW-SHARD-E2E F18: a new build opens the same page under a new `devrev`, not location.reload(): Chromium reports a reload
 // (or a same-URL replace) as navigation type `reload`, which engine's lastEnd reads as the player's own reload and sends to the title.
@@ -103,10 +104,12 @@ export async function devProject(project: string, options: { decisionLegacyLines
       if (!existsSync(page)) throw new Error('wildshard dev requires the SDK devserver client; build/pack the SDK first');
       const flags: unknown = JSON.parse(readFileSync(join(target, 'build-flags.json'), 'utf8'));
       if (typeof flags !== 'object' || flags === null || !('devserver' in flags) || flags.devserver !== true) throw new Error('wildshard dev requires a client compiled in devserver mode');
+      await renderDevMap(target);
       const document = readFileSync(page, 'utf8');
       world ??= await createDevWorld(origin, join(scratch, 'world'));
       await world.move(target, built.identity.slug);
-      writeFileSync(page, world.stamp(document).replace('</body>', `${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
+      const map = `<script>globalThis.__WS_DEV_COOKED_MAP__=${JSON.stringify(built.identity.slug)};</script>`;
+      writeFileSync(page, world.stamp(document).replace('</body>', `${map}${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
       if (previous !== '') rmSync(previous, { recursive: true, force: true });
       previous = current; current = target; shardRoot = `/shardfiles/${built.identity.slug}/`; revision++; error = null;
     } catch (cause) {
