@@ -38,6 +38,7 @@ import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from '@wildshard/sdk/internal/cookInput';
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/sdk/internal/audioEncode';
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from '@wildshard/sdk/internal/authorManifest';
+import { levelLook, liftLevelLook } from '@wildshard/format/look-level';
 import { discoveryDocument, discoveryUrl } from '@wildshard/sdk/internal/discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from '@wildshard/sdk/outputProduct';
 import { prepareProjectOutput, prepareProjectOutputInput, projectOutputContext, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from '@wildshard/sdk/projectOutput';
@@ -208,7 +209,9 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   const sections = outputPlatformPayloads(loaded.output.options.platform);
   const level = manifestSource === undefined || manifestSource.file === undefined && loaded.shard.manifest === undefined ? undefined : await readManifestSource(manifestSource, loaded.shard.manifest, loaded.map?.map.bytes);
   if (level !== undefined && loaded.shard.manifest !== undefined && canonicalJson(loaded.shard.manifest) !== canonicalJson(level.authored)) throw new Error('Authored manifest differs from configured level metadata');
-  const source = level === undefined ? loaded.shard : parseShardfile({ ...loaded.shard, manifest: level.manifest }, sections);
+  // ONE-FORMAT OF9b2: the manifest's sky, atmosphere, grade and horizon are written into the look section (`look.level`),
+  // never `ui/level`; an author who still keeps them in the manifest has them moved (`liftLevelLook`, byte for byte)
+  const source = level === undefined ? liftLevelLook(loaded.shard) : parseShardfile(liftLevelLook({ ...loaded.shard, manifest: level.manifest }), sections);
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
@@ -290,7 +293,8 @@ export async function buildProject(project: string, output?: string, options: { 
   try {
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
     const encoded = await encodedCookInput(project, shard.identity.slug);
-    const cook = await withDiscovery(project, shard.manifest ?? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))), loaded.output.discovery, encoded?.input, assets);
+    // OF9b2: discovery keeps a copy of the level look for what reads the level before the product admits (the grid shell)
+    const cook = await withDiscovery(project, shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard) }, loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');

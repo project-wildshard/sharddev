@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- This test builds an author project in a folder of its own.
-import {copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync} from 'node:fs';
+import {copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync} from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- This test builds an author project in a folder of its own.
 import {join, resolve} from 'node:path';
 import {expect, test} from 'vitest';
@@ -43,5 +43,28 @@ test('a scene shard\'s captured hero replaces its generated card, slot by slot',
     const manifest = shardFromDiscovery(JSON.parse(readFileSync(join(out, 'mounts/shardfiles/trail-side/discovery.json'), 'utf8')));
     expect(manifest.card.thumb).toMatch(/^\/shardfiles\/trail-side\/blobs\/image\/[0-9a-f]{64}\.jpg$/u);
     expect(manifest.card.portrait).toMatch(/^data:image\/svg\+xml,/u);
+  } finally { rmSync(root, {recursive: true, force: true}); }
+}, 60_000);
+
+/** ONE-FORMAT OF9b2: a manifest's sky, atmosphere, grade and horizon are built into look/look's `level`, byte for byte; the
+ *  product's ui/level has none, and discovery keeps a copy for what reads the level before the product admits. */
+test('a manifest\'s level look is built into look/look, not ui/level', async () => {
+  mkdirSync('tmp/author-discovery', {recursive: true});
+  const root = mkdtempSync(resolve('tmp/author-discovery/case-')), project = join(root, 'project'), out = join(root, 'out');
+  try {
+    newProject(project, 'trail-side');
+    const shard = {identity: {slug: 'trail-side', name: 'trail-side', seed: 1, author: 'A', revision: 1}, accent: 'sand', spawn: {x: 0, y: 2, z: 0, yaw: 0}} as unknown as Parameters<typeof authorManifest>[0];
+    const composed = authorManifest(shard) as Record<string, unknown>;
+    const level = {sky: {...composed['sky'] as object, sunIntensity: 2.25, sun: {azimuth: -68.2, elevation: 31.76}}, atmosphere: composed['atmosphere'], grade: {...composed['grade'] as object, saturation: -0.12},
+      horizon: {rings: [{r: 900, base: -4, color: [0.4, 0.5, 0.6], top: [0.7, 0.75, 0.8], snowLine: 2, haze: 0.5, bands: [{azimuth: 90, spread: 40, height: 60, rough: 0.3}], floor: -40}], cloudSea: false}};
+    const file = join(project, 'manifest.json');
+    writeFileSync(file, JSON.stringify({...composed, horizon: level.horizon, sky: level.sky, grade: level.grade}));
+    await buildProject(project, out, {outputFormat: 2, client: null, manifest: {folder: 'trail-side', file, imageRoots: []}});
+    const read = (path: string): Record<string, unknown> => JSON.parse(readFileSync(join(out, path), 'utf8')) as Record<string, unknown>;
+    const ui = read('sections/ui/level.json')['manifest'] as Record<string, unknown>, look = read('sections/look/look.json')['look'] as Record<string, unknown>;
+    for (const field of ['sky', 'atmosphere', 'grade', 'horizon']) expect(ui).not.toHaveProperty(field);
+    expect(look['level']).toEqual(level);
+    const discovery = read('mounts/shardfiles/trail-side/discovery.json'), manifest = shardFromDiscovery(discovery);
+    expect(manifest.sky).toEqual(level.sky); expect(manifest.grade).toEqual(level.grade); expect(manifest.horizon).toEqual(level.horizon);
   } finally { rmSync(root, {recursive: true, force: true}); }
 }, 60_000);

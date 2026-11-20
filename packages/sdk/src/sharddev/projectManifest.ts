@@ -92,7 +92,7 @@ export function packManifestImages(folder: string, input: unknown, images: Reado
   const manifest=parseManifestMetadata({...metadata,card:{thumb:image(metadata.card.thumb),portrait:image(metadata.card.portrait),landscape:image(metadata.card.landscape)},
     minimap:{...metadata.minimap,image:image(metadata.minimap.image)},
     explore:{...metadata.explore,art:{world:image(metadata.explore.art.world),models:image(metadata.explore.art.models),sets:image(metadata.explore.art.sets),practice:image(metadata.explore.art.practice)},...(compare===undefined?{}:{compare})},
-    sky:{...metadata.sky,...(hdri===undefined||!urls.has(hdri)?{}:{hdri:image(hdri)})},
+    ...(metadata.sky===undefined?{}:{sky:{...metadata.sky,...(hdri===undefined||!urls.has(hdri)?{}:{hdri:image(hdri)})}}),
     ...(horizon===undefined?{}:{horizonStrips:{...horizon,day:image(horizon.day),night:image(horizon.night),...(horizon.phone===undefined?{}:{phone:{day:image(horizon.phone.day),night:image(horizon.phone.night)}})}}),
   },folder);
   // Explorer-only art is demand UI, never part of the spawn view. Content aliases shared with
