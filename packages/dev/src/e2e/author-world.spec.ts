@@ -153,9 +153,10 @@ test('the packed dev command plays the Mossgate starter over loopback', async ({
 }): Promise<void> => {
   test.setTimeout(120_000)
   await authorWorld(browser, 'dev', async (page): Promise<void> => {
+    // The door objective can complete on the first server ticks at spawn.
     await expect(
       page.getByText('Walk up to the hut door', { exact: true }).first(),
-    ).toBeVisible()
+    ).toBeAttached()
   })
 })
 
@@ -197,18 +198,18 @@ const controlFor =
 async function liveEdit(
   page: Readonly<Page>,
   watch: {
-    readonly worldFile: string
     readonly url: string
     readonly serial: number
   },
   change: {
+    readonly file: string
     readonly control: string
     readonly from: string
     readonly to: string
   },
 ): Promise<void> {
   const pending = page.waitForResponse(controlFor(change.control))
-  edit(watch.worldFile, change.from, change.to)
+  edit(change.file, change.from, change.to)
   const response = await pending
   expect(response.ok()).toBe(true)
   expect(await serial(watch.url)).toBe(watch.serial)
@@ -226,16 +227,17 @@ test('watch applies ground and collider edits and restarts the world for gamepla
         '(window.__wsDevScene?.framedRevision ?? 0) > 0',
       )
       const watch = {
-        worldFile: path.join(source, 'generators/world.ts'),
         url,
         serial: await serial(url),
       }
       await liveEdit(page, watch, {
+        file: path.join(source, 'generators/world.ts'),
         control: 'wildshardDevGround',
         from: 'world.ground(groundHeight,',
         to: 'world.ground((x, z) => groundHeight(x, z) + 0.4 * Math.max(0, 1 - Math.hypot(x, z) / 5),',
       })
       await liveEdit(page, watch, {
+        file: path.join(source, 'generators/yard.ts'),
         control: '"wildshardDevColliders":"hut"',
         from: 'hx: W / 2, hy: Hh / 2, hz: 0.25, rotY: 0',
         to: 'hx: W / 2, hy: Hh / 2, hz: 0.3, rotY: 0',
@@ -252,7 +254,10 @@ test('watch applies ground and collider edits and restarts the world for gamepla
         .toBeGreaterThan(watch.serial)
       await expect(
         page.getByText('Find the hut door', { exact: true }).first(),
-      ).toBeVisible({ timeout: 25_000 })
+      ).toBeAttached({ timeout: 25_000 })
+      await expect(
+        page.getByText('Walk up to the hut door', { exact: true }),
+      ).toHaveCount(0)
       await page.waitForFunction(control)
     },
   )

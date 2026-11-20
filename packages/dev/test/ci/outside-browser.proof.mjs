@@ -20,14 +20,14 @@ function observation() {
     fatal: [...document.querySelectorAll('#wserr,.ws-load-error,.ws-game-dev-alert,[data-boot-fatal]')].map(node => node.textContent) };
 }
 
-async function observeAuthorBrowser(context, empty) {
+async function observeAuthorBrowser(context, empty, view = 'play') {
   const parent = resolve(process.env.WS_PROOF_SCRATCH ?? 'tmp/outside-browser');
   const baseReport = resolve(process.env.WS_BROWSER_REPORT ?? 'tmp/outside-browser-report');
-  const report = empty ? baseReport : join(baseReport, 'default-reference');
+  const report = view === 'explore' ? join(baseReport, 'explore') : empty ? baseReport : join(baseReport, 'default-reference');
   const slug = empty ? 'outside-browser' : 'reference-browser';
   mkdirSync(parent, { recursive: true }); mkdirSync(report, { recursive: true });
   const root = mkdtempSync(join(parent, 'author-')), app = join(root, 'app');
-  const faults = [], requests = [], delivered = [], receipt = { faults, requests, delivered };
+  const faults = [], exceptions = [], requests = [], delivered = [], receipt = { faults, requests, delivered };
   let browser, server, dev, devClosed, page, output = '';
   const cancellation = new AbortController();
   const abort = () => cancellation.abort(new Error('outside-author deadline'));
@@ -54,10 +54,17 @@ async function observeAuthorBrowser(context, empty) {
       if (cancellation.signal.aborted) cancelled();
       dev.once('error', error => { clear(); reject(error); });
       dev.once('exit', code => { clear(); reject(new Error(`dev exited ${code}: ${output}`)); });
-      dev.stdout.on('data', bytes => { output += bytes; const found = /wildshard dev: (http:\/\/\S+)/u.exec(output); if (found) { clear(); _resolve(found[1]); } });
+      dev.stdout.on('data', bytes => {
+        output += bytes;
+        const walk = /wildshard dev: (http:\/\/\S+\?skipintro)\r?\n/u.exec(output)?.[1];
+        const explore = /wildshard dev: explore \(fly, inspect\) (http:\/\/\S+\?explore=world)\r?\n/u.exec(output)?.[1];
+        if (walk !== undefined && explore !== undefined) { clear(); _resolve({ walk, explore }); }
+      });
       dev.stderr.on('data', bytes => { output += bytes; });
     });
-    const url = new URL(await ready); url.searchParams.set('mute', '1'); url.searchParams.set('nolock', '1'); url.searchParams.set('sw', '0');
+    const links = await ready;
+    assert.equal(new URL(links.walk).origin, new URL(links.explore).origin);
+    const url = new URL(view === 'explore' ? links.explore : links.walk); url.searchParams.set('mute', '1'); url.searchParams.set('nolock', '1'); url.searchParams.set('sw', '0');
     receipt.url = url.href;
     cancellation.signal.throwIfAborted();
     // Linux CI's implicit Vulkan SwiftShader can miss the real-time frame
@@ -66,19 +73,31 @@ async function observeAuthorBrowser(context, empty) {
     if (cancellation.signal.aborted) { server.process().kill('SIGKILL'); cancellation.signal.throwIfAborted(); }
     browser = await chromium.connect(server.wsEndpoint(), { timeout: 10_000 });
     page = await browser.newPage({ viewport: { width: 960, height: 640 } });
-    page.on('pageerror', error => faults.push(error.message));
+    page.on('pageerror', error => { exceptions.push(error.message); faults.push(error.message); });
     page.on('console', message => { if (message.type() === 'error') faults.push(message.text()); });
     page.on('response', response => {
       if (response.status() >= 400) faults.push(`HTTP ${response.status()} ${response.url()}`);
       const parsed = new URL(response.url());
-      if (parsed.origin === url.origin && parsed.pathname.startsWith(`/shardfiles/${slug}/sections/`) && response.ok()) delivered.push(parsed.pathname);
+      const authoredSection = parsed.pathname.startsWith(`/shardfiles/${slug}/sections/`) || parsed.pathname.startsWith('/sections/');
+      if (parsed.origin === url.origin && authoredSection && response.ok()) delivered.push(parsed.pathname);
     });
     page.on('requestfailed', request => faults.push(`request failed: ${request.url()} ${request.failure()?.errorText}`));
     page.on('request', request => { const parsed = new URL(request.url()); if (parsed.pathname.startsWith('/shardfiles/')) requests.push(parsed.pathname); });
     await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 30_000 });
+    if (view === 'explore') {
+      const result = await page.waitForFunction(() => {
+        if (window.__wildshard?.state().appState === 'explore') return 'entered';
+        const skip = document.querySelector('#ws-name-box [data-name=skip]');
+        return skip?.getClientRects().length > 0 ? 'name' : false;
+      }, undefined, { timeout: Math.max(1, remaining() - 5000) });
+      if (await result.jsonValue() === 'name') {
+        await page.locator('#ws-name-box [data-name=skip]').click({ timeout: remaining() });
+      }
+    }
     // A cold generated world on hosted software rendering is a Ring 2 boot
     // proof, not an FPS benchmark. Both waits share the existing hard deadline.
-    await page.waitForFunction(() => window.__wildshard?.state().appState === 'play', undefined, { timeout: remaining() });
+    const stateBudget = view === 'explore' ? Math.max(1, remaining() - 5000) : remaining();
+    await page.waitForFunction(expected => window.__wildshard?.state().appState === expected, view, { timeout: stateBudget });
     receipt.before = await page.evaluate(observation);
     await page.waitForFunction(({ frame, drawn }) => {
       const probe = window.__wildshard;
@@ -86,11 +105,14 @@ async function observeAuthorBrowser(context, empty) {
     }, receipt.before, { timeout: remaining() });
     receipt.after = await page.evaluate(observation);
     const current = receipt.after;
-    assert.equal(current.slug, slug); assert.equal(current.state, 'play');
-    assert.equal(current.entered, true); assert.equal(current.paused, false);
-    assert.ok(current.player.health > 0);
-    assert.ok(['x', 'y', 'z'].every(key => Number.isFinite(current.player.pos[key])));
-    assert.deepEqual(current.fatal, []); assert.deepEqual(faults, []);
+    assert.equal(current.slug, slug); assert.equal(current.state, view);
+    if (view === 'play') {
+      assert.equal(current.entered, true); assert.equal(current.paused, false);
+      assert.ok(current.player.health > 0);
+      assert.ok(['x', 'y', 'z'].every(key => Number.isFinite(current.player.pos[key])));
+    }
+    assert.deepEqual(current.fatal, []);
+    assert.deepEqual(view === 'play' ? faults : exceptions, []);
     assert.ok(delivered.length > 0, 'The intended dev server must successfully deliver authored sections');
     receipt.flags = await (await fetch(new URL('/build-flags.json', url), { signal: cancellation.signal })).json();
     assert.equal(receipt.flags.devserver, true);
@@ -103,7 +125,7 @@ async function observeAuthorBrowser(context, empty) {
       assert.ok(receipt.versionLabel.toLowerCase().includes(`v${receipt.enginePin}`), 'The published client must name the declared engine version');
     }
     cancellation.signal.throwIfAborted();
-    clearTimeout(deadline); // Play is proved; artifact capture uses the reserved cleanup budget.
+    clearTimeout(deadline); // Frame progress is proved; artifact capture uses the reserved cleanup budget.
     // SwiftShader readback can wedge shutdown after a timed-out screenshot.
     // Real rendered-frame progress remains mandatory; PNG is optional evidence.
     if (current.renderer?.includes('SwiftShader')) receipt.screenshotSkipped = 'software renderer readback can stall shutdown';
@@ -115,7 +137,17 @@ async function observeAuthorBrowser(context, empty) {
   } catch (error) {
     receipt.verdict = 'fail'; receipt.error = String(error);
     if (page) {
-      try { receipt.last = await page.evaluate(observation); await page.screenshot({ path: join(report, 'failure.png'), timeout: 3_000 }); }
+      try {
+        receipt.last = await page.evaluate(observation);
+        receipt.page = await page.evaluate(() => ({
+          inlineShard: document.getElementById('ws-shardfile') !== null,
+          world: typeof window.__WS_WORLD__ === 'object',
+          path: location.pathname + location.search,
+          exploreMetadata: window.__wildshard?.shard?.explore !== undefined,
+          copy: document.body.innerText.slice(0, 1200),
+        }));
+        await page.screenshot({ path: join(report, 'failure.png'), timeout: 3_000 });
+      }
       catch (diagnostic) { receipt.diagnosticError = String(diagnostic); }
     }
     throw error;
@@ -168,3 +200,6 @@ test('the packed outside author boots its own shard in the published engine clie
 // TC13: fresh default content uses the same packed CLI and published client.
 // The real door/cross/save journey remains in new-reference.test.mjs.
 test('the packed default new reference enters play in the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, false));
+
+// EX6: an outside author's new link opens the same packed client in its viewer.
+test('the packed outside author explores the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, false, 'explore'));
