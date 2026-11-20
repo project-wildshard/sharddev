@@ -109,6 +109,9 @@
     "./projectEntryProof": "./src/sharddev/projectEntryProof.ts",
     "./scripts/*": "./scripts/*"
   },
+  "wildshardStagingClients": {
+    "0.1.53": "b889e7396d588c82a6f7c3edd523a8b721d7e6dc"
+  },
   "publishConfig": {
     "access": "public"
   }
