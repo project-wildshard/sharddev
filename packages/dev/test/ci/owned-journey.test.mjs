@@ -39,7 +39,8 @@ for (const { slug, directory } of walked) test(`${slug}: enters and walks 1800 a
     const kept = (rows, own) => rows.filter(row => own.some(mine => JSON.stringify(mine) === JSON.stringify(row)));
     assert.deepEqual([shard.quests.quests, shard.quests.dialogue], [authored.quests, authored.dialogue], 'The real product must preserve its authored quests and talks');
     assert.deepEqual(kept(shard.quests.triggers, authored.triggers), authored.triggers, 'The real product must keep every authored trigger');
-    assert.deepEqual(kept(shard.quests.flags, authored.flags), authored.flags, 'The real product must keep every authored flag');
+    // a set: the scene declares the place flags the authored rows read (quest-source.mjs), in its own order
+    assert.deepEqual(authored.flags.filter(flag => !shard.quests.flags.includes(flag)), [], 'The real product must keep every authored flag');
   } else assert.deepEqual(shard.quests,authored,'The real product must preserve its authored quest inventory');
   const descriptor = outputDescriptor(shard); assert.ok(descriptor);
   const declared = shard.runtime === null && !product.has('sim/runtime-plan');
