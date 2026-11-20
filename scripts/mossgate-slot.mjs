@@ -6,6 +6,7 @@
 //   node scripts/mossgate-slot.mjs drift [--staging=<sha>] [--ref=<ref>]
 //       red (exit 1) when staging's Mossgate commit does not contain the template's last change on <ref> (default
 //       HEAD); --staging= checks a given commit instead of reading the API (rev 3's f97831a8 is red)
+import { agentFetch as fetch } from '../packages/dev/scripts/wildshard-agent-requests.mjs';
 import { execFileSync } from 'node:child_process';
 
 const API = (process.env.WILDSHARD_API_URL ?? 'https://api.wildshard.io').replace(/\/$/u, '');
