@@ -23,11 +23,11 @@ export const THICKET = {
   SIGN: { x: place('thicket.clearing').x - 6, z: place('thicket.clearing').z + 15 },
 } as const;
 
-/** Greyback's camp: the elite at the clearing's heart, the sows round its rim; two more sows in the wallow. */
+/** Greyback's camp: the elite at the clearing's heart, the sows round its rim; three more sows in the wallow. */
 export const THICKET_CAMP = {
   greyback: { x: THICKET.CLEARING.x, z: THICKET.CLEARING.z, r: 12 },
   sows: [[128, -134], [151, -146], [138, -153]] as const,
-  wallowSows: [[196, -196], [205, -203]] as const,
+  wallowSows: [[196, -196], [205, -203], [198, -206]] as const,
 } as const;
 
 export const THICKET_FLAGS = { clearing: 'mossgate.place.thicket.clearing', wallow: 'mossgate.place.thicket.wallow' } as const;

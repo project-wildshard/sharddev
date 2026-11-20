@@ -16,7 +16,7 @@ test("Greyback's Thicket has its camp, places and lore sign", { timeout: 120_000
   const thicket = REGIONS.find((region) => region.id === 'thicket')?.rect;
   if (thicket === undefined) throw new Error('no thicket');
   const camp = shard.creatures.spawns.filter((row) => row.id === 'greyback' || row.id.startsWith('camp-sow-') || row.id.startsWith('wallow-sow-'));
-  expect(camp.map((row) => row.id).sort()).toEqual(['camp-sow-1', 'camp-sow-2', 'camp-sow-3', 'greyback', 'wallow-sow-1', 'wallow-sow-2']);
+  expect(camp.map((row) => row.id).sort()).toEqual(['camp-sow-1', 'camp-sow-2', 'camp-sow-3', 'greyback', 'wallow-sow-1', 'wallow-sow-2', 'wallow-sow-3']);
   for (const row of camp) expect(inside(thicket, row.at[0], row.at[2]), row.id).toBe(true);
   const elite = shard.encounters.find((row) => row.id === 'mossgate.greyback');
   expect(elite).toMatchObject({ kind: 'elite', entity: 'greyback' });

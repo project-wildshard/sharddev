@@ -9,6 +9,7 @@
 // - the Barrow Warden, the boss of the barrow ring: a golem of mossy stone blocks (the static scene's idle golem, now live)
 // - MZ15: Gritmaw, the Old Quarry's elite: a smaller golem of quarried sandstone with its own decision script
 // - MZ20: the barrow crawlers, the Warden's adds: four moss-capped stone blobs that wake in its third phase
+// - MZ21: camps to the bar: a ridge camp of five grey blobs and a cairn camp of five crawlers; every camp body respawns
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { ShardRows } from '@wildshard/format/rows';
@@ -18,6 +19,8 @@ import { MEADOW_PACKS } from './meadow';
 import { THICKET_CAMP } from './thicket';
 import { BOG_WISPS } from './bog';
 import { QUARRY, QUARRY_BLOBS } from './quarry';
+import { RIDGE_CAMP } from './ridge';
+import { CAIRN_CAMP } from './downs';
 
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
@@ -48,6 +51,9 @@ export const HAUNTS = {
   GRITMAW: QUARRY.GRITMAW,
   QUARRY_BLOBS,
   /** MZ20: where the Warden's four adds rise in its third phase, inside the ring round it (the ring is 8 m across the floor) */
+  /** MZ21: the scavengers' camp on Lookout Ridge's lower slope (ridge.ts), and the crawlers' camp round the Old Cairn (downs.ts) */
+  RIDGE_BLOBS: RIDGE_CAMP.seats,
+  CAIRN_CRAWLERS: CAIRN_CAMP.seats,
   CRAWLERS: [0.25, 0.75, 1.25, 1.75].map((t) => [LAYOUT.ARENA.x - 1 + Math.cos(t * Math.PI) * 5, LAYOUT.ARENA.z + Math.sin(t * Math.PI) * 5] as const),
 } as const;
 
@@ -223,7 +229,7 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
   const o = new THREE.Object3D(); o.position.set(x, groundHeight(x, z) + lift, z); o.rotation.y = yaw; world.scene.add(o); return o;
 }
 
-/** The Hollow's creatures: eight species, thirty-five bodies. */
+/** The Hollow's creatures: eight species, forty-six bodies in ten camps, the elites and the boss (MZ21). */
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
@@ -296,9 +302,9 @@ export function buildCreatures(world: ShardWorld): void {
   HAUNTS.MOSSLINGS.forEach(([x, z], i) => world.spawnAt(`mossling-${i + 1}`, spot(world, x, z), { species: 'mossling', variant: 'moss', brain: PACKS.den, strike: null, seed: 501 + i, scale: 1, respawn: 45 }));
   HAUNTS.STONES_PACK.forEach(([x, z], i) => world.spawnAt(BODIES.stonesPack[i] ?? '', spot(world, x, z), { species: 'mossling', variant: 'moss', brain: PACKS.stones, strike: null, seed: 521 + i, scale: 1, respawn: 45 }));
   // a ram-grazer grazes round its home (the engine refuses one without)
-  HAUNTS.SOWS.forEach(([x, z], i) => world.spawnAt(`sow-${i + 1}`, spot(world, x, z), { species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 601 + i, scale: 1,
+  HAUNTS.SOWS.forEach(([x, z], i) => world.spawnAt(`sow-${i + 1}`, spot(world, x, z), { species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 601 + i, scale: 1, respawn: 60,
     home: { x, y: groundHeight(x, z), z, r: 6 } }));
-  HAUNTS.WISPS.forEach(([x, z], i) => world.spawnAt(`bog-wisp-${i + 1}`, spot(world, x, z, 0, 5), { species: 'bog.wisp', variant: 'bog', brain: 'mossgate.wisp-dive', strike: null, seed: 701 + i, scale: 1 }));
+  HAUNTS.WISPS.forEach(([x, z], i) => world.spawnAt(`bog-wisp-${i + 1}`, spot(world, x, z, 0, 5), { species: 'bog.wisp', variant: 'bog', brain: 'mossgate.wisp-dive', strike: null, seed: 701 + i, scale: 1, respawn: 60 }));
   [...HAUNTS.CAMP_SOWS, ...HAUNTS.WALLOW_SOWS].forEach(([x, z], i) => world.spawnAt(i < HAUNTS.CAMP_SOWS.length ? `camp-sow-${i + 1}` : `wallow-sow-${i - HAUNTS.CAMP_SOWS.length + 1}`, spot(world, x, z), {
     species: 'boar', variant: 'sow', brain: 'mossgate.sow-ram', strike: null, seed: 611 + i, scale: 1, respawn: 60, home: { x, y: groundHeight(x, z), z, r: 6 } }));
   HAUNTS.MERE_WISPS.forEach(([x, z], i) => world.spawnAt(`mere-wisp-${i + 1}`, spot(world, x, z, 0, BOG_WISPS.home.y - groundHeight(x, z)), { species: 'mere.wisp', variant: 'mere', brain: 'mossgate.mere-wisp-dive', strike: null, seed: 711 + i, scale: 1, respawn: 60 }));
@@ -310,4 +316,7 @@ export function buildCreatures(world: ShardWorld): void {
   // MZ20: the Warden's adds wait out of the world until its third phase (fights.ts lists them on it); no respawn of their own
   HAUNTS.CRAWLERS.forEach(([x, z], i) => world.spawnAt(BODIES.crawlers[i] ?? '', spot(world, x, z, Math.atan2(HAUNTS.WARDEN.x - x, HAUNTS.WARDEN.z - z)), { species: 'barrow.crawler', variant: 'crawler', brain: 'mossgate.blob-pursuit', strike: STRIKES.crawlerBump.id, seed: 921 + i, scale: 1 }));
   HAUNTS.QUARRY_BLOBS.forEach(([x, z], i) => world.spawnAt(`quarry-blob-${i + 1}`, spot(world, x, z), { species: 'grey.blob', variant: 'grey', brain: 'mossgate.blob-pursuit', strike: i === 0 ? STRIKES.blobLane.id : STRIKES.blobBump.id, seed: 461 + i, scale: 1, respawn: 60 }));
+  // MZ21: the ridge's scavengers pursue as the yard's blobs do (one throws the lane), and the cairn's crawlers face out from it
+  HAUNTS.RIDGE_BLOBS.forEach(([x, z], i) => world.spawnAt(`ridge-blob-${i + 1}`, spot(world, x, z), { species: 'grey.blob', variant: 'grey', brain: 'mossgate.blob-pursuit', strike: i === 4 ? STRIKES.blobLane.id : STRIKES.blobBump.id, seed: 471 + i, scale: 1, respawn: 60 }));
+  HAUNTS.CAIRN_CRAWLERS.forEach(([x, z], i) => world.spawnAt(`cairn-crawler-${i + 1}`, spot(world, x, z, Math.atan2(x - 210, z - 80)), { species: 'barrow.crawler', variant: 'crawler', brain: 'mossgate.blob-pursuit', strike: STRIKES.crawlerBump.id, seed: 931 + i, scale: 1, respawn: 60 }));
 }

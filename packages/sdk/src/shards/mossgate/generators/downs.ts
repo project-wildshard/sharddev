@@ -26,6 +26,10 @@ export const DOWNS = {
   MOUNDS: [[182, 22, 7, 3.2, -2.2], [186, 66, 6, 2.8, -1.1], [128, 66, 6.5, 3, 1.6], [112, 48, 5, 2.4, 2.45]] as const,
 } as const;
 
+/** MZ21: the cairn's camp: five barrow crawlers awake round the Old Cairn's east foot, 11 m out, off the road that comes in
+ *  from the west (creatures.ts places them; the Warden's own four stay asleep in its ring until its third phase). */
+export const CAIRN_CAMP = { seats: [-0.9, -0.45, 0, 0.45, 0.9].map((a) => [place('downs.cairn').x + Math.cos(a) * 11, place('downs.cairn').z + Math.sin(a) * 11] as const) } as const;
+
 export const DOWNS_FLAGS = { ring: 'mossgate.place.downs.barrow', cairn: 'mossgate.place.downs.cairn' } as const;
 
 const stoneM = new THREE.MeshStandardMaterial({ name: 'downs-stone', color: '#8e8b80', roughness: 0.95 });

@@ -30,6 +30,10 @@ export const RIDGE = {
 
 export const RIDGE_FLAGS = { lookout: 'mossgate.place.ridge.lookout' } as const;
 
+/** MZ21: the scavengers' camp on the ridge's lower slope, 70 m south of the Lookout and off the climb: five grey blobs round
+ *  its middle (creatures.ts places them); the slopes keep their pines and boulders clear of it. */
+export const RIDGE_CAMP = { x: -200, z: -130, seats: [[-197, -127], [-204, -128], [-199, -134.5], [-205, -134], [-201, -130.5]] as const } as const;
+
 /** MZ18: the beacon on the Lookout's west edge, which the main chain lights: its prompt, the shared field it sets, its
  *  fire's panel, and where it stands (on the dais's top). */
 export const BEACON = {
@@ -140,7 +144,7 @@ function slopes(part: THREE.Group, rand: () => number): void {
   const pines: [number, number, number][] = [], rocks: [number, number, number][] = [];
   for (let tries = 0; tries < 700 && (pines.length < 46 || rocks.length < 18); tries++) {
     const x = R(RECT.x0, RECT.x1), z = R(RECT.z0, RECT.z1);
-    if (Math.hypot(x - LOOKOUT.x, z - LOOKOUT.z) < 15 || roadDistance(x, z) < 5.5) continue;
+    if (Math.hypot(x - LOOKOUT.x, z - LOOKOUT.z) < 15 || Math.hypot(x - RIDGE_CAMP.x, z - RIDGE_CAMP.z) < 10 || roadDistance(x, z) < 5.5) continue;
     if ([...pines, ...rocks].some(([sx, sz]) => Math.hypot(sx - x, sz - z) < 6)) continue;
     if (pines.length < 46 && rand() < 0.75) pines.push([x, z, R(0.8, 1.3)]); else if (rocks.length < 18) rocks.push([x, z, R(0.7, 1.6)]);
   }

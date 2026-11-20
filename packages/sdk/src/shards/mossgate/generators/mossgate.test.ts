@@ -123,12 +123,25 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // thirty-five bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
-  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback, the Warden, its four crawlers (MZ20), and Gritmaw and
-  // its camp's four blobs (MZ15)
+  // forty-six bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and six in the thicket (MZ13, MZ21),
+  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback, the Warden, its four crawlers (MZ20), Gritmaw and its
+  // camp's four blobs (MZ15), and MZ21's ridge camp of five blobs and cairn camp of five crawlers
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(35);
-  expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
+  expect(spawns).toHaveLength(46);
+  expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
+  // MZ21: every body but the Warden's adds comes back (a camp you cleared fills again for the next player)
+  const adds = new Set(shard.encounters.flatMap((row) => (row as { phases?: { adds?: string[] }[] }).phases?.flatMap((ph) => ph.adds ?? []) ?? []));
+  for (const row of spawns) if (!adds.has(row.id)) expect(row.respawn, row.id).toBeGreaterThan(0);
+  // MZ21: eight camps or more: bodies standing within 15 m of each other, three or more to a camp, the adds asleep apart
+  const awake = spawns.filter((row) => !adds.has(row.id)).map((row) => ({ id: row.id, x: row.at[0], z: row.at[2] }));
+  const camp = awake.map((_, i) => i), root = (i: number): number => (camp[i] === i ? i : (camp[i] = root(camp[i] ?? i)));
+  for (let i = 0; i < awake.length; i++) for (let j = i + 1; j < awake.length; j++) {
+    const a = awake[i], b = awake[j];
+    if (a !== undefined && b !== undefined && Math.hypot(a.x - b.x, a.z - b.z) <= 15) camp[root(i)] = root(j);
+  }
+  const sizes = new Map<number, number>();
+  for (let i = 0; i < awake.length; i++) sizes.set(root(i), (sizes.get(root(i)) ?? 0) + 1);
+  expect([...sizes.values()].filter((n) => n >= 3).length).toBeGreaterThanOrEqual(8);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));
   expect(shard.creatures.groups.map((row) => [row.id, row.members.length])).toEqual([['mossgate.mosslings', 4], ['mossgate.mosslings-stones', 4]]);
