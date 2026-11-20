@@ -8,6 +8,12 @@ const sources={'pastel-plain':pastel,'ink-cel-valley':ink};
  * Mossgate product holds the authored rows plus the scene's. Load the engine's sim-node-loader first. */
 export const SCENE_TRIGGERS=new Set(['mossgate']);
 export async function questSource(slug){
-  if(slug==='mossgate')return parseShardfileField('quests',(await import('../../../sdk/src/shards/mossgate/generators/quests.ts')).QUESTS);
+  // MZ16: "The lay of the Hollow" reads every place's flag, and the places' region triggers declare them in the scene, so
+  // the authored section alone admits only with those flags added
+  if(slug==='mossgate'){
+    const {QUESTS}=await import('../../../sdk/src/shards/mossgate/generators/quests.ts');
+    const {PLACE_FLAGS}=await import('../../../sdk/src/shards/mossgate/generators/places.ts');
+    return parseShardfileField('quests',{...QUESTS,flags:[...new Set([...QUESTS.flags,...PLACE_FLAGS])]});
+  }
   return parseShardfileField('quests',sources[slug]);
 }
