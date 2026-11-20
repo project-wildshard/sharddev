@@ -238,8 +238,8 @@ importers:
   packages/kit:
     dependencies:
       '@wildshard/shard-format':
-        specifier: 0.56.0
-        version: 0.56.0(typescript@6.0.3)
+        specifier: 0.57.0
+        version: 0.57.0(typescript@6.0.3)
       three:
         specifier: 0.186.0
         version: 0.186.0
@@ -912,11 +912,6 @@ packages:
         optional: true
     bundledDependencies:
       - '@wildshard/format'
-
-  '@wildshard/shard-format@0.56.0':
-    resolution: {integrity: sha512-wA2CHqAqvADcS6EdFDC5CKsAIc94KYqv1l8JS8CLAA/NAP0V1G0nW/fg8Bpd9d14MF2/K8ZGTYRUjHTeIHhCCQ==}
-    engines: {node: '>=24.18.0'}
-    hasBin: true
 
   '@wildshard/shard-format@0.57.0':
     resolution: {integrity: sha512-/ju/y+IBbA8AJFkki0MnTd0WObGmijGfiyWYUujGiuNc2WPixi6dcWVvfBC9EZtLFTRBPm1ERfUoZ8nzrALnGQ==}
@@ -2012,13 +2007,6 @@ snapshots:
       - preact-render-to-string
       - typescript
       - utf-8-validate
-
-  '@wildshard/shard-format@0.56.0(typescript@6.0.3)':
-    dependencies:
-      meshoptimizer: 1.2.0
-      valibot: 1.5.0(typescript@6.0.3)
-    transitivePeerDependencies:
-      - typescript
 
   '@wildshard/shard-format@0.57.0(typescript@6.0.3)':
     dependencies:
