@@ -50,6 +50,11 @@ export const QUARRY = {
 /** The camp's four grey blobs, round its dead fire. */
 export const QUARRY_BLOBS = [[-31, 188], [-39, 189], [-33, 197], [-38, 196]] as const;
 
+/** MZ19: the Quarrymaster, the Hollow's third talker, on the haul path's east side past the bridge, looking over the
+ *  path toward the pit where Gritmaw took her crew's work; her lean-to and tool crates behind her. */
+export const QUARRYMASTER = { x: 35, z: 164, yaw: -Math.PI / 2 } as const;
+export const QUARRYMASTER_TALK = { id: 'mossgate.quarrymaster.talk', dialogue: 'mossgate.quarrymaster' } as const;
+
 export const QUARRY_FLAGS = {
   pit: 'mossgate.place.quarry.pit',
   camp: 'mossgate.quarry.camp',
@@ -147,11 +152,39 @@ function pit(part: THREE.Group, rand: () => number): void {
   block(part, x - 4.1, groundHeight(x - 4, z + r + 4) + 0.9, z + r + 4, 2.85, 0.9, 0.55);
 }
 
+/** The Quarrymaster: boots, a leather apron over a work coat, a broad-brimmed hat, a pick over her shoulder; a lean-to of
+ *  poles and tarp behind her and two tool crates. Static: her talk is the scene's (gameplay.ts). */
+function quarrymaster(part: THREE.Group): void {
+  const { x, z, yaw } = QUARRYMASTER, gy = groundHeight(x, z), g = new THREE.Group(); g.position.set(x, gy, z); g.rotation.y = yaw; part.add(g);
+  const coat = new THREE.MeshStandardMaterial({ name: 'quarrymaster-coat', color: '#5b6a7a', roughness: 0.9 });
+  const apron = new THREE.MeshStandardMaterial({ name: 'quarrymaster-apron', color: '#7a5434', roughness: 0.85 });
+  const skin = new THREE.MeshStandardMaterial({ name: 'quarrymaster-skin', color: '#c99a78', roughness: 0.8 });
+  const dark = new THREE.MeshStandardMaterial({ name: 'quarrymaster-boots', color: '#2e2620', roughness: 0.9 });
+  for (const side of [-1, 1]) {
+    const leg = box(0.2, 0.8, 0.22, dark); leg.position.set(side * 0.13, 0.4, 0); g.add(leg);
+    const arm = box(0.16, 0.66, 0.18, coat); arm.position.set(side * 0.36, 1.12, 0.02); arm.rotation.z = side * 0.12; g.add(arm);
+  }
+  const body = box(0.56, 0.7, 0.32, coat); body.position.set(0, 1.15, 0); g.add(body);
+  const front = box(0.44, 0.78, 0.04, apron); front.position.set(0, 1.0, 0.18); g.add(front);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10), skin); head.position.set(0, 1.68, 0); head.castShadow = true; g.add(head);
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.03, 14), apron); brim.position.set(0, 1.8, 0); g.add(brim);
+  const crown = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, 0.16, 12), apron); crown.position.set(0, 1.89, 0); g.add(crown);
+  const haft = box(0.05, 0.05, 1.1, timberM); haft.position.set(0.3, 1.5, -0.1); haft.rotation.x = 0.9; g.add(haft);
+  const pick = box(0.6, 0.06, 0.06, rockM); pick.position.set(0.3, 1.92, -0.48); g.add(pick);
+  // the lean-to behind her, and her crates
+  const back = new THREE.Group(); back.position.set(x + 2.4, gy, z); part.add(back);
+  for (const dz of [-1.4, 1.4]) { const pole = box(0.1, 2, 0.1, darkTimberM); pole.position.set(-0.8, 1, dz); back.add(pole); }
+  const sheet = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 3, 2, 2), tarpM); sheet.position.set(0.1, 1.15, 0); sheet.rotation.set(0, Math.PI / 2, 0.95); back.add(sheet);
+  for (const [dx, dz] of [[0.3, -0.7], [0.4, 0.5]] as const) { const crate = box(0.7, 0.6, 0.7, timberM); crate.position.set(dx, 0.3, dz); back.add(crate); }
+  block(part, x, gy + 0.9, z, 0.3, 0.9, 0.3);
+  block(part, x + 2.6, gy + 0.6, z, 0.9, 0.6, 1.5);
+}
+
 /** The Old Quarry: the pit's floor, the blobs' camp and the bridge over the Spoil Cut, with a region trigger at each. */
 export function buildQuarry(world: ShardWorld): void {
   world.part('quarry', (part) => {
     const rand = T.rng(1501);
-    pit(part, rand); camp(part, rand); bridge(part, rand);
+    pit(part, rand); camp(part, rand); bridge(part, rand); quarrymaster(part);
     world.trigger(QUARRY_FLAGS.pit, node(part, PIT.x, groundHeight(PIT.x, PIT.z), PIT.z), { radius: 30 });
     world.trigger(QUARRY_FLAGS.camp, node(part, QUARRY.CAMP.x, groundHeight(QUARRY.CAMP.x, QUARRY.CAMP.z), QUARRY.CAMP.z), { radius: 12 });
     world.trigger(QUARRY_FLAGS.bridge, node(part, CROSS.x, groundHeight(CROSS.x, CROSS.z), CROSS.z), { radius: 3 });

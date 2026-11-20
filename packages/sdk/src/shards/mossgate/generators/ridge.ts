@@ -5,6 +5,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
+import { fire } from '@wildshard/sdk/scene/fire';
 import { inside, PATHS, PLACES, REGIONS } from './layout';
 import { roadDistance } from './ground';
 import { groundHeight } from './world';
@@ -28,6 +29,16 @@ export const RIDGE = {
 } as const;
 
 export const RIDGE_FLAGS = { lookout: 'mossgate.place.ridge.lookout' } as const;
+
+/** MZ18: the beacon on the Lookout's west edge, which the main chain lights: its prompt, the shared field it sets, its
+ *  fire's panel, and where it stands (on the dais's top). */
+export const BEACON = {
+  use: 'mossgate.beacon.use',
+  field: 'mossgate.beacon',
+  panel: 'mossgate.beacon-fire',
+  x: LOOKOUT.x - RIDGE.DAIS.half + 1.2,
+  z: LOOKOUT.z,
+} as const;
 
 /** The view stone's talk: what the Lookout shows, read like a sign. */
 export const RIDGE_VIEW_DIALOGUE = {
@@ -164,5 +175,12 @@ export function buildRidge(world: ShardWorld): void {
     const rand = T.rng(1601);
     lookout(part, rand); viewStone(part); cairns(part, rand); slopes(part, rand);
     world.trigger(RIDGE_FLAGS.lookout, node(part, LOOKOUT.x, groundHeight(LOOKOUT.x, LOOKOUT.z), LOOKOUT.z), { radius: 16 });
+    const top = groundHeight(LOOKOUT.x, LOOKOUT.z) + RIDGE.DAIS.h + 0.11;
+    world.interact(BEACON.use, node(part, BEACON.x + 0.9, top + 1.4, BEACON.z), { label: 'Light the beacon', radius: 2.6, sets: { field: BEACON.field, scope: 'shared', value: true } });
   });
+  // MZ18: the beacon's fire, seen from the Hollow once it burns
+  world.part('beacon-fire', (part) => {
+    const top = groundHeight(LOOKOUT.x, LOOKOUT.z) + RIDGE.DAIS.h + 0.11;
+    const f = fire({ size: 2.2, seed: 1611 }); f.position.set(BEACON.x, top + 0.4, BEACON.z); part.add(f);
+  }, { panel: BEACON.panel, shownWhen: { field: BEACON.field, equals: true } });
 }

@@ -9,6 +9,7 @@ import { groundHeight, LAYOUT } from './world';
 import { fights } from './fights';
 import { THICKET_TALKS } from './thicket';
 import { RIDGE_TALKS } from './ridge';
+import { QUARRYMASTER, QUARRYMASTER_TALK } from './quarry';
 
 type Items = Shardfile['items'];
 type Weapon = Items['rows'][number];
@@ -31,6 +32,9 @@ const TALKS = [
     radius: 2.5, label: 'Talk to the Lamplighter', dialogue: LAMPLIGHTER_DIALOGUE.id, figure: 'mossgate.lamplighter' },
   { id: 'mossgate.hermit.talk', at: [PLAY.HERMIT.x, groundHeight(PLAY.HERMIT.x, PLAY.HERMIT.z), PLAY.HERMIT.z] as [number, number, number],
     radius: 2.5, label: 'Talk to the Pond Hermit', dialogue: HERMIT_DIALOGUE.id },
+  // MZ19: the third talker, at the Old Quarry
+  { id: QUARRYMASTER_TALK.id, at: [QUARRYMASTER.x, groundHeight(QUARRYMASTER.x, QUARRYMASTER.z), QUARRYMASTER.z] as [number, number, number],
+    radius: 2.6, label: 'Talk to the Quarrymaster', dialogue: QUARRYMASTER_TALK.dialogue },
 ];
 
 /** The achievements the quests' facts pay (the Template's `data/ledger.json`). */
@@ -47,6 +51,12 @@ export const LEDGER = [
   achievement('mossgate.mosslings', 'mossgate.mosslings', 'Pack hunter'),
   // MZ16
   achievement('mossgate.places', 'mossgate.places', 'The lay of the Hollow'),
+  // MZ18: the camps
+  achievement('mossgate.gritmaw', 'mossgate.gritmaw', 'Gritmaw'),
+  achievement('mossgate.quarry.camp', 'mossgate.quarryCamp', 'Back to work'),
+  achievement('mossgate.stones-pack', 'mossgate.stonesPack', 'Ring clear'),
+  achievement('mossgate.mere', 'mossgate.mere', 'Lights out'),
+  achievement('mossgate.wallow', 'mossgate.wallow', 'Mud and tusks'),
 ];
 
 /** The Hollow's rows over the scene's shardfile: `defineShard(identity, buildHollow, { extend: gameplay, decisions })`;

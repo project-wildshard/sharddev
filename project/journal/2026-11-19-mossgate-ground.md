@@ -52,3 +52,5 @@ arch, between six pairs of standing stones. Four burial mounds with stone doorwa
 far rise; the ring and the cairn are region triggers. Fingerposts that land on one spot share a post, an arm per name. A
 probe found the Warden's strikes land on no one, here or in the yard before the move (2.6 m from it, hp 100 for 15 s
 while its tell and core cycle): left for MZ20, the real boss.
+
+MZ18 and MZ19 (code in; the row's walk proof is still owed): the Lamplighter's chain now sends you through the old rite. The Pond Hermit gives it; you read it at the Standing Stones, carry it to the Sunken Shrine, light a new beacon on the Lookout, then hear the last of it from the Quarrymaster, the Hollow's third talker, at the Old Quarry. Then the Warden, and back to the Lamplighter. Each rite trigger rises only after the one before it. Every camp got a small side quest and a ledger row. The headless walk of the whole chain still stops at its first talk: the box-name check fails on two equal-looking names ("The Lamplighter").

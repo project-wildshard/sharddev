@@ -9,7 +9,8 @@ import { THICKET_FLAGS, THICKET_SIGN_DIALOGUE } from './thicket';
 import { BOG, BOG_FLAGS, BOG_USE } from './bog';
 import { PLACES } from './layout';
 import { PLACE_FLAGS } from './places';
-import { RIDGE_VIEW_DIALOGUE } from './ridge';
+import { BEACON, RIDGE, RIDGE_VIEW_DIALOGUE } from './ridge';
+import { QUARRY, QUARRYMASTER, QUARRY_BLOBS } from './quarry';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
 const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
@@ -43,11 +44,23 @@ export const FLAGS = {
   shrinePaid: 'mossgate.bog.shrine.paid',
   // MZ16: every place found
   placesPaid: 'mossgate.places.paid',
+  // MZ18: the main chain's middle, the old rite: asked of the Hermit, read at the Standing Stones, carried to the Sunken
+  // Shrine, the Lookout's beacon lit, and the Quarrymaster told (MZ19)
+  wardenAsked: 'mossgate.hermit.warden', riteStones: 'mossgate.rite.stones', riteShrine: 'mossgate.rite.shrine',
+  riteLookout: 'mossgate.rite.lookout', beaconLit: 'mossgate.beacon.lit', quarryTold: 'mossgate.quarrymaster.told',
+  // MZ18: the camps' side quests
+  gritmawPaid: 'mossgate.gritmaw.paid', gritmawReported: 'mossgate.quarrymaster.gritmaw', quarryCampPaid: 'mossgate.quarry.camp.paid',
+  stonesPackPaid: 'mossgate.stones-pack.paid', merePaid: 'mossgate.mere.paid', wallowPaid: 'mossgate.wallow.paid',
 } as const;
 const dead = (spawn: string): string => `dead:${spawn}`;
 /** A marker's short name (18 letters at most): the place's name without its leading "The". */
 const short = (name: string): string => name.replace(/^The /u, '').slice(0, 18);
 const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
+const STONES_DEAD = BODIES.stonesPack.map(dead);
+const QUARRY_BLOBS_DEAD = QUARRY_BLOBS.map((_, i) => dead(`quarry-blob-${i + 1}`));
+const MERE_DEAD = HAUNTS.MERE_WISPS.map((_, i) => dead(`mere-wisp-${i + 1}`));
+const WALLOW_DEAD = HAUNTS.WALLOW_SOWS.map((_, i) => dead(`wallow-sow-${i + 1}`));
+const LAMPS_LIT = LETTERS.map(lamp);
 
 /** The Lamplighter's tree: she gives the relighting, then thanks you once all three burn. */
 export const LAMPLIGHTER_DIALOGUE = {
@@ -55,8 +68,8 @@ export const LAMPLIGHTER_DIALOGUE = {
   nodes: [
     { id: 'offer', lines: ['The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring out on the Downs.', 'Light all three for me. Will you?'],
       choices: [{ id: 'accept', label: "I'll relight them.", next: 'waiting', sets: [FLAGS.lampAccepted] }] },
-    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the east gap.', 'Then put the Warden down, or it will snuff them again.'],
-      choices: [{ id: 'report', label: 'All three burn, and the Warden is down.', next: 'thanks', when: { all: [...LETTERS.map(lamp), dead(BODIES.warden)] }, sets: [FLAGS.lampReported] }] },
+    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the east gap.', 'Then ask the Pond Hermit how the Warden was put down the last time. He was there.'],
+      choices: [{ id: 'report', label: 'All three burn, and the Warden is down.', next: 'thanks', when: { all: [...LAMPS_LIT, FLAGS.quarryTold, dead(BODIES.warden)] }, sets: [FLAGS.lampReported] }] },
     { id: 'thanks', lines: ['The Hollow breathes again. Take this for your trouble.'], choices: [] },
   ],
 };
@@ -67,7 +80,12 @@ export const HERMIT_DIALOGUE = {
   nodes: [
     { id: 'offer', lines: ['Mind your step, traveller. The north gate has been barred since the Warden woke.', "Help the Lamplighter first, then pull the lever by the north wall and I'll make it worth your while."],
       choices: [{ id: 'accept', label: "I'll open the gate.", next: 'waiting', sets: [FLAGS.hermitAccepted], when: { all: [FLAGS.lampDone] } },
-        { id: 'pests', label: 'The mossling pack is gone.', next: 'pests', sets: [FLAGS.pestsReported], when: { all: MOSSLINGS_DEAD } }] },
+        { id: 'pests', label: 'The mossling pack is gone.', next: 'pests', sets: [FLAGS.pestsReported], when: { all: MOSSLINGS_DEAD } },
+        // MZ18: the main chain's second turn-in: the three braziers lit, the Lamplighter sends you to him for the old rite
+        { id: 'warden', label: 'The Lamplighter asks how the Warden was put down before.', next: 'rite', sets: [FLAGS.wardenAsked], when: { all: LAMPS_LIT, none: [FLAGS.wardenAsked] } }] },
+    { id: 'rite', lines: ['The old rite. Read it where it is cut, at the Standing Stones in the meadow north of here.',
+      'Carry it to the Sunken Shrine in the Bog, then light the beacon on Lookout Ridge so the ring sees it burn.',
+      'The Quarrymaster at the Old Quarry knows the last of it. She keeps the ring\'s old ways.'], choices: [] },
     { id: 'pests', lines: ['Gone? Then the reeds will grow back. Take these coins for the quiet.'], choices: [] },
     { id: 'waiting', lines: ['The lever stands inside the yard, by the north wall behind the hut.'],
       choices: [{ id: 'report', label: 'The north gate is open.', next: 'thanks', when: { all: [FLAGS.northGate] }, sets: [FLAGS.hermitReported] }] },
@@ -75,9 +93,36 @@ export const HERMIT_DIALOGUE = {
   ],
 };
 
+/** MZ19: the Quarrymaster's tree, the main chain's third turn-in. With the beacon lit she hands out its last leg, the way
+ *  into the barrow ring; she also wants Gritmaw gone and her camp cleared (the quarry's side quests). */
+export const QUARRYMASTER_DIALOGUE = {
+  id: 'mossgate.quarrymaster', name: 'The Quarrymaster', start: 'greet',
+  nodes: [
+    { id: 'greet', lines: ['Mind the cut. My crew left when Gritmaw woke in the pit, and the blobs took our camp.'],
+      choices: [
+        { id: 'beacon', label: 'The beacon burns on the ridge. The Hermit says you know the rest of the rite.', next: 'ring', sets: [FLAGS.quarryTold],
+          when: { all: [FLAGS.beaconLit], none: [FLAGS.quarryTold] } },
+        { id: 'gritmaw', label: 'Gritmaw is down.', next: 'paid', sets: [FLAGS.gritmawReported], when: { all: [dead(BODIES.gritmaw)], none: [FLAGS.gritmawReported] } },
+        { id: 'bye', label: 'Later.', next: null },
+      ] },
+    { id: 'ring', lines: ['Then it is time. The ring on the Barrow Downs opens to whoever carried the rite past the Stones and the Shrine.',
+      'Go east from the Hollow and in through the arch. Strike its core when it opens. And tell the Lamplighter when it is done.'], choices: [] },
+    { id: 'paid', lines: ['Down? Then we dig again tomorrow. Take this, from the crew.'], choices: [] },
+  ],
+};
+
+/** MZ18: where the rite's steps are taken: region triggers that rise only once the step before is done. */
+const RITE_TRIGGERS = [
+  { id: 'rite.stones', kind: 'region' as const, flag: FLAGS.riteStones, x: MEADOW.STONES.x, z: MEADOW.STONES.z, radius: 9, when: { all: [FLAGS.wardenAsked] } },
+  { id: 'rite.shrine', kind: 'region' as const, flag: FLAGS.riteShrine, x: BOG.SHRINE.x, z: BOG.SHRINE.z, radius: 9, when: { all: [FLAGS.riteStones] } },
+  { id: 'rite.lookout', kind: 'region' as const, flag: FLAGS.riteLookout, x: RIDGE.LOOKOUT.x, z: RIDGE.LOOKOUT.z, radius: 10, when: { all: [FLAGS.riteShrine] } },
+  { id: 'beacon.lit', kind: 'script' as const, flag: FLAGS.beaconLit, condition: `${BEACON.use}.spent`, when: { all: [FLAGS.riteLookout] } },
+];
+
 /** The quest section `extend` adds (gameplay.ts). The scene adds its region triggers (`hut.door`, the ledge) itself. */
 export const QUESTS = {
-  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, ...Object.values(MEADOW_FLAGS), ...Object.values(THICKET_FLAGS), ...Object.values(BOG_FLAGS), dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD],
+  flags: [...Object.values(FLAGS), ...LETTERS.map(lit), ...LETTERS.map(lamp), LEDGE_FLAG, GATE_PASSED_FLAG, ...Object.values(MEADOW_FLAGS), ...Object.values(THICKET_FLAGS), ...Object.values(BOG_FLAGS), dead(BODIES.warden), dead(BODIES.greyback), ...MOSSLINGS_DEAD,
+    dead(BODIES.gritmaw), ...STONES_DEAD, ...QUARRY_BLOBS_DEAD, ...MERE_DEAD, ...WALLOW_DEAD],
   triggers: [
     // TR-12b: any grey blob's death raises the blob quest's flag
     { id: 'blob', kind: 'death' as const, flag: FLAGS.blob, tag: 'creature.greyBlob' },
@@ -87,8 +132,9 @@ export const QUESTS = {
     { id: 'chest.opened', kind: 'script' as const, flag: FLAGS.chestOpened, condition: `${USES.chest}.spent` },
     { id: 'ledge.searched', kind: 'script' as const, flag: FLAGS.ledgeSearched, condition: `${USES.ledgeCache}.spent` },
     { id: 'bog.chest.opened', kind: 'script' as const, flag: BOG_FLAGS.chestOpened, condition: `${BOG_USE}.spent` },
+    ...RITE_TRIGGERS,
   ],
-  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE, RIDGE_VIEW_DIALOGUE],
+  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE, RIDGE_VIEW_DIALOGUE, QUARRYMASTER_DIALOGUE],
   quests: [
     // TR-2: the starter's one quest, so a new repo's proof tape has a fact to earn (the hut door's region, world.ts)
     { id: 'hut.visit', title: 'The hut', completeFlag: FLAGS.hutVisit,
@@ -106,6 +152,17 @@ export const QUESTS = {
       steps: [
         ...LETTERS.map((l) => ({ id: l.toLowerCase(), objective: `Light brazier ${l}`, done: { all: [lamp(l)] },
           markers: [marker(`brazier-${l.toLowerCase()}.marker`, `Brazier ${l}`, l, brazierAt(l), lamp(l))] })),
+        // MZ18: the old rite, across the Meadow, the Bog, the Ridge and the Quarry, before the Downs
+        { id: 'hermit', objective: 'Ask the Pond Hermit how the Warden was put down', done: { all: [FLAGS.wardenAsked] }, hint: 'The Hermit waits on the pond\'s north bank',
+          markers: [marker('rite-hermit.marker', 'Pond Hermit', 'Hermit', PLAY.HERMIT)] },
+        { id: 'stones', objective: 'Read the rite at the Standing Stones', done: { all: [FLAGS.riteStones] }, hint: 'North of the yard, past the mossling den: mind the pack in the ring',
+          markers: [marker('rite-stones.marker', 'The Standing Stones', 'Stones', MEADOW.STONES)] },
+        { id: 'shrine', objective: 'Carry the rite to the Sunken Shrine', done: { all: [FLAGS.riteShrine] }, hint: 'West of the yard, through the moss gate and into the Bog',
+          markers: [marker('rite-shrine.marker', 'The Sunken Shrine', 'Shrine', BOG.SHRINE)] },
+        { id: 'beacon', objective: 'Light the beacon on Lookout Ridge', done: { all: [FLAGS.riteLookout, FLAGS.beaconLit] }, hint: 'North-west, up the climb past the cairns; the beacon stands on the Lookout\'s dais',
+          markers: [marker('rite-beacon.marker', 'The beacon', 'Beacon', RIDGE.LOOKOUT)] },
+        { id: 'quarrymaster', objective: 'Find the Quarrymaster at the Old Quarry', done: { all: [FLAGS.quarryTold] }, hint: 'South of the yard, over the bridge on the haul path',
+          markers: [marker('rite-quarrymaster.marker', 'The Quarrymaster', 'Quarry', QUARRYMASTER)] },
         { id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] }, hint: 'The Warden wakes in the barrow ring, out on the Barrow Downs east of the yard: watch the ground ring, dodge, then strike its open core',
           markers: [marker('relight-warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] },
         { id: 'report', objective: 'Tell the Lamplighter', done: { all: [FLAGS.lampReported] }, hint: 'The Lamplighter waits on the path north of spawn',
@@ -165,6 +222,28 @@ export const QUESTS = {
         hint: 'The Warden wakes in the barrow ring, out on the Barrow Downs east of the yard: watch the ground ring, dodge, then strike its open core',
         markers: [marker('warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] }],
       onComplete: { fact: 'mossgate.warden', coins: 25 } },
+    // MZ18: a side quest for each camp the chain passes
+    { id: 'mossgate.gritmaw', title: 'Gritmaw', track: false, completeFlag: FLAGS.gritmawPaid,
+      steps: [{ id: 'gritmaw', objective: 'Bring down Gritmaw in the quarry pit', done: { all: [dead(BODIES.gritmaw)] }, hint: 'Its grit ring rises before each strike: step out of it',
+        markers: [marker('gritmaw.marker', 'Quarry pit', 'Gritmaw', QUARRY.GRITMAW, dead(BODIES.gritmaw))] },
+        { id: 'report', objective: 'Tell the Quarrymaster', done: { all: [FLAGS.gritmawReported] }, markers: [marker('gritmaw-report.marker', 'The Quarrymaster', 'Quarry', QUARRYMASTER)] }],
+      onComplete: { fact: 'mossgate.gritmaw', coins: 25 } },
+    { id: 'mossgate.quarry.camp', title: 'The quarry camp', track: false, completeFlag: FLAGS.quarryCampPaid,
+      steps: [{ id: 'camp', objective: 'Clear the grey blobs from the quarry camp', chip: 'Camp', count: QUARRY_BLOBS_DEAD, done: { all: QUARRY_BLOBS_DEAD },
+        markers: [marker('quarry-camp.marker', 'Quarry camp', 'Camp', QUARRY.CAMP, QUARRY_BLOBS_DEAD[0])] }],
+      onComplete: { fact: 'mossgate.quarry.camp', coins: 10 } },
+    { id: 'mossgate.stones-pack', title: 'The stones pack', track: false, completeFlag: FLAGS.stonesPackPaid,
+      steps: [{ id: 'pack', objective: 'Drive the mossling pack out of the Standing Stones', chip: 'Stones pack', count: STONES_DEAD, done: { all: STONES_DEAD },
+        markers: [marker('stones-pack.marker', 'The Standing Stones', 'Pack', MEADOW.STONES, STONES_DEAD[0])] }],
+      onComplete: { fact: 'mossgate.stones-pack', coins: 10 } },
+    { id: 'mossgate.mere', title: 'The lights on the mere', track: false, completeFlag: FLAGS.merePaid,
+      steps: [{ id: 'wisps', objective: 'Put out the wisps over Wisp Mere', chip: 'Wisps', count: MERE_DEAD, done: { all: MERE_DEAD },
+        markers: [marker('mere.marker', 'Wisp Mere', 'Mere', BOG.MERE, MERE_DEAD[0])] }],
+      onComplete: { fact: 'mossgate.mere', coins: 10 } },
+    { id: 'mossgate.wallow', title: 'The Sow Wallow', track: false, completeFlag: FLAGS.wallowPaid,
+      steps: [{ id: 'sows', objective: 'Drive the sows from the Sow Wallow', chip: 'Sows', count: WALLOW_DEAD, done: { all: WALLOW_DEAD },
+        markers: [marker('wallow.marker', 'The Sow Wallow', 'Wallow', { x: HAUNTS.WALLOW_SOWS[0][0], z: HAUNTS.WALLOW_SOWS[0][1] }, WALLOW_DEAD[0])] }],
+      onComplete: { fact: 'mossgate.wallow', coins: 10 } },
     // MZ16: the twelve places, each a region trigger (places.ts); untracked, so its markers name them on the full map only
     { id: 'mossgate.places', title: 'The lay of the Hollow', track: false, completeFlag: FLAGS.placesPaid,
       steps: [{ id: 'walk', objective: 'Find the twelve places of the Hollow', chip: 'Places', count: [...PLACE_FLAGS], done: { all: [...PLACE_FLAGS] },
