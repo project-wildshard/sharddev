@@ -16,7 +16,8 @@ const ROWS = {
   creatures: { spawns: [{ id: 'honey-bear', species: 'bear', at: [14, 0, 7.5] }] },
   rows: { species: [{ id: 'bear', kind: 'bear' }] },
   quests: { flags: [], quests: [], triggers: [], dialogue: [{ id: 'wren', name: 'Wren the beekeeper', start: 'hello', nodes: [
-    { id: 'hello', lines: ['A bear has found my hives.'], choices: [
+    // two lines: the box shows her answers under the second only (MOSSGATE-ZONE MZ18: the Lamplighter's offer)
+    { id: 'hello', lines: ['A bear has found my hives.', 'Will you drive it off?'], choices: [
       { id: 'accept', label: 'I will help.', next: 'waiting', when: { none: ['honey.met'] }, sets: ['honey.met'] },
       { id: 'later', label: 'Not now.', next: null, when: {}, sets: [] }] },
     { id: 'waiting', lines: ['Drive off the bear.'], choices: [
@@ -25,10 +26,12 @@ const ROWS = {
       { id: 'turn-in', label: 'Here are three honeycombs.', next: null, when: { all: ['honey.gather-3'] }, sets: ['honey.returned'] }] }] }] },
 } as unknown as WalkRows;
 
-/** A page with Wren and a server: W walks toward the aim, E opens her box at the server's node, a digit answers. */
+/** A page with Wren and a server: W walks toward the aim, E opens her box at the server's node (or turns to its next line), a
+ *  digit answers once the last line shows. */
 function fakePage(): WalkPage & { pressed: string[]; flags: Set<string> } {
   const me = { x: 0, z: 0, yaw: 0 }, flags = new Set<string>(), pressed: string[] = [];
-  let node: string | null = 'hello', box: WalkBox = { open: false, name: '', text: '', choices: [], choosing: false }, walking = false;
+  let node: string | null = 'hello', box: WalkBox = { open: false, name: '', text: '', choices: [], choosing: false, line: 0, lines: 0 }, walking = false;
+  let shown: readonly string[] = [];
   const tree = ROWS.quests.dialogue[0], talk = ROWS.targets.talks?.[0];
   if (tree === undefined || talk === undefined) throw new Error('fixture');
   const offered = (): { id: string; label: string; next: string | null; sets: readonly string[] }[] => (tree.nodes.find(row => row.id === node)?.choices ?? [])
@@ -53,8 +56,13 @@ function fakePage(): WalkPage & { pressed: string[]; flags: Set<string> } {
         pressed.push(key);
         if (key === 'e' && !box.open && Math.hypot(talk.at[0] - me.x, talk.at[2] - me.z) <= talk.radius) {
           node ??= tree.start; // a closed talk reopens at its start (engine 00a9e526)
-          const at = tree.nodes.find(row => row.id === node);
-          box = { open: true, name: tree.name, text: at?.lines.join(' ') ?? '', choices: offered().map(choice => choice.label), choosing: true };
+          shown = tree.nodes.find(row => row.id === node)?.lines ?? [];
+          const choices = offered().map(choice => choice.label);
+          box = { open: true, name: tree.name, text: shown[0] ?? '', choices, choosing: shown.length === 1 && choices.length > 0, line: 1, lines: shown.length };
+        } else if (key === 'e' && box.open && box.line < box.lines) {
+          // the engine's advance: the next line; the answers show (choosing) under the last
+          const line = box.line + 1;
+          box = { ...box, line, text: shown[line - 1] ?? '', choosing: line === box.lines && box.choices.length > 0 };
         } else if (key === 'Escape') box = { ...box, open: false };
         else if (/^[1-9]$/u.test(key) && box.open) {
           const choice = offered()[Number(key) - 1]; box = { ...box, open: false };
@@ -75,7 +83,9 @@ describe('walk proof (F27)', () => {
   test('walks to Wren, answers by id, and sees the flag and quest step the server set', async () => {
     const page = fakePage(), proof = walkProof(page, { settle: 50, poll: 1 });
     const open = await proof.talk('wren');
-    expect(open).toMatchObject({ talk: 'wren', node: 'hello', name: 'Wren the beekeeper', choices: [{ id: 'accept', label: 'I will help.' }, { id: 'later', label: 'Not now.' }] });
+    expect(open).toMatchObject({ talk: 'wren', node: 'hello', name: 'Wren the beekeeper', text: 'Will you drive it off?', choices: [{ id: 'accept', label: 'I will help.' }, { id: 'later', label: 'Not now.' }] });
+    // E opened her box, and E again turned to its second line, where her answers are
+    expect(page.pressed.filter(key => key === 'e')).toHaveLength(2);
     expect(await proof.choose('accept')).toEqual({ talk: 'wren', choice: 'accept', from: 'hello', to: 'waiting' });
     expect(page.pressed).toContain('1');
     await proof.expectFlags(['honey.met']);
@@ -96,6 +106,9 @@ describe('walk proof (F27)', () => {
   test('each refusal names what the page offered instead', async () => {
     const page = fakePage(), proof = walkProof(page, { settle: 20, poll: 1 });
     await expect(proof.talk('bob')).rejects.toThrow(/no talk bob; this shard's talks: wren/u);
+    // a box that stays on its first line and shows no answers is named so, not as another prompt's
+    const stuck = fakePage(), stuckProof = walkProof({ ...stuck, keyboard: { ...stuck.keyboard, press: async (key: string) => { if (key !== 'e' || stuck.pressed.includes('e')) return; await stuck.keyboard.press(key); } } }, { settle: 20, poll: 1 });
+    await expect(stuckProof.talk('wren')).rejects.toThrow(/opened "Wren the beekeeper" at line 1 of 2 with no answers shown/u);
     await expect(proof.choose('accept')).rejects.toThrow(/no talk is open; call talk\(<id>\) first/u);
     await proof.talk('wren');
     await expect(proof.choose('turn-in')).rejects.toThrow(/talk wren at node hello has no answer "turn-in" now; it offers: accept \("I will help\."\), later \("Not now\."\)/u);

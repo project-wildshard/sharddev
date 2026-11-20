@@ -16,7 +16,8 @@ export type WalkRows = Pick<Shardfile, 'targets' | 'quests' | 'creatures'> & { r
 /** What the server says of this player now. A quest's step is `unstarted`, a step id, or null once complete. */
 export interface WalkState { readonly x: number; readonly z: number; readonly hp: number; readonly kills: number; readonly flags: readonly string[]; readonly quests: Readonly<Record<string, string | null>> }
 /** The dialogue box on screen: its name, its text and the answers it offers, in order. */
-export interface WalkBox { readonly open: boolean; readonly name: string; readonly text: string; readonly choices: readonly string[]; readonly choosing: boolean }
+/** The talk box as the page shows it; `line` and `lines` read its footer counter (line 1 of 2 is `1`, `2`). */
+export interface WalkBox { readonly open: boolean; readonly name: string; readonly text: string; readonly choices: readonly string[]; readonly choosing: boolean; readonly line: number; readonly lines: number }
 /** An open talk: the node the server put this player at and the answers it offers, by id and label. */
 export interface OpenTalk { readonly talk: string; readonly node: string | null; readonly name: string; readonly text: string; readonly choices: readonly { readonly id: string; readonly label: string }[] }
 /** One proof step's record, printed in the report. */
@@ -49,10 +50,11 @@ const readNodes = (): Record<string, string | null> => {
 };
 const readBox = (): WalkBox => {
   const root = [...document.querySelectorAll('.ws-quest-talk.show')].find(box => box.getBoundingClientRect().height > 4);
-  if (root === undefined) return { open: false, name: '', text: '', choices: [], choosing: false };
+  if (root === undefined) return { open: false, name: '', text: '', choices: [], choosing: false, line: 0, lines: 0 };
   const words = (selector: string): string => root.querySelector(selector)?.textContent?.trim() ?? '';
+  const counter = /(\d+)\D+(\d+)/.exec(words('.ws-quest-talk-foot > span:first-child')), line = Number(counter?.[1] ?? 1), lines = Number(counter?.[2] ?? 1);
   return { open: true, name: words('.ws-quest-talk-name'), text: words('.ws-quest-talk-text'), choosing: root.classList.contains('choosing'),
-    choices: [...root.querySelectorAll('.ws-quest-talk-choice')].map(choice => choice.textContent?.trim() ?? '') };
+    choices: [...root.querySelectorAll('.ws-quest-talk-choice')].map(choice => choice.textContent?.trim() ?? ''), line, lines };
 };
 const aim = (at: { x: number; z: number; y: number; from: { x: number; z: number } }): void => {
   const player = (window as unknown as { __wildshard: { world: { player: { yaw: number; pitch: number; position?: { y: number } } } } }).__wildshard.world.player;
@@ -152,11 +154,11 @@ export function walkProof(page: WalkPage, times: Partial<WalkTimes> = {}): WalkP
     return now;
   };
   /** Poll until `done` holds or the settle time passes; the last read either way. */
-  const until = async <T>(read: () => Promise<T>, done: (value: T) => boolean): Promise<{ value: T; held: boolean }> => {
+  const until = async <T>(read: () => Promise<T>, done: (value: T) => boolean | Promise<boolean>): Promise<{ value: T; held: boolean }> => {
     const end = Date.now() + wait.settle;
     for (;;) {
       const value = await read();
-      if (done(value)) return { value, held: true };
+      if (await done(value)) return { value, held: true };
       if (Date.now() >= end) return { value, held: false };
       await page.waitForTimeout(wait.poll);
     }
@@ -198,9 +200,21 @@ export function walkProof(page: WalkPage, times: Partial<WalkTimes> = {}): WalkP
       await closeBox();
       await walk({ x: talk.at[0], z: talk.at[2] }, Math.max(0.8, talk.radius * 0.6));
       await page.keyboard.press('e');
-      // the box types its lines; it is ready once it shows its answers, or its whole text when it has none
-      const shown = await until(box, seen => seen.open && seen.name === tree.name && (seen.choosing || (seen.choices.length === 0 && seen.text.length > 0)));
-      if (!shown.held) throw new WalkProofError(`E at talk ${id} opened ${shown.value.open ? `"${shown.value.name}", not "${tree.name}"` : 'no dialogue box'}; is another prompt nearer?`);
+      // the box types its lines; it is ready once it shows its answers, or its whole text when it has none. A node of
+      // several lines shows its answers under the last one only: E before the last line finishes its typing or turns to
+      // the next line, and never takes an answer (that needs the last line typed out), so press it until the last line.
+      const shown = await until(box, async seen => {
+        if (!seen.open || seen.name !== tree.name) return false;
+        if (seen.choosing || (seen.choices.length === 0 && seen.text.length > 0)) return true;
+        if (seen.line < seen.lines) await page.keyboard.press('e');
+        return false;
+      });
+      if (!shown.held) {
+        const seen = shown.value, why = !seen.open ? 'no dialogue box; is another prompt nearer?'
+          : seen.name !== tree.name ? `"${seen.name}", not "${tree.name}"; is another prompt nearer?`
+            : `"${seen.name}" at line ${seen.line} of ${seen.lines} with no answers shown (offered: ${seen.choices.join(' | ') || 'none'})`;
+        throw new WalkProofError(`E at talk ${id} opened ${why}`);
+      }
       const node = (await page.evaluate(readNodes, undefined))[id] ?? null, { flags } = await state();
       open = { talk: id, node, name: shown.value.name, text: shown.value.text, choices: offeredChoices(tree, node, shown.value.choices, flags) };
       return record('talk', started, open);
