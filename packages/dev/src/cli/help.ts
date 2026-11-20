@@ -67,7 +67,8 @@ const VERBS: Readonly<Record<string, string>> = {
                        those images show the current content; a wrong
                        stamp hides a stale hero from the cut`,
   upload: `upload <file> --channel staging|prod [--server <url>]
-         [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place] [--no-wait]
+         [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place]
+         [--no-new|--new] [--no-wait]
                        Check a shard file (an unprepared draft, sdk 0.2,
                        is refused before anything is sent), compress it
                        (Brotli level <n>, default ${LEVEL}) and upload it
@@ -92,6 +93,9 @@ const VERBS: Readonly<Record<string, string>> = {
                        so one uploaded with --no-place never gets one; on
                        a later upload --no-place leaves the grid as it
                        was, so a prod upload adds no production cell.
+                       --no-new opts the shard out of Zone Select's New
+                       tab. --new lists it again. With neither flag, the
+                       upload keeps the shard's current setting.
                        Async uploads show progress until live.
                        A refusal prints the full validation report and
                        exits non-zero; a stall or 20-minute timeout also

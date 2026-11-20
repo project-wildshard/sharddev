@@ -159,3 +159,36 @@ test('--no-place reaches the commit as place: false (SA32)', async (context: Tes
   assert.equal(body.place, false)
   assert.match(result.stdout, /^not placed \(--no-place\)$/mu)
 })
+
+for (const flag of ['--no-new', '--new']) {
+  test(`${flag} reaches the upload commit`, async (context: TestContext): Promise<void> => {
+    const run = await open(context)
+    const result = await cli(run, [...PROVENANCE, '--channel', 'staging', flag])
+    assert.equal(result.status, 0, result.stderr)
+    const [body] = run.server.state.commits
+    assert.ok(typeof body === 'object' && body !== null && 'new' in body)
+    assert.equal(body.new, flag === '--new')
+    assert.equal(
+      result.stdout.includes('not listed in New (--no-new)'),
+      flag === '--no-new',
+    )
+  })
+}
+
+test('upload help shows the sticky New flags and a conflicting choice refuses locally', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  const help = await cli(run, ['--help'])
+  assert.equal(help.status, 0, help.stderr)
+  assert.match(help.stdout, /\[--no-new\|--new\]/u)
+  assert.match(help.stdout, /upload keeps the shard's current setting/u)
+  const both = await cli(run, [
+    ...PROVENANCE,
+    '--channel',
+    'staging',
+    '--new',
+    '--no-new',
+  ])
+  assert.notEqual(both.status, 0)
+  assert.match(both.stderr, /choose one of --new or --no-new/u)
+  assert.equal(run.server.state.apiRequests.length, 0)
+})

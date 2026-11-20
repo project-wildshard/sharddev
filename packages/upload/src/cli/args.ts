@@ -18,6 +18,7 @@ interface CliArgs {
   readonly level: string | undefined
   /** `upload --no-place` (SA32): take no grid cell. */
   readonly noPlace: boolean
+  readonly listNew?: boolean | undefined
   readonly noWait: boolean
   readonly out: string | undefined
   readonly port: string | undefined
@@ -35,6 +36,8 @@ const OPTIONS = {
   force: { type: 'boolean', default: false },
   help: { type: 'boolean', default: false },
   level: { type: 'string' },
+  new: { type: 'boolean' },
+  'no-new': { type: 'boolean' },
   'no-place': { type: 'boolean', default: false },
   'no-wait': { type: 'boolean', default: false },
   out: { type: 'string' },
@@ -77,6 +80,9 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
   })
   const [command, operand, target] = positionals
   const { version } = values
+  if (values.new === true && values['no-new'] === true) {
+    throw new Error('choose one of --new or --no-new')
+  }
   return {
     command,
     operand,
@@ -88,6 +94,7 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     force: values.force,
     level: values.level,
     noPlace: values['no-place'],
+    listNew: values['no-new'] === true ? false : values.new,
     noWait: values['no-wait'],
     out: values.out,
     port: values.port,

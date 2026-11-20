@@ -41,6 +41,8 @@ interface UploadOptions extends ApiOptions, Provenance {
   readonly channel: Channel
   /** False for `--no-place` (SA32): the commit sends `place: false`. */
   readonly place?: boolean
+  /** Choose whether the shard appears in Zone Select's New tab. */
+  readonly listNew?: boolean | undefined
   /** The shard project upload runs in; its hero stamp may mark the hero curated (NET-LAG NL12). */
   readonly heroSource?: string
   /** Base64 PKCS#8: WILDSHARD_CREATOR_PRIVATE_KEY. */
@@ -187,6 +189,7 @@ async function commit(
   const place = options.place !== false
   const answer = await commitUpload(options, signed, {
     place,
+    listNew: options.listNew,
     ...sent,
     version: options.version,
     commit: options.commit,
@@ -223,6 +226,9 @@ function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
       ? `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`
       : `queued: ${outcome.shard} ${outcome.version} for ${options.channel} (upload ${outcome.uploadId})`,
   )
+  if (options.listNew === false && !outcome.alreadyStored) {
+    options.report('not listed in New (--no-new)')
+  }
   for (const line of outcome.gridReport) {
     options.report(line)
   }

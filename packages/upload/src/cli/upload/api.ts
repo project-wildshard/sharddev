@@ -249,20 +249,18 @@ interface CommitBody extends Provenance {
   readonly channel: Channel
   /** False sends `place: false` (SA32's `--no-place`): no grid cell. */
   readonly place: boolean
+  readonly listNew?: boolean | undefined
   readonly heroCurated?: boolean
 }
 
-/**
- * The commit: encoding, shard version and commit (V1), channel (J301), built-with
- * versions (J306), `place: false` (SA32) and `heroCurated: true` (NET-LAG NL12).
- */
+/** Send the upload's provenance and its explicit listing and placement choices. */
 async function commitUpload(
   options: ApiOptions,
   signed: UploadIdentity,
   body: CommitBody,
 ): Promise<CommitAnswer> {
   const { contentEncoding, version, commit, channel, place } = body
-  const { sharddev, engine, shardFormat, heroCurated } = body
+  const { sharddev, engine, shardFormat, heroCurated, listNew } = body
   return await postUpload(
     options,
     {
@@ -277,6 +275,7 @@ async function commitUpload(
         engine,
         shardFormat,
         ...(place ? {} : { place: false }),
+        ...(listNew === undefined ? {} : { new: listNew }),
         ...(heroCurated === true ? { heroCurated: true } : {}),
       },
     },

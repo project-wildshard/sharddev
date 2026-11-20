@@ -158,6 +158,7 @@ function uploadSettings(
         file: args.operand,
         channel,
         place: !args.noPlace,
+        listNew: args.listNew,
         wait: !args.noWait,
         heroSource: process.cwd(),
         ...connection,
