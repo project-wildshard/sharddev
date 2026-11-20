@@ -1,5 +1,6 @@
 // TEMPLATE-E2E TR-11 (J434): the retired Template's boss test, moved to Mossgate, whose Barrow Warden runs the same
-// decision (`behaviour/warden.as`, TR-12b). The beats, guard windows, phases, save continuation and death are unchanged.
+// decision (`behaviour/warden.as`, TR-12b). The beats, guard windows, phases, save continuation and death are unchanged;
+// MOSSGATE-ZONE MZ20 gave each blow its own tell field and a third phase.
 import { afterAll, beforeAll, expect, test } from 'vitest';
 // oxlint-disable-next-line import/no-nodejs-modules -- Optional scenario receipt belongs to this test runner.
 import {writeFileSync,readFileSync,mkdirSync,mkdtempSync,rmSync} from 'node:fs';
@@ -29,10 +30,13 @@ afterAll(()=>{if(directory!==undefined)rmSync(directory,{recursive:true,force:tr
 test('Mossgate\'s Warden runs published Wasm decisions and resumes a logical save', async () => {
   const create=()=>diskScenario('mossgate','mossgate.warden.decision',{productDirectory:directory,seed:437,players:[{id:101,at:[-15,0,-18]}]});
   const scenario=await create();
-  const strike=(name:string)=>[['field',0,'tell',1],['encounter','guard',1],['strike','boss',name,101],['timer','open',1.2]];
-  const opened=[['field',0,'tell',0],['field',0,'core',1],['encounter','guard',2],['timer','shut',3]];
+  // MZ20: the slam raises `tell`, the sweep `sweep`, the thrown stone `stone`; all three fall as the core opens
+  const tells:Record<string,string>={slam:'tell',sweep:'sweep',stone:'stone'};
+  const strike=(name:string)=>[['field',0,tells[name]??'',1],['encounter','guard',1],['strike','boss',name,101],['timer','open',1.2]];
+  const down=[['field',0,'tell',0],['field',0,'sweep',0],['field',0,'stone',0]];
+  const opened=[...down,['field',0,'core',1],['encounter','guard',2],['timer','shut',3]];
   const closed=(beat:number)=>[['field',0,'core',0],['encounter','guard',1],['timer','beat',beat]];
-  const quiet=[['stop','boss'],['field',0,'tell',0],['field',0,'core',0],['timer','arm',0],['timer','beat',0],['timer','open',0],['timer','shut',0]];
+  const quiet=[['stop','boss'],...down,['field',0,'core',0],['timer','arm',0],['timer','beat',0],['timer','open',0],['timer','shut',0]];
   expect(scenario.product.sectionHash).toMatch(/^[a-f0-9]{64}$/u);
   scenario.send('start');
   // MOSSGATE-ZONE MZ31: a fresh Warden puts the Hollow's relit glow out
@@ -72,11 +76,18 @@ test('Mossgate\'s Warden runs published Wasm decisions and resumes a logical sav
   resumed.send('start');expect(resumed.commands()).toEqual([['timer','arm',0.1],['timer','beat',0.9]]);
   resumed.advance(0.1);expect(resumed.commands()).toEqual([['encounter','guard',1]]);
   resumed.advance(0.8);expect(resumed.commands()).toEqual(strike('slam'));
+  // MZ20: at 30% its third phase (the encounter's phase 2 calls the crawlers out), beating faster
+  const hurt=resumed.world.snapshot().actors?.[0];if(hurt===undefined)throw new Error('Missing real boss');
+  resumed.world.setActor({...hurt,hpShare:0.2});
+  resumed.send('threshold','boss',2);expect(resumed.commands()).toEqual([['encounter','phase',2]]);
+  expect(resumed.state()).toEqual({phase:3,swingNext:true,beat:1});
+  resumed.send('stop');expect(resumed.commands()).toEqual([...quiet,['encounter','guard',0]]);
+  resumed.send('start');expect(resumed.commands()).toEqual([['timer','arm',0.1],['timer','beat',0.6]]);
   // MZ31: its fall relights the Hollow (play.ts `hollowRelit`)
   resumed.send('death','boss');expect(resumed.commands()).toEqual([...quiet,['encounter','win',0],['field',0,'relit',1]]);
   resumed.send('death','boss');expect(resumed.commands()).toEqual([]);
   resumed.advance(2);expect(resumed.commands()).toEqual([]);
-  expect(resumed.state()).toEqual({phase:3,swingNext:true,beat:1});
+  expect(resumed.state()).toEqual({phase:4,swingNext:true,beat:1});
   resumed.send('stop');expect(resumed.commands()).toEqual([...quiet,['encounter','guard',0]]);
   resumed.send('start');expect(resumed.commands()).toEqual([]);
   resumed.advance(2);expect(resumed.commands()).toEqual([]);

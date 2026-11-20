@@ -8,6 +8,7 @@
 //   elite), bog wisps (they circle the pond and dive) and the mossling pack (they shadow, ring and bite)
 // - the Barrow Warden, the boss of the barrow ring: a golem of mossy stone blocks (the static scene's idle golem, now live)
 // - MZ15: Gritmaw, the Old Quarry's elite: a smaller golem of quarried sandstone with its own decision script
+// - MZ20: the barrow crawlers, the Warden's adds: four moss-capped stone blobs that wake in its third phase
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { ShardRows } from '@wildshard/format/rows';
@@ -46,6 +47,8 @@ export const HAUNTS = {
   /** MZ15: the Old Quarry (quarry.ts): Gritmaw on the pit's floor, four grey blobs round the camp */
   GRITMAW: QUARRY.GRITMAW,
   QUARRY_BLOBS,
+  /** MZ20: where the Warden's four adds rise in its third phase, inside the ring round it (the ring is 8 m across the floor) */
+  CRAWLERS: [0.25, 0.75, 1.25, 1.75].map((t) => [LAYOUT.ARENA.x - 1 + Math.cos(t * Math.PI) * 5, LAYOUT.ARENA.z + Math.sin(t * Math.PI) * 5] as const),
 } as const;
 
 /** The spawn ids the encounters, the pack and the quests name. */
@@ -55,6 +58,8 @@ export const BODIES = {
   gritmaw: 'gritmaw',
   mosslings: HAUNTS.MOSSLINGS.map((_, i) => `mossling-${i + 1}`),
   stonesPack: HAUNTS.STONES_PACK.map((_, i) => `mossling-stones-${i + 1}`),
+  /** MZ20: the Warden's third-phase adds (fights.ts lists them on the phase) */
+  crawlers: HAUNTS.CRAWLERS.map((_, i) => `barrow-crawler-${i + 1}`),
 } as const;
 /** The two mossling packs' group ids (fights.ts): each body's brain is its pack. */
 export const PACKS = { den: 'mossgate.mosslings', stones: 'mossgate.mosslings-stones' } as const;
@@ -69,9 +74,14 @@ export const STRIKES = {
   wispDive: strike('mossgate.wisp.dive', 'bogWisp', { shape: { kind: 'sphere', radius: 1.6 }, windup: 1, active: 1, recover: 0.6, cooldown: 5, range: 12, damage: 8, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   // MZ14: the mere's wisps are their own species (a species runs one brain), so their dive is their own row
   mereWispDive: strike('mossgate.mere-wisp.dive', 'mereWisp', { shape: { kind: 'sphere', radius: 1.6 }, windup: 1, active: 1, recover: 0.6, cooldown: 5, range: 12, damage: 8, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
-  wardenSlam: strike('mossgate.warden.slam', 'barrowWarden', { shape: { kind: 'point', radius: 1.6 }, windup: 1.2, active: 0.2, recover: 0.6, cooldown: 0.5, range: 4, damage: 20, weight: 3, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
-  wardenSweep: strike('mossgate.warden.sweep', 'barrowWarden', { shape: { kind: 'arc', radius: 2.2, halfAngle: 1.3 }, windup: 0.9, active: 0.3, recover: 1, cooldown: 2.5, range: 7, damage: 16, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
-  wardenThrow: strike('mossgate.warden.throw', 'barrowWarden', { shape: { kind: 'wedge', length: 6, halfAngle: 0.1 }, windup: 1.3, active: 0.2, recover: 0.8, cooldown: 3, range: 18, damage: 14, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
+  // MZ20: the Warden's blows reach past its 1.3 m body (a player at its side stands 2 m off or more; 1.6 and 2.2 m never
+  // landed). The slam fills the ember ring (3.4 m: step out of it in the windup), the sweep the wider dust ring (4.6 m, all
+  // round its feet), and the stone flies down a lane at the nearest player (its windup turns the Warden: step aside)
+  wardenSlam: strike('mossgate.warden.slam', 'barrowWarden', { shape: { kind: 'point', radius: 3.4 }, windup: 1.2, active: 0.2, recover: 0.6, cooldown: 0.5, range: 4, damage: 20, weight: 3, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
+  wardenSweep: strike('mossgate.warden.sweep', 'barrowWarden', { shape: { kind: 'arc', radius: 4.6, halfAngle: 3.1 }, windup: 0.9, active: 0.3, recover: 1, cooldown: 2.5, range: 7, damage: 14, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
+  wardenThrow: strike('mossgate.warden.throw', 'barrowWarden', { shape: { kind: 'lane', length: 18, width: 1.6 }, windup: 1.3, active: 0.3, recover: 0.8, cooldown: 3, range: 18, damage: 16, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
+  // MZ20: a barrow crawler's bump, as a grey blob's
+  crawlerBump: strike('mossgate.crawler.bump', 'barrowCrawler', { shape: { kind: 'point', radius: 1.8 }, windup: 0.7, active: 0.15, recover: 0.8, cooldown: 1, range: 2, damage: 8, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   // MZ15: Gritmaw's two strikes, its decision script's slam and the quake round its feet
   gritmawSlam: strike('mossgate.gritmaw.slam', 'quarryGritmaw', { shape: { kind: 'point', radius: 1.8 }, windup: 1.1, active: 0.2, recover: 0.6, cooldown: 0.5, range: 4, damage: 14, weight: 3, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
   gritmawQuake: strike('mossgate.gritmaw.quake', 'quarryGritmaw', { shape: { kind: 'arc', radius: 3.2, halfAngle: 3.1 }, windup: 1.1, active: 0.3, recover: 1, cooldown: 2, range: 5, damage: 10, weight: 1, speed: 0 } as Omit<Strike, 'id' | 'tags'>),
@@ -213,7 +223,7 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
   const o = new THREE.Object3D(); o.position.set(x, groundHeight(x, z) + lift, z); o.rotation.y = yaw; world.scene.add(o); return o;
 }
 
-/** The Hollow's creatures: seven species, thirty-one bodies. */
+/** The Hollow's creatures: eight species, thirty-five bodies. */
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
@@ -254,18 +264,29 @@ export function buildCreatures(world: ShardWorld): void {
   world.creature('barrow.warden', warden.body, {
     species: { kind: 'barrowWarden', label: 'Barrow Warden', aggressive: true, lockable: true,
       dims: { bodyY: 1.4, bodyHalfLen: 0.6, bodyRadius: 1.3, headRadius: 0.6, legLen: 1.4, feet: [], halfWidth: 1.6 },
-      variants: [variant('warden', 'Barrow Warden', 420, { rarity: 'rare', weight: 0 })],
+      // MZ20: 1800 (was 420: two players felled it in one core window, 16 sword hits): about 66 hits, six or seven
+      // windows alone, three or four for two
+      variants: [variant('warden', 'Barrow Warden', 1800, { rarity: 'rare', weight: 0 })],
       temperament: { brain: 'none', reaction: 'aggressive', leash: 0, assist: 0, home: { speed: 0, stop: 0 } }, senses: { notice: 8 } } as never,
     strikes: [STRIKES.wardenSlam, STRIKES.wardenSweep, STRIKES.wardenThrow], size: 'medium', clips: warden.clips, loops: LOOPS, material: PBR, attackSpan: 1.4,
   });
   // MZ15: Gritmaw, the Warden's body cut smaller from the quarry's sandstone, its spoil-brown shoulders where the Warden's moss is
   const gritmaw = wardenBody({ S: 0.95, stone: '#b39d7c', moss: '#7a5c3e', eye: '#ffd27a', core: '#ffb347' });
   world.creature('quarry.gritmaw', gritmaw.body, {
-    species: { kind: 'barrowWarden', label: 'Gritmaw', aggressive: true, lockable: true,
+    // its own kind (its strikes' tag): it shared the Warden's, so a walk proof's fight by kind chased both
+    species: { kind: 'quarryGritmaw', label: 'Gritmaw', aggressive: true, lockable: true,
       dims: { bodyY: 1.05, bodyHalfLen: 0.45, bodyRadius: 0.95, headRadius: 0.45, legLen: 1.05, feet: [], halfWidth: 1.2 },
       variants: [variant('gritmaw', 'Gritmaw', 260, { rarity: 'rare', weight: 0 })],
       temperament: { brain: 'none', reaction: 'aggressive', leash: 0, assist: 0, home: { speed: 0, stop: 0 } }, senses: { notice: 8 } } as never,
     strikes: [STRIKES.gritmawSlam, STRIKES.gritmawQuake], size: 'medium', clips: gritmaw.clips, loops: LOOPS, material: PBR, attackSpan: 1.4,
+  });
+  // MZ20: the Warden's adds, grey blobs of the ring's own stone with moss on their backs; they pursue as the yard's blobs do
+  const crawler = blobBody('#7c7f74', 0.5, '#5d7a34');
+  world.creature('barrow.crawler', crawler.body, {
+    species: { kind: 'barrowCrawler', label: 'Barrow crawler', aggressive: true, lockable: true,
+      dims: { bodyY: 0.42, bodyHalfLen: 0.34, bodyRadius: 0.46, headRadius: 0.25, legLen: 0.42, feet: [], halfWidth: 0.5 },
+      variants: [variant('crawler', 'Barrow crawler', 45)], temperament: temper('mossgate.blob-pursuit', 25), senses: { notice: 14 } },
+    strikes: [STRIKES.crawlerBump], size: 'medium', clips: crawler.clips, loops: LOOPS, material: PBR,
   });
 
   // MOSSGATE-ZONE MZ1: the world is shared, so a fight someone won must come back for the next player, or the chain that
@@ -286,5 +307,7 @@ export function buildCreatures(world: ShardWorld): void {
   world.spawnAt(BODIES.warden, spot(world, HAUNTS.WARDEN.x, HAUNTS.WARDEN.z, -Math.PI / 2), { species: 'barrow.warden', variant: 'warden', brain: null, strike: STRIKES.wardenSlam.id, seed: 901, scale: 1, respawn: BOSS_RESPAWN });
   // MZ15: Gritmaw faces up the haul path, north; the camp's blobs pursue as the yard's do
   world.spawnAt(BODIES.gritmaw, spot(world, HAUNTS.GRITMAW.x, HAUNTS.GRITMAW.z, Math.PI), { species: 'quarry.gritmaw', variant: 'gritmaw', brain: null, strike: STRIKES.gritmawSlam.id, seed: 951, scale: 1, respawn: BOSS_RESPAWN });
+  // MZ20: the Warden's adds wait out of the world until its third phase (fights.ts lists them on it); no respawn of their own
+  HAUNTS.CRAWLERS.forEach(([x, z], i) => world.spawnAt(BODIES.crawlers[i] ?? '', spot(world, x, z, Math.atan2(HAUNTS.WARDEN.x - x, HAUNTS.WARDEN.z - z)), { species: 'barrow.crawler', variant: 'crawler', brain: 'mossgate.blob-pursuit', strike: STRIKES.crawlerBump.id, seed: 921 + i, scale: 1 }));
   HAUNTS.QUARRY_BLOBS.forEach(([x, z], i) => world.spawnAt(`quarry-blob-${i + 1}`, spot(world, x, z), { species: 'grey.blob', variant: 'grey', brain: 'mossgate.blob-pursuit', strike: i === 0 ? STRIKES.blobLane.id : STRIKES.blobBump.id, seed: 461 + i, scale: 1, respawn: 60 }));
 }

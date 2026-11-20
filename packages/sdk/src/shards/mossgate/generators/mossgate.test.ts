@@ -116,17 +116,18 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization, as the build writes it
   expect(() => parseShardfile(JSON.parse(JSON.stringify(shard)))).not.toThrow();
   const species = new Map(shard.rows.species.map((row) => [row.id, row]));
-  // five hostile species, the Warden and Gritmaw (MZ15), each with its own skin look
-  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'mere.wisp', 'boar', 'barrow.warden', 'quarry.gritmaw']);
+  // five hostile species, the Warden, Gritmaw (MZ15) and the Warden's crawlers (MZ20), each with its own skin look
+  expect([...species.keys()]).toEqual(['grey.blob', 'mossling', 'bog.wisp', 'mere.wisp', 'boar', 'barrow.warden', 'quarry.gritmaw', 'barrow.crawler']);
   for (const row of species.values()) {
     expect(row.aggressive, row.id).toBe(true);
     expect(shard.rows.looks.find((look) => look.id === row.body?.look)?.recipe, row.id).toBe('platform.skin');
   }
   expect(Math.max(...(species.get('barrow.warden')?.variants.map((v) => v.hp) ?? []))).toBeGreaterThanOrEqual(400);
-  // thirty-one bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
-  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback, the Warden, and Gritmaw and its camp's four blobs (MZ15)
+  // thirty-five bodies: four blobs, two mossling packs of four (MZ12), two sows by the pond and five in the thicket (MZ13),
+  // two wisps by the pond and three over Wisp Mere (MZ14), Greyback, the Warden, its four crawlers (MZ20), and Gritmaw and
+  // its camp's four blobs (MZ15)
   const spawns = shard.creatures.spawns;
-  expect(spawns).toHaveLength(31);
+  expect(spawns).toHaveLength(35);
   expect(spawns.filter((row) => row.species === 'boar').map((row) => row.variant)).toEqual(['sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'sow', 'greyback']);
   // three brain kinds and the pack
   expect(new Set(shard.creatures.brains.map((row) => row.kind))).toEqual(new Set(['pursue', 'ram-grazer', 'orbit-diver']));
@@ -141,6 +142,8 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
   for (const field of Object.values(WARDEN_FIELDS)) expect(shard.state.shared.find((row) => row.name === field.name)?.id).toBe(field.id);
   // its tell shows the ground ring, its open core the gem
   expect(shard.targets.panels.filter((row) => row.fieldId === WARDEN_FIELDS.tell.id || row.fieldId === WARDEN_FIELDS.core.id).map((row) => row.panel)).toEqual(['mossgate.warden-ring', 'mossgate.warden-core']);
+  // MZ20: the sweep and the stone each show their own tell
+  expect(shard.targets.panels.filter((row) => row.fieldId === WARDEN_FIELDS.sweep.id || row.fieldId === WARDEN_FIELDS.stone.id).map((row) => row.panel)).toEqual(['mossgate.warden-sweep', 'mossgate.warden-stone']);
   expect(shard.props?.panels.map((p) => p.id)).toEqual(expect.arrayContaining(['mossgate.warden-ring', 'mossgate.warden-core']));
   // every quest marker's place is a POI: at least eight
   const markers = shard.quests.quests.flatMap((q) => (q.intro?.markers ?? []).concat(q.steps.flatMap((step) => step.markers ?? [])));

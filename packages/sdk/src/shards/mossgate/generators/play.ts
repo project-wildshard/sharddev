@@ -227,16 +227,25 @@ function liftAndLedge(world: ShardWorld): void {
   }, { panel: 'mossgate.lift', mover: { path: [[x, rest, z], [x, rest + rise, z]], seconds: 4, start: 'always', loop: 'pingpong' } });
 }
 
-/** TR-12b: the Warden's tell, a ring of ember spikes round its feet while it rears, and the gem over its crown while its core
- *  is open. Panels with no `shownWhen`: their rows read the decision script's own fields (fights.ts). */
+/** TR-12b, MZ20: the Warden's tells, one per blow, each the size of what it hits: a ring of ember spikes round its feet
+ *  while it rears to slam (3.4 m, the slam's reach), a wider ring of dust-grey shards while it winds up the sweep (4.6 m),
+ *  and the barrow stone held over its head while it turns to throw; then the gem over its crown while its core is open.
+ *  Panels with no `shownWhen`: their rows read the decision script's own fields (fights.ts). */
 function wardenTell(world: ShardWorld): void {
   const { x, z } = HAUNTS.WARDEN, gy = groundHeight(x, z), ember = plain('#ff8a2a', 1, '#ff6a10'), gem = plain('#ffc070', 0.4, '#ffa030');
-  world.part('warden-ring', (part) => {
-    for (let k = 0; k < 12; k++) {
-      const a = (k * Math.PI) / 6, spike = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.9, 6), ember);
-      spike.position.set(x + Math.sin(a) * 2.8, gy + 0.45, z + Math.cos(a) * 2.8); part.add(spike);
+  const dust = plain('#d9cdb2', 0.9, '#a08a5a'), rock = plain('#6f7366', 0.95);
+  const spikes = (part: THREE.Group, count: number, r: number, look: THREE.Material, size: number): void => {
+    for (let k = 0; k < count; k++) {
+      const a = (k * Math.PI * 2) / count, spike = new THREE.Mesh(new THREE.ConeGeometry(size * 0.25, size, 6), look);
+      spike.position.set(x + Math.sin(a) * r, gy + size / 2, z + Math.cos(a) * r); part.add(spike);
     }
-  }, { panel: WARDEN_PANELS.ring });
+  };
+  world.part('warden-ring', (part) => { spikes(part, 14, 3.3, ember, 0.9); }, { panel: WARDEN_PANELS.ring });
+  world.part('warden-sweep', (part) => { spikes(part, 20, 4.5, dust, 0.7); }, { panel: WARDEN_PANELS.sweep });
+  world.part('warden-stone', (part) => {
+    const stone = new THREE.Mesh(new THREE.DodecahedronGeometry(0.9, 0), rock); stone.position.set(x, gy + 6.4, z); stone.rotation.set(0.4, 0.7, 0.2); part.add(stone);
+    const glow = new THREE.Mesh(new THREE.OctahedronGeometry(0.3, 0), ember); glow.position.set(x, gy + 5.5, z); part.add(glow);
+  }, { panel: WARDEN_PANELS.stone });
   world.part('warden-core', (part) => {
     const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.45, 0), gem); core.position.set(x, gy + 5.2, z); part.add(core);
   }, { panel: WARDEN_PANELS.core });

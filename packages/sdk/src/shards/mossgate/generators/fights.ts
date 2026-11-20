@@ -8,10 +8,14 @@ import { BODIES, HAUNTS, PACKS, STRIKES } from './creatures';
 import { LAYOUT } from './world';
 import { BOG_WISPS } from './bog';
 
-/** The Warden's two shared fields: the ground ring's tell (it rears) and its open core (strike now). */
+/** The Warden's shared fields: each blow's tell (the slam's ember ring, the sweep's dust ring, the stone it lifts) and its
+ *  open core (strike now). */
 export const WARDEN_FIELDS = {
   tell: { id: 110, name: 'mossgate.warden-tell' },
   core: { id: 111, name: 'mossgate.warden-core' },
+  // MZ20: the sweep's and the thrown stone's own tells, so each blow reads before it lands
+  sweep: { id: 114, name: 'mossgate.warden-sweep' },
+  stone: { id: 115, name: 'mossgate.warden-stone' },
   // MZ31 (QA 11-19 rows 26, 35): the Hollow burns bright while the Warden is down, the climax of the Lamplighter's chain
   relit: { id: 112, name: 'mossgate.hollow-relit' },
 } as const;
@@ -44,7 +48,8 @@ const PACK = {
 const STONES_PACK = { ...PACK, id: PACKS.stones, members: [...BODIES.stonesPack], home: [HAUNTS.STONES.x, HAUNTS.STONES.z] };
 const RESPAWN = { at: [LAYOUT.SPAWN.x, 0, LAYOUT.SPAWN.z], yaw: 0 };
 const WARDEN_PANEL = 'mossgate.warden-panel';
-/** Greyback, an elite boar in its clearing; the Barrow Warden, the boss of the barrow ring, with two phases. */
+/** Greyback, an elite boar in its clearing; the Barrow Warden, the boss of the barrow ring, with three phases (MZ20): the
+ *  slam and the sweep; then faster, with the thrown stone; then faster still, with its four crawlers out. */
 const ENCOUNTER_ROWS = [
   { id: ENCOUNTERS.greyback, entity: BODIES.greyback, kind: 'elite', panel: null, name: 'Greyback', title: 'Greyback', retry: 'Try Greyback again',
     arena: { at: [HAUNTS.GREYBACK.x, 0, HAUNTS.GREYBACK.z], radius: HAUNTS.GREYBACK.r }, intro: 0, introShort: 0, respawn: RESPAWN,
@@ -58,25 +63,28 @@ const ENCOUNTER_ROWS = [
     respawn: RESPAWN,
     phases: [
       { at: 1, name: 'First phase', caption: 'First phase', speed: 1, stopDistance: 0, turnRate: 4 },
-      // 0.6: behaviour/warden.as reads the same share
-      { at: 0.6, name: 'Second phase', caption: 'Second phase', speed: 2.5, stopDistance: 0, turnRate: 4 },
+      // 0.6 and 0.3: behaviour/warden.as reads the same shares
+      { at: 0.6, name: 'Second phase', caption: 'It hurls the barrow stones', speed: 2.5, stopDistance: 0, turnRate: 4 },
+      { at: 0.3, name: 'Third phase', caption: 'The crawlers wake', speed: 2.5, stopDistance: 0, turnRate: 4, adds: [...BODIES.crawlers] },
     ] },
 ];
 
-/** The Warden's decision script: a beat per strike, told by the ring, then the core opens (`behaviour/warden.as`). */
+/** The Warden's decision script: a beat per strike, each told by its own field, then the core opens (`behaviour/warden.as`). */
 export const WARDEN_DECISION = {
   id: 'mossgate.warden.decision', abi: '1.0', side: 'sim', module: `blobs/wasm/${'0'.repeat(64)}.wasm`, source: 'behaviour/warden.as',
   binding: { encounter: ENCOUNTERS.warden }, pages: 1, onFail: 'reset', on: ['start', 'timer', 'threshold', 'death', 'stop'], tick: null,
   reads: ['nearestPlayer', 'hpShare'], commands: ['strike', 'stop', 'timer', 'encounter', 'field'], actors: { boss: BODIES.warden }, moves: {},
   strikes: { slam: STRIKES.wardenSlam.id, sweep: STRIKES.wardenSweep.id, stone: STRIKES.wardenThrow.id }, cues: {},
-  fields: { tell: WARDEN_FIELDS.tell.name, core: WARDEN_FIELDS.core.name, relit: WARDEN_FIELDS.relit.name }, flags: {}, zones: {}, spots: {}, targets: {}, spawns: {}, signals: {},
-  facts: {}, rewards: {}, channels: {}, impulses: {}, weather: {}, timers: ['arm', 'beat', 'open', 'shut'], stateVersion: 1,
+  fields: { tell: WARDEN_FIELDS.tell.name, core: WARDEN_FIELDS.core.name, relit: WARDEN_FIELDS.relit.name, sweep: WARDEN_FIELDS.sweep.name, stone: WARDEN_FIELDS.stone.name },
+  flags: {}, zones: {}, spots: {}, targets: {}, spawns: {}, signals: {},
+  // MZ20: version 2: a third phase (3), the fallen Warden is 4
+  facts: {}, rewards: {}, channels: {}, impulses: {}, weather: {}, timers: ['arm', 'beat', 'open', 'shut'], stateVersion: 2,
   state: [
-    { name: 'phase', type: 'i32', default: 0, scope: 'binding', min: 0, max: 3 },
+    { name: 'phase', type: 'i32', default: 0, scope: 'binding', min: 0, max: 4 },
     { name: 'swingNext', type: 'bool', default: true, scope: 'binding' },
     { name: 'beat', type: 'i32', default: 0, scope: 'binding', min: 0, max: 2 },
   ],
-  params: { firstBeat: 1.6, secondBeat: 0.9, windup: 1.2, window: 3 },
+  params: { firstBeat: 1.6, secondBeat: 0.9, thirdBeat: 0.6, windup: 1.2, window: 3 },
 } as unknown as DecisionScripts[number];
 /** MZ15: Gritmaw's decision script: each beat the grit ring rises, a strike lands (the slam, then the quake), and the ring
  *  falls (`behaviour/gritmaw.as`). */
@@ -95,8 +103,9 @@ export const GRITMAW_DECISION = {
 } as unknown as DecisionScripts[number];
 export const DECISIONS: DecisionScripts = [WARDEN_DECISION, GRITMAW_DECISION];
 
-/** The panel parts the Warden's fields show (play.ts draws them): the ground ring while it rears, the gem while its core is open. */
-export const WARDEN_PANELS = { ring: 'mossgate.warden-ring', core: 'mossgate.warden-core', relit: 'mossgate.hollow-relit' } as const;
+/** The panel parts the Warden's fields show (play.ts draws them): the ember ring while it rears to slam, the dust ring while
+ *  it winds up its sweep, the stone it lifts to throw, the gem while its core is open. */
+export const WARDEN_PANELS = { ring: 'mossgate.warden-ring', sweep: 'mossgate.warden-sweep', stone: 'mossgate.warden-stone', core: 'mossgate.warden-core', relit: 'mossgate.hollow-relit' } as const;
 /** MZ15: the panel Gritmaw's tell shows, a ring of grit spikes round its feet (play.ts). */
 export const GRITMAW_PANELS = { ring: 'mossgate.gritmaw-ring' } as const;
 
@@ -110,8 +119,8 @@ export function fights(shard: Shardfile): Shardfile {
     encounters: [...shard.encounters, ...ENCOUNTER_ROWS] as Shardfile['encounters'],
     ui: [...shard.ui, { kind: 'bossPanel', id: WARDEN_PANEL, encounter: ENCOUNTERS.warden, name: 'Barrow Warden', title: 'Keeper of the hollow', retry: 'Try the Barrow Warden again' }] as Shardfile['ui'],
     state: { ...shard.state, shared: [...shard.state.shared, field(WARDEN_FIELDS.tell.name, WARDEN_FIELDS.tell.id), field(WARDEN_FIELDS.core.name, WARDEN_FIELDS.core.id), field(WARDEN_FIELDS.relit.name, WARDEN_FIELDS.relit.id),
-      field(GRITMAW_FIELDS.tell.name, GRITMAW_FIELDS.tell.id)] },
+      field(WARDEN_FIELDS.sweep.name, WARDEN_FIELDS.sweep.id), field(WARDEN_FIELDS.stone.name, WARDEN_FIELDS.stone.id), field(GRITMAW_FIELDS.tell.name, GRITMAW_FIELDS.tell.id)] },
     targets: { ...shard.targets, panels: [...shard.targets.panels, panel(WARDEN_PANELS.ring, WARDEN_FIELDS.tell.id), panel(WARDEN_PANELS.core, WARDEN_FIELDS.core.id), panel(WARDEN_PANELS.relit, WARDEN_FIELDS.relit.id),
-      panel(GRITMAW_PANELS.ring, GRITMAW_FIELDS.tell.id)] },
+      panel(WARDEN_PANELS.sweep, WARDEN_FIELDS.sweep.id), panel(WARDEN_PANELS.stone, WARDEN_FIELDS.stone.id), panel(GRITMAW_PANELS.ring, GRITMAW_FIELDS.tell.id)] },
   };
 }
