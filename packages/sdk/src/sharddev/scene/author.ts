@@ -4,6 +4,7 @@ import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 import type { CreatureWorldOptions } from './worldCreature';
+import type { VehicleSurfaceGrip } from '@wildshard/format/vehicles';
 import type { DockOptions, VehicleKindOptions } from './vehicle';
 import type { AmbienceOptions, MusicOptions } from './sound';
 import type { LandingOptions, PayoffOptions } from './landing';
@@ -207,6 +208,8 @@ export interface ShardWorld {
    * player their own; `shared` parks one for everyone. It comes back `respawn` seconds (default 60) after it goes.
    */
   dock: (id: string, at: Object3D, options: DockOptions) => void;
+  /** Multiply vehicle tyre grip at the cell's x/z. Later patches cover earlier ones. */
+  vehicleSurface: (surface: VehicleSurfaceGrip) => void;
   /**
    * MOSSGATE-ZONE MZ23: the shard's music, from the engine's own piano (J304: no recordings of the shard's, no audio bytes):
    * `day` while it is light, `night` once it is dark, `boss` while one of the shard's bosses fights, each a slot of the

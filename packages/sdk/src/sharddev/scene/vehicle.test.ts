@@ -4,7 +4,9 @@ import { parseVehicles } from '@wildshard/format/vehicles';
 import { solid, type PartOptions, type ShardWorld } from './author';
 import { lowerShard } from './lower';
 import { SceneRefusalError } from './refusal';
-import { sceneShardfile } from './shardfile';
+import { compileShardfile, sceneShardfile } from './shardfile';
+import { hashImmutableBytes } from '../immutable';
+import type { ProjectGenerationContext } from '../projectGeneration';
 
 // MIRROR-SALT-ZONE MSZ3: `world.vehicle(kind, build, options)` and `world.dock(id, at, { kind })` lower to format
 // `world/vehicles` (MSZ1): seats from `seat.*` empties, leave points from `leave.*` empties or the footprint's side, the hull
@@ -18,6 +20,26 @@ const buggy = (part: THREE.Group): void => {
 };
 const yard = (world: ShardWorld): THREE.Object3D => { const node = new THREE.Object3D(); node.position.set(-10, 0, 150); node.rotation.y = Math.PI / 2; world.scene.add(node); return node; };
 const lowered = (build: (world: ShardWorld) => void) => sceneShardfile(lowerShard({ slug: 'msz3', name: 'MSZ3' }, build));
+
+test('vehicle surface grip reaches the cooked vehicles section in author order', async () => {
+  const surface: Parameters<ShardWorld['vehicleSurface']>[0] = {
+    base: 0.8,
+    patches: [
+      { shape: 'circle', at: [0, 0], radius: 178, grip: 0.35 },
+      { shape: 'road', line: [[0, 0], [0, 200]], width: 8, grip: 1 },
+    ],
+  };
+  const scene = lowerShard({ slug: 'msz24b', name: 'MSZ24b' }, (world) => {
+    world.vehicle('salt.buggy', buggy, { speed: 22 });
+    world.dock('yard.buggy', yard(world), { kind: 'salt.buggy' });
+    world.vehicleSurface(surface);
+  });
+  const ctx = { asset: hashImmutableBytes } as unknown as ProjectGenerationContext;
+  const result = await compileShardfile(scene, ctx);
+  const bytes = result.output.platform?.files.get('sections/world/vehicles.json');
+  expect(parseVehicles(JSON.parse(new TextDecoder().decode(bytes)) as unknown).surfaceGrip).toEqual(surface);
+  expect(() => lowered((world) => { world.vehicleSurface(surface); world.vehicleSurface(surface); })).toThrow(/already has vehicle surface grip/u);
+});
 
 test('a two-seat buggy and its dock lower to the world/vehicles rows the format admits', () => {
   const scene = lowerShard({ slug: 'msz3', name: 'MSZ3' }, (world) => {

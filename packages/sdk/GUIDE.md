@@ -599,6 +599,9 @@ export function build(world: ShardWorld): void {
   default 0.9) and `drift` how long a slide lasts (0 to 1, default 0.3); `boost` the sprint multiplier (1 to 4, default
   1.5); `mass` in kg (default 500), which decides who gives way in a crash; `ground: false` keeps it at its dock's height
   (a boat on still water); `wind: { toward: [x, z], push }` pushes a sail up to `push` m/s along its heading.
+- **Surface grip.** `world.vehicleSurface({ base, patches })` multiplies the kind's grip under the vehicle. A patch is a
+  `{ shape: 'circle', at: [x, z], radius, grip }` or a `{ shape: 'road', line: [[x, z], ...], width, grip }`. Use cell-local
+  metres and multipliers between 0 and 1. The last covering patch wins, so list a road after a flood to keep the road's grip.
 - **Docks.** `world.dock(id, object, { kind })` stands one at `object`'s world position, facing its -z. `per: 'player'`
   (the default) gives each player their own, gone 60 s after they leave it; `per: 'shared'` parks one for everyone.
   `respawn` (default 60 s) is how soon it comes back. A dock stands on the ground, clear of solids, with every leave

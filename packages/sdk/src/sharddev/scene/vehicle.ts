@@ -117,11 +117,11 @@ export function dockOf(id: string, at: Vector3, node: Object3D, options: DockOpt
 }
 
 /** The scene's kinds and docks through the format's own schema, its refusal named as the scene's. */
-export function sceneVehicles(kinds: readonly VehicleKind[], docks: readonly VehicleDock[]): Vehicles {
+export function sceneVehicles(kinds: readonly VehicleKind[], docks: readonly VehicleDock[], surfaceGrip?: Vehicles['surfaceGrip']): Vehicles {
   try {
-    return parseVehicles({ kinds, docks });
+    return parseVehicles({ kinds, docks, ...(surfaceGrip === undefined ? {} : { surfaceGrip }) });
   } catch (error) {
-    throw new SceneRefusalError('world.vehicle', error instanceof Error ? error.message : String(error), 'Keep a vehicle\'s numbers, seats and hull in the format\'s range (GUIDE.md#vehicles)');
+    throw new SceneRefusalError('world.vehicle', error instanceof Error ? error.message : String(error), 'Keep vehicle kinds, docks and surface grip in the format\'s range (GUIDE.md#vehicles)');
   }
 }
 

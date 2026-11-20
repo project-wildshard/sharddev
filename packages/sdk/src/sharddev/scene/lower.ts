@@ -8,7 +8,7 @@ import { GraphMaterial, graph, isCatalogueMaterial, meshMap, type GraphValue } f
 import { LOOK_SKY_BUDGET } from '@wildshard/format/look-sky';
 import { hungOf, isSolid, motionOf, paintedPixels, Water, type HangOptions, type MoverOptions, type SetsOptions, type ShardWorld, type ShownWhen, type SpawnAtRow, type ToolOptions, type TouchableOptions } from './author';
 import { dockOf, dockRefusals, sceneVehicles, vehicleKindOf, type DockOptions, type VehicleKindOptions } from './vehicle';
-import type { VehicleDock, VehicleKind } from '@wildshard/format/vehicles';
+import type { VehicleDock, VehicleKind, VehicleSurfaceGrip } from '@wildshard/format/vehicles';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
   SceneDetailScatter, SceneMove, ScenePickup, SceneCreature, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
@@ -436,6 +436,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const scene = new Scene(), parts: Group[] = [], panels = new Map<Object3D, string>(), touchables = new Map<Object3D, TouchableOptions>(), movers = new Map<Object3D, MoverOptions>();
   // MSZ3: the vehicle kinds' parts and the docks, read once the build has run
   const vehicleKinds = new Map<Object3D, { id: string; options: VehicleKindOptions }>(), docks: { id: string; at: Object3D; options: DockOptions }[] = [];
+  let surfaceGrip: VehicleSurfaceGrip | undefined;
   // SS-GF0: the state writes of `sets` prompts, and the panels a field shows
   const writes: SceneStateWrite[] = [], shown = new Map<Object3D, ShownWhen>(), pickups: ScenePickup[] = [], races: SceneRace[] = [];
   let sky: SceneSky | null = null;
@@ -560,6 +561,10 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       return group;
     },
     dock: (id, at, options) => { anchor('dock', id); docks.push({ id, at, options }); },
+    vehicleSurface: (surface) => {
+      if (surfaceGrip !== undefined) throw new SceneRefusalError('world.vehicleSurface', 'the cell already has vehicle surface grip', 'Put all patches in one declaration');
+      surfaceGrip = surface;
+    },
     questStep: (quest, step, at, options = {}) => {
       landings.push({ landing: sceneLanding(quest, step, { x: 0, y: 0, z: 0 }, options, landings.map((l) => l.landing)), at });
     },
@@ -619,7 +624,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     spawnRows.push({ ...sp.row, id: sp.id, at: [r3(p.x), r3(p.y), r3(p.z)], yaw: r3(Math.atan2(ahead.x, ahead.z)) });
   }
   const dockRows = docks.map((dock): VehicleDock => dockOf(dock.id, placed(dock.id, dock.at), dock.at, dock.options));
-  const vehicles = kindRows.length === 0 && dockRows.length === 0 ? null : sceneVehicles(kindRows, dockRows);
+  const vehicles = kindRows.length === 0 && dockRows.length === 0 && surfaceGrip === undefined ? null : sceneVehicles(kindRows, dockRows, surfaceGrip);
   if (vehicles !== null) {
     // MSZ4: a dock on the ground, clear of the static solids, its leave points on the ground and outside its hull
     const heightAt = (ground as SceneGround | null)?.heightAt ?? ((): number => 0);
