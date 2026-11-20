@@ -65,6 +65,7 @@ test('the staging npm pin fetches both clients from its exact build release', ()
   expect(enginePin(root)).toBe('0.1.44');
   expect(engineClientTag(root)).toBe(`server-staging-${build}`);
   expect(engineClientTag(root, true)).toBe('v0.1.46');
+  expect(engineClientTag(root, false, '0.1.44')).toBe(`server-staging-${build}`);
   mkdirSync(engine, { recursive: true });
   writeFileSync(join(engine, 'package.json'), JSON.stringify({ version: '0.1.45' }));
   expect(engineClientTag(root)).toBe('v0.1.45');
@@ -132,6 +133,8 @@ test('the installed SDK defaults to engine 0.1.53\'s preparation client, on its 
   try {
     const cache = join(root, 'cache');
     expect(await fetchPreparationClient({ cache })).toBe(join(cache, `${STAGING_053}-preparation`));
+    expect(await fetchPreparationClient({ pin: '0.1.53', cache })).toBe(join(cache, `${STAGING_053}-preparation`));
+    expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch).toHaveBeenCalledWith(`https://github.com/project-wildshard/engine/releases/download/${STAGING_053}/preparation-client.tar.gz`);
   } finally { fetch.mockRestore(); }
 });

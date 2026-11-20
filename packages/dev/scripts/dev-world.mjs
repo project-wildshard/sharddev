@@ -13,6 +13,16 @@ const here = import.meta.dirname;
 const installedEngine = fileURLToPath(import.meta.resolve('@wildshard/engine/package.json'));
 export const DEV_RELEASE = '/__dev/release.json';
 
+// A Node author world hosts one cell at wire ordinal 1. The downloaded
+// client's inline staging catalogue has a different order.
+function authorCatalogue(html, slug) {
+  return html.replace(/(<script type="application\/json" id="ws-catalogue">)([^<]*)(<\/script>)/u, (_all, open, json, close) => {
+    const catalogue = JSON.parse(json);
+    catalogue.grid.cells = [{ instance: slug, slug, cell: [0, 0] }];
+    return open + JSON.stringify(catalogue).replaceAll('<', String.raw`\u003c`) + close;
+  });
+}
+
 async function devBundle(engineRoot, version) {
   const packed = join(here, '../dist/dev-server');
   try {
@@ -72,7 +82,10 @@ export async function createDevWorld(origin, work, engineManifest = installedEng
   };
   return {
     get signed() { return signed; },
-    stamp(html) { return html.replace(/<head(?:\s[^>]*)?>/iu, head => head + stamp); },
+    stamp(html) {
+      const page = current === undefined ? html : authorCatalogue(html, current.slug);
+      return page.replace(/<head(?:\s[^>]*)?>/iu, head => head + stamp);
+    },
     async move(product, slug, client = product) {
       const { build, clientVersion, saveEpoch: epoch } = JSON.parse(await readFile(join(client, 'version.json'), 'utf8'));
       if (clientVersion !== version || typeof build !== 'string' || !/^[\w.-]+$/u.test(build) || !Number.isSafeInteger(epoch)) {

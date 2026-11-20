@@ -1,3 +1,4 @@
+import { authorStartLinks } from './authorStartLinks';
 import { printSpawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
 // oxlint-disable-next-line import/no-nodejs-modules -- The author CLI accepts filesystem project/output paths.
 import { basename, dirname, relative, resolve } from 'node:path';
@@ -124,7 +125,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
       void server.close().finally(() => { process.exit(0); });
     };
     process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
-    console.info(`wildshard watch: ${server.url}?skipintro`); return;
+    console.info(authorStartLinks('watch', server.url).join('\n')); return;
   }
   if (command === 'dev') {
     const port = output === undefined ? 0 : Number(output);
@@ -144,7 +145,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     const onSignal = (): void => { void stop(); };
     process.on('SIGINT', onSignal); process.on('SIGTERM', onSignal);
     // SA15: `?skipintro` walks straight into the shard; the bare page sits on the game's title over it
-    console.info(`wildshard dev: ${server.url}?skipintro`); return;
+    console.info(authorStartLinks('dev', server.url).join('\n')); return;
   }
   // SDK-SPLIT SP9d1: the build verb is build's (packages/build/src/sharddev/buildVerb.ts).
   if (command === 'build') { await runBuild(input, args.slice(2), options); return; }
