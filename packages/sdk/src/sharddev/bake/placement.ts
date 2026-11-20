@@ -31,7 +31,7 @@ export type ContactSurface = 'sand' | 'wetSand' | 'grass' | 'rock' | 'planks' | 
   'wood' | 'metal' | 'flesh' | 'shell' | 'ground' | 'edge' | 'felt' | 'earth';
 interface Vec3 { x: number; y: number; z: number }
 interface Quat { x: number; y: number; z: number; w: number }
-interface Placed extends Vec3 { yaw?: number; rot?: Quat; surface?: ContactSurface }
+interface Placed extends Vec3 { yaw?: number; rot?: Quat; surface?: ContactSurface; friction?: number; groups?: number }
 /** Native collision description. Typed geometry remains in memory until its binary writer runs. */
 export type ColliderDesc =
   | Placed & { kind: 'box'; hx: number; hy: number; hz: number }
@@ -39,7 +39,7 @@ export type ColliderDesc =
   | Placed & { kind: 'ball'; radius: number }
   | Placed & { kind: 'hull'; points: Float32Array }
   | Placed & { kind: 'trimesh'; vertices: Float32Array; indices: Uint32Array }
-  | { kind: 'treads'; from: Vec3; to: Vec3; width: number; count: number; surface?: ContactSurface };
+  | { kind: 'treads'; from: Vec3; to: Vec3; width: number; count: number; surface?: ContactSurface; friction?: number; groups?: number };
 /** Admit a complete authored figure before compiling its native anchor contacts.
  * Preserve box arithmetic, capsule fields and absent-collider behavior without constructing a live figure. */
 export function figureColliderRows(input: unknown): readonly ColliderDesc[] {

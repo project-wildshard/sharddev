@@ -50,6 +50,9 @@
     "test:author": "vitest run",
     "check:watch-build": "node src/sharddev/watch/parity.mjs --check"
   },
+  "wildshardStagingClients": {
+    "0.1.53": "b889e7396d588c82a6f7c3edd523a8b721d7e6dc"
+  },
   "dependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@electric-sql/pglite": "0.5.15",
@@ -69,8 +72,8 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
-    "@wildshard/engine": "0.1.50",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.53.0",
+    "@wildshard/engine": "0.1.53",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.54.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",
