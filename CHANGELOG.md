@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.19 (2026-11-20)
+
+- Passive creatures flee when provoked after conversion to declared rows.
+- Shard builds write the authored level look into the look section.
+- Builds include required hull maps before the assets that depend on them.
+
 ## v0.4.18 (2026-11-19)
 
 - Use engine 0.1.53 and shard format 0.55.0.
