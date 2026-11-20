@@ -22,14 +22,21 @@ import { object, optional, safeParse, string } from 'valibot'
 // pins land. A shard with neither installed falls back to the copy this
 // sharddev carries, which is what its build ran with.
 
-const VERSION = /^(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})$/u
+const VERSION_CORE = String.raw`(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})`
+const VERSION = new RegExp(`^${VERSION_CORE}$`, 'u')
+// J475: npm next names an exact build. A numeric SemVer identifier cannot start with zero.
+const ENGINE_VERSION = new RegExp(
+  String.raw`^${VERSION_CORE}(?:-next\.(?!0\d+$)[0-9a-f]{8,40})?$`,
+  'u',
+)
 const COMMIT = /^[\da-f]{40}$/u
 const PACKAGE_JSON = 'package.json'
 const GIT_OK = 0
 
 const PackageJsonSchema = object({ version: optional(string()) })
 
-const ENGINE = ['@wildshard/engine']
+const ENGINE_PACKAGE = '@wildshard/engine'
+const ENGINE = [ENGINE_PACKAGE]
 const SHARD_FORMAT = ['@wildshard/shard-format', '@wildshard/format']
 // The fallback install when the caller names none: upload's own folder, from here up. The sdk names its own folder
 // (SDK-SPLIT SP2b), since upload's package does not depend on the engine.
@@ -164,9 +171,14 @@ async function installedVersion(
   }
   const parsed = safeParse(PackageJsonSchema, JSON.parse(found.text))
   const version = parsed.success ? parsed.output.version : undefined
-  if (version === undefined || !VERSION.test(version)) {
+  const engine = found.name === ENGINE_PACKAGE
+  if (
+    version === undefined ||
+    !(engine ? ENGINE_VERSION : VERSION).test(version)
+  ) {
+    const expected = engine ? 'X.Y.Z or X.Y.Z-next.<sha>' : 'X.Y.Z'
     throw new Error(
-      `${found.name} ${String(version)} (${found.file}) is not X.Y.Z`,
+      `${found.name} ${String(version)} (${found.file}) is not ${expected}`,
     )
   }
   return version

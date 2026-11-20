@@ -41,17 +41,22 @@ function ticketBodyOf(
   return parse(TicketRequestSchema, raw)
 }
 const FIRST_FAILURE = 300
-const X_Y_Z = /^(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})$/u
-
-const VersionSchema = pipe(string(), regex(X_Y_Z))
+const VERSION_CORE = String.raw`(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})`
+const VERSION = new RegExp(`^${VERSION_CORE}$`, 'u')
+const ENGINE_VERSION = new RegExp(
+  String.raw`^${VERSION_CORE}(?:-next\.(?!0\d+$)[0-9a-f]{8,40})?$`,
+  'u',
+)
+const VersionSchema = pipe(string(), regex(VERSION))
+const EngineVersionSchema = pipe(string(), regex(ENGINE_VERSION))
 
 const CommitBodySchema = object({
   contentEncoding: optional(literal('br')),
-  // The pattern api-server's channel-commit.ts uses.
+  // The shard revision keeps the API's stable version format.
   version: VersionSchema,
   commit: pipe(string(), regex(/^[\da-f]{40}$/u)),
   channel: optional(picklist(['staging', 'production'])),
-  engine: optional(VersionSchema),
+  engine: optional(EngineVersionSchema),
   sharddev: optional(VersionSchema),
   shardFormat: optional(VersionSchema),
   place: optional(boolean()),
