@@ -7,6 +7,14 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.18 (2026-11-19)
+
+- Use engine 0.1.53 and shard format 0.55.0.
+- Convert a hunting species with only some of its motion numbers to rows.
+- Give a hull look rigid parts, such as a thrall's extras and their glow.
+- Place vehicles and docks in a scene with world.vehicle and world.dock.
+- A scene's Water draws its surface.
+
 ## v0.4.17 (2026-11-19)
 
 - Use engine 0.1.50 and shard format 0.48.0.
