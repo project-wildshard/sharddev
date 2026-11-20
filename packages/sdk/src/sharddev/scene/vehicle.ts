@@ -46,6 +46,8 @@ export interface VehicleKindOptions {
 export interface DockOptions {
   readonly kind: string;
   readonly per?: 'player' | 'shared';
+  /** A player dock may require an owned quest flag. */
+  readonly requiresFlag?: string;
   /** seconds before it comes back (0 to 3600; default 60) */
   readonly respawn?: number;
 }
@@ -113,7 +115,8 @@ export function vehicleKindOf(root: Object3D, id: string, options: VehicleKindOp
 /** MSZ3: a dock at a node's world position, facing the node's heading (its +z turned to the kind's -z frame, as spawnAt). */
 export function dockOf(id: string, at: Vector3, node: Object3D, options: DockOptions): VehicleDock {
   const ahead = node.getWorldDirection(new Vector3());
-  return { id, kind: options.kind, at: vec(at), yaw: r3(Math.atan2(ahead.x, ahead.z)), per: options.per ?? 'player', respawn: options.respawn ?? 60 };
+  return { id, kind: options.kind, at: vec(at), yaw: r3(Math.atan2(ahead.x, ahead.z)), per: options.per ?? 'player', respawn: options.respawn ?? 60,
+    ...(options.requiresFlag === undefined ? {} : { requiresFlag: options.requiresFlag }) };
 }
 
 /** The scene's kinds and docks through the format's own schema, its refusal named as the scene's. */

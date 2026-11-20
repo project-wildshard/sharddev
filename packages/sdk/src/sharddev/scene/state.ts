@@ -14,7 +14,7 @@ import { SceneRefusalError } from './refusal';
  *   shared and the owner's when a player's, ids from 6001 past any `extend` declares;
  * - **hooks**: a `hooks.scenes` row per use (its id is the prompt's, its event type its own, from 6001); a shared use that
  *   gives no `unless` is spent while its field already holds what it would write (a `<use>.spent` condition), so a lit
- *   shrine's prompt goes; a player's use is never spent here (a page sees no player field an item does not project);
+ *   shrine's prompt goes; a player use opts in by naming its own spent condition;
  * - **targets**: a `targets.panels` row per shown panel, shown and solid while the field holds `equals`;
  * - **sim**: one generated ABI v0 server module (`stateModuleSource`, Brasscap `src/sources/gate.as`'s shape: read the
  *   use events, write the fields) compiled with the sdk's pinned AssemblyScript and bound to the player, so it runs once
@@ -118,10 +118,10 @@ export function sceneStatePlan(shard: Shardfile, scene: ShardScene): { source: s
     return { ...row, unless: `${row.id}.spent` };
   });
   const conditions = uses.flatMap((use) => {
-    if (use.field.scope !== 'shared' || interactions.find((row) => row.id === use.write.use)?.unless !== `${use.write.use}.spent`) return [];
+    if (interactions.find((row) => row.id === use.write.use)?.unless !== `${use.write.use}.spent`) return [];
     const id = `${use.write.use}.spent`;
     if (conditionIds.has(id)) throw new SceneRefusalError(use.write.use, `extend declares condition ${id} too`, 'Rename the condition in extend');
-    return [{ id, scope: 'shared' as const, fieldId: use.field.id, equals: 'value' in use.write ? use.write.value : use.write.add > 0 ? use.write.max : 0 }];
+    return [{ id, scope: use.field.scope, fieldId: use.field.id, equals: 'value' in use.write ? use.write.value : use.write.add > 0 ? use.write.max : 0 }];
   });
   // targets: a panel row per shown part, its static collider (if it has one) shown with it
   const takenPanels = new Set(shard.targets.panels.map((p) => p.panel));

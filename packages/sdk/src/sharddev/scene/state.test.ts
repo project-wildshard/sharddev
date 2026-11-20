@@ -30,7 +30,7 @@ const shrine = (world: ShardWorld): void => {
     const step = new THREE.Object3D(); step.position.set(2, 1, 0); part.add(step);
     world.interact('shrine.offer', step, { label: 'Leave a lantern', radius: 3, sets: { field: 'shrine.lanterns', scope: 'shared', add: 1, max: 3 } });
     const mark = new THREE.Object3D(); mark.position.set(-2, 1, 0); part.add(mark);
-    world.interact('shrine.mark', mark, { label: 'Touch the stone', radius: 3, sets: { field: 'shrine.touched', scope: 'player', value: true } });
+    world.interact('shrine.mark', mark, { label: 'Touch the stone', radius: 3, unless: 'shrine.mark.spent', sets: { field: 'shrine.touched', scope: 'player', value: true } });
   });
   world.part('flame', (part) => {
     const fire = solid(new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.6, 0.4), flame)); fire.position.set(0, 1.5, 0); part.add(fire);
@@ -56,13 +56,13 @@ test('sets and shownWhen write the state, hooks, targets and one generated serve
   expect(shard.hooks.scenes).toEqual([
     { id: 'shrine.light', type: 6001, value: 1 }, { id: 'shrine.offer', type: 6002, value: 1 }, { id: 'shrine.mark', type: 6003, value: 1 },
   ]);
-  // a shared write spends its prompt once it holds for good (lit; the third lantern); a player's stays (the page sees no
-  // player field it does not project)
+  // Shared uses auto-spend. The stone opts in to a spent condition scoped to the player who used it.
   expect(shard.hooks.conditions).toEqual([
     { id: 'shrine.light.spent', scope: 'shared', fieldId: 6001, equals: 1 }, { id: 'shrine.offer.spent', scope: 'shared', fieldId: 6002, equals: 3 },
+    { id: 'shrine.mark.spent', scope: 'player', fieldId: 6003, equals: 1 },
   ]);
   expect(shard.targets.interactions.map((row) => [row.id, row.scene, row.unless])).toEqual([
-    ['shrine.light', 'shrine.light', 'shrine.light.spent'], ['shrine.offer', 'shrine.offer', 'shrine.offer.spent'], ['shrine.mark', 'shrine.mark', undefined],
+    ['shrine.light', 'shrine.light', 'shrine.light.spent'], ['shrine.offer', 'shrine.offer', 'shrine.offer.spent'], ['shrine.mark', 'shrine.mark', 'shrine.mark.spent'],
   ]);
   expect(shard.targets.panels).toEqual([
     { panel: 'shrine.flame', scope: 'shared', fieldId: 6001, equals: 1, visibleWhenMatched: true, colliders: ['shrine.flame'], activeWhenMatched: true },

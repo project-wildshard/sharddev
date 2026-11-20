@@ -51,7 +51,7 @@ export interface InteractOptions {
   readonly radius: number;
   /** the shard scene the use runs (format `hooks.scenes`, from `extend`); give this or `sets` */
   readonly scene?: string;
-  /** names the hooks condition that spends it (a `sets` prompt on a shared field is spent once the field holds for good) */
+  /** names the hooks condition that spends it (name its own `<id>.spent` to spend a player `sets` prompt once the field matches) */
   readonly unless?: string;
   /** SS-GF0: the state field the use writes, with no script of the author's */
   readonly sets?: SetsOptions;
