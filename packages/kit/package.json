@@ -51,7 +51,7 @@
     "test": "node --import ./test-hook.mjs --test 'src/**/*.test.ts'"
   },
   "dependencies": {
-    "@wildshard/shard-format": "0.53.0",
+    "@wildshard/shard-format": "0.55.0",
     "valibot": "1.5.0",
     "three": "0.186.0"
   },

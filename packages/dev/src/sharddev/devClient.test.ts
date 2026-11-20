@@ -122,14 +122,14 @@ test('the preparation client is a preparation-only production build, kept beside
   }
 });
 
-test('the installed SDK defaults to the v0.1.50 preparation client', async () => {
+test('the installed SDK defaults to the v0.1.53 preparation client', async () => {
   const root = scratch();
   const file = archive(root, { devserver: false }, { preparationOnly: true });
   const fetch = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(readFileSync(file)));
   try {
     const cache = join(root, 'cache');
-    expect(await fetchPreparationClient({ cache })).toBe(join(cache, 'v0.1.50-preparation'));
-    expect(fetch).toHaveBeenCalledWith('https://github.com/project-wildshard/engine/releases/download/v0.1.50/preparation-client.tar.gz');
+    expect(await fetchPreparationClient({ cache })).toBe(join(cache, 'v0.1.53-preparation'));
+    expect(fetch).toHaveBeenCalledWith('https://github.com/project-wildshard/engine/releases/download/v0.1.53/preparation-client.tar.gz');
   } finally { fetch.mockRestore(); }
 });
 

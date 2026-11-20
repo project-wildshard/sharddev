@@ -29,7 +29,7 @@ import { refusalCode } from '@wildshard/upload/sharddev/refusals';
 import { DRAFT_SDK, draftMessage } from '@wildshard/upload/sharddev/draft';
 import { authorLintPlan } from '@wildshard/sdk/internal/authorLint';
 import { assertCreatureDeclarations } from '@wildshard/sdk/internal/creatureLayers';
-/** The engine names its own format copy (0.48.0 at engine 0.1.50, the one sharddev pins); a pin skew still compiles. */
+/** The engine names its own format copy (0.54.0 at engine 0.1.53; sharddev pins 0.55.0); a pin skew still compiles. */
 type EngineShardfile = Parameters<typeof checkShardfile>[0];
 
 /** The author proof tape `check` runs when the project has one (format: `AuthorProofPlanSchema`). */
