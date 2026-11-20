@@ -82,7 +82,14 @@ function riggedHullLate(platform: EmittedSections | undefined, files: readonly O
   const names = new Set(Object.values(book.tiers).flatMap(tier =>
     Object.values(tier.files).flatMap(file => typeof file === 'string' ? [file] : [file.rig, file.base, file.normal])
       .concat(Object.values(tier.coats).map(coat => coat.image), tier.parts === undefined ? [] : [tier.parts.file])));
-  return [...new Set(files.filter(file => (file.kind === 'image' || file.kind === 'glb' || file.kind === 'ktx2') && !file.critical && !critical.has(file.hash) && file.name !== undefined && names.has(file.name)).map(file => file.hash))]
+  return lateHullFiles(names, files, critical);
+}
+
+/** The hull book's named files (`names`) that may load late: never a critical file, nor one in `held` (a critical root, or
+ *  a dependency of another file: ONE-FORMAT OF23a, a species skin that shares a hull map's bytes needs it before the
+ *  world, so a late map left the skin with a missing texture at level.world, on both tiers). */
+export function lateHullFiles(names: ReadonlySet<string>, files: readonly OutputFile[], held: ReadonlySet<string>): LateFile[] {
+  return [...new Set(files.filter(file => (file.kind === 'image' || file.kind === 'glb' || file.kind === 'ktx2') && !file.critical && !held.has(file.hash) && file.name !== undefined && names.has(file.name)).map(file => file.hash))]
     .map(hash => ({ hash }));
 }
 
@@ -145,7 +152,9 @@ export async function prepareProjectOutput(project: string, input: unknown, deci
   }
   const explicit = new Set(parsed.late?.map(row => row.hash));
   const critical = new Set([...inventory.filter(file => file.critical).map(file => file.hash), ...(decisions?.source.critical ?? []), ...(decisions?.source.files.filter(file => file.critical).map(file => file.hash) ?? [])]);
-  const late = [...parsed.late ?? [], ...riggedHullLate(parsed.platform, inventory, critical).filter(row => !explicit.has(row.hash))];
+  // OF23a: a file another file depends on loads with it, never late
+  const held = new Set([...critical, ...[...inventory, ...(decisions?.source.files ?? [])].flatMap(file => file.dependencies ?? [])]);
+  const late = [...parsed.late ?? [], ...riggedHullLate(parsed.platform, inventory, held).filter(row => !explicit.has(row.hash))];
   return { blobs, assets: ownedAssets(parsed.assets), ...(parsed.late === undefined && late.length === 0 ? {} : { late }), options: {
     namedFiles: overlays,
     ...(parsed.platform === undefined ? {} : { platform: ownedSections(parsed.platform) }),
