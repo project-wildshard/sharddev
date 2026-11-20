@@ -15,6 +15,7 @@ import type {
 } from './description';
 import { compileWorldCreature } from './worldCreature';
 import { SceneRefusalError } from './refusal';
+import { ambienceRows, musicRows } from './sound';
 import { ContentHash, hashOf } from './hash';
 
 /**
@@ -438,6 +439,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   // AP25: rows placed at nodes; read once the build has run and every matrix is current
   const spawnsAt: { id: string; at: Object3D; row: SpawnAtRow }[] = [];
   const creatures: SceneCreature[] = [];
+  // MZ23: `world.music`'s score and `world.ambience`'s bed, each declared at most once
+  let music: NonNullable<ShardScene['sound']>['music'] = null, ambience: NonNullable<ShardScene['sound']>['ambience'] = null;
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
   const anchor = (kind: string, id: string): void => {
@@ -551,6 +554,14 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       return group;
     },
     dock: (id, at, options) => { anchor('dock', id); docks.push({ id, at, options }); },
+    music: (options) => {
+      if (music !== null) throw new SceneRefusalError('music', 'world.music is called twice', 'Declare the score once, with its day, night and boss slots');
+      music = musicRows(identity.slug, options);
+    },
+    ambience: (options) => {
+      if (ambience !== null) throw new SceneRefusalError('ambience', 'world.ambience is called twice', 'Declare the bed once, with all its winds');
+      ambience = ambienceRows(identity.slug, options);
+    },
     detail: (id, mesh, options) => {
       if (!/^[a-z0-9][a-z0-9._-]{0,63}$/u.test(id)) throw new SceneRefusalError(id, 'a detail id is not a look id', 'Name it like `moss-grass`: lower case, digits, dots, dashes and underscores');
       if (detailRequests.some((d) => d.id === id)) throw new SceneRefusalError(id, 'two detail layers share this id', 'Give every world.detail its own id');
@@ -619,6 +630,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     geometries: Object.fromEntries(tables.geometries), look: { fog, background, post, sky }, ground, spawn, anchored,
     ...(details.length === 0 ? {} : { details }),
     ...(creatures.length === 0 ? {} : { creatures }),
+    ...(music === null && ambience === null ? {} : { sound: { music, ambience } }),
   };
 }
 

@@ -5,6 +5,7 @@ import type { GraphValue } from '../materials';
 import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 import type { CreatureWorldOptions } from './worldCreature';
 import type { DockOptions, VehicleKindOptions } from './vehicle';
+import type { AmbienceOptions, MusicOptions } from './sound';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -205,6 +206,17 @@ export interface ShardWorld {
    * player their own; `shared` parks one for everyone. It comes back `respawn` seconds (default 60) after it goes.
    */
   dock: (id: string, at: Object3D, options: DockOptions) => void;
+  /**
+   * MOSSGATE-ZONE MZ23: the shard's music, from the engine's own piano (J304: no recordings of the shard's, no audio bytes):
+   * `day` while it is light, `night` once it is dark, `boss` while one of the shard's bosses fights, each a slot of the
+   * engine's style (`title`, `island` or `pine`). Once. Needs an engine whose grid cells play a score (engine `30c22f00`).
+   */
+  music: (options: MusicOptions) => void;
+  /**
+   * MZ23: the cell's ambient bed, one to eight synth winds (band-passed noise, `../scene/sound` `Wind`), played while a player
+   * stands in the cell. Once. With `music`, this ends the scene shard's default silence, so quest steps are heard.
+   */
+  ambience: (options: AmbienceOptions) => void;
 }
 
 

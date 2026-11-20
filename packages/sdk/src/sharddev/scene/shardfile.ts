@@ -15,6 +15,7 @@ import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotio
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
 import { SceneRefusalError } from './refusal';
+import { sceneAudioRows } from './sound';
 import type { ShardRows } from '@wildshard/format/rows';
 import { budgetReport, partBudgets } from './budget';
 import { coarseGeometry } from '../bake/coarseCopy';
@@ -878,6 +879,8 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     ...(movers.length === 0 ? {} : { movers }),
     // NEW-SHARD-E2E F23: a player starts with a weapon, so a scene shard's creatures can be fought; `extend` may replace it
     items: STARTER_ITEMS,
+    // MOSSGATE-ZONE MZ23: world.music and world.ambience, as the format's audio rows (no recordings: no audio bytes)
+    ...(scene.sound === undefined ? {} : { audio: sceneAudioRows(base.audio, scene.sound.music, scene.sound.ambience) }),
     ...(creatures.length === 0 ? {} : { rows: { ...base.rows, species: [...base.rows.species, ...creatures.map((c) => c.species)], looks: [...base.rows.looks, ...creatures.map((c) => c.look)],
       strikes: [...base.rows.strikes, ...creatureStrikes(creatures)] } }),
   };

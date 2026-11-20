@@ -2,6 +2,7 @@ import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { Vehicles } from '@wildshard/format/vehicles';
 import type { ShardCreatures } from '@wildshard/format/creatures';
 import type { ShardRows } from '@wildshard/format/rows';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 /**
  * AUTHORING-PARITY AP1: the scene description. An author writes an ordinary three.js scene inside `defineShard`; the
  * walker (`lower.ts`) reads it once into this plain, serialisable shape, and both back ends read only this: the shardfile
@@ -280,6 +281,8 @@ export interface ShardScene {
   readonly details?: readonly SceneDetailScatter[];
   /** ONE-FORMAT CC24: `world.creature`'s compiled creatures, in the order they were declared; absent or empty: none */
   readonly creatures?: readonly SceneCreature[];
+  /** MOSSGATE-ZONE MZ23: `world.music`'s score and `world.ambience`'s bed (format `audio`); absent: the format's silence */
+  readonly sound?: { readonly music: NonNullable<Shardfile['audio']['music']> | null; readonly ambience: Shardfile['audio']['ambience'] };
 }
 
 /**
