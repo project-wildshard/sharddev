@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.21 (2026-11-20)
+
+- Bake separate phone skins and maps for creature variants while preserving desktop looks.
+
 ## v0.4.20 (2026-11-20)
 
 - Preserve exact npm next engine pins when uploading to staging.
