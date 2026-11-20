@@ -33,7 +33,7 @@ export const PLACES: readonly Place[] = [
   { id: 'meadow.stones', name: 'The Standing Stones', region: 'meadow', x: 40, z: -200 },
   { id: 'thicket.clearing', name: "Greyback's Clearing", region: 'thicket', x: 140, z: -140 },
   { id: 'thicket.wallow', name: 'The Sow Wallow', region: 'thicket', x: 200, z: -200 },
-  { id: 'downs.barrow', name: 'The Barrow Ring', region: 'downs', x: 170, z: 0 },
+  { id: 'downs.barrow', name: 'The Barrow Ring', region: 'downs', x: 160, z: 45 },
   { id: 'downs.cairn', name: 'The Old Cairn', region: 'downs', x: 210, z: 80 },
   { id: 'bog.shrine', name: 'The Sunken Shrine', region: 'bog', x: -160, z: 20 },
   { id: 'bog.mere', name: 'Wisp Mere', region: 'bog', x: -200, z: 80 },
@@ -49,6 +49,11 @@ export const ENTRIES: readonly Entry[] = [
   { id: 'west', gate: [-HALF, 0], to: [-50, 0] },
 ];
 
+/** MZ17: the barrow ring on the Downs (its arena, world.ts `LAYOUT.ARENA`): its radius, and the approach, the point 10 m
+ *  out from its arch on the west, where the roads meet before the last straight in. */
+export const BARROW_RING = { r: 9.5 } as const;
+export const BARROW_APPROACH: readonly [number, number] = [160 - BARROW_RING.r - 10, 45];
+
 /** The paths between regions: from the yard out to each, and on along the main chain's way to the Downs. */
 export const PATHS: readonly Path[] = [
   { from: 'hollow.yard', to: 'meadow.den', points: [[0, -50], [-10, -100], [-20, -150]] },
@@ -56,9 +61,10 @@ export const PATHS: readonly Path[] = [
   { from: 'meadow.den', to: 'ridge.lookout', points: [[-20, -150], [-110, -170], [-190, -200]] },
   { from: 'meadow.stones', to: 'thicket.clearing', points: [[40, -200], [90, -160], [140, -140]] },
   { from: 'thicket.clearing', to: 'thicket.wallow', points: [[140, -140], [170, -170], [200, -200]] },
-  { from: 'thicket.clearing', to: 'downs.barrow', points: [[140, -140], [160, -60], [170, 0]] },
-  { from: 'hollow.yard', to: 'downs.barrow', points: [[50, 0], [110, 0], [170, 0]] },
-  { from: 'downs.barrow', to: 'downs.cairn', points: [[170, 0], [195, 40], [210, 80]] },
+  // MZ17: the barrow ring stands off the east entry road; every road to it comes in by the approach west of its arch
+  { from: 'thicket.clearing', to: 'downs.barrow', points: [[140, -140], [150, -60], [112, -5], [100, 12], [BARROW_APPROACH[0], BARROW_APPROACH[1]], [160, 45]] },
+  { from: 'hollow.yard', to: 'downs.barrow', points: [[50, 0], [100, 12], [BARROW_APPROACH[0], BARROW_APPROACH[1]], [160, 45]] },
+  { from: 'downs.barrow', to: 'downs.cairn', points: [[160, 45], [BARROW_APPROACH[0], BARROW_APPROACH[1]], [148, 68], [185, 88], [210, 80]] },
   { from: 'hollow.yard', to: 'bog.shrine', points: [[-50, 0], [-110, 10], [-160, 20]] },
   { from: 'bog.shrine', to: 'bog.mere', points: [[-160, 20], [-185, 50], [-200, 80]] },
   { from: 'hollow.yard', to: 'quarry.pit', points: [[0, 50], [10, 120], [45, 200]] },

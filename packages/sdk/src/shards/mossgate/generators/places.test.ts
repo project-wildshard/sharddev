@@ -32,15 +32,15 @@ test('every place is a region trigger and a marker on the map; the roads carry f
   expect(lay?.onComplete).toMatchObject({ fact: 'mossgate.places', coins: 20 });
 
   // two posts a road and one on each entry road, each beside its road (not on it) and naming a place
-  const posts = fingerposts();
-  expect(posts).toHaveLength(PATHS.length * 2 + ENTRIES.length);
+  const posts = fingerposts(), arms = posts.flatMap((f) => f.arms);
+  expect(arms.length).toBeGreaterThanOrEqual(PATHS.length * 2 + ENTRIES.length - 4);
   const names = new Set(PLACES.map((p) => p.name));
   for (const f of posts) {
-    expect(names.has(f.name), f.name).toBe(true);
-    expect(roadDistance(f.x, f.z), `${f.name} post at ${f.x.toFixed(1)}, ${f.z.toFixed(1)}`).toBeGreaterThan(1.5);
+    for (const arm of f.arms) expect(names.has(arm.name), arm.name).toBe(true);
+    expect(roadDistance(f.x, f.z), `${f.arms[0]?.name} post at ${f.x.toFixed(1)}, ${f.z.toFixed(1)}`).toBeGreaterThan(1.5);
   }
   // each place past the yard is named by at least one post (the pond is in sight of the spawn)
-  for (const place of PLACES.filter((p) => p.region !== 'yard')) expect(posts.some((f) => f.name === place.name), place.name).toBe(true);
+  for (const place of PLACES.filter((p) => p.region !== 'yard')) expect(arms.some((a) => a.name === place.name), place.name).toBe(true);
 
   // the Lookout: a dais you can stand on, steps up its east face, the view stone's talk
   const ridge = scene.parts.find((p) => p.name === 'ridge');

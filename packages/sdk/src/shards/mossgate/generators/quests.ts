@@ -53,9 +53,9 @@ const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
 export const LAMPLIGHTER_DIALOGUE = {
   id: 'mossgate.lamplighter', name: 'The Lamplighter', start: 'offer',
   nodes: [
-    { id: 'offer', lines: ['The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring.', 'Light all three for me. Will you?'],
+    { id: 'offer', lines: ['The braziers of the Hollow have gone cold, and the Warden stirs in the barrow ring out on the Downs.', 'Light all three for me. Will you?'],
       choices: [{ id: 'accept', label: "I'll relight them.", next: 'waiting', sets: [FLAGS.lampAccepted] }] },
-    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the barrow ring.', 'Then put the Warden down, or it will snuff them again.'],
+    { id: 'waiting', lines: ['A by the training ground, B across the pond, C by the east gap.', 'Then put the Warden down, or it will snuff them again.'],
       choices: [{ id: 'report', label: 'All three burn, and the Warden is down.', next: 'thanks', when: { all: [...LETTERS.map(lamp), dead(BODIES.warden)] }, sets: [FLAGS.lampReported] }] },
     { id: 'thanks', lines: ['The Hollow breathes again. Take this for your trouble.'], choices: [] },
   ],
@@ -106,7 +106,7 @@ export const QUESTS = {
       steps: [
         ...LETTERS.map((l) => ({ id: l.toLowerCase(), objective: `Light brazier ${l}`, done: { all: [lamp(l)] },
           markers: [marker(`brazier-${l.toLowerCase()}.marker`, `Brazier ${l}`, l, brazierAt(l), lamp(l))] })),
-        { id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] }, hint: 'The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core',
+        { id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] }, hint: 'The Warden wakes in the barrow ring, out on the Barrow Downs east of the yard: watch the ground ring, dodge, then strike its open core',
           markers: [marker('relight-warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] },
         { id: 'report', objective: 'Tell the Lamplighter', done: { all: [FLAGS.lampReported] }, hint: 'The Lamplighter waits on the path north of spawn',
           markers: [marker('lamplighter.marker', 'The Lamplighter', 'Lamp', LAYOUT.LAMPLIGHTER)] },
@@ -162,7 +162,7 @@ export const QUESTS = {
       onComplete: { fact: 'mossgate.greyback', coins: 15 } },
     { id: 'mossgate.warden', title: 'The Barrow Warden', track: false, completeFlag: FLAGS.wardenPaid,
       steps: [{ id: 'warden', objective: 'Put down the Barrow Warden', done: { all: [dead(BODIES.warden)] },
-        hint: 'The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core',
+        hint: 'The Warden wakes in the barrow ring, out on the Barrow Downs east of the yard: watch the ground ring, dodge, then strike its open core',
         markers: [marker('warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] }],
       onComplete: { fact: 'mossgate.warden', coins: 25 } },
     // MZ16: the twelve places, each a region trigger (places.ts); untracked, so its markers name them on the full map only

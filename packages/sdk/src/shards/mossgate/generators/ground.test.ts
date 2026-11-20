@@ -17,8 +17,9 @@ test('every terrain tile has ground: the whole 8 x 8 L0 grid carries relief', ()
       const y = groundHeight(-HALF + tx * 62.5 + x * SPACING, -HALF + tz * 62.5 + z * SPACING);
       lo = Math.min(lo, y); hi = Math.max(hi, y);
     }
-    // 0.75 m: the yard's south-east tile is mostly the cleanroom's flat floor, its relief starting 48 m out
-    if (hi - lo < 0.75) flat.push(`${tx},${tz} (${(hi - lo).toFixed(2)} m)`);
+    // 0.6 m: the yard's south-east tile is mostly the cleanroom's flat floor, its relief starting 48 m out (MZ17 took the
+    // barrow ring's sunk floor out of it, 0.67 m left)
+    if (hi - lo < 0.6) flat.push(`${tx},${tz} (${(hi - lo).toFixed(2)} m)`);
   }
   expect(flat).toEqual([]);
 });

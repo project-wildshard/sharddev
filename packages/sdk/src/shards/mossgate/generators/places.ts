@@ -1,6 +1,6 @@
 // MOSSGATE-ZONE MZ16 (J452): the Hollow's twelve places (layout.ts `PLACES`) and the roads between them. Every place is a
 // region trigger raising `mossgate.place.<id>`: the region files raise their own (meadow.ts, thicket.ts, bog.ts, quarry.ts,
-// ridge.ts); this file raises the yard's two and the Downs' two until the Downs get their file (MZ17). Each road (layout.ts
+// ridge.ts, downs.ts); this file raises the yard's two (the Downs' are downs.ts's since MZ17). Each road (layout.ts
 // `PATHS`) has a fingerpost a few metres in from either end, its arm pointing up the road and painted with the name of the
 // place at the far end; each entry road has one pointing to the Hollow. The places go on the full map as the markers of
 // "The lay of the Hollow" (quests.ts).
@@ -16,7 +16,7 @@ export const placeFlag = (id: string): string => `mossgate.place.${id}`;
 export const PLACE_FLAGS: readonly string[] = PLACES.map((p) => placeFlag(p.id));
 
 /** The places no region file holds yet, and each trigger's radius. */
-const HERE: readonly (readonly [string, number])[] = [['hollow.yard', 14], ['hollow.pond', 8], ['downs.barrow', 16], ['downs.cairn', 12]];
+const HERE: readonly (readonly [string, number])[] = [['hollow.yard', 14], ['hollow.pond', 8]];
 /** How far in from a place's centre its fingerposts stand: clear of what stands there (the den's mound, the mere's water). */
 const CLEAR: Readonly<Record<string, number>> = {
   'meadow.den': 14, 'meadow.stones': 12, 'thicket.clearing': 20, 'thicket.wallow': 14, 'downs.barrow': 18, 'downs.cairn': 9,
@@ -35,19 +35,22 @@ const placeOf = (id: string): Place => {
   return found;
 };
 
-/** A fingerpost: where it stands, the way its arm points (a yaw, 0 = +z) and the name on the arm. */
-export interface Fingerpost { readonly x: number; readonly z: number; readonly yaw: number; readonly name: string }
+/** An arm: the way it points (a yaw, 0 = +z) and the name on it. */
+export interface Arm { readonly yaw: number; readonly name: string }
+/** A fingerpost: where it stands and its arms, top first (roads that leave a place the same way share one post). */
+export interface Fingerpost { readonly x: number; readonly z: number; readonly arms: readonly Arm[] }
 
-/** One post at `at`, `along` metres up the road toward `toward`, set aside to the right, its arm pointing up the road. */
-function post(at: readonly [number, number], toward: readonly [number, number], along: number, name: string): Fingerpost {
+/** One arm's post at `at`, `along` metres up the road toward `toward`, set aside to the right, pointing up the road. */
+function post(at: readonly [number, number], toward: readonly [number, number], along: number, name: string): { x: number; z: number } & Arm {
   const dx = toward[0] - at[0], dz = toward[1] - at[1], len = Math.hypot(dx, dz), ux = dx / len, uz = dz / len;
   // right of the way walked (north is -z, so walking +z the right hand is -x)
   return { x: at[0] + ux * along - uz * ASIDE, z: at[1] + uz * along + ux * ASIDE, yaw: Math.atan2(ux, uz), name };
 }
 
-/** Every road's two fingerposts, and one on each entry road pointing to the Hollow. */
+/** Every road's two fingerposts, and one on each entry road pointing to the Hollow; arms within 1.5 m of each other share a
+ *  post (MZ17: three roads leave the barrow ring by its arch), one arm per name. */
 export function fingerposts(): Fingerpost[] {
-  const out: Fingerpost[] = [];
+  const out: ({ x: number; z: number } & Arm)[] = [];
   for (const path of PATHS) {
     const pts = path.points, first = pts[0], second = pts[1], last = pts.at(-1), before = pts.at(-2);
     if (first === undefined || second === undefined || last === undefined || before === undefined) continue;
@@ -57,7 +60,13 @@ export function fingerposts(): Fingerpost[] {
   }
   // an entry road's post stands past the grid's flat entry lane, its arm pointing on toward the yard
   for (const entry of ENTRIES) out.push(post(entry.gate, entry.to, ENTRY_IN, placeOf('hollow.yard').name));
-  return out;
+  const posts: { x: number; z: number; arms: Arm[] }[] = [];
+  for (const arm of out) {
+    const near = posts.find((p) => Math.hypot(p.x - arm.x, p.z - arm.z) < 1.5);
+    if (near === undefined) posts.push({ x: arm.x, z: arm.z, arms: [{ yaw: arm.yaw, name: arm.name }] });
+    else if (!near.arms.some((a) => a.name === arm.name)) near.arms.push({ yaw: arm.yaw, name: arm.name });
+  }
+  return posts;
 }
 
 /** The painted names, one row each: cream capitals on a weathered board, one texture every arm shares. */
@@ -86,17 +95,20 @@ function face(name: string, material: THREE.Material): { mesh: THREE.Mesh; lengt
 
 const woodM = new THREE.MeshStandardMaterial({ name: 'fingerpost-wood', color: '#6e5438', roughness: 0.9 });
 
-/** One fingerpost: a post with a cap, and its arm out to the side it points, the name on both faces. */
+/** One fingerpost: a post with a cap, and its arms out the ways they point, one under another, each name on both faces. */
 function build(part: THREE.Group, f: Fingerpost, names: THREE.Material): void {
-  const gy = groundHeight(f.x, f.z), group = new THREE.Group(); group.position.set(f.x, gy, f.z); group.rotation.y = f.yaw; part.add(group);
-  const pole = new THREE.Mesh(new THREE.BoxGeometry(0.16, 2.3, 0.16), woodM); pole.position.y = 1.15; pole.castShadow = true; group.add(pole);
-  const cap = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.18, 4), woodM); cap.position.y = 2.39; cap.rotation.y = Math.PI / 4; group.add(cap);
-  // the arm runs along +z (up the road) from the post, its faces looking left and right of the road
-  const front = face(f.name, names), back = face(f.name, names), length = front.length;
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.3, length + 0.12), woodM); arm.position.set(0, 1.95, length / 2 + 0.02); arm.castShadow = true; group.add(arm);
-  const tip = new THREE.Mesh(new THREE.CylinderGeometry(0, 0.15, 0.26, 3), woodM); tip.rotation.set(Math.PI / 2, 0, Math.PI / 2); tip.scale.set(1, 1, 0.4); tip.position.set(0, 1.95, length + 0.2); group.add(tip);
-  front.mesh.position.set(0.035, 1.95, length / 2 + 0.02); front.mesh.rotation.y = Math.PI / 2; group.add(front.mesh);
-  back.mesh.position.set(-0.035, 1.95, length / 2 + 0.02); back.mesh.rotation.y = -Math.PI / 2; group.add(back.mesh);
+  const gy = groundHeight(f.x, f.z), top = 1.95 + Math.max(0, f.arms.length - 2) * 0.36;
+  const pole = new THREE.Mesh(new THREE.BoxGeometry(0.16, top + 0.35, 0.16), woodM); pole.position.set(f.x, gy + (top + 0.35) / 2, f.z); pole.castShadow = true; part.add(pole);
+  const cap = new THREE.Mesh(new THREE.ConeGeometry(0.15, 0.18, 4), woodM); cap.position.set(f.x, gy + top + 0.44, f.z); cap.rotation.y = Math.PI / 4; part.add(cap);
+  f.arms.forEach((arm, i) => {
+    // the arm runs along +z (up the road) from the post, its faces looking left and right of the road
+    const y = top - i * 0.36, group = new THREE.Group(); group.position.set(f.x, gy, f.z); group.rotation.y = arm.yaw; part.add(group);
+    const front = face(arm.name, names), back = face(arm.name, names), length = front.length;
+    const board = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.3, length + 0.12), woodM); board.position.set(0, y, length / 2 + 0.02); board.castShadow = true; group.add(board);
+    const tip = new THREE.Mesh(new THREE.CylinderGeometry(0, 0.15, 0.26, 3), woodM); tip.rotation.set(Math.PI / 2, 0, Math.PI / 2); tip.scale.set(1, 1, 0.4); tip.position.set(0, y, length + 0.2); group.add(tip);
+    front.mesh.position.set(0.035, y, length / 2 + 0.02); front.mesh.rotation.y = Math.PI / 2; group.add(front.mesh);
+    back.mesh.position.set(-0.035, y, length / 2 + 0.02); back.mesh.rotation.y = -Math.PI / 2; group.add(back.mesh);
+  });
   const stop = solid(new THREE.Mesh(new THREE.BoxGeometry(0.2, 2, 0.2), woodM)); stop.position.set(f.x, gy + 1, f.z); stop.visible = false; part.add(stop);
 }
 

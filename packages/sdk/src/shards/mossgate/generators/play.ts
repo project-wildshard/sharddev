@@ -12,7 +12,8 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { fire } from '@wildshard/sdk/scene/fire';
-import { buildMossgate, groundHeight, LAYOUT } from './world';
+import { arenaBase, buildMossgate, groundHeight, LAYOUT } from './world';
+import { PATHS } from './layout';
 import { buildCreatures, HAUNTS } from './creatures';
 import { GRITMAW_PANELS, WARDEN_PANELS } from './fights';
 import { buildQuarry } from './quarry';
@@ -20,6 +21,7 @@ import { buildMeadow } from './meadow';
 import { buildThicket } from './thicket';
 import { buildBog } from './bog';
 import { buildRidge } from './ridge';
+import { buildDowns } from './downs';
 import { buildPlaces } from './places';
 
 /** Where the gameplay stands (the Template's `data/layout.json`, which was this scene's plan). */
@@ -96,7 +98,7 @@ function glowPool(into: THREE.Group, x: number, y: number, z: number, size: numb
 /** The rim brazier on the arena's far wall that burns with quest brazier `letter` (world.ts `arena`). */
 function rimSeat(letter: string): [number, number, number] {
   const a = ({ A: -0.42, B: 0, C: 0.42 } as Record<string, number>)[letter] ?? 0, { x, z, r } = LAYOUT.ARENA;
-  return [x + Math.cos(a) * (r + 0.05), 2.12, z + Math.sin(a) * (r + 0.05)];
+  return [x + Math.cos(a) * (r + 0.05), arenaBase() + 2.12, z + Math.sin(a) * (r + 0.05)];
 }
 
 /** The braziers: a prompt over each bowl, and each letter's flames as a panel its field shows. */
@@ -262,10 +264,13 @@ function hollowRelit(world: ShardWorld): void {
       const stone = box(0.34, 0.5, 0.34, k % 2 === 0 ? rune : moss, 0.05); stone.position.set(rx, gy + 0.25, rz); stone.rotation.y = a; part.add(stone);
     }
     glowPool(part, ax, groundHeight(ax, az), az, 2.2, '#ffc860');
-    // the trail home: lit stones every 1.6 m from the ring's west gap, along the yard path, to the Lamplighter
-    const route: [number, number][] = [[ax - r + 0.5, az], [8, -2], [LAYOUT.LAMPLIGHTER.x + 1.4, LAYOUT.LAMPLIGHTER.z + 1.2]];
+    // the trail home: lit stones from the ring's arch back along the Downs road (MZ17: the ring is out on the Downs, so a
+    // stone every 5 m there), through the yard's east gap, to the Lamplighter (every 1.6 m)
+    const road = PATHS.find((p) => p.from === 'hollow.yard' && p.to === 'downs.barrow')?.points ?? [];
+    const route: [number, number, number][] = [[ax - r + 0.5, az, 5], ...[...road].reverse().slice(1).map(([x, z]): [number, number, number] => [x, z, 5]),
+      [LAYOUT.EAST_GAP.x + 1, LAYOUT.EAST_GAP.z, 1.6], [8, -2, 1.6], [LAYOUT.LAMPLIGHTER.x + 1.4, LAYOUT.LAMPLIGHTER.z + 1.2, 1.6]];
     for (let leg = 0; leg < route.length - 1; leg++) {
-      const [x0, z0] = route[leg] ?? [0, 0], [x1, z1] = route[leg + 1] ?? [0, 0], n = Math.max(1, Math.round(Math.hypot(x1 - x0, z1 - z0) / 1.6));
+      const [x0, z0, step] = route[leg] ?? [0, 0, 5], [x1, z1] = route[leg + 1] ?? [0, 0], n = Math.max(1, Math.round(Math.hypot(x1 - x0, z1 - z0) / step));
       for (let i = 0; i < n; i++) {
         const t = i / n, x = x0 + (x1 - x0) * t, z = z0 + (z1 - z0) * t, gy = groundHeight(x, z);
         const lit = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.26, 0.08, 10), rune); lit.position.set(x, gy + 0.04, z); part.add(lit);
@@ -297,6 +302,7 @@ export function buildHollow(world: ShardWorld): void {
   buildBog(world);
   buildQuarry(world);
   buildRidge(world);
+  buildDowns(world);
   buildPlaces(world);
   wardenTell(world);
   gritmawTell(world);

@@ -43,3 +43,12 @@ of the place at the far end (one atlas texture; the canvas font gained an apostr
 a new field would wait on ONE-FORMAT's pin, so the places reach the full map as the markers of one untracked quest, "The
 lay of the Hollow", which pays when all twelve are found. Engine `30eab98a8` makes an untracked quest pin nothing in the
 view (its markers stay on the map); until that engine reaches a page, its twelve pins show there.
+
+MZ17, the Barrow Downs (`generators/downs.ts`): the barrow ring, the Warden's arena, left the yard (it stood just past the
+east gap at (25.5, -2)) for the Downs' level crown at (160, 45), about 4 m up, off the east entry road it would have
+blocked. `world.ts`'s arena takes its heights over that ground (`arenaBase`), the rim braziers and the relit trail follow
+it (the trail now runs back along the Downs road, a stone every 5 m), and every road to the ring meets 10 m west of its
+arch, between six pairs of standing stones. Four burial mounds with stone doorways stand round it and the Old Cairn on the
+far rise; the ring and the cairn are region triggers. Fingerposts that land on one spot share a post, an arm per name. A
+probe found the Warden's strikes land on no one, here or in the yard before the move (2.6 m from it, hp 100 for 15 s
+while its tell and core cycle): left for MZ20, the real boss.
