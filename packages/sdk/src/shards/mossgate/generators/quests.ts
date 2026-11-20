@@ -7,6 +7,9 @@ import { BODIES, HAUNTS } from './creatures';
 import { MEADOW, MEADOW_FLAGS } from './meadow';
 import { THICKET_FLAGS, THICKET_SIGN_DIALOGUE } from './thicket';
 import { BOG, BOG_FLAGS, BOG_USE } from './bog';
+import { PLACES } from './layout';
+import { PLACE_FLAGS } from './places';
+import { RIDGE_VIEW_DIALOGUE } from './ridge';
 
 /** The flag each lit brazier raises (and the Lamplighter's steps, once her quest is taken). */
 const lit = (letter: string): string => `mossgate.brazier-${letter.toLowerCase()}.lit`;
@@ -38,8 +41,12 @@ export const FLAGS = {
   denPaid: 'mossgate.meadow.den.paid',
   // MZ14: the Bog's drowned chest
   shrinePaid: 'mossgate.bog.shrine.paid',
+  // MZ16: every place found
+  placesPaid: 'mossgate.places.paid',
 } as const;
 const dead = (spawn: string): string => `dead:${spawn}`;
+/** A marker's short name (18 letters at most): the place's name without its leading "The". */
+const short = (name: string): string => name.replace(/^The /u, '').slice(0, 18);
 const MOSSLINGS_DEAD = BODIES.mosslings.map(dead);
 
 /** The Lamplighter's tree: she gives the relighting, then thanks you once all three burn. */
@@ -81,7 +88,7 @@ export const QUESTS = {
     { id: 'ledge.searched', kind: 'script' as const, flag: FLAGS.ledgeSearched, condition: `${USES.ledgeCache}.spent` },
     { id: 'bog.chest.opened', kind: 'script' as const, flag: BOG_FLAGS.chestOpened, condition: `${BOG_USE}.spent` },
   ],
-  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE],
+  dialogue: [LAMPLIGHTER_DIALOGUE, HERMIT_DIALOGUE, THICKET_SIGN_DIALOGUE, RIDGE_VIEW_DIALOGUE],
   quests: [
     // TR-2: the starter's one quest, so a new repo's proof tape has a fact to earn (the hut door's region, world.ts)
     { id: 'hut.visit', title: 'The hut', completeFlag: FLAGS.hutVisit,
@@ -158,5 +165,10 @@ export const QUESTS = {
         hint: 'The Warden wakes in the barrow ring: watch the ground ring, dodge, then strike its open core',
         markers: [marker('warden.marker', 'Barrow ring', 'Warden', HAUNTS.WARDEN, dead(BODIES.warden))] }],
       onComplete: { fact: 'mossgate.warden', coins: 25 } },
+    // MZ16: the twelve places, each a region trigger (places.ts); untracked, so its markers name them on the full map only
+    { id: 'mossgate.places', title: 'The lay of the Hollow', track: false, completeFlag: FLAGS.placesPaid,
+      steps: [{ id: 'walk', objective: 'Find the twelve places of the Hollow', chip: 'Places', count: [...PLACE_FLAGS], done: { all: [...PLACE_FLAGS] },
+        hint: 'Fingerposts on every road name the place at its end', markers: PLACES.map((p) => marker(`place.${p.id}`, p.name, short(p.name), p)) }],
+      onComplete: { fact: 'mossgate.places', coins: 20 } },
   ],
 };

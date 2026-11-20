@@ -86,15 +86,15 @@ test('Mossgate carries the Template gameplay', { timeout: 120_000 }, async () =>
   // the Template's held lantern: the hut lantern comes off its stand by the door (a pickup: the sdk's take of a tool)
   expect(shard.targets.itemActions).toContainEqual({ scene: 'mossgate.lantern.take', item: 'tool.hut-lantern', action: 3, setsFlag: 'mossgate.lantern.taken' });
   // the quests' facts pay achievements (the Template's ledger)
-  expect(shard.ledger.map((row) => row.fact)).toEqual(['mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.warden', 'mossgate.greyback', 'mossgate.mosslings']);
+  expect(shard.ledger.map((row) => row.fact)).toEqual(['mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.warden', 'mossgate.greyback', 'mossgate.mosslings', 'mossgate.places']);
   expect(shard.items.loadout.primary).toBe('weapon.sword-iron');
   // TC-M3, TC-M6: two talks, the Lamplighter drawn by her own figure panel; MZ13: the thicket's lore sign reads as a talk
   expect(shard.targets.talks?.map((t) => [t.id, t.dialogue, t.figure])).toEqual([['mossgate.lamplighter.talk', 'mossgate.lamplighter', 'mossgate.lamplighter'], ['mossgate.hermit.talk', 'mossgate.hermit', undefined],
-    ['mossgate.thicket.sign.read', 'mossgate.thicket.sign', undefined]]);
+    ['mossgate.thicket.sign.read', 'mossgate.thicket.sign', undefined], ['mossgate.ridge.view.read', 'mossgate.ridge.view', undefined]]);
   expect(shard.props?.panels.map((p) => p.id)).toContain('mossgate.lamplighter');
   // TC-M7a: the quests chain (the starter's hut, the first flame, the Lamplighter's relighting, the Hermit's gate, three side quests)
   expect(shard.quests.quests.map((q) => q.id)).toEqual(['hut.visit', 'mossgate.first-light', 'mossgate.lamplighter', 'mossgate.hermit', 'mossgate.chest', 'mossgate.ledge', 'mossgate.rack',
-    'mossgate.blob', 'mossgate.mosslings', 'mossgate.meadow.den', 'mossgate.bog.shrine', 'mossgate.greyback', 'mossgate.warden']);
+    'mossgate.blob', 'mossgate.mosslings', 'mossgate.meadow.den', 'mossgate.bog.shrine', 'mossgate.greyback', 'mossgate.warden', 'mossgate.places']);
   // MOSSGATE-ZONE MZ1 (J453): Cinder Orchard's legacy-Template chain folds in: the relighting ends at the Warden, and the
   // mossling pack turns in at the Pond Hermit
   const quest = (id: string) => shard.quests.quests.find((q) => q.id === id);
@@ -169,7 +169,9 @@ test('Mossgate has no one-step quest', { timeout: 120_000 }, async () => {
   for (const quest of quests) {
     if (quest.id === 'hut.visit') continue;
     const fought = quest.steps.some((step) => (step.done.all ?? []).some(fight));
-    expect(quest.steps.length >= 2 || fought, quest.id).toBe(true);
+    // MZ16: "The lay of the Hollow" is one step, but it needs every place, twelve triggers across the cell, not one
+    const walked = quest.steps.some((step) => (step.done.all ?? []).length >= 12);
+    expect(quest.steps.length >= 2 || fought || walked, quest.id).toBe(true);
   }
   // the first flame ends past the gate it opens, not at its bowl
   expect(quests.find((q) => q.id === 'mossgate.first-light')?.steps.map((s) => s.id)).toEqual(['a', 'gate']);

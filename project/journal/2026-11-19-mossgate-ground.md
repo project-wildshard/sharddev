@@ -33,3 +33,13 @@ path, where a walker arrives) and its quake all round. Four grey blobs keep a ca
 (`ground.ts` `CUT`), a 5.5 m trench, crosses the haul path, which spans it on a timber bridge. A collider keeps only a yaw:
 any tilt turns into its world bounding box, which made the first sloped deck and its rails one block the walker could not
 climb. The deck is drawn sloped and its collider is twelve level steps of under 0.2 m.
+
+MZ16, Lookout Ridge and the roads (`generators/ridge.ts`, `generators/places.ts`): on the ridge's level top, 15 m up, the
+Lookout: a dry-stone dais with steps up its east face, a parapet, a turf watch roof and an unlit beacon stack, and by the
+steps a view stone that reads as a talk naming what you see. Cairns mark the climb; wind-bent pines and boulders stand on
+the slopes. All twelve places are region triggers raising `mossgate.place.<id>` (`places.ts` raises the yard's two and the
+Downs' two until MZ17 gives the Downs a file), and every road has a fingerpost at each end, its arm painted with the name
+of the place at the far end (one atlas texture; the canvas font gained an apostrophe). The format has no named place, and
+a new field would wait on ONE-FORMAT's pin, so the places reach the full map as the markers of one untracked quest, "The
+lay of the Hollow", which pays when all twelve are found. Engine `30eab98a8` makes an untracked quest pin nothing in the
+view (its markers stay on the map); until that engine reaches a page, its twelve pins show there.

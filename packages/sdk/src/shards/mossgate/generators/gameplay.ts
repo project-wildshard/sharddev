@@ -8,6 +8,7 @@ import { PLAY, RACK_SCENE } from './play';
 import { groundHeight, LAYOUT } from './world';
 import { fights } from './fights';
 import { THICKET_TALKS } from './thicket';
+import { RIDGE_TALKS } from './ridge';
 
 type Items = Shardfile['items'];
 type Weapon = Items['rows'][number];
@@ -44,6 +45,8 @@ export const LEDGER = [
   achievement('mossgate.warden', 'mossgate.warden', 'Barrow Warden'),
   achievement('mossgate.greyback', 'mossgate.greyback', 'Greyback'),
   achievement('mossgate.mosslings', 'mossgate.mosslings', 'Pack hunter'),
+  // MZ16
+  achievement('mossgate.places', 'mossgate.places', 'The lay of the Hollow'),
 ];
 
 /** The Hollow's rows over the scene's shardfile: `defineShard(identity, buildHollow, { extend: gameplay, decisions })`;
@@ -55,6 +58,6 @@ export function gameplay(shard: Shardfile): Shardfile {
     ledger: [...shard.ledger, ...LEDGER] as Shardfile['ledger'],
     items: { ...shard.items, rows: [...shard.items.rows, MOSS_BLADE] },
     hooks: { ...shard.hooks, scenes: [...shard.hooks.scenes, RACK_TAKE.scene] },
-    targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS, ...THICKET_TALKS] },
+    targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS, ...THICKET_TALKS, ...RIDGE_TALKS] },
   });
 }
