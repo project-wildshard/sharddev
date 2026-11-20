@@ -60,7 +60,7 @@ const banner = `import { createRequire as __wildshardRequire } from 'node:module
 import { existsSync as __wildshardExists, realpathSync as __wildshardReal } from 'node:fs';
 import { dirname as __wildshardDir, join as __wildshardJoin } from 'node:path';
 import { fileURLToPath as __wildshardPath, pathToFileURL as __wildshardUrl } from 'node:url';
-const __wildshardBuild = __wildshardDir(__wildshardDir(__wildshardPath(import.meta.url)));
+const __wildshardBuild = __wildshardJoin(__wildshardDir(__wildshardPath(import.meta.url)), ${JSON.stringify(relative(dirname(OUT), ROOT))});
 const __wildshardRoots = new Map([['@wildshard/build', __wildshardBuild]]);
 function __wildshardRoot(name) {
   let root = __wildshardRoots.get(name);

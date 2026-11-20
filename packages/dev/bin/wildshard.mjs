@@ -15,10 +15,10 @@ const homeWarning = homeInstallWarning({ sdk: resolve(import.meta.dirname, '..')
 if (homeWarning !== undefined) process.stderr.write(homeWarning);
 
 /** Build's compiled bin, when this install has one (an installed build always does; a checkout after its compile). */
-function compiledBuild() {
+function buildEntry() {
   if (process.argv.some(arg => arg.startsWith('--input-receipt=') || arg === '--behaviour-only')) return undefined;
-  const script = resolve(dirname(createRequire(import.meta.url).resolve('@wildshard/build/package.json')), 'dist/build.mjs');
-  return existsSync(script) ? script : undefined;
+  const root = dirname(createRequire(import.meta.url).resolve('@wildshard/build/package.json'));
+  return ['scripts/run-source.mjs', 'dist/build.mjs'].map(file => resolve(root, file)).find(file => existsSync(file));
 }
 const AUTHOR = new Set(['new', 'update', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'watch', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
@@ -37,11 +37,11 @@ if (verbHelp) {
   const script = resolve(import.meta.dirname, '../scripts/prove-walk.mjs');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
-} else if (command === 'build' && !builtFolder && compiledBuild() !== undefined) {
+} else if (command === 'build' && !builtFolder && buildEntry() !== undefined) {
   // SDK-SPLIT SP9d3: an author's `build` runs build's compiled bin (packages/build, dist/build.mjs from its prepack): no
   // run-time bundle of this CLI and no engine. build-shards' recorded builds (--input-receipt) and --behaviour-only stay
   // on the author bundle below, whose rolldown bridge records the bundles' inputs.
-  const script = compiledBuild();
+  const script = buildEntry();
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
 } else if (AUTHOR.has(command) && !builtFolder) {

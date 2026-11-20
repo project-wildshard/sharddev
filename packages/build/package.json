@@ -15,6 +15,7 @@
     "scripts/*.mjs",
     "scripts/*.d.mts",
     "!scripts/compile.mjs",
+    "!scripts/run-source.mjs",
     "!src/**/*.test.*"
   ],
   "scripts": {

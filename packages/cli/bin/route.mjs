@@ -14,8 +14,7 @@ export function buildBin(args) {
   if (args.some(arg => arg === '--help' || arg === '-h' || arg === '--behaviour-only' || arg.startsWith('--input-receipt='))) return undefined;
   // `build <folder>` of a built shard file folder (SA3) is dev's: it writes the shard file, no generators run.
   if (existsSync(resolve(operand, 'shard.json')) && !existsSync(resolve(operand, 'shard.config.ts'))) return undefined;
-  const script = inPackage('@wildshard/build', 'dist/build.mjs');
-  return existsSync(script) ? script : undefined;
+  return ['scripts/run-source.mjs', 'dist/build.mjs'].map(file => inPackage('@wildshard/build', file)).find(file => existsSync(file));
 }
 
 /** @param {readonly string[]} args @returns {string} the script this invocation runs. */
