@@ -487,6 +487,7 @@ under 400 lines, so a region or a mechanic is one file to read and one to change
 | `generators/yard.ts`, `garden.ts` | The Hollow yard: walls, paths, braziers, hut, crate, signpost, moss gate, the Lamplighter; the pond, trees, boulders, ferns, grass, fireflies |
 | `generators/meadow.ts`, `thicket.ts`, `bog.ts`, `quarry.ts`, `ridge.ts`, `downs.ts`, `ring.ts` | One region each: Mossling Meadow, Greyback's Thicket, the Bog, the Old Quarry, Lookout Ridge, the Barrow Downs and its ring |
 | `generators/places.ts` | The twelve places as region triggers and fingerposts |
+| `generators/cover.ts` | Each region's ground cover, one detail layer a region: flowers, ferns, reeds, pale grass, rubble, heather |
 | `generators/play.ts` | What the player uses: braziers, gates, lever, chest, rack, lift, and the order every part is built in (`buildHollow`) |
 | `generators/creatures.ts`, `fights.ts`, `behaviour/*.as` | Bodies and camps; brains, packs, encounters and the boss and elite decision scripts |
 | `generators/quests.ts`, `gameplay.ts` | The main chain, the side quests, the talks and the achievements (`extend`) |

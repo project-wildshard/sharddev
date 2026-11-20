@@ -126,10 +126,10 @@ function baseRelief(x: number, z: number): number {
 }
 
 /** The ground's tint per region (linear rgb multipliers on the moss): the bog darker and wetter, the quarry and the ridge's
- *  heights stonier, the downs paler grass. */
+ *  heights stonier, the downs paler grass (MZ24: strong enough to read from the road). */
 const TINT: Record<string, readonly [number, number, number]> = {
-  yard: [1, 1, 1], meadow: [1.04, 1.06, 0.95], thicket: [0.86, 0.9, 0.8], downs: [1.12, 1.1, 0.9],
-  bog: [0.7, 0.78, 0.74], quarry: [1.25, 1.12, 1.0], ridge: [1.1, 1.05, 1.0],
+  yard: [1, 1, 1], meadow: [0.95, 1.2, 0.75], thicket: [0.55, 0.75, 0.55], downs: [1.5, 1.3, 0.75],
+  bog: [0.45, 0.48, 0.42], quarry: [1.8, 1.45, 1.3], ridge: [1.4, 1.1, 1.6],
 };
 export function regionTint(x: number, z: number): [number, number, number] {
   const out: [number, number, number] = [0, 0, 0];

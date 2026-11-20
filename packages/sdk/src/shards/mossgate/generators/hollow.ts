@@ -63,7 +63,8 @@ export function groundColour(x: number, z: number): [number, number, number] {
   const dp = pondSDF(x, z);
   if (dp < 0.9) c.lerp(new THREE.Color(0.42, 0.38, 0.3), 1 - sstep(dp, -0.4, 0.9));
   const moss = new THREE.Color().setRGB(102 / 255, 120 / 255, 48 / 255, THREE.SRGBColorSpace);
-  // MZ10: each region's ground reads apart (the bog darker, the quarry stonier), faded in where its relief is
-  const share = reliefShare(x, z), tint = regionTint(x, z), t = (k: number): number => 1 + ((tint[k] ?? 1) - 1) * share;
+  // MZ10, MZ24: each region's ground reads apart (the bog darker, the quarry stonier), across the region's whole floor;
+  // only the height keeps to the roads' and edges' share (the tint never touches the cook's walk)
+  const tint = regionTint(x, z), t = (k: number): number => tint[k] ?? 1;
   return [Math.min(1, c.r * moss.r * t(0)), Math.min(1, c.g * moss.g * t(1)), Math.min(1, c.b * moss.b * t(2))];
 }

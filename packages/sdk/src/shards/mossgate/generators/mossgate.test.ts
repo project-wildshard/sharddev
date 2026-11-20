@@ -40,7 +40,8 @@ test('Mossgate whole lowers with every section', () => {
   expect(part('pond')?.water).toHaveLength(1);
   // AP32d: the grass and the ferns are detail layers (counts per cell, the engine grows them round the camera)
   const layer = (id: string) => shard.details?.find((d) => d.id === id);
-  expect(shard.details?.map((d) => d.id)).toEqual(['ferns', 'grass']);
+  // MZ24: the yard's ferns and grass, then one cover layer a region
+  expect(shard.details?.map((d) => d.id)).toEqual(['ferns', 'grass', 'meadow-cover', 'thicket-cover', 'bog-cover', 'downs-cover', 'quarry-cover', 'ridge-cover']);
   expect(layer('grass')?.clumps).toBeGreaterThan(5);
   expect(layer('grass')?.sway).toEqual({ amount: 0.06, rate: 0.5 });
   expect(layer('ferns')?.shadow).toBe(true);
