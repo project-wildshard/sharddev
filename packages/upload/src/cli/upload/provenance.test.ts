@@ -210,7 +210,7 @@ test('refuses an installed version the API would refuse', async (context: TestCo
       version: '0.0.1',
       commit: SHA,
     }),
-    /@wildshard\/engine 0\.1\.0-rc\.1 .* is not X\.Y\.Z/u,
+    /@wildshard\/engine 0\.1\.0-rc\.1 .* is not X\.Y\.Z or X\.Y\.Z-next\.<sha>/u,
   )
 })
 

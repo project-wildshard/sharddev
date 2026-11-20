@@ -2,11 +2,11 @@
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { once } from 'node:events'
-import { readFile } from 'node:fs/promises'
+import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { text } from 'node:stream/consumers'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
-import { fileURLToPath } from 'node:url'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import { readVersion } from '../../../../dev/src/cli/version.ts'
 import { makeShardfile } from '../../../../dev/src/test/helpers/shardfile.ts'
@@ -32,12 +32,16 @@ interface CliRun {
   readonly stderr: string
 }
 
-async function cli(run: Run, args: readonly string[]): Promise<CliRun> {
+async function cli(
+  run: Run,
+  args: readonly string[],
+  cwd = fileURLToPath(ROOT),
+): Promise<CliRun> {
   const child = spawn(
     process.execPath,
     [MAIN, 'upload', run.file, '--server', run.server.url, ...args],
     {
-      cwd: fileURLToPath(ROOT),
+      cwd,
       env: {
         PATH: process.env['PATH'],
         WILDSHARD_CREATOR_PRIVATE_KEY: run.server.privateKey,
@@ -99,6 +103,37 @@ test('--channel staging goes on the wire as staging', async (context: TestContex
   const [body] = run.server.state.commits
   assert.ok(typeof body === 'object' && body !== null && 'channel' in body)
   assert.equal(body.channel, 'staging')
+})
+
+test('the CLI sends the exact installed engine next pin to staging', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  const cwd = new URL('.', pathToFileURL(run.file))
+  const engine = '0.1.54-next.6bab8fcc'
+  const installedEngine = new URL('node_modules/@wildshard/engine/', cwd)
+  await mkdir(installedEngine, { recursive: true })
+  await writeFile(
+    new URL('package.json', installedEngine),
+    JSON.stringify({ name: '@wildshard/engine', version: engine }),
+  )
+
+  const result = await cli(
+    run,
+    [...PROVENANCE, '--channel', 'staging'],
+    fileURLToPath(cwd),
+  )
+
+  assert.equal(result.status, 0, result.stderr)
+  assert.deepEqual(run.server.state.commits, [
+    {
+      contentEncoding: 'br',
+      version: VERSION,
+      commit: COMMIT,
+      channel: 'staging',
+      sharddev: await readVersion(),
+      engine,
+      shardFormat: await installed('@wildshard/format'),
+    },
+  ])
 })
 
 test('any other --channel refuses and makes no request', async (context: TestContext): Promise<void> => {
