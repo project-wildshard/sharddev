@@ -71,7 +71,9 @@ function ability(strike: StrikeData): CreatureAbility {
 }
 
 function temperamentOf(row: BrainedSpecies, brains: BrainRow[], decisions: ProgramDecision[]): CreatureTemperament {
-  const base = { reaction: row.aggressive === true ? 'aggressive' as const : 'neutral' as const, leash: LAYER_LEASH, assist: 0,
+  // Native species without aggression flee when provoked. Neutral would
+  // opt them into the declared hunt's provoked charge.
+  const base = { reaction: row.aggressive === true ? 'aggressive' as const : 'passive' as const, leash: LAYER_LEASH, assist: 0,
     home: { speed: row.walkSpeed ?? 1, stop: 0 } };
   const brain = row.brain;
   if (brain === undefined) {

@@ -110,6 +110,16 @@ describe('species programs become layered rows (ONE-FORMAT OF11a)', () => {
     const { brain: _brain, body: _body, ...plain } = strider;
     const hunt = (extra: Partial<BrainedSpecies>) => speciesProgramToRows({ species: [{ ...plain, tuning, ...extra } as BrainedSpecies],
       strikes: [] }, looks).species[0]?.temperament;
+    const deerLook = looks.get(strider.kind);
+    if (deerLook === undefined) throw new Error('Missing deer test dimensions');
+    const deer: BrainedSpecies = { ...plain, id: 'pine.creature.deer', kind: 'deer', label: 'Deer', aggressive: false, tuning };
+    const convertDeer = (row: BrainedSpecies) => speciesProgramToRows({ species: [row], strikes: [] },
+      new Map([[deer.kind, deerLook]])).species[0]?.temperament;
+    // The HuntBrain bolts when the passive deer takes a hit. Neutral would charge.
+    expect(convertDeer(deer)).toMatchObject({ brain: 'hunt', reaction: 'passive' });
+    const { aggressive: _aggressive, ...implicitPassive } = deer;
+    expect(convertDeer(implicitPassive)).toMatchObject({ brain: 'hunt', reaction: 'passive' });
+    expect(convertDeer({ ...deer, aggressive: true })?.reaction).toBe('aggressive');
     // the deer: walk and trample only; the hunt's own defaults keep the charge, windup and ring
     expect(hunt({ walkSpeed: 1.3, trampleRadius: 0.5 })).toMatchObject({ brain: 'hunt', tuning: { ...tuning, motion: { walkSpeed: 1.3, trampleRadius: 0.5 } } });
     const boar = { walkSpeed: 1.1, chargeSpeed: 7.5, chargeWindup: 0.55, ringRadius: 6.5, trampleRadius: 0.45 };
