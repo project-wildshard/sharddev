@@ -182,6 +182,8 @@ test('Mossgate carries the Template creatures and the Warden fight', { timeout: 
 test('Mossgate pays off a step and the chain', () => {
   const shard = mossgate.describe(), part = (name: string) => shard.parts.find((p) => p.name === name);
   for (const letter of ['a', 'b', 'c']) expect(part(`flame-${letter}`)?.draws.length ?? 0).toBeGreaterThan(8);
+  // MZ34: each lit bowl carries one lamp, naming its flame panel, so the page lights it only while the fire burns
+  for (const letter of ['a', 'b', 'c']) expect(part(`flame-${letter}`)?.lights.filter((l) => l.panel === `mossgate.flame-${letter}`)).toHaveLength(1);
   const relit = part('hollow-relit');
   expect(relit?.panel).toBe('mossgate.hollow-relit');
   expect(relit?.draws.length ?? 0).toBeGreaterThan(20);

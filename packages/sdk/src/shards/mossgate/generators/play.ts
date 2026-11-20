@@ -89,8 +89,8 @@ function flame(into: THREE.Group, x: number, y: number, z: number, size: number)
   const f = fire({ size, seed: Math.abs(Math.round(x * 13 + z * 7)) + 1 }); f.position.set(x, y, z); into.add(f);
 }
 
-/** MZ31 (QA 11-19 row 35, "nothing happens"): a lit fire's light on the ground round it, three soft warm discs laid flat
- *  (a panel holds meshes only, so the glow is drawn, not a lamp: MZ34 brings real lights to panels). */
+/** MZ31 (QA 11-19 row 35, "nothing happens"): a lit fire's light on the ground round it, three soft warm discs laid flat;
+ *  MZ34's lamp (a panel's point light) lights what stands round it. */
 function glowPool(into: THREE.Group, x: number, y: number, z: number, size: number, colour = '#ffb050'): void {
   for (const [r, opacity, lift] of [[3.4, 0.1, 0.02], [2.3, 0.16, 0.03], [1.3, 0.24, 0.04]] as const) {
     const material = new THREE.MeshStandardMaterial({ color: colour, emissive: colour, emissiveIntensity: 1.2, roughness: 1, transparent: true, opacity, depthWrite: false });
@@ -116,6 +116,8 @@ function braziers(world: ShardWorld): void {
     world.part(`flame-${letter.toLowerCase()}`, (part) => {
       flame(part, x, groundHeight(x, z) + 1.16, z, 1);
       glowPool(part, x, groundHeight(x, z), z, 1);
+      // MZ34: the bowl's own lamp, a look lamp naming this panel, so it lights the yard only while the fire burns
+      const lamp = new THREE.PointLight('#ff9a40', 3, 10); lamp.position.set(x, groundHeight(x, z) + 1.9, z); part.add(lamp);
       // its row twin by brazier A (world.ts `LAYOUT.ROW`, scale 0.92) and its rim brazier in the arena
       for (const [rx, rz, l] of LAYOUT.ROW) if (l === letter) flame(part, rx, groundHeight(rx, rz) + 1.09, rz, 0.92);
       const [ax, ay, az] = rimSeat(letter); flame(part, ax, ay, az, 0.8);
