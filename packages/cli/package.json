@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/cli",
-  "version": "0.4.19",
+  "version": "0.4.20",
   "description": "The `wildshard` command (SDK-SPLIT SP10): one install brings build, upload and dev (the local game and the engine). `build` runs @wildshard/build's compiled bin and never loads the engine; every other verb loads dev's CLI lazily.",
   "license": "UNLICENSED",
   "repository": {
