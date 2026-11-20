@@ -48,8 +48,9 @@ test('the packed SDK declares and resolves its runtime kit as a production depen
   assert.ok(existsSync(join(app, 'node_modules/@wildshard/kit/package.json')),
     'The installed production graph must contain kit directly, without ancestor workspace lookup');
   const author = createRequire(file);
-  for (const entry of ['legacySpecies', 'legacyHarvest', 'legacyCombat', 'legacyJournalIcons'])
+  for (const entry of ['legacySpecies', 'legacyHarvest', 'legacyCombat'])
     assert.ok(author.resolve(`@wildshard/kit/${entry}`));
+  assert.throws(() => author.resolve('@wildshard/kit/legacyJournalIcons'), { code: 'ERR_PACKAGE_PATH_NOT_EXPORTED' });
 });
 test('the packed author prepares its cold compiler before quick author commands', { timeout: 60_000 }, () => {
   const started = performance.now();

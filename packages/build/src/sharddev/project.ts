@@ -53,7 +53,7 @@ import { diagnosticNow } from '@wildshard/sdk/internal/diagnosticClock';
 import { expandCreatureLayers } from '@wildshard/sdk/internal/creatureLayers';
 import { expandCreatureHitVolumes } from '@wildshard/sdk/internal/creatureHitVolumes';
 import { expandHarvestSource } from '@wildshard/sdk/internal/harvestSource';
-import { expandJournalIconSource } from '@wildshard/sdk/internal/journalIconSource';
+import { requireJournalImages } from '@wildshard/sdk/internal/journalIconSource';
 import { expandCombatSource } from '@wildshard/sdk/internal/combatSource';
 
 /** Stable JSON encoding: sorted object keys, no timestamps or host paths. */
@@ -212,7 +212,8 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
-  const journal = expandJournalIconSource(packed?.shard ?? source, sections), shard = journal.shard;
+  const shard = packed?.shard ?? source;
+  requireJournalImages(shard);
   printSpawnWarnings(shard);
   const mapBlobs = loaded.map?.name === undefined ? [] : [nameBlob(loaded.map.name, 'image', loaded.map.map.bytes)];
   // Explicit authored hints retain their positions; automatic UI hints never duplicate them or commons.
@@ -220,7 +221,7 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
     existingFiles = new Set(shard.files.map(row => row.hash)), libraryRoots = new Set(shard.library);
   const late = [...loaded.output.late ?? [], ...(level?.late ?? []).filter(row => !declaredLate.has(row.hash) && !shard.requires.commons.includes(row.hash)
     && (!existingFiles.has(row.hash) || libraryRoots.has(row.hash)))];
-  const merged = mergeProjectBlobs(shard, pinned, [...loaded.output.blobs, ...mapBlobs, ...journal.blobs, ...(level?.blobs ?? [])], loaded.output.options.namedFiles, late, sections);
+  const merged = mergeProjectBlobs(shard, pinned, [...loaded.output.blobs, ...mapBlobs, ...(level?.blobs ?? [])], loaded.output.options.namedFiles, late, sections);
   return { shard: merged.shard, assets: projectAssets(project, merged.shard, 'project', merged.assets),
     output: { ...loaded.output.options, namedFiles: merged.namedFiles, ...(loaded.discovery === undefined ? {} : { discovery: loaded.discovery }) }, mirrors: loaded.mirrors };
 }

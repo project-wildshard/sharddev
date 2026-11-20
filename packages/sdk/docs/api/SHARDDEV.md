@@ -602,7 +602,7 @@
 | `writeHandwrittenSource` | function | @wildshard/sdk/internal/handwritten | Copy the installed hand-written template into `source` as shard `slug`: its slug and name become the new shard's in |
 | `settleHandwrittenCreatureLayers` | function | @wildshard/sdk/internal/handwrittenCreatureLayers | Hand-held JSON enters the same source expansion, then format settles the changed section's real hashes again. |
 | `expandHarvestSource` | function | @wildshard/sdk/internal/harvestSource | Copy old source harvest law to ordinary rows once; explicit declarations and pack policy win. |
-| `expandJournalIconSource` | function | @wildshard/sdk/internal/journalIconSource | Compile the former glyph names to ordinary charged images; preserve selectors and inherited sticker paint. |
+| `requireJournalImages` | function | @wildshard/sdk/internal/journalIconSource | Enforce image-only journal selectors while the author tool pins the earlier format. |
 | `hostPlayFile` | function | @wildshard/sdk/internal/lint/host-files | Build-only functions are not play callbacks. |
 | `lowerMaterialGraphs` | function | @wildshard/sdk/internal/materialGraphFiles | D74: every inline material graph of an authored declaration becomes a content-addressed JSON file of its library |
 | `expandNativeHuntSections` | function | @wildshard/sdk/internal/nativeHuntSource | Read verified producer bytes, expand the old owner and rehash its section before admission or decision compilation. |

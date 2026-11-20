@@ -217,20 +217,13 @@ id to a shipped body variant; aliases share their skin JSON and GLB. Unknown ids
 or bodies refuse. The table covers every gameplay variant, and every distinct
 skin passes ordinary binary admission before this helper returns.
 
-## Former journal glyphs
+## Journal images
 
-`legacyJournalIcon(name)` from `@wildshard/kit/legacyJournalIcons` returns
-the exact original complete SVG string for antlers, ghost, ironhide, deer,
-boar, elk or bear. The same bytes ship in `content/journal-icons.json`.
-This is source compatibility content for compilation to admitted images;
-new journal icons may use any admitted image. Unknown and prototype names
-refuse. No engine import is needed to read the content.
-
-The matching 128-square PNG alpha images ship in
-`content/journal-icons/<name>.png`. `node scripts/build-kit-journal-icons.mjs
---check` verifies their exact regeneration from those SVG strings. Source
-compatibility compilation copies them into the charged image library and
-sets `tint: 'currentColor'`, preserving the sticker's inherited CSS paint.
+Journal selectors declare an inert SVG or a charged library image. The
+128-square PNG alpha images in `content/journal-icons/<name>.png` can be
+declared like other authored images. Use `tint: 'currentColor'` for
+inherited sticker paint. The SDK's `scripts/build-kit-journal-icons.mjs
+--check` verifies their regeneration from the source SVG strings.
 
 `legacySwordDebris(species)` from `@wildshard/kit/legacyCombat` compiles the
 former sword contact values to an admitted default and target-row
