@@ -4,7 +4,7 @@ import { expect, test } from 'vitest';
 import { HALF, PATHS, PLACES } from './layout';
 import { CUT, cutDepth } from './ground';
 import { QUARRY } from './quarry';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 
 const SPACING = 500 / 256;
 const at = (id: string): number => { const p = PLACES.find((row) => row.id === id); return groundHeight(p?.x ?? 0, p?.z ?? 0); };

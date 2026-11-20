@@ -1,7 +1,7 @@
 // The Hollow's quests (TEMPLATE-E2E TR-2, TR-12; the Template's `data/quests.json` and `data/npcs/`, ported). Every flag
 // a quest reads is raised by the scene: a region (`world.trigger`), a brazier, the lever or the chest (a `script` trigger on
 // the `<prompt>.spent` condition the sdk writes for a shared prompt, SS-GF0), or the rack's take (its `setsFlag`).
-import { LAYOUT } from './world';
+import { LAYOUT } from './hollow';
 import { GATE_PASS, GATE_PASSED_FLAG, LEDGE_FLAG, PLAY, USES } from './play';
 import { BODIES, HAUNTS } from './creatures';
 import { MEADOW, MEADOW_FLAGS } from './meadow';

@@ -9,7 +9,7 @@ import { BODIES, HAUNTS, STRIKES } from './creatures';
 import { ENCOUNTERS, WARDEN_DECISION, WARDEN_FIELDS, WARDEN_PANELS } from './fights';
 import { gameplay } from './gameplay';
 import { mossgate } from './shard';
-import { LAYOUT } from './world';
+import { LAYOUT } from './hollow';
 
 test('the Warden fights in three phases, the last with its crawlers out', { timeout: 120_000 }, async () => {
   const { shard } = await builtSceneShardfile(mossgate.describe(), compileScript, { extend: gameplay });

@@ -8,7 +8,7 @@ import * as THREE from 'three';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { paintCanvas } from '@wildshard/sdk/scene/canvas';
 import { ENTRIES, PATHS, PLACES, type Place } from './layout';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 
 /** The flag a place's region trigger raises. */
 export const placeFlag = (id: string): string => `mossgate.place.${id}`;

@@ -14,7 +14,7 @@ import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { ShardRows } from '@wildshard/format/rows';
 import type { ShardWorld } from '@wildshard/sdk/scene/author';
-import { groundHeight, LAYOUT } from './world';
+import { groundHeight, LAYOUT } from './hollow';
 import { MEADOW_PACKS } from './meadow';
 import { THICKET_CAMP } from './thicket';
 import { BOG_WISPS } from './bog';

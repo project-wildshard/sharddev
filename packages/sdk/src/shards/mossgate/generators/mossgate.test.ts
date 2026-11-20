@@ -6,9 +6,19 @@ import { compileScript } from '@wildshard/sdk/compileScript';
 import { parseShardfile } from '@wildshard/format/shardSchema';
 import { gameplay } from './gameplay';
 import { mossgate } from './shard';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 import { DECISIONS, ENCOUNTERS, WARDEN_FIELDS } from './fights';
 import { BOSS_RESPAWN } from './creatures';
+// oxlint-disable-next-line import/no-nodejs-modules -- MZ25 reads the template's own files to hold each under 400 lines.
+import { readdirSync, readFileSync } from 'node:fs';
+
+/** MOSSGATE-ZONE MZ25: still a template: a file per region and mechanic, each under 400 lines, so a new author reads one. */
+test('every Mossgate generator file is under 400 lines', () => {
+  const dir = import.meta.dirname;
+  for (const name of readdirSync(dir).filter((f) => f.endsWith('.ts'))) {
+    expect(readFileSync(`${dir}/${name}`, 'utf8').split('\n').length, name).toBeLessThan(400);
+  }
+});
 
 /** SHARD-SOURCE AP15: the whole cleanroom (mossgate-cleanroom 9cb4dc6 src/world.js) lowers with no refusal, one part per
  *  section, with the colliders, lights, water and sky the cleanroom has. */

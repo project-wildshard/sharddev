@@ -10,7 +10,8 @@ import { ENCOUNTERS } from './fights';
 import { gameplay } from './gameplay';
 import { inside, REGIONS } from './layout';
 import { mossgate } from './shard';
-import { arenaBase, LAYOUT } from './world';
+import { LAYOUT } from './hollow';
+import { arenaBase } from './ring';
 
 test('the barrow ring stands on the Downs with its wall, its arch and the Warden', { timeout: 120_000 }, async () => {
   const scene = mossgate.describe();

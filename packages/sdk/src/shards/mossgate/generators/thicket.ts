@@ -6,7 +6,7 @@ import * as THREE from 'three';
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { PLACES, REGIONS, inside } from './layout';
 import { roadDistance } from './ground';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 import * as T from './textures';
 import { leave, LORE_FLAGS } from './finds';
 

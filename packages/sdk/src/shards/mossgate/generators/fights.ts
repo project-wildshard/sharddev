@@ -5,7 +5,7 @@
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
 import { BODIES, HAUNTS, PACKS, STRIKES } from './creatures';
-import { LAYOUT } from './world';
+import { LAYOUT } from './hollow';
 import { BOG_WISPS } from './bog';
 
 /** The Warden's shared fields: each blow's tell (the slam's ember ring, the sweep's dust ring, the stone it lifts) and its

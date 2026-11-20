@@ -8,7 +8,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { BARROW_APPROACH, PATHS, PLACES } from './layout';
 import { roadDistance } from './ground';
-import { groundHeight, LAYOUT } from './world';
+import { groundHeight, LAYOUT } from './hollow';
 import * as T from './textures';
 
 const place = (id: string): { x: number; z: number } => {

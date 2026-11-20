@@ -11,7 +11,7 @@ import { roadDistance } from './ground';
 import { fingerposts, placeFlag } from './places';
 import { RIDGE, RIDGE_TALKS } from './ridge';
 import { mossgate } from './shard';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 
 test('every place is a region trigger and a marker on the map; the roads carry fingerposts', { timeout: 120_000 }, async () => {
   const scene = mossgate.describe();

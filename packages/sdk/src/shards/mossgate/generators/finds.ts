@@ -11,7 +11,7 @@ import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeom
 import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { CAIRN_CAMP, DOWNS } from './downs';
 import { BOG } from './bog';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 import * as T from './textures';
 
 /** The twelve pieces of lamp-glass, two to a region (layout.ts), each at least 3 m off every road. */

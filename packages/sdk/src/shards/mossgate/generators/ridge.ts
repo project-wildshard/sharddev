@@ -8,7 +8,7 @@ import { solid, type ShardWorld } from '@wildshard/sdk/scene/author';
 import { fire } from '@wildshard/sdk/scene/fire';
 import { inside, PATHS, PLACES, REGIONS } from './layout';
 import { roadDistance } from './ground';
-import { groundHeight } from './world';
+import { groundHeight } from './hollow';
 import * as T from './textures';
 import { leave, LORE_FLAGS } from './finds';
 

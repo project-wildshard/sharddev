@@ -176,7 +176,7 @@ function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const world = empty ? 'a bare shard source (`--empty`)' : template === 'scene' ? 'Mossgate Hollow, a three.js scene module'
     : 'the hand-written Blender template (`blender-template`)';
   const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`'
-    : '`identity.json` (the slug and name),\n  `generators/` (`world.ts` is the scene; `play.ts` the braziers, gates, lever, chest, rack and lift;\n  `quests.ts` and `gameplay.ts` the quests and talks; `wildshard watch .` shows each save) and\n  `proof.json` (the proof tape `check` plays)';
+    : '`identity.json` (the slug and name),\n  `generators/` (a file per region: `world.ts`, `yard.ts` and `garden.ts` the Hollow,\n  `meadow.ts`, `thicket.ts`, `bog.ts`, `quarry.ts`, `ridge.ts` and `downs.ts` the six round it; a file per mechanic:\n  `play.ts` the braziers, gates, lever, chest, rack and lift, `creatures.ts` and `fights.ts` the camps and fights,\n  `quests.ts` and `gameplay.ts` the quests and talks, `finds.ts` the finds; GUIDE.md section 2b lists them all;\n  `wildshard watch .` shows each save) and\n  `proof.json` (the proof tape `check` plays)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
   \`@wildshard/sdk\` library, shard-format and \`three\` exactly; its \`version\`

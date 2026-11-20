@@ -475,6 +475,23 @@ under your slug; J434 made it the starter). It is the same shard format as secti
 writes the rest. `wildshard check .` builds it, `wildshard watch .` shows each saved edit in a running page, and
 `wildshard synth` is not for it (synth takes the older scene form only).
 
+**Mossgate's files: a file per region, a section per mechanic (MZ25).** The starter is a whole zone, and each file is
+under 400 lines, so a region or a mechanic is one file to read and one to change:
+
+| File | What it holds |
+|---|---|
+| `generators/layout.ts` | The cell map: the six regions round the yard, the twelve places, the entry roads and the paths |
+| `generators/ground.ts`, `hollow.ts` | The ground over the 500 m cell, each region's relief and tint; the yard's `LAYOUT` and the pond's shape |
+| `generators/world.ts` | The scene's order: the light, the ground and every yard part (`buildMossgate`) |
+| `generators/kit.ts` | Shared materials and builders: blocks, moss caps, drapes, ivy, lanterns, halos, colliders, stencils |
+| `generators/yard.ts`, `garden.ts` | The Hollow yard: walls, paths, braziers, hut, crate, signpost, moss gate, the Lamplighter; the pond, trees, boulders, ferns, grass, fireflies |
+| `generators/meadow.ts`, `thicket.ts`, `bog.ts`, `quarry.ts`, `ridge.ts`, `downs.ts`, `ring.ts` | One region each: Mossling Meadow, Greyback's Thicket, the Bog, the Old Quarry, Lookout Ridge, the Barrow Downs and its ring |
+| `generators/places.ts` | The twelve places as region triggers and fingerposts |
+| `generators/play.ts` | What the player uses: braziers, gates, lever, chest, rack, lift, and the order every part is built in (`buildHollow`) |
+| `generators/creatures.ts`, `fights.ts`, `behaviour/*.as` | Bodies and camps; brains, packs, encounters and the boss and elite decision scripts |
+| `generators/quests.ts`, `gameplay.ts` | The main chain, the side quests, the talks and the achievements (`extend`) |
+| `generators/finds.ts` | The lamp-glass set, the cairn's chest, the lore signs |
+
 **Which files a scene shard keeps.** Only `src/shard.config.ts` and the modules it imports. `--template scene` writes
 four: `shard.config.ts`, `identity.json` (slug, name, author, revision, seed), `generators/shard.ts` (`defineShard`)
 and `generators/world.ts` (the scene), with `generators/sky.ts` and `generators/textures.ts` beside it. To turn a repo

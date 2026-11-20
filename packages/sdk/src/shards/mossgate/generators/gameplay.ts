@@ -5,7 +5,7 @@ import type { Shardfile } from '@wildshard/format/shardSchema';
 import { STARTER_SWORD } from '@wildshard/sdk/scene/shardfile';
 import { HERMIT_DIALOGUE, LAMPLIGHTER_DIALOGUE, FLAGS, QUESTS } from './quests';
 import { PLAY, RACK_SCENE } from './play';
-import { groundHeight, LAYOUT } from './world';
+import { groundHeight, LAYOUT } from './hollow';
 import { fights } from './fights';
 import { THICKET_TALKS } from './thicket';
 import { RIDGE_TALKS } from './ridge';
