@@ -843,8 +843,14 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     if (creature.files === undefined) return creature.phone === undefined ? [skinFile(creature.skin)] : [skinFile(creature.skin), skinFile(creature.phone.skin)];
     for (const glb of creature.files.glbs) store(glb, 'glb');
     for (const texture of creature.files.textures) store(texture, 'ktx2');
-    const variants = creature.files.skins.map(skinFile), skin = skinFile(creature.skin);
-    return [skin, json(creature.files.table, [...new Set([skin, ...variants])].sort())];
+    for (const bytes of creature.files.skins) skinFile(bytes);
+    // a variant table depends on exactly the skins it names; OF23f: the phone variant table and its default load beside
+    const named = (table: Uint8Array): string[] =>
+      [...new Set(Object.values((JSON.parse(new TextDecoder().decode(table)) as { skins: Record<string, string> }).skins))].sort();
+    const skin = skinFile(creature.skin), roots = [skin, json(creature.files.table, named(creature.files.table))];
+    const phoneTable = creature.files.phoneTable, phone = creature.look.parameters['phone'];
+    if (phoneTable !== undefined && typeof phone === 'string') roots.push(phone, json(phoneTable, named(phoneTable)));
+    return roots;
   });
   const library = [...panels.map((panel) => panel.file), ...details.flatMap((row) => [row.mesh.file, row.mask, row.heights]), ...[...detailTextures].sort(), ...skins];
   // colliders (AP4); a panel part's solids are its panel's one collider (AP16)

@@ -11,6 +11,7 @@ import { prepareAssetDecoders } from '@wildshard/format/shardfileAssets';
 import { shardfileRules } from '@wildshard/format/shardSchema';
 import { resolveSkinLookFiles, validateSkinAssets } from '@wildshard/format/skinAssets';
 import { CREATURE_SKELETONS } from '@wildshard/format/creatureSkeletons';
+import { tierLibrarySteps } from '@wildshard/format/tierSelection';
 import { lowerShard } from '../scene/lower';
 import { sceneShardfile } from '../scene/shardfile';
 import { hullCreature, type HullCreatureOptions } from './hullLook';
@@ -147,4 +148,36 @@ test('parts on some variants only refuse: one material contract per variant tabl
   await expect(hullCreature('pine.boar', rig('pine-boar.phone.rigged.glb'), { species: mixed, size: 'medium', skeleton: 'quadruped',
     look: { maps: { base: pixel(1) }, surface: { family: 'pbr', fur: BOAR_FUR },
       variants: { thrall: { parts: { glb: rig('pine-thrall-extras.phone.glb'), node: 'boar_thrall' } } } } })).rejects.toThrow(/own species/u);
+});
+
+// OF23f: a phone look bakes each variant's phone skin (the phone maps, the phone coat) into a phone variant table, and
+// the phone tier of the shard file reaches none of the desktop maps.
+test('pine.deer: a phone look bakes a phone variant table the format admits', async () => {
+  await prepareAssetDecoders();
+  const [base, normal, white, phoneBase, phoneNormal, phoneWhite] = [pixel(1), pixel(2), pixel(3), pixel(4), pixel(5), pixel(6)];
+  const creature = await hullCreature('pine.deer', rig('pine-deer-stag.phone.rigged.glb'), { species: deerSpecies, size: 'medium', skeleton: 'quadruped',
+    look: { maps: { base, normal }, surface: { family: 'pbr', fur: DEER_FUR }, variants: { 'white-stag': { coat: white } },
+      phone: { maps: { base: phoneBase, normal: phoneNormal }, variants: { 'white-stag': { coat: phoneWhite } } } } });
+  expect(creature.look.parameters['phone']).toBeDefined();
+  expect(creature.look.parameters['phoneVariants']).toBeDefined();
+  expect(creature.files?.textures).toHaveLength(6);
+  const scene = lowerShard({ slug: 'hulls', name: 'Hulls' }, (world) => { world.spawn(0, 0, 0); });
+  const { shard, assets } = sceneShardfile({ ...scene, creatures: [creature] });
+  expect(() => { validateSkinAssets(shard, assets); }).not.toThrow();
+  expect(shardfileRules(shard)).toEqual([]);
+  const resolved = resolveSkinLookFiles(shard, creature.look, assets);
+  const coat = (skin: { binding: { material: Record<string, unknown> } } | undefined): unknown => (skin?.binding.material['maps'] as { colour: string } | undefined)?.colour;
+  expect(coat(resolved.phoneVariants?.get('white-stag'))).toBe(hashImmutableBytes(phoneWhite));
+  expect(coat(resolved.phoneVariants?.get('stag'))).toBe(hashImmutableBytes(phoneBase));
+  const index = { files: shard.files.map((file) => ({ hash: file.hash, path: `blobs/${file.kind}/${file.hash}` })) };
+  const steps = tierLibrarySteps(shard, 'phone', { index, sections: new Map() });
+  let step = steps.next(); while (step.done !== true) step = steps.next();
+  for (const desktop of [base, normal, white]) expect(step.value.has(hashImmutableBytes(desktop))).toBe(true);
+  for (const phone of [phoneBase, phoneNormal, phoneWhite]) expect(step.value.has(hashImmutableBytes(phone))).toBe(false);
+});
+
+test('a phone look with no phone coat for a coated variant refuses', async () => {
+  await expect(hullCreature('pine.deer', rig('pine-deer-stag.phone.rigged.glb'), { species: deerSpecies, size: 'medium', skeleton: 'quadruped',
+    look: { maps: { base: pixel(1) }, surface: { family: 'pbr', fur: DEER_FUR }, variants: { 'white-stag': { coat: pixel(3) } },
+      phone: { maps: { base: pixel(4) } } } })).rejects.toThrow(/phone variant white-stag needs its own coat/u);
 });

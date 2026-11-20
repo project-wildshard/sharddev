@@ -67,11 +67,22 @@ export interface HullVariant {
   readonly rig?: Uint8Array; readonly maps?: HullMaps; readonly flap?: RiggedHullFlap; readonly coat?: Uint8Array; readonly fur?: Partial<HullFur>;
   readonly parts?: HullParts;
 }
+/** OF23f: one variant's phone hull and maps; a desktop variant with its own coat or maps needs its phone ones. */
+export interface HullPhoneVariant { readonly rig?: Uint8Array; readonly maps?: HullMaps; readonly coat?: Uint8Array }
+/** OF23f: the phone tier of a looked hull: a lighter rig (default: the desktop one), its maps, and each variant's own.
+ *  Flaps, fur and parts are the desktop variant's: a phone skin keeps its variant's rig and material contract. */
+export interface HullPhone {
+  readonly rig?: Uint8Array;
+  readonly maps: HullMaps;
+  readonly variants?: Readonly<Record<string, HullPhoneVariant>>;
+}
 export interface HullLook {
   readonly maps: HullMaps;
   readonly surface: HullSurface;
   readonly flap?: RiggedHullFlap;
   readonly variants?: Readonly<Record<string, HullVariant>>;
+  /** OF23f: the phone tier's skins (`phone` and `phoneVariants` on the look row); without it the look is untiered. */
+  readonly phone?: HullPhone;
 }
 
 const srgb = (c: number): number => Math.min(1, c <= 0.0031308 ? 12.92 * c : 1.055 * c ** (1 / 2.4) - 0.055);
@@ -169,6 +180,8 @@ export interface HullLookFiles {
   readonly textures: readonly Uint8Array[];
   readonly skins: readonly Uint8Array[];
   readonly table: Uint8Array;
+  /** OF23f: the phone variant table (its skins, rigs and maps are in the lists above). */
+  readonly phoneTable?: Uint8Array;
 }
 export interface HullCreature extends SceneCreature { readonly files?: HullLookFiles }
 
@@ -205,6 +218,19 @@ function carriesColour(glb: Uint8Array): boolean {
   return (doc.meshes ?? []).some((mesh) => mesh.primitives.some((primitive) => primitive.attributes['COLOR_0'] !== undefined));
 }
 
+/** one variant's baked skin: its fitted rig, the skin file and the parts it carries */
+interface Baked { readonly variantId: string; readonly fitted: Awaited<ReturnType<typeof importCreatureGlb>>; readonly skin: Uint8Array; readonly parts: PartKind[] }
+
+/** OF23f: a variant's phone hull and maps. A desktop variant with its own hull keeps it unless the phone names one; a
+ *  variant with its own coat or maps must name its phone coat or maps (a phone skin is never the desktop's art). */
+function phoneMesh(id: string, { rig, look, variantId }: { rig: Uint8Array; look: HullLook; variantId: string }): { source: Uint8Array; maps: HullMaps; coat: Uint8Array | undefined } {
+  const phone = look.phone, own = look.variants?.[variantId] ?? {}, mine = phone?.variants?.[variantId] ?? {};
+  if (phone === undefined) throw new Error(`hull ${id}: no phone look`);
+  if ((own.coat !== undefined || own.maps !== undefined) && mine.coat === undefined && mine.maps === undefined)
+    throw new Error(`hull ${id}: phone variant ${variantId} needs its own coat or maps`);
+  return { source: mine.rig ?? own.rig ?? phone.rig ?? rig, maps: mine.maps ?? phone.maps, coat: mine.coat };
+}
+
 /** OF27b: every variant's skin file, its rig, its maps and the variant table (the default skin is the first variant's). */
 async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOptions, look: HullLook): Promise<HullCreature> {
   const variants = options.species.variants.map((variant) => variant.id), first = variants[0];
@@ -216,8 +242,10 @@ async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOpti
   if (withParts.length > 0 && look.surface.family !== 'pbr') throw new Error(`hull ${id}: parts draw under a pbr fur surface`);
   const rigs = new Map<string, Promise<{ imported: Awaited<ReturnType<typeof importCreatureGlb>>; parts: PartKind[] }>>(), textures = new Map<string, Uint8Array>();
   const texture = (bytes: Uint8Array): string => { const hash = hashImmutableBytes(bytes); textures.set(hash, bytes); return hash; };
-  const made = await Promise.all(variants.map(async (variantId) => {
-    const own = look.variants?.[variantId] ?? {}, source = own.rig ?? rig, flap = own.flap ?? (own.rig === undefined ? look.flap : undefined);
+  const bake = (tier: 'desktop' | 'phone'): Promise<Baked[]> => Promise.all(variants.map(async (variantId) => {
+    const own = look.variants?.[variantId] ?? {}, flap = own.flap ?? (own.rig === undefined ? look.flap : undefined);
+    const mesh = tier === 'desktop' ? { source: own.rig ?? rig, maps: own.maps ?? look.maps, coat: own.coat } : phoneMesh(id, { rig, look, variantId });
+    const source = mesh.source;
     const key = `${hashImmutableBytes(source)}:${JSON.stringify(flap ?? null)}:${own.parts === undefined ? '' : `${hashImmutableBytes(own.parts.glb)}:${own.parts.node}`}`;
     let imported = rigs.get(key);
     if (imported === undefined) {
@@ -227,7 +255,7 @@ async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOpti
     }
     const { imported: fitted, parts } = await imported;
     if (fitted.bones.length > CREATURE_BONE_CAP) throw new Error(`hull ${id}: ${fitted.bones.length} bones, over the cap of ${CREATURE_BONE_CAP}`);
-    const maps = own.maps ?? look.maps, colour = texture(own.coat ?? maps.base), normal = maps.normal === undefined ? undefined : texture(maps.normal);
+    const maps = mesh.maps, colour = texture(mesh.coat ?? maps.base), normal = maps.normal === undefined ? undefined : texture(maps.normal);
     const material = look.surface.family === 'pbr' ? furMaterial({ ...look.surface.fur, ...own.fur }, colour, normal)
       : { family: 'painterly', rim: look.surface.rim, bands: look.surface.bands, map: colour, vertexColours: carriesColour(fitted.glb) };
     const materials = Object.fromEntries(parts.map((kind) => [kind, `${id}.${kind}`]));
@@ -235,20 +263,34 @@ async function lookedHull(id: string, rig: Uint8Array, options: HullCreatureOpti
     const skin = new TextEncoder().encode(encodeCanonicalJson(creatureSkin(fitted, { id, family: 'pbr', binding })));
     return { variantId, fitted, skin, parts };
   }));
+  const made = await bake('desktop');
   const kinds = made[0]?.parts ?? [];
   if (made.some((row) => row.parts.join(',') !== kinds.join(','))) throw new Error(`hull ${id}: every variant's parts need the same glowing and plain halves`);
-  const table = new TextEncoder().encode(encodeCanonicalJson({ version: 1, skins: Object.fromEntries(made.map((row) => [row.variantId, hashImmutableBytes(row.skin)])) }));
+  const tableOf = (rows: readonly Baked[]): Uint8Array =>
+    new TextEncoder().encode(encodeCanonicalJson({ version: 1, skins: Object.fromEntries(rows.map((row) => [row.variantId, hashImmutableBytes(row.skin)])) }));
+  const table = tableOf(made);
   const head = made[0];
   if (head === undefined) throw new Error(`hull ${id}: no skins`);
+  // OF23f: each phone skin draws at most its desktop variant's triangles (the format refuses more)
+  const phones = look.phone === undefined ? [] : await bake('phone');
+  for (const [index, row] of phones.entries()) {
+    const desktop = made[index];
+    if (desktop !== undefined && parseGlb(row.fitted.glb).triangles > parseGlb(desktop.fitted.glb).triangles)
+      throw new Error(`hull ${id}: phone variant ${row.variantId} draws more triangles than its desktop skin`);
+  }
+  const phoneTable = phones.length === 0 ? undefined : tableOf(phones), phoneHead = phones[0];
   const lookId = `${id}.look`;
   const species: SpeciesRow = { ...options.species, id,
     body: { size: options.size, scale: options.scale ?? 1, look: lookId, skeleton: options.skeleton } };
   const lookRow: ShardRows['looks'][number] = { id: lookId, species: id, recipe: 'platform.skin', material: null,
-    parameters: { skin: hashImmutableBytes(head.skin), variants: hashImmutableBytes(table) },
+    parameters: { skin: hashImmutableBytes(head.skin), variants: hashImmutableBytes(table),
+      ...(phoneTable === undefined || phoneHead === undefined ? {} : { phone: hashImmutableBytes(phoneHead.skin), phoneVariants: hashImmutableBytes(phoneTable) }) },
     animation: { recipe: 'platform.clips', parameters: { attackSpan: options.attackSpan ?? 1 } } };
-  const glbs = [...new Map(made.map((row) => [hashImmutableBytes(row.fitted.glb), row.fitted.glb])).values()];
-  const skins = [...new Map(made.map((row) => [hashImmutableBytes(row.skin), row.skin])).values()];
+  const all = [...made, ...phones];
+  const glbs = [...new Map(all.map((row) => [hashImmutableBytes(row.fitted.glb), row.fitted.glb])).values()];
+  const skins = [...new Map(all.map((row) => [hashImmutableBytes(row.skin), row.skin])).values()];
   return { id, glb: head.fitted.glb, skin: head.skin, species, look: lookRow, bones: head.fitted.bones.length,
-    triangles: parseGlb(head.fitted.glb).triangles, files: { glbs, textures: [...textures.values()], skins, table },
+    triangles: parseGlb(head.fitted.glb).triangles,
+    files: { glbs, textures: [...textures.values()], skins, table, ...(phoneTable === undefined ? {} : { phoneTable }) },
     ...(kinds.length === 0 || look.surface.family !== 'pbr' ? {} : { materials: partMaterials(id, kinds, look.surface.fur) }) };
 }
