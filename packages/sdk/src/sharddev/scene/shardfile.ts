@@ -14,6 +14,7 @@ import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
 import { bakeRawColourPixels } from '../bake/rawTexture';
 import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
+import { withLandings } from './landing';
 import { SceneRefusalError } from './refusal';
 import { sceneAudioRows } from './sound';
 import type { ShardRows } from '@wildshard/format/rows';
@@ -954,9 +955,11 @@ export function sceneGameplay(identity: ShardScene['identity'], options: Shardfi
  * it, so an `extend` that replaces `quests` keeps them. An id `extend` already declares is refused: one place, one row.
  */
 export function withAnchored<T extends { quests?: unknown; targets?: unknown; creatures?: unknown }>(shard: T, anchored: ShardScene['anchored']): T {
-  const races = anchored.races ?? [], spawns = anchored.spawns ?? [];
-  if (anchored.triggers.length === 0 && anchored.interactions.length === 0 && races.length === 0 && spawns.length === 0) return shard;
-  const quests = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { flags?: readonly string[]; triggers?: readonly { id: string }[]; races?: readonly { id: string }[] };
+  const races = anchored.races ?? [], spawns = anchored.spawns ?? [], landings = anchored.landings ?? [];
+  if (anchored.triggers.length === 0 && anchored.interactions.length === 0 && races.length === 0 && spawns.length === 0 && landings.length === 0) return shard;
+  const declared = (shard.quests ?? { flags: [], quests: [], triggers: [], dialogue: [] }) as { flags?: readonly string[]; triggers?: readonly { id: string }[]; races?: readonly { id: string }[]; quests?: readonly Parameters<typeof withLandings>[0][number][] };
+  // MZ31: the quest beats land in the quests extend wrote
+  const quests = landings.length === 0 ? declared : { ...declared, quests: withLandings(declared.quests ?? [], landings) };
   // a trigger's flag is a quest flag: declare the ones `extend` did not (review SHOULD 4)
   const flags = [...quests.flags ?? []]; for (const t of anchored.triggers) if (!flags.includes(t.flag)) flags.push(t.flag);
   // SS-GF1a1b: so is a pickup's
@@ -976,6 +979,7 @@ export function withAnchored<T extends { quests?: unknown; targets?: unknown; cr
   twice(quests.triggers ?? [], anchored.triggers, 'trigger'); twice(quests.races ?? [], races, 'race'); twice(targets.interactions ?? [], anchored.interactions, 'interaction');
   return {
     ...shard,
+    ...(landings.length === 0 ? {} : { quests }),
     ...(anchored.triggers.length === 0 && raised.length === 0 && races.length === 0 ? {} : { quests: { ...quests, flags, triggers: [...quests.triggers ?? [], ...anchored.triggers],
       ...(races.length === 0 ? {} : { races: [...quests.races ?? [], ...races] }) } }),
     ...(anchored.interactions.length === 0 ? {} : { targets: { ...targets, interactions: [...targets.interactions ?? [], ...anchored.interactions] } }),

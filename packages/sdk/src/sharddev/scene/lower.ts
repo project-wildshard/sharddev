@@ -16,7 +16,11 @@ import type {
 import { compileWorldCreature } from './worldCreature';
 import { SceneRefusalError } from './refusal';
 import { ambienceRows, musicRows } from './sound';
+import { sceneLanding, type SceneLanding } from './landing';
 import { ContentHash, hashOf } from './hash';
+
+/** A landing at its placed spot. */
+function movedTo(landing: SceneLanding, at: SceneLanding['at']): SceneLanding { return { ...landing, at }; }
 
 /**
  * AUTHORING-PARITY AP1: the walker. It runs the author's build function on a fresh `Scene`, then reads every object once
@@ -443,6 +447,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   let music: NonNullable<ShardScene['sound']>['music'] = null, ambience: NonNullable<ShardScene['sound']>['ambience'] = null;
   const triggers: { id: string; at: Object3D; radius: number; flag: string }[] = [], interactions: { id: string; at: Object3D; radius: number; label: string; scene: string; unless?: string }[] = [];
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
+  // MZ31: the quest beats, placed once the build has run
+  const landings: { landing: SceneLanding; at: Object3D }[] = [];
   const anchor = (kind: string, id: string): void => {
     if (!/^[a-z][a-zA-Z0-9.-]{0,127}$/u.test(id)) throw new SceneRefusalError(id, `a ${kind} id is not a shardfile id`, 'Name it like `slice.pond`: a lower-case letter, then letters, digits, dots and dashes');
     if (anchorIds.has(`${kind}:${id}`)) throw new SceneRefusalError(id, `two ${kind}s share this id`, `Give every world.${kind} its own id`);
@@ -554,6 +560,15 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       return group;
     },
     dock: (id, at, options) => { anchor('dock', id); docks.push({ id, at, options }); },
+    questStep: (quest, step, at, options = {}) => {
+      landings.push({ landing: sceneLanding(quest, step, { x: 0, y: 0, z: 0 }, options, landings.map((l) => l.landing)), at });
+    },
+    questPayoff: (quest, at, options = {}) => {
+      const landing = sceneLanding(quest, null, { x: 0, y: 0, z: 0 }, options, landings.map((l) => l.landing));
+      // a reveal is a shared flag the quest's completion scene raises, which a panel's shownWhen reads
+      if (landing.scene !== undefined && options.reveal !== undefined) writes.push(stateWrite(landing.scene, { field: options.reveal, scope: 'shared', value: true }, writes));
+      landings.push({ landing, at });
+    },
     music: (options) => {
       if (music !== null) throw new SceneRefusalError('music', 'world.music is called twice', 'Declare the score once, with its day, night and boss slots');
       music = musicRows(identity.slug, options);
@@ -618,6 +633,10 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     ...(pickups.length === 0 ? {} : { pickups }),
     ...(races.length === 0 ? {} : { races }),
     ...(spawnRows.length === 0 ? {} : { spawns: spawnRows }),
+    ...(landings.length === 0 ? {} : { landings: landings.map(({ landing, at }) => {
+      const p = placed(landing.step === null ? `${landing.quest} payoff` : `${landing.quest}/${landing.step}`, at);
+      return movedTo(landing, { x: r3(p.x), y: r3(p.y), z: r3(p.z) });
+    }) }),
     triggers: triggers.map((t) => { const p = placed(t.id, t.at); return { id: t.id, kind: 'region' as const, flag: t.flag, x: r3(p.x), z: r3(p.z), radius: t.radius }; }),
     interactions: interactions.map((i) => {
       const p = placed(i.id, i.at), row: { id: string; at: readonly [number, number, number]; radius: number; label: string; scene: string; unless?: string } = { id: i.id, at: [r3(p.x), r3(p.y), r3(p.z)], radius: i.radius, label: i.label, scene: i.scene };

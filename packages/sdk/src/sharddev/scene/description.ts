@@ -3,6 +3,7 @@ import type { Vehicles } from '@wildshard/format/vehicles';
 import type { ShardCreatures } from '@wildshard/format/creatures';
 import type { ShardRows } from '@wildshard/format/rows';
 import type { Shardfile } from '@wildshard/format/shardSchema';
+import type { SceneLanding } from './landing';
 /**
  * AUTHORING-PARITY AP1: the scene description. An author writes an ordinary three.js scene inside `defineShard`; the
  * walker (`lower.ts`) reads it once into this plain, serialisable shape, and both back ends read only this: the shardfile
@@ -370,6 +371,8 @@ export interface SceneAnchored {
   readonly races?: readonly SceneRace[];
   /** ONE-FORMAT OF28d: `world.spawnAt`'s creature spawn rows, in the order they were declared; absent or empty: none */
   readonly spawns?: readonly SceneSpawnRow[];
+  /** MOSSGATE-ZONE MZ31: `world.questStep` and `world.questPayoff`'s beats, in the order they were declared; absent or empty: none */
+  readonly landings?: readonly SceneLanding[];
 }
 
 /** OF28d: one format creature spawn row (`creatures.spawns`), its `at` and `yaw` read off a scene node. */

@@ -6,6 +6,7 @@ import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 import type { CreatureWorldOptions } from './worldCreature';
 import type { DockOptions, VehicleKindOptions } from './vehicle';
 import type { AmbienceOptions, MusicOptions } from './sound';
+import type { LandingOptions, PayoffOptions } from './landing';
 
 /**
  * AUTHORING-PARITY AP1: what an author's scene module calls besides three.js itself. Everything here runs at compile time
@@ -217,6 +218,18 @@ export interface ShardWorld {
    * stands in the cell. Once. With `music`, this ends the scene shard's default silence, so quest steps are heard.
    */
   ambience: (options: AmbienceOptions) => void;
+  /**
+   * MOSSGATE-ZONE MZ31: where quest `quest`'s step `step` lands, at `at`'s world position: the moment the step is done the
+   * engine flares the spot, spreads its light over the ground (`radius` m, default 6) in `colour`, pops a small reward and
+   * sounds one of its synth voices (`sound`, default `chime`). Written into the step `extend` declares (format `feedback`).
+   */
+  questStep: (quest: string, step: string, at: Object3D, options?: LandingOptions) => void;
+  /**
+   * MZ31: quest `quest`'s payoff, at `at`: a bigger landing as it completes (default 14 m, `glyph`), the score's reward take
+   * (`music`, default `dawn`), then `next` on the tracker. `reveal` names a shared flag the completion raises (its
+   * `onComplete.scene`, written for you): show the world change with a panel part's `shownWhen: { field, equals: true }`.
+   */
+  questPayoff: (quest: string, at: Object3D, options?: PayoffOptions) => void;
 }
 
 
