@@ -47,13 +47,14 @@ test('the watch shell keeps a panel part whole and empties the rest', () => {
   expect(sceneShardfile(shell).shard.props?.panels.map((p) => p.id)).toEqual(['ap16.gate']);
 });
 
-test('a panel id is a shardfile id, used once, and a panel holds meshes and solids only', () => {
+test('a panel id is a shardfile id, used once, and a panel holds meshes, solids and point lights only', () => {
   const box = (): THREE.Mesh => new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), wood);
   expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('gate', (p) => p.add(box()), { panel: 'Gate' }); })).toThrow(SceneRefusalError);
   expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => {
     world.part('a', (p) => p.add(box()), { panel: 'p.gate' }); world.part('b', (p) => p.add(box()), { panel: 'p.gate' });
   })).toThrow(/two parts are panel p.gate/u);
-  expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('lamp', (p) => p.add(box(), new THREE.PointLight()), { panel: 'p.lamp' }); })).toThrow(/meshes and solids only/u);
+  expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('lamp', (p) => p.add(box(), new THREE.DirectionalLight()), { panel: 'p.lamp' }); })).toThrow(/point lights only/u);
+  expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('lamp', (p) => p.add(box(), new THREE.Sprite()), { panel: 'p.lamp' }); })).toThrow(/point lights only/u);
   expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => { world.part('gate', (p) => p.add(box()), { panel: 'scene.posts' }); })).toThrow(SceneRefusalError);
   expect(() => lowerShard({ slug: 'p', name: 'P' }, (world) => {
     world.part('gate', (p) => { const m = solid(box()); animate(m, sway({ rate: 0.6, amount: 0.08 })); p.add(m); }, { panel: 'p.gate' });
@@ -68,3 +69,20 @@ test('review SHOULD: a panel past the 18 MB a panel GLB holds is refused by name
   });
   expect(() => sceneShardfile(huge)).toThrow(/over the 18 MB a panel GLB holds/u);
 }, 60_000);
+
+// MZ34 (for MZ7's braziers): a panel's point light is a look lamp naming that panel (format 0.51 `lamps[].panel`), so the
+// engine lights it only while the panel shows; a light outside a panel names none.
+test('a point light in a panel part is a lamp that follows the panel', () => {
+  const lit = lowerShard({ slug: 'mz34', name: 'MZ34' }, (world) => {
+    world.part('yard', (part) => { const light = new THREE.PointLight('#ffffff', 2, 8); light.position.set(10, 3, 0); part.add(light, solid(new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), wood))); });
+    world.part('brazier-fire', (part) => {
+      const coals = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.2, 0.6), wood); coals.position.set(0, 1, 0);
+      const light = new THREE.PointLight('#ffa040', 4, 9); light.position.set(0, 1.6, 0); part.add(coals, light);
+    }, { panel: 'mz34.brazier' });
+  });
+  expect(lit.parts.find((p) => p.name === 'brazier-fire')?.lights[0]?.panel).toBe('mz34.brazier');
+  const lamps = sceneShardfile(lit).shard.look.light.lamps ?? [];
+  expect(lamps).toHaveLength(2);
+  expect(lamps.find((l) => l.at[0] === 0)).toMatchObject({ at: [0, 1.6, 0], panel: 'mz34.brazier' });
+  expect(lamps.find((l) => l.at[0] === 10)).not.toHaveProperty('panel');
+});

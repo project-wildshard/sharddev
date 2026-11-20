@@ -261,7 +261,9 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
       lights.push({ path, kind, colour: rgb(object.color), groundColour: object instanceof HemisphereLight ? rgb(object.groundColor) : null, intensity: object.intensity,
         distance: object instanceof PointLight ? object.distance : 0, decay: object instanceof PointLight ? object.decay : 0, position,
         target: object instanceof DirectionalLight ? v3(object.target.getWorldPosition(new Vector3())) : null, castShadow: object.castShadow,
-        motion: object instanceof PointLight ? fitMotion(object, root, path, LIGHT_MOTIONS, 'light') : null, ...(object instanceof PointLight ? swingOf(object, path) : {}) });
+        motion: object instanceof PointLight ? fitMotion(object, root, path, LIGHT_MOTIONS, 'light') : null, ...(object instanceof PointLight ? swingOf(object, path) : {}),
+        // MZ34: a panel's point light is a lamp that follows the panel (format `lamps[].panel`), so it hides with it
+        ...(panel !== undefined && object instanceof PointLight ? { panel } : {}) });
     } else if (object instanceof SpotLight) {
       throw new SceneRefusalError(path, 'SpotLight has no lowering yet', 'Use a PointLight; spot lamps are an engine row after M1');
     } else if (object instanceof Points) {
@@ -286,7 +288,8 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
   const geometries = [...new Set(draws.map((d) => d.geometry))];
   const hash = new ContentHash().text(root.name).text(panel ?? '');
   // AP16: a panel is meshes and solids, the things a state row can hide; anything else would stay when it hides
-  if (panel !== undefined && sprites.length + points.length + lights.length + water.length > 0) throw new SceneRefusalError(root.name, 'a panel part holds meshes and solids only (its sprites, points, lights and water would not hide with it)', 'Put them in a part of their own');
+  // MZ34: its point lights follow it (a lamp's `panel`); a sun, sky light, sprite, cloud of points or water would not hide
+  if (panel !== undefined && sprites.length + points.length + water.length + lights.filter((l) => l.kind !== 'point').length > 0) throw new SceneRefusalError(root.name, 'a panel part holds meshes, solids and point lights only (its sprites, points, other lights and water would not hide with it)', 'Put them in a part of their own');
   // a panel is a library model, which carries no tile motion: a moving mesh would stand still
   if (panel !== undefined && draws.some((d) => d.motion !== null)) throw new SceneRefusalError(root.name, 'a panel part cannot move (sway, flicker, pulse or uvScroll)', 'Put the moving meshes in a part of their own');
   for (const draw of draws) {

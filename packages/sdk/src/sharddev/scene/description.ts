@@ -139,6 +139,8 @@ export interface SceneLight {
   readonly motion: SceneMotion | null;
   /** SS8d: the part's `swings` row it hangs from; absent: it does not swing */
   readonly swing?: number;
+  /** MZ34: a point light in a panel part lights with that panel (format `lamps[].panel`): lit while it shows */
+  readonly panel?: string;
 }
 
 /** SS8d: one `hang(group, ...)` body: its pivot (world), the distance down to its body's middle, rate, gust lean, reach. */

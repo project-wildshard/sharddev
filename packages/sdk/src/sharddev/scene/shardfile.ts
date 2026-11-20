@@ -405,7 +405,7 @@ function boxRow(collider: SceneCollider): { kind: 'box'; x: number; y: number; z
 }
 
 /** Point lights as the look's lamp rows (`look.light.lamps`): what a baked shard and a watched part (the dev hook) both draw. */
-export function lampRows(lights: readonly SceneLight[], swings = false): { at: [number, number, number]; colour: [number, number, number]; intensity: number; distance: number; decay?: number; flicker?: { rate: number; amount: number }; swing?: number }[] {
+export function lampRows(lights: readonly SceneLight[], swings = false): { at: [number, number, number]; colour: [number, number, number]; intensity: number; distance: number; decay?: number; flicker?: { rate: number; amount: number }; swing?: number; panel?: string }[] {
   type LampRow = ReturnType<typeof lampRows>[number];
   const rows: LampRow[] = [];
   for (const l of lights) {
@@ -417,6 +417,8 @@ export function lampRows(lights: readonly SceneLight[], swings = false): { at: [
     if (l.motion?.kind === 'flicker') row.flicker = { rate: round(Math.min(30, l.motion.rate), 3), amount: round(clamp01(l.motion.amount), 3) };
     // SS8d: a hung lamp's swing (numbered across the shard, or in its part for a watched part: SS8f)
     if (swings && l.swing !== undefined) row.swing = l.swing;
+    // MZ34: a panel part's lamp lights only while its panel shows (engine look lamps, v0.1.53)
+    if (l.panel !== undefined) row.panel = l.panel;
     rows.push(row);
   }
   return rows;
