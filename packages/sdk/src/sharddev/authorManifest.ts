@@ -48,10 +48,10 @@ export function authorManifest(shard: Shardfile, captured: Partial<Record<CardSl
     grade: {saturation: 0, brightness: 0, contrast: 0, bloomIntensity: 0, bloomThreshold: 1, shadowTint: NEUTRAL, highTint: NEUTRAL, lift: [0, 0, 0], gain: NEUTRAL, gamma: 1},
     explore: {art: {world: art, models: art, sets: art, practice: art}},
     shardfile: `/shardfiles/${slug}/shard.json`, ground: {paths: 'plugin', structures: true}, uses: ['weather', 'dayCycle'],
-    species: [], fight: {attackers: 2, telegraphed: true, input: {bufferMs: 120, coyoteMs: 100}},
+    fight: {attackers: 2, telegraphed: true, input: {bufferMs: 120, coyoteMs: 100}},
     creatures: {lowPoly: true, waitForModels: false, furRim: false, tintRange: 0, oneMaterial: true},
     tiers: {phone: {godRays: false, ao: false}, desktop: {godRays: false, ao: false}},
-    loot: {coins: true}, hud: {bands: ['band.1', 'band.2', 'band.3']}, spawns: [], audio: {ambience: 'none', score: 'none'},
+    loot: {coins: true}, hud: {bands: ['band.1', 'band.2', 'band.3']}, audio: {ambience: 'none', score: 'none'},
     bindings: {accent: shard.accent, budgets: {module: AUTHOR_BUDGETS_MODULE, export: 'default'}},
   };
 }

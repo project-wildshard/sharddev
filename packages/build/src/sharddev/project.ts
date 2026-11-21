@@ -224,7 +224,9 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   // never `ui/level`; an author who still keeps them in the manifest has them moved (`liftLevelLook`, byte for byte)
   // ONE-FORMAT OF9b3: its spawn, loadout and audio likewise go to world/spawn, items.loadout.level and audio.level, and its
   // weapon and map image (read by nothing; combat/items arms, look/map draws) leave (`liftLevelStart`)
-  const source = level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections);
+  // ONE-FORMAT OF9b4: herds, the species list and fauna tuning left `ui/level` with the species programs (declared spawns
+  // and species rows carry them); an authored manifest that still names them has them dropped
+  const source = withoutHerdFields(level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections));
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
@@ -382,3 +384,11 @@ async function withDiscovery(project: string, manifest: unknown, values: Discove
 /** Create the runtime-free source layout without replacing existing work. */
 /** A bare shard source at `project` (`wildshard new --empty` writes the same one at a new repo's `src/`). */
 export function newProject(project: string, slug: string): void { writeEmptyShardSource(project, slug); }
+
+/** OF9b4: the manifest without `species`, `spawns` and `faunaTuning`; a source with none of them comes back as it was. */
+function withoutHerdFields<Source extends { readonly manifest?: unknown }>(source: Source): Source {
+  const { manifest } = source;
+  if (typeof manifest !== 'object' || manifest === null || !('species' in manifest || 'spawns' in manifest || 'faunaTuning' in manifest)) return source;
+  const { species: _species, spawns: _spawns, faunaTuning: _faunaTuning, ...rest } = manifest as Record<string, unknown>;
+  return { ...source, manifest: rest };
+}
