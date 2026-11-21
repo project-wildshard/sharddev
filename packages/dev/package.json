@@ -109,6 +109,7 @@
     "./projectEntryProof": "./src/sharddev/projectEntryProof.ts",
     "./test/proof": "./src/sharddev/test/proof.ts",
     "./test/quest": "./src/sharddev/test/quest.ts",
+    "./test/node": "./src/sharddev/test/node.mjs",
     "./scripts/*": "./scripts/*"
   },
   "wildshardStagingClients": {

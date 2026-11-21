@@ -9,3 +9,6 @@
 - CP18b: `@wildshard/dev/test/quest` (questFlags, authoredQuest,
   authoredQuestLine, npcLine) for folder-less quest-content tests;
   openShardSim returns its descriptor.
+- CP18b: `@wildshard/dev/test/node` is the harness's Node entry
+  (`node --import @wildshard/dev/test/node --test ...`): engine's loader for
+  its TypeScript and the rapier package, which has no Node entry of its own.
