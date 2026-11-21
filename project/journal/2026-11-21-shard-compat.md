@@ -22,3 +22,6 @@
   override) other than the installed SDK's (pinCheck.ts, rule pin-not-sdk);
   update --pins sets format to the SDK's pin either way (SP13's never-back
   rule retired). Format stays listed: the SDK's lint refuses re-exports.
+- CP18 codemod fix: engine use is read from real import/require specifiers
+  (TypeScript preProcessFile), skipping .githooks and fixtures (the mini's
+  Mirror Salt pinned-links case).

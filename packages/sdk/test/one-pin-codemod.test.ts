@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 // oxlint-disable-next-line import/no-nodejs-modules -- Keep fixtures inside the test's owned scratch folder.
 import { join, resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import codemod, { rewriteImmutableImports } from '../codemods/0.4.24.mjs';
+import codemod, { importsEngine, rewriteImmutableImports } from '../codemods/0.4.24.mjs';
 
 // SHARD-COMPAT CP18: the immutable helpers come from the sdk, and a repo that no longer imports engine drops its pin.
 test('only the sdk-owned immutable helpers move', () => {
@@ -49,6 +49,33 @@ test('a repo that still imports engine keeps its pin', () => {
   try {
     expect(codemod({ project: root, from: '0.4.23', to: '0.4.24' })).toEqual([]);
     expect(readFileSync(join(root, 'package.json'), 'utf8')).toContain('"@wildshard/engine": "0.1.64"');
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+// The mini's case (Mirror Salt `.githooks/pinned-links.test.mjs`): strings naming engine are not imports.
+const FIXTURE_SHAPE = `const manifest = { dependencies: { '@wildshard/engine': 'github:project-wildshard/engine#abc' } };
+writeFileSync(join(dir, 'package.json'), '{"name":"@wildshard/engine"}\\n');
+const text = "import { x } from '@wildshard/engine/sim'";
+`;
+
+test('only real import, export-from, import() and require specifiers count as engine imports', () => {
+  expect(importsEngine(FIXTURE_SHAPE)).toBe(false);
+  expect(importsEngine("import { leadPlayer } from '@wildshard/engine/sim/leadPlayer';")).toBe(true);
+  expect(importsEngine("const engine = require('@wildshard/engine');")).toBe(true);
+  expect(importsEngine("const sim = await import('@wildshard/engine/sim');")).toBe(true);
+  expect(importsEngine("export { step } from '@wildshard/engine/sim/step';")).toBe(true);
+  expect(importsEngine("import x from '@wildshard/engineering';")).toBe(false);
+});
+
+test('a repo whose only engine mentions are fixture strings drops the pin', () => {
+  const root = repo(FIXTURE_SHAPE);
+  try {
+    mkdirSync(join(root, '.githooks'));
+    writeFileSync(join(root, '.githooks', 'pinned-links.test.mjs'), "import { x } from '@wildshard/engine/sim';\n");
+    codemod({ project: root, from: '0.4.23', to: '0.4.24' });
+    expect(readFileSync(join(root, 'package.json'), 'utf8')).not.toContain('@wildshard/engine');
   } finally {
     rmSync(root, { recursive: true, force: true });
   }

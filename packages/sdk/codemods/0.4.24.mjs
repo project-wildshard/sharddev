@@ -8,11 +8,13 @@
 /* oxlint-disable node/no-sync, import/no-nodejs-modules -- A codemod is a one-shot synchronous edit of the shard repo on disk. */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
+import ts from '@typescript/typescript6';
 
-const SKIP = new Set(['.git', '.worktrees', 'node_modules', 'tmp', 'out', 'dist', 'build', 'public']);
+// `.githooks` and fixture folders hold strings that look like imports (Mirror Salt's pinned-links fixture).
+const SKIP = new Set(['.git', '.githooks', '.worktrees', 'node_modules', 'tmp', 'out', 'dist', 'build', 'public', 'fixtures', '__fixtures__']);
 const OWNED = new Set(['hashImmutableBytes', 'encodeCanonicalJson']);
 const IMMUTABLE = /import(\s+type)?\s*\{([^}]*)\}\s*from\s*(["'])@wildshard\/format\/immutable\3/gu;
-const ENGINE = /["'`]@wildshard\/engine(?:\/[^"'`\s]*)?["'`]/u;
+const ENGINE = /^@wildshard\/engine(?:\/|$)/u;
 const FIELDS = ['dependencies', 'devDependencies'];
 
 /** An import of only the SDK-owned immutable helpers reads them from `<sdk>/immutable`; any other stays. */
@@ -22,6 +24,12 @@ export function rewriteImmutableImports(source, sdk = '@wildshard/sdk') {
     if (listed.length === 0 || !listed.every(name => OWNED.has(name))) return whole;
     return `import${type ?? ''} {${names}} from ${quote}${sdk}/immutable${quote}`;
   });
+}
+
+/** Whether `source` really imports engine: TypeScript's pre-processor reads its import, export-from, dynamic import
+ * and require specifiers, so a string that merely names `@wildshard/engine` (a package.json fixture) is not one. */
+export function importsEngine(source) {
+  return ts.preProcessFile(source, true, true).importedFiles.some(file => ENGINE.test(file.fileName));
 }
 
 // oxlint-disable-next-line import/no-default-export -- update --pins loads release codemods by their default export.
@@ -37,7 +45,7 @@ export default function codemod({ project }) {
       if (entry.isDirectory()) { visit(path); continue; }
       if (!entry.isFile() || !/\.(?:[cm]?[jt]sx?)$/u.test(entry.name)) continue;
       const before = readFileSync(path, 'utf8'), after = sdk === undefined ? before : rewriteImmutableImports(before, sdk);
-      if (ENGINE.test(after)) usesEngine = true;
+      if (!usesEngine && importsEngine(after)) usesEngine = true;
       if (before === after) continue;
       writeFileSync(path, after);
       changes.push(`${relative(root, path)}: immutable helpers from ${sdk}/immutable`);
