@@ -11,10 +11,10 @@ import { releasePin, repoPackageJson } from './newProject';
 const sdk = JSON.parse(readFileSync(resolve(import.meta.dirname, '../../package.json'), 'utf8')) as { version: string; dependencies: Record<string, string>; peerDependencies: Record<string, string> };
 const both = (): readonly string[] => [sdk.version];
 
-test('a code repo pins the cli, the sdk library, shard-format and three', () => {
+test('a code repo pins the cli, the sdk library, shard-format, three and its types', () => {
   const pkg = JSON.parse(repoPackageJson('my-shard', 'sdk', both)) as { dependencies: Record<string, string> };
   expect(pkg.dependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'],
-    '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
+    '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'], '@types/three': sdk.dependencies['@types/three'] });
 });
 
 test('a hand-written repo pins the cli, the sdk and shard-format, as dev dependencies', () => {
