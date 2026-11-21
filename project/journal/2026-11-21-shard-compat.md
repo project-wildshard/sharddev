@@ -15,3 +15,6 @@
 - CP3: sharddev's pre-push refuses a main push moving the SDK family's
   @wildshard/format pin above the API's /api/format package (engine's gate,
   for the SDK repo); ALLOW_FORMAT_AHEAD=1 is the hatch.
+- CP18 codemod (sdk 0.4.24): format/immutable's two helpers come from the
+  sdk's immutable under the repo's sdk name; a repo with no engine import
+  drops the engine pin and override. Tests: one-pin-codemod.test.ts.
