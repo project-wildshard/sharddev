@@ -42,8 +42,7 @@ function fixture(){
   const rows=v.parse(ReturnModulesSchema,[module]);
   const sections=new Map<string,unknown>([['actors/return-scripts',rows]]);
   const platform=emitPlatformSections(new Map([['actors/return-scripts',rows]]));
-  // the engine's format copy can trail the sdk's: its empty shard file is the sdk's shape
-  const source=emptyShardfile({slug:'project-inventory',name:'Project inventory',author:'Test',revision:1,seed:2}) as unknown as Parameters<typeof mergeProjectBlobs>[0];
+  const source=emptyShardfile({slug:'project-inventory',name:'Project inventory',author:'Test',revision:1,seed:2});
   source.serverBudget.memory+=131072;source.budgets.sim.resident+=131072;
   return {root,blob,bytes,contract,module,platform,sections,...mergeProjectBlobs(source,new Map(),[blob])};
 }
@@ -60,7 +59,7 @@ test('project ABI survives named reconstruction, disk, browser and native withou
   const options:FolderOptions={base,offline:false,hash:wire=>Promise.resolve(hashImmutableBytes(wire)),
     fetch:url=>Promise.resolve(new Response(Uint8Array.from(readFileSync(resolve(f.root,url.slice(base.length))))))};
   expect((await admitFolder(await readFolderDescriptor(options),options)).assets.get(f.blob.file.hash)).toStrictEqual(f.bytes);
-  const sim=await HeadlessSimulation.create(f.shard as unknown as Parameters<typeof HeadlessSimulation.create>[0],f.assets,undefined,{deadline:'advisory',sections:f.sections});
+  const sim=await HeadlessSimulation.create(f.shard,f.assets,undefined,{deadline:'advisory',sections:f.sections});
   try{expect((await sim.step()).tick).toBe(1);}finally{await sim.dispose();}
 },30000);
 test('missing or mismatched project contracts refuse without guessing the ABI',async()=>{

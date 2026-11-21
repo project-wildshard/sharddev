@@ -7,3 +7,5 @@ Linux and macOS. Engine v0.1.59 includes the native AAC fix
 
 Pin the author packages to that engine and its format 0.63.0. The
 preparation client test checks the default tag, archive URL and cache.
+The matching format makes three test-fixture casts redundant; remove
+them so the normal lint gate can check the shared types directly.
