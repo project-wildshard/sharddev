@@ -107,6 +107,7 @@
     "./test/diskScriptScenario": "./src/sharddev/test/diskScriptScenario.ts",
     "./bake/splatLayers": "./src/sharddev/bake/splatLayers.ts",
     "./projectEntryProof": "./src/sharddev/projectEntryProof.ts",
+    "./test/proof": "./src/sharddev/test/proof.ts",
     "./scripts/*": "./scripts/*"
   },
   "wildshardStagingClients": {
