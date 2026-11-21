@@ -16,6 +16,14 @@ import type { HeadlessRuntimeInput, NativeHeadlessResident, PrepareHeadlessRunti
 import type { HeadlessCommand } from '@wildshard/engine/host/tickProtocol';
 import type { ShardFolder } from '@wildshard/engine/game/shardfile/shardFolder';
 import type { SimHost } from '@wildshard/engine/sim';
+import { loadHeadlessFolder } from '@wildshard/engine/host/headlessFolder';
+import { serverInputFiles } from '@wildshard/engine/game/shardfile/serverSkinRigs';
+import { createShardfileSim, type ShardfileSimulation } from '@wildshard/engine/game/plugin/simulation';
+import { createQuestLedger } from '@wildshard/engine/game/quest/ledger';
+import { SaveStore } from '@wildshard/engine/saves/store';
+import { actRoutes } from '@wildshard/engine/sim/actRoutes';
+import { questBooks } from '@wildshard/engine/quest/players';
+import type { QuestDataPorts } from '@wildshard/engine/game/quest/declared';
 
 /**
  * SHARD-COMPAT CP18b (meta): the shard proof harness. A shard repo's proofs and tests boot a built folder here, from
@@ -83,4 +91,57 @@ export async function openShardProof(directory: string, options: ShardProofOptio
     digest: () => canonicalSimDigest(snapshotSimHostBytes(host)),
     dispose: () => { resident.dispose(); },
   };
+}
+
+/** A quest-level world: the shard's declared simulation with its quest host, vehicles and act routes, booted from a
+ *  cooked or built folder's server files. For tapes that place the player, claim acts and judge quest steps. */
+export interface ShardSim {
+  readonly shardfile: ShardFolder['shardfile'];
+  readonly sim: ShardfileSimulation;
+  readonly host: SimHost;
+  /** Every player's quest book; `.lead` is the first player's. */
+  readonly books: () => ReturnType<typeof questBooks>;
+  /** Run a native act route (`talk:0.start`, `<dock>.dock`) for a player (the lead by default), then one tick. */
+  readonly claim: (id: string, player?: string) => void;
+  /** Every `fact` and `coins` the quest host granted, in order. */
+  readonly facts: readonly Readonly<{ name: string; who: string }>[];
+  readonly coins: readonly Readonly<{ amount: number; who: string }>[];
+}
+export interface ShardSimOptions {
+  /** The pinned physics wasm, else `nativeRapierFile`. */
+  readonly physics?: string;
+  /** Called after each grant is recorded, for a ledger or a save. */
+  readonly fact?: QuestDataPorts['fact'];
+}
+
+/** Boot a folder's declared simulation with its quest host. */
+export async function openShardSim(folder: string, options: ShardSimOptions = {}): Promise<ShardSim> {
+  const { shardfile } = await loadHeadlessFolder(folder);
+  const descriptor = outputDescriptor(shardfile);
+  if (descriptor === undefined) throw new Error(`Not a built shard folder: ${folder}`);
+  const assets = new Map(serverInputFiles(descriptor.index.files, shardfile).map(file => [
+    file.commons === true ? `commons:${file.hash}` : file.hash, Uint8Array.from(readFileSync(`${folder}/${file.path}`)),
+  ] as const));
+  const facts: { name: string; who: string }[] = [], coins: { amount: number; who: string }[] = [];
+  const rapier = await loadRapier(readFileSync(options.physics ?? nativeRapierFile));
+  const sim = createShardfileSim(shardfile, assets, { rapier, sections: descriptor.sections, quest: {
+    fact: (name, who) => { facts.push({ name, who }); options.fact?.(name, who); },
+    coins: (amount, who) => { coins.push({ amount, who }); },
+  } });
+  const { host } = sim;
+  return {
+    shardfile, sim, host, facts, coins,
+    books: () => questBooks(host),
+    claim: (id, player = questBooks(host).lead.player) => {
+      const route = actRoutes(host).claims.get(id);
+      if (route === undefined) throw new Error(`No native claim for ${id}`);
+      route(player);
+      host.step();
+    },
+  };
+}
+
+/** A fresh in-memory quest ledger for one save slot: what a grant pays into, as the server keeps it. */
+export function questLedger(shardfile: ShardFolder['shardfile'], slot: string): ReturnType<typeof createQuestLedger> {
+  return createQuestLedger(new SaveStore(), shardfile, slot);
 }
