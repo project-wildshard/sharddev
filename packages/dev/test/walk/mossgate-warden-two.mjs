@@ -2,6 +2,7 @@
 // Each player stands off while a tell is up (the slam's ember ring, the sweep's dust ring, the stone over its head: out past
 // the sweep, or across the stone's lane), and closes to swing while its core is open. The proof wins the fight with both
 // players' swings landing (each one's own hit count on the Warden's health), sees the boss bar name all three phases, the
+// score turn to its boss scene with the fight (MZ23: off it at the arch, on it within 3 s of the Warden engaging), the
 // four crawlers come out in the third, and the Warden's blows land: both players stand in each kind of tell once instead
 // of dodging it (the slam, the sweep, the stone), and the struck one's health drops by that blow. (On engine 0.1.50 a
 // decision's strike goes at the server's first player whoever is nearest; engine fix 2026-11-19 aims it at the nearest, riding the release after v0.1.53.)
@@ -45,7 +46,8 @@ const look = (page) => page.evaluate(([tells]) => {
   const row = (name) => Number(window.__workerClientRow?.(name) ?? 0);
   const bar = [...document.querySelectorAll('.ws-boss-bar')].map((el) => el.textContent?.replace(/\s+/gu, ' ').trim() ?? '').join(' | ');
   return { state: fight?.state ?? null, hp: fight?.hp ?? null, phase: fight?.phase ?? null, at: fight?.at ?? null, x: me?.x ?? 0, z: me?.z ?? 0, myHp: me?.hp ?? null,
-    tells: tells.map(row), core: row('mossgate.warden-core'), dead: (me?.flags ?? []).includes('dead:barrow-warden'), crawlers: (window.__workerClientRows?.('barrowCrawler') ?? []).length, bar };
+    tells: tells.map(row), core: row('mossgate.warden-core'), dead: (me?.flags ?? []).includes('dead:barrow-warden'), crawlers: (window.__workerClientRows?.('barrowCrawler') ?? []).length, bar,
+    score: window.__wildshard?.world?.music?.stems?.scene ?? null };
 }, [TELLS]);
 
 const aimAt = (page, at, from, swing) => page.evaluate(([to, me, low]) => {
@@ -62,6 +64,10 @@ async function fight(p, tally) {
   while (Date.now() - started < FIGHT_MS) {
     const seen = await look(page);
     if (seen.myHp !== null) minHp = Math.min(minHp, seen.myHp);
+    // MZ23: the score's boss scene starts with the fight
+    const score = tally.score[who] ??= {};
+    if (['intro', 'fight', 'beat'].includes(seen.state) && score.fightAt === undefined) score.fightAt = Date.now(); // engaged
+    if (seen.score === 'boss' && score.bossAt === undefined) { score.bossAt = Date.now(); log(who, { score: 'boss', afterEngageMs: score.fightAt === undefined ? null : score.bossAt - score.fightAt }); }
     if (seen.phase !== null && (seen.phase !== lastPhase || seen.state !== lastState)) {
       lastPhase = seen.phase; lastState = seen.state;
       if (seen.state === 'fight' || seen.state === 'beat') { tally.phases.add(seen.phase); tally.bars.push(seen.bar); }
@@ -111,19 +117,23 @@ async function fight(p, tally) {
 }
 
 let verdict = 'fail', refusal = null;
-const tally = { phases: new Set(), bars: [], crawlers: 0, swings: {}, hits: {}, tanked: {} };
+const tally = { phases: new Set(), bars: [], crawlers: 0, swings: {}, hits: {}, tanked: {}, score: {} };
 const players = [];
 try {
   players.push(...await Promise.all(['one', 'two'].map(enter)));
   // walk both from the yard out to the Downs and in through the arch (the MZ17 road)
   const road = [{ x: 10.5, z: -2 }, { x: 14.5, z: -2 }, { x: 30, z: -1 }, { x: 50, z: 0 }, { x: 100, z: 12 }, { x: 140.5, z: 45 }];
-  await Promise.all(players.map(async (p, i) => { for (const point of [...road, ENTRY[i]]) await p.proof.walkTo(point, 1.5); log(p.who, { atArch: true }); }));
+  await Promise.all(players.map(async (p, i) => {
+    for (const point of [...road, ENTRY[i]]) await p.proof.walkTo(point, 1.5);
+    const { score } = await look(p.page); (tally.score[p.who] ??= {}).atArch = score; log(p.who, { atArch: true, score });
+  }));
   const lows = await Promise.all(players.map((p) => fight(p, tally)));
   const both = players.every((p) => (tally.hits[p.who] ?? 0) > 0), three = [0, 1, 2].every((n) => tally.phases.has(n));
   const struck = (tally.tanked.slam ?? 0) > 0 && (tally.tanked.sweep ?? 0) > 0;
-  refusal = !both ? 'a player landed no hit' : !three ? `phases seen ${[...tally.phases].join(',')}` : tally.crawlers < 1 ? 'no crawler came out' : !struck ? `the Warden's slam or sweep landed on no one (${JSON.stringify(tally.tanked)})` : null;
+  const scored = players.every((p) => { const s = tally.score[p.who] ?? {}; return s.atArch !== 'boss' && s.atArch !== null && s.bossAt !== undefined && s.fightAt !== undefined && s.bossAt >= s.fightAt && s.bossAt - s.fightAt <= 3000; });
+  refusal = !scored ? `the boss score did not start with the fight (${JSON.stringify(tally.score)})` : !both ? 'a player landed no hit' : !three ? `phases seen ${[...tally.phases].join(',')}` : tally.crawlers < 1 ? 'no crawler came out' : !struck ? `the Warden's slam or sweep landed on no one (${JSON.stringify(tally.tanked)})` : null;
   verdict = refusal === null ? 'pass' : 'fail';
-  console.log(JSON.stringify({ verdict, refusal, phases: [...tally.phases], bars: tally.bars, crawlers: tally.crawlers, swings: tally.swings, hits: tally.hits, tanked: tally.tanked, lowestHp: lows,
+  console.log(JSON.stringify({ verdict, refusal, phases: [...tally.phases], bars: tally.bars, crawlers: tally.crawlers, swings: tally.swings, hits: tally.hits, tanked: tally.tanked, score: tally.score, lowestHp: lows,
     errors: players.flatMap((p) => p.errors).slice(0, 5), seconds: Math.round((Date.now() - started) / 1000) }, null, 1));
   for (const p of players) await p.page.screenshot({ path: join(root, 'tmp', 'mossgate-warden-two', `after-${p.who}.png`) });
 } catch (error) {

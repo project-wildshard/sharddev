@@ -191,12 +191,22 @@ test('Mossgate pays off a step and the chain', () => {
   expect(decision.fields['relit']).toBe(WARDEN_FIELDS.relit.name);
 });
 
-/** MOSSGATE-ZONE MZ23 and MZ31's sound: a wind bed, and no silent score, so quest-step stings are heard; no audio bytes of its
- *  own (J304). */
-test('Mossgate plays a wind and is not silent', () => {
+/** MOSSGATE-ZONE MZ23 and MZ31's sound: the engine's piano score (pine by day, island by night, the title theme while the
+ *  Warden fights) and a wind bed, so quest-step stings are heard; no audio bytes of its own (J304). */
+test('Mossgate plays its score and a wind', () => {
   const sound = mossgate.describe().sound;
   expect(sound?.ambience?.winds).toHaveLength(2);
-  expect(sound?.music ?? null).toBeNull();
+  expect(sound?.music?.base).toBe('pine');
+  expect(sound?.music?.lifecycle?.bossScene).toBe('boss');
+  expect(sound?.music?.selection.map((row) => row.slots[0])).toEqual(['title', 'island', 'pine']);
+});
+
+/** MOSSGATE-ZONE MZ31, wired by MZ23: the quest beats land in the built shard (each brazier's step and both payoffs). */
+test('Mossgate lands its quest beats', () => {
+  const shard = mossgate.describe(), landings = shard.anchored.landings ?? [];
+  expect(shard.parts.map((p) => p.name)).toContain('hollow-lanterns');
+  // three braziers' steps, the first flame's brazier and gate, seven legs of the rite, and two payoffs
+  expect(landings.length).toBe(14);
 });
 
 /** MOSSGATE-ZONE MZ4 (J454, QA 11-19 row 26: "you go to the heart and then you complete ... you can't do that"): no quest
