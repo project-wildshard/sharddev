@@ -88,7 +88,10 @@ export async function createDevWorld(origin, work, engineManifest = installedEng
     },
     async move(product, slug, client = product) {
       const { build, clientVersion, saveEpoch: epoch } = JSON.parse(await readFile(join(client, 'version.json'), 'utf8'));
-      if (clientVersion !== version || typeof build !== 'string' || !/^[\w.-]+$/u.test(build) || !Number.isSafeInteger(epoch)) {
+      // J475: an engine on npm next (x.y.z-next.<sha>) is that release's commit; its client says x.y.z and builds from the sha
+      const npmNext = /^(\d+\.\d+\.\d+)-next\.([0-9a-f]{7,40})$/u.exec(version);
+      const same = clientVersion === version || (npmNext !== null && clientVersion === npmNext[1] && String(build).startsWith(npmNext[2]));
+      if (!same || typeof build !== 'string' || !/^[\w.-]+$/u.test(build) || !Number.isSafeInteger(epoch)) {
         throw new Error(`wildshard: the dev client must be built with the installed engine (${version})`);
       }
       bundle ??= await devBundle(engineRoot, version);
