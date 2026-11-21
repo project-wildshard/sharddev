@@ -104,8 +104,9 @@ async function shoot(browser, url, live, after = []) {
         w.game.app.clock.restore({ version: 1, elapsed: 5, wall: 5, frames: 300, captureFps: 60, paused: true, scale: 1 });
       }, 'ap20.camera');
     });
-    // the watch panel's timings and build table change from run to run: they are not the scene
-    await page.addStyleTag({ content: '#wildshard-watch { display: none !important; }' });
+    // The watch panel and minimap are overlays: the map intentionally differs
+    // between the authored preview and dev's cooked tile (MSZ41b). Compare the scene.
+    await page.addStyleTag({ content: '#wildshard-watch { display: none !important; } .ws-minimap { visibility: hidden !important; }' });
     const sets = [];
     for (const change of [null, ...after]) {
       if (change !== null) await page.evaluate(change);
