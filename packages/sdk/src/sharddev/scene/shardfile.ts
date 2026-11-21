@@ -26,6 +26,7 @@ import { withSceneState } from './state';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
 import type { ActorMoveInput } from '@wildshard/format/actorMoves';
 import type { WorldTargets } from '@wildshard/format/worldTargets';
+import { parseCompletion, type CompletionRows } from '@wildshard/format/completion';
 import { emitPlatformSections, type PlatformSectionName } from '../platformSections';
 
 /**
@@ -69,16 +70,20 @@ export interface ShardfileOptions {
   readonly moves?: readonly ActorMoveInput[];
   /** ONE-FORMAT CC26: the named spots a move lands on (`world/targets`' spots), on the same path */
   readonly spots?: WorldTargets['spots'];
+  /** meta MOSSGATE-ZONE MZ35: the shard's completion card (`ui/completion`), admitted as every card is */
+  readonly completion?: CompletionRows;
 }
 
-/** The platform sections a scene shard declares: its decision scripts, their moves and spots, each only when given. */
-function declaredPlatform({ decisions = [], moves = [], spots = [] }: ShardfileOptions, scene: ShardScene): GeneratedProject['output'] {
+/** The platform sections a scene shard declares: its decision scripts, their moves and spots, its completion card, each only
+ *  when given. */
+function declaredPlatform({ decisions = [], moves = [], spots = [], completion }: ShardfileOptions, scene: ShardScene): GeneratedProject['output'] {
   const sections = new Map<PlatformSectionName, unknown>();
   // MIRROR-SALT-ZONE MSZ3: the scene's vehicle kinds and docks
   if (scene.anchored.vehicles !== undefined) sections.set('world/vehicles', scene.anchored.vehicles);
   if (decisions.length > 0) sections.set('sim/scripts', decisions);
   if (moves.length > 0) sections.set('actors/moves', moves);
   if (spots.length > 0) sections.set('world/targets', { targets: [], spots });
+  if (completion !== undefined) sections.set('ui/completion', parseCompletion(completion));
   return sections.size === 0 ? {} : { platform: emitPlatformSections(sections) };
 }
 

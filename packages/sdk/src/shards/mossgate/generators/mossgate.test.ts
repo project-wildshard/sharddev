@@ -4,6 +4,8 @@ import { builtSceneShardfile } from '@wildshard/sdk/scene/shardfile';
 // the build hands the compiler in (`ctx.compileScript`); a test passes the sdk's own
 import { compileScript } from '@wildshard/sdk/compileScript';
 import { parseShardfile } from '@wildshard/format/shardSchema';
+import { parseCompletion } from '@wildshard/format/completion';
+import { MOSSGATE_COMPLETION } from './completion';
 import { gameplay } from './gameplay';
 import { mossgate } from './shard';
 import { groundHeight } from './hollow';
@@ -225,10 +227,12 @@ test('Mossgate has no one-step quest', { timeout: 120_000 }, async () => {
   }
   // the first flame ends past the gate it opens, not at its bowl
   expect(quests.find((q) => q.id === 'mossgate.first-light')?.steps.map((s) => s.id)).toEqual(['a', 'gate']);
-  // the main chain: the three braziers, the Warden down, then the turn-in; no completion card opens before it (a scene
-  // shard declares none: MZ30 adds the one after the boss)
+  // the main chain: the three braziers, the Warden down, then the turn-in; the completion card waits on its done flag
+  // (MZ35), a platform section, not a shardfile row
   const chain = quests.find((q) => q.id === 'mossgate.lamplighter');
   expect(chain?.steps.at(-2)?.done.all).toEqual(['dead:barrow-warden']);
   expect(chain?.steps.at(-1)?.id).toBe('report');
   expect('completion' in shard).toBe(false);
+  expect(MOSSGATE_COMPLETION.doneFlag).toBe(quests.find((q) => q.id === 'mossgate.lamplighter')?.completeFlag);
+  expect(parseCompletion(MOSSGATE_COMPLETION)).toEqual(MOSSGATE_COMPLETION);
 });

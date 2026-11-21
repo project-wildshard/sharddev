@@ -42,3 +42,14 @@ test('a scene shard declares its moves and spots beside its decisions, and the o
   expect(read('actors/moves')).toMatchObject([...moves]);
   expect(read('world/targets')).toEqual({ targets: [], spots });
 });
+
+// meta MOSSGATE-ZONE MZ35: a scene shard's completion card, the card a grid cell opens once its quest's done flag is up
+test('a scene shard declares its completion card, and the output carries it as ui/completion', async () => {
+  const completion = { doneFlag: 'den.done', seenFlag: 'den.card', trigger: 'quest', system: 'game.completion', before: ['main.world'], after: [],
+    title: 'Den', card: { kicker: 'The den · cleared', flavour: [] }, menuSubtitle: 'The den', toastSuffix: ' complete', safeRadius: 25,
+    pollSeconds: 1, maximumTodo: 7, more: 'more', coveredEvents: [], groups: [], stats: [{ label: 'Time played', value: { kind: 'time' } }] } as const;
+  const { output } = await defineShard({ slug: 'den', name: 'Den' }, build, { completion: structuredClone(completion) as never })(ctx);
+  expect(output.platform?.sections.map((row) => row.name)).toEqual(['ui/completion']);
+  expect(JSON.parse(new TextDecoder().decode(output.platform?.files.get('sections/ui/completion.json')))).toEqual(completion);
+  await expect(defineShard({ slug: 'den', name: 'Den' }, build, { completion: { ...completion, trigger: 'toast' } as never })(ctx)).rejects.toThrow();
+});
