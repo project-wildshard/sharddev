@@ -9,6 +9,7 @@ const manifest = (path: string): { dependencies?: Record<string, string>; devDep
 test('the sdk pins the engine @wildshard/dev depends on, exactly', () => {
   const sdk = manifest('../package.json'), dev = manifest('../../dev/package.json');
   expect(sdk.dependencies?.['@wildshard/engine']).toBeUndefined();
-  expect(sdk.devDependencies?.['@wildshard/engine']).toMatch(/^\d+\.\d+\.\d+$/u);
+  // J475: an engine on npm `next` (`-next.<sha8>`) is an exact pin too; a range never is
+  expect(sdk.devDependencies?.['@wildshard/engine']).toMatch(/^\d+\.\d+\.\d+(?:-next\.[0-9a-f]{8})?$/u);
   expect(sdk.devDependencies?.['@wildshard/engine']).toBe(dev.dependencies?.['@wildshard/engine']);
 });

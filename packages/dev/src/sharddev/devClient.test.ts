@@ -123,18 +123,20 @@ test('the preparation client is a preparation-only production build, kept beside
   }
 });
 
-test('the installed SDK defaults to the v0.1.64 preparation client', async () => {
+test('the installed SDK defaults to its engine pin\'s client: 0.1.65 on npm next is its staging build (J475)', async () => {
   const root = scratch();
   const file = archive(root, { devserver: false }, { preparationOnly: true });
   const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(readFileSync(file))));
+  const staging = 'server-staging-9c91846e65e62e4d39e0437e082ff90ae094c4ca';
   try {
     const cache = join(root, 'cache');
-    expect(await fetchPreparationClient({ cache })).toBe(join(cache, 'v0.1.64-preparation'));
-    expect(await fetchPreparationClient({ pin: '0.1.64', cache })).toBe(join(cache, 'v0.1.64-preparation'));
+    expect(await fetchPreparationClient({ cache })).toBe(join(cache, `${staging}-preparation`));
+    expect(await fetchPreparationClient({ pin: '0.1.65-next.9c91846e', cache })).toBe(join(cache, `${staging}-preparation`));
     expect(engineClientTag(undefined, true, '0.1.54')).toBe('v0.1.59');
     expect(engineClientTag(undefined, false, '0.1.54')).toBe('v0.1.54');
+    expect(engineClientTag(undefined, false, '0.1.64')).toBe('v0.1.64');
     expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch).toHaveBeenCalledWith('https://github.com/project-wildshard/engine/releases/download/v0.1.64/preparation-client.tar.gz');
+    expect(fetch).toHaveBeenCalledWith(`https://github.com/project-wildshard/engine/releases/download/${staging}/preparation-client.tar.gz`);
   } finally { fetch.mockRestore(); }
 });
 

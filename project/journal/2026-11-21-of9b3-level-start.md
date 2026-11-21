@@ -12,3 +12,11 @@
   Schema) that the SDK's schema export needs: pin the format release that carries it.
 - The engine bump also brings engine's portable math body (`sinInto`/`cosInto`), copied here; GUIDE `water.field`
   names its `world/field` section (format 0.65).
+
+## The engine pin moves to 0.1.65 on npm next (opus-of-close)
+
+The page-start readers (engine `ca91fc62b0`) ship in engine 0.1.65, on npm `next` as `0.1.65-next.9c91846e` until prod
+(J475: no lane waits on `latest`). The SDK and dev pin it exactly; format stays 0.66.0 because the engine package carries
+its own 0.66.0 copy and a second format copy breaks branded types. A `-next.<sha8>` pin names no GitHub release, so
+`wildshardStagingClients` maps it to the staging build's immutable release, `server-staging-9c91846e65…`, which carries
+the preparation client.
