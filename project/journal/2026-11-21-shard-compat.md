@@ -18,3 +18,7 @@
 - CP18 codemod (sdk 0.4.24): format/immutable's two helpers come from the
   sdk's immutable under the repo's sdk name; a repo with no engine import
   drops the engine pin and override. Tests: one-pin-codemod.test.ts.
+- CP18 pins: check's lint step refuses a format or engine pin (or engine
+  override) other than the installed SDK's (pinCheck.ts, rule pin-not-sdk);
+  update --pins sets format to the SDK's pin either way (SP13's never-back
+  rule retired). Format stays listed: the SDK's lint refuses re-exports.

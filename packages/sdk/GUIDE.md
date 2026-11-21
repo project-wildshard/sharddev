@@ -1569,6 +1569,12 @@ root, as the repo's `pnpm lint` does (with its `lint/ratchet.json`). `wildshard 
 under `node_modules/@wildshard/sdk/lint/`; oxlint comes with the sdk), so a new repo lints from its first check; a repo
 without one skips lint and says so.
 
+#### pin-not-sdk
+
+Your SDK chooses the shard format and the engine: a shard repo lists `@wildshard/format` (and `@wildshard/engine`
+while its tests import it) at exactly the versions the SDK pins. `wildshard update --pins` moves them with the SDK in
+one command. A new format or engine release changes nothing in your repo until you update the SDK.
+
 #### lint-not-run
 
 The linter did not run: the repo's oxlint, or the one that ships with the sdk. Reinstall (`pnpm install`).

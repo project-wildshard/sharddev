@@ -233,6 +233,9 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'upload-refused', anchor: 'upload-refused', steps: ['upload'],
     fix: 'Read the reason: a format refusal means build again (`wildshard build`); a server refusal names what it wants.' },
   // lint, besides the rules below
+  // SHARD-COMPAT CP18: format and engine come from the SDK's own pins.
+  { id: 'pin-not-sdk', anchor: 'pin-not-sdk', steps: ['lint'], match: /^package\.json pins @wildshard\/(?:format|engine) /u,
+    fix: 'Run `wildshard update --pins`: it sets @wildshard/format and @wildshard/engine to the versions your SDK pins.' },
   { id: 'lint-not-run', anchor: 'lint-not-run', steps: ['lint'], match: /^oxlint (?:did not run|exited|report has no)/u,
     fix: 'Reinstall (`pnpm install`): the author lint runs the repo\'s oxlint, or the one that ships with @wildshard/sdk.' },
   { id: 'lint-refused', anchor: 'lint-refused', steps: ['lint'],

@@ -23,6 +23,7 @@ import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwri
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { engineMusicLine } from './engineMusic';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
+import { pinRefusals, sdkPins } from './pinCheck';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { authorErrorText } from '@wildshard/sdk/internal/authorError';
 import { refusalCode } from '@wildshard/upload/sharddev/refusals';
@@ -51,6 +52,12 @@ function lintProject(project: string): StepOutcome {
   const done = spawnSync(plan.bin, plan.args, { cwd: plan.cwd, env: { ...process.env, ...plan.env }, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   if (done.error !== undefined) return { status: 'fail', refusals: [{ message: `oxlint did not run: ${done.error.message}` }] };
   return lintOutcome(`${done.stdout}${done.stdout.trim() === '' ? done.stderr : ''}`, done.status);
+}
+
+/** CP18: a format or engine pin that is not the SDK's fails the lint step, whatever lint found. */
+function withPins(project: string, outcome: StepOutcome): StepOutcome {
+  const refusals = pinRefusals(project, sdkPins(SDK_ROOT));
+  return refusals.length === 0 ? outcome : { ...outcome, status: 'fail', refusals: [...(outcome.refusals ?? []), ...refusals] };
 }
 
 /** J198: a built folder whose index says sdk 0.2 is a draft; upload refuses it until `wildshard prepare` runs. */
@@ -96,8 +103,8 @@ export async function checkProject(projectPath: string, outputPath: string | und
     return output;
   };
   const result = await runCheck(project, (): string | null => output ?? null, {
-    lint: async (): Promise<StepOutcome> => await Promise.resolve(handwritten
-      ? { status: 'skip', note: 'a hand-written shard file: no code to lint' } : lintProject(project)),
+    lint: async (): Promise<StepOutcome> => await Promise.resolve(withPins(project, handwritten
+      ? { status: 'skip', note: 'a hand-written shard file: no code to lint' } : lintProject(project))),
     build: async (): Promise<StepOutcome> => {
       const shard = handwritten ? await settleInto(project) : await buildProject(project, output, { outputFormat: 2, client: null, placeholders: true, admit,
         ...(options.output === undefined ? {} : { output: options.output }),
