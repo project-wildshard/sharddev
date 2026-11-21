@@ -60,7 +60,7 @@ export async function readManifestSource(source: ProjectManifestSource, declared
 export function manifestImages(metadata: ManifestMetadata): readonly { readonly name: string; readonly url: string }[] {
   const rows = [
     ...Object.entries(metadata.card).map(([name,url])=>({name:`card-${name}`,url})),
-    {name:'map',url:metadata.minimap.image},
+    ...(metadata.minimap.image === undefined ? [] : [{name:'map',url:metadata.minimap.image}]),
     ...Object.entries(metadata.explore.art).map(([name,url])=>({name:`explore-${name}`,url})),
     ...(metadata.explore.compare?.flatMap((row,index)=>[{name:`compare-${index}-live`,url:row.live},{name:`compare-${index}-target`,url:row.image}])??[]),
   ];
@@ -90,7 +90,7 @@ export function packManifestImages(folder: string, input: unknown, images: Reado
   const horizon=metadata.horizonStrips;
   const hdri=metadata.sky?.hdri;
   const manifest=parseManifestMetadata({...metadata,card:{thumb:image(metadata.card.thumb),portrait:image(metadata.card.portrait),landscape:image(metadata.card.landscape)},
-    minimap:{...metadata.minimap,image:image(metadata.minimap.image)},
+    minimap:{...metadata.minimap,...(metadata.minimap.image === undefined ? {} : {image:image(metadata.minimap.image)})},
     explore:{...metadata.explore,art:{world:image(metadata.explore.art.world),models:image(metadata.explore.art.models),sets:image(metadata.explore.art.sets),practice:image(metadata.explore.art.practice)},...(compare===undefined?{}:{compare})},
     ...(metadata.sky===undefined?{}:{sky:{...metadata.sky,...(hdri===undefined||!urls.has(hdri)?{}:{hdri:image(hdri)})}}),
     ...(horizon===undefined?{}:{horizonStrips:{...horizon,day:image(horizon.day),night:image(horizon.night),...(horizon.phone===undefined?{}:{phone:{day:image(horizon.phone.day),night:image(horizon.phone.night)}})}}),

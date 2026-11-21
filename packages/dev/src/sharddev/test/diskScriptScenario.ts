@@ -3,6 +3,7 @@ import { existsSync, realpathSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- A validated output folder stays inside the explicit product root.
 import { resolve } from 'node:path';
 import { DecisionHost, type DecisionScript } from '@wildshard/engine/script/decision';
+import { parseShardfile } from '@wildshard/format/shardSchema';
 import { nativeRuntimeActorIds } from '@wildshard/format/nativeRuntimePlan';
 import { buildDecisionRegistries, decisionBindingMap, decisionSpawnGroups } from '@wildshard/format/decisionBindings';
 import { parseActorMoves } from '@wildshard/format/actorMoves';
@@ -24,9 +25,9 @@ export async function readDiskScriptScenario(slug: string, id: string, options: 
   const expected = options.productDirectory === undefined ? resolve(realpathSync(root), slug) : directory;
   if (realpathSync(directory) !== expected) throw new Error('Scenario output cannot be a symlink');
   const product = await loadHeadlessFolder(directory), descriptor = outputDescriptor(product.shardfile);
-  const shard = product.shardfile;
   if (descriptor === undefined) throw new Error('Missing admitted scenario descriptor');
   const { index, sections } = descriptor;
+  const shard = parseShardfile(product.shardfile, sections);
   const rows = decisionScriptsFromSections(sections);
   const row = rows.find(value => value.id === id), ordinal = rows.findIndex(value => value.id === id);
   if (row === undefined) throw new Error(`Missing simulation scenario script ${id}`);
