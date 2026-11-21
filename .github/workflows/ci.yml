@@ -340,7 +340,7 @@ jobs:
     # SP23 proves the release graph. Candidate engine jobs keep their own proofs.
     if: ${{ !(inputs.engine || github.event.client_payload.engine) }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -360,4 +360,7 @@ jobs:
           cp scripts/verify-packed-install.mjs "$RUNNER_TEMP/verify-packed-install.mjs"
       - name: Install and run the CLI outside the checkout
         working-directory: ${{ runner.temp }}
+        env:
+          # SHARD-COMPAT CP18: a release also typechecks one real shard on the packed graph.
+          WS_REAL_SHARD: ${{ startsWith(github.ref, 'refs/heads/release/') && 'project-wildshard/shard-mirror-salt' || '' }}
         run: node verify-packed-install.mjs workspace-release "$(command -v pnpm)"

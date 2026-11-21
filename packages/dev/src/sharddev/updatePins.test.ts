@@ -14,7 +14,7 @@ import { runCli } from './cli';
 // (0.2.3 -> 0.2.4 from npm) is the row's proof.
 // SDK-SPLIT SP8c: the GUIDE.md, skills and codemods `update` ships are the sdk's.
 const ROOT = resolve(import.meta.dirname, '../../../sdk');
-const NEXT: SdkRelease = { version: '9.9.9', pins: { '@wildshard/engine': 'github:project-wildshard/engine#next', '@wildshard/format': 'github:project-wildshard/shard-format#v9.0.0', three: '0.190.0', vite: '8.3.0' } };
+const NEXT: SdkRelease = { version: '9.9.9', pins: { '@wildshard/engine': 'github:project-wildshard/engine#next', '@wildshard/format': 'github:project-wildshard/shard-format#v9.0.0', three: '0.190.0', '@types/three': '0.190.0', vite: '8.3.0' } };
 
 const pinsOf = (project: string): Record<string, string> => {
   const parsed = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies?: Record<string, string>; devDependencies?: Record<string, string> };
@@ -231,7 +231,7 @@ describe('wildshard update --pins (SA18)', () => {
     const before = pinsOf(project), runner = fakeRunner(project, NEXT, { codemods: ['0.0.1', '9.9.9'] });
     // The repo pins the sdk this checkout is (its version); the codemod at or below it is skipped.
     await updatePins(project, '9.9.9', runner);
-    expect(pinsOf(project)).toEqual({ '@wildshard/cli': '9.9.9', '@wildshard/format': NEXT.pins['@wildshard/format'], '@wildshard/sdk': '9.9.9', three: '0.190.0' });
+    expect(pinsOf(project)).toEqual({ '@wildshard/cli': '9.9.9', '@wildshard/format': NEXT.pins['@wildshard/format'], '@wildshard/sdk': '9.9.9', three: '0.190.0', '@types/three': '0.190.0' });
     expect(before['@wildshard/sdk']).not.toBe('9.9.9');
     // Order: view, pins, install, codemods, then the new sdk's update and check, each seeing the codemod's edit.
     const ran = `  codemods.log then: 9.9.9.mjs ${before['@wildshard/sdk'] ?? ''}->9.9.9`;

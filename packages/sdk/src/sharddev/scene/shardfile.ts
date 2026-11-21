@@ -87,7 +87,8 @@ function declaredPlatform({ decisions = [], moves = [], spots = [] }: ShardfileO
  * section replaces this one). The Template's iron sword: the engine's kit melee swing (`kit.sword`), no script.
  */
 type StarterItems = NonNullable<Shardfile['items']>;
-export const STARTER_SWORD: StarterItems['rows'][number] = {
+/** The weapon row (not the row union), so a shard can spread it into its own weapon (Mossgate's moss blade). */
+export const STARTER_SWORD: Extract<StarterItems['rows'][number], { kind: 'weapon' }> = {
   id: 'weapon.sword-iron', kind: 'weapon', family: 'kit.melee', slot: 'declared.weapon.sword-iron', context: 'weapon.melee',
   ui: { name: 'Iron sword', icon: 'sword', swapIcon: '\u2694', blurb: 'The shared iron sword.' },
   view: { recipe: 'kit.sword', colour: '#888888', position: [0.2, -0.35, -0.6], rotation: [0, 0, 0] }, hook: null,

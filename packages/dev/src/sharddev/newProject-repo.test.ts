@@ -31,7 +31,7 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     const manifest = JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { name: string; packageManager: string; dependencies: Record<string, string>; devDependencies?: unknown };
     expect(manifest.name).toBe('my-shard');
     expect(manifest.packageManager).toBe('pnpm@10.34.9');
-    expect(manifest.dependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'] });
+    expect(manifest.dependencies).toEqual({ '@wildshard/cli': sdk.version, '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/sdk': sdk.version, three: sdk.peerDependencies['three'], '@types/three': sdk.dependencies['@types/three'] });
     expect(manifest.devDependencies).toBeUndefined();
     expect(Object.keys(manifest.dependencies)).not.toContain('@wildshard/sharddev');
     // Exact pins: no range operator on any of them.

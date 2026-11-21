@@ -25,3 +25,8 @@
 - CP18 codemod fix: engine use is read from real import/require specifiers
   (TypeScript preProcessFile), skipping .githooks and fixtures (the mini's
   Mirror Salt pinned-links case).
+- CP18 typecheck (the mini): a new repo pins @types/three (new, update,
+  0.4.24 codemod); the Mossgate template typechecks under the scaffold
+  tsconfig (sky Node types, textures Rgb, STARTER_SWORD is the weapon row);
+  canvas fillText takes maxWidth; verify-packed-install typechecks the new
+  shard and, on release branches, Mirror Salt on the packed graph.

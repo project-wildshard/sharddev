@@ -80,3 +80,17 @@ test('a repo whose only engine mentions are fixture strings drops the pin', () =
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+test('a repo that lists three gains @types/three at the sdk\'s pin', () => {
+  const sdkTypes = (JSON.parse(readFileSync(resolve('package.json'), 'utf8')) as { dependencies: Record<string, string> }).dependencies['@types/three'];
+  const root = repo("import { leadPlayer } from '@wildshard/engine/sim/leadPlayer';\n");
+  try {
+    const file = join(root, 'package.json');
+    const pkg = JSON.parse(readFileSync(file, 'utf8')) as { devDependencies: Record<string, string> };
+    writeFileSync(file, `${JSON.stringify({ ...pkg, dependencies: { three: '0.186.0' } }, null, 2)}\n`);
+    expect(codemod({ project: root, from: '0.4.23', to: '0.4.24' })).toEqual([`package.json: pin @types/three ${sdkTypes} beside three`]);
+    expect((JSON.parse(readFileSync(file, 'utf8')) as { dependencies: Record<string, string> }).dependencies['@types/three']).toBe(sdkTypes);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});

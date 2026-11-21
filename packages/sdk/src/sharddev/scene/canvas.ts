@@ -137,16 +137,19 @@ export class PaintContext {
       this.pixels[to] = image.data[from] ?? 0; this.pixels[to + 1] = image.data[from + 1] ?? 0; this.pixels[to + 2] = image.data[from + 2] ?? 0; this.pixels[to + 3] = (image.data[from + 3] ?? 0) / 255;
     }
   }
-  /** 5x7 bitmap capitals; the font's pixel size sets the cap height. */
-  fillText(text: string, x: number, y: number): void {
-    const size = Number.parseFloat(/(\d+(?:\.\d+)?)px/u.exec(this.state.font)?.[1] ?? '10'), cell = size * 0.7 / 7, advance = cell * 6, width = text.length * advance - cell;
+  /** 5x7 bitmap capitals; the font's pixel size sets the cap height. A `maxWidth` the text overruns squeezes it
+   *  horizontally to fit, as a canvas does (Mirror Salt's boards). */
+  fillText(text: string, x: number, y: number, maxWidth?: number): void {
+    const size = Number.parseFloat(/(\d+(?:\.\d+)?)px/u.exec(this.state.font)?.[1] ?? '10'), cell = size * 0.7 / 7, full = text.length * cell * 6 - cell;
+    const squeeze = maxWidth !== undefined && maxWidth > 0 && full > maxWidth ? maxWidth / full : 1;
+    const advance = cell * 6 * squeeze, width = full * squeeze, column = cell * squeeze;
     const left = this.state.textAlign === 'center' ? x - width / 2 : this.state.textAlign === 'right' ? x - width : x;
     const top = this.state.textBaseline === 'middle' ? y - cell * 3.5 : this.state.textBaseline === 'top' ? y : y - cell * 7;
     const saved = this.path; this.path = [];
     [...text].forEach((char, i) => {
       const glyph = GLYPHS[char] ?? GLYPHS[char.toUpperCase()];
       if (glyph === undefined) return;
-      for (let row = 0; row < 7; row++) for (let col = 0; col < 5; col++) if (glyph[row * 5 + col] === '1') this.rect(left + i * advance + col * cell, top + row * cell, cell, cell);
+      for (let row = 0; row < 7; row++) for (let col = 0; col < 5; col++) if (glyph[row * 5 + col] === '1') this.rect(left + i * advance + col * column, top + row * cell, column, cell);
     });
     this.fill(); this.path = saved;
   }

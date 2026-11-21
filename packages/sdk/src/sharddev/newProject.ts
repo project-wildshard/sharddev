@@ -83,7 +83,8 @@ function sdkPackage(): SdkPackage {
 /** What a shard repo lists besides the sdk library (grill Q12, Q13; SDK-SPLIT SP10): the CLI, shard-format and `three`
  * (sdk's peer). Each is pinned exactly as the installed sdk pins it, so the repo installs one copy. The engine comes in
  * through the CLI (dev's local game and sim tests); the repo never pins it. */
-export const REPO_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format', 'three'] as const;
+// SHARD-COMPAT CP18: and `@types/three` at the sdk's pin, so a new repo's `tsc` finds three's types (the mini, 11-21).
+export const REPO_DEPENDENCIES = ['@wildshard/cli', '@wildshard/format', 'three', '@types/three'] as const;
 
 /** What a hand-written repo lists (J314): no code imports anything, so the CLI (`@wildshard/cli`, for `wildshard check`
  * and `upload`), shard-format (`shard-format pack` and `validate`) and the sdk (the release `update --pins` reads), as dev

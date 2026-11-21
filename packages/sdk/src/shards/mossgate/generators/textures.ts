@@ -39,6 +39,7 @@ export function makeNoise(seed = 7): Noise {
 }
 
 type Rgb = [number, number, number];
+const scaled = ([r, g, b]: Rgb, k: number): Rgb => [r * k, g * k, b * k];
 const mix = (a: number, b: number, t: number): number => a + (b - a) * t;
 const mix3 = (a: readonly number[], b: readonly number[], t: number): Rgb => [mix(a[0] ?? 0, b[0] ?? 0, t), mix(a[1] ?? 0, b[1] ?? 0, t), mix(a[2] ?? 0, b[2] ?? 0, t)];
 const clamp = (v: number, lo = 0, hi = 1): number => Math.max(lo, Math.min(hi, v));
@@ -254,7 +255,7 @@ export function checker(): DataTexture {
     let col = slate ? mix3([92, 88, 74], [116, 110, 92], a) : mix3([92, 104, 44], [118, 128, 58], a);
     const fu = (u * 4) % 1, fv = (v * 4) % 1;
     const e = Math.min(fu, fv, 1 - fu, 1 - fv);
-    if (e < 0.02) col = col.map((x) => x * 0.55);
-    return col.map((x) => x * (0.85 + sp * 0.3));
+    if (e < 0.02) col = scaled(col, 0.55);
+    return scaled(col, 0.85 + sp * 0.3);
   });
 }

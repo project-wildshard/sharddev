@@ -4,6 +4,8 @@
 //   sdk by (`@wildshard/sdk`, or the `@wildshard/sharddev` alias most shards use).
 // - A repo whose source no longer imports `@wildshard/engine` (CP18b moved proofs and tests onto
 //   `@wildshard/dev/test/*`) drops the engine pin: the SDK family's own pin is the one that runs.
+// - A repo that lists `three` gains `@types/three` at the sdk's pin beside it, so its `tsc` finds three's types (the
+//   mini's typecheck on the packed graph, 11-21).
 // `@wildshard/format` itself stays listed: it is the spec package, and `update --pins` keeps it at the release's pin.
 /* oxlint-disable node/no-sync, import/no-nodejs-modules -- A codemod is a one-shot synchronous edit of the shard repo on disk. */
 import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
@@ -32,6 +34,13 @@ export function importsEngine(source) {
   return ts.preProcessFile(source, true, true).importedFiles.some(file => ENGINE.test(file.fileName));
 }
 
+/** The `@types/three` the installed sdk pins (its own dependencies). */
+function sdkTypesThree() {
+  const sdk = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'));
+  const spec = sdk.dependencies?.['@types/three'];
+  return typeof spec === 'string' ? spec : undefined;
+}
+
 // oxlint-disable-next-line import/no-default-export -- update --pins loads release codemods by their default export.
 export default function codemod({ project }) {
   const root = resolve(project), changes = [], file = join(root, 'package.json');
@@ -52,7 +61,16 @@ export default function codemod({ project }) {
     }
   };
   visit(root);
-  if (usesEngine || !existsSync(file)) return changes;
+  if (!existsSync(file)) return changes;
+  const types = sdkTypesThree();
+  const threeField = FIELDS.find(field => pkg[field]?.three !== undefined);
+  const typed = FIELDS.some(field => pkg[field]?.['@types/three'] !== undefined);
+  if (types !== undefined && threeField !== undefined && !typed) {
+    pkg[threeField] = { ...pkg[threeField], '@types/three': types };
+    writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
+    changes.push(`package.json: pin @types/three ${types} beside three`);
+  }
+  if (usesEngine) return changes;
   let dropped = false;
   for (const field of FIELDS) {
     if (pkg[field]?.['@wildshard/engine'] === undefined) continue;

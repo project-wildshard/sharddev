@@ -70,6 +70,48 @@ function buildAndProve(pins) {
   assert.equal(digest(join(app, 'built.shardfile')), digest(join(app, 'packed.shardfile')));
 }
 
+// SHARD-COMPAT CP18 (the mini, 11-21): a shard typechecks on the published graph. TypeScript comes from the installed
+// SDK (`@typescript/typescript6`), so the check needs nothing the author lacks.
+function typecheck(dir) {
+  const sdk = ['@wildshard/sdk', '@wildshard/sharddev'].map(name => join(dir, 'node_modules', name, 'package.json'))
+    .find(file => { try { return realpathSync(file) !== ''; } catch { return false; } });
+  assert.ok(sdk, `${dir} has no installed SDK`);
+  const ts = dirname(createRequire(realpathSync(sdk)).resolve('@typescript/typescript6/package.json'));
+  try {
+    run(process.execPath, [join(ts, 'bin/tsc6'), '-p', 'tsconfig.json'], dir);
+  } catch (error) {
+    console.error(String(error.stdout ?? ''));
+    throw new Error(`tsc refused ${basename(dir)} on the packed graph`, { cause: error });
+  }
+  console.info(`typechecked ${basename(dir)} on the packed graph`);
+}
+
+// A real shard repo (WS_REAL_SHARD=<owner/repo>, set on release branches) on the packed graph, its pins moved as
+// `wildshard update --pins` would: the SDK family to the tarballs, format and engine to the packed SDK's own pins.
+function realShard(repo, pins) {
+  const dir = join(root, 'real-shard');
+  run('git', ['clone', '--quiet', '--depth=1', `https://github.com/${repo}.git`, dir], root);
+  const sdk = JSON.parse(readFileSync(realpathSync(join(app, 'node_modules/@wildshard/sdk/package.json')), 'utf8'));
+  const derived = { '@wildshard/format': sdk.dependencies['@wildshard/format'], '@wildshard/engine': sdk.devDependencies?.['@wildshard/engine'] };
+  const file = join(dir, 'package.json');
+  const manifest = JSON.parse(readFileSync(file, 'utf8'));
+  for (const field of ['dependencies', 'devDependencies']) {
+    for (const name of Object.keys(manifest[field] ?? {})) {
+      const to = name === '@wildshard/sharddev' ? pins['@wildshard/sdk'] : pins[name] ?? derived[name];
+      if (to !== undefined) manifest[field][name] = to;
+    }
+  }
+  // The 0.4.24 codemod's @types/three beside three.
+  const threeField = ['dependencies', 'devDependencies'].find(field => manifest[field]?.three !== undefined);
+  if (threeField !== undefined && sdk.dependencies['@types/three'] !== undefined) manifest[threeField]['@types/three'] ??= sdk.dependencies['@types/three'];
+  const overrides = { ...manifest.pnpm?.overrides };
+  for (const name of Object.keys(overrides)) if (name in derived && derived[name] !== undefined) overrides[name] = derived[name];
+  manifest.pnpm = { ...manifest.pnpm, overrides: { ...overrides, ...pins } };
+  writeFileSync(file, JSON.stringify(manifest));
+  console.info(run(pnpm, [...installArgs, '--ignore-scripts'], dir));
+  typecheck(dir);
+}
+
 function synth() {
   mkdirSync(join(project, 'scene'));
   writeFileSync(join(project, 'scene/shard.config.ts'), `
@@ -127,7 +169,10 @@ async function serve() {
 }
 
 try {
-  buildAndProve(install());
+  const pins = install();
+  buildAndProve(pins);
+  typecheck(project);
+  if (process.env.WS_REAL_SHARD) realShard(process.env.WS_REAL_SHARD, pins);
   synth();
   await serve();
 } finally {

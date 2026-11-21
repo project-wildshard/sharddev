@@ -20,7 +20,7 @@ import { assertShardRepo, updateShardRepo } from './agentFiles';
  * alias. The move keeps the name the repo has. */
 export const SDK_NAMES = ['@wildshard/sdk', '@wildshard/sharddev'] as const;
 /** The pins a shard repo may list; each moves to what the release names. The sdk moves to the release itself. */
-export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/cli', '@wildshard/build', '@wildshard/dev', '@wildshard/upload', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three'] as const;
+export const PINNED = ['@wildshard/sdk', '@wildshard/sharddev', '@wildshard/cli', '@wildshard/build', '@wildshard/dev', '@wildshard/upload', '@wildshard/engine', '@wildshard/format', '@wildshard/kit', 'three', '@types/three'] as const;
 /** SDK-SPLIT SP10, SP13: the cli, build, dev and upload release with the sdk at one version (D5), so each moves to the
  * release's own version. */
 const LOCKSTEP: ReadonlySet<string> = new Set(['@wildshard/cli', '@wildshard/build', '@wildshard/dev', '@wildshard/upload']);

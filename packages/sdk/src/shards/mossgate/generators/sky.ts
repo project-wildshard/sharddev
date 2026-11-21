@@ -7,10 +7,12 @@ import * as THREE from 'three';
 import { dot, floor, fract, max, mix, normalize, pow, sin, smoothstep, step, vec2, vec3 } from 'three/tsl';
 import { skyRay } from '@wildshard/sdk/scene/author';
 import type { GraphValue } from '@wildshard/sdk/materials';
+import type { Node } from 'three/webgpu';
 
-type V = ReturnType<typeof vec3>;
-type F = ReturnType<typeof dot>;
-type P = ReturnType<typeof vec2>;
+// Node<type>, not ReturnType of the overloaded vec3/vec2 (that picks the last, narrowest overload).
+type V = Node<'vec3'>;
+type F = Node<'float'>;
+type P = Node<'vec2'>;
 
 /** The cleanroom's SKY colours (linear, as its uniforms hold them). */
 const SKY = { zenith: '#2c3282', upper: '#5652a2', mid: '#b06ea2', low: '#f88c80', horizon: '#ffb878', sun: '#ffe6b0' };
