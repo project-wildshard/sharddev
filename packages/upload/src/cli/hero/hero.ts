@@ -10,6 +10,7 @@ import {
   cardHashes,
   heroState,
   readJson,
+  writeHeroStamp,
 } from './stamp.ts'
 
 import type { HeroState } from './stamp.ts'
@@ -128,6 +129,39 @@ function refusal(shard: string, hero: HeroState): string {
     : `the hero of ${name} is older than its content (captured ${captured}); ${capture}`
 }
 
+// A6 (build-max 2026-11-20): a curated hero is hand-picked art that does not go stale with the world, so when its art
+// bytes are the ones stamped and only the content hash moved, the cut re-stamps it itself instead of refusing. Five
+// publishes were refused that day (Pine 3, Driftwood 2) for a hand `--stamp-existing` run that changed no art.
+const AUTO_RESTAMP =
+  'auto re-stamp: curated art unchanged, content moved (wildshard build)'
+
+/** Whether the cut may re-stamp this hero itself: curated, stamped, art unchanged, only the content moved. */
+function restampable(hero: HeroState): boolean {
+  return (
+    hero.state === 'stale' &&
+    hero.curated === true &&
+    hero.sameArt === true &&
+    hero.stamped !== undefined &&
+    hero.stamped !== hero.content
+  )
+}
+
+/** A6: write the new stamp, say so (the author commits it), then the fresh hero's line. */
+async function restamp(
+  {
+    product,
+    shard,
+    hero,
+  }: Readonly<{ product: string; shard: string; hero: HeroState }>,
+  report: (line: string) => void,
+): Promise<void> {
+  await writeHeroStamp(shard, { base: AUTO_RESTAMP })
+  report(
+    `hero: curated art unchanged, re-stamped ${path.join(shard, STAMP)} for this content (was ${hero.stamped ?? ''}); commit it`,
+  )
+  report(await freshLine(product, shard, await heroState(shard)))
+}
+
 /**
  * The cut's check. A built product lives at `<root>/out/<name>` and its
  * source at `<root>/src/shards/<name>`. Throws for a stale or unstamped
@@ -149,7 +183,9 @@ async function assertHeroCurrent(
     return
   }
   const hero = await heroState(shard)
-  if (hero.state === 'fresh') {
+  if (restampable(hero)) {
+    await restamp({ product, shard, hero }, report)
+  } else if (hero.state === 'fresh') {
     report(await freshLine(product, shard, hero))
   } else if (hero.state === 'generated') {
     report(

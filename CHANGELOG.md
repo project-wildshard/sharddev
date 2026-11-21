@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## Unreleased
+
+- A curated hero no longer blocks a build after a content change: when its images are unchanged the build re-stamps
+  `hero.json` itself.
+
 ## v0.4.21 (2026-11-20)
 
 - Bake separate phone skins and maps for creature variants while preserving desktop looks.

@@ -194,7 +194,8 @@ shard file with no captured hero or the generated card (`hero-missing`) and a ca
 (`hero-size`). Section 6 has every hero refusal.
 
 **A curated hero** is hand-picked art, not a capture. Put `"curated": true` in `hero.json` and the art is kept: after a
-content change, `wildshard hero . --stamp-existing` re-stamps the images already there, and `wildshard hero . --base`
+content change, `wildshard build` re-stamps `hero.json` itself when the images are the stamped ones (commit the new
+stamp), `wildshard hero . --stamp-existing` re-stamps swapped images, and `wildshard hero . --base`
 refuses rather than shoot the spawn view over them. A new version still needs a new picture (`hero-unchanged`): swap
 the art, then `--stamp-existing`. Remove `curated` to capture again.
 
@@ -1331,7 +1332,8 @@ Codes `declared-costs`, `performance-targets` (shard-format checking the costs t
 The shard's content changed after its hero was captured, or the card names images `hero.json` has no stamp for. The
 hero must show the current world: capture it again (`wildshard hero . --base <url>`). Only if the images already show
 the current world, `wildshard hero . --stamp-existing`. A curated hero (`"curated": true` in `hero.json`, "The hero")
-keeps its art: re-stamp it with `wildshard hero . --stamp-existing`.
+keeps its art: the build re-stamps it when only the content moved, and after you swap its images you re-stamp it with
+`wildshard hero . --stamp-existing`.
 
 #### hero-not-in-product
 

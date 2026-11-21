@@ -28,6 +28,8 @@ import type { Project } from '../../test/helpers/hero-project.ts'
 // with a plain shot. `--stamp-existing` adopts the files on disk, no capture.
 const BIN = path.resolve(import.meta.dirname, '../../../bin/wildshard.mjs')
 
+const CAMERA = { pos: [1, 2, 3], look: [0, 0, 0], fov: 50 }
+
 async function stampedField(shard: string, key: string): Promise<unknown> {
   return field(await readJson(path.join(shard, 'hero.json')), key)
 }
@@ -128,7 +130,6 @@ async function assertCuratedKept(shard: string): Promise<void> {
 
 async function assertNeverRecaptured(space: Project): Promise<void> {
   assert.equal(await stateOf(space.shard), 'stale')
-  await assert.rejects(cut(space), /curated.*--stamp-existing/u)
   const capture = spawnSync(
     process.execPath,
     [BIN, 'hero', space.shard, '--base', 'http://127.0.0.1:9'],
@@ -158,5 +159,46 @@ test('a curated hero with no stamp yet is pointed at stamp-existing, not a captu
   const space = await project(context)
   await writeFile(path.join(space.shard, 'hero.json'), '{"curated":true}')
   assert.equal(await stateOf(space.shard), 'unstamped')
+  await assert.rejects(cut(space), /curated.*--stamp-existing/u)
+})
+
+/** A curated hero, stamped, then a content change: the cut's case A6 covers. */
+async function curatedThenMoved(context: TestContext): Promise<Project> {
+  const space = await project(context)
+  await writeFile(
+    path.join(space.shard, 'hero.json'),
+    JSON.stringify({ camera: CAMERA, curated: true }),
+  )
+  stampExisting(space.shard)
+  await writeFile(path.join(space.shard, 'world.json'), '{"hut":[9,0,9]}')
+  assert.equal(await stateOf(space.shard), 'stale')
+  return space
+}
+
+function saysRestamped(lines: readonly string[]): void {
+  assert.ok(
+    lines.some((line: string): boolean =>
+      /^hero: curated art unchanged, re-stamped .*hero\.json/u.test(line),
+    ),
+    lines.join('\n'),
+  )
+}
+
+test('A6: the cut re-stamps a curated hero itself when only the content moved', async (context: TestContext): Promise<void> => {
+  const space = await curatedThenMoved(context)
+  const thumb = await readFile(path.join(space.shard, 'card', 'thumb.jpg'))
+  saysRestamped(await cut(space))
+  assert.equal(await stateOf(space.shard), 'fresh')
+  assert.deepEqual(
+    await readFile(path.join(space.shard, 'card', 'thumb.jpg')),
+    thumb,
+  )
+  assert.deepEqual(await stampedField(space.shard, 'camera'), CAMERA)
+  assert.equal(await stampedField(space.shard, 'curated'), true)
+})
+
+test('A6: the cut still refuses a curated hero whose art changed with the content', async (context: TestContext): Promise<void> => {
+  const space = await curatedThenMoved(context)
+  await writeFile(path.join(space.shard, 'card', 'thumb.jpg'), 'hand art')
   await assert.rejects(cut(space), /curated.*--stamp-existing/u)
 })

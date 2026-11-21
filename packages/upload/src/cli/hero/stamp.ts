@@ -5,16 +5,13 @@ import path from 'node:path'
 import { shardCardPath, shardFolderName } from '../../sharddev/shardSource.ts'
 import { sceneCardUrls } from './scene-card.ts'
 
-// A shard's hero (its SHARD SELECT card: thumb, portrait and landscape) is a
-// picture of its world, so it goes stale when the world changes (Jake,
-// 2026-11-12 17:14 Cancún: "you have to update the hero images for the
-// templates"). Rendering it needs a real GPU and a served build of the exact
-// candidate, which no cut step or CI runner has, so the cut refuses instead:
-// `hero.json` beside the card (`data/card.json`) records the hash of the shard's content
-// when the hero was captured, and `wildshard build` refuses a product whose
-// source hashes differently now, whose hero files are not the ones stamped,
-// or which does not carry the stamped hero files as blobs (built before the
-// capture). `wildshard hero` captures and re-stamps.
+// A shard's hero (its SHARD SELECT card: thumb, portrait and landscape) is a picture of its world, so it goes stale
+// when the world changes (Jake, 2026-11-12 17:14 Cancún: "you have to update the hero images for the templates").
+// Rendering it needs a real GPU and a served build of the exact candidate, which no cut step or CI runner has, so the
+// cut refuses instead: `hero.json` beside the card (`data/card.json`) records the hash of the shard's content when the
+// hero was captured, and `wildshard build` refuses a product whose source hashes differently now, whose hero files are
+// not the ones stamped, or which does not carry the stamped hero files as blobs (built before the capture).
+// `wildshard hero` captures and re-stamps; the cut re-stamps a curated hero whose art is unchanged (A6, hero.ts).
 
 const STAMP = 'hero.json'
 const SLOTS = ['thumb', 'portrait', 'landscape'] as const
@@ -43,6 +40,7 @@ interface HeroState {
   /** When the stamp says the hero was captured. */
   readonly captured?: string | undefined
   readonly curated?: boolean | undefined
+  readonly sameArt?: boolean | undefined
 }
 
 interface HeroStamp {
@@ -228,6 +226,11 @@ function sameCard(
   )
 }
 
+/** `"curated": true`: hand-picked art (HeroStamp). */
+function isCurated(stamp: unknown): boolean {
+  return field(stamp, 'curated') === true
+}
+
 /** Whether the shard's captured hero is as new as its content. */
 async function heroState(shard: string): Promise<HeroState> {
   const content = await heroContentHash(shard)
@@ -236,21 +239,18 @@ async function heroState(shard: string): Promise<HeroState> {
     return { state: 'generated', content }
   }
   const stamp = await readStamp(shard)
-  const curated = field(stamp, 'curated') === true
   const stamped = field(stamp, 'content')
   if (typeof stamped !== 'string') {
-    return { state: 'unstamped', content, curated }
+    return { state: 'unstamped', content, curated: isCurated(stamp) }
   }
+  const sameArt = sameCard(field(stamp, 'card'), await cardHashes(shard))
   return {
-    state:
-      stamped === content &&
-      sameCard(field(stamp, 'card'), await cardHashes(shard))
-        ? 'fresh'
-        : 'stale',
+    state: stamped === content && sameArt ? 'fresh' : 'stale',
     content,
+    sameArt,
     stamped,
     captured: textOf(field(stamp, 'captured')),
-    curated,
+    curated: isCurated(stamp),
   }
 }
 
