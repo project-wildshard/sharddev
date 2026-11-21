@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.24 (2026-11-21)
+
+- One update moves the SDK, shard format and engine together; check refuses any other format or engine version.
+- New shards typecheck out of the box, and painted board text squeezes to fit its width.
+- New test helpers let shard tests run a proof or a quest without importing the engine.
+
 ## v0.4.23 (2026-11-21)
 
 - Mirror Salt keeps personal finds and parked vehicles when its world is built and played online.
