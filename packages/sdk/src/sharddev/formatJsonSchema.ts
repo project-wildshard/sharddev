@@ -99,7 +99,7 @@ import { EdgeProfileSchema, EdgeProfilesSchema } from '@wildshard/format/edgePro
 import { PlumbingSchema } from '@wildshard/format/plumbing';
 import { StateSchema } from '@wildshard/format/state';
 import {QuestStepRowsSchema,QuestServiceActionsSchema,QuestKillRowsSchema,QuestHintRowsSchema,CarriedQuestSchema} from '@wildshard/format/questSteps';
-import { SpeciesSchema } from '@wildshard/format/speciesPrograms';
+import { SpeciesSchema, NativeHuntSchema } from '@wildshard/format/speciesPrograms';
 import { BuildingLifeDocumentSchema, BakedBuildingLookSchema, BuildingLifeLookSchema, BuildingLifeRowsSchema, BuildingCloudPoseSchema } from '@wildshard/format/buildings';
 import { WorldSceneWeldSchema, WorldSceneWeldNodeSchema } from '@wildshard/format/worldSceneWeld';
 import { WorldSceneModelsSchema } from '@wildshard/format/worldSceneModels';
@@ -191,6 +191,8 @@ const customSchemas = new Map<object, FormatJsonSchema>([
 ]);
 // JSON text has already excluded accessors/functions; bridge only this exact defining preflight.
 customSchemas.set(StrikeDebrisJsonGuard, {});
+// The defining native hunt tag guard retains its bounded dotted namespace.
+customSchemas.set(schemaAt(NativeHuntSchema, '/entries/hit/entries/tags/pipe/0/item') as GenericSchema, { type: 'string', maxLength: 128, pattern: '^[a-z][a-zA-Z0-9.-]*\\.[a-zA-Z0-9.-]+$' });
 // Faithful projection of the native four-field header predicate. Registered
 // post documents additionally run complete scaled-post and graph admission.
 customSchemas.set(ScaledPostInputSchema, { type: 'object', required: ['programs', 'draws', 'targets', 'outputs'],

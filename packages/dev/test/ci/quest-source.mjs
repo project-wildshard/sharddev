@@ -13,7 +13,11 @@ export async function questSource(slug){
   if(slug==='mossgate'){
     const {QUESTS}=await import('../../../sdk/src/shards/mossgate/generators/quests.ts');
     const {PLACE_FLAGS}=await import('../../../sdk/src/shards/mossgate/generators/places.ts');
-    return parseShardfileField('quests',{...QUESTS,flags:[...new Set([...QUESTS.flags,...PLACE_FLAGS])]});
+    const {mossgate}=await import('../../../sdk/src/shards/mossgate/generators/shard.ts');
+    const {withLandings}=await import('../../../sdk/src/sharddev/scene/landing.ts');
+    // MZ23 adds authored scene beats to the leaf quests before they reach the product.
+    const landings=mossgate.describe().anchored.landings ?? [];
+    return parseShardfileField('quests',{...QUESTS,quests:withLandings(QUESTS.quests,landings),flags:[...new Set([...QUESTS.flags,...PLACE_FLAGS])]});
   }
   return parseShardfileField('quests',sources[slug]);
 }

@@ -1964,7 +1964,7 @@ An open sea with waves. **Switched on:** a `sea` water row in `world/water`. **U
 
 ### `water.field`
 
-Ponds and wet ground across a field. **Switched on:** not yet; today `water.field`. **Used by:** Nalati. **Row:** OF40.
+Ponds and wet ground across a field. **Switched on:** a water field in `world/field`. **Used by:** Nalati. **Row:** OF40.
 
 ### `grapple`
 
