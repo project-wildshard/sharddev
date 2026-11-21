@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.22 (2026-11-20)
+
+- Use engine v0.1.59 for default shard preparation, with the native AAC fix for phone WebKit.
+- Refresh the stamp on unchanged curated hero art when a shard's content changes.
+
 ## Unreleased
 
 - A curated hero no longer blocks a build after a content change: when its images are unchanged the build re-stamps
