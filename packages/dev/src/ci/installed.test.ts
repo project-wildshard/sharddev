@@ -48,10 +48,12 @@ async function wildshard(
 /** J301, J306: the channel, and the versions the installed copy resolves. */
 function assertBuiltWith(commit: unknown): void {
   const xyz = /^\d+\.\d+\.\d+$/u
+  // J475: an engine on npm next is an exact -next.<sha8> version
+  const engine = /^\d+\.\d+\.\d+(?:-next\.[0-9a-f]{8})?$/u
   assert.ok(typeof commit === 'object' && commit !== null)
   assert.equal(Reflect.get(commit, 'channel'), 'staging')
   assert.match(String(Reflect.get(commit, 'sharddev')), xyz)
-  assert.match(String(Reflect.get(commit, 'engine')), xyz)
+  assert.match(String(Reflect.get(commit, 'engine')), engine)
   assert.match(String(Reflect.get(commit, 'shardFormat')), xyz)
 }
 

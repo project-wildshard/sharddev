@@ -161,7 +161,7 @@ test('the three versions match the installed packages (J306)', async (context: T
   assert.equal(sharddev, SDK)
   assert.equal(engine, await installed('@wildshard/engine'))
   assert.equal(shardFormat, await installed('@wildshard/format'))
-  assert.match(engine, /^\d+\.\d+\.\d+$/u)
+  assert.match(engine, /^\d+\.\d+\.\d+(?:-next\.[0-9a-f]{8})?$/u)
   assert.match(shardFormat, /^\d+\.\d+\.\d+$/u)
 })
 
