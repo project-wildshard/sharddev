@@ -12,3 +12,6 @@
 - CP18b: `@wildshard/dev/test/node` is the harness's Node entry
   (`node --import @wildshard/dev/test/node --test ...`): engine's loader for
   its TypeScript and the rapier package, which has no Node entry of its own.
+- CP3: sharddev's pre-push refuses a main push moving the SDK family's
+  @wildshard/format pin above the API's /api/format package (engine's gate,
+  for the SDK repo); ALLOW_FORMAT_AHEAD=1 is the hatch.
