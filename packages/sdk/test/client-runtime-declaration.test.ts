@@ -67,7 +67,7 @@ test('actual output transport preserves compiled cost and binds while refusing a
   source.runtime={kind:'client-plan',cost,binds:['terrain','props','movers']};
   try{
     const index=writeOutputProduct(source,new Map(),root),actual=validateOutputProduct(root);
-    expect(actual.shard.runtime).toEqual(source.runtime);expect(index.runtime).toEqual({...source.runtime,trust:'first-party',files:[],lines:0});
+    expect(actual.shard.runtime).toEqual(source.runtime);expect(index.runtime).toEqual({...source.runtime,files:[],lines:0});
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,entry:'runtime/index.ts'}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,lines:1}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,files:[{path:'runtime/index.ts',hash:'a'.repeat(64),bytes:1,lines:1}]}})).toThrow();
