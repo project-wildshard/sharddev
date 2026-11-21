@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.23 (2026-11-21)
+
+- Mirror Salt keeps personal finds and parked vehicles when its world is built and played online.
+- Local shard previews show the cooked map alongside their authored world.
+- Mossgate plays its score and carries quest beats into the zone.
+
 ## v0.4.22 (2026-11-20)
 
 - Use engine v0.1.59 for default shard preparation, with the native AAC fix for phone WebKit.
