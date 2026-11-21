@@ -68,3 +68,30 @@ test('a manifest\'s level look is built into look/look, not ui/level', async () 
     expect(manifest.sky).toEqual(level.sky); expect(manifest.grade).toEqual(level.grade); expect(manifest.horizon).toEqual(level.horizon);
   } finally { rmSync(root, {recursive: true, force: true}); }
 }, 60_000);
+
+/** ONE-FORMAT OF9b3: a manifest's spawn, loadout and audio are built into world/spawn, combat/items' `loadout.level` and
+ *  audio/audio's `level`; its weapon and map image leave. The product's ui/level has none of the five, and discovery keeps
+ *  the start (until OF9b5) for what reads it before the product admits. */
+test('a manifest\'s page start is built into its sections, not ui/level', async () => {
+  mkdirSync('tmp/author-discovery', {recursive: true});
+  const root = mkdtempSync(resolve('tmp/author-discovery/case-')), project = join(root, 'project'), out = join(root, 'out');
+  try {
+    newProject(project, 'trail-side');
+    const shard = {identity: {slug: 'trail-side', name: 'trail-side', seed: 1, author: 'A', revision: 1}, accent: 'sand', spawn: {x: 0, y: 2, z: 0, yaw: 0}} as unknown as Parameters<typeof authorManifest>[0];
+    const composed = authorManifest(shard) as Record<string, unknown>;
+    const start = {spawn: {x: 12, z: -7, yaw: 1.5}, audio: {ambience: 'forest', score: 'trail', alertOnlyHostile: true},
+      loadout: {weapons: [], tools: ['tool.hoverboard'], start: ['tool.hoverboard']}};
+    const file = join(project, 'manifest.json');
+    writeFileSync(file, JSON.stringify({...composed, ...start}));
+    await buildProject(project, out, {outputFormat: 2, client: null, manifest: {folder: 'trail-side', file, imageRoots: []}});
+    const read = (path: string): Record<string, unknown> => JSON.parse(readFileSync(join(out, path), 'utf8')) as Record<string, unknown>;
+    const ui = read('sections/ui/level.json')['manifest'] as Record<string, unknown>;
+    for (const field of ['spawn', 'loadout', 'weapon', 'audio']) expect(ui).not.toHaveProperty(field);
+    expect(ui['minimap']).not.toHaveProperty('image');
+    expect(read('sections/audio/audio.json')['audio']).toMatchObject({level: start.audio});
+    expect((read('sections/combat/items.json')['items'] as {loadout: unknown}).loadout).toMatchObject({level: start.loadout});
+    expect(read('sections/world/spawn.json')['spawn']).toEqual({...start.spawn, y: 2});
+    const manifest = shardFromDiscovery(read('mounts/shardfiles/trail-side/discovery.json'));
+    expect(manifest.spawn).toEqual(start.spawn); expect(manifest.loadout).toEqual(start.loadout);
+  } finally { rmSync(root, {recursive: true, force: true}); }
+}, 60_000);

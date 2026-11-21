@@ -39,6 +39,7 @@ import { readCookInput, type CookInput } from '@wildshard/sdk/internal/cookInput
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/sdk/internal/audioEncode';
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from '@wildshard/sdk/internal/authorManifest';
 import { levelLook, liftLevelLook } from '@wildshard/format/look-level';
+import { liftLevelStart } from '@wildshard/format/level-start';
 import { discoveryDocument, discoveryUrl } from '@wildshard/sdk/internal/discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from '@wildshard/sdk/outputProduct';
 import { prepareProjectOutput, prepareProjectOutputInput, projectOutputContext, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from '@wildshard/sdk/projectOutput';
@@ -197,8 +198,18 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
   } finally { await finishProjectGeneration(generation, generationSucceeded); }
 }
 
+/** ONE-FORMAT OF9b3: the discovery document keeps the page start (spawn, loadout, weapon, audio, map image) as authored, for
+ *  what reads it before the product admits (a pinned engine needs the map image there), until OF9b5 leaves discovery with
+ *  only its own fields; the product's `ui/level` has none of them. */
+type DiscoveryStart = Partial<Pick<NonNullable<Shardfile['manifest']>, 'spawn' | 'loadout' | 'weapon' | 'audio' | 'minimap'>>;
+function discoveryStart(manifest: Shardfile['manifest']): DiscoveryStart {
+  if (manifest === undefined) return {};
+  const { spawn, loadout, weapon, audio, minimap } = manifest;
+  return { ...(spawn === undefined ? {} : { spawn }), ...(loadout === undefined ? {} : { loadout }), ...(weapon === undefined ? {} : { weapon }), ...(audio === undefined ? {} : { audio }), minimap };
+}
+
 /** Compile authored geometry and read its remaining immutable inputs without writing hashes into the author folder. */
-export async function readProjectAssets(project: string, map?: ProjectMap, manifestSource?: ProjectManifestSource, options: { decisionLegacyLines?: number; output?: string; mapSourceHash?: string } = {}): Promise<{ shard: Shardfile; assets: Map<string, Uint8Array>; output: Omit<OutputProductOptions, 'runtime'>; mirrors: readonly RuntimeMirror[] }> {
+export async function readProjectAssets(project: string, map?: ProjectMap, manifestSource?: ProjectManifestSource, options: { decisionLegacyLines?: number; output?: string; mapSourceHash?: string } = {}): Promise<{ shard: Shardfile; assets: Map<string, Uint8Array>; output: Omit<OutputProductOptions, 'runtime'>; mirrors: readonly RuntimeMirror[]; start: DiscoveryStart }> {
   const loaded = await withAssetOwner(() => projectModule(project, options.decisionLegacyLines, options.output, options.mapSourceHash, manifestSource?.imageRoots)), pinned = new Map(pinnedCommons(loaded.commons, loaded.shard, project));
   for (const [hash, bytes] of loaded.baked) pinned.set(hash, bytes);
   for (const [hash, bytes] of loaded.output.assets) {
@@ -211,7 +222,9 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   if (level !== undefined && loaded.shard.manifest !== undefined && canonicalJson(loaded.shard.manifest) !== canonicalJson(level.authored)) throw new Error('Authored manifest differs from configured level metadata');
   // ONE-FORMAT OF9b2: the manifest's sky, atmosphere, grade and horizon are written into the look section (`look.level`),
   // never `ui/level`; an author who still keeps them in the manifest has them moved (`liftLevelLook`, byte for byte)
-  const source = level === undefined ? liftLevelLook(loaded.shard) : parseShardfile(liftLevelLook({ ...loaded.shard, manifest: level.manifest }), sections);
+  // ONE-FORMAT OF9b3: its spawn, loadout and audio likewise go to world/spawn, items.loadout.level and audio.level, and its
+  // weapon and map image (read by nothing; combat/items arms, look/map draws) leave (`liftLevelStart`)
+  const source = level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections);
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
@@ -226,7 +239,7 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
     && (!existingFiles.has(row.hash) || libraryRoots.has(row.hash)))];
   const merged = mergeProjectBlobs(shard, pinned, [...loaded.output.blobs, ...mapBlobs, ...(level?.blobs ?? [])], loaded.output.options.namedFiles, late, sections);
   return { shard: merged.shard, assets: projectAssets(project, merged.shard, 'project', merged.assets),
-    output: { ...loaded.output.options, namedFiles: merged.namedFiles, ...(loaded.discovery === undefined ? {} : { discovery: loaded.discovery }) }, mirrors: loaded.mirrors };
+    output: { ...loaded.output.options, namedFiles: merged.namedFiles, ...(loaded.discovery === undefined ? {} : { discovery: loaded.discovery }) }, mirrors: loaded.mirrors, start: discoveryStart(level === undefined ? loaded.shard.manifest : level.manifest) };
 }
 
 function pinnedCommons(input: unknown, source: Shardfile, project: string): ReadonlyMap<string, Uint8Array> | undefined {
@@ -294,7 +307,7 @@ export async function buildProject(project: string, output?: string, options: { 
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
     const encoded = await encodedCookInput(project, shard.identity.slug);
     // OF9b2: discovery keeps a copy of the level look for what reads the level before the product admits (the grid shell)
-    const cook = await withDiscovery(project, shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard) }, loaded.output.discovery, encoded?.input, assets);
+    const cook = await withDiscovery(project, shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard), ...loaded.start }, loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');
