@@ -6,3 +6,6 @@
 - CP18b: `openShardSim` and `questLedger` join the harness: the declared
   simulation with its quest host, act-route claims and grants, for tapes
   like Mirror Salt's (salt-cup, salt-finds).
+- CP18b: `@wildshard/dev/test/quest` (questFlags, authoredQuest,
+  authoredQuestLine, npcLine) for folder-less quest-content tests;
+  openShardSim returns its descriptor.

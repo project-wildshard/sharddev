@@ -98,6 +98,8 @@ export async function openShardProof(directory: string, options: ShardProofOptio
 export interface ShardSim {
   readonly shardfile: ShardFolder['shardfile'];
   readonly sim: ShardfileSimulation;
+  /** The folder's index and baked sections (`descriptor.sections.get('world/vehicles')`). */
+  readonly descriptor: NonNullable<ReturnType<typeof outputDescriptor>>;
   readonly host: SimHost;
   /** Every player's quest book; `.lead` is the first player's. */
   readonly books: () => ReturnType<typeof questBooks>;
@@ -130,7 +132,7 @@ export async function openShardSim(folder: string, options: ShardSimOptions = {}
   } });
   const { host } = sim;
   return {
-    shardfile, sim, host, facts, coins,
+    shardfile, sim, host, facts, coins, descriptor,
     books: () => questBooks(host),
     claim: (id, player = questBooks(host).lead.player) => {
       const route = actRoutes(host).claims.get(id);
