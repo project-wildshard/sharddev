@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.25 (2026-11-21)
+
+- New shards typecheck out of the box: three's types come pinned, and the starter template passes its own typecheck.
+- Painted board text squeezes to fit its width, as a browser canvas does.
+
 ## v0.4.24 (2026-11-21)
 
 - One update moves the SDK, shard format and engine together; check refuses any other format or engine version.
