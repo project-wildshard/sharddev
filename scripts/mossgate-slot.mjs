@@ -2,12 +2,13 @@
 // Meta MOSSGATE-ZONE MZ3 (J452, J453): Mossgate's staging slot follows the template. The slot drifted once: the
 // template's gameplay landed on main (TR-12a/b) while staging kept serving rev 3, and nothing noticed.
 // `.github/workflows/mossgate-slot.yml` republishes on every template change and runs `drift` after it and daily.
-//   node scripts/mossgate-slot.mjs version              the next version upload sends: staging's, patch + 1
+//   node scripts/mossgate-slot.mjs version              the declared shard version, refused unless above staging
 //   node scripts/mossgate-slot.mjs drift [--staging=<sha>] [--ref=<ref>]
 //       red (exit 1) when staging's Mossgate commit does not contain the template's last change on <ref> (default
 //       HEAD); --staging= checks a given commit instead of reading the API (rev 3's f97831a8 is red)
 import { agentFetch as fetch } from '../packages/dev/scripts/wildshard-agent-requests.mjs';
 import { execFileSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 
 const API = (process.env.WILDSHARD_API_URL ?? 'https://api.wildshard.io').replace(/\/$/u, '');
 const SLUG = 'mossgate', TEMPLATE = 'packages/sdk/src/shards/mossgate';
@@ -25,9 +26,14 @@ async function staging() {
 
 const command = process.argv[2];
 if (command === 'version') {
-  const { version } = await staging(), parts = version.split('.').map(Number);
-  if (parts.length !== 3 || parts.some(n => !Number.isInteger(n))) throw new Error(`${SLUG}: staging version ${version} is not X.Y.Z`);
-  console.log(`${String(parts[0])}.${String(parts[1])}.${String((parts[2] ?? 0) + 1)}`);
+  const { version } = await staging();
+  const own = JSON.parse(readFileSync(new URL(`../${TEMPLATE}/package.json`, import.meta.url), 'utf8')).version;
+  const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u;
+  if (typeof own !== 'string' || !semver.test(own) || !semver.test(version)) throw new Error(`${SLUG}: declared and staging versions must be X.Y.Z`);
+  const live = version.split('.').map(Number);
+  const delta = own.split('.').map((part, index) => Number(part) - live[index]).find(value => value !== 0) ?? 0;
+  if (delta <= 0) throw new Error(`${SLUG}: declared version ${own} is not above staging ${version}; bump ${TEMPLATE}/package.json`);
+  console.log(own);
 } else if (command === 'drift') {
   const ref = flag('ref') ?? 'HEAD', last = git('log', '-1', '--format=%H', ref, '--', TEMPLATE);
   const live = flag('staging') ?? (await staging()).commit;
