@@ -7,6 +7,13 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.27 (2026-11-23)
+
+- Shard writers use the new save revision field.
+- A creature trail can name the creatures that belong to it.
+- Shard tests can import the headless scripts with type information.
+- Shard updates keep the SDK’s exact engine version pinned.
+
 ## v0.4.26 (2026-11-23)
 
 - Shard authors can build the new shard format and prepare it locally for the current game.
