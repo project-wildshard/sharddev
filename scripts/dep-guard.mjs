@@ -32,6 +32,19 @@ export const LEAN = [
   '@wildshard/upload',
 ]
 const PRODUCTION = new Set(['dependencies', 'optionalDependencies'])
+/**
+ * SHARD-COMPAT SI4 and SI6: the folders of a lean package that forward to the shard's own `@wildshard/engine`, an
+ * optional peer the package never installs. They pass only while the package declares that optional peer, and the
+ * production-tree check still refuses the engine as a dependency. An export outside these folders that reaches the
+ * engine through one still fails. Removal: SI8 (each forwarder becomes a port, or its test stops reading it).
+ */
+export const PEER_TIERS = {
+  '@wildshard/sdk': ['src/sharddev/headless/', 'src/sharddev/internal-engine/'],
+}
+/** True when `manifest` names `@wildshard/engine` as an optional peer. */
+export const optionalEnginePeer = manifest =>
+  manifest.peerDependencies?.['@wildshard/engine'] !== undefined &&
+  manifest.peerDependenciesMeta?.['@wildshard/engine']?.optional === true
 
 const unquote = text =>
   text
@@ -228,7 +241,7 @@ function exportTargets(root, target) {
 }
 
 /** The export keys whose files reach an engine import through relative imports, sorted. */
-export function engineExports(root, exportsMap) {
+export function engineExports(root, exportsMap, exempt = () => false) {
   const memo = new Map()
   const reaches = (path, stack = new Set()) => {
     if (memo.has(path)) return memo.get(path)
@@ -255,7 +268,7 @@ export function engineExports(root, exportsMap) {
   return Object.entries(exportsMap)
     .filter(([, target]) => typeof target === 'string' && SOURCE.test(target))
     .filter(([, target]) =>
-      exportTargets(root, target).some(path => reaches(path)),
+      exportTargets(root, target).some(path => !exempt(path) && reaches(path)),
     )
     .map(([key]) => key)
     .sort()
@@ -275,13 +288,23 @@ export function guardReport(root) {
       const sources = ['src', 'bin', 'scripts'].filter(name =>
         existsSync(join(folder, name)),
       )
+      const tiers = optionalEnginePeer(manifest)
+        ? (PEER_TIERS[manifest.name] ?? [])
+        : []
+      const peerTier = path => tiers.some(tier => path.startsWith(tier))
       return {
         importer,
         name: manifest.name,
         forbidden: FORBIDDEN.filter(name => tree.has(name)),
-        engineFiles: engineImporters(folder, sources),
+        engineFiles: engineImporters(folder, sources).filter(
+          path => !peerTier(path),
+        ),
         escapes: importer === '.' ? [] : escapingImports(folder, sources),
-        engineExports: engineExports(folder, manifest.exports ?? {}),
+        engineExports: engineExports(
+          folder,
+          manifest.exports ?? {},
+          peerTier,
+        ),
       }
     })
 }

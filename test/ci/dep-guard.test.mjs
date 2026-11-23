@@ -18,7 +18,9 @@ import {
   guardFailures,
   guardReport,
   LEAN,
+  optionalEnginePeer,
   parseLock,
+  PEER_TIERS,
   productionTree,
 } from '../../scripts/dep-guard.mjs'
 
@@ -167,6 +169,31 @@ describe('dep-guard', () => {
     } finally {
       rmSync(root, { recursive: true, force: true })
     }
+  })
+
+  it('passes the sdk forwarders to its optional engine peer, never an export that reaches one (SI4, SI6)', () => {
+    const root = mkdtempSync(resolve('tmp', 'dep-guard-'))
+    try {
+      const write = (path, text) => {
+        mkdirSync(dirname(join(root, path)), { recursive: true })
+        writeFileSync(join(root, path), text)
+      }
+      write('src/sharddev/internal-engine/sim.ts', "export * from '@wildshard/engine/sim'\n")
+      write('src/sharddev/lean.ts', "export * from './internal-engine/sim.ts'\n")
+      const tier = path => PEER_TIERS['@wildshard/sdk'].some(prefix => path.startsWith(prefix))
+      const exportsMap = { './internal/engine/sim': './src/sharddev/internal-engine/sim.ts', './lean': './src/sharddev/lean.ts' }
+      assert.deepEqual(engineExports(root, exportsMap, tier), ['./lean'])
+      assert.deepEqual(engineExports(root, exportsMap), ['./internal/engine/sim', './lean'])
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+    const peer = { '@wildshard/engine': '*' }
+    assert.equal(optionalEnginePeer({ peerDependencies: peer, peerDependenciesMeta: { '@wildshard/engine': { optional: true } } }), true)
+    assert.equal(optionalEnginePeer({ peerDependencies: peer }), false)
+    assert.equal(optionalEnginePeer({ dependencies: peer }), false)
+    const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+    const sdk = guardReport(repo).find(row => row.name === '@wildshard/sdk')
+    assert.deepEqual(guardFailures([sdk]), [])
   })
 
   it('reports packages/upload clean and self-contained (SP2a)', () => {
