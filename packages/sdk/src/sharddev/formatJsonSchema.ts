@@ -201,6 +201,12 @@ customSchemas.set(HeldCueSchema, { type: 'string', pattern: '^cue\\.[a-z][a-zA-Z
 customSchemas.set(ArcWeaponItemSchema, { type: 'string', pattern: '^weapon\\.[a-z][a-zA-Z0-9.-]*$' });
 const postIdentityTransforms = new Set([...postGraphIdentityTransforms, ...uniformIdentityTransforms]);
 const namedClipTransform = schemaAt(CreatureSkinClipNameSchema, '/options/1/pipe/3');
+// Format 0.1.0.4 (FP26a) folds the old `revision` spelling into `saveRevision` with a transform; older pins have none.
+const identityPipe: unknown = Reflect.get(IdentitySchema, 'pipe');
+const identitySaveRevision: unknown = Array.isArray(identityPipe) ? identityPipe[2] : undefined;
+// FORMAT-PRUNE FP10: directors/main.json's source id follows the pinned format (directorProduct, then directorDocument).
+const directorSource = registeredJsonContract('directors/main.json').source;
+const directorRoot = directorSource.slice('@wildshard/format/'.length, -'Schema'.length).replace('#', '.');
 const skinPoseLayersRecord = schemaAt(SkinBindingSchema, '/entries/poseLayers/wrapped');
 const skinPoseLayerValues = schemaAt(SkinBindingSchema, '/entries/poseLayers/wrapped/value') as GenericSchema;
 customSchemas.set(HeldMeleeActionSchema, { type: 'string', pattern: '^[a-z][a-zA-Z0-9-]*\\.[a-zA-Z0-9.-]+$' });
@@ -366,7 +372,7 @@ const wireRoots: Readonly<Record<string, GenericSchema>> = {
   'ledger.LedgerFact': LedgerFactSchema,
   'ledger.LedgerRules': LedgerRulesSchema,
   'director.Director': DirectorSchema,
-  'directorProduct.DirectorProduct': DirectorProductSchema,
+  [directorRoot]: DirectorProductSchema,
   'directorStages.DirectorStages': DirectorStagesSchema,
   'migrations.LogicalState': LogicalStateSchema,
   'migrations.Migrations': MigrationsSchema,
@@ -672,6 +678,11 @@ export function formatJsonSchema(schema: GenericSchema, target: 'draft-07' | 'dr
       } satisfies FormatJsonSchema;
       // Both defining clip transforms brand the validated string without changing it.
       if (valibotAction === SkinClipNameSchema.pipe[2] || valibotAction === namedClipTransform) return jsonSchema;
+      // The output identity always carries `saveRevision` and never the old `revision` spelling.
+      if (identitySaveRevision !== undefined && valibotAction === identitySaveRevision) {
+        const { revision: _old, ...properties } = jsonSchema.properties ?? {};
+        return { ...jsonSchema, properties, required: [...new Set([...jsonSchema.required ?? [], 'saveRevision'])] };
+      }
       // `v.readonly()` only narrows the output type (format 0.43.0's grapple owners and hooks); the value is unchanged.
       if (valibotAction.type === 'readonly') return jsonSchema;
       const check = wireChecks.get(valibotAction);
