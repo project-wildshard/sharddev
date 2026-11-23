@@ -1,0 +1,93 @@
+name: arch-parity
+
+# QA-FEEDBACK-2026-11-23-b row 14 (meta): a shard built to different bytes on x86-64 than on arm64, because V8's
+# Math.sin/cos/exp/log... (compiled fdlibm) round differently where arm64 fuses multiply-adds. The build now runs
+# @wildshard/sdk/deterministicMath. This runs the same checks (packages/sdk/scripts/arch-parity.mjs: every replaced
+# function over fixed inputs, and the three.js rotation chain that split Brasscap) on an x86-64 and an arm64 runner,
+# and fails when the two print anything different. The `--native` lines go to the summary only: they show the bug.
+
+on:
+  push:
+    branches: [main, 'release/**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arch-parity-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  run:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    env:
+      APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          package_json_file: package.json
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+          cache: pnpm
+          cache-dependency-path: |
+            pnpm-lock.yaml
+            pnpm-workspace.yaml
+      # Private org git dependencies, as ci.yml reads them; skipped where the secrets don't reach.
+      - uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        id: app-token
+        if: env.APP_CLIENT_ID != ''
+        with:
+          client-id: ${{ env.APP_CLIENT_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+          owner: project-wildshard
+          permission-contents: read
+      - name: Read private org repos with the app token
+        if: steps.app-token.outputs.token != ''
+        env:
+          TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          base="https://x-access-token:${TOKEN}@github.com/"
+          git config --global url."$base".insteadOf "https://github.com/"
+          git config --global --add url."$base".insteadOf "git@github.com:"
+          git config --global --add url."$base".insteadOf "ssh://git@github.com/"
+      - run: pnpm install --frozen-lockfile --config.ci=false
+      - name: The build's Math and the three.js chain
+        working-directory: packages/sdk
+        run: |
+          mkdir -p tmp/arch-parity
+          node scripts/arch-parity.mjs | tee tmp/arch-parity/lines.txt
+          { echo "### $RUNNER_ARCH, node $(node -v)"; echo '```'; cat tmp/arch-parity/lines.txt; echo '```'; echo 'native Math (differs between runners: the bug the build no longer sees):'; echo '```'; node scripts/arch-parity.mjs --native; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: arch-parity-${{ runner.arch }}
+          path: packages/sdk/tmp/arch-parity/lines.txt
+          if-no-files-found: error
+          retention-days: 7
+
+  compare:
+    needs: run
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          pattern: arch-parity-*
+      - name: x86-64 and arm64 print the same
+        run: |
+          ls arch-parity-X64/lines.txt arch-parity-ARM64/lines.txt
+          if ! diff arch-parity-X64/lines.txt arch-parity-ARM64/lines.txt; then
+            echo '::error::the build Math differs between x86-64 and arm64: a shard would build to different bytes on each'
+            exit 1
+          fi
+          echo "x86-64 and arm64 agree on $(wc -l < arch-parity-X64/lines.txt) checks"

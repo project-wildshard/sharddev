@@ -85,6 +85,7 @@
     "./package.json": "./package.json",
     "./entryReads": "./src/sharddev/entryReads.ts",
     "./immutable": "./src/sharddev/immutable.ts",
+    "./deterministicMath": "./src/sharddev/deterministicMath.ts",
     "./bake/tileEncoder": "./src/sharddev/bake/tileEncoder.ts",
     "./bake/wholePartition": "./src/sharddev/bake/wholePartition.ts",
     "./bake/basisGlb": "./src/sharddev/bake/basisGlb.ts",

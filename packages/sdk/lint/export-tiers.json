@@ -172,6 +172,7 @@
     "./bake/wholePieceJoin": "bake kit",
     "./configBoundary": "internal",
     "./executeBundle": "internal",
+    "./deterministicMath": "internal",
     "./commons/practiceCourse": "bake kit",
     "./commons/courseProgram": "bake kit",
     "./commons/scripts/course.as": "scripts",

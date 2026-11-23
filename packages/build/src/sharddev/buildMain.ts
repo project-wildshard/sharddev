@@ -2,6 +2,8 @@
 // (buildVerb.ts) with the same options dev's scripts/wildshard.mjs composes (declared outputs, the composed manifest, the
 // legacy line basis, upload's shard file writer), but needs no dev, no engine and no run-time bundle of the CLI:
 // scripts/compile.mjs compiles it to dist/build.mjs at pack time.
+// oxlint-disable-next-line import/no-unassigned-import -- first, so every module after it and the author code see the same Math
+import './sameMath';
 // oxlint-disable-next-line import/no-nodejs-modules -- The verb reads the author's repo.
 import { existsSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- The verb resolves the author's paths.

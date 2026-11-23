@@ -142,6 +142,7 @@
   "@wildshard/sdk/decisionScriptBindings",
   "@wildshard/sdk/decisionScripts",
   "@wildshard/sdk/decisionSource",
+  "@wildshard/sdk/deterministicMath",
   "@wildshard/sdk/director",
   "@wildshard/sdk/directorAbi",
   "@wildshard/sdk/eliteEntryRows",

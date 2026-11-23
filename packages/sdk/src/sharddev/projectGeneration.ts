@@ -29,6 +29,7 @@ import { memoAssemblyScript } from './bake/assemblyscriptMemo';
 import { meshoptNoLargerMemo } from './bake/meshoptChoiceMemo';
 import { projectInputFiles } from './projectInputFiles';
 import { generationCache, maybePruneGenerationCache } from './generationCache.ts';
+import { DETERMINISTIC_MATH, installDeterministicMath } from './deterministicMath.ts';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { ProjectOutput } from './projectOutput';
 import type { DiscoveryInput } from '@wildshard/format/discoveryValues';
@@ -137,6 +138,7 @@ function detached(files: ReadonlyMap<string, Uint8Array>): Map<string, Uint8Arra
  * Explicit input bytes are read on hits too, preserving the product receipt. */
 export function createProjectGeneration(project: string, programHash: string, assets: Map<string, Uint8Array>, cacheRoot: string = process.env['WILDSHARD_GEN_CACHE'] ?? resolve(homedir(), '.cache/wildshard/gen'), inputRoots: readonly ProjectGenerationInputRoot[] = [], scope = ''): ProjectGenerationContext {
   v.parse(hash, programHash);
+  installDeterministicMath();
   const root = realpathSync(project), pending = new Map<string, Promise<ReadonlyMap<string, Uint8Array>>>();
   if (inputRoots.length > 32) throw new Error('Too many generation input roots');
   // A folder an outside project doesn't have holds no inputs: a project needs no `public/`.
@@ -184,7 +186,7 @@ export function createProjectGeneration(project: string, programHash: string, as
         inputs.set(file, readBoundedFile(path, 256_000_000));
       }
       let diagnosticId='';
-      const key = hashImmutableBytes(text.encode(encodeCanonicalJson({ version: 3, recipe: recipe ?? programHash, compiler: await projectCompilerIdentity(), id: diagnosticId=step.id, node: process.version,
+      const key = hashImmutableBytes(text.encode(encodeCanonicalJson({ version: 3, recipe: recipe ?? programHash, compiler: await projectCompilerIdentity(), math: DETERMINISTIC_MATH, id: diagnosticId=step.id, node: process.version,
         native: step.native === true ? [process.platform, process.arch] : null,
         inputs: [...inputs].map(([file, bytes]) => [file, hashImmutableBytes(bytes)]).sort(([a], [b]) => String(a).localeCompare(String(b))) })));
       keys.publish({ key });
