@@ -5,6 +5,7 @@ import {mkdirSync,mkdtempSync,writeFileSync,rmSync,symlinkSync} from 'node:fs';
 import {resolve,dirname} from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- Verify the actual emitted-byte identity.
 import {createHash} from 'node:crypto';
+import {outputIndexEnvelope} from '@wildshard/format/version';
 import {emptyShardfile} from '../../sdk/src/sharddev/author';
 import {registeredJsonSchema} from '../../sdk/src/sharddev/formatJsonSchema';
 import {productSectionEntries,sectionInventory,platformSchemaBindings,sectionReaders,hostGroupBindings,renderSectionInventory} from '../scripts/section-inventory';
@@ -27,7 +28,10 @@ function fixture(){
     admission:{budgets:source.budgets,serverBudget:source.serverBudget,authorCaps:source.authorCaps,critical:[],library:[]},
     sections:[{...section,name:'world/spawn',schema:'wildshard:world/spawn@1'}],schemas,runtime:null,
     files:[{path:named.path,hash:named.hash,kind:'json',name:'models/shape-book.json',compressed:named.bytes,decoded:named.bytes,gpu:0,triangles:0,draws:0,critical:false,dependencies:[],jsonSchema:registeredJsonSchema('models/shape-book.json')}]};
-  const publish=():void=>{writeFileSync(resolve(root,'shard.json'),JSON.stringify(index));};publish();
+  const publish=():void=>{
+    const envelope=outputIndexEnvelope(index);
+    writeFileSync(resolve(root,'shard.json'),JSON.stringify(schemas.length===0?envelope:{...envelope,schemas}));
+  };publish();
   return {root,index,publish,member};
 }
 test('every declared platform section and named JSON keeps its checked byte identity',()=>{

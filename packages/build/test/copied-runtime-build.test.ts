@@ -88,5 +88,5 @@ it('compiled project builds always refuse hidden executable sources without a co
   writeFileSync(resolve(project,'runtime/productSections.generated.d.ts'),'export interface Generated {readonly id:string}');
   await buildProject(project,destination,{client:null});
   const {index,shard:actual}=validateOutputProduct(destination);
-  expect(index.runtime).toEqual({...shard.runtime,files:[],lines:0});expect(actual.runtime).toEqual(shard.runtime);
+  expect(index.runtime).toEqual(shard.runtime);expect(actual.runtime).toEqual(shard.runtime);
 });
