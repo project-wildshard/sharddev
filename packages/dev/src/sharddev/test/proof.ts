@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+/// <reference types="@wildshard/engine/game/types" />
 // oxlint-disable-next-line import/no-unassigned-import -- The sim's Math goes in before any module body runs.
 import '@wildshard/engine/core/portableMathFirst';
 // oxlint-disable-next-line import/no-nodejs-modules -- A proof reads its built folder and the pinned physics bytes from disk.
