@@ -87,6 +87,32 @@ function jsonOf(files: ProductFiles, file: string): unknown {
   return value
 }
 
+/** FORMAT-PRUNE FP26 (format 0.71.0): reading spells `identity.revision` as `saveRevision`, but the source hash covers
+ * the identity as the file writes it, and the template's index (format 0.1.0.3) writes `revision`. */
+function asWritten<Shard extends { readonly identity: object }>(
+  shard: Shard,
+  files: ProductFiles,
+): Shard {
+  const raw = jsonOf(files, INDEX)
+  const written =
+    typeof raw === 'object' && raw !== null && 'identity' in raw
+      ? raw.identity
+      : undefined
+  if (
+    typeof written !== 'object' ||
+    written === null ||
+    !Object.hasOwn(written, 'revision') ||
+    !Object.hasOwn(shard.identity, 'saveRevision')
+  ) {
+    return shard
+  }
+  const identity: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(shard.identity)) {
+    identity[key === 'saveRevision' ? 'revision' : key] = value
+  }
+  return { ...shard, identity }
+}
+
 function sectionsOf(
   files: ProductFiles,
   sections: readonly Readonly<{ name: string; path: string }>[],
@@ -126,7 +152,7 @@ async function shardfileFiles(
   )
   const build = {
     ...parsed.build,
-    sourceHash: sha256(validationSourceBytes(shard)),
+    sourceHash: sha256(validationSourceBytes(asWritten(shard, files))),
   }
   files.set(
     INDEX,
