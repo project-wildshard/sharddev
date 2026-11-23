@@ -12,6 +12,7 @@ import {
   SVG,
   cut,
   project,
+  moveWorld,
   stateOf,
 } from '../../test/helpers/hero-project.ts'
 
@@ -43,8 +44,37 @@ test('a cut whose content changed after its hero was captured is refused, naming
   assert.equal(await stateOf(space.shard), 'fresh')
   await cut(space)
   await writeFile(path.join(space.shard, 'world.json'), '{"hut":[9,0,9]}')
+  await moveWorld(space)
   assert.equal(await stateOf(space.shard), 'stale')
   await assert.rejects(cut(space), namesTheCapture)
+})
+
+// NB10 (meta SHARD-COMPAT): a source move that builds the same world (an SDK codemod, a pin move, a refactor) keeps the
+// hero current; the cut re-stamps it and says to commit it.
+test('NB10: a source edit that builds the same world keeps the hero, re-stamped', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  await writeHeroStamp(space.shard, { base: BASE })
+  const first = await cut(space)
+  assert.ok(
+    first.some((line: string): boolean =>
+      line.includes('recorded the built world'),
+    ),
+  )
+  await writeFile(
+    path.join(space.shard, 'world.json'),
+    '{"hut":[0,0,0],"note":"refactor"}',
+  )
+  assert.equal(await stateOf(space.shard), 'stale')
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean =>
+      line.includes('the built world it shows did not'),
+    ),
+  )
+  assert.match(
+    await readFile(path.join(space.shard, 'hero.json'), 'utf8'),
+    /"look": "[0-9a-f]{64}"/u,
+  )
 })
 
 test('a fresh capture after a content change lets the cut through', async (context: TestContext): Promise<void> => {
@@ -167,6 +197,7 @@ test('F28: a scene shard wears its card/*.jpg as its hero, and the cut checks it
     path.join(space.shard, 'shard.config.ts'),
     'export const changed = 1',
   )
+  await moveWorld(space)
   await assert.rejects(cut(space), /hero of .* is older than its content/u)
 })
 

@@ -3,6 +3,7 @@ import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { TestContext } from 'node:test'
 
+import { writeLook } from '@wildshard/upload/cli/hero/look.ts'
 import { heroState } from '@wildshard/upload/cli/hero/stamp.ts'
 import { writeShardfile } from '@wildshard/upload/cli/shardfile/shardfile.ts'
 
@@ -92,6 +93,18 @@ async function project(
   return { root, shard, product }
 }
 
+/**
+ * The built world moved since the hero was stamped (NB10): the stamp's `look`
+ * names another product, as a rebuild of changed content would.
+ */
+async function moveWorld(space: Project): Promise<void> {
+  const hero = await heroState(space.shard)
+  await writeLook(space.shard, {
+    content: hero.stamped ?? '',
+    look: 'another-world',
+  })
+}
+
 async function stateOf(shard: string): Promise<string> {
   const hero = await heroState(shard)
   return hero.state
@@ -109,4 +122,14 @@ async function cut(space: Project): Promise<readonly string[]> {
   return lines
 }
 
-export { type Project, BASE, NAME, SHOTS, SVG, cut, project, stateOf }
+export {
+  type Project,
+  BASE,
+  NAME,
+  SHOTS,
+  SVG,
+  cut,
+  project,
+  moveWorld,
+  stateOf,
+}

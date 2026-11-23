@@ -2,6 +2,7 @@ import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import { shardCardPath } from '../../sharddev/shardSource.ts'
+import { heroLook } from './look.ts'
 import { isSceneShard } from './scene-card.ts'
 import {
   NONE,
@@ -162,6 +163,50 @@ async function restamp(
   report(await freshLine(product, shard, await heroState(shard)))
 }
 
+type Judged = Readonly<{ product: string; shard: string; hero: HeroState }>
+
+/**
+ * NB10 / PR6: the hero shows the built world, so a source move that builds the same world keeps it current. Records
+ * the built world on a fresh hero; true when it kept a source-stale one (re-stamped, and its fresh line reported).
+ */
+async function keptByLook(
+  { product, shard, hero }: Judged,
+  report: (line: string) => void,
+): Promise<boolean> {
+  const look = await heroLook(product, shard, hero)
+  const stamp = path.join(shard, STAMP)
+  if (look === 'recorded') {
+    report(`hero: recorded the built world it shows in ${stamp}; commit it`)
+  }
+  if (look !== 'kept') {
+    return false
+  }
+  report(
+    `hero: the source moved but the built world it shows did not; re-stamped ${stamp}; commit it`,
+  )
+  report(await freshLine(product, shard, await heroState(shard)))
+  return true
+}
+
+/** Pass, re-stamp or refuse a hero the built world did not already keep. */
+async function judge(
+  judged: Judged,
+  report: (line: string) => void,
+): Promise<void> {
+  const { product, shard, hero } = judged
+  if (restampable(hero)) {
+    await restamp(judged, report)
+  } else if (hero.state === 'fresh') {
+    report(await freshLine(product, shard, hero))
+  } else if (hero.state === 'generated') {
+    report(
+      `hero: generated card, no captured hero; capture one: ${captureCommand(shard)}`,
+    )
+  } else {
+    throw new Error(refusal(shard, hero))
+  }
+}
+
 /**
  * The cut's check. A built product lives at `<root>/out/<name>` and its
  * source at `<root>/src/shards/<name>`. Throws for a stale or unstamped
@@ -182,17 +227,9 @@ async function assertHeroCurrent(
     report(`hero: no source shard with a card at ${shard}; not checked`)
     return
   }
-  const hero = await heroState(shard)
-  if (restampable(hero)) {
-    await restamp({ product, shard, hero }, report)
-  } else if (hero.state === 'fresh') {
-    report(await freshLine(product, shard, hero))
-  } else if (hero.state === 'generated') {
-    report(
-      `hero: generated card, no captured hero; capture one: ${captureCommand(shard)}`,
-    )
-  } else {
-    throw new Error(refusal(shard, hero))
+  const judged = { product, shard, hero: await heroState(shard) }
+  if (!(await keptByLook(judged, report))) {
+    await judge(judged, report)
   }
 }
 
