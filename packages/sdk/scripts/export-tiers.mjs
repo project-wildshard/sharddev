@@ -8,7 +8,7 @@ import { dirname, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const ROOT = resolve(import.meta.dirname, '..');
-export const TIERS = ['contract', 'rows', 'scripts', 'bake kit', 'internal'];
+export const TIERS = ['contract', 'rows', 'scripts', 'bake kit', 'headless', 'internal'];
 export const TIER_FILE = 'lint/export-tiers.json';
 export const TIER_PAGE = 'docs/api/EXPORT-TIERS.md';
 

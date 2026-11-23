@@ -67,7 +67,8 @@
     "valibot": "1.5.0"
   },
   "peerDependencies": {
-    "three": "0.186.0"
+    "three": "0.186.0",
+    "@wildshard/engine": "*"
   },
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
@@ -291,7 +292,42 @@
     "./internal/projectPolicy": "./src/sharddev/projectPolicy.ts",
     "./internal/projectSections": "./src/sharddev/projectSections.ts",
     "./internal/runtimePerformance": "./src/sharddev/runtimePerformance.ts",
-    "./internal/generationCache": "./src/sharddev/generationCache.ts"
+    "./internal/generationCache": "./src/sharddev/generationCache.ts",
+    "./headless": "./src/sharddev/headless/index.mjs",
+    "./headless/scripts/sim-node-loader.mjs": "./src/sharddev/headless/scripts/sim-node-loader.mjs",
+    "./headless/host/headlessFolder": "./src/sharddev/headless/host/headlessFolder.ts",
+    "./headless/game/shardfile/outputDescriptor": "./src/sharddev/headless/game/shardfile/outputDescriptor.ts",
+    "./headless/physics/rapier": "./src/sharddev/headless/physics/rapier.ts",
+    "./headless/host/tickProtocol": "./src/sharddev/headless/host/tickProtocol.ts",
+    "./headless/host/headlessRuntime": "./src/sharddev/headless/host/headlessRuntime.ts",
+    "./headless/host/headlessTape": "./src/sharddev/headless/host/headlessTape.ts",
+    "./headless/app/scope": "./src/sharddev/headless/app/scope.ts",
+    "./headless/host/headlessSections": "./src/sharddev/headless/host/headlessSections.ts",
+    "./headless/scripts/shard-outputs.mjs": "./src/sharddev/headless/scripts/shard-outputs.mjs",
+    "./headless/host/headless": "./src/sharddev/headless/host/headless.ts",
+    "./headless/game/shardfile/serverPack": "./src/sharddev/headless/game/shardfile/serverPack.ts",
+    "./headless/game/shardCook": "./src/sharddev/headless/game/shardCook.ts",
+    "./headless/host/headlessJourney": "./src/sharddev/headless/host/headlessJourney.ts",
+    "./headless/scripts/format-hook.mjs": "./src/sharddev/headless/scripts/format-hook.mjs",
+    "./headless/scripts/bake-loader.mjs": "./src/sharddev/headless/scripts/bake-loader.mjs",
+    "./headless/scripts/debug-settings.mjs": "./src/sharddev/headless/scripts/debug-settings.mjs",
+    "./headless/scripts/bake-output.mjs": "./src/sharddev/headless/scripts/bake-output.mjs",
+    "./headless/test/FakeGame": "./src/sharddev/headless/test/FakeGame.ts",
+    "./headless/scripts/native-recorder-cache.mjs": "./src/sharddev/headless/scripts/native-recorder-cache.mjs",
+    "./headless/scripts/frame-floor-grid.mjs": "./src/sharddev/headless/scripts/frame-floor-grid.mjs",
+    "./headless/scripts/authored-manifest.mjs": "./src/sharddev/headless/scripts/authored-manifest.mjs",
+    "./headless/scripts/bake-input-hashes.mjs": "./src/sharddev/headless/scripts/bake-input-hashes.mjs",
+    "./headless/scripts/frame-floor-settings.mjs": "./src/sharddev/headless/scripts/frame-floor-settings.mjs",
+    "./headless/scripts/frame-floor-navigation.mjs": "./src/sharddev/headless/scripts/frame-floor-navigation.mjs",
+    "./headless/world/Heightfield": "./src/sharddev/headless/world/Heightfield.ts",
+    "./headless/world/terrainHeight": "./src/sharddev/headless/world/terrainHeight.ts",
+    "./headless/core/tier": "./src/sharddev/headless/core/tier.ts",
+    "./headless/app/resources": "./src/sharddev/headless/app/resources.ts",
+    "./headless/sim/snapshot": "./src/sharddev/headless/sim/snapshot.ts",
+    "./headless/scripts/shardfile-inputs.mjs": "./src/sharddev/headless/scripts/shardfile-inputs.mjs",
+    "./headless/scripts/tile-bake-report.mjs": "./src/sharddev/headless/scripts/tile-bake-report.mjs",
+    "./headless/scripts/built-folder.mjs": "./src/sharddev/headless/scripts/built-folder.mjs",
+    "./headless/scripts/program-discovery.mjs": "./src/sharddev/headless/scripts/program-discovery.mjs"
   },
   "sideEffects": [
     "./src/sharddev/!(bakePublication).*",
@@ -299,5 +335,10 @@
     "./src/commons/**/*",
     "./scripts/**/*",
     "./bin/*"
-  ]
+  ],
+  "peerDependenciesMeta": {
+    "@wildshard/engine": {
+      "optional": true
+    }
+  }
 }
