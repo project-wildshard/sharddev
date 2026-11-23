@@ -402,6 +402,7 @@
     "./internal/engine/game/shardfile/sceneHandles": "internal",
     "./internal/engine/game/shardfile/serverSkinRigs": "internal",
     "./internal/engine/game/shardfile/shardFolder": "internal",
+    "./internal/engine/game/shardfile/skinPlayback": "internal",
     "./internal/engine/game/shardfile/wholeGeometryPieces": "internal",
     "./internal/engine/game/shardfile/worldAssembly": "internal",
     "./internal/engine/game/stealth/stealthLaw": "internal",

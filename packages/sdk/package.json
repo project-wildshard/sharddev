@@ -475,6 +475,7 @@
     "./internal/engine/game/shardfile/sceneHandles": "./src/sharddev/internal-engine/game/shardfile/sceneHandles.ts",
     "./internal/engine/game/shardfile/serverSkinRigs": "./src/sharddev/internal-engine/game/shardfile/serverSkinRigs.ts",
     "./internal/engine/game/shardfile/shardFolder": "./src/sharddev/internal-engine/game/shardfile/shardFolder.ts",
+    "./internal/engine/game/shardfile/skinPlayback": "./src/sharddev/internal-engine/game/shardfile/skinPlayback.ts",
     "./internal/engine/game/shardfile/wholeGeometryPieces": "./src/sharddev/internal-engine/game/shardfile/wholeGeometryPieces.ts",
     "./internal/engine/game/shardfile/worldAssembly": "./src/sharddev/internal-engine/game/shardfile/worldAssembly.ts",
     "./internal/engine/game/stealth/stealthLaw": "./src/sharddev/internal-engine/game/stealth/stealthLaw.ts",

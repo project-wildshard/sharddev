@@ -411,6 +411,7 @@ Internal: exported for sharddev's own tools and tests; a shard project must not 
 | `@wildshard/sdk/internal/engine/game/shardfile/sceneHandles` | internal | `./src/sharddev/internal-engine/game/shardfile/sceneHandles.ts` |
 | `@wildshard/sdk/internal/engine/game/shardfile/serverSkinRigs` | internal | `./src/sharddev/internal-engine/game/shardfile/serverSkinRigs.ts` |
 | `@wildshard/sdk/internal/engine/game/shardfile/shardFolder` | internal | `./src/sharddev/internal-engine/game/shardfile/shardFolder.ts` |
+| `@wildshard/sdk/internal/engine/game/shardfile/skinPlayback` | internal | `./src/sharddev/internal-engine/game/shardfile/skinPlayback.ts` |
 | `@wildshard/sdk/internal/engine/game/shardfile/wholeGeometryPieces` | internal | `./src/sharddev/internal-engine/game/shardfile/wholeGeometryPieces.ts` |
 | `@wildshard/sdk/internal/engine/game/shardfile/worldAssembly` | internal | `./src/sharddev/internal-engine/game/shardfile/worldAssembly.ts` |
 | `@wildshard/sdk/internal/engine/game/stealth/stealthLaw` | internal | `./src/sharddev/internal-engine/game/stealth/stealthLaw.ts` |
