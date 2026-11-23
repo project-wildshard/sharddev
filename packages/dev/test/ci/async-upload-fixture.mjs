@@ -42,7 +42,11 @@ export async function blockedEntryTarball(){
   for(const pack of index.packs)files.delete(pack.path);
   index.packs=[];
   const sections=new Map(index.sections.map(row=>[row.name,jsonOf(files,row.path)]));
-  index.build.sourceHash=sha256(validationSourceBytes(assembleOutputShardfile(index,sections)));
+  // FP26 (format 0.71.0) parses identity.revision as saveRevision; the source hash covers the identity as written.
+  const assembled=assembleOutputShardfile(index,sections),written=jsonOf(files,'shard.json').identity;
+  const identity=Object.hasOwn(written??{},'revision')&&Object.hasOwn(assembled.identity,'saveRevision')
+    ?Object.fromEntries(Object.entries(assembled.identity).map(([key,value])=>[key==='saveRevision'?'revision':key,value])):assembled.identity;
+  index.build.sourceHash=sha256(validationSourceBytes({...assembled,identity}));
   // HERO-GATE HG2: upload refuses a shard file with no hero, so the draft mounts one before it is prepared
   const {heroImages,withHero}=await import('../../src/test/helpers/hero.ts');
   const mounts=[...withHero(new Map(),{folder:'async-sdk-isle',images:heroImages()})].map(([path,bytes])=>{

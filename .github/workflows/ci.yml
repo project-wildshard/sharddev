@@ -112,7 +112,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: project-wildshard/api-server
-          ref: 96171293ea93503dead6307cdb66641737edba7a # api-server v0.33.1
+          ref: 5a099e0bba64dccf304fcbeb0933ca2fe9f69294 # api-server v0.34.4 (format 0.71.0)
           path: tmp/codex-wire/api-contract-source
           token: ${{ steps.app-token.outputs.token || github.token }}
           persist-credentials: false
