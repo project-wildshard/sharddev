@@ -1,9 +1,9 @@
 {
   "mossgate": {
-    "version": "0.1.19",
-    "revision": 23,
-    "hash": "f4b7fdd8be70cdff2552a274c48d150859f86396ed07cc9c2b755528be416d81",
+    "version": "0.1.20",
+    "revision": 24,
+    "hash": "5b4f545a9c9449d339668ae617b77a2182372f7c0b9bbbdb302adaf024a24441",
     "channel": "staging",
-    "commit": "c513df3c36b0e9cdf584f84d2a32f2360f44df51"
+    "commit": "496b9c0ac1918f58ac12a20b8e4d671dc6ca421b"
   }
 }
