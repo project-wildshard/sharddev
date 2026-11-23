@@ -1,17 +1,7 @@
-// The SDK's starting shardfile (SHARD-AUTHORING SA26): built here and admitted by shard-format's own parser, the one
-// the client runs, so a project starts from a file the game accepts.
-import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import { ENTRY_WIDTH } from '@wildshard/format/contentBounds';
-import { SHARDFILE_VERSION } from '@wildshard/format/version';
+// The SDK's starting shardfile (SHARD-AUTHORING SA26) lives once, in shard-format (FORMAT-PRUNE FP11, `./emptyShardfile`):
+// admitted by the format's own parser, the one the client runs, with no `requires.sdk` (SHARD-COMPAT CP8). This path stays
+// for authors' `@wildshard/sdk/author` imports, the name bound to the format's own.
+import { emptyShardfile as formatEmptyShardfile } from '@wildshard/format/emptyShardfile';
 
-/** Start an author project with a valid empty world, with no `requires.sdk` (SHARD-COMPAT CP8: a deprecated copy of
- * the format version, optional from shard-format 0.71.0); add baked content before shipping a playable shard. */
-export function emptyShardfile(identity: Shardfile['identity']): Shardfile {
-  const edge = { heights: Array.from({ length: 257 }, () => 0), colours: Array.from({ length: 257 }, () => [0.5, 0.5, 0.5]), roadHeight: 0 };
-  return parseShardfile({ version: SHARDFILE_VERSION, identity, accent: 'sand', requires: { capabilities: [], commons: [], commonsWire: {}, commonsCosts: {} }, budgets: { library: { resident: 0, compressed: 0 }, sim: { resident: 0, compressed: 0 }, overlap: 0 },
-    entryways: [{ edge: 'north', at: [0, 0, 250], width: ENTRY_WIDTH }, { edge: 'east', at: [250, 0, 0], width: ENTRY_WIDTH }, { edge: 'south', at: [0, 0, -250], width: ENTRY_WIDTH }, { edge: 'west', at: [-250, 0, 0], width: ENTRY_WIDTH }],
-    look: { families: [], grade: { exposure: 0, saturation: 1, contrast: 1, lut: null }, clock: 'engine', dayOverride: null, keys: [] },
-    sim: { fixedHz: 60, scriptTickDivisor: 2, commandVersion: 0, snapshotVersion: 0, scripts: [] },
-    state: { version: 1, sharedOwner: 'host', playerKey: 'actorId', shared: [], player: [] }, authorCaps: { players: 32, speed: 15 },
-    serverBudget: { tickMicros: 1000, memory: 1_000_000, entities: 100, commandsPerTick: 32 }, edge: { north: edge, south: edge, east: edge, west: edge }, files: [], tiles: [], library: [], critical: [], far: null });
-}
+/** Start an author project with a valid empty world; add baked content before shipping a playable shard. */
+export const emptyShardfile: typeof formatEmptyShardfile = formatEmptyShardfile;
