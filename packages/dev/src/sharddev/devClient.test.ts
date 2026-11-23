@@ -127,11 +127,12 @@ test('the installed SDK defaults to its engine prerelease\'s immutable client (J
   const root = scratch();
   const file = archive(root, { devserver: false }, { preparationOnly: true });
   const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(readFileSync(file))));
-  const staging = 'server-staging-505d779eb2489e62ea1f3f4eaf472484714aab5b';
+  const staging = 'server-staging-d6e6bc6b2e573de86b6e033d988869def4ae7b95';
   try {
     const cache = join(root, 'cache');
     expect(await fetchPreparationClient({ cache })).toBe(join(cache, `${staging}-preparation`));
-    expect(await fetchPreparationClient({ pin: '0.1.73-next.505d779e', cache })).toBe(join(cache, `${staging}-preparation`));
+    expect(await fetchPreparationClient({ pin: '0.1.74-next.d6e6bc6b', cache })).toBe(join(cache, `${staging}-preparation`));
+    expect(engineClientTag(undefined, false, '0.1.73-next.505d779e')).toBe('server-staging-505d779eb2489e62ea1f3f4eaf472484714aab5b');
     expect(engineClientTag(undefined, false, '0.1.65-next.9c91846e')).toBe('server-staging-9c91846e65e62e4d39e0437e082ff90ae094c4ca');
     expect(engineClientTag(undefined, true, '0.1.54')).toBe('v0.1.59');
     expect(engineClientTag(undefined, false, '0.1.54')).toBe('v0.1.54');
