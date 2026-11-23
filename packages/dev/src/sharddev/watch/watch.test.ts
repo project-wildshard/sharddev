@@ -6,7 +6,9 @@ import { afterAll, expect, test } from 'vitest';
 import { socketOf, startWatchPage, type DevHookLike } from './page';
 import { DEV_HOOK_VERSION, WATCH_WIRE, hookMismatch } from '../../../../sdk/src/sharddev/watch/protocol';
 import { decodeTerrainTile, terrainTileHeight } from '@wildshard/format/terrainTileBytes';
-import { NO_SERVICE_WORKER, pageScript, watchProject } from './watch';
+import { backgroundCommand, NO_SERVICE_WORKER, pageScript, watchProject } from './watch';
+// oxlint-disable-next-line import/no-nodejs-modules -- The test runs a child at background priority and reads its nice value.
+import { execFileSync } from 'node:child_process';
 
 const ROOT = resolve(import.meta.dirname, '../../../tmp');
 mkdirSync(ROOT, { recursive: true });
@@ -336,4 +338,12 @@ test('AP20: once edits rest 5 s watch runs the full build and the page gets its 
     expect(panels.at(-1)?.some((line) => line.startsWith('full build of revision 1 in'))).toBe(true);
     expect(hook.calls).toEqual(['look', 'add hut', 'colliders hut 0']);
   } finally { page.stop(); await server.close(); }
+});
+
+test('the idle full build runs at the lowest cpu priority, so the page boots first', () => {
+  expect(backgroundCommand('node', ['build'], null)).toEqual({ command: 'node', args: ['build'] });
+  if (process.platform === 'win32') return;
+  expect(backgroundCommand('node', ['build'], '/usr/bin/nice')).toEqual({ command: '/usr/bin/nice', args: ['-n', '19', 'node', 'build'] });
+  const low = backgroundCommand(process.execPath, ['-e', 'console.log(require("node:os").getPriority())']);
+  expect(execFileSync(low.command, low.args, { encoding: 'utf8' }).trim()).toBe('19');
 });

@@ -147,6 +147,16 @@ function builtProduct(folder: string): Parameters<typeof budgetOf>[0] {
 /** AP20: how long edits rest before watch runs the full build. */
 const IDLE_BUILD_MS = 5000;
 
+/**
+ * AP20's full build is a background report, so on a POSIX machine it runs under `nice -n 19`: the lowest CPU priority,
+ * which every thread and process it starts inherits. The author's page boots and draws on the same machine and comes
+ * first. At normal priority, the ~32 s build on hosted ci's 4-core runner overlapped the page's boot, which took 38 s.
+ * Windows, or a machine without `nice`, runs the build as it is.
+ */
+export function backgroundCommand(command: string, args: readonly string[], nice: string | null = ['/usr/bin/nice', '/bin/nice'].find((path) => existsSync(path)) ?? null): { command: string; args: string[] } {
+  return nice === null || process.platform === 'win32' ? { command, args: [...args] } : { command: nice, args: ['-n', '19', command, ...args] };
+}
+
 const shellKey = (scene: ShardScene, gameplay: Gameplay): string => {
   const { keys: _keys, materials: _materials, day, grade, ...look } = shellLook(scene);
   const { exposure: _exposure, tone: _tone, vignette: _vignette, bloom: _bloom, ...fixedGrade } = grade as typeof grade & { tone?: unknown; vignette?: unknown; bloom?: unknown };
@@ -224,7 +234,8 @@ export async function watchProject(project: string, options: { port?: number; cl
     if (stopped || building !== null) return;
     const of = revision, started = diagnosticNow(), target = join(scratch, 'build');
     rmSync(target, { recursive: true, force: true });
-    const child = spawn(process.execPath, [join(DEV_ROOT, 'bin/wildshard.mjs'), 'build', source, target, '--folder-only'], { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WILDSHARD_SCENE_LIVE: '' } });
+    const low = backgroundCommand(process.execPath, [join(DEV_ROOT, 'bin/wildshard.mjs'), 'build', source, target, '--folder-only']);
+    const child = spawn(low.command, low.args, { stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, WILDSHARD_SCENE_LIVE: '' } });
     building = child;
     let output = '';
     child.stdout?.on('data', (chunk: Buffer) => { output += String(chunk); }); child.stderr?.on('data', (chunk: Buffer) => { output += String(chunk); });
