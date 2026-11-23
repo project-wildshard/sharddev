@@ -127,7 +127,7 @@ test('the installed SDK defaults to its engine prerelease\'s immutable client (J
   const root = scratch();
   const file = archive(root, { devserver: false }, { preparationOnly: true });
   const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(readFileSync(file))));
-  const staging = 'server-staging-d6e6bc6b2e573de86b6e033d988869def4ae7b95';
+  const staging = 'server-staging-f3b1d4c7c4b44afaa486170da29eca4a86a83b99';
   try {
     const cache = join(root, 'cache');
     expect(await fetchPreparationClient({ cache })).toBe(join(cache, `${staging}-preparation`));
