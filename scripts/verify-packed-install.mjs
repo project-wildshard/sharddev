@@ -106,6 +106,15 @@ function realShard(repo, pins) {
   if (threeField !== undefined && sdk.dependencies['@types/three'] !== undefined) manifest[threeField]['@types/three'] ??= sdk.dependencies['@types/three'];
   const overrides = { ...manifest.pnpm?.overrides };
   for (const name of Object.keys(overrides)) if (name in derived && derived[name] !== undefined) overrides[name] = derived[name];
+  // A patch for a previous, exact version cannot apply to the replacement tarball.
+  const packedVersions = new Map(artifacts.map(({ name, version }) => [name, version]));
+  for (const selector of Object.keys(manifest.pnpm?.patchedDependencies ?? {})) {
+    const at = selector.lastIndexOf('@');
+    const version = selector.slice(at + 1);
+    const packedVersion = packedVersions.get(selector.slice(0, at));
+    if (packedVersion !== undefined && /^\d+\.\d+\.\d+(?:-[\w.-]+)?$/u.test(version) && version !== packedVersion)
+      delete manifest.pnpm.patchedDependencies[selector];
+  }
   manifest.pnpm = { ...manifest.pnpm, overrides: { ...overrides, ...pins } };
   writeFileSync(file, JSON.stringify(manifest));
   console.info(run(pnpm, [...installArgs, '--ignore-scripts'], dir));

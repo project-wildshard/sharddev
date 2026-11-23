@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.26 (2026-11-23)
+
+- Shard authors can build the new shard format and prepare it locally for the current game.
+- The hero capture follows the built shard, so the upload keeps the image for the world it ships.
+- The example quest uses the shard's declared currency.
+
 ## v0.4.25 (2026-11-21)
 
 - New shards typecheck out of the box: three's types come pinned, and the starter template passes its own typecheck.
