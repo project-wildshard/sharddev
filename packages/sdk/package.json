@@ -261,6 +261,7 @@
     "./internal/authorError": "./src/sharddev/authorError.ts",
     "./internal/diagnosticClock": "./src/sharddev/diagnosticClock.ts",
     "./internal/spawnWarnings": "./src/sharddev/spawnWarnings.ts",
+    "./internal/edgeObservations": "./src/sharddev/edgeObservations.ts",
     "./internal/creatureCaps": "./src/sharddev/creatureCaps.ts",
     "./internal/primitivesReport": "./src/sharddev/primitivesReport.ts",
     "./internal/triangleBudget": "./src/sharddev/triangleBudget.ts",

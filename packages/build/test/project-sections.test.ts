@@ -44,5 +44,8 @@ test('the real sidecar pipeline emits one canonical section from declared data w
   const checked = validateOutputProduct(destination);
   expect(checked.index.sections.filter(row => row.name === 'world/movers')).toHaveLength(1);
   expect(JSON.parse(readFileSync(resolve(destination, 'sections/world/movers.json'), 'utf8'))).toEqual({ movers });
+  // SHARD-COMPAT PR6f2: the build writes what stands at each edge into world/edge
+  const ground = { geometry: 'ground' };
+  expect(JSON.parse(readFileSync(resolve(destination, 'sections/world/edge.json'), 'utf8')).edgeObservations).toEqual({ north: ground, east: ground, south: ground, west: ground });
   expect(checked.shard.movers).toEqual(movers);
 });

@@ -1,4 +1,5 @@
 import { printSpawnWarnings } from '@wildshard/sdk/internal/spawnWarnings';
+import { withEdgeObservations } from '@wildshard/sdk/internal/edgeObservations';
 import { executeBundle } from '@wildshard/sdk/executeBundle';
 import { generationRecipes } from '@wildshard/sdk/internal/generationRecipe';
 import { mergeProjectSections } from '@wildshard/sdk/internal/projectSections';
@@ -292,7 +293,8 @@ export async function buildProject(project: string, output?: string, options: { 
   const sections = outputPlatformPayloads(loaded.output.platform);
   const creatures = expandCreatureHitVolumes(expandCreatureLayers(loaded.shard, console.warn, sections), assets);
   const expanded = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
-  const shard = validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections);
+  // SHARD-COMPAT PR6f2: the file says what stands at its four edges (world/edge's edgeObservations), not the engine's registry
+  const shard = withEdgeObservations(validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections));
   phase('asset-admission');
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
   await options.admit?.(shard, assets, projectPerformancePolicy(project, shard), outputPlatformPayloads(loaded.output.platform));

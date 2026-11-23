@@ -190,6 +190,7 @@
     "./internal/authorError": "internal",
     "./internal/diagnosticClock": "internal",
     "./internal/spawnWarnings": "internal",
+    "./internal/edgeObservations": "internal",
     "./internal/creatureCaps": "internal",
     "./internal/primitivesReport": "internal",
     "./internal/handwritten": "internal",

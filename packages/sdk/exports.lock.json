@@ -209,6 +209,7 @@
   "@wildshard/sdk/internal/creatureLayers",
   "@wildshard/sdk/internal/diagnosticClock",
   "@wildshard/sdk/internal/discoveryDocument",
+  "@wildshard/sdk/internal/edgeObservations",
   "@wildshard/sdk/internal/engine/ai/BossBrain",
   "@wildshard/sdk/internal/engine/ai/eliteRoster",
   "@wildshard/sdk/internal/engine/ai/eliteScript",
