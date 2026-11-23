@@ -361,6 +361,7 @@
     "./internal/engine/game/population/perchBody": "internal",
     "./internal/engine/game/population/returnProgram": "internal",
     "./internal/engine/game/population/spawnScript": "internal",
+    "./internal/engine/game/quest/carriedRound": "internal",
     "./internal/engine/game/quest/chapterDecision": "internal",
     "./internal/engine/game/quest/chapterFlow": "internal",
     "./internal/engine/game/quest/chapterRecords": "internal",

@@ -312,6 +312,7 @@
   "@wildshard/sdk/internal/engine/game/population/perchBody",
   "@wildshard/sdk/internal/engine/game/population/returnProgram",
   "@wildshard/sdk/internal/engine/game/population/spawnScript",
+  "@wildshard/sdk/internal/engine/game/quest/carriedRound",
   "@wildshard/sdk/internal/engine/game/quest/chapterDecision",
   "@wildshard/sdk/internal/engine/game/quest/chapterFlow",
   "@wildshard/sdk/internal/engine/game/quest/chapterRecords",

@@ -434,6 +434,7 @@
     "./internal/engine/game/population/perchBody": "./src/sharddev/internal-engine/game/population/perchBody.ts",
     "./internal/engine/game/population/returnProgram": "./src/sharddev/internal-engine/game/population/returnProgram.ts",
     "./internal/engine/game/population/spawnScript": "./src/sharddev/internal-engine/game/population/spawnScript.ts",
+    "./internal/engine/game/quest/carriedRound": "./src/sharddev/internal-engine/game/quest/carriedRound.ts",
     "./internal/engine/game/quest/chapterDecision": "./src/sharddev/internal-engine/game/quest/chapterDecision.ts",
     "./internal/engine/game/quest/chapterFlow": "./src/sharddev/internal-engine/game/quest/chapterFlow.ts",
     "./internal/engine/game/quest/chapterRecords": "./src/sharddev/internal-engine/game/quest/chapterRecords.ts",
