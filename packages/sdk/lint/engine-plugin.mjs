@@ -41,13 +41,19 @@ function sdkExports(sub) {
   });
 }
 
+/** Engine's report names an import of a real SDK export. A bundler query (`course.as?raw`) is not part of the export
+ * path, so it is dropped before the lookup (SHARD-COMPAT SA7b: Nine Dragon's and Nalati's course programs). */
+export function sdkExportReport(message) {
+  const match = SDK_IMPORT.exec(message ?? '');
+  return match !== null && sdkExports(match[1].replace(/\?.*$/su, ''));
+}
+
 const publicIndex = engine.rules['public-index'];
 const wrapped = {
   ...publicIndex,
   create(context) {
     const report = (descriptor) => {
-      const match = SDK_IMPORT.exec(descriptor.message ?? '');
-      if (match !== null && sdkExports(match[1])) return;
+      if (sdkExportReport(descriptor.message)) return;
       context.report(descriptor);
     };
     // oxlint freezes its context, so the view is a proxy over an empty object that reads everything else from it.
