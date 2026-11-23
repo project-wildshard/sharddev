@@ -6,7 +6,7 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
-import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, updatePins, type PinsRunner, type SdkRelease } from '../../../sdk/src/sharddev/updatePins';
+import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, sdkReleaseOf, updatePins, type PinsRunner, type SdkRelease } from '../../../sdk/src/sharddev/updatePins';
 import { runCli } from './cli';
 
 // SHARD-AUTHORING SA18 (J314 Q27, J317 Q16): `wildshard update --pins` moves the pins, installs, applies the release's
@@ -336,5 +336,19 @@ describe('wildshard update --pins (SA18)', () => {
     }
     expect(readFileSync(resolve(project, 'package.json'), 'utf8')).toBe(before);
     expect((JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')) as { files: string[] }).files).toContain(CODEMODS_FOLDER);
+  });
+});
+
+describe('sdkReleaseOf', () => {
+  it('pins the engine at the sdk\'s exact dev pin, not its peer range', () => {
+    const release = sdkReleaseOf({ version: '0.4.26', peerDependencies: { '@wildshard/engine': '*', three: '0.186.0' },
+      dependencies: { '@wildshard/format': 'npm:@wildshard/shard-format@0.70.0' }, devDependencies: { '@wildshard/engine': '0.1.73-next.505d779e' } });
+    expect(release?.pins['@wildshard/engine']).toBe('0.1.73-next.505d779e');
+    expect(release?.pins.three).toBe('0.186.0');
+    expect(release?.pins['@wildshard/format']).toBe('npm:@wildshard/shard-format@0.70.0');
+  });
+  it('keeps an exact peer pin and refuses a record with no version', () => {
+    expect(sdkReleaseOf({ version: '0.4.20', peerDependencies: { '@wildshard/engine': '0.1.60' }, devDependencies: { '@wildshard/engine': '0.1.61' } })?.pins['@wildshard/engine']).toBe('0.1.60');
+    expect(sdkReleaseOf({ peerDependencies: {} })).toBeUndefined();
   });
 });

@@ -271,18 +271,25 @@ function pnpmView(spec: string, cwd: string): SdkRelease {
   if (out.trim() === '') throw new Error(`update --pins: npm has no @wildshard/sdk@${spec}`);
   const parsed: unknown = JSON.parse(out);
   // A range matching several versions lists each; take the newest.
-  const found: unknown = Array.isArray(parsed) ? parsed.at(-1) : parsed;
+  const release = sdkReleaseOf(Array.isArray(parsed) ? parsed.at(-1) : parsed);
+  if (release === undefined) throw new Error(`update --pins: npm gave no version for @wildshard/sdk@${spec}`);
+  return release;
+}
+
+/** One `pnpm view @wildshard/sdk` record as the release it names, with the specs it pins. */
+export function sdkReleaseOf(found: unknown): SdkRelease | undefined {
   const record = isRecord(found) ? found : {}, version = stringAt(record, 'version');
-  if (version === undefined || !SEMVER.test(version)) throw new Error(`update --pins: npm gave no version for @wildshard/sdk@${spec}`);
+  if (version === undefined || !SEMVER.test(version)) return undefined;
   const pins: Record<string, string> = {};
   for (const key of ['peerDependencies', 'dependencies']) {
     const listed = record[key];
     if (isRecord(listed)) for (const [name, value] of Object.entries(listed)) if (typeof value === 'string') pins[name] = value;
   }
   // SDK-SPLIT SP13: the split sdk keeps the engine only as a dev dependency, at dev's exact pin (test/dev-engine-pin), so
-  // a repo's engine pin (sim tests) and its override still move with each release.
-  const dev = record['devDependencies'], engine = isRecord(dev) ? stringAt(dev, '@wildshard/engine') : undefined;
-  if (engine !== undefined && SEMVER.test(engine)) pins['@wildshard/engine'] ??= engine;
+  // a repo's engine pin (sim tests) and its override still move with each release. SHARD-COMPAT: the engine's peer range
+  // (`*`, so the shard's own engine resolves) is not a pin; 0.4.26 wrote it into shard repos and the lock took npm latest.
+  const dev = record['devDependencies'], engine = isRecord(dev) ? stringAt(dev, '@wildshard/engine') : undefined, peer = pins['@wildshard/engine'];
+  if (engine !== undefined && SEMVER.test(engine) && (peer === undefined || !SEMVER.test(peer))) pins['@wildshard/engine'] = engine;
   const engines = record['engines'], node = isRecord(engines) ? stringAt(engines, 'node') : undefined;
   return { version, pins, ...(node === undefined ? {} : { node }) };
 }
