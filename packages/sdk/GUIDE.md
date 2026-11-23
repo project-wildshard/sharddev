@@ -1408,8 +1408,9 @@ not hold; the budget finding after it says what that leaves. Code `audio-waiver-
 
 #### shardfile-draft
 
-A warning from `build` and `check`, a refusal from `upload`: the shard file is a draft (`sdk: "0.2"`). Prepare it
-first ("Uploading", step 1).
+A draft (`sdk: "0.2"`) gets a warning from `build` and `check`. Format validation refuses missing, stale or
+invalid preparation with code `preparation-invalid`. Prepare the built folder again, then rebuild the shard file
+("Uploading").
 
 #### shardfile-link
 
