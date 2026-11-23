@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.28 (2026-11-23)
+
+- SDK builds record the observations that each zone edge declares.
+- Rig baking and game types have headless SDK entry points.
+- Builds write both platform plans when the shard format supports them.
+
 ## v0.4.27 (2026-11-23)
 
 - Shard writers use the new save revision field.
