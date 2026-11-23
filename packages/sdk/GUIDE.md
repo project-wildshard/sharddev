@@ -90,6 +90,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard content <folder> [--bar templates]` | Count the content in a built shard; the template bar lists every shortfall. `--bar=templates` also works |
 | `wildshard hero <source> --base <url>` | Capture the hero from a served build and stamp `hero.json`. `--stamp-existing` marks the images already there as current: only when you have looked at them and they show the current world |
 | `wildshard upload <file> --channel staging\|prod` | Send a prepared shard file to the API (section 5) |
+| `wildshard migrate --dry-run <file>` | Ask the API what admission would do with a shard file, storing nothing: its format against the API's, the migrations it would run, deprecations, the chain id and the digest it would record (`--server` or `WILDSHARD_API_URL`) |
 | `wildshard account <email>` | Make your account once and save its key, which upload sends (see "Uploading", step 5) |
 | `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file), show its first characters, and print its account's email and how many slugs it owns (`--server` or `WILDSHARD_API_URL`) |
 | `wildshard grid [--channel staging\|prod\|preview]` | Print the world grid on a channel: each taken cell and its shard, then the free cells. No key needed (section 5) |
