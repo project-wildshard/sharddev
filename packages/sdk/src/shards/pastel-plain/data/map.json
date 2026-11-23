@@ -98,6 +98,7 @@
     "../../sharddev/decisionBindingMap.ts",
     "../../sharddev/decisionScriptBindings.ts",
     "../../sharddev/decisionSource.ts",
+    "../../sharddev/deterministicMath.ts",
     "../../sharddev/entries.ts",
     "../../sharddev/formatJsonSchema.ts",
     "../../sharddev/generationCache.ts",
