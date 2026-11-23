@@ -173,7 +173,7 @@ test('the engine Template 1 pin still opens and crosses its real door',{timeout:
  const {folderHeadlessSections}=await import('@wildshard/engine/host/headlessSections');
  const {outputDescriptor}=await import('@wildshard/engine/game/shardfile/outputDescriptor');
  const product=await loadHeadlessFolder(folder),shard=product.shardfile,descriptor=outputDescriptor(shard);
- assert.equal(shard.identity.slug,'template');assert.equal(shard.identity.revision,2);
+ assert.equal(shard.identity.slug,'template');assert.equal(shard.identity.saveRevision,2);
  const assets=new Map(descriptor.index.files.map(file=>[file.commons===true?`commons:${file.hash}`:file.hash,readFileSync(join(folder,file.path))]));
  const world=await HeadlessSimulation.create(shard,assets,undefined,{deadline:'advisory',sections:folderHeadlessSections(product)});
  try{
