@@ -45,7 +45,7 @@ test('an import edit regenerates its reader and preserves an independent step', 
       slug: 'cache-proof',
       name: 'Cache proof',
       author: 'Test',
-      revision: 1,
+      saveRevision: 1,
       seed: 3,
     })
     writeFileSync(resolve(root, 'a.ts'), 'export function a(){return 1;}')

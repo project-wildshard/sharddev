@@ -39,7 +39,7 @@ function author(
       slug: 'native-source',
       name: 'Native source',
       author: 'Test',
-      revision: 1,
+      saveRevision: 1,
       seed: 1,
     }),
     items,

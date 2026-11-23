@@ -14,7 +14,7 @@ const movers = originalDriftwoodMovers();
 
 const directories: string[] = [];
 const source = () => {
-  const shard = emptyShardfile({ slug: 'sections-test', name: 'Sections', author: 'Test', revision: 1, seed: 3 });
+  const shard = emptyShardfile({ slug: 'sections-test', name: 'Sections', author: 'Test', saveRevision: 1, seed: 3 });
   shard.runtime = { kind: 'client-plan', cost: FIXTURE_RUNTIME_COST, binds: ['movers'] };
   return shard;
 };

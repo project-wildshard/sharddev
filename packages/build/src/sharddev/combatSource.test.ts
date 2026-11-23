@@ -21,7 +21,7 @@ import { closeFixtures, fixtureRoot } from '@wildshard/sdk/internal/test/ownedSc
 
 afterAll(closeFixtures);
 function fixture() {
-  const source = emptyShardfile({ slug: 'combat-source', name: 'Combat source', author: 'Test', revision: 1, seed: 17 });
+  const source = emptyShardfile({ slug: 'combat-source', name: 'Combat source', author: 'Test', saveRevision: 1, seed: 17 });
   const creatures = [['own.shell', 'crab'], ['own.shell2', 'crab'], ['own.timber', 'sailor'], ['own.sand', 'boar']].map(([id, kind]) => {
     if (id === undefined || kind === undefined) throw new Error('Missing fixture species');
     const row = commonCreature('boar', { id, look: `${id}.look` }); row.species.kind = kind; row.species.harvest = [];
@@ -78,7 +78,7 @@ test('original Driftwood native swords declare complete contact effects by their
     expect(bytes.length).toBe(row.bytes); expect(hashImmutableBytes(bytes)).toBe(row.hash);
     sections.set(row.name, JSON.parse(row.wire));
   }
-  const source = emptyShardfile({ slug: 'native-combat', name: 'Native combat', author: 'Test', revision: 1, seed: 17 });
+  const source = emptyShardfile({ slug: 'native-combat', name: 'Native combat', author: 'Test', saveRevision: 1, seed: 17 });
   const payload = sections.get('combat/items') as { items: unknown };
   source.items = parseItems(payload.items);
   const native = readSpeciesPrograms(sections.get('actors/species-programs'));

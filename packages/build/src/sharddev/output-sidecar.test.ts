@@ -12,7 +12,7 @@ afterEach(() => { for (const path of directories.splice(0)) rmSync(path, { recur
 test('CLI sidecars emit checked sections without entering browser config imports', async () => {
   mkdirSync('tmp', { recursive: true });
   const path = mkdtempSync(resolve('tmp', 'output-sidecar-')); directories.push(path);
-  const config = `export default ${JSON.stringify(emptyShardfile({ slug: 'sidecar-test', name: 'Sidecar', author: 'Test', revision: 1, seed: 3 }))};\n`;
+  const config = `export default ${JSON.stringify(emptyShardfile({ slug: 'sidecar-test', name: 'Sidecar', author: 'Test', saveRevision: 1, seed: 3 }))};\n`;
   writeFileSync(resolve(path, 'shard.config.ts'), config);
   mkdirSync(resolve(path, 'generators'));
   writeFileSync(resolve(path, 'generators/output.ts'), `

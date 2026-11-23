@@ -37,7 +37,7 @@ function marked(extras: unknown = HEAD_MARKER, edit?: (doc: v.InferOutput<typeof
 }
 async function fixture(input = marked()) {
   await prepareAssetDecoders();
-  const content = commonCreature('boar', { id: 'author.marker', look: 'author.marker.look' }), source = emptyShardfile({ slug: 'marker-fixture', name: 'Marker fixture', author: 'Test', revision: 1, seed: 19 });
+  const content = commonCreature('boar', { id: 'author.marker', look: 'author.marker.look' }), source = emptyShardfile({ slug: 'marker-fixture', name: 'Marker fixture', author: 'Test', saveRevision: 1, seed: 19 });
   content.species.body = { size: 'small', scale: 1, look: 'author.marker.look' };
   const skin = creatureSkin(input, { id: 'author.marker', binding: { loops: ['idle'], material: { family: 'pbr', vertexColours: true } } });
   const glb = input.glb, file = hashImmutableBytes(glb), cost = parseGlb(glb), metadata = new TextEncoder().encode(JSON.stringify(skin)), hash = hashImmutableBytes(metadata);

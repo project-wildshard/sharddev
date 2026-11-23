@@ -23,7 +23,7 @@ test('an ordinary project imports its raw vendor GLB through the public SDK and 
     const original = await importedBiped('mixamo'), rig = await importCreatureGlb(original, { skeleton: 'biped', map: 'mixamo' });
     const content = commonCreature('boar', { id: 'fixture.import', look: 'fixture.look' });
     content.species.body = { size: 'medium', scale: 1, skeleton: 'biped', look: 'fixture.look' };
-    const source = emptyShardfile({ slug: 'chain-import', name: 'Chain import', author: 'Test', revision: 1, seed: 41 });
+    const source = emptyShardfile({ slug: 'chain-import', name: 'Chain import', author: 'Test', saveRevision: 1, seed: 41 });
     const metadata = new TextEncoder().encode(JSON.stringify(creatureSkin(rig, { id: 'fixture.import', binding: { loops: ['idle'], material: { family: 'pbr', vertexColours: false } } })));
     const file = hashImmutableBytes(rig.glb), skin = hashImmutableBytes(metadata), cost = parseGlb(rig.glb);
     source.rows = parseRows({ ...source.rows, species: [content.species], strikes: content.strikes,

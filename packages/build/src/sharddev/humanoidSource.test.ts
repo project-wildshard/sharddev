@@ -34,7 +34,7 @@ test('three ordinary project builds compile the configurable humanoid without ba
         if (unitHash === undefined) unitHash = file; else expect(file).toBe(unitHash);
         const content = commonCreature('boar', { id: 'fixture.humanoid', look: 'fixture.look' });
         content.species.body = source.body; content.species.dims = source.dims;
-        const shard = emptyShardfile({ slug: 'kit-humanoid', name: 'Kit humanoid', author: 'Test', revision: 1, seed: 42 });
+        const shard = emptyShardfile({ slug: 'kit-humanoid', name: 'Kit humanoid', author: 'Test', saveRevision: 1, seed: 42 });
         shard.rows = parseRows({ ...shard.rows, species: [content.species], strikes: content.strikes,
           looks: [{ id: 'fixture.look', species: 'fixture.humanoid', recipe: 'platform.skin', material: null, parameters: { skin }, animation: { recipe: 'platform.clips', parameters: { attackSpan: 1 } } }] });
         shard.items.catalogue = content.items;

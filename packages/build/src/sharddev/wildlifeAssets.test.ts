@@ -19,7 +19,7 @@ test('ordinary projects admit both wildlife products from plain files and Kit he
   const root = mkdtempSync(join(scratch, 'cc56b-'));
   const originalCache = process.env['WILDSHARD_GEN_CACHE']; process.env['WILDSHARD_GEN_CACHE'] = join(root, 'cache');
   try {
-    const shard = emptyShardfile({ slug: 'kit-wildlife', name: 'Kit wildlife', author: 'Test', revision: 1, seed: 42 });
+    const shard = emptyShardfile({ slug: 'kit-wildlife', name: 'Kit wildlife', author: 'Test', saveRevision: 1, seed: 42 });
     const bodies = [deer, wolf];
     const assembled = [deerCreature({ id: deer.species.id, look: deer.species.body.look }), wolfCreature({ id: wolf.species.id, look: wolf.species.body.look })];
     const items = assembled.flatMap(content => content.items);

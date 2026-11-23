@@ -15,7 +15,7 @@ import { closeFixtures, fixtureRoot } from '@wildshard/sdk/internal/test/ownedSc
 
 afterAll(closeFixtures);
 function fixture(): Shardfile {
-  const source = emptyShardfile({ slug: 'harvest-fixture', name: 'Harvest fixture', author: 'Test', revision: 1, seed: 17 });
+  const source = emptyShardfile({ slug: 'harvest-fixture', name: 'Harvest fixture', author: 'Test', saveRevision: 1, seed: 17 });
   const content = commonCreature('boar', { id: 'fixture.boar', look: 'fixture.look' });
   delete content.species.harvest;
   source.rows = parseRows({ ...source.rows, species: [content.species], strikes: content.strikes,

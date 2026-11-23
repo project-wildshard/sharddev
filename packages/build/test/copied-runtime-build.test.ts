@@ -17,7 +17,7 @@ function fixture(runtime = 'null', mirrors = true): { project: string; destinati
   const root = mkdtempSync(resolve('tmp', 'copied-runtime-build-')); owned.push(root);
   const project = resolve(root, 'project'), destination = resolve(root, 'output');
   mkdirSync(resolve(project, 'runtime'), { recursive: true });
-  const shard = emptyShardfile({ slug: 'runtime-test', name: 'Runtime', author: 'Test', revision: 1, seed: 3 });
+  const shard = emptyShardfile({ slug: 'runtime-test', name: 'Runtime', author: 'Test', saveRevision: 1, seed: 3 });
   // The declaration is raw config text: LD9 retired the copied-runtime `entry` arm, so it is no longer a typed shape.
   writeFileSync(resolve(project, 'shard.config.ts'), `
 export default {...${JSON.stringify(shard)}, runtime: ${runtime}};
@@ -80,7 +80,7 @@ it('refuses overlapping source/output before clearing the author project', async
 
 
 it('compiled project builds always refuse hidden executable sources without a copy flag',async()=>{
-  const {project,destination}=fixture(),shard=emptyShardfile({slug:'compiled-build',name:'Compiled build',author:'Fixture',revision:1,seed:3});
+  const {project,destination}=fixture(),shard=emptyShardfile({slug:'compiled-build',name:'Compiled build',author:'Fixture',saveRevision:1,seed:3});
   shard.runtime={kind:'client-plan',cost:FIXTURE_RUNTIME_COST,binds:[]};
   writeFileSync(resolve(project,'shard.config.ts'),`export default ${JSON.stringify(shard)};`);
   await expect(buildProject(project,destination,{client:null})).rejects.toThrow('cannot contain executable source');

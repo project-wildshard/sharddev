@@ -878,7 +878,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   const water = scene.parts.flatMap(waterRows);
   // SS8d: a hung lamp names its swing by its number across the shard
   const lights = scene.parts.flatMap((part) => part.lights.map((light) => light.swing === undefined ? light : { ...light, swing: (swingBase.get(part) ?? 0) + light.swing }));
-  const base = emptyShardfile({ slug: scene.identity.slug, name: scene.identity.name, author: scene.identity.author ?? 'Wildshard', revision: scene.identity.revision ?? 1, seed: scene.identity.seed ?? 1 });
+  const base = emptyShardfile({ slug: scene.identity.slug, name: scene.identity.name, author: scene.identity.author ?? 'Wildshard', saveRevision: scene.identity.revision ?? 1, seed: scene.identity.seed ?? 1 });
   const [sx, sy, sz] = scene.spawn.position;
   const spawnY = Math.max(sy, (ground?.heightAt(sx, sz) ?? 0) + 1);
   const product = {
@@ -949,7 +949,7 @@ export const GAMEPLAY_SECTIONS = ['quests', 'questHost', 'encounters', 'director
  * identity, never the baked one, so it must not read the scene's rows (none of today's do).
  */
 export function sceneGameplay(identity: ShardScene['identity'], options: ShardfileOptions = {}): { gameplay: Record<string, unknown>; rest: Record<string, unknown> } {
-  const base = parseShardfile(emptyShardfile({ slug: identity.slug, name: identity.name, author: identity.author ?? 'Wildshard', revision: identity.revision ?? 1, seed: identity.seed ?? 1 }));
+  const base = parseShardfile(emptyShardfile({ slug: identity.slug, name: identity.name, author: identity.author ?? 'Wildshard', saveRevision: identity.revision ?? 1, seed: identity.seed ?? 1 }));
   // the base as it was, before an `extend` that edits its input in place can change it
   const before = structuredClone(base) as unknown as Record<string, unknown>;
   const shard = options.extend === undefined ? base : options.extend(base) as unknown as Record<string, unknown>;

@@ -20,7 +20,7 @@ function journal(icons: readonly unknown[]) {
 }
 // `raw` skips the row parse: format 0.56 refuses a glyph selector itself, so a legacy row can only arrive unparsed.
 function fixture(icons: readonly unknown[], raw = false) {
-  const source = emptyShardfile({ slug: 'journal-source', name: 'Journal', author: 'Test', revision: 1, seed: 17 });
+  const source = emptyShardfile({ slug: 'journal-source', name: 'Journal', author: 'Test', saveRevision: 1, seed: 17 });
   source.rows.compendiums = [raw ? journal(icons) as never : parse(JournalRowSchema, journal(icons))];
   source.budgets.library.resident = 512;
   return source;

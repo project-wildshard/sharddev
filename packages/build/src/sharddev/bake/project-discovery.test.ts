@@ -12,7 +12,7 @@ import { encodeCanonicalJson, hashImmutableBytes } from '@wildshard/sdk/immutabl
 test('generated discovery is admitted once and stored only in product metadata', async () => {
   mkdirSync('tmp', { recursive: true });
   const directory = mkdtempSync(resolve('tmp', 'project-discovery-'));
-  const source = emptyShardfile({ slug: 'discovery-fixture', name: 'Discovery', author: 'Test', revision: 1, seed: 3 });
+  const source = emptyShardfile({ slug: 'discovery-fixture', name: 'Discovery', author: 'Test', saveRevision: 1, seed: 3 });
   const discovery = { 'boot.files': ['first.glb', 'second.glb'], 'boot.explore': { art: ['portrait.webp'] } };
   try {
     writeFileSync(resolve(directory, 'shard.config.ts'), `export default function generate() { return {shard:${JSON.stringify(source)},output:{},discovery:${JSON.stringify(discovery)}}; }`);
