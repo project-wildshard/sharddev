@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
-import { census, gate, LOCK, main, publicNames, USAGE } from '../../scripts/sdk-exports.mjs';
+import { spawnSync } from 'node:child_process';
+import { alias, aliasErrors, census, gate, LOCK, main, publicNames, USAGE } from '../../scripts/sdk-exports.mjs';
 
 mkdirSync('tmp', { recursive: true });
 const root = mkdtempSync(join(resolve('tmp'), 'sdk-exports-'));
@@ -49,4 +50,24 @@ test('a seeded export rename refuses while a shard repo uses the old name, and p
 
 test('the committed lock matches the tree', () => {
   assert.deepEqual(JSON.parse(readFileSync(LOCK, 'utf8')).names, publicNames(process.cwd()));
+});
+
+test('ST19b: a seeded rename keeps the old export as a warning alias for one release', () => {
+  const dir = join(root, 'alias');
+  mkdirSync(join(dir, 'packages/sdk/src/sharddev'), { recursive: true });
+  writeFileSync(join(dir, 'packages/sdk/package.json'), JSON.stringify({ name: '@wildshard/sdk', version: '0.4.27', exports: { './rng': './src/sharddev/rng.ts' } }));
+  writeFileSync(join(dir, 'packages/sdk/src/sharddev/rng.ts'), 'export const seed = 7\n');
+  writeFileSync(join(dir, 'packages/sdk/src/sharddev/deprecation.ts'), readFileSync('packages/sdk/src/sharddev/deprecation.ts', 'utf8'));
+  const shim = alias(dir, './random', './rng');
+  assert.equal(shim, './src/deprecated/random.ts');
+  assert.equal(JSON.parse(readFileSync(join(dir, 'packages/sdk/package.json'), 'utf8')).exports['./random'], shim);
+  // A shard importing the old name still gets the module, and one warning naming the new one.
+  const run = spawnSync(process.execPath, ['--input-type=module', '-e', `const m = await import(${JSON.stringify(join(dir, 'packages/sdk', shim))}); await import(${JSON.stringify(join(dir, 'packages/sdk', shim))}); console.log(m.seed)`], { encoding: 'utf8' });
+  assert.equal(run.status, 0, run.stderr);
+  assert.equal(run.stdout.trim(), '7');
+  assert.equal(run.stderr.match(/@wildshard\/sdk\/random is deprecated since @wildshard\/sdk 0\.4\.27: import @wildshard\/sdk\/rng instead/gu)?.length, 1);
+  // Deleting it in the release that made it refuses; a later release may (at zero users, ST19a).
+  const rows = { '@wildshard/sdk/random': { to: '@wildshard/sdk/rng', since: '0.4.27' } };
+  assert.match(aliasErrors(rows, ['@wildshard/sdk/rng'], '0.4.27').join(''), /ships for one release/u);
+  assert.deepEqual(aliasErrors(rows, ['@wildshard/sdk/rng'], '0.4.28'), []);
 });

@@ -7,11 +7,17 @@
 //   node scripts/sdk-exports.mjs lock                       write the lock from packages/*/package.json and the CLI help
 //   node scripts/sdk-exports.mjs usage --repos <dir,...|@file>  census the shard repos' source, scripts and workflows
 //   node scripts/sdk-exports.mjs check                      the delete gate (pnpm check runs it)
-import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+//   node scripts/sdk-exports.mjs alias <old> <new>          ST19b: keep a renamed SDK export as a warning alias
+//
+// ST19b: `alias ./random ./rng` keeps `@wildshard/sdk/random` resolving through a shim under src/deprecated/ that warns
+// once per process and re-exports the new module, and records it in packages/sdk/deprecated-exports.json with the SDK
+// version it first shipped in. `check` refuses deleting an alias in the release that made it (one release at least).
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, resolve } from 'node:path';
 
 export const LOCK = 'packages/sdk/exports.lock.json';
 export const USAGE = 'packages/sdk/export-usage.json';
+export const DEPRECATED = 'packages/sdk/deprecated-exports.json';
 const DAY_MS = 24 * 60 * 60 * 1000;
 /** A shard repo's alias for the SDK (`"@wildshard/sharddev": "npm:@wildshard/sdk@..."`). */
 const ALIASES = Object.freeze({ '@wildshard/sharddev': '@wildshard/sdk' });
@@ -99,6 +105,35 @@ export function gate(locked, current, usage, now) {
   return errors;
 }
 
+/** ST19b: aliases deleted in the same SDK version that made them. @param {Record<string,{to:string,since:string}>} deprecated
+ * @param {readonly string[]} current @param {string} version @returns {string[]} */
+export function aliasErrors(deprecated, current, version) {
+  return Object.entries(deprecated).filter(([old, row]) => !current.includes(old) && row.since === version)
+    .map(([old, row]) => `${old} became an alias of ${row.to} in ${version}; it ships for one release before it can go`);
+}
+
+/** ST19b: keep `old` as a warning alias of `next` (both SDK export keys, `./name`). @param {string} root @param {string} old @param {string} next */
+export function alias(root, old, next) {
+  const file = join(root, 'packages/sdk/package.json'), pkg = JSON.parse(readFileSync(file, 'utf8'));
+  const target = pkg.exports?.[next];
+  if (typeof target !== 'string') throw new Error(`${next} is not an SDK export`);
+  if (old === next || !/^\.\/[A-Za-z0-9_/-]+$/u.test(old)) throw new Error(`bad alias name ${old}`);
+  const shim = `./src/deprecated/${old.slice(2)}.ts`, depth = old.slice(2).split('/').length;
+  const up = '../'.repeat(depth + 1), oldName = `${pkg.name}/${old.slice(2)}`, newName = `${pkg.name}/${next.slice(2)}`;
+  mkdirSync(dirname(join(root, 'packages/sdk', shim)), { recursive: true });
+  writeFileSync(join(root, 'packages/sdk', shim), `// SHARD-COMPAT ST19b: ${oldName} is a deprecated alias of ${newName} since ${pkg.version}.\n`
+    + `// It goes once scripts/sdk-exports.mjs usage finds no shard repo importing it.\n`
+    + `import { warnDeprecatedExport } from '${up}src/sharddev/deprecation.ts'\n`
+    + `warnDeprecatedExport('${oldName}', '${newName}', '${pkg.version}')\n`
+    + `export * from '${up}${target.replace(/^\.\//u, '')}'\n`);
+  pkg.exports[old] = shim;
+  writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
+  const listed = join(root, DEPRECATED), rows = existsSync(listed) ? JSON.parse(readFileSync(listed, 'utf8')) : {};
+  rows[oldName] = { to: newName, since: pkg.version };
+  writeFileSync(listed, `${JSON.stringify(rows, null, 1)}\n`);
+  return shim;
+}
+
 /** @param {string[]} argv @param {string} root @returns {number} */
 export function main(argv, root = process.cwd()) {
   const [verb, ...rest] = argv;
@@ -121,12 +156,20 @@ export function main(argv, root = process.cwd()) {
   if (verb === 'check') {
     const lock = JSON.parse(readFileSync(join(root, LOCK), 'utf8'));
     const usage = existsSync(join(root, USAGE)) ? JSON.parse(readFileSync(join(root, USAGE), 'utf8')) : undefined;
-    const errors = gate(lock.names, current, usage, Date.now());
+    const deprecated = existsSync(join(root, DEPRECATED)) ? JSON.parse(readFileSync(join(root, DEPRECATED), 'utf8')) : {};
+    const version = JSON.parse(readFileSync(join(root, 'packages/sdk/package.json'), 'utf8')).version;
+    const errors = [...gate(lock.names, current, usage, Date.now()), ...aliasErrors(deprecated, current, version)];
     for (const error of errors) console.error(`sdk-exports: ${error}`);
     if (errors.length === 0) console.log(`sdk-exports: ${current.length} public names, none deleted under a user`);
     return errors.length === 0 ? 0 : 1;
   }
-  console.error('usage: node scripts/sdk-exports.mjs lock | usage --repos <dirs> | check');
+  if (verb === 'alias') {
+    const [old, next] = rest;
+    if (old === undefined || next === undefined) throw new Error('alias needs <old> <new>, SDK export keys such as ./random ./rng');
+    console.log(`sdk-exports: ${old} now warns and re-exports ${next} (${alias(root, old, next)})`);
+    return 0;
+  }
+  console.error('usage: node scripts/sdk-exports.mjs lock | usage --repos <dirs> | check | alias <old> <new>');
   return 2;
 }
 
