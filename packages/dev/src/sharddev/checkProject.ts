@@ -22,6 +22,7 @@ import { handwrittenIdentity } from '@wildshard/sdk/internal/handwritten';
 import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { engineMusicLine } from './engineMusic';
+import { admissionLine, type AdmissionApi } from './admissionLine';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import { pinRefusals, sdkPins } from './pinCheck';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
@@ -67,7 +68,7 @@ function isDraft(folder: string): boolean {
 }
 
 interface Admitted { readonly check: ShardfileCheckReport }
-export interface CheckOptions { readonly decisionLegacyLines?: number; readonly output?: string; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string> }
+export interface CheckOptions { readonly decisionLegacyLines?: number; readonly output?: string; readonly manifest?: ProjectManifestSource; readonly writeShardfile?: (folder: string, source: string, options?: { readonly draftWarning?: boolean }) => Promise<string>; readonly api?: AdmissionApi }
 
 /** Lint, build (no client; the shard file too, SA3), validate the built folder, prove its tape and read its report card. */
 export async function checkProject(projectPath: string, outputPath: string | undefined, options: CheckOptions = {}): Promise<CheckResult> {
@@ -116,7 +117,9 @@ export async function checkProject(projectPath: string, outputPath: string | und
       try { file = await options.writeShardfile?.(output, project, { draftWarning: false }); }
       catch (error) { return { status: 'fail', refusals: [{ message: authorErrorText(error), code: refusalCode(error), as: 'shardfile' }] }; }
       const warnings = isDraft(output) ? [{ message: draftMessage(shard.identity.slug), as: 'shardfile' as const }] : [];
-      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}`, warnings };
+      // CP7: what the API will do with the written file (its format, the API's, the migrations admission would run).
+      const admission = file === undefined || options.api === undefined ? undefined : await admissionLine(output, file, options.api);
+      return { status: 'pass', note: `built ${shard.identity.slug} v${shard.version}${file === undefined ? '' : `, ${file}`}${admission === undefined ? '' : `; ${admission}`}`, warnings };
     },
     validate: async (): Promise<StepOutcome> => {
       const checked = validateOutputProduct(built());

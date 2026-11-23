@@ -25,6 +25,7 @@ import { updateShardRepo } from '@wildshard/sdk/internal/agentFiles';
 import { updatePins } from '@wildshard/sdk/internal/updatePins';
 import { findShardSource, isHandwrittenSource, isRepoSource } from '@wildshard/upload/sharddev/shardSource';
 import { checkProject, readProofTape } from './checkProject';
+import type { AdmissionApi } from './admissionLine';
 import { checkLines } from './check';
 import { refusalCode, refusalHint, refusalNote, type RefusalStep } from '@wildshard/upload/sharddev/refusals';
 import { providePortalEntryProof } from '@wildshard/sdk/projectGeneration';
@@ -38,7 +39,8 @@ providePortalEntryProof(async (input, pieces) => (await import('./projectEntryPr
 const SIMULATION_ELSEWHERE = 'simulation, script CPU and entry walk: not run by build or validate; wildshard check runs them (the engine\'s own check, as the upload cook does)';
 /** The verbs whose first operand is a shard source (or, for validate and prove, a built folder). */
 const SOURCE_VERBS: ReadonlySet<string> = new Set(['check', 'synth', 'build', 'dev', 'watch', 'validate', 'prove']);
-type CliOptions = BuildVerbOptions;
+/** CP7: `api` is where `check` asks what admission will do (scripts/wildshard.mjs sets it). */
+type CliOptions = BuildVerbOptions & { readonly api?: AdmissionApi };
 async function runCommand(given: readonly string[], options: CliOptions): Promise<void> {
   // SA16 (J317): a verb given a repo finds its shard source at `src/` or its one `src/shards/<slug>/`.
   const args = SOURCE_VERBS.has(given[0] ?? '') && given[1] !== undefined && !given[1].startsWith('--') ? [given[0] ?? '', findShardSource(given[1]), ...given.slice(2)] : given;

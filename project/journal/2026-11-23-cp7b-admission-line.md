@@ -1,0 +1,3 @@
+# 2026-11-23 CP7b: check says what admission will do (opus-compat-w5)
+
+`wildshard check` now ends its build note with one line about the API: the built file's format against `GET /api/format`, then what admission will do. A file at the API's format is taken as is and never sent; a newer one waits for the API; an older one goes to `POST /api/shardfiles/dry-run` (api-server CP7a), which names the migrations admission would run. An API that does not answer, or one from before the dry run (404), is "local format only", never a failure, so offline checks and CI keep passing. The server is `WILDSHARD_API_URL`, else api.wildshard.io, set in scripts/wildshard.mjs so tests calling `checkProject` stay off the network.

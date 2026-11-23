@@ -120,7 +120,7 @@ export async function runWildshard(args) {
     return;
   }
   const legacy = project === undefined ? undefined : decisionLegacyLines(root, folder);
-  await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }), writeShardfile });
+  await (await runner)(args, { ...(legacy === undefined ? {} : { decisionLegacyLines: legacy }), ...(manifest === undefined ? {} : { manifest }), writeShardfile, api: { server: process.env.WILDSHARD_API_URL ?? 'https://api.wildshard.io' } });
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
