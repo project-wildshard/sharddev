@@ -84,8 +84,8 @@ test('a packed CLI scaffolds outside its checkout and refuses overwriting it', {
 // SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
 const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
 let built;
-// J198: what build writes is a draft (sdk 0.2); it warns, names the rule and still writes the shard file.
-const DRAFT = /^warning: outside-isle is an unprepared draft \(sdk 0\.2\): .*\n {2}\[shardfile-draft\] fix: Run `wildshard prepare /mu;
+// J198 and PR4: the draft has no preparation marker until it is recorded.
+const DRAFT = /^warning: outside-isle is an unprepared draft \(no preparation\): .*\n {2}\[shardfile-draft\] fix: Run `wildshard prepare /mu;
 test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
   const done = run(['build', source, join(app, 'first'), '--shardfile-only']);
   assert.match(done.stdout, DRAFT);
@@ -132,13 +132,13 @@ test('installed check --json gives a verdict on the new author project', { timeo
   // J198: the draft is a warning in the document, never a refusal.
   assert.deepEqual(result.warnings.map(row => [row.step, row.rule, row.guide]), [['build', 'shardfile-draft', 'GUIDE.md#shardfile-draft']]);
   // SA3: check's build writes the shard file too, and its note names it.
-  assert.match(result.steps[1].note, /outside-isle\.shardfile$/u);
+  assert.match(result.steps[1].note.split('; ', 1)[0], /outside-isle\.shardfile$/u);
   assert.equal(sha(shardfile), built);
 });
 test('installed check prints the draft warning once, in its verdict', { timeout: 9_500 }, () => {
   const done = run(['check', source, join(app, 'checked')]);
   assert.equal(`${done.stdout}${done.stderr}`.match(/unprepared draft/gu)?.length, 1, done.stdout);
-  assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(sdk 0\.2\)/mu);
+  assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(no preparation\)/mu);
   assert.match(done.stdout, /^check pass in /mu);
 });
 test('installed check --json fails a missing project with its refusal', { timeout: 9_500 }, () => {
@@ -209,7 +209,7 @@ test('the outside author uploads its newly built and prepared tarball through th
   // J198, J259: the draft refuses before any request; api-server would answer it 422 after the whole file.
   const draft = await upload(context, server, join(root, 'isle.tar'));
   assert.notEqual(draft.code, 0, draft.output);
-  assert.match(draft.output, /outside-isle is an unprepared draft \(sdk 0\.2\)[^\n]*\n {2}\[shardfile-draft\] fix: /u);
+  assert.match(draft.output, /outside-isle is an unprepared draft \(no preparation\)[^\n]*\n {2}\[shardfile-draft\] fix: /u);
   assert.equal(server.state.apiRequests.length, 0);
   // Prepared, then written again by build <folder>, it uploads as before.
   cpSync(join(app, 'first'), join(app, 'prepared'), { recursive: true });

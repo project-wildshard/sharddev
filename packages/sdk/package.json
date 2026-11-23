@@ -73,7 +73,7 @@
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@types/node": "24.3.1",
-    "@wildshard/engine": "file:/Users/raynos/projects/games/wildshard/engine/.worktrees/compat-w4/tmp/opus-compat-w4/wildshard-engine-0.1.67.tgz",
+    "@wildshard/engine": "0.1.73-next.505d779e",
     "@wildshard/sdk": "link:.",
     "happy-dom": "21.0.4",
     "postprocessing": "6.39.5",
