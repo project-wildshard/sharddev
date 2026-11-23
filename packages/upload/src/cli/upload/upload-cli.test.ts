@@ -168,7 +168,7 @@ test('an unprepared draft refuses with its rule and makes no request', async (co
   assert.equal(result.status, 3, result.stderr)
   assert.match(
     result.stderr,
-    /^sharddev: upload failed: upload-test is an unprepared draft \(sdk 0\.2\)/mu,
+    /^sharddev: upload failed: upload-test is an unprepared draft \(no preparation\)/mu,
   )
   assert.match(
     result.stderr,

@@ -33,7 +33,7 @@ describe('wildshard check (SA4)', () => {
   });
 
   it('carries a step\'s warnings, named like refusals, without failing the verdict (J198)', async () => {
-    const message = 'isle is an unprepared draft (sdk 0.2): api-server refuses a draft at commit, so prepare its folder and build it again before upload';
+    const message = 'isle is an unprepared draft (no preparation): api-server refuses a draft at commit, so prepare its folder and build it again before upload';
     const build = async (): Promise<StepOutcome> => await Promise.resolve({ status: 'pass', warnings: [{ message, as: 'shardfile' }] });
     const result = await runCheck('/p', () => '/o', steps({ build }), clock());
     expect(result.verdict).toBe('pass');

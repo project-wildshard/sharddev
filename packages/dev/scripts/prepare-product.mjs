@@ -66,12 +66,12 @@ export async function finishPreparation(dir,recording,originalHeader){
   if(typeof renderer!=='string'||!/^[a-f0-9]{64}$/u.test(renderer))throw new Error('Recording has no engine renderer revision; use a D5 preparation preview');
   const sections=new Map(held.sections.map(row=>[row.name,json(dir,row.path)]));
   const old=held.cook===undefined?{mounts:[]}:readCookData(json(dir,'cook.json'));
-  const {build:_build,...programRows}=programs,written=spec4?{...programRows,version:3}:programs;
-  const url=`/programs/${held.identity.slug}.json`,path=cookMountPath(url),programBytes=bytesOf(written);
-  const mounts=[...old.mounts.filter(row=>row.url!==url),{url,path,hash:hash(programBytes),bytes:programBytes.length}].sort((a,b)=>a.url.localeCompare(b.url));
   // SHARD-COMPAT PR4 (J487): from format 0.1.0.3 the file records preparation spec 4, which names no engine: no
   // renderer fingerprint, programs without the engine build. An older envelope keeps the legacy sdk '0.3' and spec 3.
   const spec4=typeof held.formatVersion==='string'&&writesPreparationMarker(held.formatVersion);
+  const {build:_build,...programRows}=programs,written=spec4?{...programRows,version:3}:programs;
+  const url=`/programs/${held.identity.slug}.json`,path=cookMountPath(url),programBytes=bytesOf(written);
+  const mounts=[...old.mounts.filter(row=>row.url!==url),{url,path,hash:hash(programBytes),bytes:programBytes.length}].sort((a,b)=>a.url.localeCompare(b.url));
   const index=spec4?{...held,preparation:PREPARATION_SPEC}:{...held,sdk:'0.3'},fence=preparationFence(index,sections,recording,mounts);
   // A full phone set contains every admitted non-desktop file. Only a strict
   // measured subset needs the existing fence policy; desktop stays whole.

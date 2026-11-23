@@ -28,7 +28,7 @@ import { pinRefusals, sdkPins } from './pinCheck';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { authorErrorText } from '@wildshard/sdk/internal/authorError';
 import { refusalCode } from '@wildshard/upload/sharddev/refusals';
-import { DRAFT_SDK, draftMessage } from '@wildshard/upload/sharddev/draft';
+import { draftMessage, isDraftIndex } from '@wildshard/upload/sharddev/draft';
 import { authorLintPlan } from '@wildshard/sdk/internal/authorLint';
 import { assertCreatureDeclarations } from '@wildshard/sdk/internal/creatureLayers';
 /** The engine names its own format copy (engine 0.1.53 bundles 0.54.0; sharddev pins 0.55.0); a pin skew still compiles. */
@@ -61,10 +61,10 @@ function withPins(project: string, outcome: StepOutcome): StepOutcome {
   return refusals.length === 0 ? outcome : { ...outcome, status: 'fail', refusals: [...(outcome.refusals ?? []), ...refusals] };
 }
 
-/** J198: a built folder whose index says sdk 0.2 is a draft; upload refuses it until `wildshard prepare` runs. */
+/** J198, PR4: a built folder whose index records no preparation is a draft; upload refuses it until `wildshard prepare` runs. */
 function isDraft(folder: string): boolean {
   const index: unknown = JSON.parse(readFileSync(resolve(folder, 'shard.json'), 'utf8'));
-  return typeof index === 'object' && index !== null && 'sdk' in index && index.sdk === DRAFT_SDK;
+  return isDraftIndex(index);
 }
 
 interface Admitted { readonly check: ShardfileCheckReport }

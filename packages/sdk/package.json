@@ -52,7 +52,7 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.66.0",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.70.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/upload": "workspace:*",
     "ajv": "6.15.0",
@@ -73,7 +73,7 @@
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@types/node": "24.3.1",
-    "@wildshard/engine": "0.1.65-next.9c91846e",
+    "@wildshard/engine": "file:/Users/raynos/projects/games/wildshard/engine/.worktrees/compat-w4/tmp/opus-compat-w4/wildshard-engine-0.1.67.tgz",
     "@wildshard/sdk": "link:.",
     "happy-dom": "21.0.4",
     "postprocessing": "6.39.5",

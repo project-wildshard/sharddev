@@ -208,7 +208,7 @@ describe('the shard file build writes (SA3)', () => {
   // QA 11-13 row 2 (J198, J259): one rule for a draft, a warning from build and check, a refusal from upload.
   it('names an unprepared draft shardfile-draft, in build\'s warning and upload\'s refusal', () => {
     const message = draftMessage('dunes');
-    expect(message).toMatch(/^dunes is an unprepared draft \(sdk 0\.2\): /u);
+    expect(message).toMatch(/^dunes is an unprepared draft \(no preparation\): /u);
     for (const step of ['shardfile', 'upload'] as const) expect(refusalNote(step, message)).toEqual({ rule: 'shardfile-draft', guide: `${GUIDE_FILE}#shardfile-draft`, fix: REFUSAL_RULES.find(row => row.id === 'shardfile-draft')?.fix });
     expect(REFUSAL_RULES.find(row => row.id === 'shardfile-draft')?.fix).toMatch(/wildshard prepare .*wildshard build <folder>.*WILDSHARD_PREPARATION_URL/u);
   });

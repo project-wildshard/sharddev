@@ -19,7 +19,7 @@ export function validateRuntimeData(mirrors: readonly RuntimeMirror[], copiedCon
 /** Client-plan products contain no copied executable runtime. Platform data
  * and registered named files retain their original output-owner validation. */
 export function proveRuntimeData(_destination: string, index: OutputIndex, mirrors: readonly RuntimeMirror[]): void {
-  if (index.runtime !== null && index.runtime.files.length > 0) throw new Error('Runtime proof requires a client-plan output with no copied TypeScript');
+  if (index.runtime !== null && (index.runtime.files?.length ?? 0) > 0) throw new Error('Runtime proof requires a client-plan output with no copied TypeScript');
   if ((index.schemas ?? []).length > 0 || index.sections.some(row => row.name.startsWith('custom/'))) throw new Error('Custom runtime registries are retired');
   validateRuntimeData(mirrors, undefined);
 }

@@ -69,7 +69,7 @@ const VERBS: Readonly<Record<string, string>> = {
   upload: `upload <file> --channel staging|prod [--server <url>]
          [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place]
          [--no-new|--new] [--no-wait]
-                       Check a shard file (an unprepared draft, sdk 0.2,
+                       Check a shard file (an unprepared draft, no preparation,
                        is refused before anything is sent), compress it
                        (Brotli level <n>, default ${LEVEL}) and upload it
                        with your account credential. The channel
@@ -160,7 +160,7 @@ const VERBS: Readonly<Record<string, string>> = {
                        it and run shard-format's checks on it. Refuses a
                        shard whose captured hero is older than its content
                        (hero.json) and prints the audio rules. What it
-                       writes is a draft (sdk 0.2): it warns that the API
+                       writes is a draft (no preparation): it warns that the API
                        and upload refuse a draft until prepare makes it
                        sdk 0.3. --shardfile-only skips the web client;
                        --folder-only also skips the shard file

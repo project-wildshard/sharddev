@@ -40,7 +40,7 @@ export interface OutputProductOptions {
   readonly namedFiles?: readonly OutputFile[];
   /** J91: server-class files. They enter the index's `admission.server`, never `files`. */
   readonly server?: readonly ServerBlob[];
-  readonly runtime?: { readonly files: readonly NonNullable<OutputIndex['runtime']>['files'][number][]; readonly lines: number };
+  readonly runtime?: { readonly files: readonly NonNullable<NonNullable<OutputIndex['runtime']>['files']>[number][]; readonly lines: number };
   /** C0 (J137): the files and hints that let this product stand alone (`cook.json`). */
   readonly cook?: CookInput;
 }

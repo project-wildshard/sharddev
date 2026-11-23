@@ -4,7 +4,7 @@ import path from 'node:path'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
-import { DRAFT_SDK, draftMessage } from '../../sharddev/draft.ts'
+import { draftMessage } from '../../sharddev/draft.ts'
 import { refusalHint, refusalNote } from '../../sharddev/refusals.ts'
 import { audioLines } from '../audio/audio.ts'
 import { assertHeroCurrent } from '../hero/hero.ts'
@@ -15,7 +15,7 @@ import { validateShardfile } from '../upload/validate.ts'
 // takes, so a shard file stands alone. It writes ustar through format's
 // `writeTar` and runs format's validator on the tarball itself, the check the
 // server runs at commit: what this writes, the server admits once it is
-// prepared. A fresh build is a draft (sdk 0.2) that the server refuses, so
+// prepared. A fresh build is a draft (no preparation) that the server refuses, so
 // this warns about one (J198). `wildshard pack` is the deprecated alias.
 //
 // The same folder writes the same bytes, so the same hash, and a re-upload
@@ -119,15 +119,15 @@ function reportOverCap(options: ShardfileOptions, bytes: number): void {
 }
 
 /**
- * J198: a fresh build is a draft (sdk 0.2) that upload and api-server refuse;
+ * J198: a fresh build is a draft (no preparation) that upload and api-server refuse;
  * build still writes it, as `wildshard prepare` works on the folder.
  */
 function reportDraft(
   options: ShardfileOptions,
   slug: string,
-  sdk: string,
+  draft: boolean,
 ): void {
-  if (sdk === DRAFT_SDK && options.draftWarning !== false) {
+  if (draft && options.draftWarning !== false) {
     const message = draftMessage(slug)
     options.report(`warning: ${message}`)
     options.report(`  ${refusalHint(refusalNote('shardfile', message))}`)
@@ -154,9 +154,9 @@ async function checkedTarball(
 ): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
   await assertHeroCurrent(options.dir, options.report, options.source)
   const { tarball, fileCount } = await tarOf(options.dir)
-  const { slug, name, audio, sdk } = await validateShardfile(tarball)
+  const { slug, name, audio, draft } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
-  reportDraft(options, slug, sdk)
+  reportDraft(options, slug, draft)
   // AUDIO AU5: build prints the audio rules as AMBER and still writes the
   // shard file; only upload and api-server's admission refuse a red.
   for (const line of await audioLines(audio)) {

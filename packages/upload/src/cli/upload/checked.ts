@@ -1,6 +1,6 @@
 import path from 'node:path'
 
-import { DRAFT_SDK, draftMessage } from '../../sharddev/draft.ts'
+import { draftMessage } from '../../sharddev/draft.ts'
 import { findShardSource } from '../../sharddev/shardSource.ts'
 import { assertAudio } from '../audio/audio.ts'
 import { STAMP, field, readJson } from '../hero/stamp.ts'
@@ -59,10 +59,10 @@ async function validated(
   options: CheckOptions,
   tarball: Readonly<Uint8Array>,
 ): Promise<Checked> {
-  const { slug, name, audio, heroHash, sdk, hero } =
+  const { slug, name, audio, heroHash, draft, hero } =
     await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
-  if (sdk === DRAFT_SDK) {
+  if (draft) {
     throw new Error(draftMessage(slug))
   }
   await assertAudio(audio)

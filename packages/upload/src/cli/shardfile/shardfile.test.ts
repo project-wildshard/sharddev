@@ -192,12 +192,12 @@ test('build warns on a draft and still writes it; upload refuses it unsent', asy
 
   assert.match(
     lines.join('\n'),
-    /^warning: upload-test is an unprepared draft \(sdk 0\.2\): api-server refuses a draft at commit, so prepare its folder and build it again before upload\n {2}\[shardfile-draft\] fix: Run `wildshard prepare .*\(GUIDE\.md#shardfile-draft\)$/mu,
+    /^warning: upload-test is an unprepared draft \(no preparation\): api-server refuses a draft at commit, so prepare its folder and build it again before upload\n {2}\[shardfile-draft\] fix: Run `wildshard prepare .*\(GUIDE\.md#shardfile-draft\)$/mu,
   )
   assert.equal(packed.hash, sha256(await readFile(space.out)))
   await assert.rejects(
     upload.send(),
-    /upload-test is an unprepared draft \(sdk 0\.2\)/u,
+    /upload-test is an unprepared draft \(no preparation\)/u,
   )
   assert.equal(upload.requests(), 0)
 })

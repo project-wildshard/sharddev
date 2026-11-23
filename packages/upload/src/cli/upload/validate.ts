@@ -2,6 +2,7 @@ import { createHash } from 'node:crypto'
 
 import { installFormatHook } from '@wildshard/format/formatHook'
 
+import { isDraftIndex } from '../../sharddev/draft.ts'
 import { heroVerdict } from './hero-gate.ts'
 import { heroHashOf } from './hero.ts'
 
@@ -27,7 +28,8 @@ interface ValidShardfile {
   /** Meta HERO-GATE HG2: whether the hero is present, captured, carried and the right size. */
   readonly hero: HeroVerdict
   /** `0.2`: a draft as `wildshard build` writes it; `0.3`: prepared (J198). */
-  readonly sdk: '0.2' | '0.3'
+  /** PR4: no preparation recorded (`sdk: "0.2"`, or no `preparation` at format 0.1.0.3). */
+  readonly draft: boolean
 }
 
 function sha256(bytes: Readonly<Uint8Array>): string {
@@ -79,7 +81,7 @@ async function validateShardfile(
   })
   const { identity, presentation } = valid.shard
   return {
-    sdk: valid.index.sdk,
+    draft: isDraftIndex(valid.index),
     slug: identity.slug,
     name: identity.name,
     audio: productAudioReport(valid, new Date()),
