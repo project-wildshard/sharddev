@@ -853,9 +853,17 @@ function tanh(x: number): number {
 export const DETERMINISTIC_MATH = 'v8-13.6-fdlibm-js/1';
 
 /** The same bits on every CPU: V8's fdlibm, without the fused multiply-add arm64 adds. */
-export const deterministicMath = {
+type Unary = (x: number) => number;
+/** The Math functions this file replaces, by their Math name. */
+export interface DeterministicMath {
+  readonly acos: Unary; readonly acosh: Unary; readonly asin: Unary; readonly asinh: Unary; readonly atan: Unary;
+  readonly atan2: (y: number, x: number) => number; readonly atanh: Unary; readonly cos: Unary; readonly cosh: Unary;
+  readonly exp: Unary; readonly expm1: Unary; readonly log: Unary; readonly log10: Unary; readonly log1p: Unary;
+  readonly log2: Unary; readonly sin: Unary; readonly sinh: Unary; readonly tan: Unary; readonly tanh: Unary;
+}
+export const deterministicMath: DeterministicMath = {
   acos, acosh, asin, asinh, atan, atan2, atanh, cos, cosh, exp, expm1, log, log10, log1p, log2, sin, sinh, tan, tanh,
-} as const;
+};
 
 let installed = false;
 /** Put `deterministicMath` on the global Math for the rest of this process, so a build (its author code, three.js and
