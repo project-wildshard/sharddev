@@ -133,6 +133,14 @@ const VERBS: Readonly<Record<string, string>> = {
                        GET /api/catalogue.json?channel=<channel> (prod is
                        production); no key. Reads WILDSHARD_API_URL when
                        --server is absent, else https://api.wildshard.io`,
+  migrate: `migrate --dry-run <file> [--server <url>]
+                       Ask the API what admission would do with a shard
+                       file, storing nothing and sending no key: its
+                       format against the API's, the migrations it would
+                       run, the chain that runs them and the digest of
+                       what would play (the SHA-256 the API records).
+                       Reads WILDSHARD_API_URL when --server is absent,
+                       else https://api.wildshard.io`,
   delete: `delete <slug> [--yes] [--server <url>]
                        Delete your shard: it leaves the catalogue, every
                        channel and the grid at once. Prints what it would

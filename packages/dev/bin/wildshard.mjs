@@ -68,6 +68,10 @@ if (verbHelp) {
   const script = resolve(import.meta.dirname, '../src/cli/grid/command.ts');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
+} else if (command === 'migrate') {
+  const script = resolve(import.meta.dirname, '../src/cli/migrate/command.ts');
+  process.argv.splice(1, 2, script);
+  await import(pathToFileURL(script).href);
 } else if (command === 'content') {
   const script = resolve(import.meta.dirname, '../src/cli/content-command.ts');
   process.argv.splice(1, 2, script);
