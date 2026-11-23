@@ -1,8 +1,11 @@
+import { spawn } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
+import { once } from 'node:events'
 import { readFile, rename, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
+import { text as readAll } from 'node:stream/consumers'
 
-import { STAMP, cardHashes, field, readJson } from './stamp.ts'
+import { NONE, STAMP, cardHashes, field, readJson } from './stamp.ts'
 
 import type { HeroState } from './stamp.ts'
 
@@ -95,23 +98,96 @@ async function currentLook(
   return await productLook(product, new Set(Object.values(art)))
 }
 
-/** What the cut does with the built world: nothing, record it, or call a source-stale hero current. */
+const UNTRACKED_SHOWN = 3
+const UNTRACKED = '?? '
+const GIT_OK = 0
+
+/** A git command's output, or a throw when git or the checkout is missing (provenance.ts's helper). */
+async function git(cwd: string, args: readonly string[]): Promise<string> {
+  const child = spawn('git', [...args], {
+    cwd,
+    stdio: ['ignore', 'pipe', 'ignore'],
+  })
+  const output = readAll(child.stdout)
+  try {
+    await once(child, 'close')
+  } catch {
+    // No git, or no such folder: not a checkout.
+  }
+  if (child.exitCode !== GIT_OK) {
+    throw new Error(`git ${args.join(' ')} failed in ${cwd}`)
+  }
+  const out = await output
+  return out.trim()
+}
+
+/**
+ * QA 11-23-b row 14: untracked files under the repo's `src/` or `public/` (assets a worktree holds but git does not)
+ * reach the product, so a look stamped beside them is not the look CI builds from the commit. Empty outside git.
+ */
+async function untrackedInputs(shard: string): Promise<readonly string[]> {
+  try {
+    const top = await git(shard, ['rev-parse', '--show-toplevel'])
+    const status = await git(top, [
+      'status',
+      '--porcelain',
+      '--untracked-files=all',
+      '--',
+      'src',
+      'public',
+    ])
+    return status
+      .split('\n')
+      .filter((line: string): boolean => line.startsWith(UNTRACKED))
+      .map((line: string): string => line.slice(UNTRACKED.length))
+  } catch {
+    return []
+  }
+}
+
+/** The new look, when the stamp needs one: undefined when there is nothing to compare or the stamp already agrees. */
+async function lookToRecord(
+  product: string,
+  shard: string,
+  hero: HeroState,
+): Promise<string | undefined> {
+  const look = await currentLook(product, shard, hero)
+  if (look === undefined) {
+    return undefined
+  }
+  const stamped = field(await readJson(path.join(shard, STAMP)), 'look')
+  const fresh = hero.state === 'fresh'
+  const agrees = stamped === look
+  return fresh === agrees ? undefined : look
+}
+
+/**
+ * What the cut does with the built world: nothing, record it, call a source-stale hero current, or decline to record
+ * it beside untracked inputs (returned, for the report).
+ */
 async function heroLook(
   product: string,
   shard: string,
   hero: HeroState,
-): Promise<'none' | 'recorded' | 'kept'> {
-  const look = await currentLook(product, shard, hero)
+): Promise<'none' | 'recorded' | 'kept' | readonly string[]> {
+  const look = await lookToRecord(product, shard, hero)
   if (look === undefined) {
     return 'none'
   }
-  const stamped = field(await readJson(path.join(shard, STAMP)), 'look')
-  const fresh = hero.state === 'fresh'
-  if (fresh === (stamped === look)) {
-    return 'none'
+  const untracked = await untrackedInputs(shard)
+  if (untracked.length > NONE) {
+    return untracked
   }
   await writeLook(shard, { content: hero.content, look })
-  return fresh ? 'recorded' : 'kept'
+  return hero.state === 'fresh' ? 'recorded' : 'kept'
 }
 
-export { heroLook, productLook, writeLook }
+/** The report line for a look not recorded beside untracked inputs. */
+function untrackedLine(stamp: string, untracked: readonly string[]): string {
+  const shown = untracked.slice(NONE, UNTRACKED_SHOWN).join(', ')
+  const rest = untracked.length - UNTRACKED_SHOWN
+  const more = rest > NONE ? ` and ${String(rest)} more` : ''
+  return `hero: did not record the built world in ${stamp}: untracked inputs (${shown}${more}) reach this build but not CI's; commit or remove them and build again`
+}
+
+export { heroLook, productLook, untrackedLine, writeLook }

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
-import { copyFile, readFile, rm, writeFile } from 'node:fs/promises'
+import { execFileSync } from 'node:child_process'
+import { copyFile, mkdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
@@ -74,6 +75,44 @@ test('NB10: a source edit that builds the same world keeps the hero, re-stamped'
   assert.match(
     await readFile(path.join(space.shard, 'hero.json'), 'utf8'),
     /"look": "[0-9a-f]{64}"/u,
+  )
+})
+
+// QA 11-23-b row 14 (meta): a worktree's untracked public/ assets reach its build but not CI's, so the look it would
+// record is not the one CI builds from the commit (Dunes and Sky stopped on src/hero.json); the cut records nothing.
+/** The project committed to a new git repo, then one untracked asset under its public/. */
+async function committedWithLooseAsset(space: Project): Promise<void> {
+  for (const args of [
+    ['init', '-q'],
+    ['add', '-A'],
+    ['commit', '-qm', 'fixture'],
+  ]) {
+    execFileSync(
+      'git',
+      ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', ...args],
+      { cwd: space.root, stdio: 'ignore' },
+    )
+  }
+  await mkdir(path.join(space.root, 'public', 'assets'), { recursive: true })
+  await writeFile(
+    path.join(space.root, 'public', 'assets', 'loose.png'),
+    'not in git',
+  )
+}
+
+test('a look is not recorded beside untracked src/ or public/ inputs', async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  await writeHeroStamp(space.shard, { base: BASE })
+  await committedWithLooseAsset(space)
+  const lines = await cut(space)
+  assert.ok(
+    lines.some((line: string): boolean =>
+      line.includes('untracked inputs (public/assets/loose.png)'),
+    ),
+  )
+  assert.doesNotMatch(
+    await readFile(path.join(space.shard, 'hero.json'), 'utf8'),
+    /"look"/u,
   )
 })
 

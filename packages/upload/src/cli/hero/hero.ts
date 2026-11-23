@@ -2,7 +2,7 @@ import { readdir } from 'node:fs/promises'
 import path from 'node:path'
 
 import { shardCardPath } from '../../sharddev/shardSource.ts'
-import { heroLook } from './look.ts'
+import { heroLook, untrackedLine } from './look.ts'
 import { isSceneShard } from './scene-card.ts'
 import {
   NONE,
@@ -165,6 +165,19 @@ async function restamp(
 
 type Judged = Readonly<{ product: string; shard: string; hero: HeroState }>
 
+/** A look the cut did not keep: recorded on a fresh hero, or not recorded beside untracked inputs (QA 11-23-b row 14). */
+function reportUnkept(
+  look: 'none' | 'recorded' | readonly string[],
+  stamp: string,
+  report: (line: string) => void,
+): void {
+  if (typeof look !== 'string') {
+    report(untrackedLine(stamp, look))
+  } else if (look === 'recorded') {
+    report(`hero: recorded the built world it shows in ${stamp}; commit it`)
+  }
+}
+
 /**
  * NB10 / PR6: the hero shows the built world, so a source move that builds the same world keeps it current. Records
  * the built world on a fresh hero; true when it kept a source-stale one (re-stamped, and its fresh line reported).
@@ -175,10 +188,8 @@ async function keptByLook(
 ): Promise<boolean> {
   const look = await heroLook(product, shard, hero)
   const stamp = path.join(shard, STAMP)
-  if (look === 'recorded') {
-    report(`hero: recorded the built world it shows in ${stamp}; commit it`)
-  }
   if (look !== 'kept') {
+    reportUnkept(look, stamp, report)
     return false
   }
   report(
