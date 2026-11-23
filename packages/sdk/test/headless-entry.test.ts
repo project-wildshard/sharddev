@@ -21,7 +21,7 @@ test('the engine is a peer of the sdk, so each re-export resolves the shard\'s o
 
 test('every harness path the shards read has its sdk row, and each file re-exports exactly that engine path', () => {
   expect(rows.map(([key]) => key.slice('./headless/'.length)).sort()).toEqual([
-    'app/resources', 'app/scope', 'core/tier', 'game/shardCook', 'game/shardfile/outputDescriptor', 'game/shardfile/serverPack', 'game/types',
+    'app/resources', 'app/scope', 'core/tier', 'game/shardCook', 'game/shardfile/outputDescriptor', 'game/shardfile/serverPack', 'game/systems/viewmodel/armRig', 'game/types',
     'host/headless', 'host/headlessFolder', 'host/headlessJourney', 'host/headlessRuntime', 'host/headlessSections', 'host/headlessTape',
     'host/tickProtocol', 'physics/rapier', 'scripts/authored-manifest.mjs', 'scripts/bake-input-hashes.mjs', 'scripts/bake-loader.mjs',
     'scripts/bake-output.mjs', 'scripts/built-folder.mjs', 'scripts/debug-settings.mjs', 'scripts/format-hook.mjs',

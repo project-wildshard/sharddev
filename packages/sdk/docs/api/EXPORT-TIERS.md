@@ -102,7 +102,7 @@ Scripts: the decision and client script compilers, their AssemblyScript helpers 
 | `@wildshard/sdk/directorAbi` | scripts | `./src/sharddev/directorAbi.ts` |
 | `@wildshard/sdk/returnProjectionV2` | scripts | `./src/sharddev/returnProjectionV2.ts` |
 
-## bake kit (87)
+## bake kit (86)
 
 The bake kit: build-time geometry, texture, map and commons helpers; nothing here runs in the game.
 
@@ -110,7 +110,6 @@ The bake kit: build-time geometry, texture, map and commons helpers; nothing her
 |---|---|---|
 | `@wildshard/sdk/bake` | bake kit | `./src/sharddev/bake.ts` |
 | `@wildshard/sdk/bake/annulus` | bake kit | `./src/sharddev/bake/annulus.ts` |
-| `@wildshard/sdk/bake/armRig` | bake kit | `./src/sharddev/bake/armRig.ts` |
 | `@wildshard/sdk/bake/basisGlb` | bake kit | `./src/sharddev/bake/basisGlb.ts` |
 | `@wildshard/sdk/bake/byteCodec` | bake kit | `./src/sharddev/bake/byteCodec.ts` |
 | `@wildshard/sdk/bake/canvasAtlas` | bake kit | `./src/sharddev/bake/canvasAtlas.ts` |
@@ -196,7 +195,7 @@ The bake kit: build-time geometry, texture, map and commons helpers; nothing her
 | `@wildshard/sdk/scene/shardfile` | bake kit | `./src/sharddev/scene/shardfile.ts` |
 | `@wildshard/sdk/watch/protocol` | bake kit | `./src/sharddev/watch/protocol.ts` |
 
-## headless (37)
+## headless (38)
 
 The headless harness: the engine's host, Node simulation loader, product readers and bake scripts, re-exported for a shard's tests, scripts and ci (SHARD-COMPAT SI4). The engine is the shard's own, a peer of the sdk.
 
@@ -209,6 +208,7 @@ The headless harness: the engine's host, Node simulation loader, product readers
 | `@wildshard/sdk/headless/game/shardCook` | headless | `./src/sharddev/headless/game/shardCook.ts` |
 | `@wildshard/sdk/headless/game/shardfile/outputDescriptor` | headless | `./src/sharddev/headless/game/shardfile/outputDescriptor.ts` |
 | `@wildshard/sdk/headless/game/shardfile/serverPack` | headless | `./src/sharddev/headless/game/shardfile/serverPack.ts` |
+| `@wildshard/sdk/headless/game/systems/viewmodel/armRig` | headless | `./src/sharddev/headless/game/systems/viewmodel/armRig.ts` |
 | `@wildshard/sdk/headless/game/types` | headless | `./src/sharddev/headless/game/types.d.ts` |
 | `@wildshard/sdk/headless/host/headless` | headless | `./src/sharddev/headless/host/headless.ts` |
 | `@wildshard/sdk/headless/host/headlessFolder` | headless | `./src/sharddev/headless/host/headlessFolder.ts` |
