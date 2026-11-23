@@ -315,6 +315,7 @@
     "./headless/test/FakeGame": "./src/sharddev/headless/test/FakeGame.ts",
     "./headless/scripts/native-recorder-cache.mjs": "./src/sharddev/headless/scripts/native-recorder-cache.mjs",
     "./headless/scripts/frame-floor-grid.mjs": "./src/sharddev/headless/scripts/frame-floor-grid.mjs",
+    "./headless/scripts/proof-state.mjs": "./src/sharddev/headless/scripts/proof-state.mjs",
     "./headless/scripts/authored-manifest.mjs": "./src/sharddev/headless/scripts/authored-manifest.mjs",
     "./headless/scripts/bake-input-hashes.mjs": "./src/sharddev/headless/scripts/bake-input-hashes.mjs",
     "./headless/scripts/frame-floor-settings.mjs": "./src/sharddev/headless/scripts/frame-floor-settings.mjs",

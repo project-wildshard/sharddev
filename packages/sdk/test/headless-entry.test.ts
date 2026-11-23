@@ -24,7 +24,7 @@ test('every harness path the shards read has its sdk row, and each file re-expor
     'host/tickProtocol', 'physics/rapier', 'scripts/authored-manifest.mjs', 'scripts/bake-input-hashes.mjs', 'scripts/bake-loader.mjs',
     'scripts/bake-output.mjs', 'scripts/built-folder.mjs', 'scripts/debug-settings.mjs', 'scripts/format-hook.mjs',
     'scripts/frame-floor-grid.mjs', 'scripts/frame-floor-navigation.mjs', 'scripts/frame-floor-settings.mjs',
-    'scripts/native-recorder-cache.mjs', 'scripts/program-discovery.mjs', 'scripts/shard-outputs.mjs', 'scripts/shardfile-inputs.mjs',
+    'scripts/native-recorder-cache.mjs', 'scripts/program-discovery.mjs', 'scripts/proof-state.mjs', 'scripts/shard-outputs.mjs', 'scripts/shardfile-inputs.mjs',
     'scripts/sim-node-loader.mjs', 'scripts/tile-bake-report.mjs', 'sim/snapshot', 'test/FakeGame', 'world/Heightfield',
     'world/terrainHeight',
   ]);

@@ -173,6 +173,7 @@
   "@wildshard/sdk/headless/scripts/debug-settings.mjs",
   "@wildshard/sdk/headless/scripts/format-hook.mjs",
   "@wildshard/sdk/headless/scripts/frame-floor-grid.mjs",
+  "@wildshard/sdk/headless/scripts/proof-state.mjs",
   "@wildshard/sdk/headless/scripts/frame-floor-navigation.mjs",
   "@wildshard/sdk/headless/scripts/frame-floor-settings.mjs",
   "@wildshard/sdk/headless/scripts/native-recorder-cache.mjs",

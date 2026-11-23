@@ -206,7 +206,7 @@ A staging MMO page keeps authoritative quests and creatures in its worker client
 a Playwright proof (the same reader serves local `wildshard dev`):
 
 ```js
-import { readProofState } from '@wildshard/engine/scripts/proof-state.mjs';
+import { readProofState } from '@wildshard/sdk/headless/scripts/proof-state.mjs';
 const state = await page.evaluate(readProofState, { creatureKinds: ['boar'] });
 if (!state) throw new Error('Enter the shard before reading gameplay');
 console.log(state.quest.flags, state.quest.quests, state.creatures, state.seat);

@@ -242,6 +242,7 @@
     "./headless/test/FakeGame": "headless",
     "./headless/scripts/native-recorder-cache.mjs": "headless",
     "./headless/scripts/frame-floor-grid.mjs": "headless",
+    "./headless/scripts/proof-state.mjs": "headless",
     "./headless/scripts/authored-manifest.mjs": "headless",
     "./headless/scripts/bake-input-hashes.mjs": "headless",
     "./headless/scripts/frame-floor-settings.mjs": "headless",
