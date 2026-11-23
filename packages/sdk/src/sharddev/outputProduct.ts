@@ -8,6 +8,7 @@ import { existsSync, lstatSync, mkdirSync, readdirSync, rmSync, writeFileSync } 
 // oxlint-disable-next-line import/no-nodejs-modules -- Product paths are validated relative paths, never URLs.
 import { dirname, resolve } from 'node:path';
 import { parseOutputIndex, parseOutputSection, type OutputFile, type OutputIndex } from '@wildshard/format/outputIndex';
+import { outputIndexEnvelope } from '@wildshard/format/version';
 import { outputSectionPayloads, OUTPUT_SECTIONS } from '@wildshard/format/outputFields';
 import { decisionScriptsFromSections, scriptAdmissionRows, type ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
@@ -128,10 +129,11 @@ export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Ui
   }
   const cook=cookRow(options.cook,emitted,files);
   const {spawns:_spawns,...runtime} = source.runtime ?? {};
-  const index = parseOutputIndex({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,identity:source.identity,requires:source.requires,
+  // SHARD-COMPAT CP14: outputIndexEnvelope writes the envelope source.version spells (0.1.0.2: formatVersion is the version).
+  const index = parseOutputIndex(outputIndexEnvelope({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,identity:source.identity,requires:source.requires,
     build:{sourceHash:hashImmutableBytes(jsonBytes(source)),validator:validationRevision() ?? 'source'},admission:{budgets:source.budgets,serverBudget:source.serverBudget,authorCaps:source.authorCaps,critical:source.critical,library:source.library,...(source.late===undefined?{}:{late:source.late}),...(options.cook?.audioWaiver===undefined?{}:{audioWaiver:options.cook.audioWaiver}),...(options.server===undefined||options.server.length===0?{}:{server:options.server.map(blob=>blob.file).sort((a,b)=>a.name.localeCompare(b.name))})},
     ...(Object.keys(ktx2Costs).length===0?{}:{ktx2Costs}),
-    sections:sections.sort((a,b)=>a.name.localeCompare(b.name)),schemas:schemas.sort((a,b)=>a.path.localeCompare(b.path)),files:files.sort((a,b)=>a.hash.localeCompare(b.hash)||a.path.localeCompare(b.path)),...(cook===undefined?{}:{cook}),runtime:source.runtime === null ? null : {...runtime,files:options.runtime?.files ?? [],lines:options.runtime?.lines ?? 0}});
+    sections:sections.sort((a,b)=>a.name.localeCompare(b.name)),schemas:schemas.sort((a,b)=>a.path.localeCompare(b.path)),files:files.sort((a,b)=>a.hash.localeCompare(b.hash)||a.path.localeCompare(b.path)),...(cook===undefined?{}:{cook}),runtime:source.runtime === null ? null : {...runtime,files:options.runtime?.files ?? [],lines:options.runtime?.lines ?? 0}}));
   // A writer owns this product directory, never a source folder. Preserve only the
   // already-copied runtime files; refuse unrelated leftovers in validation below.
   mkdirSync(destination,{recursive:true});

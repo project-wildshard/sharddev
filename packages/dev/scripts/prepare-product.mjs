@@ -10,6 +10,8 @@ import '@wildshard/format/formatHook';
 import {readCookData,cookMountPath} from '@wildshard/format/cookData';
 import {cookPreparationBytes,readEntryPrograms,requireCookPreparation} from '@wildshard/format/cookPreparation';
 import {parseOutputIndex,assembleOutputShardfile} from '@wildshard/format/outputIndex';
+import {writesPreparationMarker} from '@wildshard/format/version';
+import {PREPARATION_SPEC} from '@wildshard/format/preparationSpec';
 import {controlFileHashes,playLibrarySteps} from '@wildshard/format/admissionControl';
 import {entryFileSteps} from '@wildshard/format/tierSelection';
 import {validationSourceBytes} from '@wildshard/format/validationReceipt';
@@ -64,14 +66,20 @@ export async function finishPreparation(dir,recording,originalHeader){
   if(typeof renderer!=='string'||!/^[a-f0-9]{64}$/u.test(renderer))throw new Error('Recording has no engine renderer revision; use a D5 preparation preview');
   const sections=new Map(held.sections.map(row=>[row.name,json(dir,row.path)]));
   const old=held.cook===undefined?{mounts:[]}:readCookData(json(dir,'cook.json'));
-  const url=`/programs/${held.identity.slug}.json`,path=cookMountPath(url),programBytes=bytesOf(programs);
+  const {build:_build,...programRows}=programs,written=spec4?{...programRows,version:3}:programs;
+  const url=`/programs/${held.identity.slug}.json`,path=cookMountPath(url),programBytes=bytesOf(written);
   const mounts=[...old.mounts.filter(row=>row.url!==url),{url,path,hash:hash(programBytes),bytes:programBytes.length}].sort((a,b)=>a.url.localeCompare(b.url));
-  const index={...held,sdk:'0.3'},fence=preparationFence(index,sections,recording,mounts);
+  // SHARD-COMPAT PR4 (J487): from format 0.1.0.3 the file records preparation spec 4, which names no engine: no
+  // renderer fingerprint, programs without the engine build. An older envelope keeps the legacy sdk '0.3' and spec 3.
+  const spec4=typeof held.formatVersion==='string'&&writesPreparationMarker(held.formatVersion);
+  const index=spec4?{...held,preparation:PREPARATION_SPEC}:{...held,sdk:'0.3'},fence=preparationFence(index,sections,recording,mounts);
   // A full phone set contains every admitted non-desktop file. Only a strict
   // measured subset needs the existing fence policy; desktop stays whole.
   const all=index.files.filter(row=>row.tier!=='desktop'),selected=new Set(fence);
   const packs=all.some(row=>!selected.has(row.hash))?'fence':'whole';
-  const cook={version:3,mounts,packs,fence,programs,renderer,inputHash:hash(cookPreparationBytes(index,mounts,renderer))};
+  const cook=spec4
+    ?{version:PREPARATION_SPEC,mounts,packs,fence,programs:written,inputHash:hash(cookPreparationBytes(index,mounts))}
+    :{version:3,mounts,packs,fence,programs,renderer,inputHash:hash(cookPreparationBytes(index,mounts,renderer))};
   const bytes=bytesOf(cook),next={...index,cook:{path:'cook.json',hash:hash(bytes),bytes:bytes.length}};
   requireCookPreparation(parseOutputIndex(next),readCookData(cook),hash);
   mkdirSync(dirname(join(dir,path)),{recursive:true});writeFileSync(join(dir,path),programBytes);
