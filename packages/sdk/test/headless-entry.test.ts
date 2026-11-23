@@ -10,6 +10,8 @@ const pkg = JSON.parse(readFileSync(resolve(SDK, 'package.json'), 'utf8')) as { 
 const rows = Object.entries(pkg.exports).filter(([key]) => key.startsWith('./headless/'));
 /** The Node simulation hooks and the bake loaders register on import: their files are checked, not run here. */
 const SIDE_EFFECTS = new Set(['scripts/sim-node-loader.mjs', 'scripts/format-hook.mjs', 'scripts/bake-loader.mjs']);
+/** SI7: the engine's ambient declarations for a shard tsconfig's `types` list; a `.d.ts`, so it is checked, not imported. */
+const TYPES_ONLY = new Set(['game/types']);
 const engineOf = (key: string): string => `@wildshard/engine/${key.slice('./headless/'.length)}`;
 
 test('the engine is a peer of the sdk, so each re-export resolves the shard\'s own engine', () => {
@@ -19,7 +21,7 @@ test('the engine is a peer of the sdk, so each re-export resolves the shard\'s o
 
 test('every harness path the shards read has its sdk row, and each file re-exports exactly that engine path', () => {
   expect(rows.map(([key]) => key.slice('./headless/'.length)).sort()).toEqual([
-    'app/resources', 'app/scope', 'core/tier', 'game/shardCook', 'game/shardfile/outputDescriptor', 'game/shardfile/serverPack',
+    'app/resources', 'app/scope', 'core/tier', 'game/shardCook', 'game/shardfile/outputDescriptor', 'game/shardfile/serverPack', 'game/types',
     'host/headless', 'host/headlessFolder', 'host/headlessJourney', 'host/headlessRuntime', 'host/headlessSections', 'host/headlessTape',
     'host/tickProtocol', 'physics/rapier', 'scripts/authored-manifest.mjs', 'scripts/bake-input-hashes.mjs', 'scripts/bake-loader.mjs',
     'scripts/bake-output.mjs', 'scripts/built-folder.mjs', 'scripts/debug-settings.mjs', 'scripts/format-hook.mjs',
@@ -39,7 +41,7 @@ test('every harness path the shards read has its sdk row, and each file re-expor
 
 test('each module the sdk re-exports has the engine module\'s own exports', { timeout: 120_000 }, async () => {
   for (const [key] of rows) {
-    if (SIDE_EFFECTS.has(key.slice('./headless/'.length))) continue;
+    if (SIDE_EFFECTS.has(key.slice('./headless/'.length)) || TYPES_ONLY.has(key.slice('./headless/'.length))) continue;
     const [ours, theirs] = await Promise.all([import(`@wildshard/sdk/${key.slice(2)}`), import(engineOf(key))]) as [Record<string, unknown>, Record<string, unknown>];
     expect(Object.keys(ours).sort(), key).toEqual(Object.keys(theirs).sort());
     // Vitest may load a plain `.mjs` engine script once per specifier, so the check is each binding's kind, not its identity.
