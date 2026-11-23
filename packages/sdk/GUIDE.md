@@ -760,9 +760,11 @@ const quest = { id: 'honey-badger', title: 'The honey badger', track: true, comp
 const badgerDead: Shardfile['quests']['triggers'][number] = { id: 'badger-dead', kind: 'death', flag: 'wren.badger-dead', tag: 'creature.badger' };
 
 // 5. Loot: a `trophies` table rolls items on each kill, matched by the creature's `kind`; a `coins` table would pay
-//    coins the same way. The rest of the economy row is empty: no effects, goods, grants, finds or map marks.
+//    coins the same way. `currency` names the shard's coin: what it is called, the pickup a kill bursts and the Bag
+//    icon. The rest of the economy row is empty: no effects, goods, grants, finds or map marks.
 const loot: Shardfile['rows']['loot'][number] = { id: 'wren.loot', gear: 'purse.coins', finds: null, marks: null, charted: false, chime: 'coin',
   economy: {
+    currency: { id: 'coin', name: 'Coin', model: 'shared/doubloon', icon: 'coin' },
     tables: [{ id: 'badger.trophies', domain: 'trophies', table: { mode: 'weighted', rows: [{ item: 'honeycomb', weight: 1, count: 1, match: { kind: 'badger' } }] } }],
     effects: [], goods: [], grants: { player: [], worn: [], weapons: [] }, finds: { counters: [], sections: [] }, marks: [],
   } };
