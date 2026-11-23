@@ -1,0 +1,824 @@
+{
+ "at": "2026-11-23T05:14:16.704Z",
+ "repos": [
+  "shard-brasscap",
+  "shard-driftwood",
+  "shard-dunes",
+  "shard-glowfen",
+  "shard-mirror-salt",
+  "shard-nalati",
+  "shard-nine-dragon",
+  "shard-open-plots",
+  "shard-pine-hollow",
+  "shard-showcase",
+  "shard-sky-reach",
+  "shard-templates"
+ ],
+ "users": {
+  "@wildshard/build/project": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/cli/package.json": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/dev/bake/mapRest": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/dev/bake/nativeRaster": [
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/dev/bake/splatLayers": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/dev/bootInventory": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/dev/projectEntryProof": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/dev/scripts/*": [
+   "shard-nalati"
+  ],
+  "@wildshard/dev/test/scriptScenario": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/kit": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "@wildshard/kit/bake/nativeInteractionFacts": [
+   "shard-driftwood"
+  ],
+  "@wildshard/kit/bake/riderArms": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/bake/species": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/bake/specimenCatalogue": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/creatures": [
+   "shard-driftwood"
+  ],
+  "@wildshard/kit/geometry/*": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/legacyHarvest": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/weapons/bowProfile": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/kit/weapons/meleeProfile": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/arenaView": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/as/groupBankV2": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/as/groupStepV2": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/assets": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/audio": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/author": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/annulus": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/basisGlb": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/byteCodec": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/canvasAtlas": [
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/coarseCopy": [
+   "shard-driftwood",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/colliders": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/bake/compactGlb": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/contactRows": [
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/creaturePlacement": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/bake/facetedGeometry": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/forest": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/generatorGlb": [
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/bake/geometryBounds": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/geometryError": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/glb": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/glbCompression": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/groundMap": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/hullLook": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/image": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/keyedSky": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/kinds": [
+   "shard-dunes",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/lightSources": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/mapAssembly": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/mapRaster": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/materialGraph": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/meadow": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/nativeLattice": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/nativeTerrainField": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/navigationAsset": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/placeholders": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/bake/placement": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/portableBytes": [
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/practiceCourse": [
+   "shard-nalati",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/primitives": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/props": [
+   "shard-driftwood",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/questPlacement": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/bake/rawTexture": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/rig": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/riggedHullRecipes": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/signPlacements": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/simplifier": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/skinned": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/slabChunks": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/slabs": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/sourceMetadata": [
+   "shard-driftwood",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/splatGround": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/staticMaterials": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/terrain": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/texture": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/tileEncoder": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/bake/tileGrid": [
+   "shard-driftwood",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bake/wholePartition": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/bake/wholePieceJoin": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/bake/world": [
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/bake/worldLod": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/bake/worldRows": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/blobs": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/bossProfiles": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/buildBehaviour": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/buildDecisionScripts": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/clientChannels": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/commons/courseProgram": [
+   "shard-nalati",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/commons/scripts/course.as": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/compileScript": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/compileScriptV2": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/configBoundary": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/crowds": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/decisionBindingMap": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/decisionScriptBindings": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/decisionScripts": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/director": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/directorAbi": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/eliteEntryRows": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/entries": [
+   "shard-driftwood",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/finds": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/formatJsonSchema": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/immutable": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/interactions": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/materialGraphFiles": [
+   "shard-driftwood",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/kit/bakedGeometry": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/kit/geometryPack": [
+   "shard-dunes",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/ledger": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/looks/tileField": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/materials": [
+   "shard-brasscap",
+   "shard-glowfen",
+   "shard-mirror-salt"
+  ],
+  "@wildshard/sdk/math/portableMath": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/modes": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/movers": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/nativePopulationRows": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/noise": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/outputProduct": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/package.json": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/phasedBoss": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/physics": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/platformSections": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/projectDecisions": [
+   "shard-dunes"
+  ],
+  "@wildshard/sdk/projectGeneration": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/projectOutput": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/questGraph": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/quests": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/random": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/returnProjectionV2": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/rows": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/scene": [
+   "shard-driftwood",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/scene/author": [
+   "shard-brasscap",
+   "shard-glowfen",
+   "shard-mirror-salt"
+  ],
+  "@wildshard/sdk/scene/canvas": [
+   "shard-brasscap",
+   "shard-mirror-salt"
+  ],
+  "@wildshard/sdk/scene/creature": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/scene/lower": [
+   "shard-brasscap"
+  ],
+  "@wildshard/sdk/scene/shard": [
+   "shard-brasscap",
+   "shard-glowfen",
+   "shard-mirror-salt"
+  ],
+  "@wildshard/sdk/sections": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/sourceReader": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/spawns": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/species": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/species/clips": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/species/toRows": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/speciesBrains": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/test/compileDualScriptV2": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/weapons/firearmRows": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/weapons/thrownProfile": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/worldScenes": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "bin:sharddev": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "bin:wildshard": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:build": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:build-shards": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:check": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:memory": [
+   "shard-nine-dragon"
+  ],
+  "verb:prepare": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:upload": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:watch": [
+   "shard-brasscap",
+   "shard-glowfen",
+   "shard-mirror-salt"
+  ]
+ }
+}
