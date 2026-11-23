@@ -894,7 +894,7 @@ packages:
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
   '@wildshard/engine@file:../../../engine/.worktrees/compat-w4/tmp/opus-compat-w4/wildshard-engine-0.1.67.tgz':
-    resolution: {integrity: sha512-z9XP7YEcoH+NkIke0CKPmelq5mqbUPH3uAklbvRrhJilgM8CaqCQE7zqeURaeRN/RqeXWAe8oxGhZThoy789nA==, tarball: file:../../../engine/.worktrees/compat-w4/tmp/opus-compat-w4/wildshard-engine-0.1.67.tgz}
+    resolution: {integrity: sha512-BSdf8qLT79ANfiRdJF9R199myZXmU5xkSxYu3PmknL+ComC+XHO8swi5g3pOvzUF8JCixUpTEwgOYyVwHqUaaA==, tarball: file:../../../engine/.worktrees/compat-w4/tmp/opus-compat-w4/wildshard-engine-0.1.67.tgz}
     version: 0.1.67
     engines: {node: '>=24.18.0'}
     hasBin: true
