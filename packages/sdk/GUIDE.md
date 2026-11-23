@@ -1575,8 +1575,8 @@ without one skips lint and says so.
 
 #### pin-not-sdk
 
-Your SDK chooses the shard format and the engine: a shard repo lists `@wildshard/format` (and `@wildshard/engine`
-while its tests import it) at exactly the versions the SDK pins. `wildshard update --pins` moves them with the SDK in
+Your SDK chooses the shard format and the engine: a shard repo lists `@wildshard/format` at exactly the version the
+SDK pins, and never lists `@wildshard/engine` (the SDK brings the engine it runs; SHARD-COMPAT SI8). `wildshard update --pins` moves them with the SDK in
 one command. A new format or engine release changes nothing in your repo until you update the SDK.
 
 #### lint-not-run
