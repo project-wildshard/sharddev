@@ -26,11 +26,21 @@ function parsedSection(name: PlatformDataSectionName, input: unknown): ReturnTyp
   try { return parsePlatformDataSection(name, input); } catch (error) { throw locatedError(error, `Section ${name}: `); }
 }
 
+/** SHARD-COMPAT HS6d: the server's own copy of the feature rows (format HS6b), written beside `client/plan` so the engine's
+ * server reads `server/plan` and the page's plan stays the page's. It is written only once the pinned format names the
+ * section, so this SDK builds the same bytes as before against an older format. */
+const SERVER_PLAN = 'server/plan';
+function withServerPlan(values: ReadonlyMap<PlatformDataSectionName, unknown>): ReadonlyMap<PlatformDataSectionName, unknown> {
+  const plan = values.get('client/plan');
+  if (plan === undefined || !Object.hasOwn(PLATFORM_DATA_SECTIONS, SERVER_PLAN) || values.has(SERVER_PLAN as PlatformDataSectionName)) return values;
+  return new Map([...values, [SERVER_PLAN as PlatformDataSectionName, plan]]);
+}
+
 /** Emit new platform sections through their defining parsers. The product writer merges these independently from
  * custom definitions and the older root-key envelopes, refusing duplicate names across all three sources. */
 export function emitPlatformSections(values: ReadonlyMap<PlatformDataSectionName, unknown>): EmittedSections {
   const sections: DefinedSectionEntry[] = [], files = new Map<string, Uint8Array>();
-  for (const [name, input] of values) {
+  for (const [name, input] of withServerPlan(values)) {
     if (!Object.hasOwn(PLATFORM_DATA_SECTIONS, name)) throw new Error(`Unknown platform data section: ${name}`);
     const value = parsedSection(name, input), path = `sections/${name}.json`;
     const owned = ownAssetBytes(new TextEncoder().encode(encodeCanonicalJson(value))), bytes = owned.bytes;
