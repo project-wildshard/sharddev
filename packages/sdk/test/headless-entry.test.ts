@@ -56,3 +56,16 @@ test('`@wildshard/sdk/headless` names the engine the shard pins: its folder, ver
   expect(enginePin).toBe((JSON.parse(readFileSync(own, 'utf8')) as { version: string }).version);
   expect(engineRequire.resolve('@dimforge/rapier3d-simd/package.json')).toContain('rapier3d-simd');
 });
+
+// SI6: the engine internals a shard's tests read sit behind `@wildshard/sdk/internal/engine/<path>`, each with its removal note (SI8).
+const internal = Object.entries(pkg.exports).filter(([key]) => key.startsWith('./internal/engine/'));
+test('every internal engine row re-exports exactly its engine path, resolves, and names SI8 as its removal', () => {
+  expect(internal.length).toBeGreaterThan(200);
+  const require = createRequire(resolve(SDK, 'package.json'));
+  for (const [key, file] of internal) {
+    const engine = `@wildshard/engine/${key.slice('./internal/engine/'.length)}`, text = readFileSync(resolve(SDK, file), 'utf8');
+    expect(new Set([...text.matchAll(/from '([^']+)'/gu)].map(match => match[1])), key).toEqual(new Set([engine]));
+    expect(text, key).toContain('Removal: SI8');
+    expect(() => require.resolve(engine), key).not.toThrow();
+  }
+});

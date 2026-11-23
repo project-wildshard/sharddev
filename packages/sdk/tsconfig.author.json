@@ -19,7 +19,8 @@
   "exclude": [
     "src/sharddev/**/*.test.ts",
     "src/sharddev/test",
-    "src/commons/**/*.test.ts"
+    "src/commons/**/*.test.ts",
+    "src/sharddev/internal-engine"
   ],
   "files": [
     "test/runtime-files.test.ts",
