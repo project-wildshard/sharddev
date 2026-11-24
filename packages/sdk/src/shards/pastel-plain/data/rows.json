@@ -201,7 +201,23 @@
             "relentless": false
           }
         }
-      ]
+      ],
+      "type": "beast",
+      "body": {
+        "size": "medium",
+        "scale": 1,
+        "look": "pastel.look.greyBlob"
+      },
+      "temperament": {
+        "brain": "none",
+        "reaction": "aggressive",
+        "leash": 25,
+        "assist": 0,
+        "home": {
+          "speed": 2,
+          "stop": 1.5
+        }
+      }
     },
     {
       "id": "boar",
@@ -422,6 +438,21 @@
       "material": null,
       "parameters": {
         "skin": "d579ba64878cdc8c17dfbf1365d902535c5c13bf082ba405e07bf6a11e24a792"
+      },
+      "animation": {
+        "recipe": "platform.clips",
+        "parameters": {
+          "attackSpan": 1
+        }
+      }
+    },
+    {
+      "id": "pastel.look.greyBlob",
+      "species": "grey-blob",
+      "recipe": "platform.skin",
+      "material": null,
+      "parameters": {
+        "skin": "97ec4d8f75f5fa6239ee919444d6dc19fd35896bb305930c1f050ac6e0e0e6a6"
       },
       "animation": {
         "recipe": "platform.clips",
