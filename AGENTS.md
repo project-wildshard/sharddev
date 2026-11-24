@@ -20,6 +20,7 @@ Git hygiene
  - Use pre-commit & pre-push git hooks for keeping checks/quality/lints etc.
  - On main: push after every commit. In a plan worktree: commit often; `land` does the pushing.
  - Every meaningful commit writes a journal into project/journal, the why & informal.
+ - Releases (meta FAST-RELEASE): `release/vX.Y.Z` ci reuses main's green run when its one commit only stamps versions and adds notes (`scripts/release-reuse.mjs`); only `packed-install` reruns. Release-only pushes (that branch, its tag, merge-back) skip the push lane. A new ci job says whether a release reuses it (`test/tooling/release-reuse.test.mjs`).
 
 Shared checkout
 

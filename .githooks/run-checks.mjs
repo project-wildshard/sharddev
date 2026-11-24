@@ -15,6 +15,7 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { pathToFileURL } from 'node:url';
 import { availableParallelism } from 'node:os';
 import { budgetVerdict, machineLoad } from './commit-budget.mjs';
 import { copyReason, makeGateCopy, pushedCommit } from './push-gate-copy.mjs';
@@ -42,6 +43,21 @@ if (lane === 'push') {
 // another lane's edits, not the pin CI uses. Commit warns, push refuses.
 // It runs before SKIP_CHECK: a lane that links on purpose writes a receipt.
 if (!guardPinnedLinks(root, lane)) process.exit(1);
+// FAST-RELEASE FR2 (meta docs/plans/FAST-RELEASE-PLAN.md): a release-only push (a tag on a commit origin has, a
+// stamp-only release branch over origin/main, a stamp-only merge-back, a release branch delete) sends no new code, so
+// the push lane has nothing to gate; SDK 0.4.32 spent about 6 min on each. scripts/release-reuse.mjs decides; its
+// release ci still runs packed-install on the exact SHA, and main's ci runs the merge.
+if (lane === 'push' && existsSync(join(root, 'scripts/release-reuse.mjs'))) {
+  const { releaseOnlyPush } = await import(pathToFileURL(join(root, 'scripts/release-reuse.mjs')).href);
+  /** @type {{ ok: boolean, reason: string }} */ let verdict = { ok: false, reason: '' };
+  try {
+    verdict = releaseOnlyPush(root, process.env.WS_PUSH_REFS ?? '');
+  } catch {} // Anything it cannot read keeps the gate.
+  if (verdict.ok) {
+    console.error(`  - ${verdict.reason}: push lane skipped`);
+    process.exit(0);
+  }
+}
 if (process.env.SKIP_CHECK === '1') {
   console.error(`  - SKIP_CHECK=1: ${lane} lane skipped (CI still runs it)`);
   process.exit(0);

@@ -22,7 +22,32 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # FAST-RELEASE FR1 (meta docs/plans/FAST-RELEASE-PLAN.md): a release branch's one commit only stamps versions and adds
+  # notes on a cut whose main `ci` passed, so check and products reuse that run (SDK 0.4.32 reran them: 21.5 min).
+  # scripts/release-reuse.mjs proves it from git and the Actions API, or answers reuse=false and the full suite runs.
+  # packed-install, the exact-SHA release proof, always runs. Main never runs this job, so main waits on nothing.
+  release-gate:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      reuse: ${{ steps.gate.outputs.reuse }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: package.json
+      - id: gate
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/release-reuse.mjs ci
+
   check:
+    needs: release-gate
+    if: ${{ !cancelled() && needs.release-gate.outputs.reuse != 'true' }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 5 || 15 }}
     env:
@@ -124,6 +149,8 @@ jobs:
           WILDSHARD_API_SOURCE: ${{ github.workspace }}/tmp/codex-wire/api-contract-source
         run: node --experimental-transform-types --test --test-concurrency=1 ../dev/test/ci/async-upload.test.mjs ../dev/test/ci/async-upload-parent.test.mjs
       - run: pnpm check:asks
+      - name: The release gate's rules and its place in this workflow (FAST-RELEASE FR1)
+        run: node --test test/tooling/release-reuse.test.mjs
       # The agent hook scripts are shellchecked at this exact version
       # (.agents/hooks/test/shellcheck.test.mjs refuses any other on CI).
       # MR6: hosted runners are Linux/X64, the Mac mini's VM is Linux/ARM64;
@@ -208,6 +235,8 @@ jobs:
   # slow ones (runs 45439889036, 45489963164: cancelled mid-proof, nothing
   # red), so a push gets PRODUCTS_PUSH_MINUTES (test/ci-products-deadline).
   products:
+    needs: release-gate
+    if: ${{ !cancelled() && needs.release-gate.outputs.reuse != 'true' }}
     strategy:
       fail-fast: false
       matrix:

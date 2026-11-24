@@ -15,6 +15,10 @@ const config: PlaywrightTestConfig = defineConfig({
   // Beside this config, not in the cwd (the repo root).
   outputDir: fileURLToPath(new URL('test-results', import.meta.url)),
   forbidOnly: process.env['CI'] !== undefined,
+  // FAST-RELEASE FR3: a slow hosted runner timed out the author-world watch test once (release ci 45501091383, green
+  // on main) and the whole job reran. One retry on CI only; a retried pass is reported as flaky, never hidden.
+  // test/tooling/release-reuse.test.mjs pins it at 1.
+  retries: process.env['CI'] === undefined ? 0 : 1,
   reporter: process.env['CI'] === undefined ? 'list' : 'github',
   use: { baseURL: BASE_URL, trace: 'retain-on-failure' },
   projects: [
