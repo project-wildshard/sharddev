@@ -70,7 +70,7 @@
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
     "@wildshard/engine": "0.1.80-next.be7e944e",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.74.1",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.77.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
     "@wildshard/upload": "workspace:*",

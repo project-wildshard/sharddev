@@ -31,10 +31,11 @@ async function repo(tamper = false): Promise<{ root: string; baked: Awaited<Retu
 }
 const shard = (far: Shardfile['far'] = null): Shardfile => ({ identity: { slug: 'test-isle' }, files: [], far }) as unknown as Shardfile;
 
-test("a product with no far row takes its repo bake's far row and files, byte for byte", async () => {
+test("a product with no far row takes its repo bake's far row, look and files, byte for byte", async () => {
   const { root, baked } = await repo(), assets = new Map<string, Uint8Array>();
   const out = withRepoFar(shard(), assets, root);
-  expect(out.far).toEqual(baked.manifest.far);
+  expect(out.far).toEqual({ ...baked.manifest.far, look: baked.manifest.look });
+  expect(out.far?.look).toEqual({ family: 'toon', haze: { colour: [0.7, 0.7, 0.8] } });
   expect(out.files).toEqual([baked.manifest.file, baked.manifest.impostorFile]);
   expect([...assets.get(baked.manifest.file.hash) ?? []]).toEqual([...baked.bytes]);
   expect([...assets.get(baked.manifest.impostorFile.hash) ?? []]).toEqual([...baked.impostor]);

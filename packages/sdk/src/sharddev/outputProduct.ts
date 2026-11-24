@@ -17,6 +17,7 @@ import { offlineMemoryAdmission } from '@wildshard/format/shardfileAssets';
 import { validationRevision, validationSourceBytes } from '@wildshard/format/validationReceipt';
 import { preflightDeclaredCosts } from '@wildshard/format/assetAdmission';
 import { admitProduct, readmitted, rememberAdmitted } from './productOutput';
+import { stampEngineFloor } from './engineFloor';
 import { performanceTargetIssues } from './reportCard';
 import { encodeCanonicalJson, hashImmutableBytes } from './immutable';
 import { assetHandles, hashAssetBytes, immutableAsset, verifyAssetBytes, type ImmutableAsset } from './assetHandle';
@@ -79,6 +80,7 @@ export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Ui
   if (Object.hasOwn(options, 'custom')) throw new Error('Custom output extensions are retired');
   // the product buildProject admitted a moment ago is not admitted twice in memory (readmitted); the written folder always is
   const scripts = outputScriptAdmissionRows(options.platform), context = outputPlatformPayloads(options.platform), source = readmitted(input,assets,'warn',scripts,context) ?? admitProduct(input,assets,'warn',scripts,context);
+  stampEngineFloor(source);
   const targetEntry = options.platform?.sections.find(row => row.name === 'world/targets');
   if (targetEntry !== undefined) {
     const bytes = options.platform?.files.get(targetEntry.path);

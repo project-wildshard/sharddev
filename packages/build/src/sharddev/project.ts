@@ -409,14 +409,15 @@ function withoutHerdFields<Source extends { readonly manifest?: unknown }>(sourc
 /**
  * FORMAT-PRUNE FP40: the repo bake's far proxy (`far.json` with `far.glb` and `far-impostor.png`, as the far-proxies runner
  * wrote them) as the shardfile's `far` row and files: each file proved by the hash far.json names, its costs recomputed
- * (`repoFarRows`). A shard that declares its own far, or whose repo holds no bake, is returned as it is. The near view
- * stays in the repo bake until its ownership moves.
+ * (`repoFarRows`), and its row carries the bake's own far `look` (FP40b, format 0.77.0), so engine reads how the far tier
+ * draws the proxy from the product. A shard that declares its own far, or whose repo holds no bake, is returned as it is.
+ * The near view stays in the repo bake until its ownership moves.
  */
 export function withRepoFar(shard: Shardfile, assets: Map<string, Uint8Array>, repo: string): Shardfile {
   if (shard.far !== null) return shard;
   const folder = resolve(repo, 'public/assets/baked', shard.identity.slug), manifestPath = join(folder, 'far.json');
   if (!existsSync(manifestPath)) return shard;
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { far: NonNullable<Shardfile['far']>; file: { hash: string }; impostorFile?: { hash: string } };
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { far: NonNullable<Shardfile['far']>; file: { hash: string }; impostorFile?: { hash: string }; look?: NonNullable<Shardfile['far']>['look'] };
   const proved = (name: string, hash: string): Uint8Array => {
     const bytes = readFileSync(join(folder, name));
     if (hashImmutableBytes(bytes) !== hash) throw new Error(`${shard.identity.slug}: ${name} is not the bake its far.json names`);
@@ -429,5 +430,5 @@ export function withRepoFar(shard: Shardfile, assets: Map<string, Uint8Array>, r
     assets.set(row.hash, row.hash === manifest.file.hash ? glb : impostor ?? glb);
     if (!files.some(file => file.hash === row.hash)) files.push(row);
   }
-  return { ...shard, files, far };
+  return { ...shard, files, far: manifest.look === undefined ? far : { ...far, look: manifest.look } };
 }
