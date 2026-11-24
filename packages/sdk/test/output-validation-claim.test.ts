@@ -5,6 +5,7 @@ import { publishedSourceResidency } from '@wildshard/format/sourceResidency';
 import { expect, test } from 'vitest';
 import { emptyShardfile } from '../src/sharddev/author';
 import { writeOutputProduct } from '../src/sharddev/outputProduct';
+import { stampEngineFloor } from '../src/sharddev/engineFloor';
 
 test('the SDK publishes the source residency and post cost in its validation receipt', () => {
   mkdirSync('tmp', { recursive: true });
@@ -13,9 +14,12 @@ test('the SDK publishes the source residency and post cost in its validation rec
     const source = emptyShardfile({ slug: 'published-residency', name: 'Published', author: 'Test', revision: 1, seed: 1 });
     source.look.post = [{ graph: { version: 1, kind: 'post', nodes: {}, stages: { post: { colour: [1, 1, 1] } } } }];
     writeOutputProduct(source, new Map(), directory);
+    // The written product carries the SDK's engine floor (FP47b), so its residency counts that word.
+    const written = structuredClone(source);
+    stampEngineFloor(written);
     const receipt: unknown = JSON.parse(readFileSync(join(directory, 'validation.json'), 'utf8'));
     expect(receipt).toMatchObject({
-      residentBytes: publishedSourceResidency(source),
+      residentBytes: publishedSourceResidency(written),
       postCost: postStackCost(source, () => undefined).cost,
     });
   } finally {

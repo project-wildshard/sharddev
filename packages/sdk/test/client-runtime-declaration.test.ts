@@ -71,7 +71,8 @@ test('actual output transport preserves compiled cost and binds while refusing a
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,entry:'runtime/index.ts'}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,lines:1}})).toThrow();
     expect(()=>parseOutputIndex({...index,runtime:{...index.runtime,files:[{path:'runtime/index.ts',hash:'a'.repeat(64),bytes:1,lines:1}]}})).toThrow();
-    // J424/J426 (format 0.40.0): a stale reading refuses an armed zone; any other shard reports it.
+    // J424/J426: a stale reading refuses an armed zone; any other shard reports it. Since format 0.78 (FORMAT-PRUNE FP27c)
+    // the armed word comes from the API catalogue at admission, so the SDK, which sees only the slug, reports for every zone.
     const unarmed = structuredClone(source);
     if (unarmed.runtime === null) throw new Error('Missing synthetic client plan');
     Reflect.deleteProperty(unarmed.runtime.cost, 'epoch');
@@ -80,7 +81,7 @@ test('actual output transport preserves compiled cost and binds while refusing a
       const stale = structuredClone({ ...source, identity: { ...source.identity, slug: 'pastel-plain' } });
       if (stale.runtime === null) throw new Error('Missing synthetic client plan');
       if (epoch === undefined) Reflect.deleteProperty(stale.runtime.cost, 'epoch'); else stale.runtime.cost.epoch = epoch;
-      expect(() => { writeOutputProduct(stale, new Map(), join(root, `stale-${epoch ?? 'omitted'}`)); validateOutputProduct(join(root, `stale-${epoch ?? 'omitted'}`)); }).toThrow('native resident measurement is stale');
+      expect(() => { writeOutputProduct(stale, new Map(), join(root, `stale-${epoch ?? 'omitted'}`)); validateOutputProduct(join(root, `stale-${epoch ?? 'omitted'}`)); }).not.toThrow();
     }
   }finally{rmSync(root,{recursive:true,force:true});}
 });

@@ -1,7 +1,5 @@
 import { expect, test, vi } from 'vitest';
-import * as v from 'valibot';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
-import { FarSchema } from '@wildshard/format/shardSections';
 import { bakeFarPlaceholder, projectFarPlaceholder, repoFarRows } from './placeholders';
 import type { PlaceholderGrid, PlaceholderLook } from './placeholderGeometry';
 

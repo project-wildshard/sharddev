@@ -73,7 +73,7 @@
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@types/node": "24.3.1",
-    "@wildshard/engine": "0.1.80-next.be7e944e",
+    "@wildshard/engine": "0.1.84-next.805deb1b",
     "@wildshard/sdk": "link:.",
     "happy-dom": "21.0.4",
     "postprocessing": "6.39.5",

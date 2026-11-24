@@ -69,7 +69,7 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@wildshard/build": "workspace:*",
-    "@wildshard/engine": "0.1.80-next.be7e944e",
+    "@wildshard/engine": "0.1.84-next.805deb1b",
     "@wildshard/format": "npm:@wildshard/shard-format@0.78.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/sdk": "workspace:*",
@@ -117,7 +117,8 @@
     "0.1.65-next.9c91846e": "9c91846e65e62e4d39e0437e082ff90ae094c4ca",
     "0.1.73-next.505d779e": "505d779eb2489e62ea1f3f4eaf472484714aab5b",
     "0.1.76-next.f3b1d4c7": "f3b1d4c7c4b44afaa486170da29eca4a86a83b99",
-    "0.1.80-next.be7e944e": "be7e944e4c87d14e2989334ff97105466d2f289d"
+    "0.1.80-next.be7e944e": "be7e944e4c87d14e2989334ff97105466d2f289d",
+    "0.1.84-next.805deb1b": "805deb1b57795ab772befce5c4ba5b3b7c0f2ad5"
   },
   "wildshardPreparationClients": {
     "0.1.54": "0.1.59"

@@ -9,17 +9,20 @@ import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { runtimePackageAllowed, validateRuntimeImports } from './runtimeImports';
 import { writeOutputProduct, validateOutputProduct } from './outputProduct';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
+import { ENGINE_FLOOR } from './engineFloor';
 
 const directories: string[] = [];
 function output(): string { mkdirSync('tmp',{recursive:true});const path=mkdtempSync(resolve('tmp','output-product-'));directories.push(path);return path; }
 const source = () => emptyShardfile({slug:'output-test',name:'Output',author:'Test',revision:1,seed:3});
+// FP47b: every written product names the SDK's engine floor, so the read-back is the source plus that word.
+const floored = <T extends {requires: object}>(shard: T): T => ({...shard,requires:{...shard.requires,engine:ENGINE_FLOOR}});
 afterEach(()=>{for(const directory of directories.splice(0))rmSync(directory,{recursive:true,force:true});});
 it('writes deterministic platform sections and verifies their bytes on disk',()=>{
  const shard=source(), first=output(),second=output();
  const platform=emitPlatformSections(new Map([['ui/strings',{hello:'Hello'}]]));
  writeOutputProduct(shard,new Map(),first,{platform});writeOutputProduct(shard,new Map(),second,{platform});
  expect(readFileSync(resolve(first,'shard.json'))).toEqual(readFileSync(resolve(second,'shard.json')));
- expect(validateOutputProduct(first).shard).toEqual(shard);
+ expect(validateOutputProduct(first).shard).toEqual(floored(shard));
  const evidence:unknown=JSON.parse(readFileSync(resolve(first,'validation.json'),'utf8'));
  expect(evidence).toMatchObject({indexHash:hashImmutableBytes(readFileSync(resolve(first,'shard.json'))),gridReady:{version:1,criteria:{
    bakedTiles:{verdict:'fail'},edgeProfile:{verdict:'pass'},fourEntryways:{verdict:'pass'},hudAccent:{verdict:'pass'},
@@ -33,7 +36,7 @@ it('splits terrain from opaque binary while retaining byte and field identity',(
  shard.files=[...assets].map(([hash,bytes])=>({hash,kind:'binary',compressed:bytes.length,decoded:bytes.length+1024,gpu:1024,triangles:4,draws:1,dependencies:[],critical:false}));shard.files.sort((a,b)=>a.hash.localeCompare(b.hash));shard.library=[...assets.keys()];shard.budgets.library={resident:100000,compressed:100000};
  const index=writeOutputProduct(shard,assets,directory);
  expect(index.files.map(file=>file.kind).sort()).toEqual(['bin','tile']);
- const restored=validateOutputProduct(directory);expect(restored.shard).toEqual(shard);expect(restored.assets).toEqual(assets);
+ const restored=validateOutputProduct(directory);expect(restored.shard).toEqual(floored(shard));expect(restored.assets).toEqual(assets);
  writeFileSync(resolve(directory,'unlisted.js'),'evil');expect(()=>validateOutputProduct(directory)).toThrow(/Unlisted/u);
  rmSync(resolve(directory,'unlisted.js'));
  const file=index.files[0];if(file===undefined)throw new Error('Missing fixture blob');
@@ -49,7 +52,7 @@ it('writes no packs: engine cooks them from the raw upload (SHARD-SIZE S5)',()=>
  expect(index.packs).toBeUndefined();
  expect(existsSync(resolve(directory,'blobs/pack'))).toBe(false);
  expect(JSON.parse(readFileSync(resolve(directory,'shard.json'),'utf8'))).not.toHaveProperty('packs');
- expect(validateOutputProduct(directory).shard).toEqual(shard);
+ expect(validateOutputProduct(directory).shard).toEqual(floored(shard));
 });
 it('refuses canonical but schema-invalid section bytes with updated hash and size',()=>{
  const directory=output(),index=writeOutputProduct(source(),new Map(),directory);

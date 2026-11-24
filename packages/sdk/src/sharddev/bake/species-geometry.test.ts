@@ -3,8 +3,7 @@ import { SphereGeometry, type BufferGeometry } from 'three';
 import { Rng } from '../random';
 import { Rng as NativeRng } from '@wildshard/format/seededRng';
 import { loft as nativeLoft, skinPlain as nativeSkin, S as nativeStation, isLowPoly, setLowPoly, registerToonPaint } from '@wildshard/engine/entities/species/loft';
-import { BEAR_LOOK } from '@wildshard/engine/game/systems/species/view/bear';
-import { BOAR_LOOK } from '@wildshard/engine/game/systems/species/view/boar';
+import { boarLook } from '@wildshard/engine/game/systems/species/view/boar';
 import type { AnimalDims as NativeDims, AnimalSpecies as NativeBody, BoneDef as NativeBone } from '@wildshard/engine/entities/species/registry';
 import { bakeCommonBody, commonBodyVariants, withBodyGeometry,loft,skinPlain,S,type Paint,withSpeciesGeometry, type AnimalDims, type AnimalSpecies, type BoneDef } from '@wildshard/kit/bake/species';
 
@@ -52,8 +51,10 @@ test('kit bodies retain every original variant, typed channel, bone and random d
     }
     try {
       withBodyGeometry(low, paints, () => {
-        for (const kind of ['boar', 'bear'] as const) for (const variant of commonBodyVariants(kind)) {
-          const originalLook = kind === 'boar' ? BOAR_LOOK : BEAR_LOOK;
+        // Engine 0.1.84 (FORMAT-PRUNE FP51) keeps the boar look as boarLook(row) and moved the bear's to its own tests, so
+        // the kit's bear has no engine original left to match; the boar still proves the kit bakes the engine's body.
+        for (const kind of ['boar'] as const) for (const variant of commonBodyVariants(kind)) {
+          const originalLook = boarLook({ id: kind, species: kind, kind });
           expect(variant).toEqual({ id: variant.id, label: variant.id, weight: 1, rarity: 'common', scale: [1, 1], ...originalLook.variants?.[variant.id] });
           for (const seed of [0, 841, 0xffffffff]) {
             const rng = new Rng(seed), originalRng = new NativeRng(seed);
