@@ -204,13 +204,16 @@ jobs:
   # Keep the Playwright runner on the known Ubuntu 24.04 image.
   # Browser E2E serves its own workspace and needs no output from the
   # product proofs. Give it a runner of its own under the same deadlines.
+  # The product suite runs 11 min on a normal runner and went past 15 on
+  # slow ones (runs 45439889036, 45489963164: cancelled mid-proof, nothing
+  # red), so a push gets PRODUCTS_PUSH_MINUTES (test/ci-products-deadline).
   products:
     strategy:
       fail-fast: false
       matrix:
         suite: [product, browser]
     runs-on: ubuntu-24.04
-    timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 8 || 15 }}
+    timeout-minutes: ${{ (github.event_name == 'workflow_dispatch' || github.event_name == 'repository_dispatch') && 8 || 25 }}
     env:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
     steps:
