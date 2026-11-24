@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/upload",
-  "version": "0.4.29",
+  "version": "0.4.30",
   "description": "wildshard upload, account, delete and the shard file writer: the engine-free half of the CLI (SDK-SPLIT SP2a). Published with the sdk at one version (D5); the sdk depends on it by name (SP2b).",
   "type": "module",
   "engines": {
