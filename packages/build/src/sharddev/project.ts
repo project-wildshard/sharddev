@@ -42,7 +42,7 @@ import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from '@wildshard/sdk/internal/cookInput';
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/sdk/internal/audioEncode';
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from '@wildshard/sdk/internal/authorManifest';
-import { levelLook, liftLevelLook } from '@wildshard/format/look-level';
+import { liftLevelLook } from '@wildshard/format/look-level';
 import { liftLevelStart } from '@wildshard/format/level-start';
 import { liftDiscoveryStart, withoutMovedWords } from './discoveryStart';
 import { discoveryDocument, discoveryUrl } from '@wildshard/sdk/internal/discoveryDocument';
@@ -232,6 +232,7 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   // ONE-FORMAT OF9b4: herds, the species list and fauna tuning left `ui/level` with the species programs (declared spawns
   // and species rows carry them); an authored manifest that still names them has them dropped
   // FORMAT-PRUNE FP36: a product with no level manifest lifts its discovery's start into the same sections (`liftDiscoveryStart`)
+  // FP47b: and its discovery's level look into `look.level`, as `liftLevelLook` lifts a manifest's
   const source = liftDiscoveryStart(withoutHerdFields(level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections)), manifestSource?.composed ?? authorManifest(loaded.shard));
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
@@ -316,9 +317,9 @@ export async function buildProject(project: string, output?: string, options: { 
   try {
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
     const encoded = await encodedCookInput(project, shard.identity.slug);
-    // OF9b2: discovery keeps a copy of the level look for what reads the level before the product admits (the grid shell)
-    // FORMAT-PRUNE FP36: and none of the words that live in sections (their values sit there: `readProjectAssets`)
-    const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard), ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
+    // FORMAT-PRUNE FP36: discovery carries none of the words that live in sections (their values sit there: `readProjectAssets`)
+    // FP47b: nor the level look: engine reads `look.level` first since 577c013ef and 839c8ba08 (OF9b2 kept a copy for its shell)
+    const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');

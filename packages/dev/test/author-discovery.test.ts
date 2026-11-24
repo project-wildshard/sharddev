@@ -50,7 +50,7 @@ test('a scene shard\'s captured hero replaces its generated card, slot by slot',
 }, 60_000);
 
 /** ONE-FORMAT OF9b2: a manifest's sky, atmosphere, grade and horizon are built into look/look's `level`, byte for byte; the
- *  product's ui/level has none, and discovery keeps a copy for what reads the level before the product admits. */
+ *  product's ui/level has none, and (FORMAT-PRUNE FP47b) discovery keeps no copy: the grid shell reads look.level. */
 test('a manifest\'s level look is built into look/look, not ui/level', async () => {
   mkdirSync('tmp/author-discovery', {recursive: true});
   const root = mkdtempSync(resolve('tmp/author-discovery/case-')), project = join(root, 'project'), out = join(root, 'out');
@@ -67,8 +67,9 @@ test('a manifest\'s level look is built into look/look, not ui/level', async () 
     const ui = read('sections/ui/level.json')['manifest'] as Record<string, unknown>, look = read('sections/look/look.json')['look'] as Record<string, unknown>;
     for (const field of ['sky', 'atmosphere', 'grade', 'horizon']) expect(ui).not.toHaveProperty(field);
     expect(look['level']).toEqual(level);
-    const discovery = read('mounts/shardfiles/trail-side/discovery.json'), manifest = shardFromDiscovery(discovery);
-    expect(manifest.sky).toEqual(level.sky); expect(manifest.grade).toEqual(level.grade); expect(manifest.horizon).toEqual(level.horizon);
+    // FORMAT-PRUNE FP47b: discovery carries no copy of it (engine's grid shell reads look.level first since 577c013ef)
+    const data = read('mounts/shardfiles/trail-side/discovery.json')['data'] as Record<string, unknown>;
+    for (const field of ['sky', 'atmosphere', 'grade', 'horizon']) expect(data).not.toHaveProperty(field);
   } finally { rmSync(root, {recursive: true, force: true}); }
 }, 60_000);
 

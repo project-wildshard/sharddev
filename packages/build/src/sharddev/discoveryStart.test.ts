@@ -21,7 +21,21 @@ test('FP36: an Open Plots shaped product keeps its start in its sections, and it
   const discovery = withoutMovedWords(openPlot) as Record<string, unknown>;
   for (const word of ['spawn', 'loadout', 'weapon', 'audio', 'species', 'spawns']) expect(discovery).not.toHaveProperty(word);
   expect(discovery['minimap']).toEqual(openPlot.minimap);
-  expect(discovery['sky']).toEqual(openPlot.sky);
+  // FP47b: nor its level look; a partial one has no level to give (format `liftLevelLook`), so the look keeps none
+  expect(discovery).not.toHaveProperty('sky');
+  expect(lifted.look.level).toBeUndefined();
+});
+
+test('FP47b: an Open Plots shaped product\'s whole level look moves into look.level; a look\'s own level wins', () => {
+  const composed = authorManifest(shard('open-plot-thin-ice')) as Record<string, unknown>;
+  const level = { sky: { ...composed['sky'] as object, sunIntensity: 2.5 }, atmosphere: composed['atmosphere'], grade: composed['grade'] };
+  const lifted = liftDiscoveryStart(shard('open-plot-thin-ice'), { ...openPlot, ...level });
+  expect(lifted.look.level).toEqual(level);
+  expect(lifted.manifest).toBeUndefined();
+  const own = { ...shard('own-look'), look: { ...shard('own-look').look, level: { ...level, sky: { ...level.sky, sunIntensity: 9 } } } } as never;
+  expect(liftDiscoveryStart(own, { ...openPlot, ...level }).look.level?.sky.sunIntensity).toBe(9);
+  const discovery = withoutMovedWords({ ...openPlot, ...level, horizon: { rings: [] } }) as Record<string, unknown>;
+  for (const word of ['sky', 'atmosphere', 'grade', 'horizon']) expect(discovery).not.toHaveProperty(word);
 });
 
 test('FP36: a Mirror Salt shaped product (no manifest, the plain author one) lifts its plain audio; a declared spawn wins', () => {
