@@ -184,6 +184,24 @@ export async function projectFarPlaceholder(grid: PlaceholderGrid, look: Placeho
   return { far: rows.meshOnly, file: rows.file, bytes: rows.bytes, impostor: null };
 }
 
+/**
+ * FORMAT-PRUNE FP40: a repo bake's far proxy (`far.glb`, its `far.json` row and `far-impostor.png`) as a product's far row
+ * and file rows, every cost recomputed from the bytes as admission charges them (an older bake's rows can understate the
+ * impostor), under `projectFarPlaceholder`'s rule: the impostor is dropped when the pair breaches a §3.2 far cap.
+ */
+export function repoFarRows(baked: FarRow, glb: Uint8Array, impostor: Uint8Array | null, caps: FarCaps = CONTENT_CAPS.far): { far: FarRow; files: PlaceholderFile[] } {
+  const file = fileRow(glb);
+  const meshOnly: FarRow = { bounds: baked.bounds, files: [file.hash], compressed: file.compressed, decoded: file.decoded, gpu: file.gpu, triangles: file.triangles, draws: file.draws };
+  if (!farWithinCaps(meshOnly, caps)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(meshOnly)}`);
+  if (impostor === null || baked.impostor === undefined) return { far: meshOnly, files: [file] };
+  const image: PlaceholderFile = { hash: hashImmutableBytes(impostor), kind: 'image', compressed: impostor.length, ...assetCost('image', impostor), dependencies: [], critical: false };
+  const far: FarRow = { ...meshOnly, files: [file.hash, image.hash], impostor: { ...baked.impostor, file: image.hash },
+    compressed: file.compressed + image.compressed, decoded: file.decoded + image.decoded, gpu: file.gpu + image.gpu };
+  if (farWithinCaps(far, caps)) return { far, files: [file, image] };
+  console.warn(`far impostor dropped: the proxy and its impostor are ${far.decoded + far.gpu} B resident (cap ${caps.resident}), ${far.compressed} B compressed (cap ${caps.compressed}); the far proxy draws at every distance`);
+  return { far: meshOnly, files: [file] };
+}
+
 /** A baked `terrain.bin` (the WSTR lattice) as a placeholder grid. */
 export function bakedTerrainGrid(raw: Uint8Array): PlaceholderGrid {
   const grid = parseBakedTerrain(new Uint8Array(raw).buffer);

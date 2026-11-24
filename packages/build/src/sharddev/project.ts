@@ -37,7 +37,7 @@ import { parseWorldSource } from '@wildshard/sdk/worldSource';
 import { compileBehaviourSource } from '@wildshard/sdk/internal/behaviourSource';
 import { buildBehaviourProject } from '@wildshard/sdk/buildBehaviour';
 import { packProjectMap, generatedProjectMap, type ProjectMap } from '@wildshard/sdk/projectMap';
-import { projectPlaceholders } from '@wildshard/sdk/bake/placeholders';
+import { projectPlaceholders, repoFarRows } from '@wildshard/sdk/bake/placeholders';
 import type { ScriptAdmissionRows } from '@wildshard/format/scriptContract';
 import { readCookInput, type CookInput } from '@wildshard/sdk/internal/cookInput';
 import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/sdk/internal/audioEncode';
@@ -301,7 +301,10 @@ export async function buildProject(project: string, output?: string, options: { 
   const creatures = expandCreatureHitVolumes(expandCreatureLayers(loaded.shard, console.warn, sections), assets);
   const expanded = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
   // SHARD-COMPAT PR6f2: the file says what stands at its four edges (world/edge's edgeObservations), not the engine's registry
-  const shard = withEdgeObservations(validateProject(options.placeholders === true ? await projectPlaceholders(expanded, assets) : expanded, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections));
+  // FORMAT-PRUNE FP40: a product built with no generic bake (a first-party shard, --no-placeholders) carries its repo's own
+  // far proxy (`public/assets/baked/<slug>/far.*`, byte for byte), so the engine needs no baked folder of its own
+  const placed = options.placeholders === true ? await projectPlaceholders(expanded, assets) : withRepoFar(expanded, assets, shardRepoRoot(project));
+  const shard = withEdgeObservations(validateProject(placed, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections));
   phase('asset-admission');
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
   await options.admit?.(shard, assets, projectPerformancePolicy(project, shard), outputPlatformPayloads(loaded.output.platform));
@@ -401,4 +404,30 @@ function withoutHerdFields<Source extends { readonly manifest?: unknown }>(sourc
   if (typeof manifest !== 'object' || manifest === null || !('species' in manifest || 'spawns' in manifest || 'faunaTuning' in manifest)) return source;
   const { species: _species, spawns: _spawns, faunaTuning: _faunaTuning, ...rest } = manifest as Record<string, unknown>;
   return { ...source, manifest: rest };
+}
+
+/**
+ * FORMAT-PRUNE FP40: the repo bake's far proxy (`far.json` with `far.glb` and `far-impostor.png`, as the far-proxies runner
+ * wrote them) as the shardfile's `far` row and files: each file proved by the hash far.json names, its costs recomputed
+ * (`repoFarRows`). A shard that declares its own far, or whose repo holds no bake, is returned as it is. The near view
+ * stays in the repo bake until its ownership moves.
+ */
+export function withRepoFar(shard: Shardfile, assets: Map<string, Uint8Array>, repo: string): Shardfile {
+  if (shard.far !== null) return shard;
+  const folder = resolve(repo, 'public/assets/baked', shard.identity.slug), manifestPath = join(folder, 'far.json');
+  if (!existsSync(manifestPath)) return shard;
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { far: NonNullable<Shardfile['far']>; file: { hash: string }; impostorFile?: { hash: string } };
+  const proved = (name: string, hash: string): Uint8Array => {
+    const bytes = readFileSync(join(folder, name));
+    if (hashImmutableBytes(bytes) !== hash) throw new Error(`${shard.identity.slug}: ${name} is not the bake its far.json names`);
+    return bytes;
+  };
+  const glb = proved('far.glb', manifest.file.hash), impostor = manifest.impostorFile === undefined ? null : proved('far-impostor.png', manifest.impostorFile.hash);
+  const { far, files: rows } = repoFarRows(manifest.far, glb, impostor);
+  const files = [...shard.files];
+  for (const row of rows) {
+    assets.set(row.hash, row.hash === manifest.file.hash ? glb : impostor ?? glb);
+    if (!files.some(file => file.hash === row.hash)) files.push(row);
+  }
+  return { ...shard, files, far };
 }

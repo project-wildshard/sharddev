@@ -2,7 +2,7 @@ import { expect, test } from 'vitest';
 import * as v from 'valibot';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 import { FarSchema } from '@wildshard/format/shardSections';
-import { bakeFarPlaceholder, projectFarPlaceholder } from './placeholders';
+import { bakeFarPlaceholder, projectFarPlaceholder, repoFarRows } from './placeholders';
 import type { PlaceholderGrid, PlaceholderLook } from './placeholderGeometry';
 
 // QA 11-13 row 4: `wildshard check`'s generic far bake keeps the GLB alone when the GLB plus its impostor breaks a far cap.
@@ -40,4 +40,21 @@ test('the project far bake drops to the GLB alone when its impostor breaches the
 test('the project far bake still refuses when the GLB alone breaches a cap', async () => {
   const full = await bakeFarPlaceholder(grid, look);
   await expect(projectFarPlaceholder(grid, look, { ...CONTENT_CAPS.far, resident: full.manifest.file.decoded + full.manifest.file.gpu - 1 })).rejects.toThrow('Far proxy exceeds content caps');
+});
+
+// FORMAT-PRUNE FP40: a repo bake's far (far.json, far.glb, far-impostor.png) shipped in its product, costs from its bytes.
+test('a repo far keeps its row and impostor, its costs recomputed from the bytes', async () => {
+  const full = await bakeFarPlaceholder(grid, look);
+  const stale = { ...full.manifest.far, decoded: 0, gpu: 1 };
+  const { far, files } = repoFarRows(stale, full.bytes, full.impostor);
+  expect(far).toEqual(full.manifest.far);
+  expect(files).toEqual([full.manifest.file, full.manifest.impostorFile]);
+});
+
+test('a repo far drops its impostor over a far cap and refuses when the GLB alone breaches one', async () => {
+  const full = await bakeFarPlaceholder(grid, look), { file } = full.manifest;
+  const over = repoFarRows(full.manifest.far, full.bytes, full.impostor, { ...CONTENT_CAPS.far, resident: full.manifest.far.decoded + full.manifest.far.gpu - 1 });
+  expect(over.far).toEqual({ bounds: full.manifest.far.bounds, files: [file.hash], compressed: file.compressed, decoded: file.decoded, gpu: file.gpu, triangles: file.triangles, draws: file.draws });
+  expect(over.files).toEqual([file]);
+  expect(() => repoFarRows(full.manifest.far, full.bytes, null, { ...CONTENT_CAPS.far, resident: file.decoded + file.gpu - 1 })).toThrow('Far proxy exceeds content caps');
 });
