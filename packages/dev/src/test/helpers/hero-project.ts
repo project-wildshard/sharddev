@@ -110,11 +110,15 @@ async function stateOf(shard: string): Promise<string> {
   return hero.state
 }
 
-async function cut(space: Project): Promise<readonly string[]> {
+async function cut(
+  space: Project,
+  stampWrites = true,
+): Promise<readonly string[]> {
   const lines: string[] = []
   await writeShardfile({
     dir: space.product,
     out: path.join(space.root, 'shard.tar'),
+    stampWrites,
     report: (line: string): void => {
       lines.push(line)
     },

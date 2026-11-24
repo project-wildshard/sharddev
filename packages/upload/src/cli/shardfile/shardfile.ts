@@ -48,6 +48,8 @@ interface ShardfileOptions {
   readonly report: (line: string) => void
   /** False: the caller reports a draft itself (`check`, in its verdict). */
   readonly draftWarning?: boolean
+  /** Whether the hero check may write its stamp; unset, everywhere but a GitHub Actions runner (J505). */
+  readonly stampWrites?: boolean
 }
 
 interface Tarball {
@@ -152,7 +154,10 @@ async function writeAtomically(
 async function checkedTarball(
   options: ShardfileOptions,
 ): Promise<Readonly<{ tarball: Uint8Array<ArrayBuffer>; slug: string }>> {
-  await assertHeroCurrent(options.dir, options.report, options.source)
+  await assertHeroCurrent(options.dir, options.report, {
+    source: options.source,
+    writes: options.stampWrites,
+  })
   const { tarball, fileCount } = await tarOf(options.dir)
   const { slug, name, audio, draft } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)

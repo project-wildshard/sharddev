@@ -161,15 +161,33 @@ async function lookToRecord(
   return fresh === agrees ? undefined : look
 }
 
+/** Record the look (unless on a publish runner, J505: its build must leave git clean) and name the outcome. */
+async function keepLook(
+  shard: string,
+  hero: HeroState,
+  { look, writes }: Readonly<{ look: string; writes: boolean }>,
+): Promise<'recorded' | 'unrecorded' | 'kept'> {
+  if (writes) {
+    await writeLook(shard, { content: hero.content, look })
+  }
+  if (hero.state !== 'fresh') {
+    return 'kept'
+  }
+  return writes ? 'recorded' : 'unrecorded'
+}
+
 /**
  * What the cut does with the built world: nothing, record it, call a source-stale hero current, or decline to record
  * it beside untracked inputs (returned, for the report).
  */
 async function heroLook(
   product: string,
-  shard: string,
-  hero: HeroState,
-): Promise<'none' | 'recorded' | 'kept' | readonly string[]> {
+  {
+    shard,
+    hero,
+    writes = true,
+  }: Readonly<{ shard: string; hero: HeroState; writes?: boolean }>,
+): Promise<'none' | 'recorded' | 'unrecorded' | 'kept' | readonly string[]> {
   const look = await lookToRecord(product, shard, hero)
   if (look === undefined) {
     return 'none'
@@ -178,8 +196,7 @@ async function heroLook(
   if (untracked.length > NONE) {
     return untracked
   }
-  await writeLook(shard, { content: hero.content, look })
-  return hero.state === 'fresh' ? 'recorded' : 'kept'
+  return await keepLook(shard, hero, { look, writes })
 }
 
 /** The report line for a look not recorded beside untracked inputs. */

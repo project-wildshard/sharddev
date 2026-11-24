@@ -130,6 +130,26 @@ function refusal(shard: string, hero: HeroState): string {
     : `the hero of ${name} is older than its content (captured ${captured}); ${capture}`
 }
 
+type Judged = Readonly<{
+  product: string
+  shard: string
+  hero: HeroState
+  writes: boolean
+}>
+
+// J505 (Jake, 2026-11-23 ~20:40 Cancún: "make it a permanent fix"): a publish runner's build must leave git clean
+// (publish.yml: "the build changed tracked files"), and twice on 11-23 a stamp the cut wrote into src/hero.json stopped
+// Driftwood's publish. Under GitHub Actions the cut judges the hero exactly as before but writes no stamp.
+const NO_WRITES = 'a publish runner writes no tracked file (J505)'
+
+/** Whether the cut may write the hero stamp: everywhere but a GitHub Actions runner. */
+function stampWrites(
+  // oxlint-disable-next-line node/no-process-env -- J505: the one read of where the cut runs (a GitHub Actions runner)
+  env: Readonly<Record<string, string | undefined>> = process.env,
+): boolean {
+  return env['GITHUB_ACTIONS'] !== 'true'
+}
+
 // A6 (build-max 2026-11-20): a curated hero is hand-picked art that does not go stale with the world, so when its art
 // bytes are the ones stamped and only the content hash moved, the cut re-stamps it itself instead of refusing. Five
 // publishes were refused that day (Pine 3, Driftwood 2) for a hand `--stamp-existing` run that changed no art.
@@ -149,25 +169,27 @@ function restampable(hero: HeroState): boolean {
 
 /** A6: write the new stamp, say so (the author commits it), then the fresh hero's line. */
 async function restamp(
-  {
-    product,
-    shard,
-    hero,
-  }: Readonly<{ product: string; shard: string; hero: HeroState }>,
+  { product, shard, hero, writes }: Judged,
   report: (line: string) => void,
 ): Promise<void> {
+  const stamp = path.join(shard, STAMP)
+  if (!writes) {
+    report(
+      `hero: curated art unchanged, content moved (was ${hero.stamped ?? ''}); ${NO_WRITES}, so a local build re-stamps ${stamp}`,
+    )
+    report(await freshLine(product, shard, hero))
+    return
+  }
   await writeHeroStamp(shard, { base: AUTO_RESTAMP })
   report(
-    `hero: curated art unchanged, re-stamped ${path.join(shard, STAMP)} for this content (was ${hero.stamped ?? ''}); commit it`,
+    `hero: curated art unchanged, re-stamped ${stamp} for this content (was ${hero.stamped ?? ''}); commit it`,
   )
   report(await freshLine(product, shard, await heroState(shard)))
 }
 
-type Judged = Readonly<{ product: string; shard: string; hero: HeroState }>
-
 /** A look the cut did not keep: recorded on a fresh hero, or not recorded beside untracked inputs (QA 11-23-b row 14). */
 function reportUnkept(
-  look: 'none' | 'recorded' | readonly string[],
+  look: 'none' | 'recorded' | 'unrecorded' | readonly string[],
   stamp: string,
   report: (line: string) => void,
 ): void {
@@ -175,6 +197,10 @@ function reportUnkept(
     report(untrackedLine(stamp, look))
   } else if (look === 'recorded') {
     report(`hero: recorded the built world it shows in ${stamp}; commit it`)
+  } else if (look === 'unrecorded') {
+    report(
+      `hero: ${stamp} does not record the built world yet; ${NO_WRITES}, so a local build records it`,
+    )
   }
 }
 
@@ -183,19 +209,23 @@ function reportUnkept(
  * the built world on a fresh hero; true when it kept a source-stale one (re-stamped, and its fresh line reported).
  */
 async function keptByLook(
-  { product, shard, hero }: Judged,
+  { product, shard, hero, writes }: Judged,
   report: (line: string) => void,
 ): Promise<boolean> {
-  const look = await heroLook(product, shard, hero)
+  const look = await heroLook(product, { shard, hero, writes })
   const stamp = path.join(shard, STAMP)
   if (look !== 'kept') {
     reportUnkept(look, stamp, report)
     return false
   }
   report(
-    `hero: the source moved but the built world it shows did not; re-stamped ${stamp}; commit it`,
+    writes
+      ? `hero: the source moved but the built world it shows did not; re-stamped ${stamp}; commit it`
+      : `hero: the source moved but the built world it shows did not; ${NO_WRITES}, so a local build re-stamps ${stamp}`,
   )
-  report(await freshLine(product, shard, await heroState(shard)))
+  report(
+    await freshLine(product, shard, writes ? await heroState(shard) : hero),
+  )
   return true
 }
 
@@ -226,7 +256,13 @@ async function judge(
 async function assertHeroCurrent(
   product: string,
   report: (line: string) => void,
-  source?: string,
+  {
+    source,
+    writes = stampWrites(),
+  }: Readonly<{
+    source?: string | undefined
+    writes?: boolean | undefined
+  }> = {},
 ): Promise<void> {
   // SA3: `build` names the project it built; a bare folder is read by layout.
   const shard = source ?? sourceShard(product)
@@ -238,10 +274,10 @@ async function assertHeroCurrent(
     report(`hero: no source shard with a card at ${shard}; not checked`)
     return
   }
-  const judged = { product, shard, hero: await heroState(shard) }
+  const judged = { product, shard, hero: await heroState(shard), writes }
   if (!(await keptByLook(judged, report))) {
     await judge(judged, report)
   }
 }
 
-export { assertHeroCurrent }
+export { assertHeroCurrent, stampWrites }
