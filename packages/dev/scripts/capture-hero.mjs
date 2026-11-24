@@ -38,6 +38,38 @@ function jpegSize(bytes) {
   throw new Error('No JPEG frame header');
 }
 
+/**
+ * QA 11-24 row 9 (Jake, on Nine Dragon drawn with its paint unfed: "ITS THAT ITS ALL BLACK"): a frame whose pixels are
+ * mostly black is a broken render, not a hero. `luma` is the frame's Rec. 709 luma (0..255), one byte a pixel; the share
+ * under BLACK.luma is the black part. The real night heroes stay well under the limit (Glowfen's 0.10, Pine Hollow's
+ * 0.11 at 320x180) and Nine's black spawn view is 0.33 to 0.49.
+ */
+export const BLACK = { luma: 12, share: 0.25 };
+export function blackShare(luma) {
+  let black = 0;
+  for (const value of luma) if (value < BLACK.luma) black++;
+  return luma.length === 0 ? 1 : black / luma.length;
+}
+export function refuseBlack(slot, luma) {
+  const share = blackShare(luma);
+  if (share > BLACK.share) throw new HeroRefusal('black', `${slot} is ${(share * 100).toFixed(0)}% black (over ${BLACK.share * 100}% of its pixels under luma ${BLACK.luma}): the zone renders black, so nothing was written; fix its lighting and colours, then capture again`);
+  return share;
+}
+
+/** The screenshot's luma at 320x180, read back by the page from the JPEG it was given. */
+async function frameLuma(page, jpeg) {
+  return Uint8Array.from(await page.evaluate(async b64 => {
+    const image = new Image();
+    image.src = `data:image/jpeg;base64,${b64}`;
+    await image.decode();
+    const canvas = document.createElement('canvas'); canvas.width = 320; canvas.height = 180;
+    const g = canvas.getContext('2d'); g.drawImage(image, 0, 0, 320, 180);
+    const rgba = g.getImageData(0, 0, 320, 180).data, out = [];
+    for (let at = 0; at < rgba.length; at += 4) out.push(Math.round(0.2126 * rgba[at] + 0.7152 * rgba[at + 1] + 0.0722 * rgba[at + 2]));
+    return out;
+  }, Buffer.from(jpeg).toString('base64')));
+}
+
 /** A refusal the CLI prints as one line, `[hero-<rule>] <message>`, never a stack. */
 export class HeroRefusal extends Error {
   constructor(rule, message) { super(`[hero-${rule}] ${message}`); this.name = 'HeroRefusal'; this.rule = rule; }
@@ -157,7 +189,8 @@ export async function captureHero(shard, given, { name, log = console.info } = {
       shots[slot] = await page.screenshot({ type: 'jpeg', quality: QUALITY });
       const [width, height] = jpegSize(shots[slot]);
       if (width !== viewport.width * SCALE || height !== viewport.height * SCALE) throw new HeroRefusal('size', `${slot} came out ${width}x${height}`);
-      log(`hero: ${slot} ${width}x${height}`);
+      const black = refuseBlack(slot, await frameLuma(page, shots[slot]));
+      log(`hero: ${slot} ${width}x${height}, ${(black * 100).toFixed(1)}% black`);
     }
     await context.close();
   } finally { await browser.close(); }

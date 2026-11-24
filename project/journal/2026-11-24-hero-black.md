@@ -1,0 +1,1 @@
+QA-11-24 row 9: `wildshard hero` refuses a mostly black frame ([hero-black], over 25% of pixels under luma 12), so a zone that renders black (Nine Dragon with its paint unfed) can never be stamped as its card. Night heroes (Glowfen, Pine Hollow) sit near 10%.
