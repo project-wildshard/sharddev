@@ -11,7 +11,7 @@ import { NEAR_COLOUR, NEAR_LIGHT, NEAR_PLACEHOLDER_LIMITS } from '@wildshard/for
 import { MEASURE_SLOT, parseFamilyMaterial, type FamilyMaterialParams } from '@wildshard/format/materialFamilies';
 import { materialGraphIr } from '@wildshard/format/materials';
 import type { Shardfile } from '@wildshard/format/shardSchema';
-import { placeholderGeometry, placeholderLeanDrop, type PlaceholderGrid, type PlaceholderLook, type PlaceholderLookRuntime, type PlaceholderPart } from './placeholderGeometry';
+import { placeholderGeometry, placeholderLeanDrop, type PlaceholderGrid, type PlaceholderLean, type PlaceholderLook, type PlaceholderLookRuntime, type PlaceholderPart } from './placeholderGeometry';
 import { assetCost } from '@wildshard/format/shardfileAssets';
 import { parseGlb } from '../assets';
 import { encodeCanonicalJson, hashImmutableBytes } from '../immutable';
@@ -48,6 +48,13 @@ export const NEAR_BAKE = { quads: 64, groundError: 0.5, contentTriangles: 42_000
  * face (`SEAM_FACE_TOP`, 14 m: the seam's cliff carries the ground to it), `grade` 1.6 (58°) varied ±45 % along the border.
  */
 export const NEAR_EDGE_LEAN = { top: 14, grade: 1.6, jitter: 0.45 } as const;
+/**
+ * QA 2026-11-24 row 6 (Jake: "i want the fucking far view placeholders to look better"; J509: the look decides): a far view
+ * keeps its zone's landmarks, its own world's parts over `minSize` m reduced to `triangles` (inside the 8000-triangle far
+ * cap beside its 6144-triangle ground), and its border leans back into the road as the near ground's does
+ * (`NEAR_EDGE_LEAN`), never a grey wall standing to the road.
+ */
+export const FAR_LANDMARKS = { triangles: 1700, minSize: 8 } as const;
 /** The forest's triangle budget inside the near placeholder (on top of the props' own content budget). */
 export const NEAR_TREE_TRIANGLES = 30_000;
 /** Half a cell (m): copies leaving it are dropped. */
@@ -156,8 +163,8 @@ function warnFarResident(far: FarRow, caps: FarCaps): void {
   if (far.decoded + far.gpu > caps.resident) console.warn(`far over the resident target: ${far.decoded + far.gpu} B resident (target ${caps.resident}); the impostor stays (J509: the look decides)`);
 }
 /** The far GLB, its impostor, and the far row with the impostor (`far`) and without it (`meshOnly`). */
-async function farRows(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[]) {
-  const geometry = placeholderGeometry(grid, look, parts);
+async function farRows(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[], lean?: PlaceholderLean) {
+  const geometry = placeholderGeometry(grid, look, parts, undefined, undefined, lean);
   const bytes = oneDraw(geometry, 'far-proxy'), file = fileRow(bytes);
   geometry.computeBoundingBox(); const box = geometry.boundingBox; if (box === null) throw new Error('Missing far bounds');
   const baked = await bakeFarImpostor(geometry, look.family);
@@ -185,8 +192,10 @@ export async function bakeFarPlaceholder(grid: PlaceholderGrid, look: Placeholde
  * (the proxy then draws at every distance) when the pair would breach a §3.2 far cap the format refuses (never the resident cap, J509), as an authored far's impostor is
  * dropped (`authoredFarImpostor`); refused only when the GLB alone breaches one. `impostor` is null when dropped.
  */
-export async function projectFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, caps: FarCaps = CONTENT_CAPS.far): Promise<{ far: FarRow; file: PlaceholderFile; bytes: Uint8Array; impostor: { file: PlaceholderFile; bytes: Uint8Array } | null }> {
-  const rows = await farRows(grid, look, []);
+export async function projectFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, caps: FarCaps = CONTENT_CAPS.far, parts: readonly PlaceholderPart[] = [], lean?: PlaceholderLean): Promise<{ far: FarRow; file: PlaceholderFile; bytes: Uint8Array; impostor: { file: PlaceholderFile; bytes: Uint8Array } | null }> {
+  let rows = await farRows(grid, look, parts, lean);
+  // the landmarks are the far view's look; past a cap they go before the impostor does (the ground alone is today's far)
+  if (parts.length > 0 && !farWithinCaps(rows.meshOnly, caps)) { console.warn(`far landmarks dropped: ${rows.meshOnly.triangles} triangles, ${rows.meshOnly.compressed} B over the far cap`); rows = await farRows(grid, look, [], lean); }
   if (farWithinCaps(rows.far, caps)) { warnFarResident(rows.far, caps); return { far: rows.far, file: rows.file, bytes: rows.bytes, impostor: { file: rows.impostorFile, bytes: rows.impostor } }; }
   if (!farWithinCaps(rows.meshOnly, caps)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(rows.meshOnly)}`);
   console.warn(`far impostor dropped: the proxy and its impostor are ${rows.far.compressed} B compressed (cap ${caps.compressed}), ${rows.far.triangles} triangles, ${rows.far.draws} draws; the far proxy draws at every distance`);
@@ -357,6 +366,23 @@ function sinkPieces(p: NearPrototype, m: readonly number[], drop: (x: number, z:
   return { name: p.name, positions: world, colours: p.colours, index: p.index, transforms: [[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]] };
 }
 
+/** Round 5: every copy standing on a leaned flank sinks with it, never floats. */
+function sunkOnLean(input: readonly NearPrototype[], drop: (x: number, z: number) => number): NearPrototype[] {
+  const prototypes: NearPrototype[] = [];
+  for (const p of input) {
+    const rigid: (readonly number[])[] = [];
+    for (const m of p.transforms) {
+      // round 6: a copy wider than one piece (a merged ring of crag fins, a quadrant of dressing) sinks piece by piece:
+      // sunk by its origin, the fins on a leaned flank stood in the air over the leaned ground (Nalati's floating spikes)
+      const sunk = wideCopy(p, m) ? sinkPieces(p, m, drop) : null;
+      if (sunk !== null) { prototypes.push(sunk); continue; }
+      const d = drop(m[12] ?? 0, m[14] ?? 0); rigid.push(d > 0 ? m.map((v, i) => i === 13 ? v - d : v) : m);
+    }
+    if (rigid.length > 0) prototypes.push({ name: p.name, positions: p.positions, colours: p.colours, index: p.index, transforms: rigid });
+  }
+  return prototypes;
+}
+
 /** G380: the flat floor of a world with no height field, half a metre under the lowest point of its placed world. */
 function floorUnder(prototypes: readonly NearPrototype[], parts: readonly PlaceholderPart[]): PlaceholderGrid {
   let low = Infinity;
@@ -382,18 +408,9 @@ export async function bakeNearPlaceholder(input: NearPlaceholderInput): Promise<
     const d = drop(t.x, t.z), sunk: PlaceholderTreePlacement = { ...t, y: t.y - d };
     trees.push(d > 0 ? sunk : t);
   }
-  for (const p of input.prototypes) {
-    const rigid: (readonly number[])[] = [];
-    for (const m of p.transforms) {
-      // round 6: a copy wider than one piece (a merged ring of crag fins, a quadrant of dressing) sinks piece by piece:
-      // sunk by its origin, the fins on a leaned flank stood in the air over the leaned ground (Nalati's floating spikes)
-      const sunk = wideCopy(p, m) ? sinkPieces(p, m, drop) : null;
-      if (sunk !== null) { prototypes.push(sunk); continue; }
-      const d = drop(m[12] ?? 0, m[14] ?? 0); rigid.push(d > 0 ? m.map((v, i) => i === 13 ? v - d : v) : m);
-    }
-    if (rigid.length > 0) prototypes.push({ name: p.name, positions: p.positions, colours: p.colours, index: p.index, transforms: rigid });
-  }
+  prototypes.push(...sunkOnLean(input.prototypes, drop));
   const forest = trees.length === 0 ? null : nearTreePrototypes(trees, HALF, input.stands);
+
   if (forest !== null) log?.(`forest ${JSON.stringify(forest.report)}`);
   const treeParts = forest === null ? { parts: [], report: { triangles: 0 } }
     : await nearPlaceholderParts(forest.prototypes, { triangles: NEAR_TREE_TRIANGLES * 2, half: HALF, minSize: 0 });
@@ -439,7 +456,8 @@ export function shardfileLook(shard: Shardfile): PlaceholderLook {
   return {
     family: 'pbr',
     colourAt: (_x, _z, _h, slope) => mixRgb(ground, rock, Math.min(1, Math.max(0, (slope - 0.2) * 3))),
-    cliff: { lip: rock, foot: mixRgb(rock, [0, 0, 0], 0.4) },
+    // QA-11-24 row 6: the border face is the edge's own ground going into shade, never a grey rock plinth
+    cliff: { lip: mixRgb(ground, [0, 0, 0], 0.15), foot: mixRgb(ground, [0, 0, 0], 0.45) },
     haze: { colour: fog?.colour ?? [1, 1, 1] },
   };
 }
@@ -637,14 +655,18 @@ export async function projectPlaceholders(project: Shardfile, assets: Map<string
   if (shard.terrain === null && shard.near === undefined) return coarseNearView(shard, assets);
   if (collider === undefined || (shard.far !== null && shard.near !== undefined)) return shard;
   const grid = colliderGrid(collider), look = shardfileLook(shard), files = [...shard.files];
-  let far = shard.far, near = shard.near;
+  let far = shard.far, near = shard.near, world: NearPrototype[] | null = null;
+  const ownWorld = async (): Promise<NearPrototype[]> => (world ??= await shardfileWorld(shard, assets));
   if (far === null) {
-    const baked = await projectFarPlaceholder(grid, look);
+    // QA-11-24 row 6: the zone's own landmarks, sunk with the leaned border, at a far budget
+    const standing = sunkOnLean(await ownWorld(), placeholderLeanDrop(grid, NEAR_EDGE_LEAN));
+    const { parts } = await nearPlaceholderParts(standing, { triangles: FAR_LANDMARKS.triangles, half: HALF, minSize: FAR_LANDMARKS.minSize });
+    const baked = await projectFarPlaceholder(grid, look, CONTENT_CAPS.far, parts, NEAR_EDGE_LEAN);
     far = baked.far; files.push(baked.file); assets.set(baked.file.hash, baked.bytes);
     if (baked.impostor !== null) { files.push(baked.impostor.file); assets.set(baked.impostor.file.hash, baked.impostor.bytes); }
   }
   if (near === undefined) {
-    const baked = await bakeNearPlaceholder({ grid, look, prototypes: await shardfileWorld(shard, assets), residentBytes: Math.min(NEAR_BAKE.residentBytes, NEAR_PLACEHOLDER_LIMITS.contentBytes) });
+    const baked = await bakeNearPlaceholder({ grid, look, prototypes: await ownWorld(), residentBytes: Math.min(NEAR_BAKE.residentBytes, NEAR_PLACEHOLDER_LIMITS.contentBytes) });
     const file = baked.manifest.file;
     if (!files.some(row => row.hash === file.hash)) files.push(file);
     assets.set(file.hash, baked.bytes); near = { version: 1, terrain: [], content: [file.hash] };

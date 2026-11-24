@@ -1,0 +1,1 @@
+QA-11-24 row 6: far views read as their zones. The generic far bake now keeps the zone's own landmarks (its world over 8 m, 1700 triangles, dropped first past a cap), leans its border back like the near ground, and paints the border face in the edge's ground instead of grey rock. Jake judges the look on the board before FP40 lands.
