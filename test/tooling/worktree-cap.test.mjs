@@ -50,9 +50,9 @@ function fixture() {
   return { repo, git, plant, run };
 }
 
-test(`a full cap reaps the oldest landed, clean worktree idle 30 min, owner file or not, and makes the ${String(MAX_WORKTREES + 1)}th`, { timeout: 120_000 }, () => {
+test(`a full cap refuses the ${String(MAX_WORKTREES + 1)}th and lists each ended worktree with copy-first commands, removing nothing (J358)`, { timeout: 120_000 }, () => {
   const f = fixture();
-  // Older than the parked ones, but not parked: an unlanded commit, and an edit.
+  // Older than the parked ones, but not ended: an unlanded commit, and an edit.
   f.plant('busy-unlanded', 90, { unlanded: true });
   f.plant('busy-dirty', 80, { dirty: true });
   f.plant('parked-old', 50, { owner: true });
@@ -60,13 +60,14 @@ test(`a full cap reaps the oldest landed, clean worktree idle 30 min, owner file
   f.plant('parked-new', 2);
   f.plant('parked-newest', 0);
   const result = f.run('seventh', { WS_WORKTREE_FREE_GIB: '500' });
-  assert.equal(result.status, 0, result.stdout + result.stderr);
-  assert.match(result.stdout, /worktree reap {5}reaped parked-old \(landed, clean, idle \d+ min\) for the cap; copy at /u);
-  assert.doesNotMatch(result.stdout, /reaped (?:busy|parked-mid)/u);
-  assert.equal(existsSync(join(f.repo, '.worktrees/parked-old')), false);
-  assert.equal(spawnSync('git', ['rev-parse', '--verify', '--quiet', 'refs/heads/plan/parked-old'], { cwd: f.repo }).status, 1);
-  for (const kept of ['busy-unlanded', 'busy-dirty', 'parked-mid']) assert.equal(existsSync(join(f.repo, '.worktrees', kept)), true, kept);
-  assert.equal(existsSync(join(f.repo, '.worktrees/seventh/a.txt')), true);
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stderr, /oldest parked worktree is \.worktrees\/parked-old \(landed, clean, idle 5\d\.\d h\)/u);
+  assert.match(result.stderr, /ended worktrees \(J358: nothing removes them for you; copy first, then remove/u);
+  const listed = [...result.stderr.matchAll(/node scripts\/keep-copy\.mjs \.worktrees\/(?<slug>\S+) && git worktree remove \.worktrees\/\k<slug> && git branch -d plan\/\k<slug>/gu)].map((match) => match.groups?.['slug']);
+  assert.deepEqual(listed, ['parked-old', 'parked-mid', 'parked-new']);
+  for (const kept of ['busy-unlanded', 'busy-dirty', 'parked-old', 'parked-mid', 'parked-new', 'parked-newest']) assert.equal(existsSync(join(f.repo, '.worktrees', kept)), true, kept);
+  assert.equal(spawnSync('git', ['rev-parse', '--verify', '--quiet', 'refs/heads/plan/parked-old'], { cwd: f.repo }).status, 0);
+  assert.equal(existsSync(join(f.repo, '.worktrees/seventh')), false);
 });
 
 test(`the ${String(MAX_WORKTREES + 1)}th worktree is refused while every parked one is fresh, naming the oldest`, { timeout: 120_000 }, () => {
@@ -77,7 +78,8 @@ test(`the ${String(MAX_WORKTREES + 1)}th worktree is refused while every parked 
   const result = f.run('seventh', { WS_WORKTREE_FREE_GIB: '500' });
   assert.equal(result.status, 1, result.stdout + result.stderr);
   assert.match(result.stderr, /worktree STOP repo already has 6 live worktrees under \.worktrees\/ \(cap 6\)/u);
-  assert.match(result.stderr, /oldest parked worktree is \.worktrees\/parked-[a-d] \(landed, clean, idle 0\.\d h\); a full cap reaps one idle 30 min/u);
+  assert.match(result.stderr, /oldest parked worktree is \.worktrees\/parked-[a-d] \(landed, clean, idle 0\.\d h\)$/mu);
+  assert.doesNotMatch(result.stderr, /ended worktrees/u);
   assert.equal(existsSync(join(f.repo, '.worktrees/seventh')), false);
   assert.equal(spawnSync('git', ['rev-parse', '--verify', '--quiet', 'refs/heads/plan/seventh'], { cwd: f.repo }).status, 1);
 });

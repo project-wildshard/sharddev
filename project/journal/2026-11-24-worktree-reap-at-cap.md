@@ -1,15 +1,16 @@
-# A full worktree cap reaps a landed, clean, idle worktree
+# A full worktree cap lists ended worktrees; nothing removes them (J358)
 
-> Written by: Claude (opus-pr6). Coordinator order 11-24 (J505), engine `738764b36`'s pattern (Build-max C4).
+> Written by: Claude (opus-pr6). Coordinator order 11-24, which reverts its own earlier order (`0f49e36`).
 
-sharddev stood at 13 worktrees against the cap of 6, and `worktree new` only refused. Its `reap` is an inventory (J358):
-it named three landed, clean worktrees "live" because an owner session was present, and five more "unknown" because
-they had no `.owner`, and removed none. A lane needing a worktree stopped.
+`0f49e36` made `worktree new` reap the oldest landed, clean, idle worktree at a full cap, after a keep-copy. That breaks
+J358 (Jake, 2026-11-15: *"No fucking auto delete in scripts Claude's can audit and delete what makes sense"*): the only
+script that removes a worktree is `land`, its own just-landed one.
 
-`files/scripts/worktree.mjs` now does what engine's has done since 11-21: on a full cap, `new` first reaps the oldest
-plan worktree that is landed (tip on origin/main), clean (no tracked or untracked change), idle 30 min, with no process
-or pidfile inside, after a keep-copy, then its local branch, until one more fits. An owner file, or none, keeps nothing.
-Unlanded or dirty worktrees always stay; low disk still refuses. `reap` itself stays an inventory.
+Now `worktree new` at a full cap refuses, as before `0f49e36`, and lists each worktree that has clearly ended (landed,
+clean, idle 30 min, no process or pidfile inside, owner file or not), oldest first, with the one command that removes it,
+copy first:
 
-Test: `test/tooling/worktree-cap.test.mjs` (an owned, idle, parked worktree goes; unlanded, dirty and fresher ones stay;
-fresh parked ones still refuse with the oldest named).
+    node scripts/keep-copy.mjs .worktrees/<slug> && git worktree remove .worktrees/<slug> && git branch -d plan/<slug>
+
+An agent reads it and decides. Low disk alone lists nothing. Test: `test/tooling/worktree-cap.test.mjs` (the list names
+exactly the ended ones and every worktree is still there).
