@@ -171,8 +171,8 @@ importers:
         specifier: workspace:*
         version: link:../build
       '@wildshard/engine':
-        specifier: 0.1.76-next.f3b1d4c7
-        version: 0.1.76-next.f3b1d4c7(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.80-next.be7e944e
+        version: 0.1.80-next.be7e944e(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/format':
         specifier: npm:@wildshard/shard-format@0.74.1
         version: '@wildshard/shard-format@0.74.1(typescript@6.0.3)'
@@ -333,8 +333,8 @@ importers:
         specifier: 24.3.1
         version: 24.3.1
       '@wildshard/engine':
-        specifier: 0.1.76-next.f3b1d4c7
-        version: 0.1.76-next.f3b1d4c7(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.80-next.be7e944e
+        version: 0.1.80-next.be7e944e(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
@@ -893,8 +893,8 @@ packages:
   '@vitest/spy@5.0.3':
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
 
-  '@wildshard/engine@0.1.76-next.f3b1d4c7':
-    resolution: {integrity: sha512-VvvyW8/2iCCACLdG0RR1Ue/nT9psx6Lb/HeFB35ARZFd9mICMpaUG9uXSQFGGTY6z7xJl6qncvrOqMJiT5IqAQ==}
+  '@wildshard/engine@0.1.80-next.be7e944e':
+    resolution: {integrity: sha512-F6vl9LuBowIovnbfAa3SG4d9wvA5EuYve3viuN6K/G4FJV90Sa47Yrccqe9L3xhRsgptkeybfhRBexyKxp2qfg==}
     engines: {node: '>=24.18.0'}
     hasBin: true
     peerDependencies:
@@ -1974,7 +1974,7 @@ snapshots:
 
   '@vitest/spy@5.0.3': {}
 
-  '@wildshard/engine@0.1.76-next.f3b1d4c7(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
+  '@wildshard/engine@0.1.80-next.be7e944e(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:
       '@dimforge/rapier3d-simd': 0.21.0
       '@hono/node-server': 2.1.8(hono@4.13.19)
