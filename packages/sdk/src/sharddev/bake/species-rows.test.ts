@@ -1,9 +1,12 @@
 import { expect, test, vi } from 'vitest';
-import { deriveSpecies } from '@wildshard/engine/ai/species';
-import { BOAR } from '@wildshard/engine/game/systems/species/boar';
-import { BEAR } from '@wildshard/engine/game/systems/species/bear';
+import { deriveSpecies, type SpeciesRow } from '@wildshard/engine/ai/species';
 import { bakeSpecies, commonSpeciesRows, deriveSpeciesRows } from '@wildshard/kit/bake/species';
 import deer from '@wildshard/kit/content/tuning/deer.json' with { type: 'json' };
+// FORMAT-PRUNE FP51: the native boar and bear rows as engine's kits held them (engine c6b51acf0), kept here so the parity
+// check reads its own rows and engine's kits can leave its source.
+import kits from './species-kits.fixture.json' with { type: 'json' };
+
+const { boar: BOAR, bear: BEAR } = kits as { boar: SpeciesRow; bear: SpeciesRow };
 
 const boarHarvest = [
   { item: 'boar-meat', count: 1 },
