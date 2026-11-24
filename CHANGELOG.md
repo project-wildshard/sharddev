@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## Unreleased
+
+- Shards build on shard format 0.74.1, including the new quest primitives.
+- Publishing from GitHub Actions no longer rewrites the hero stamp.
+- New shards seed from a whole Brasscap export.
+
 ## v0.4.29 (2026-11-23)
 
 - Shard builds produce the same assets on Intel and Arm.
