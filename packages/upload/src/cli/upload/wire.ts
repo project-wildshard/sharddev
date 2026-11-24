@@ -133,12 +133,17 @@ interface CatalogueShard {
   readonly slug: string
   readonly version?: string | null | undefined
   readonly heroHash?: string | null | undefined
+  /** FORMAT-PRUNE FP27c (J426): set when the API arms this shard under the memory lines. */
+  readonly armed?: Readonly<{ since: string; epoch: number }> | null | undefined
 }
 
+const ArmedWord = object({ since: string(), epoch: number() })
+const ArmedSchema = optional(nullable(ArmedWord))
 const CatalogueShardSchema = object({
   slug: string(),
   version: EchoSchema,
   heroHash: EchoSchema,
+  armed: ArmedSchema,
 })
 
 const CatalogueSchema: GenericSchema<{

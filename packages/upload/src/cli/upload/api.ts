@@ -175,18 +175,16 @@ async function findStored(
 }
 
 /** The slug's entry in `GET /api/catalogue`, if it has one. */
-async function findCatalogued(
+/** Every catalogued shard: its newest version, hero digest and armed word. */
+async function readCatalogue(
   options: ApiOptions,
-  slug: string,
-): Promise<CatalogueShard | undefined> {
+): Promise<readonly CatalogueShard[]> {
   const path = '/api/catalogue'
   const reply = await fetch(new URL(path, options.server), {
     headers: apiHeaders(options),
   })
   const { shards } = await replyOf(path, reply, CatalogueSchema)
-  return shards.find(
-    (shard: Readonly<{ slug: string }>): boolean => shard.slug === slug,
-  )
+  return shards
 }
 
 async function requestTicket(
@@ -293,7 +291,7 @@ export {
   readUploadStatus,
   readUploadSummary,
   commitUpload,
-  findCatalogued,
+  readCatalogue,
   findStored,
   putObject,
   requestTicket,

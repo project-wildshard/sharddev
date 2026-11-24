@@ -4,10 +4,11 @@ import { draftMessage } from '../../sharddev/draft.ts'
 import { findShardSource } from '../../sharddev/shardSource.ts'
 import { assertAudio } from '../audio/audio.ts'
 import { STAMP, field, readJson } from '../hero/stamp.ts'
-import { findCatalogued } from './api.ts'
+import { readCatalogue } from './api.ts'
 import { assertHero, validateShardfile } from './validate.ts'
 
 import type { ApiOptions } from './api.ts'
+import type { CatalogueShard } from './wire.ts'
 
 // What `sharddev upload` checks before any byte is sent: format's check,
 // the draft check (J198), AU5's audio rules, the hero gate (HERO-GATE HG2)
@@ -58,9 +59,12 @@ async function curatedHero(project: string, slug: string): Promise<boolean> {
 async function validated(
   options: CheckOptions,
   tarball: Readonly<Uint8Array>,
+  armed: () => Promise<ReadonlySet<string> | undefined>,
 ): Promise<Checked> {
-  const { slug, name, audio, heroHash, draft, hero } =
-    await validateShardfile(tarball)
+  const { slug, name, audio, heroHash, draft, hero } = await validateShardfile(
+    tarball,
+    armed,
+  )
   options.report(`valid: ${slug} (${name}), ${mb(tarball.length)}`)
   if (draft) {
     throw new Error(draftMessage(slug))
@@ -79,15 +83,44 @@ async function validated(
  * catalogue with no digest (before UP4), a retry of the catalogued
  * version and a curated hero pass, as the API's own check does.
  */
-async function checkHero(options: CheckOptions, shard: Checked): Promise<void> {
+async function checkHero(
+  options: CheckOptions,
+  shard: Checked,
+  catalogue: () => Promise<readonly CatalogueShard[]>,
+): Promise<void> {
   if (shard.hero === undefined || shard.curated) {
     return
   }
-  const newest = await findCatalogued(options, shard.slug)
+  const rows = await catalogue()
+  const newest = rows.find(
+    (row: Readonly<CatalogueShard>): boolean => row.slug === shard.slug,
+  )
   if (newest?.heroHash === shard.hero && newest.version !== options.version) {
     throw new Error(
       `the hero is unchanged since ${[shard.slug, newest.version].filter(Boolean).join(' ')}: run wildshard hero, then build and upload again`,
     )
+  }
+}
+
+/**
+ * FORMAT-PRUNE FP27c (J426): the slugs the API catalogue arms, which the
+ * format judges the memory lines by; undefined (the format's own list) when
+ * the catalogue can't be read, which the hero check then reports.
+ */
+async function armedSlugs(
+  catalogue: Promise<readonly CatalogueShard[]>,
+): Promise<ReadonlySet<string> | undefined> {
+  try {
+    const rows = await catalogue
+    const armed = rows.filter(
+      (row: Readonly<CatalogueShard>): boolean =>
+        row.armed !== undefined && row.armed !== null,
+    )
+    return new Set(
+      armed.map((row: Readonly<CatalogueShard>): string => row.slug),
+    )
+  } catch {
+    return undefined
   }
 }
 
@@ -96,9 +129,17 @@ async function checkShardfile(
   options: CheckOptions,
   tarball: Readonly<Uint8Array>,
 ): Promise<Checked> {
-  const shard = await validated(options, tarball)
-  await checkHero(options, shard)
+  const asked: { rows?: Promise<readonly CatalogueShard[]> } = {}
+  const read = async (): Promise<readonly CatalogueShard[]> =>
+    await (asked.rows ??= readCatalogue(options))
+  const shard = await validated(
+    options,
+    tarball,
+    async (): Promise<ReadonlySet<string> | undefined> =>
+      await armedSlugs(read()),
+  )
+  await checkHero(options, shard, read)
   return shard
 }
 
-export { type Checked, checkShardfile }
+export { type Checked, armedSlugs, checkShardfile }

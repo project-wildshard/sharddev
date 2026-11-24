@@ -62,9 +62,32 @@ function heroOf(
   return { hero, heroHash: hero.ok ? hero.digest : heroHashOf(shard) }
 }
 
+/** A draft refuses whatever the catalogue says, so its check asks nothing (FP27c). */
+function draftTar(members: ReadonlyMap<string, Readonly<Uint8Array>>): boolean {
+  const index = members.get('shard.json')
+  try {
+    return (
+      index !== undefined &&
+      isDraftIndex(JSON.parse(new TextDecoder().decode(index)))
+    )
+  } catch {
+    return false
+  }
+}
+
+/** The validation's ports: the hash, and the catalogue's armed slugs unless this is a draft (FP27c). */
+async function validationPorts(
+  members: ReadonlyMap<string, Readonly<Uint8Array>>,
+  armedSlugs: (() => Promise<ReadonlySet<string> | undefined>) | undefined,
+): Promise<{ hash: typeof sha256; armed?: ReadonlySet<string> }> {
+  const armed = draftTar(members) ? undefined : await armedSlugs?.()
+  return { hash: sha256, ...(armed === undefined ? {} : { armed }) }
+}
+
 /** The shard's identity; throws with format's reason when it is invalid. */
 async function validateShardfile(
   tarball: Readonly<Uint8Array>,
+  armedSlugs?: () => Promise<ReadonlySet<string> | undefined>,
 ): Promise<ValidShardfile> {
   installFormatHook()
   const { prepareAssetDecoders } =
@@ -76,9 +99,12 @@ async function validateShardfile(
   const { readTar } = await import('@wildshard/format/tar')
   await prepareAssetDecoders()
   const members = readTar(tarball)
-  const valid = validateShardfileProduct(productFiles(members), {
-    hash: sha256,
-  })
+  // FORMAT-PRUNE FP27c: the catalogue's armed slugs judge the memory lines, as the API's own admission does; asked
+  // only once the tar reads, so a broken file still refuses before any request.
+  const valid = validateShardfileProduct(
+    productFiles(members),
+    await validationPorts(members, armedSlugs),
+  )
   const { identity, presentation } = valid.shard
   return {
     draft: isDraftIndex(valid.index),
