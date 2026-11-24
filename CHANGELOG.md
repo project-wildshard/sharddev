@@ -7,6 +7,12 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.29 (2026-11-23)
+
+- Shard builds produce the same assets on Intel and Arm.
+- Uploads keep the recorded hero look when untracked files are present.
+- Shard authors can load skin playback through the SDK.
+
 ## v0.4.28 (2026-11-23)
 
 - SDK builds record the observations that each zone edge declares.
