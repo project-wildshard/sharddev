@@ -22,7 +22,8 @@ test('admits plain data plans in declared install order and refuses anything els
   expect(parseNativeAssembly(plan)).toEqual(plan);
   expect(parseNativeAssembly({ ...plan, features: [{ host: 'population.roster', rows: { section: 'actors/roster', path: ['rows'] } }, { host: 'day.declared', clock: { value: { start: 0 } } }] }).features).toHaveLength(2);
   expect(() => parseNativeAssembly({ ...plan, kind: 'held-melee' })).toThrow();
-  expect(() => parseNativeAssembly({ ...plan, features: [] })).toThrow();
+  // FP16d (format 0.74.1): a plan may name no host; each primitive family's hosts come from its server/* section.
+  expect(parseNativeAssembly({ ...plan, features: [] }).features).toEqual([]);
   expect(() => parseNativeAssembly({ ...plan, features: [{ host: 'shard.callback' }] })).toThrow();
   expect(() => parseNativeAssembly({ ...plan, features: [{ host: 'decisions', module: 'https://example.test/x.js' }] })).toThrow();
   expect(() => parseNativeAssembly({ ...plan, moduleUrl: 'x' })).toThrow();

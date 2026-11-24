@@ -1976,6 +1976,12 @@ An open sea with waves. **Switched on:** a `sea` water row in `world/water`. **U
 
 Ponds and wet ground across a field. **Switched on:** a water field in `world/field`. **Used by:** Nalati. **Row:** OF40.
 
+### `quest`
+
+A quest's native hosts (chapters, kill steps, body scripts and the composition), in install order. **Switched on:** a
+`hosts` row in `server/quest`. **Used by:** none yet; Driftwood and Pine move to it (FP16b, FP16c).
+**Row:** FP16.
+
 ### `grapple`
 
 A grappling hook between hook points. **Switched on:** a `modes.grapple` row in `state/modes`. **Used by:** Nine Dragon.

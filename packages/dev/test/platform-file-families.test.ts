@@ -43,7 +43,11 @@ test('shared names require the defining type and keep private neighbours custom'
   // Engine SA25 (0.1.35) renamed productCreatures to folderCreatures; format still names the old reader (SHARD-SOURCE SA25b).
   const retired = new Map([['src/game/population/wildlife.ts', 'src/game/population/wildlifeFeature.ts'],
     ['src/game/population/productCreatures.ts', 'src/game/population/folderCreatures.ts']]);
+  // ONE-FORMAT OF30 cut B (engine 5eb35ecee): folderCreatures.ts went with no successor; format keeps the
+  // product-creatures families only so Driftwood r4/r5 originals still admit (J506), and no engine reads them.
+  const gone = new Set(['src/game/population/productCreatures.ts']);
   for (const family of PLATFORM_FILE_FAMILIES) {
+    if (gone.has(family.reader)) continue;
     const reader = retired.get(family.reader) ?? family.reader;
     const engine = dirname(fileURLToPath(import.meta.resolve('@wildshard/engine/package.json')));
     const onDisk = ['client', 'server', 'shared'].map(side => resolve(engine, reader.replace('src/game/', `src/${side}/game/`))).find(path => existsSync(path));

@@ -113,5 +113,6 @@ it('a native world names its plan, rows and binaries through one server class', 
     bake: { rows: { file: 'server/physics.json' }, reader: { label: 'Fixture', resolution: 4, size: 4 }, ground: 'data/ground.bin', colliders: [], read: 'bake' }, collision: { resolution: 4 }, entries: { walk: {} }, features: [{ host: 'decisions' }] };
   const files = nativeAssemblyFiles(plan, new Map([['server/physics.json', {}]]), new Map([['server/navmesh.bin', MARK]]));
   expect(files.map(row => row.file.name)).toEqual(['server/native-assembly.json', 'server/physics.json', 'server/navmesh.bin']);
-  expect(() => nativeAssemblyFiles({ ...plan, features: [] }, new Map())).toThrow();
+  // FP16d (format 0.74.1): a plan may name no host; each primitive family's hosts come from its server/* section.
+  expect(nativeAssemblyFiles({ ...plan, features: [] }, new Map([['server/physics.json', {}]]), new Map()).map(row => row.file.name)).toEqual(['server/native-assembly.json', 'server/physics.json']);
 });
