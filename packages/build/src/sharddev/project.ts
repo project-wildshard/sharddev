@@ -301,7 +301,7 @@ export async function buildProject(project: string, output?: string, options: { 
   const creatures = expandCreatureHitVolumes(expandCreatureLayers(loaded.shard, console.warn, sections), assets);
   const expanded = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
   // SHARD-COMPAT PR6f2: the file says what stands at its four edges (world/edge's edgeObservations), not the engine's registry
-  // FORMAT-PRUNE FP40: a product built with no generic bake (a first-party shard, --no-placeholders) carries its repo's own
+  // FORMAT-PRUNE FP40: a product built with no generic bake (a shard repo's own, --no-placeholders) carries its repo's own
   // far proxy (`public/assets/baked/<slug>/far.*`, byte for byte), so the engine needs no baked folder of its own
   const placed = options.placeholders === true ? await projectPlaceholders(expanded, assets) : withRepoFar(expanded, assets, shardRepoRoot(project));
   const shard = withEdgeObservations(validateProject(placed, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections));

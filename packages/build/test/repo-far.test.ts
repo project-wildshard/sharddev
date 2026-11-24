@@ -1,4 +1,4 @@
-// FORMAT-PRUNE FP40: a first-party product (built with no generic bake) carries its repo's own far proxy, so the engine can
+// FORMAT-PRUNE FP40: a shard repo's own product (built with no generic bake) carries its repo's own far proxy, so the engine can
 // delete its `public/assets/baked/<slug>/` copies and read every legacy neighbour's far view from its product.
 // oxlint-disable-next-line import/no-nodejs-modules -- Owns a temporary repo bake fixture.
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
