@@ -7,6 +7,10 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.32 (2026-11-24)
+
+- Far views keep each zone's landmarks in sight and no longer show a flat grey wall in their place.
+
 ## v0.4.31 (2026-11-24)
 
 - Shards build on shard format 0.78.0 and name the oldest engine that can draw them (0.1.84), so none lands on a grid too old to show it.
