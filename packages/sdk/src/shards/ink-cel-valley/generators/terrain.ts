@@ -33,7 +33,7 @@ export function inkField(): TerrainField {
 }
 
 /**
- * Trusted build-time landscape bound to the `ground` toon preset reference (SF59 / G169's ink / cel valley): the valley
+ * Build-time landscape bound to the `ground` toon preset reference (SF59 / G169's ink / cel valley): the valley
  * field (`inkField`) in a sage cel green; no callback enters the shardfile.
  */
 export function inkTerrain(): BakedTerrain & { sites: { door: [number, number, number] } } {

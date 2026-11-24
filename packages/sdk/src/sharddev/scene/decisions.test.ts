@@ -1,6 +1,6 @@
 // meta TEMPLATE-E2E TR-12b: a scene shard's boss runs a decision script. `defineShard`'s `decisions` are the script rows
 // (`sim/scripts`, each naming its `behaviour/*.as` source); the build hands them to the project's decision compiler, the
-// one path every decision script takes (a data shard's output sidecar, Brasscap's Wyrm), so a scene shard needs no
+// one path every decision script takes (a shard's output sidecar, Brasscap's Wyrm), so a scene shard needs no
 // hand-written generator wrapper to carry one.
 import { expect, test } from 'vitest';
 import type { DecisionScripts } from '@wildshard/format/decisionScripts';
