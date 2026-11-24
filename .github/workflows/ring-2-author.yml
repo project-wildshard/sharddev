@@ -116,16 +116,16 @@ jobs:
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}
         run: node --test --test-concurrency=1 ../dev/test/ci/offline-author.test.mjs
-      # TC14: report for one real week before explicit blocking admission.
-      # Cold published client download + native browser are Ring 2, never hooks.
-      - name: Observe packed outside-author browser boot
+      # TC13/TC14: blocking since AD2 (J503, no soak week; first 3-of-3 green
+      # hosted run 45308434044). Cold published client download + native
+      # browser are Ring 2, never hooks.
+      - name: Packed outside-author browser boot
         working-directory: packages/sdk
         # Three cases (play, default reference, explore since EX6); each has a
         # 120 s dev start (a cold runner downloads the dev client) and a 120 s
         # boot. Typical is ~90 s a case; 4 minutes fit only two.
         timeout-minutes: 12
         if: always()
-        continue-on-error: true
         env:
           WS_PROOF_SCRATCH: ${{ github.workspace }}/tmp/outside-browser
           WS_BROWSER_REPORT: ${{ github.workspace }}/tmp/outside-browser-report
