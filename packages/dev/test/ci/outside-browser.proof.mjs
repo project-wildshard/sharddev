@@ -20,6 +20,8 @@ function observation() {
     fatal: [...document.querySelectorAll('#wserr,.ws-load-error,.ws-game-dev-alert,[data-boot-fatal]')].map(node => node.textContent) };
 }
 
+const STARTUP_MS = 120_000, BOOT_MS = 120_000, CASE_MS = STARTUP_MS + BOOT_MS + 40_000;
+
 async function observeAuthorBrowser(context, empty, view = 'play') {
   const parent = resolve(process.env.WS_PROOF_SCRATCH ?? 'tmp/outside-browser');
   const baseReport = resolve(process.env.WS_BROWSER_REPORT ?? 'tmp/outside-browser-report');
@@ -31,9 +33,12 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
   let browser, server, dev, devClosed, page, output = '';
   const cancellation = new AbortController();
   const abort = () => cancellation.abort(new Error('outside-author deadline'));
-  const deadlineAt = performance.now() + 80_000;
+  // Two budgets (AD2): the dev server's start, which on a cold runner includes the one-time 347 MB dev
+  // client download, then the browser boot on hosted software rendering (the default reference's modules
+  // step alone stalls 21 s there). The test's timeout reserves 40 seconds past both for cleanup.
+  let deadlineAt = performance.now() + STARTUP_MS + BOOT_MS;
   const remaining = () => Math.max(1, deadlineAt - performance.now());
-  const deadline = setTimeout(abort, 80_000); // reserve 40 seconds for bounded operations and cleanup
+  let deadline = setTimeout(abort, STARTUP_MS + BOOT_MS);
   const stop = () => { dev?.kill('SIGTERM'); server?.process().kill('SIGTERM'); };
   cancellation.signal.addEventListener('abort', stop, { once: true });
   context.signal.addEventListener('abort', abort, { once: true });
@@ -47,7 +52,7 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
     dev = spawn(process.execPath, [bin, 'dev', join(project, 'src')], { cwd: app, env, stdio: ['ignore', 'pipe', 'pipe'] });
     devClosed = new Promise(_resolve => { dev.once('close', _resolve); });
     const ready = new Promise((_resolve, reject) => {
-      const timer = setTimeout(() => reject(new Error(`dev startup timeout: ${output}`)), 45_000);
+      const timer = setTimeout(() => reject(new Error(`dev startup timeout: ${output}`)), STARTUP_MS);
       function clear() { clearTimeout(timer); cancellation.signal.removeEventListener('abort', cancelled); }
       function cancelled() { clear(); reject(cancellation.signal.reason); }
       cancellation.signal.addEventListener('abort', cancelled, { once: true });
@@ -63,6 +68,7 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
       dev.stderr.on('data', bytes => { output += bytes; });
     });
     const links = await ready;
+    clearTimeout(deadline); deadlineAt = performance.now() + BOOT_MS; deadline = setTimeout(abort, BOOT_MS);
     assert.equal(new URL(links.walk).origin, new URL(links.explore).origin);
     const url = new URL(view === 'explore' ? links.explore : links.walk); url.searchParams.set('mute', '1'); url.searchParams.set('nolock', '1'); url.searchParams.set('sw', '0');
     receipt.url = url.href;
@@ -79,12 +85,14 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
     //   client carries no signed retention file;
     // - on hosted software rendering the engine's slow-load strip (slowLoad.ts) posts a non-fatal
     //   `boot.slow` report to /api/errors, which the GET-only dev server answers 405, and runs a
-    //   `version.json?check=` connection read its own deadline may abort. They are kept in the receipt.
+    //   `version.json?check=` connection read its own deadline may abort. They are kept in the receipt;
+    // - the client's /api/telemetry beacon, which the GET-only dev server also answers 405.
     // Any other report, status or failed request stays a fault.
     const slow = receipt.slow = [], slowPosts = new WeakSet();
     const expected = (url, status) => {
       const path = new URL(url).pathname;
-      return (status === 404 && path === '/code-retention.json') || (status === 405 && path === '/api/errors' && slow.length > 0);
+      return (status === 404 && path === '/code-retention.json') || (status === 405 && path === '/api/telemetry') ||
+        (status === 405 && path === '/api/errors' && slow.length > 0);
     };
     page.on('request', request => {
       const parsed = new URL(request.url());
@@ -229,10 +237,10 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
   }
 }
 
-test('the packed outside author boots its own shard in the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, true));
+test('the packed outside author boots its own shard in the published engine client', { timeout: CASE_MS }, context => observeAuthorBrowser(context, true));
 // TC13: fresh default content uses the same packed CLI and published client.
 // The real door/cross/save journey remains in new-reference.test.mjs.
-test('the packed default new reference enters play in the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, false));
+test('the packed default new reference enters play in the published engine client', { timeout: CASE_MS }, context => observeAuthorBrowser(context, false));
 
 // EX6: an outside author's new link opens the same packed client in its viewer.
-test('the packed outside author explores the published engine client', { timeout: 120_000 }, context => observeAuthorBrowser(context, false, 'explore'));
+test('the packed outside author explores the published engine client', { timeout: CASE_MS }, context => observeAuthorBrowser(context, false, 'explore'));
