@@ -56,11 +56,15 @@ describe('check lanes', () => {
   test('over the hard budget blocks, unless SKIP_BUDGET=1', () => {
     const box = sandbox();
     toolchain(box, { ...pass, typecheck: 'node -e "setTimeout(()=>{},300)"' });
-    const slow = { PRECOMMIT_SOFT_S: '0', PRECOMMIT_HARD_S: '0.1' };
+    // an idle machine: a loaded one only warns (commit-budget.mjs)
+    const slow = { PRECOMMIT_SOFT_S: '0', PRECOMMIT_HARD_S: '0.1', PRECOMMIT_LOAD: '0' };
     const blocked = box.commit({ 'src/a.ts': 'export {};\n' }, MSG, { env: slow });
     assert.notEqual(blocked.status, 0);
     assert.match(blocked.stderr, /over the 0\.1 s budget/);
     assert.equal(box.commit({ 'src/a.ts': 'export {};\n' }, MSG, { env: { ...slow, SKIP_BUDGET: '1' } }).status, 0);
+    const loaded = box.commit({ 'src/a.ts': 'export const a = 1;\n' }, MSG, { env: { ...slow, PRECOMMIT_LOAD: '1000' } });
+    assert.equal(loaded.status, 0);
+    assert.match(loaded.stderr, /on a loaded machine/);
   });
   test('missing node_modules blocks with a fix', () => {
     const box = sandbox();

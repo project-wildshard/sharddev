@@ -3,7 +3,7 @@
 //   commit: like the scaffold's own pre-commit: `lint` and `format:check`
 //           on the staged code files only, plus the whole `typecheck`,
 //           in parallel under a budget (silent < 5 s, warn 5-8 s, BLOCK
-//           > 8 s; SKIP_BUDGET=1). Skipped when no code or JSON is staged.
+//           > 8 s on an idle machine, warn on a loaded one; SKIP_BUDGET=1). Skipped when no code or JSON is staged.
 //   push:   the full `check` script (adds knip and the unit tests), run in
 //           a clean copy of the pushed commit (.githooks/push-gate-copy.mjs,
 //           meta M1), so other lanes' dirty and untracked files in a shared
@@ -15,6 +15,8 @@
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { availableParallelism } from 'node:os';
+import { budgetVerdict, machineLoad } from './commit-budget.mjs';
 import { copyReason, makeGateCopy, pushedCommit } from './push-gate-copy.mjs';
 import { git } from './lib.mjs';
 import { guardPinnedLinks } from './pinned-links.mjs';
@@ -134,11 +136,13 @@ if (failed.length) {
 }
 
 if (lane === 'commit') {
-  if (seconds > HARD && process.env.SKIP_BUDGET !== '1') {
-    console.error(`\n  X commit blocked: the commit lane took ${seconds.toFixed(1)} s, over the ${HARD} s budget.`);
-    console.error('    Something slow crept in; move it to the push lane. Loaded machine? SKIP_BUDGET=1.\n');
+  const verdict = budgetVerdict(seconds, { soft: SOFT, hard: HARD, skip: process.env.SKIP_BUDGET === '1' });
+  if (verdict === 'block') {
+    console.error(`\n  X commit blocked: the commit lane took ${seconds.toFixed(1)} s, over the ${HARD} s budget on an idle machine.`);
+    console.error('    Something slow crept in; move it to the push lane. SKIP_BUDGET=1 is a last resort.\n');
     process.exit(1);
   }
-  if (seconds > SOFT) console.error(`  !! commit lane took ${seconds.toFixed(1)} s (soft ${SOFT} s, hard ${HARD} s)`);
+  if (verdict === 'loaded') console.error(`  !! commit lane took ${seconds.toFixed(1)} s, over the ${HARD} s budget, on a loaded machine (load ${machineLoad().toFixed(1)} on ${availableParallelism()} cores): not blocked`);
+  else if (verdict === 'warn') console.error(`  !! commit lane took ${seconds.toFixed(1)} s (soft ${SOFT} s, hard ${HARD} s)`);
 }
 console.error(`  - ${lane} lane green in ${seconds.toFixed(1)} s`);
