@@ -1,8 +1,8 @@
-import { DataTexture, type InstancedMesh, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
+import { DataTexture, type InstancedMesh, type PointLight, LinearFilter, LinearMipmapLinearFilter, Mesh, MeshStandardMaterial, RepeatWrapping, SRGBColorSpace, ShapeGeometry, LinearSRGBColorSpace, type ColorRepresentation, type Group, type Object3D, type Scene, type Shape } from 'three';
 import { positionLocal } from 'three/tsl';
 import type { DetailLayer } from '@wildshard/format/detail-layer';
 import type { GraphValue } from '../materials';
-import type { Rgb, SceneMotion, ScenePost, SceneSpawnRow } from './description';
+import type { Rgb, SceneFieldWhen, SceneMotion, ScenePost, SceneSpawnRow } from './description';
 import type { CreatureWorldOptions } from './worldCreature';
 import type { VehicleSurfaceGrip } from '@wildshard/format/vehicles';
 import type { DockOptions, VehicleKindOptions } from './vehicle';
@@ -233,7 +233,31 @@ export interface ShardWorld {
    * `onComplete.scene`, written for you): show the world change with a panel part's `shownWhen: { field, equals: true }`.
    */
   questPayoff: (quest: string, at: Object3D, options?: PayoffOptions) => void;
+  /**
+   * FORMAT-PRUNE FP49: an eased number the page computes from quest `quest`'s flags (format `weather.fields`, a host field
+   * `id`): the first step whose `when` holds sets its target (`else` when none does), and the value eases toward it at
+   * `rate` units a second; entering the cell snaps. A `world.emitter`'s `field` follows it. Needs an engine whose emitters
+   * follow a field on a scene shard (FP49).
+   */
+  field: (id: string, options: FieldOptions) => void;
+  /**
+   * FP49: `light`, a `PointLight` in the scene, as a light the page owns (format `light.emitters`) instead of a look lamp:
+   * its colour, intensity, reach, decay and `flicker` as it stands, its gain scaled by `field` (a `world.field`, 0 to 1).
+   */
+  emitter: (id: string, light: PointLight, options?: EmitterOptions) => void;
 }
+
+/** FP49: `world.field`'s table. `min` and `max` bound every value (default 0 and 1). */
+export interface FieldOptions {
+  readonly quest: string;
+  readonly steps: readonly { readonly when: SceneFieldWhen; readonly value: number }[];
+  readonly else: number;
+  readonly rate: number;
+  readonly min?: number;
+  readonly max?: number;
+}
+/** FP49: `world.emitter`'s options: the `world.field` its gain follows, and whether it starts lit (default true). */
+export interface EmitterOptions { readonly field?: string; readonly initially?: boolean }
 
 
 /** AP14: the view ray through a sky pixel (unit, world axes, y up): the dome is centred on the camera. */

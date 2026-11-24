@@ -84,6 +84,8 @@ function declaredPlatform({ decisions = [], moves = [], spots = [], completion }
   if (moves.length > 0) sections.set('actors/moves', moves);
   if (spots.length > 0) sections.set('world/targets', { targets: [], spots });
   if (completion !== undefined) sections.set('ui/completion', parseCompletion(completion));
+  const plan = scenePagePlan(scene.anchored);
+  if (plan !== null) sections.set('client/plan', plan);
   return sections.size === 0 ? {} : { platform: emitPlatformSections(sections) };
 }
 
@@ -900,7 +902,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   // oxlint-disable-next-line unicorn/prefer-structured-clone -- JSON wire normalization (signed zero), as product.ts does
   let shard = parseShardfile(JSON.parse(JSON.stringify(product)));
   if (options.extend !== undefined) shard = options.extend(shard);
-  shard = withAnchored(shard, scene.anchored);
+  shard = withPageFields(withAnchored(shard, scene.anchored), scene.anchored);
   return { shard, assets, report: { cards, lampsDropped: Math.max(0, lights.filter((l) => l.kind === 'point').length - 16), tiles: tileReport } };
 }
 
@@ -960,6 +962,57 @@ export function sceneGameplay(identity: ShardScene['identity'], options: Shardfi
     else if (JSON.stringify(value) !== JSON.stringify(before[key])) rest[key] = value ?? null;
   }
   return { gameplay, rest };
+}
+
+/** FORMAT-PRUNE FP49: the scalar an emitter row's clock reads and the light pool input it names (both client-only). */
+export const EMITTER_CLOCK = 'scene.emitter-clock';
+const EMITTER_INPUT = 'scene.emitters';
+/** FP49: the scene's field and emitter state ids start here, clear of the state lane's ids (6001 on) so adding them moves
+ *  no field a save already holds. */
+export const SCENE_FIELD_BASE = 6501;
+
+/**
+ * FP49: a scene's page plan (format `client/plan`): `world.field`'s eased scalars as one `weather.fields` row (every field
+ * reads one quest's flags) and `world.emitter`'s lights as one `light.emitters` row. Each emitter hangs under the page's
+ * scene group (`scene`) at its world position (from the published origin `scene.origin`), with no draws: a light alone.
+ * Null when the scene declares neither.
+ */
+export function scenePagePlan(anchored: ShardScene['anchored']): { version: 1; features: unknown[] } | null {
+  const fields = anchored.fields ?? [], emitters = anchored.emitters ?? [];
+  if (fields.length === 0 && emitters.length === 0) return null;
+  const features: unknown[] = [];
+  if (fields.length > 0) {
+    const quests = [...new Set(fields.map((f) => f.quest))];
+    if (quests.length > 1) throw new SceneRefusalError(fields[0]?.id ?? 'field', `the fields read ${String(quests.length)} quests' flags`, 'Read one quest\'s flags in every world.field');
+    features.push({ kind: 'weather.fields', quest: quests[0], rows: { version: 1, fields: fields.map((f) => ({ field: f.id, ease: { rate: f.rate }, min: f.min, max: f.max, else: f.else,
+      steps: f.steps.map((step) => ({ when: step.when, value: step.value })) })) } });
+  }
+  if (emitters.length > 0) features.push({ kind: 'light.emitters', rows: { version: 1, input: EMITTER_INPUT, clock: EMITTER_CLOCK, rows: emitters.map((e) => {
+    const row: Record<string, unknown> = { id: e.id, parent: 'scene', initially: e.initially, draws: [],
+      light: { at: { point: 'scene.origin', offset: [...e.at] }, colour: e.colour, gain: e.gain, distance: e.distance, decay: e.decay, shared: false, waves: e.waves.map((w) => [...w]) } };
+    if (e.field !== undefined) row['field'] = e.field;
+    return row;
+  }) } });
+  return { version: 1, features };
+}
+
+/** FP49: the host f64 fields the page plan reads (each `world.field`, and the emitters' clock), past every id declared. */
+export function withPageFields<T extends { state?: unknown }>(shard: T, anchored: ShardScene['anchored']): T {
+  const fields = anchored.fields ?? [], emitters = anchored.emitters ?? [];
+  if (fields.length === 0 && emitters.length === 0) return shard;
+  const state = shard.state as { shared: readonly { id: number; name: string }[]; player: readonly { id: number; name: string }[] };
+  const declared = [...state.shared, ...state.player], taken = new Set(declared.map((f) => f.id)), names = new Set(declared.map((f) => f.name));
+  let next = SCENE_FIELD_BASE;
+  const added: { id: number; name: string; type: 'f64'; privacy: 'host'; default: number; min: number; max?: number }[] = [];
+  const add = (name: string, value: number, min: number, max?: number): void => {
+    if (names.has(name)) throw new SceneRefusalError(name, `state field ${name} is declared twice`, 'Rename the world.field, or drop the field from extend');
+    while (taken.has(next)) next++;
+    taken.add(next); names.add(name);
+    added.push({ id: next, name, type: 'f64', privacy: 'host', default: value, min, ...(max === undefined ? {} : { max }) });
+  };
+  for (const f of fields) add(f.id, f.else, f.min, f.max);
+  if (emitters.length > 0) add(EMITTER_CLOCK, 0, 0);
+  return { ...shard, state: { ...state, shared: [...state.shared, ...added] } };
 }
 
 /**

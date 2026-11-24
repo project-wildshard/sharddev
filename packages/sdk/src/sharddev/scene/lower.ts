@@ -11,7 +11,7 @@ import { dockOf, dockRefusals, sceneVehicles, vehicleKindOf, type DockOptions, t
 import type { VehicleDock, VehicleKind, VehicleSurfaceGrip } from '@wildshard/format/vehicles';
 import type {
   Rgb, SceneCollider, SceneDraw, SceneSky, SceneGeometry, SceneGround, SceneLight, SceneLook, SceneMaterial, SceneMotion, ScenePart, ScenePoints, ScenePost, SceneSprite, SceneTexture,
-  SceneDetailScatter, SceneMove, ScenePickup, SceneCreature, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
+  SceneDetailScatter, SceneEmitter, SceneField, SceneMove, ScenePickup, SceneCreature, SceneRace, SceneSpawnRow, SceneStateWrite, SceneSwing, SceneTool, SceneTouch, SceneWater, ShardIdentityInput, ShardScene, Vec3,
 } from './description';
 import { compileWorldCreature } from './worldCreature';
 import { SceneRefusalError } from './refusal';
@@ -44,6 +44,8 @@ interface Tables {
   geometryKeys: WeakMap<BufferGeometry, string>; materialKeys: WeakMap<Material, string>; textureKeys: WeakMap<Texture, string>;
   /** AP32c: this lowering's world.detail meshes, which the walker leaves out (per call: a mesh reused later draws) */
   details: ReadonlySet<Object3D>;
+  /** FORMAT-PRUNE FP49: this lowering's world.emitter lights, which are emitter rows, never look lamps */
+  emitters: ReadonlySet<Object3D>;
 }
 
 function floats(attribute: BufferAttribute | InterleavedBufferAttribute, width: number): Float32Array {
@@ -260,6 +262,8 @@ function lowerPart(root: Object3D, tables: Tables, panel?: string, touchable?: T
       const material = lowerMaterial(object.material, path, tables), scale = new Vector3().setFromMatrixScale(object.matrixWorld);
       refuseGraphMotion(path, material, tables, 'card');
       sprites.push({ path, material, position: v3(new Vector3().setFromMatrixPosition(object.matrixWorld)), scale: [scale.x, scale.y], center: [object.center.x, object.center.y], motion: fitMotion(object, root, path, CARD_MOTIONS, 'Sprite'), ...swingOf(object, path) });
+    } else if (object instanceof PointLight && tables.emitters.has(object)) {
+      // FP49: a world.emitter light is the page's own (format `light.emitters`), lowered by lowerShard, never a look lamp
     } else if (object instanceof PointLight || object instanceof DirectionalLight || object instanceof HemisphereLight || object instanceof AmbientLight) {
       const position = v3(new Vector3().setFromMatrixPosition(object.matrixWorld));
       const kind: SceneLight['kind'] = object instanceof PointLight ? 'point' : object instanceof DirectionalLight ? 'directional' : object instanceof HemisphereLight ? 'hemisphere' : 'ambient';
@@ -450,6 +454,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const anchorIds = new Set<string>(), detailRequests: DetailRequest[] = [];
   // MZ31: the quest beats, placed once the build has run
   const landings: { landing: SceneLanding; at: Object3D }[] = [];
+  // FORMAT-PRUNE FP49: the eased fields and the page's own lights, the lights placed once the build has run
+  const fields: SceneField[] = [], emitters: { id: string; light: PointLight; field?: string; initially: boolean }[] = [];
   const anchor = (kind: string, id: string): void => {
     if (!/^[a-z][a-zA-Z0-9.-]{0,127}$/u.test(id)) throw new SceneRefusalError(id, `a ${kind} id is not a shardfile id`, 'Name it like `slice.pond`: a lower-case letter, then letters, digits, dots and dashes');
     if (anchorIds.has(`${kind}:${id}`)) throw new SceneRefusalError(id, `two ${kind}s share this id`, `Give every world.${kind} its own id`);
@@ -538,6 +544,29 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
       pickups.push({ use: id, tool, ...(options.flag === undefined ? {} : { flag: options.flag }) });
       interactions.push({ id, at, label: options.label, radius: options.radius, scene: id });
     },
+    field: (id, options) => {
+      anchor('field', id);
+      const { quest, steps, rate, min = 0, max = 1 } = options, otherwise = options.else;
+      if (quest.length === 0 || quest.length > 128) throw new SceneRefusalError(id, 'a field\'s quest id is 1 to 128 characters', 'Name the quest whose flags it reads');
+      if (!Number.isFinite(min) || !Number.isFinite(max) || min > max) throw new SceneRefusalError(id, `field ${id} runs from ${String(min)} to ${String(max)}`, 'Give a finite min no greater than its max');
+      if (!Number.isFinite(rate) || rate <= 0) throw new SceneRefusalError(id, `field ${id} eases at ${String(rate)} a second`, 'Give a rate above 0');
+      if (steps.length > 64) throw new SceneRefusalError(id, `field ${id} has ${String(steps.length)} steps, over 64`, 'Merge steps');
+      for (const value of [otherwise, ...steps.map((step) => step.value)]) {
+        if (!Number.isFinite(value) || value < min || value > max) throw new SceneRefusalError(id, `field ${id} steps to ${String(value)}, outside ${String(min)} to ${String(max)}`, 'Keep every value within min and max');
+      }
+      for (const { when } of steps) {
+        const names = [...when.all ?? [], ...when.any ?? [], ...when.none ?? [], ...when.count?.of ?? []];
+        if (names.length === 0) throw new SceneRefusalError(id, `a step of field ${id} names no flag`, 'Name the flags it reads, or make it the else value');
+        if (when.count !== undefined && (!Number.isInteger(when.count.atLeast) || when.count.atLeast < 0 || when.count.atLeast > 64)) throw new SceneRefusalError(id, `a step of field ${id} counts to ${String(when.count.atLeast)}`, 'Count 0 to 64 whole flags');
+      }
+      fields.push({ id, quest, min, max, else: otherwise, rate, steps: steps.map(({ when, value }) => ({ when: { ...when }, value })) });
+    },
+    emitter: (id, light, options = {}) => {
+      anchor('emitter', id);
+      if (!(light instanceof PointLight)) throw new SceneRefusalError(id, 'an emitter is a PointLight', 'Hand world.emitter the PointLight itself');
+      if (emitters.some((e) => e.light === light)) throw new SceneRefusalError(id, 'two emitters share one light', 'Give every emitter its own PointLight');
+      emitters.push({ id, light, initially: options.initially ?? true, ...(options.field === undefined ? {} : { field: options.field }) });
+    },
     race: (id, options) => {
       anchor('race', id);
       const { start, stop, fact = id, cap = RACE_CAP_DEFAULT } = options;
@@ -598,7 +627,7 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
   const roots = loose.children.length > 0 ? [...parts, loose] : parts;
   scene.add(loose); scene.updateMatrixWorld(true);
   const tables: Tables = { materials: new Map(), textures: new Map(), geometries: new Map(), geometryKeys: new WeakMap(), materialKeys: new WeakMap(), textureKeys: new WeakMap(),
-    details: new Set(detailRequests.map((request) => request.mesh)) };
+    details: new Set(detailRequests.map((request) => request.mesh)), emitters: new Set(emitters.map((e) => e.light)) };
   const kindRows: VehicleKind[] = [];
   const lowered = roots.map((root) => {
     const part = lowerPart(root, tables, panels.get(root), touchables.get(root), movers.get(root)), when = shown.get(root), kind = vehicleKinds.get(root);
@@ -623,6 +652,18 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     const p = placed(sp.id, sp.at), ahead = sp.at.getWorldDirection(new Vector3());
     spawnRows.push({ ...sp.row, id: sp.id, at: [r3(p.x), r3(p.y), r3(p.z)], yaw: r3(Math.atan2(ahead.x, ahead.z)) });
   }
+  // FP49: each emitter's light where it stands, its look lamp flicker as the emitter's two waves (the same curve:
+  // intensity x (1 - a/2 + a/2 (0.6 sin(2.1 r t + p) + 0.4 sin(5.3 r t + 1.7 p))), engine lookLight.ts)
+  for (const e of emitters) if (e.field !== undefined && !fields.some((f) => f.id === e.field)) throw new SceneRefusalError(e.id, `emitter ${e.id} follows field ${e.field}, which no world.field declares`, 'Declare the field with world.field, or drop `field`');
+  const emitterRows: SceneEmitter[] = emitters.map((e, i): SceneEmitter => {
+    const p = placed(e.id, e.light), motion = fitMotion(e.light, scene, e.id, LIGHT_MOTIONS, 'light');
+    const amount = motion?.kind === 'flicker' ? Math.min(1, Math.max(0, motion.amount)) : 0, rate = motion?.kind === 'flicker' ? Math.min(30, motion.rate) : 0, phase = i * 2.399;
+    const gain = Math.min(100, e.light.intensity) * (1 - amount / 2), depth = amount === 0 ? 0 : (amount / 2) / (1 - amount / 2);
+    const waves: [number, number, number][] = amount === 0 ? [] : [[r3(rate * 2.1), r3(phase), r3(0.6 * depth)], [r3(rate * 5.3), r3(phase * 1.7), r3(0.4 * depth)]];
+    const row: SceneEmitter = { id: e.id, at: [r3(p.x), r3(p.y), r3(p.z)], colour: e.light.color.getHex(), gain: r3(gain), distance: r3(Math.min(50, Math.max(0.1, e.light.distance === 0 ? 50 : e.light.distance))),
+      decay: r3(Math.max(0, e.light.decay)), waves, initially: e.initially };
+    return e.field === undefined ? row : Object.assign(row, { field: e.field });
+  });
   const dockRows = docks.map((dock): VehicleDock => dockOf(dock.id, placed(dock.id, dock.at), dock.at, dock.options));
   const vehicles = kindRows.length === 0 && dockRows.length === 0 && surfaceGrip === undefined ? null : sceneVehicles(kindRows, dockRows, surfaceGrip);
   if (vehicles !== null) {
@@ -638,6 +679,8 @@ export function lowerShard(identity: ShardIdentityInput, build: (world: ShardWor
     ...(pickups.length === 0 ? {} : { pickups }),
     ...(races.length === 0 ? {} : { races }),
     ...(spawnRows.length === 0 ? {} : { spawns: spawnRows }),
+    ...(fields.length === 0 ? {} : { fields }),
+    ...(emitterRows.length === 0 ? {} : { emitters: emitterRows }),
     ...(landings.length === 0 ? {} : { landings: landings.map(({ landing, at }) => {
       const p = placed(landing.step === null ? `${landing.quest} payoff` : `${landing.quest}/${landing.step}`, at);
       return movedTo(landing, { x: r3(p.x), y: r3(p.y), z: r3(p.z) });

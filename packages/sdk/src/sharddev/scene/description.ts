@@ -360,6 +360,37 @@ export interface SceneTool { readonly id: `tool.${string}`; readonly name: strin
 export interface ScenePickup { readonly use: string; readonly tool: SceneTool; readonly flag?: string }
 /** SS-MS1b: a timed run (format `quests.races`) between two quest flags. */
 export interface SceneRace { readonly id: string; readonly start: string; readonly stop: string; readonly fact: string; readonly cap: number; readonly resets?: readonly string[] }
+/** FORMAT-PRUNE FP49: when a field step holds, read over a quest's flags (format `weather.fields`' condition). */
+export interface SceneFieldWhen {
+  readonly all?: readonly string[];
+  readonly any?: readonly string[];
+  readonly none?: readonly string[];
+  readonly count?: { readonly of: readonly string[]; readonly atLeast: number };
+}
+/** FP49: an eased scalar the page computes from one quest's flags (`world.field`; format `weather.fields`), a host f64. */
+export interface SceneField {
+  readonly id: string;
+  readonly quest: string;
+  readonly min: number;
+  readonly max: number;
+  readonly else: number;
+  readonly rate: number;
+  readonly steps: readonly { readonly when: SceneFieldWhen; readonly value: number }[];
+}
+/** FP49: a light the page owns rather than a look lamp (`world.emitter`; format `light.emitters`), its gain following `field`. */
+export interface SceneEmitter {
+  readonly id: string;
+  readonly at: Vec3;
+  /** sRGB hex, as a PointLight's colour reads */
+  readonly colour: number;
+  readonly gain: number;
+  readonly distance: number;
+  readonly decay: number;
+  /** the flicker as sine waves: rate (radians a second), phase, amount */
+  readonly waves: readonly (readonly [number, number, number])[];
+  readonly field?: string;
+  readonly initially: boolean;
+}
 export interface SceneAnchored {
   readonly triggers: readonly SceneTrigger[];
   readonly interactions: readonly SceneInteraction[];
@@ -375,6 +406,10 @@ export interface SceneAnchored {
   readonly spawns?: readonly SceneSpawnRow[];
   /** MOSSGATE-ZONE MZ31: `world.questStep` and `world.questPayoff`'s beats, in the order they were declared; absent or empty: none */
   readonly landings?: readonly SceneLanding[];
+  /** FORMAT-PRUNE FP49: `world.field`'s eased scalars, in the order they were declared; absent or empty: none */
+  readonly fields?: readonly SceneField[];
+  /** FP49: `world.emitter`'s lights, in the order they were declared; absent or empty: none */
+  readonly emitters?: readonly SceneEmitter[];
 }
 
 /** OF28d: one format creature spawn row (`creatures.spawns`), its `at` and `yaw` read off a scene node. */
