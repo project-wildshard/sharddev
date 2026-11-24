@@ -143,9 +143,17 @@ function oneDraw(geometry: ReturnType<typeof placeholderGeometry>, name: string)
 type FarRow = NonNullable<Shardfile['far']>;
 /** The §3.2 far caps a far row is admitted under (`CONTENT_CAPS.far`). */
 export interface FarCaps { readonly resident: number; readonly compressed: number; readonly triangles: number; readonly draws: number }
-/** Whether a far row fits every §3.2 far cap. */
+/**
+ * Whether a far row fits the §3.2 far caps the format refuses (download bytes, triangles, draws). The resident cap
+ * (1.6 MB) is not one of them: J509 (Jake, 2026-11-24, amends J439 for far views) says the look decides, not the
+ * byte cap, so a far keeps its impostor over it and the bake only warns, as the format's memory targets do.
+ */
 function farWithinCaps(far: FarRow, caps: FarCaps = CONTENT_CAPS.far): boolean {
-  return far.decoded + far.gpu <= caps.resident && far.compressed <= caps.compressed && far.triangles <= caps.triangles && far.draws <= caps.draws;
+  return far.compressed <= caps.compressed && far.triangles <= caps.triangles && far.draws <= caps.draws;
+}
+/** J509: a far over the resident cap keeps its impostor; say so, never drop it. */
+function warnFarResident(far: FarRow, caps: FarCaps): void {
+  if (far.decoded + far.gpu > caps.resident) console.warn(`far over the resident target: ${far.decoded + far.gpu} B resident (target ${caps.resident}); the impostor stays (J509: the look decides)`);
 }
 /** The far GLB, its impostor, and the far row with the impostor (`far`) and without it (`meshOnly`). */
 async function farRows(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[]) {
@@ -168,26 +176,27 @@ async function farRows(grid: PlaceholderGrid, look: PlaceholderLook, parts: read
 export async function bakeFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, parts: readonly PlaceholderPart[] = []): Promise<{ manifest: FarManifest; bytes: Uint8Array; impostor: Uint8Array }> {
   const { far, file, impostorFile, bytes, impostor, look: runtime } = await farRows(grid, look, parts);
   if (!farWithinCaps(far)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(far)}`);
+  warnFarResident(far, CONTENT_CAPS.far);
   return { manifest: { far, file, impostorFile, look: runtime }, bytes, impostor };
 }
 
 /**
  * `wildshard build`'s generic far proxy for a shard that ships none: the far bake with its impostor, or the GLB alone
- * (the proxy then draws at every distance) when the pair would breach a §3.2 far cap, as an authored far's impostor is
+ * (the proxy then draws at every distance) when the pair would breach a §3.2 far cap the format refuses (never the resident cap, J509), as an authored far's impostor is
  * dropped (`authoredFarImpostor`); refused only when the GLB alone breaches one. `impostor` is null when dropped.
  */
 export async function projectFarPlaceholder(grid: PlaceholderGrid, look: PlaceholderLook, caps: FarCaps = CONTENT_CAPS.far): Promise<{ far: FarRow; file: PlaceholderFile; bytes: Uint8Array; impostor: { file: PlaceholderFile; bytes: Uint8Array } | null }> {
   const rows = await farRows(grid, look, []);
-  if (farWithinCaps(rows.far, caps)) return { far: rows.far, file: rows.file, bytes: rows.bytes, impostor: { file: rows.impostorFile, bytes: rows.impostor } };
+  if (farWithinCaps(rows.far, caps)) { warnFarResident(rows.far, caps); return { far: rows.far, file: rows.file, bytes: rows.bytes, impostor: { file: rows.impostorFile, bytes: rows.impostor } }; }
   if (!farWithinCaps(rows.meshOnly, caps)) throw new Error(`Far proxy exceeds content caps: ${JSON.stringify(rows.meshOnly)}`);
-  console.warn(`far impostor dropped: the proxy and its impostor are ${rows.far.decoded + rows.far.gpu} B resident (cap ${caps.resident}), ${rows.far.compressed} B compressed (cap ${caps.compressed}); the far proxy draws at every distance`);
+  console.warn(`far impostor dropped: the proxy and its impostor are ${rows.far.compressed} B compressed (cap ${caps.compressed}), ${rows.far.triangles} triangles, ${rows.far.draws} draws; the far proxy draws at every distance`);
   return { far: rows.meshOnly, file: rows.file, bytes: rows.bytes, impostor: null };
 }
 
 /**
  * FORMAT-PRUNE FP40: a repo bake's far proxy (`far.glb`, its `far.json` row and `far-impostor.png`) as a product's far row
  * and file rows, every cost recomputed from the bytes as admission charges them (an older bake's rows can understate the
- * impostor), under `projectFarPlaceholder`'s rule: the impostor is dropped when the pair breaches a §3.2 far cap.
+ * impostor), under `projectFarPlaceholder`'s rule: the impostor is dropped when the pair breaches a §3.2 far cap the format refuses; over the resident cap it stays (J509).
  */
 export function repoFarRows(baked: FarRow, glb: Uint8Array, impostor: Uint8Array | null, caps: FarCaps = CONTENT_CAPS.far): { far: FarRow; files: PlaceholderFile[] } {
   const file = fileRow(glb);
@@ -197,8 +206,8 @@ export function repoFarRows(baked: FarRow, glb: Uint8Array, impostor: Uint8Array
   const image: PlaceholderFile = { hash: hashImmutableBytes(impostor), kind: 'image', compressed: impostor.length, ...assetCost('image', impostor), dependencies: [], critical: false };
   const far: FarRow = { ...meshOnly, files: [file.hash, image.hash], impostor: { ...baked.impostor, file: image.hash },
     compressed: file.compressed + image.compressed, decoded: file.decoded + image.decoded, gpu: file.gpu + image.gpu };
-  if (farWithinCaps(far, caps)) return { far, files: [file, image] };
-  console.warn(`far impostor dropped: the proxy and its impostor are ${far.decoded + far.gpu} B resident (cap ${caps.resident}), ${far.compressed} B compressed (cap ${caps.compressed}); the far proxy draws at every distance`);
+  if (farWithinCaps(far, caps)) { warnFarResident(far, caps); return { far, files: [file, image] }; }
+  console.warn(`far impostor dropped: the proxy and its impostor are ${far.compressed} B compressed (cap ${caps.compressed}), ${far.triangles} triangles, ${far.draws} draws; the far proxy draws at every distance`);
   return { far: meshOnly, files: [file] };
 }
 

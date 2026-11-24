@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, test, vi } from 'vitest';
 import * as v from 'valibot';
 import { CONTENT_CAPS } from '@wildshard/format/contentBounds';
 import { FarSchema } from '@wildshard/format/shardSections';
@@ -17,17 +17,29 @@ test('the project far bake keeps its impostor when the pair fits the caps', asyn
   expect(baked.impostor?.bytes).toEqual(full.impostor);
 });
 
-test('the project far bake drops to the GLB alone when its impostor breaches the resident cap', async () => {
+// J509 (Jake, 11-24): the look decides, not the byte cap; a zone whose far is over the 1.6 MB resident cap keeps its impostor.
+test('the project far bake keeps its impostor over the 1.6 MB resident cap (J509)', async () => {
   const full = await bakeFarPlaceholder(grid, look);
-  // Driftwood's case: the pair is over, the GLB alone is well under
-  const baked = await projectFarPlaceholder(grid, look, { ...CONTENT_CAPS.far, resident: full.manifest.far.decoded + full.manifest.far.gpu - 1 });
-  expect(baked.impostor).toBeNull();
-  expect(v.parse(FarSchema, baked.far)?.impostor).toBeUndefined();
-  expect(baked.far.files).toEqual([full.manifest.file.hash]);
-  expect(baked.file).toEqual(full.manifest.file);
-  expect(baked.bytes).toEqual(full.bytes);
-  const { file } = full.manifest;
-  expect(baked.far).toMatchObject({ bounds: full.manifest.far.bounds, compressed: file.compressed, decoded: file.decoded, gpu: file.gpu, triangles: file.triangles, draws: file.draws });
+  const resident = full.manifest.far.decoded + full.manifest.far.gpu - 1, warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    const baked = await projectFarPlaceholder(grid, look, { ...CONTENT_CAPS.far, resident });
+    expect(baked.impostor?.bytes).toEqual(full.impostor);
+    expect(baked.far).toEqual(full.manifest.far);
+    expect(baked.far.decoded + baked.far.gpu).toBeGreaterThan(resident);
+    expect(warn.mock.calls.flat().join(' ')).toContain('J509');
+  } finally { warn.mockRestore(); }
+});
+
+test('a zone over 1.6 MB resident keeps its far impostor at the real cap', async () => {
+  const full = await bakeFarPlaceholder(grid, look), { far } = full.manifest;
+  // Grow the bake's rows past CONTENT_CAPS.far.resident (1.6 MB) as a large impostor would; download, triangles and draws stay under.
+  const big: typeof far = { ...far, decoded: CONTENT_CAPS.far.resident, gpu: far.gpu };
+  const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  try {
+    const kept = repoFarRows(big, full.bytes, full.impostor);
+    expect(kept.far.impostor).toBeDefined();
+    expect(kept.files).toHaveLength(2);
+  } finally { warn.mockRestore(); }
 });
 
 test('the project far bake drops to the GLB alone when its impostor breaches the compressed cap', async () => {
@@ -37,9 +49,9 @@ test('the project far bake drops to the GLB alone when its impostor breaches the
   expect(baked.far.compressed).toBe(full.manifest.file.compressed);
 });
 
-test('the project far bake still refuses when the GLB alone breaches a cap', async () => {
+test('the project far bake still refuses when the GLB alone breaches a cap the format refuses', async () => {
   const full = await bakeFarPlaceholder(grid, look);
-  await expect(projectFarPlaceholder(grid, look, { ...CONTENT_CAPS.far, resident: full.manifest.file.decoded + full.manifest.file.gpu - 1 })).rejects.toThrow('Far proxy exceeds content caps');
+  await expect(projectFarPlaceholder(grid, look, { ...CONTENT_CAPS.far, compressed: full.manifest.file.compressed - 1 })).rejects.toThrow('Far proxy exceeds content caps');
 });
 
 // FORMAT-PRUNE FP40: a repo bake's far (far.json, far.glb, far-impostor.png) shipped in its product, costs from its bytes.
@@ -51,10 +63,10 @@ test('a repo far keeps its row and impostor, its costs recomputed from the bytes
   expect(files).toEqual([full.manifest.file, full.manifest.impostorFile]);
 });
 
-test('a repo far drops its impostor over a far cap and refuses when the GLB alone breaches one', async () => {
+test('a repo far drops its impostor over the download cap and refuses when the GLB alone breaches it', async () => {
   const full = await bakeFarPlaceholder(grid, look), { file } = full.manifest;
-  const over = repoFarRows(full.manifest.far, full.bytes, full.impostor, { ...CONTENT_CAPS.far, resident: full.manifest.far.decoded + full.manifest.far.gpu - 1 });
+  const over = repoFarRows(full.manifest.far, full.bytes, full.impostor, { ...CONTENT_CAPS.far, compressed: file.compressed });
   expect(over.far).toEqual({ bounds: full.manifest.far.bounds, files: [file.hash], compressed: file.compressed, decoded: file.decoded, gpu: file.gpu, triangles: file.triangles, draws: file.draws });
   expect(over.files).toEqual([file]);
-  expect(() => repoFarRows(full.manifest.far, full.bytes, null, { ...CONTENT_CAPS.far, resident: file.decoded + file.gpu - 1 })).toThrow('Far proxy exceeds content caps');
+  expect(() => repoFarRows(full.manifest.far, full.bytes, null, { ...CONTENT_CAPS.far, compressed: file.compressed - 1 })).toThrow('Far proxy exceeds content caps');
 });
