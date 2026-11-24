@@ -45,7 +45,7 @@ concurrency:
 jobs:
   check:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     env:
       APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
     steps:
@@ -120,7 +120,9 @@ jobs:
       # Cold published client download + native browser are Ring 2, never hooks.
       - name: Observe packed outside-author browser boot
         working-directory: packages/sdk
-        timeout-minutes: 4
+        # Three cases (play, default reference, explore since EX6), each with a
+        # 120 s test budget, plus the browser install: 4 minutes fit only two.
+        timeout-minutes: 8
         if: always()
         continue-on-error: true
         env:

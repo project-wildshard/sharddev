@@ -74,30 +74,62 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
     browser = await chromium.connect(server.wsEndpoint(), { timeout: 10_000 });
     page = await browser.newPage({ viewport: { width: 960, height: 640 } });
     page.on('pageerror', error => { exceptions.push(error.message); faults.push(error.message); });
-    page.on('console', message => { if (message.type() === 'error') faults.push(message.text()); });
+    // Two expected answers are not boot faults:
+    // - engine FM5b reads /code-retention.json and takes a 404 as "unknown" (codeRetention.ts); a dev
+    //   client carries no signed retention file;
+    // - on hosted software rendering the engine's slow-load strip (slowLoad.ts) posts a non-fatal
+    //   `boot.slow` report to /api/errors, which the GET-only dev server answers 405, and runs a
+    //   `version.json?check=` connection read its own deadline may abort. They are kept in the receipt.
+    // Any other report, status or failed request stays a fault.
+    const slow = receipt.slow = [], slowPosts = new WeakSet();
+    const expected = (url, status) => {
+      const path = new URL(url).pathname;
+      return (status === 404 && path === '/code-retention.json') || (status === 405 && path === '/api/errors' && slow.length > 0);
+    };
+    page.on('request', request => {
+      const parsed = new URL(request.url());
+      if (parsed.pathname.startsWith('/shardfiles/')) requests.push(parsed.pathname);
+      if (parsed.pathname !== '/api/errors' || request.method() !== 'POST') return;
+      let report;
+      try { report = JSON.parse(request.postData() ?? ''); } catch { report = undefined; }
+      if (report?.system === 'boot.slow' && report.fatal === false) { slowPosts.add(request); slow.push(report.message); }
+      else faults.push(`error report: ${request.postData()?.slice(0, 500)}`);
+    });
+    page.on('console', message => {
+      if (message.type() !== 'error') return;
+      const at = message.location().url, status = /status of (\d{3})/u.exec(message.text())?.[1];
+      if (at && status && expected(at, Number(status))) return;
+      faults.push(message.text());
+    });
     page.on('response', response => {
-      if (response.status() >= 400) faults.push(`HTTP ${response.status()} ${response.url()}`);
+      const benign = slowPosts.has(response.request()) || expected(response.url(), response.status());
+      if (response.status() >= 400 && !benign) faults.push(`HTTP ${response.status()} ${response.url()}`);
       const parsed = new URL(response.url());
       const authoredSection = parsed.pathname.startsWith(`/shardfiles/${slug}/sections/`) || parsed.pathname.startsWith('/sections/');
       if (parsed.origin === url.origin && authoredSection && response.ok()) delivered.push(parsed.pathname);
     });
-    page.on('requestfailed', request => faults.push(`request failed: ${request.url()} ${request.failure()?.errorText}`));
-    page.on('request', request => { const parsed = new URL(request.url()); if (parsed.pathname.startsWith('/shardfiles/')) requests.push(parsed.pathname); });
+    page.on('requestfailed', request => {
+      const parsed = new URL(request.url()), failure = `request failed: ${request.url()} ${request.failure()?.errorText}`;
+      if (slow.length > 0 && parsed.pathname === '/version.json' && parsed.searchParams.has('check')) slow.push(failure);
+      else faults.push(failure);
+    });
     await page.goto(url.href, { waitUntil: 'domcontentloaded', timeout: 30_000 });
-    if (view === 'explore') {
-      const result = await page.waitForFunction(() => {
-        if (window.__wildshard?.state().appState === 'explore') return 'entered';
-        const skip = document.querySelector('#ws-name-box [data-name=skip]');
-        return skip?.getClientRects().length > 0 ? 'name' : false;
-      }, undefined, { timeout: Math.max(1, remaining() - 5000) });
-      if (await result.jsonValue() === 'name') {
-        await page.locator('#ws-name-box [data-name=skip]').click({ timeout: remaining() });
-      }
+    // A fresh browser has never answered the Name: engine MP2.4 asks it once per
+    // device before a page that came in by link joins the world (namePrompt.ts
+    // askNameToJoin), so play as well as explore waits on it. Skip, as an
+    // author would, keeping the device's own Name (AD2: since 11-20 the play
+    // cases timed out on this prompt).
+    const result = await page.waitForFunction(expected => {
+      if (window.__wildshard?.state().appState === expected) return 'entered';
+      const skip = document.querySelector('#ws-name-box [data-name=skip]');
+      return skip?.getClientRects().length > 0 ? 'name' : false;
+    }, view, { timeout: Math.max(1, remaining() - 5000) });
+    if (await result.jsonValue() === 'name') {
+      await page.locator('#ws-name-box [data-name=skip]').click({ timeout: remaining() });
     }
     // A cold generated world on hosted software rendering is a Ring 2 boot
     // proof, not an FPS benchmark. Both waits share the existing hard deadline.
-    const stateBudget = view === 'explore' ? Math.max(1, remaining() - 5000) : remaining();
-    await page.waitForFunction(expected => window.__wildshard?.state().appState === expected, view, { timeout: stateBudget });
+    await page.waitForFunction(expected => window.__wildshard?.state().appState === expected, view, { timeout: Math.max(1, remaining() - 5000) });
     receipt.before = await page.evaluate(observation);
     await page.waitForFunction(({ frame, drawn }) => {
       const probe = window.__wildshard;
@@ -118,7 +150,8 @@ async function observeAuthorBrowser(context, empty, view = 'play') {
     assert.equal(receipt.flags.devserver, true);
     receipt.version = await (await fetch(new URL('/version.json', url), { signal: cancellation.signal })).json();
     receipt.enginePin = JSON.parse(readFileSync(resolve(bin, '../../package.json'), 'utf8')).dependencies['@wildshard/engine'];
-    const commit = /#([0-9a-f]{40})$/u.exec(receipt.enginePin)?.[1];
+    // A git pin names `#<sha>`; an npm `next` pin names `X.Y.Z-next.<sha7>` (since 11-20): both name the client's build.
+    const commit = /#([0-9a-f]{40})$/u.exec(receipt.enginePin)?.[1] ?? /-next\.([0-9a-f]{7,40})$/u.exec(receipt.enginePin)?.[1];
     if (commit) assert.ok(receipt.version.build.startsWith(commit.slice(0, 7)), 'The published client must match the declared engine commit');
     else {
       receipt.versionLabel = await page.locator('.ws-update').textContent();
