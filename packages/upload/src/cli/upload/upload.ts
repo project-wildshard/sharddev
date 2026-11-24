@@ -1,9 +1,10 @@
 import { readFile } from 'node:fs/promises'
 
-import { commitUpload, findStored, putObject, requestTicket } from './api.ts'
+import { findStored, putObject, requestTicket } from './api.ts'
 import { checkShardfile } from './checked.ts'
 import { completeUpload } from './completion.ts'
 import { storedForm } from './compress.ts'
+import { commitHeld } from './held.ts'
 import { hashTarball, signTarball } from './signature.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
@@ -25,6 +26,7 @@ import type { CommitAnswer } from './wire.ts'
 // API answers it 422 at commit (J259), after the whole file was sent.
 // SA32 sends `place: false` for `--no-place` and prints the API's grid
 // answer and each moved channel's `/slug/<slug>` link (placement.ts).
+// Bytes the API holds as another version commit again as it (held.ts).
 
 const MS_PER_SECOND = 1000
 const BYTES_PER_MB = 1_000_000
@@ -187,7 +189,7 @@ async function commit(
 ): Promise<UploadOutcome> {
   const { channel, sharddev, engine, shardFormat } = options
   const place = options.place !== false
-  const answer = await commitUpload(options, signed, {
+  const answer = await commitHeld(options, signed, {
     place,
     listNew: options.listNew,
     ...sent,

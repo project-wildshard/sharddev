@@ -1508,6 +1508,8 @@ Upload could not find the sdk, engine or shard-format version to send. Install t
 
 The API refused, or a check no rule above names. The message says what it wants: a format refusal means check and
 prepare again; a server refusal (409 or 422) names the field, the version or the hero.
+Bytes the API already holds as another version are not refused: upload says so and carries on with the upload
+that holds them, so a republish of unchanged bytes still waits for that upload's verdict.
 
 ### Account
 

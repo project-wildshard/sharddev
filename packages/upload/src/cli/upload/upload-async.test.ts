@@ -45,6 +45,38 @@ test('SP21 an oversized authenticated HTTP status reply refuses before parsing',
   )
 })
 
+test('row 45 an idempotent re-upload under a new version reaches the cook wait on the upload that holds the bytes', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.async.enabled = true
+  const first = await uploadWith(run, { wait: false })
+  run.server.state.async.sequence = ['live']
+
+  const again = await uploadWith(run, { version: '0.0.4' })
+
+  assert.equal(again.uploadId, first.uploadId)
+  assert.equal(again.version, VERSION)
+  assert.equal(again.status, 'live')
+  assert.equal(run.server.state.async.reads.length, 1)
+  assert.ok(
+    run.lines.includes(`upload ${first.uploadId ?? 'missing'}: cooking`),
+    run.lines.join('\n'),
+  )
+})
+
+test('row 45 with --no-wait it prints the queued line publish.yml hands to the cook job', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  run.server.state.async.enabled = true
+  const first = await uploadWith(run, { wait: false })
+
+  const again = await uploadWith(run, { version: '0.0.4', wait: false })
+
+  assert.equal(again.uploadId, first.uploadId)
+  assert.equal(
+    run.lines.at(-1),
+    `queued: upload-test ${VERSION} for staging (upload ${first.uploadId ?? 'missing'})`,
+  )
+})
+
 async function cli(
   context: TestContext,
   run: Run,

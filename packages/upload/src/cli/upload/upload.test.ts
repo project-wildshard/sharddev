@@ -76,13 +76,25 @@ test("prints the API's version, formatVersion and migrations", async (context: T
   )
 })
 
-test('stored bytes under another version are refused, not stored', async (context: TestContext): Promise<void> => {
+test('stored bytes under another version carry on as that version, not stored (row 45)', async (context: TestContext): Promise<void> => {
   const run = await open(context)
   await upload(run)
 
-  await assert.rejects(
-    upload(run, undefined, '0.0.4'),
-    /commit answered 409: these bytes are already upload-test 0\.0\.3/u,
+  const outcome = await upload(run, undefined, '0.0.4')
+
+  assert.equal(outcome.alreadyStored, true)
+  assert.equal(outcome.version, VERSION)
+  assert.equal(outcome.revision, 1)
+  assert.equal(run.server.state.commits.length, 3)
+  assert.match(
+    JSON.stringify(run.server.state.commits),
+    /"version":"0\.0\.3".*"version":"0\.0\.4".*"version":"0\.0\.3"/u,
+  )
+  assert.ok(
+    run.lines.includes(
+      'these bytes are already 0.0.3, not 0.0.4: carrying on with the upload that holds them',
+    ),
+    run.lines.join('\n'),
   )
   onlyPut(run)
 })
@@ -144,10 +156,8 @@ test('held bytes the listing misses still commit, and send nothing', async (cont
     channel: 'staging',
     ...BUILT_WITH,
   })
-  await assert.rejects(
-    upload(run, undefined, '0.0.4'),
-    /commit answered 409: these bytes are already upload-test 0\.0\.3/u,
-  )
+  const again = await upload(run, undefined, '0.0.4')
+  assert.equal(again.version, VERSION)
 })
 
 test('retries a PUT the store answered 5xx', async (context: TestContext): Promise<void> => {

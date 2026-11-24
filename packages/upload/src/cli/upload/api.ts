@@ -285,6 +285,7 @@ async function commitUpload(
 
 export {
   type ApiOptions,
+  type CommitBody,
   type ReadOptions,
   type Channel,
   type UploadRequest,
