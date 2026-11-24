@@ -26,7 +26,9 @@ import { validateShardfile } from './validate.ts'
 // digest are new; the digest is the same algorithm's, which the
 // presentation-only case pins to api-server's. J434 retired the handwritten
 // Template 2 and its packed-card case (meta TEMPLATE-E2E TR-10): Brasscap's
-// export carries a packed manifest card itself.
+// export carries a packed manifest card itself. Format 0.74.0 (J506) re-exported
+// it and kept the old export as corpus/legacy/brasscap-mesa-ss3, the bytes these
+// digests were taken from; the new export leaves GLBs out and does not validate.
 
 const CORPUS = fileURLToPath(
   new URL('../../../node_modules/@wildshard/format/corpus/', import.meta.url),
@@ -59,7 +61,7 @@ async function templateShaped(): Promise<
   Readonly<{ tarball: Uint8Array; slug: string; heroHash: string }>
 > {
   const tarball = await tarOf(
-    path.join(CORPUS, 'exports', 'brasscap-mesa'),
+    path.join(CORPUS, 'legacy', 'brasscap-mesa-ss3'),
     true,
   )
   const { slug } = await validateShardfile(tarball)
@@ -68,7 +70,7 @@ async function templateShaped(): Promise<
 
 test("a packed manifest card's digest is the API's", async (): Promise<void> => {
   const shard = await validateShardfile(
-    await tarOf(path.join(CORPUS, 'exports', 'brasscap-mesa')),
+    await tarOf(path.join(CORPUS, 'legacy', 'brasscap-mesa-ss3')),
   )
 
   assert.equal(

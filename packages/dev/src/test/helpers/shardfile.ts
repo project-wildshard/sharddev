@@ -19,7 +19,10 @@ import { makeTar } from './tar.ts'
 
 import type { HeroOption } from './hero-fixture.ts'
 
-// Test shardfiles: Brasscap Mesa's export as the format pin ships it (J434
+// Test shardfiles: Brasscap Mesa's SS3 export as the format pin ships it under
+// corpus/legacy (format 0.74.0's J506 re-export left GLBs out of
+// corpus/exports/brasscap-mesa, so it no longer validates as a whole file; the
+// format's own chain tests read the legacy copy too) (J434
 // retired the handwritten Template 2, meta TEMPLATE-E2E TR-10), re-stamped with a
 // slug, name and seed, its source hash recomputed with format's own functions
 // so the real validator admits it. `seed` varies the bytes (and so the hash)
@@ -28,7 +31,7 @@ import type { HeroOption } from './hero-fixture.ts'
 
 const CORPUS = fileURLToPath(
   new URL(
-    '../../../../sdk/node_modules/@wildshard/format/corpus/exports/brasscap-mesa',
+    '../../../../sdk/node_modules/@wildshard/format/corpus/legacy/brasscap-mesa-ss3',
     import.meta.url,
   ),
 )
@@ -247,6 +250,7 @@ async function makeShardfile(options: ShardfileOptions): Promise<Uint8Array> {
 
 export {
   type ShardfileOptions,
+  CORPUS,
   folderFiles,
   makeShardfile,
   prepareFolder,

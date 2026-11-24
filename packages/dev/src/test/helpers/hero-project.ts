@@ -1,4 +1,11 @@
-import { copyFile, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 import type { TestContext } from 'node:test'
@@ -7,7 +14,7 @@ import { writeLook } from '@wildshard/upload/cli/hero/look.ts'
 import { heroState } from '@wildshard/upload/cli/hero/stamp.ts'
 import { writeShardfile } from '@wildshard/upload/cli/shardfile/shardfile.ts'
 
-import { shardfileFiles } from './shardfile.ts'
+import { CORPUS, shardfileFiles } from './shardfile.ts'
 
 // A shard project for the hero tests (src/cli/hero): `<root>/src/shards/<name>`
 // with a card of three image files, and `<root>/out/<name>`, a real product.
@@ -21,16 +28,47 @@ const CARD = {
 const SVG = 'data:image/svg+xml,%3Csvg%2F%3E'
 const BASE = 'http://127.0.0.1:4400'
 // Image blobs the test product carries: a built product holds its card files
-// as `blobs/image/<sha256>.<ext>`, so the shots below are these bytes.
-// Brasscap Mesa's card images (the corpus product since J434 retired Template 2).
-const SHOTS = {
-  thumb:
-    'blobs/image/0579557f9344df6f2c4b1225e6252e53ab86d417a4c9b504b5c714a08a388e47.jpg',
-  portrait:
-    'blobs/image/eb453c71cfb1f9441eb00b32281f98e226e49d9dcf75c231455575fcdc652222.jpg',
-  landscape:
-    'blobs/image/9e18816a2ec16fbbb1f00f4a39c73ac2cbf6a8cdc17b4c96b1eba4cc9a754dc7.jpg',
+// as `blobs/image/<sha256>.<ext>`, so the shots are the card the corpus product
+// (Brasscap Mesa's export, as the format pin ships it) names in `ui/level`'s
+// manifest. Read, never hardcoded: a corpus re-export (format 0.74.0, J506)
+// moves the hashes.
+async function corpusShots(): Promise<
+  Readonly<Record<'thumb' | 'portrait' | 'landscape', string>>
+> {
+  const level: unknown = JSON.parse(
+    await readFile(path.join(CORPUS, 'sections', 'ui', 'level.json'), 'utf8'),
+  )
+  const manifest: unknown =
+    typeof level === 'object' && level !== null
+      ? Reflect.get(level, 'manifest')
+      : undefined
+  const card: unknown =
+    typeof manifest === 'object' && manifest !== null
+      ? Reflect.get(manifest, 'card')
+      : undefined
+  const blob = (slot: string): string => {
+    const url: unknown =
+      typeof card === 'object' && card !== null
+        ? Reflect.get(card, slot)
+        : undefined
+    const blobPath =
+      typeof url === 'string'
+        ? /\/(?<blob>blobs\/image\/[^/]+)$/u.exec(url)?.groups?.['blob']
+        : undefined
+    if (blobPath === undefined) {
+      throw new Error(`corpus ui/level names no ${slot} card image`)
+    }
+    return blobPath
+  }
+  return {
+    thumb: blob('thumb'),
+    portrait: blob('portrait'),
+    landscape: blob('landscape'),
+  }
 }
+const SHOTS: Readonly<Record<'thumb' | 'portrait' | 'landscape', string>> =
+  await corpusShots()
+
 interface Project {
   readonly root: string
   readonly shard: string
