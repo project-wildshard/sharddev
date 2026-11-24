@@ -11,7 +11,7 @@ the next version and date, commit and push it, then run repo-kit's
 
 - Shards build on shard format 0.78.0 and name the oldest engine that can draw them (0.1.84), so none lands on a grid too old to show it.
 - Far views keep their impostors when a zone runs over the 1.6 MB far memory target; the build warns instead of dropping them.
-- First-party shards ship their own far view from the shard repo.
+- Wildshard's own zones ship their own far view from the shard repo.
 - Scenes can place world fields and emitters.
 - Uploads judge memory by the catalogue's armed word, and re-uploading bytes the server already holds carries on.
 
