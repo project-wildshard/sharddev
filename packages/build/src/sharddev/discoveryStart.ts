@@ -1,8 +1,10 @@
 import { liftLevelStart, type StartManifest } from '@wildshard/format/level-start';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 
-/** FORMAT-PRUNE FP36: the words format 0.1.0.5 refuses in a discovery document's `data`; each has its section. */
-const MOVED_WORDS: ReadonlySet<string> = new Set(['spawn', 'loadout', 'weapon', 'audio', 'species', 'spawns', 'faunaTuning', 'gridShardfile']);
+/** FORMAT-PRUNE FP36: the moved words format 0.1.0.5 refuses in a discovery document's `data`; each has its section. The
+ *  retired grid pointer is the format's to refuse alone: no SDK build writes it, and naming it here would count against
+ *  `sdk.grid-pointer-references` (format's one-way ceiling, 0). */
+const MOVED_WORDS: ReadonlySet<string> = new Set(['spawn', 'loadout', 'weapon', 'audio', 'species', 'spawns', 'faunaTuning']);
 
 /** FP36: the discovery document's level manifest without the words that live in sections (a non-object comes back as is). */
 export function withoutMovedWords(manifest: unknown): unknown {
