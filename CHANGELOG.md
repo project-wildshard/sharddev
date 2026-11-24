@@ -7,6 +7,11 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+## v0.4.33 (2026-11-24)
+
+- Hero shots refuse a mostly black capture instead of uploading it.
+- SDK releases reach npm faster: a release reuses the main checks it already passed.
+
 ## v0.4.32 (2026-11-24)
 
 - Far views keep each zone's landmarks in sight and no longer show a flat grey wall in their place.
