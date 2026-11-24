@@ -44,6 +44,7 @@ import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/s
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from '@wildshard/sdk/internal/authorManifest';
 import { levelLook, liftLevelLook } from '@wildshard/format/look-level';
 import { liftLevelStart } from '@wildshard/format/level-start';
+import { liftDiscoveryStart, withoutMovedWords } from './discoveryStart';
 import { discoveryDocument, discoveryUrl } from '@wildshard/sdk/internal/discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from '@wildshard/sdk/outputProduct';
 import { prepareProjectOutput, prepareProjectOutputInput, projectOutputContext, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from '@wildshard/sdk/projectOutput';
@@ -202,14 +203,12 @@ async function projectModule(project: string, decisionLegacyLines?: number, sele
   } finally { await finishProjectGeneration(generation, generationSucceeded); }
 }
 
-/** ONE-FORMAT OF9b3: the discovery document keeps the page start (spawn, loadout, weapon, audio, map image) as authored, for
- *  what reads it before the product admits (a pinned engine needs the map image there), until OF9b5 leaves discovery with
- *  only its own fields; the product's `ui/level` has none of them. */
-type DiscoveryStart = Partial<Pick<NonNullable<Shardfile['manifest']>, 'spawn' | 'loadout' | 'weapon' | 'audio' | 'minimap'>>;
+/** ONE-FORMAT OF9b3: the discovery document keeps the authored map image, for what reads it before the product admits (a
+ *  pinned engine needs it there); the product's `ui/level` has none. FORMAT-PRUNE FP36: the spawn, loadout, weapon and audio
+ *  it also kept live only in their sections now (format 0.1.0.5 refuses them in discovery). */
+type DiscoveryStart = Partial<Pick<NonNullable<Shardfile['manifest']>, 'minimap'>>;
 function discoveryStart(manifest: Shardfile['manifest']): DiscoveryStart {
-  if (manifest === undefined) return {};
-  const { spawn, loadout, weapon, audio, minimap } = manifest;
-  return { ...(spawn === undefined ? {} : { spawn }), ...(loadout === undefined ? {} : { loadout }), ...(weapon === undefined ? {} : { weapon }), ...(audio === undefined ? {} : { audio }), minimap };
+  return manifest === undefined ? {} : { minimap: manifest.minimap };
 }
 
 /** Compile authored geometry and read its remaining immutable inputs without writing hashes into the author folder. */
@@ -232,7 +231,8 @@ export async function readProjectAssets(project: string, map?: ProjectMap, manif
   // weapon and map image (read by nothing; combat/items arms, look/map draws) leave (`liftLevelStart`)
   // ONE-FORMAT OF9b4: herds, the species list and fauna tuning left `ui/level` with the species programs (declared spawns
   // and species rows carry them); an authored manifest that still names them has them dropped
-  const source = withoutHerdFields(level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections));
+  // FORMAT-PRUNE FP36: a product with no level manifest lifts its discovery's start into the same sections (`liftDiscoveryStart`)
+  const source = liftDiscoveryStart(withoutHerdFields(level === undefined ? liftLevelStart(liftLevelLook(loaded.shard)) : parseShardfile(liftLevelStart(liftLevelLook({ ...loaded.shard, manifest: level.manifest })), sections)), manifestSource?.composed ?? authorManifest(loaded.shard));
   if (map !== undefined && loaded.map !== undefined) throw new Error('Build map and generated map cannot compete');
   const selectedMap = loaded.map?.map ?? map, packed = selectedMap === undefined ? undefined : packProjectMap(source, selectedMap, sections);
   if (packed !== undefined && selectedMap !== undefined) pinned.set(packed.hash, selectedMap.bytes);
@@ -317,7 +317,8 @@ export async function buildProject(project: string, output?: string, options: { 
     const runtime = options.copyRuntime === true || clientPlan ? writeRuntimeFiles(project, destination) : undefined;
     const encoded = await encodedCookInput(project, shard.identity.slug);
     // OF9b2: discovery keeps a copy of the level look for what reads the level before the product admits (the grid shell)
-    const cook = await withDiscovery(project, shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard), ...loaded.start }, loaded.output.discovery, encoded?.input, assets);
+    // FORMAT-PRUNE FP36: and none of the words that live in sections (their values sit there: `readProjectAssets`)
+    const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...levelLook(shard), ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');

@@ -17,8 +17,11 @@ test('an author project builds with discovery a page revives to itself', async (
     await buildProject(project, out, {outputFormat: 2, client: null});
     const file = join(out, 'mounts/shardfiles/trail-side/discovery.json');
     expect(existsSync(file)).toBe(true);
-    const manifest = shardFromDiscovery(JSON.parse(readFileSync(file, 'utf8')));
-    expect(manifest).toMatchObject({slug: 'trail-side', name: 'trail-side', status: 'live', spawn: {x: 0, y: 2, z: 0, yaw: 0}});
+    const document = JSON.parse(readFileSync(file, 'utf8')) as {data: Record<string, unknown>}, manifest = shardFromDiscovery(document);
+    expect(manifest).toMatchObject({slug: 'trail-side', name: 'trail-side', status: 'live'});
+    // FORMAT-PRUNE FP36: the start lives in the product's sections; discovery carries none of it
+    for (const field of ['spawn', 'loadout', 'weapon', 'audio']) expect(document.data).not.toHaveProperty(field);
+    expect(JSON.parse(readFileSync(join(out, 'sections/world/spawn.json'), 'utf8'))).toMatchObject({spawn: {x: 0, y: 2, z: 0, yaw: 0}});
     expect(manifest.card.thumb).toMatch(/^data:image\/svg\+xml,/u);
   } finally { rmSync(root, {recursive: true, force: true}); }
 }, 60_000);
@@ -70,8 +73,8 @@ test('a manifest\'s level look is built into look/look, not ui/level', async () 
 }, 60_000);
 
 /** ONE-FORMAT OF9b3: a manifest's spawn, loadout and audio are built into world/spawn, combat/items' `loadout.level` and
- *  audio/audio's `level`; its weapon and map image leave. The product's ui/level has none of the five, and discovery keeps
- *  the start (until OF9b5) for what reads it before the product admits. */
+ *  audio/audio's `level`; its weapon and map image leave. The product's ui/level has none of the five. FORMAT-PRUNE FP36:
+ *  nor has discovery (format 0.1.0.5 refuses them there); a page reads its start from the product (engine `declaredStart`). */
 test('a manifest\'s page start is built into its sections, not ui/level', async () => {
   mkdirSync('tmp/author-discovery', {recursive: true});
   const root = mkdtempSync(resolve('tmp/author-discovery/case-')), project = join(root, 'project'), out = join(root, 'out');
@@ -91,7 +94,8 @@ test('a manifest\'s page start is built into its sections, not ui/level', async 
     expect(read('sections/audio/audio.json')['audio']).toMatchObject({level: start.audio});
     expect((read('sections/combat/items.json')['items'] as {loadout: unknown}).loadout).toMatchObject({level: start.loadout});
     expect(read('sections/world/spawn.json')['spawn']).toEqual({...start.spawn, y: 2});
-    const manifest = shardFromDiscovery(read('mounts/shardfiles/trail-side/discovery.json'));
-    expect(manifest.spawn).toEqual(start.spawn); expect(manifest.loadout).toEqual(start.loadout);
+    const discovery = read('mounts/shardfiles/trail-side/discovery.json')['data'] as Record<string, unknown>;
+    for (const field of ['spawn', 'loadout', 'weapon', 'audio']) expect(discovery).not.toHaveProperty(field);
+    expect(discovery['minimap']).toHaveProperty('image');
   } finally { rmSync(root, {recursive: true, force: true}); }
 }, 60_000);
