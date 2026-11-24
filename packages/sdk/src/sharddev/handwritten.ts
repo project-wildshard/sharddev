@@ -23,8 +23,15 @@ function formatRoot(): string {
   return resolve(dirname(createRequire(resolve(SDK_ROOT, 'package.json')).resolve('@wildshard/format/outputIndex')), '../..');
 }
 /** The shard file folder a hand-written source starts from, as the installed shard-format ships it: Brasscap Mesa's
- *  export (`corpus/exports/brasscap-mesa`), since J434 retired the hand-written Template 2 (meta TEMPLATE-E2E TR-10). */
-export function handwrittenTemplate(): string { return resolve(formatRoot(), 'corpus/exports/brasscap-mesa'); }
+ *  export (`corpus/exports/brasscap-mesa`), since J434 retired the hand-written Template 2 (meta TEMPLATE-E2E TR-10).
+ *  An export whose pin omits files (format 0.74.0, J506: GLBs over the 1 MB corpus cap that its world still names) is
+ *  no whole shard file, so the seed is then the whole SS3 export format keeps as `corpus/legacy/brasscap-mesa-ss3`. */
+export function handwrittenTemplate(): string {
+  const root = formatRoot(), pin = resolve(root, 'corpus/exports/brasscap-mesa.pin.json');
+  const omitted = existsSync(pin) ? (readJson(pin)['omitted'] as { files?: readonly string[] } | undefined)?.files ?? [] : [];
+  const legacy = resolve(root, 'corpus/legacy/brasscap-mesa-ss3');
+  return omitted.length > 0 && existsSync(resolve(legacy, SHARD_INDEX)) ? legacy : resolve(root, 'corpus/exports/brasscap-mesa');
+}
 
 interface Identity { readonly slug: string; readonly name: string }
 interface Row { hash: string; bytes: number; path: string; url?: string }
@@ -94,6 +101,17 @@ const SEED_CREATURES: Readonly<Record<string, unknown>> = {
 const SEED_CREATURE_ONLY = new Set(['sim/scripts', 'actors/moves']);
 const HASH = /[0-9a-f]{64}/gu;
 
+/** Format 0.74.0's export (J506) dresses each seed creature with a client visual binding (`<id>.body`); with the
+ *  creatures gone they would target nothing (`declared client creature target`), so they go with them. */
+function dropCreatureBodies(source: string, sections: readonly { name: string; path: string }[]): void {
+  const row = sections.find(section => section.name === 'sim/client-scripts');
+  if (row === undefined) return;
+  const file = resolve(source, row.path), held = readJson(file), scripts = held['clientScripts'];
+  if (typeof scripts !== 'object' || scripts === null || !('bindings' in scripts) || !Array.isArray(scripts.bindings)) return;
+  const bindings = (scripts.bindings as { target?: { kind?: unknown } }[]).filter(binding => binding.target?.kind !== 'creature');
+  writeJson(file, { ...held, clientScripts: { ...scripts, bindings } });
+}
+
 /**
  * Empty the seed's creature layer and drop each blob nothing names any more (its creatures' bodies and decision
  * guests): the place stays (world, look, items, quests, the player's scripts), and its creatures are the author's.
@@ -108,6 +126,7 @@ function clearSeedCreatures(source: string): void {
   for (const [name, value] of Object.entries(SEED_CREATURES)) {
     if (sections.some(row => row.name === name)) writeJson(resolve(source, 'sections', `${name}.json`), value);
   }
+  dropCreatureBodies(source, sections);
   const files = index['files'] as { hash: string; path: string; dependencies?: readonly string[] }[];
   const named = new Set(heldJson(source).filter(path => path !== SHARD_INDEX).flatMap(path => readFileSync(resolve(source, path), 'utf8').match(HASH) ?? []));
   const byHash = new Map(files.map(file => [file.hash, file])), pending = [...named];
