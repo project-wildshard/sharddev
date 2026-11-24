@@ -68,7 +68,9 @@ test('one real image serves every level image alias in the emitted product',{tim
  manifest.explore.art={world:url,models:url,sets:url,practice:url};
  writeFileSync(join(source,'manifest.json'),JSON.stringify(manifest));
  const product=await build('level'),level=product.shardfile.manifest,files=outputDescriptor(product.shardfile).index.files;
- assert.equal(level.card.thumb,level.minimap.image);assert.equal(level.card.thumb,level.explore.art.world);
+ // engine 0.1.76 (J450 84db7aa5c, format 0.71): the product's manifest carries no minimap image (the Bag map is the cook's
+ // map or the shard's look/map), so the map alias is proven by the one shared blob below, not by manifest.minimap.image
+ assert.equal(level.card.thumb,level.explore.art.world);
  assert.equal(files.filter(file=>file.hash===hash(bytes)).length,1);
  const image=files.find(file=>file.hash===hash(bytes));assert.ok(image);assert.deepEqual(Buffer.from(await product.file(image.name)),bytes);
 });

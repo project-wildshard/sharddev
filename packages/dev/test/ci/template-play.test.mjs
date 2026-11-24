@@ -11,7 +11,9 @@ const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFold
 const { createTrustedHeadlessAdapter } = await import('@wildshard/engine/host/headlessRuntime');
 const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
 const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
-const { outputDescriptor, serverReadsFile } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
+const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
+// engine 007a2f5fd (SHARD-COMPAT PR6): the server's read set is the format's rule now
+const { serverReadsFile } = await import('@wildshard/format/serverReads');
 const { loadRapier } = await import('@wildshard/engine/physics/rapier');
 const { manifestFolders, builtShardFolders } = await import('@wildshard/build/scripts/shard-outputs.mjs');
 const engineRequire = createRequire(import.meta.resolve('@wildshard/engine/package.json'));
