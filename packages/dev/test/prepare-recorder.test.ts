@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { dirname, resolve } from 'node:path';
 import { NAME_ASKED } from '@wildshard/engine/scripts/debug-settings.mjs';
 import { expect, test } from 'vitest';
-import { preparationSaveSeed } from '../scripts/preparation-seed.mjs';
+import { preparationDensity, preparationSaveSeed } from '../scripts/preparation-seed.mjs';
 
 test('the preparation seed answers the Name prompt and the first-play card on the served epoch', () => {
   const seed = preparationSaveSeed(1);
@@ -13,6 +13,15 @@ test('the preparation seed answers the Name prompt and the first-play card on th
   expect(device.keys[NAME_ASKED.key]).toEqual({ v: 1, data: NAME_ASKED.data });
   expect(device.keys['firstPlayDone']).toEqual({ v: 1, data: true });
   expect(Object.keys(preparationSaveSeed(0))).toEqual(['wildshard.save.v2.global', 'wildshard.save.v2.device']);
+});
+
+// FR-A18: Linux runners draw in software, and Nalati's entry at the phone's 3x took 210 to 260 s there; the programs are the
+// same at density 1 (byte-identical cook.json on the MacBook), so the recorder draws at 1 unless a trial asks otherwise.
+test('the recorder draws at pixel density 1 unless WILDSHARD_PREPARATION_DENSITY names another, from above 0 to 3', () => {
+  expect(preparationDensity({})).toBe(1);
+  expect(preparationDensity({ WILDSHARD_PREPARATION_DENSITY: '' })).toBe(1);
+  expect(preparationDensity({ WILDSHARD_PREPARATION_DENSITY: '3' })).toBe(3);
+  for (const bad of ['0', '4', 'phone']) expect(() => preparationDensity({ WILDSHARD_PREPARATION_DENSITY: bad })).toThrow(/pixel density/u);
 });
 
 test('the mount recorder mounts every target the product texture table names, on both tiers', () => {

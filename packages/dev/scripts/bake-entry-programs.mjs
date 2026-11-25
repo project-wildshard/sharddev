@@ -15,16 +15,15 @@ import {existsSync,readFileSync,writeFileSync} from 'node:fs';
 import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
-import {preparationSaveSeed} from './preparation-seed.mjs';
+import {preparationDensity,preparationSaveSeed} from './preparation-seed.mjs';
 import {slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
 import {recordingLine} from './recording-line.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
 const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), scratch=args.includes('--scratch'), slugs=args.filter(arg=>!arg.startsWith('--'));
 if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs --base <url> [--check] <slug>...');
-// FR-A18: the phone's pixel density (iPhone 16 Pro: 3). WILDSHARD_PREPARATION_DENSITY overrides it for a measured trial.
-const density=Number(process.env.WILDSHARD_PREPARATION_DENSITY??devices['iPhone 16 Pro'].deviceScaleFactor);
-if(!(density>0&&density<=3))throw new Error('WILDSHARD_PREPARATION_DENSITY is a pixel density from above 0 to 3');
+// FR-A18: the recorder draws at pixel density 1, not the iPhone 16 Pro's 3: the same programs, a quarter of the pixels.
+const density=preparationDensity();
 
 /** Every program linked between the tap and control, in link order (the page's own WebGL2 calls, read in place). */
 async function record(browser,slug){

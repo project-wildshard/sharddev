@@ -13,3 +13,16 @@ export function preparationSaveSeed(epoch) {
     } }),
   };
 }
+
+/** FAST-RELEASE FR-A18: the pixel density the recorder's phone context draws at. The iPhone 16 Pro's is 3, but the recorded
+ * programs don't depend on it (Nalati on the MacBook: byte-identical cook.json at 1 and 3, 113 programs), and a Linux
+ * runner draws every pixel in software (Nalati's entry: 210 to 260 s there, 40 to 48 s on macos-15). The phone renderer
+ * draws at min(density, 2), so 1 is a quarter of the pixels. WILDSHARD_PREPARATION_DENSITY (above 0, at most 3) overrides it.
+ * @param {Record<string, string | undefined>} [env] @returns {number} */
+export function preparationDensity(env = process.env) {
+  const value = env['WILDSHARD_PREPARATION_DENSITY'];
+  if (value === undefined || value === '') return 1;
+  const density = Number(value);
+  if (!(density > 0 && density <= 3)) throw new Error('WILDSHARD_PREPARATION_DENSITY is a pixel density above 0 and at most 3');
+  return density;
+}
