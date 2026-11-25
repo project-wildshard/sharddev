@@ -129,6 +129,8 @@ describe('wildshard status (M2)', () => {
     expect([pending.status, pending.stdout]).toEqual([0, 'wildshard: sdk 0.5.0 is installed, but migration 0.5.0 (shard assets move from public/ into src/static/) has not run in this repo: run pnpm exec wildshard migrate (agents: read node_modules/@wildshard/sdk/skills/wildshard-upgrade/SKILL.md and follow it)\n']);
     const clean = run(DEV_BIN, ['status', '--brief'], shardRepo('0.5.0', false));
     expect([clean.status, clean.stdout, clean.stderr]).toEqual([0, '', '']);
+    // The sdk's own package lists itself (`link:.`) and still holds a public/assets/, but it is no shard repo: silent.
+    expect(run(DEV_BIN, ['status', '--brief'], resolve(import.meta.dirname, '../../../sdk'))).toEqual({ status: 0, stdout: '', stderr: '' });
     // Outside a shard repo (a SessionStart hook anywhere): silent.
     const outside = run(DEV_BIN, ['status', '--brief'], root);
     expect([outside.status, outside.stdout]).toEqual([0, '']);

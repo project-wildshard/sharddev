@@ -53,9 +53,20 @@ function installedSdk(repo: string, names: readonly string[]): string {
   return installed === undefined ? dirname(createRequire(import.meta.url).resolve('@wildshard/sdk/package.json')) : realpathSync(installed);
 }
 
+/** True for the sdk's own package (it is named as the sdk), which is never a shard repo. */
+function isSdkPackage(repo: string): boolean {
+  const file = join(repo, 'package.json');
+  if (!existsSync(file)) return false;
+  const name = readJson(file)['name'];
+  return SDK_NAMES.some(sdk => sdk === name);
+}
+
 /** The shard repo at or above `dir` (a repo, or a shard source in one), or undefined when it is none. */
 export function shardRepoAt(dir: string): string | undefined {
   const repo = shardRepoRoot(findShardSource(dir));
+  // The sdk lists itself (`link:.`), but nothing migrates the sdk: on 0.5.0 its own leftover public/assets/ read as a
+  // pending migration, and a status hook or gated verb anywhere under packages/sdk refused.
+  if (isSdkPackage(repo)) return undefined;
   return listedSdks(repo).length === 0 ? undefined : repo;
 }
 
