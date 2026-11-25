@@ -25,17 +25,40 @@ const VERBS: Readonly<Record<string, string>> = {
                        default; sdk and blender are retired: Blender makes
                        models, code makes the shard). --empty writes a
                        bare shard source instead`,
+  upgrade: `upgrade [version] [dir]
+                       Move the shard repo (dir: default the current
+                       folder) to a newer sdk, npm's latest unless a
+                       version is named: move the pins, run pnpm install,
+                       migrate (below), then run the new sdk's update and
+                       check. It needs a committed git tree. Its last line
+                       is on @wildshard/sdk <version>, check pass`,
+  migrate: `migrate [dir]
+                       Bring the shard repo (default the current folder)
+                       up to the sdk installed in its node_modules, however
+                       it got there: sync GUIDE.md and the skills, run each
+                       migration that has not run (status lists them),
+                       oldest first, and stamp package.json "wildshard":
+                       { "migrated" }. Prints what each changed, then the
+                       manual steps (file:line and what to do). It needs a
+                       committed git tree; a second run says nothing to
+                       migrate
+  migrate --dry-run <file> [--server <url>]
+                       Ask the API what admission would do with a shard
+                       file, storing nothing and sending no key: its
+                       format against the API's, the migrations it would
+                       run, the chain that runs them and the digest of
+                       what would play (the SHA-256 the API records).
+                       Reads WILDSHARD_API_URL when --server is absent,
+                       else https://api.wildshard.io`,
   update: `update [dir] [--pins[=<version>]]
                        Rewrite GUIDE.md and the four wildshard skills in
                        .claude/skills/ from the installed sdk (dir: the
                        shard repo, default the current folder). Adds the
                        .agents/skills links, AGENTS.md and CLAUDE.md if
                        missing; touches nothing else, and leaves an
-                       AGENTS.md you changed (it says so). --pins first
-                       moves the repo to a newer sdk (npm's latest, or
-                       --pins=<version>): moves the pins, runs pnpm
-                       install, applies the release's codemods, then
-                       runs the new sdk's update and check`,
+                       AGENTS.md you changed (it says so). --pins is an
+                       alias of upgrade: update --pins=<version> is
+                       upgrade <version>`,
   dev: `dev <source> [port]
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on
@@ -142,14 +165,6 @@ const VERBS: Readonly<Record<string, string>> = {
                        GET /api/catalogue.json?channel=<channel> (prod is
                        production); no key. Reads WILDSHARD_API_URL when
                        --server is absent, else https://api.wildshard.io`,
-  migrate: `migrate --dry-run <file> [--server <url>]
-                       Ask the API what admission would do with a shard
-                       file, storing nothing and sending no key: its
-                       format against the API's, the migrations it would
-                       run, the chain that runs them and the digest of
-                       what would play (the SHA-256 the API records).
-                       Reads WILDSHARD_API_URL when --server is absent,
-                       else https://api.wildshard.io`,
   delete: `delete <slug> [--yes] [--server <url>]
                        Delete your shard: it leaves the catalogue, every
                        channel and the grid at once. Prints what it would

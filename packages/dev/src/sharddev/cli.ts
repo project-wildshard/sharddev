@@ -74,9 +74,19 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     if (result.verdict === 'fail') process.exitCode = 1;
     return;
   }
+  if (command === 'upgrade') {
+    // SDK 0.5.0 plan M4: `upgrade [version] [dir]` moves the pins (npm's latest unless a version is named), installs,
+    // runs the release's migrations, stamps the repo and runs check (updatePins.ts). An operand that reads as a version
+    // (or `latest`) is the version; the other is the repo.
+    const rest = args.slice(1), versions = rest.filter(value => value === 'latest' || /^\d+\.\d+\.\d+/u.test(value));
+    const dirs = rest.filter(value => !versions.includes(value));
+    if (versions.length > 1 || dirs.length > 1 || rest.some(value => value.startsWith('-'))) throw new Error('usage: wildshard upgrade [version] [dir]');
+    await updatePins(resolve(dirs[0] ?? '.'), versions[0] ?? 'latest'); return;
+  }
   if (command === 'update') {
     // SA28 (J314 Q7, Q27): one verb. SA18: `--pins[=<version>]` also moves the pins, installs, applies the release's
-    // codemods and runs check (updatePins.ts); with no version it takes npm's latest.
+    // codemods and runs check (updatePins.ts); with no version it takes npm's latest. M4: it is `upgrade`'s alias, the
+    // same move with the same output.
     const rest = args.slice(1), pins = rest.filter(value => value === '--pins' || value.startsWith('--pins='));
     const positional = rest.filter(value => !pins.includes(value)), version = pins[0]?.startsWith('--pins=') === true ? pins[0].slice('--pins='.length) : 'latest';
     if (pins.length > 1 || version === '' || positional.length > 1 || positional.some(value => value.startsWith('-'))) throw new Error('usage: wildshard update [dir] [--pins[=<version>]]');
@@ -196,7 +206,7 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
   throw new Error('unknown wildshard command');
 }
 /** The step a verb's refusal comes from (SA21): `dev` and `synth` build. */
-const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', update: 'update', validate: 'validate', prove: 'prove' };
+const STEPS: Readonly<Record<string, RefusalStep>> = { new: 'new', update: 'update', upgrade: 'update', validate: 'validate', prove: 'prove' };
 /** The refusal with its rule, fix and GUIDE.md link on a second line; the first line stays the refusing code's words. */
 function authorRefusal(command: string | undefined, error: unknown): unknown {
   const located = locatedError(error);

@@ -6,7 +6,8 @@ import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, 
 import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
-import { CODEMODS_FOLDER, SDK_NAMES, applyCodemods, codemodsBetween, compareVersions, movePins, sdkReleaseOf, updatePins, type PinsRunner, type SdkRelease } from '../../../sdk/src/sharddev/updatePins';
+import { SDK_NAMES, applyCodemods, movePins, sdkReleaseOf, updatePins, type PinsRunner, type SdkRelease } from '../../../sdk/src/sharddev/updatePins';
+import { CODEMODS_FOLDER, codemodsBetween, compareVersions, readStamp } from '../../../sdk/src/sharddev/migrations';
 import { runCli } from './cli';
 
 // SHARD-AUTHORING SA18 (J314 Q27, J317 Q16): `wildshard update --pins` moves the pins, installs, applies the release's
@@ -172,10 +173,10 @@ describe('wildshard update --pins (SA18)', () => {
     // The old pin is v0.2.4's commit, so both codemods above it run; the tags are read once.
     expect(readFileSync(resolve(project, 'codemods.log'), 'utf8')).toBe('0.2.5.mjs 0.2.4->9.9.9\n9.9.9.mjs 0.2.4->9.9.9\n');
     expect(runner.calls.slice(0, 3)).toEqual(['tags project-wildshard/sharddev', 'view 9.9.9', 'pnpm install']);
-    expect(runner.lines[0]).toBe('wildshard update --pins: @wildshard/sharddev 0.2.4 -> 9.9.9');
+    expect(runner.lines[0]).toBe('wildshard upgrade: @wildshard/sharddev 0.2.4 -> 9.9.9');
     expect(runner.lines.join('\n')).toMatch(/kept as a GitHub commit pin: the v9\.9\.9 tag's commit/u);
     expect(runner.lines.join('\n')).toContain(`pnpm.overrides @wildshard/format ${format} -> ${NEXT.pins['@wildshard/format'] ?? ''}`);
-    expect(runner.lines.at(-1)).toBe('wildshard update --pins: on @wildshard/sdk 9.9.9, check pass');
+    expect(runner.lines.at(-1)).toBe('wildshard upgrade: on @wildshard/sdk 9.9.9, check pass');
 
     // A commit no release tag names: the installed sdk says which it is; with none installed, it refuses.
     execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project }); rmSync(resolve(project, 'codemods.log'), { force: true });
@@ -187,7 +188,7 @@ describe('wildshard update --pins (SA18)', () => {
     writeJson(resolve(project, 'node_modules/@wildshard/sharddev/package.json'), { name: '@wildshard/sdk', version: '0.2.5' });
     const installed = fakeRunner(project, NEXT, { tags });
     await updatePins(project, '9.9.9', installed);
-    expect(installed.lines[0]).toBe('wildshard update --pins: @wildshard/sharddev 0.2.5 -> 9.9.9');
+    expect(installed.lines[0]).toBe('wildshard upgrade: @wildshard/sharddev 0.2.5 -> 9.9.9');
     // The release must be tagged: a commit pin has nowhere to move otherwise.
     execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project });
     writeJson(resolve(project, 'node_modules/@wildshard/sharddev/package.json'), { name: '@wildshard/sdk', version: '0.2.5' });
@@ -221,7 +222,7 @@ describe('wildshard update --pins (SA18)', () => {
     expect(await applyCodemods(project, sdk, '0.2.3', '0.3.0')).toEqual(['  codemod 0.2.4.mjs', '    logged', '  codemod 0.2.10.mjs', '    logged', '  codemod 0.3.0.mjs', '    logged']);
     expect(readFileSync(resolve(project, 'codemods.log'), 'utf8')).toBe('0.2.4.mjs 0.2.3->0.3.0\n0.2.10.mjs 0.2.3->0.3.0\n0.3.0.mjs 0.2.3->0.3.0\n');
     writeFileSync(resolve(sdk, CODEMODS_FOLDER, '2.0.0.mjs'), 'export const notDefault = 1;\n');
-    await expect(applyCodemods(project, sdk, '1.0.0', '2.0.0')).rejects.toThrow(/^update --pins: codemod 2\.0\.0\.mjs failed: it has no default export function/u);
+    await expect(applyCodemods(project, sdk, '1.0.0', '2.0.0')).rejects.toThrow(/^upgrade: codemod 2\.0\.0\.mjs failed: it has no default export function/u);
   });
 
   it('moves a new repo: pins, install, codemods, then the new sdk rewrites the guide and checks', async () => {
@@ -236,8 +237,43 @@ describe('wildshard update --pins (SA18)', () => {
     // Order: view, pins, install, codemods, then the new sdk's update and check, each seeing the codemod's edit.
     const ran = `  codemods.log then: 9.9.9.mjs ${before['@wildshard/sdk'] ?? ''}->9.9.9`;
     expect(runner.calls).toEqual(['view 9.9.9', 'pnpm install', `sdk update ${project}`, ran, 'sdk check .', ran]);
-    expect(runner.lines[0]).toBe(`wildshard update --pins: @wildshard/sdk ${before['@wildshard/sdk'] ?? ''} -> 9.9.9`);
-    expect(runner.lines.at(-1)).toBe('wildshard update --pins: on @wildshard/sdk 9.9.9, check pass');
+    expect(runner.lines[0]).toBe(`wildshard upgrade: @wildshard/sdk ${before['@wildshard/sdk'] ?? ''} -> 9.9.9`);
+    expect(runner.lines.at(-1)).toBe('wildshard upgrade: on @wildshard/sdk 9.9.9, check pass');
+    // M4: the repo is stamped as migrated to the release, before its check runs.
+    expect(readStamp(project)).toBe('9.9.9');
+  });
+
+  it('runs a firing migration on a repo whose pin already says the release (bumped by hand), and stamps it (M4)', async () => {
+    const project = resolve(scratch, 'my-shard');
+    writeShardRepo(project, 'my-shard', { empty: true });
+    const parsed = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { dependencies: Record<string, string> } & Record<string, unknown>;
+    const { wildshard: _stamp, ...unstamped } = parsed;
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify({ ...unstamped, dependencies: { ...parsed.dependencies, '@wildshard/sdk': '9.9.9' } }, null, 2)}\n`);
+    writeFileSync(resolve(project, 'old-layout.txt'), 'the old layout\n');
+    commitRepo(project);
+    // A migration from 0.5.0 on: pending while old-layout.txt is there; it moves it and leaves one manual step.
+    const codemodSource = `import { existsSync, renameSync } from 'node:fs';
+import { resolve } from 'node:path';
+export const title = 'the old layout moves';
+export const guide = 'migrate-9-9-9';
+export const pending = ({ project }) => existsSync(resolve(project, 'old-layout.txt')) ? 'old-layout.txt exists' : undefined;
+export default ({ project, from, to }) => { renameSync(resolve(project, 'old-layout.txt'), resolve(project, 'new-layout.txt')); return { lines: [\`old-layout.txt -> new-layout.txt (\${from}->\${to})\`], manual: ['scripts/ci.mjs:3 still names old-layout.txt: drop it'] }; };
+`;
+    const runner = fakeRunner(project, NEXT, { codemods: ['9.9.9'], codemodSource });
+    await updatePins(project, '9.9.9', runner);
+    expect(existsSync(resolve(project, 'new-layout.txt'))).toBe(true);
+    expect(runner.lines).toEqual(expect.arrayContaining([
+      'wildshard upgrade: @wildshard/sdk 9.9.9 -> 9.9.9',
+      '  codemod 9.9.9.mjs: the old layout moves\n    old-layout.txt -> new-layout.txt (9.9.9->9.9.9)\nManual steps (no script can make these edits safely; do each, then run check):\n  9.9.9  scripts/ci.mjs:3 still names old-layout.txt: drop it',
+    ]));
+    expect(readStamp(project)).toBe('9.9.9');
+    expect(runner.lines.at(-1)).toBe('wildshard upgrade: on @wildshard/sdk 9.9.9, check pass');
+    // Done once: the same move again (committed) finds nothing pending.
+    execFileSync('git', ['-c', 'user.name=test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', 'add', '-A'], { cwd: project });
+    execFileSync('git', ['-c', 'user.name=test', '-c', 'user.email=test@example.com', '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'upgraded'], { cwd: project });
+    const again = fakeRunner(project, NEXT, { codemods: ['9.9.9'], codemodSource });
+    await updatePins(project, '9.9.9', again);
+    expect(again.lines).toContain('  no codemods between 9.9.9 and 9.9.9');
   });
 
   it('refuses a downgrade, another package manager, a wrong install and a failed check, each as update-pins', async () => {
@@ -245,7 +281,7 @@ describe('wildshard update --pins (SA18)', () => {
     writeShardRepo(project, 'my-shard', { empty: true });
     commitRepo(project);
     const now = pinsOf(project)['@wildshard/sdk'] ?? '', manifest = readFileSync(resolve(project, 'package.json'), 'utf8');
-    await expect(updatePins(project, '0.0.0', fakeRunner(project, { version: '0.0.0', pins: {} }))).rejects.toThrow(new RegExp(`is on @wildshard/sdk ${now.replaceAll('.', '\\.')}, newer than 0\\.0\\.0; update --pins moves forward only`, 'u'));
+    await expect(updatePins(project, '0.0.0', fakeRunner(project, { version: '0.0.0', pins: {} }))).rejects.toThrow(new RegExp(`is on @wildshard/sdk ${now.replaceAll('.', '\\.')}, newer than 0\\.0\\.0; upgrade moves forward only`, 'u'));
     // Each failure before the codemods finish puts package.json back and installs the old sdk again.
     for (const [options, refusal] of [
       [{ installs: '9.9.8' }, /pnpm installed @wildshard\/sdk 9\.9\.8, not 9\.9\.9/u],
@@ -281,7 +317,7 @@ describe('wildshard update --pins (SA18)', () => {
     for (const ceiling of [undefined, scratch]) {
       if (ceiling !== undefined) vi.stubEnv('GIT_CEILING_DIRECTORIES', ceiling);
       const runner = fakeRunner(project, NEXT);
-      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^update --pins: .* is not in a git repo with its package\.json committed[\s\S]*\[update-pins-no-git\] fix: .*\(GUIDE\.md#update-pins-no-git\)$/u);
+      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^upgrade: .* is not in a git repo with its package\.json committed[\s\S]*\[update-pins-no-git\] fix: .*\(GUIDE\.md#update-pins-no-git\)$/u);
       await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/is not in a git repo/u);
       expect(runner.calls).toEqual([]);
       vi.unstubAllEnvs();
@@ -292,18 +328,18 @@ describe('wildshard update --pins (SA18)', () => {
       execFileSync('git', ['checkout', '-q', '--', '.'], { cwd: project }); rmSync(resolve(project, 'notes.txt'), { force: true });
       dirty();
       const runner = fakeRunner(project, NEXT);
-      await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/^update --pins: .* has uncommitted changes/u);
+      await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/^upgrade: .* has uncommitted changes/u);
       expect(runner.calls).toEqual([]);
       // An author who hides untracked files from git status is refused all the same.
       vi.stubEnv('GIT_CONFIG_COUNT', '1'); vi.stubEnv('GIT_CONFIG_KEY_0', 'status.showUntrackedFiles'); vi.stubEnv('GIT_CONFIG_VALUE_0', 'no');
       await expect(updatePins(project, '9.9.9', runner)).rejects.toThrow(/has uncommitted changes/u);
       vi.unstubAllEnvs();
-      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/has uncommitted changes[\s\S]*\[update-pins-dirty\] fix: Commit or stash your changes, then run `wildshard update --pins` again\. \(GUIDE\.md#update-pins-dirty\)$/u);
+      await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/has uncommitted changes[\s\S]*\[update-pins-dirty\] fix: Commit or stash your changes, then run `wildshard upgrade` again\. \(GUIDE\.md#update-pins-dirty\)$/u);
       expect(readFileSync(resolve(project, 'package.json'), 'utf8')).toBe(manifest);
     }
     // No git on PATH: its own words, under the update-pins catch-all, not "put the repo in git".
     vi.stubEnv('PATH', '');
-    await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^update --pins: git not found[\s\S]*\[update-pins\] fix:/u);
+    await expect(runCli(['update', project, '--pins=9.9.9'])).rejects.toThrow(/^upgrade: git not found[\s\S]*\[update-pins\] fix:/u);
     vi.unstubAllEnvs();
     // Ignored files (node_modules, build output) are not dirt.
     rmSync(resolve(project, 'notes.txt'), { force: true });
@@ -319,6 +355,10 @@ describe('wildshard update --pins (SA18)', () => {
       await expect(runCli(['update', ...args])).rejects.toThrow(/usage: wildshard update \[dir\] \[--pins\[=<version>\]\]/u);
     }
     await expect(runCli(['update', '--pins', '0.2.4'])).rejects.toThrow(/name a version as --pins=0\.2\.4/u);
+    // M4: `upgrade [version] [dir]`, each at most once, no flags.
+    for (const args of [['1.0.0', '2.0.0'], [project, 'extra'], ['--pins'], ['latest', '1.0.0']]) {
+      await expect(runCli(['upgrade', ...args])).rejects.toThrow(/usage: wildshard upgrade \[version\] \[dir\]/u);
+    }
   });
 
   it('every shipped codemod is named for a version, exports a function, and leaves a new repo as it was', async () => {
@@ -332,7 +372,8 @@ describe('wildshard update --pins (SA18)', () => {
     for (const file of files) {
       expect(file).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?\.mjs$/u);
       const version = file.slice(0, -'.mjs'.length);
-      expect(await applyCodemods(project, ROOT, '0.0.0', version)).toContain(`  codemod ${file}`);
+      // A migration from 0.5.0 on names its title after its file (M4).
+      expect((await applyCodemods(project, ROOT, '0.0.0', version)).some(line => line === `  codemod ${file}` || line.startsWith(`  codemod ${file}: `)), file).toBe(true);
     }
     expect(readFileSync(resolve(project, 'package.json'), 'utf8')).toBe(before);
     expect((JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')) as { files: string[] }).files).toContain(CODEMODS_FOLDER);

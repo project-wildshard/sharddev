@@ -1130,34 +1130,34 @@ TypeScript three.js scene source, and Blender makes the `.glb` models it loads (
 
 #### update-pins-no-git
 
-`wildshard update --pins` edits `package.json`, `pnpm-lock.yaml` and, through its codemods, your shard source, so it
-runs only in a git repo whose `package.json` is committed: `git diff` afterwards is how you see what it changed. It
-refused before it changed anything. Put the shard repo in git and commit it (`git init`, `git add .`, `git commit`),
-then run `wildshard update --pins` again.
+`wildshard upgrade` (and its alias `update --pins`) edits `package.json`, `pnpm-lock.yaml` and, through its
+codemods, your shard source, so it runs only in a git repo whose `package.json` is committed: `git diff` afterwards is
+how you see what it changed. It refused before it changed anything. Put the shard repo in git and commit it (`git
+init`, `git add .`, `git commit`), then run `wildshard upgrade` again.
 
 #### update-pins-dirty
 
-The shard repo has uncommitted or untracked changes (the refusal names the first few). `update --pins` refuses them so
-its edits never mix with yours. It refused before it changed anything. Commit or stash your changes (`git stash -u`),
-then run `wildshard update --pins` again. Ignored files, such as `node_modules/` and build output, do not count.
+The shard repo has uncommitted or untracked changes (the refusal names the first few). `upgrade` refuses them so its
+edits never mix with yours. It refused before it changed anything. Commit or stash your changes (`git stash -u`), then
+run `wildshard upgrade` again. Ignored files, such as `node_modules/` and build output, do not count.
 
 #### update-pins
 
-`wildshard update --pins` stopped. The line above says why. If it stopped before its codemods were done, it has
-already put `package.json` and `pnpm-lock.yaml` back and installed the old sdk again (it says `back on
-@wildshard/sdk <old>`), so after the fix run `wildshard update --pins` again; `git diff` shows any edit a codemod made
+`wildshard upgrade` (or `update --pins`) stopped. The line above says why. If it stopped before its codemods were
+done, it has already put `package.json` and `pnpm-lock.yaml` back and installed the old sdk again (it says `back on
+@wildshard/sdk <old>`), so after the fix run `wildshard upgrade` again; `git diff` shows any edit a codemod made
 before it stopped.
 
 - `npm has no @wildshard/sdk@<version>`, `npm gave no version` or `pnpm view ... failed`: name a version npm lists
   (`pnpm view @wildshard/sdk versions`), or check your network.
 - `moves forward only`: the repo is already on a newer sdk than the one you named. To go back, edit the pins in
   `package.json` by hand and run `pnpm install`.
-- `names <manager> as its package manager`: `--pins` installs with pnpm; set `packageManager` to the
+- `names <manager> as its package manager`: `upgrade` installs with pnpm; set `packageManager` to the
   `pnpm@...` that `new` writes, or move the pins by hand as the `wildshard-upgrade` skill says.
-- `git not found`: `--pins` reads `git status` before it starts; install git.
+- `git not found`: `upgrade` reads `git status` before it starts; install git.
 - `cannot tell which sdk ... is on`: pin `@wildshard/sdk` to a version, not `link:` or `file:`.
 - `pins @wildshard/sdk <a> but has <b> installed`: run `pnpm install` and `wildshard check .` on the pins you have,
-  then `--pins` again.
+  then `upgrade` again.
 - `pnpm install failed`, `pnpm installed ...` or `pins three ...`: the install did not give the versions the release
   names. Read pnpm's output above it.
 - `codemod <version>.mjs failed`: the release's codemod could not change your shard source. Report the message with
@@ -1165,6 +1165,31 @@ before it stopped.
 - `its wildshard update failed`: the pins moved; run `pnpm exec wildshard update`, then `wildshard check .`.
 - `check failed`: the pins moved and the install worked, but the shard source does not pass on the new sdk. Fix each
   refusal check printed above it, then run `wildshard check .` again.
+
+#### migrate-no-git
+
+`wildshard migrate` runs the installed sdk's migrations on your shard source, so it runs only in a git repo whose
+`package.json` is committed: `git diff` afterwards is how you see what it changed. It refused before it changed
+anything. Put the shard repo in git and commit it (`git init`, `git add .`, `git commit`), then run `wildshard
+migrate` again.
+
+#### migrate-dirty
+
+The shard repo has uncommitted or untracked changes (the refusal names the first few). `migrate` refuses them so its
+edits never mix with yours. It refused before it changed anything. Commit or stash your changes (`git stash -u`), then
+run `wildshard migrate` again. Ignored files, such as `node_modules/` and build output, do not count. A repo already
+migrated to the installed sdk, with nothing pending, is never refused: a second `migrate` says `nothing to migrate`.
+
+#### migrate
+
+`wildshard migrate` stopped. The line above says why.
+
+- `migration <version>.mjs failed`: that migration could not change your shard source. Nothing after it ran and the
+  stamp is unchanged; `git diff` shows what it changed before it stopped. Put those edits back with git and report
+  the message with the sdk version, or fix the cause it names and run `migrate` again.
+- `has no @wildshard/sdk installed`: `migrate` reads the migrations of the sdk in the repo's own `node_modules`. Run
+  `pnpm install`, then `migrate` again.
+- `is not a shard repo`: run it in the repo `wildshard new` made, or name it: `wildshard migrate my-shard`.
 
 #### update-refused
 

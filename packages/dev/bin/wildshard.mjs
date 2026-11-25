@@ -20,7 +20,7 @@ function buildEntry() {
   const root = dirname(createRequire(import.meta.url).resolve('@wildshard/build/package.json'));
   return ['scripts/run-source.mjs', 'dist/build.mjs'].map(file => resolve(root, file)).find(file => existsSync(file));
 }
-const AUTHOR = new Set(['new', 'update', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'watch', 'schema', '--prepare-compiler']);
+const AUTHOR = new Set(['new', 'update', 'upgrade', 'check', 'synth', 'build', 'validate', 'prove', 'dev', 'watch', 'schema', '--prepare-compiler']);
 const [command, operand] = process.argv.slice(2);
 // SA2: `wildshard <verb> --help` and `wildshard help [verb]` print help (src/cli/help.ts) before any verb runs.
 const verbHelp = command === 'help' || (command !== undefined && !command.startsWith('-') && process.argv.slice(3).some(arg => arg === '--help' || arg === '-h'));
@@ -75,7 +75,12 @@ if (await migrationGate(process.argv.slice(2), process.cwd())) {
   const script = resolve(import.meta.dirname, '../src/cli/grid/command.ts');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);
+} else if (command === 'migrate' && !process.argv.slice(3).includes('--dry-run')) {
+  // SDK 0.5.0 plan M3: `migrate [dir]` runs the installed sdk's pending migrations on the repo and stamps it.
+  const { runMigrate } = await import('../src/sharddev/migrate.ts');
+  process.exitCode = await runMigrate(process.argv.slice(3), process.cwd());
 } else if (command === 'migrate') {
+  // SHARD-COMPAT CP7: `migrate --dry-run <file>` asks the API what admission would do with a shard file.
   const script = resolve(import.meta.dirname, '../src/cli/migrate/command.ts');
   process.argv.splice(1, 2, script);
   await import(pathToFileURL(script).href);

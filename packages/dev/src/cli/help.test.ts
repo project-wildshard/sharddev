@@ -95,6 +95,9 @@ describe('every verb prints its own help (SA2)', (): void => {
   it('lists every verb the bin routes', (): void => {
     for (const verb of [
       'new',
+      'upgrade',
+      'migrate',
+      'status',
       'update',
       'dev',
       'check',
