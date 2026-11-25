@@ -312,11 +312,12 @@ before every upload:
 
 1. **Hero.** A new version needs a new hero (J306). After your last change to the world, capture one
    (`wildshard hero . --base <url>`, "The hero" above). Done when `hero.json` and the three card images are rewritten.
-2. **Commit.** Upload names the commit the bytes came from and refuses uncommitted changes to tracked files. The first
-   time: `git init`, then commit (the `.gitignore` `new` wrote keeps `out/` and `node_modules/` out).
-   Every time: commit everything, the hero included. Done when `git status` is clean.
-3. **Check.** `wildshard check .` builds the shard file. It is a **draft** (`sdk: "0.2"`): check prints a
-   `shardfile-draft` warning, and upload and the API refuse a draft. Done at `check pass`.
+2. **Check.** `wildshard check .` builds the shard file. It is a **draft** (`sdk: "0.2"`): check prints a
+   `shardfile-draft` warning, and upload and the API refuse a draft. After a new hero, check also records the built
+   world's `look` in `hero.json`, so commit after it, not before. Done at `check pass`.
+3. **Commit.** Upload names the commit the bytes came from and refuses uncommitted changes to tracked files. The first
+   time: `git init`, then commit (the `.gitignore` `new` wrote keeps the build output and `node_modules/` out).
+   Every time: commit everything, the hero and `hero.json` included. Done when `git status` is clean.
 4. **Prepare.** `wildshard prepare out/<slug>` records the draft in phone WebKit and turns it into the
    uploadable form (`sdk: "0.3"`). It serves engine's preparation client around the draft itself, fetched once from
    engine's release at the SDK's engine pin (about 310 MB, kept in `~/.cache/wildshard/dev-client`), so no engine
