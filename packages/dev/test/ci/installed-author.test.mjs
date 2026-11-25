@@ -19,8 +19,10 @@ const root = mkdtempSync(join(parent, 'installed-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
 const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'isle'), source = join(repo, 'src');
 let cache = 0;
-// A spawn may take up to 14 s: `check` took 5.5 s on fast runners and 7.4 to 7.9 s on slow ones (9c658b97, 93515cf0,
-// 216bd54a), and bfbeecf7 hit the old 8 s cap. Each test keeps its own budget; only check's two get 15 s.
+// A spawn may take up to 14 s. Runners come in two speeds, the slow ~1.45x the fast. `new --empty` is a generated scene
+// since A9 (40c4f31a), so on a fast runner (da490408) a build takes 4.6 s, check 8.1 s and --folder-only's two builds
+// 9.0 s; slow runners took check 7.4 to 7.9 s even before A9 (9c658b97, 93515cf0, 216bd54a). A test that builds once
+// gets 12 s, check and two builds 15 s; the rest keep 9.5 s.
 function run(args, success = true, environment = {}) {
   const done = spawnSync(process.execPath, [bin, ...args], {
     cwd: app, encoding: 'utf8', timeout: 14_000,
@@ -88,12 +90,12 @@ const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash(
 let built;
 // J198 and PR4: the draft has no preparation marker until it is recorded.
 const DRAFT = /^warning: outside-isle is an unprepared draft \(no preparation\): .*\n {2}\[shardfile-draft\] fix: Run `wildshard prepare /mu;
-test('the new author builds without making undocumented asset folders', { timeout: 9_500 }, () => {
+test('the new author builds without making undocumented asset folders', { timeout: 12_000 }, () => {
   const done = run(['build', source, join(app, 'first'), '--shardfile-only']);
   assert.match(done.stdout, DRAFT);
   built = sha(shardfile);
 });
-test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 9_500 }, () => {
+test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 12_000 }, () => {
   run(['build', source, join(app, 'second'), '--shardfile-only']);
   assert.deepEqual(bytes(join(app, 'second')), bytes(join(app, 'first')));
   assert.equal(sha(shardfile), built);
@@ -105,7 +107,7 @@ test('build of a built folder writes the same shard file, and pack is its deprec
   assert.equal(sha(join(app, 'packed.tar')), built);
   assert.match(packed.stderr, /pack is deprecated: `wildshard build` writes the shard file/u);
 });
-test('--folder-only (old name --product-only) builds the folder and writes no shard file', { timeout: 9_500 }, () => {
+test('--folder-only (old name --product-only) builds the folder and writes no shard file', { timeout: 15_000 }, () => {
   rmSync(shardfile);
   run(['build', source, join(app, 'folder'), '--folder-only']);
   run(['build', source, join(app, 'product'), '--product-only']);
@@ -113,7 +115,7 @@ test('--folder-only (old name --product-only) builds the folder and writes no sh
   assert.deepEqual(bytes(join(app, 'product')), bytes(join(app, 'first')));
   assert.equal(existsSync(shardfile), false);
 });
-test('moving the authored source does not change the shipped bytes', { timeout: 9_500 }, () => {
+test('moving the authored source does not change the shipped bytes', { timeout: 12_000 }, () => {
   cpSync(source, join(app, 'moved'), { recursive: true });
   run(['build', join(app, 'moved'), join(app, 'third'), '--product-only']);
   assert.deepEqual(bytes(join(app, 'third')), bytes(join(app, 'first')));
@@ -202,7 +204,7 @@ async function upload(context, server, file) {
   const [code] = await once(child, 'close');
   return { code, output };
 }
-test('the outside author uploads its newly built and prepared tarball through the real CLI to the local service double', { timeout: 9_500 }, async context => {
+test('the outside author uploads its newly built and prepared tarball through the real CLI to the local service double', { timeout: 12_000 }, async context => {
   const server = await openUploadServer(context);
   // A real author's app has a package.json and a git HEAD; upload sends both (AC16).
   writeFileSync(join(app, 'package.json'), '{ "name": "outside-author", "version": "1.0.0", "private": true }\n');
