@@ -177,7 +177,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'shardfile-link', anchor: 'shardfile-link', steps: ['shardfile', 'pack'], match: /not a regular file|link is refused/u,
     fix: 'Replace links in the shard file folder with real files, then build again.' },
   { id: 'shardfile-folder-missing', anchor: 'shardfile-folder-missing', steps: ['shardfile', 'pack'], match: /(?:build|pack) needs a shard file folder|ENOENT/u,
-    fix: 'Build the shard source: `wildshard build <source>` writes public/shardfiles/<slug>.shardfile.' },
+    fix: 'Build the shard source: `wildshard build <source>` writes out/<slug>.shardfile.' },
   // shard-format's validator refusals (SA41's validate and stream codes), from validate, the shard file step or upload
   { id: 'shardfile-invalid', anchor: 'shardfile-invalid', steps: 'any', codes: ['archive-invalid'],
     fix: 'Upload the shard file `wildshard build` wrote, unedited: the format checks refuse this one.' },
@@ -199,7 +199,7 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'shardfile-refused', anchor: 'shardfile-refused', steps: ['shardfile', 'pack'],
     fix: 'Build the shard source again with `wildshard build`: it writes and checks the shard file.' },
   { id: 'upload-shardfile-missing', anchor: 'upload-shardfile-missing', steps: ['upload'], match: /upload needs a shard ?file|ENOENT/u,
-    fix: 'Pass the shard file `wildshard build` wrote: `wildshard upload public/shardfiles/<slug>.shardfile --channel staging`.' },
+    fix: 'Pass the shard file `wildshard build` wrote: `wildshard upload out/<slug>.shardfile --channel staging`.' },
   { id: 'upload-channel', anchor: 'upload-channel', steps: ['upload'], match: /upload needs --channel/u,
     fix: 'Add `--channel staging` (try it there first) or `--channel prod`.' },
   { id: 'upload-credentials', anchor: 'upload-credentials', steps: ['upload'], match: /upload needs --server/u,

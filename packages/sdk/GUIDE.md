@@ -37,7 +37,7 @@ one version.
 **Install size.** A fresh `new` repo installs about 580 MB into `node_modules` (`du -sh`, cli 0.4.11 with engine
 0.1.44, measured 2026-11-18). pnpm hard-links it from its global store, so a second repo on the same sdk adds little.
 The largest parts are binaryen, the script compiler (two copies, about 200 MB), the engine (about 50 MB), then
-TypeScript, three, kit, happy-dom, sharp and rolldown (12 to 23 MB each). The first build adds about 20 MB in `public/`.
+TypeScript, three, kit, happy-dom, sharp and rolldown (12 to 23 MB each). The first build adds about 20 MB in `out/`.
 
 Run `wildshard memory <folder>` on a built shard folder to measure its phone-tier boot with the installed engine.
 The command prints the process peak, the phone estimate and the verdict. It exits 1 above the 1.5 GB phone limit.
@@ -68,8 +68,8 @@ repo's one `src/shards/<slug>/`).
 | 2 | Walk it | `wildshard dev .` | Works. The first run fetches engine's dev client once. See "Walking your shard" below |
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
-| 5 | Prepare | `wildshard prepare public/shardfiles/my-shard`, then `wildshard build public/shardfiles/my-shard` | The first run fetches engine's preparation client once. See "Uploading" below |
-| 6 | Upload to staging | `wildshard upload public/shardfiles/my-shard.shardfile --channel staging --version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
+| 5 | Prepare | `wildshard prepare out/my-shard`, then `wildshard build out/my-shard` | The first run fetches engine's preparation client once. See "Uploading" below |
+| 6 | Upload to staging | `wildshard upload out/my-shard.shardfile --channel staging --version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
 | 7 | Upload to production | the same with `--channel prod` and a higher version | The same. Try staging first |
 | 8 | Share | `https://staging.wildshard.io/slug/my-shard` | **Not built yet (SA36, SA37).** See section 5 |
 
@@ -95,7 +95,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | `wildshard whoami` | Say which account key upload would send (from `WILDSHARD_API_KEY` or the key file), show its first characters, and print its account's email and how many slugs it owns (`--server` or `WILDSHARD_API_URL`) |
 | `wildshard grid [--channel staging\|prod\|preview]` | Print the world grid on a channel: each taken cell and its shard, then the free cells. No key needed (section 5) |
 | `wildshard delete <slug> [--yes]` | Delete your shard from the catalogue, every channel and the grid, after you type its slug (see "Deleting a shard") |
-| `wildshard build <source>` | Build alone: bake the shard source into `public/shardfiles/<slug>/` and write `public/shardfiles/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
+| `wildshard build <source>` | Build alone: bake the shard source into `out/<slug>/` and write `out/<slug>.shardfile`. `wildshard build <folder>` writes the shard file of a built folder (after `prepare`) |
 | `wildshard prepare <folder> [--base <url>]` | Record the built folder in phone WebKit against engine's preparation client (or the exact engine preview `--base` names), which turns a draft into the uploadable form (see "Uploading") |
 | `wildshard validate <source \| folder>` | Shard-format's checks and the static budgets, alone; `check` runs the headless budget run |
 | `wildshard prove <source> <proof.json>` | Play a proof tape headlessly and print what happened ("Proof tapes" below) |
@@ -313,14 +313,14 @@ before every upload:
 1. **Hero.** A new version needs a new hero (J306). After your last change to the world, capture one
    (`wildshard hero . --base <url>`, "The hero" above). Done when `hero.json` and the three card images are rewritten.
 2. **Commit.** Upload names the commit the bytes came from and refuses uncommitted changes to tracked files. The first
-   time: `git init`, then commit (the `.gitignore` `new` wrote keeps `public/shardfiles/` and `node_modules/` out).
+   time: `git init`, then commit (the `.gitignore` `new` wrote keeps `out/` and `node_modules/` out).
    Every time: commit everything, the hero included. Done when `git status` is clean.
 3. **Check.** `wildshard check .` builds the shard file. It is a **draft** (`sdk: "0.2"`): check prints a
    `shardfile-draft` warning, and upload and the API refuse a draft. Done at `check pass`.
-4. **Prepare.** `wildshard prepare public/shardfiles/<slug>` records the draft in phone WebKit and turns it into the
+4. **Prepare.** `wildshard prepare out/<slug>` records the draft in phone WebKit and turns it into the
    uploadable form (`sdk: "0.3"`). It serves engine's preparation client around the draft itself, fetched once from
    engine's release at the SDK's engine pin (about 310 MB, kept in `~/.cache/wildshard/dev-client`), so no engine
-   checkout is needed. Then `wildshard build public/shardfiles/<slug>` writes the prepared shard file. Done when
+   checkout is needed. Then `wildshard build out/<slug>` writes the prepared shard file. Done when
    prepare prints `{"slug":…,"programs":…}` and build prints the shard file line.
 5. **Account.** Set `WILDSHARD_API_URL=https://api.wildshard.io` (or pass `--server`). Upload needs only your
    **account key**, which says whose shard it is: the first upload of a slug makes it yours, and nobody else's key can
@@ -335,7 +335,7 @@ before every upload:
    `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--version`:
 
 ```sh
-wildshard upload public/shardfiles/my-shard.shardfile --channel staging --version 0.0.1
+wildshard upload out/my-shard.shardfile --channel staging --version 0.0.1
 ```
 
 Upload checks the shard file as the API will, checks the hero, signs, compresses and sends it, then prints the
@@ -394,6 +394,7 @@ A project made by `wildshard new` is a repo with one shard source at `src/`. Ins
 | `sources/` | Programs that made a committed asset (the Template's Warden skin); build never runs them | No: the asset does |
 | `behaviour/` | AssemblyScript (`.as`) scripts and `hooks.json`. Build compiles them to Wasm | The compiled Wasm |
 | `assets/` | Source assets, named by their SHA-256 | The ones the shard uses, by hash |
+| `static/` | Files the shard mounts, under the names it reads: a file named `/<path>` is `static/<path>` (`static/assets/<slug>/`, `static/programs/`) | The ones its `mounts.json` lists, under those names |
 | `look/` | Recorded entry reads for the build | No |
 | `data/card.json` | The card and discovery fields: name, `card` images, `shardfile` path | The card, as data |
 | `hero.json` | The hero stamp (`wildshard hero` writes it) | No |
@@ -411,7 +412,7 @@ At the repo root, around `src/`:
 | `.claude/skills/wildshard*/SKILL.md` | The `wildshard` skill (SA14): the loop's order for Claude Code, pointing into this guide; and its siblings (SA27): `wildshard-mockup-to-model` (a picture to a model), `wildshard-goldens` (refresh the hero and proof tape), `wildshard-upgrade` (move to a newer sdk). `wildshard update` rewrites them: never edit them | No |
 | `.agents/skills/wildshard*` | Links to the four `.claude/skills/` folders, so Codex lists the same skills | No |
 | `AGENTS.md`, `CLAUDE.md` | For agents: read this guide first; the skills are in `.claude/skills/`. `CLAUDE.md` is `@AGENTS.md`, so Claude Code reads the same file. Yours to change: `update` keeps your edits | No |
-| `public/shardfiles/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
+| `out/` | Build output: the built folder and `<slug>.shardfile`. Never edit; never commit | It is the shard file |
 
 **The card is `src/data/card.json`.** It names the shard (slug, name, status, card art) and is its one home: `new`
 writes it, build reads it, and hero capture writes the captured slots into it.
@@ -432,7 +433,8 @@ build supplies: `shared(i)` and `player(i)` read state fields in their declared 
 `src/data/`, ...); a repo with several keeps `src/shards/<slug>/`. Commands take the repo (`.`) and find the shard
 source at `src/`, or at the one `src/shards/<slug>/` a repo holds; in a repo with several, name the shard source
 (`src/shards/<slug>`). The slug is `data/card.json`'s, whatever the repo folder is called. A `src/` source builds
-into the repo's `public/shardfiles/`; a `src/shards/<slug>/` source into its own folder's. SA24 moves the existing
+into the repo's `out/`; a `src/shards/<slug>/` source into its own folder's. Either keeps the files it mounts in
+its own `static/` (sdk 0.5.0: no repo `public/`). SA24 moves the existing
 single-shard repos to `src/`.
 
 **Blender makes models, not shards (J341).** A shard is TypeScript three.js scene source: `shard.config.ts`, its
@@ -1001,7 +1003,7 @@ guide names them and points at what prints them:
   assets, `shard.config.ts` and `data/card.json` all take the same path.
 - **A failed rebuild keeps the last good build** on the page and prints the refusal in the terminal and the browser
   console. Fix it and save again.
-- **Not watched:** `node_modules/`, `.git/`, `dist/`, `public/` and `.worktrees/`. After `pnpm install` or an sdk
+- **Not watched:** `node_modules/`, `.git/`, `dist/`, `out/`, `public/` and `.worktrees/`. After `pnpm install` or an sdk
   update, stop `dev` and start it again.
 - **Not made by `dev`:** a shard file to upload. `dev` builds a private copy for the page. Run `wildshard check .`
   for the shard file, and capture the hero again before you upload a changed world.
@@ -1490,7 +1492,7 @@ Upload checks all of these before a byte is sent.
 
 #### upload-shardfile-missing
 
-The path is not a shard file. Pass the one build wrote: `public/shardfiles/<slug>.shardfile`.
+The path is not a shard file. Pass the one build wrote: `out/<slug>.shardfile`.
 
 #### upload-channel
 

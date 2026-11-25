@@ -164,7 +164,8 @@ const VERBS: Readonly<Record<string, string>> = {
   build: `build <source> [folder] [--shardfile-only | --folder-only]
         [--no-placeholders] [--output=<slug>]
                        Build the shard source: bake it into a shard file
-                       folder (default <source>/public/shardfiles/<slug>),
+                       folder (default out/<slug> in the repo; for a
+                       src/shards/<slug> source, in that folder),
                        then write the shard file <slug>.shardfile beside
                        it and run shard-format's checks on it. Refuses a
                        shard whose captured hero is older than its content

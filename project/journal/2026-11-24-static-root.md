@@ -57,3 +57,7 @@ nothing. Also found: five shard repos' map inputs name `public/` files
 (Dunes, Nalati, Nine Dragon, Open Plots, Sky Reach). The hash takes the
 path, so moving those files moves their products unless migration 0.5.0
 handles it.
+
+The S2 lines in GUIDE.md, help and refusals.ts went in a commit of
+their own, after the M2 agent committed its edits to the same files, so
+neither commit carried the other's hunks.
