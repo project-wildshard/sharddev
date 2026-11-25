@@ -1,6 +1,6 @@
 // FAST-RELEASE FR-A13: the recorder's entry wait names what the page waited on and stops early on a failed page.
 import { expect, test } from 'vitest';
-import { slowestSteps, waitForEntry } from '../scripts/entry-wait.mjs';
+import { slowestSpans, slowestSteps, waitForEntry } from '../scripts/entry-wait.mjs';
 
 type State = { entered: boolean, error: string | null, loading: string | null };
 function fixture(states: State[], { crashAt = -1, goneAt = -1 } = {}) {
@@ -62,4 +62,20 @@ test('a timeout names the slowest steps too', async () => {
   const { page, seen, options } = fixture([steps([['Shaders', 239_000], ['Region world', 1_000]])]);
   const error = await waitForEntry(page, seen, options).catch((caught: unknown) => caught as Error);
   expect(error.message).toMatch(/slowest steps: Shaders 239\.0 s, Region world 1\.0 s/u);
+});
+
+// FR-A18: Nalati's Linux entry spent 114 s in one step row, Application modules, which is many engine operations. The wait
+// keeps each boot operation's longest time across polls and documents, and names the longest on entry and on a refusal.
+const spans = (rows: [string, number][]): State => ({ entered: false, error: null, loading: 'Application modules', spans: rows.map(([operation, ms]) => ({ operation, ms })) } as State);
+test('an entry names its longest boot operations, each at its longest seen', async () => {
+  const { page, seen, options } = fixture([spans([['app:script-memory-reservation (running)', 40_000]]), spans([['app:script-memory-reservation', 90_200], ['app:product-admission', 3_100]]),
+    { entered: true, error: null, loading: null }]);
+  const entry = await waitForEntry(page, seen, options);
+  expect(slowestSpans(entry.spans, 2)).toBe('app:script-memory-reservation 90.2 s, app:script-memory-reservation (running) 40.0 s');
+});
+
+test('a timeout names the longest boot operations too', async () => {
+  const { page, seen, options } = fixture([spans([['app:product-admission (running)', 239_000]])]);
+  const error = await waitForEntry(page, seen, options).catch((caught: unknown) => caught as Error);
+  expect(error.message).toMatch(/longest boot operations: app:product-admission \(running\) 239\.0 s/u);
 });

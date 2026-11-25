@@ -16,7 +16,7 @@ import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
 import {preparationDensity,preparationSaveSeed} from './preparation-seed.mjs';
-import {slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
+import {slowestSpans,slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
 import {recordingLine} from './recording-line.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
@@ -97,6 +97,7 @@ async function record(browser,slug){
     const entry=await waitForEntry(page,seen);
     // FR-A18: where the entry's time went, in every prepare log (Nalati took 210 to 260 s on Linux runners, 40 on macOS).
     if(entry.steps.length>0)console.log(`${slug}: entered in ${entry.seconds} s at pixel density ${density}; slowest steps: ${slowestSteps(entry.steps)}`);
+    if(entry.spans.length>0)console.log(`${slug}: longest boot operations: ${slowestSpans(entry.spans)}`);
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
     const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
     const renderer=await page.evaluate(()=>globalThis.__WS_RENDERER_REVISION__);

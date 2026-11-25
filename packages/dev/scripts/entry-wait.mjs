@@ -6,8 +6,10 @@
 // what the page was waiting on: the loading card's line, the page's errors and failed requests.
 
 /** @typedef {{key?:string,label:string,ms:number}} EntryStep */
-/** What the page shows now: entered, the engine's error card, the loading card's line and its step rows (label and ms).
- * @returns {{entered:boolean,error:string|null,loading:string|null,steps?:EntryStep[]}} */
+/** @typedef {{operation:string,ms:number}} BootSpan */
+/** What the page shows now: entered, the engine's error card, the loading card's line, its step rows (label and ms) and
+ * the engine's longest boot operations (FR-A18: a step row such as Application modules is many operations).
+ * @returns {{entered:boolean,error:string|null,loading:string|null,steps?:EntryStep[],spans?:BootSpan[]}} */
 export function entryState(){
   const text=(/** @type {Element|null|undefined} */el)=>el?.textContent?.replace(/\s+/gu,' ').trim().slice(0,200)??null;
   // @ts-ignore the engine's own debug handle
@@ -18,8 +20,19 @@ export function entryState(){
     const {key='',ms}=/** @type {HTMLElement} */(row).dataset;
     return {key,label:text(row.children[0])??'',ms:Number(ms)};
   });
+  // FR-A18: the engine's boot timing (engine src/shared/engine/boot/timing.ts, `__bootTiming`): each named await's start and
+  // end, and each running one's age, so a slow step names the operation inside it.
+  /** @type {BootSpan[]} */ let spans=[];
+  try{
+    const timing=Reflect.get(globalThis,'__bootTiming')?.read?.();
+    if(timing!==undefined){
+      const done=(timing.entries??[]).filter((/** @type {any} */entry)=>typeof entry.end==='number').map((/** @type {any} */entry)=>({operation:String(entry.operation),ms:entry.end-entry.start}));
+      const running=(timing.active??[]).map((/** @type {any} */entry)=>({operation:`${String(entry.operation)} (running)`,ms:Number(entry.ageMs)}));
+      spans=[...done,...running].filter(span=>Number.isFinite(span.ms)&&span.ms>0).toSorted((a,b)=>b.ms-a.ms).slice(0,12);
+    }
+  }catch{spans=[];}
   return {entered,error:text(document.querySelector('.ws-load-error')),
-    loading:text(document.querySelector('.ws-load [data-el="line"]'))??text(document.querySelector('.ws-load')),steps};
+    loading:text(document.querySelector('.ws-load [data-el="line"]'))??text(document.querySelector('.ws-load')),steps,spans};
 }
 
 /** FR-A18: the slowest loading steps, slowest first, for a log line: `Shaders 150.2 s, Region world 30.1 s`.
@@ -27,6 +40,12 @@ export function entryState(){
 export function slowestSteps(steps,count=6){
   return steps.filter(step=>Number.isFinite(step.ms)&&step.ms>0).toSorted((a,b)=>b.ms-a.ms).slice(0,count)
     .map(step=>`${step.label} ${(step.ms/1000).toFixed(1)} s`).join(', ');
+}
+
+/** FR-A18: the longest boot operations, longest first: `app:product-admission 90.2 s, app:session-code 3.1 s`.
+ * @param {BootSpan[]} spans @param {number} [count] */
+export function slowestSpans(spans,count=8){
+  return spans.toSorted((a,b)=>b.ms-a.ms).slice(0,count).map(span=>`${span.operation} ${(span.ms/1000).toFixed(1)} s`).join(', ');
 }
 
 /** Collects what a refusal must name. @param {import('playwright').Page} page */
@@ -50,12 +69,16 @@ export async function waitForEntry(page,seen,{timeout=240_000,poll=1000,now=Date
   /** Every step row the card showed, by key, as last seen (FR-A18: where the entry's time went). @type {Map<string,EntryStep>} */
   const seenSteps=new Map();
   const steps=()=>[...seenSteps.values()];
+  /** The longest time each boot operation was seen to take, across documents (FR-A18). @type {Map<string,number>} */
+  const seenSpans=new Map();
+  const spans=()=>[...seenSpans].map(([operation,ms])=>({operation,ms}));
   /** @param {string} why */
   const refuse=why=>{
     const lines=[`Phone WebKit entry ${why} after ${Math.round((now()-start)/1000)} s`,
       `  loading card: ${state?.loading??'(none)'}`,
       ...(state?.error?[`  engine error card: ${state.error}`]:[]),
       ...(seenSteps.size>0?[`  slowest steps: ${slowestSteps(steps())}`]:[]),
+      ...(seenSpans.size>0?[`  longest boot operations: ${slowestSpans(spans())}`]:[]),
       ...seen.errors.map(line=>`  page ${line}`),
       ...seen.failed.map(line=>`  request ${line}`)];
     return new Error(lines.join('\n'));
@@ -67,7 +90,8 @@ export async function waitForEntry(page,seen,{timeout=240_000,poll=1000,now=Date
       throw refuse(`stopped: the page went away (${error instanceof Error?error.message:String(error)})`);
     }
     for(const step of state.steps??[])if(step.key!=='gap')seenSteps.set(step.key??step.label,step);
-    if(state.entered)return {...state,steps:steps(),seconds:Math.round((now()-start)/1000)};
+    for(const span of state.spans??[])seenSpans.set(span.operation,Math.max(seenSpans.get(span.operation)??0,span.ms));
+    if(state.entered)return {...state,steps:steps(),spans:spans(),seconds:Math.round((now()-start)/1000)};
     if(state.error!==null)throw refuse('stopped: the engine showed its error card');
     if(now()-start>=timeout)throw refuse(`timed out (${Math.round(timeout/1000)} s)`);
     await sleep(poll);
