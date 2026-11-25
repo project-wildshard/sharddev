@@ -61,6 +61,18 @@ describe('pinRefusals', () => {
     expect(pinRefusals(withOverrides({ '@wildshard/kit>@wildshard/shard-format': '0.68.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0', 'other>left-alone': '1.0.0' }), pins)).toEqual([]);
   });
 
+  // sdk-migrate F5 (t16, R2 journey): sdk and cli moved to 0.5.0 by hand, dev left at 0.4.31.
+  it('refuses a family pin that is not the installed sdk\'s own version, naming the pin and the upgrade', () => {
+    const family = sdkPins(folder({ version: '0.6.0', dependencies: { '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0' } }));
+    const mixed = folder({ devDependencies: { '@wildshard/sdk': '0.6.0', '@wildshard/cli': '0.6.0', '@wildshard/dev': '0.4.31', '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0' } });
+    expect(pinRefusals(mixed, family).map(refusal => refusal.message)).toEqual([
+      'package.json pins @wildshard/dev 0.4.31, but this wildshard is sdk 0.6.0; the sdk packages move together. Run `wildshard upgrade 0.6.0`, or pin every @wildshard package at one version (SDK-SPLIT SP15)']);
+    // One version everywhere, under the sharddev alias and in a bare override too, passes.
+    const whole = folder({ devDependencies: { '@wildshard/sharddev': 'npm:@wildshard/sdk@0.6.0', '@wildshard/kit': '0.6.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0' }, pnpm: { overrides: { '@wildshard/build': '0.6.0' } } });
+    expect(pinRefusals(whole, family)).toEqual([]);
+    expect(pinRefusals(folder({ devDependencies: { '@wildshard/sharddev': 'npm:@wildshard/sdk@0.5.1' } }), family)).toHaveLength(1);
+  });
+
   it('judges only against the installed SDK, so a newer format or engine on npm needs no shard commit', () => {
     // The shard pins the SDK exactly; npm has format 0.69.0 and engine 0.1.70 now, and nothing in the shard changes.
     const onSdk = shard('0.68.0', '0.1.66');
