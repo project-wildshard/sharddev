@@ -16,6 +16,13 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.6.0 (2026-11-25)
+
+- **Breaking:** `build-shards` refuses a map input that names no file; `wildshard upgrade 0.6.0` drops such inputs.
+- `wildshard update` runs the repo's own `agents:sync`, so a kit repo's check passes straight after an upgrade.
+- `wildshard check` refuses @wildshard packages pinned at different versions, and names the pin to move.
+- The 0.5.0 migration now lists the old `public/` paths left in code, tests and map inputs under `src/`.
+
 ## v0.5.1 (2026-11-25)
 
 - `wildshard upgrade` keeps a repo's `engines.node` upper bound (`>=24.18.0 <25`); 0.5.0 wrote `>=24.18.0`, which let CI pick Node 26.
