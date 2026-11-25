@@ -3,7 +3,7 @@
 // Driftwood delegates to its registered rock-scene producer; no runtime table remains.
 // Nalati retains the existing two-tier recorder and verification path.
 //
-// node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake-geometry.mjs [--check | --verify] [slug…]
+// node --import ./scripts/bake-loader.mjs scripts/bake-geometry.mjs [--check | --verify] [slug…]
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

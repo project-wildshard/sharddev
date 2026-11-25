@@ -10,7 +10,7 @@
 // Every run bakes in memory and writes only differing bytes; --check (bake-check.mjs) fails when a source changed
 // without a rebake.
 //
-//   node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake-voxel-ao.mjs [--check | --verify] [slug…]
+//   node --import ./scripts/bake-loader.mjs scripts/bake-voxel-ao.mjs [--check | --verify] [slug…]
 //   (--verify: build as the page does, with the committed table, and fail unless every AO call is answered by it)
 import { spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';

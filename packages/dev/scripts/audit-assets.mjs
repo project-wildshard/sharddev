@@ -109,7 +109,7 @@ if (tier) {
   process.stdout.write(JSON.stringify(rows));
 } else if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
-    const rows = ['phone', 'desktop'].flatMap((value) => JSON.parse(execFileSync(process.execPath, ['--experimental-transform-types', '--import', './scripts/bake-loader.mjs', 'scripts/audit-assets.mjs', `--collect=${value}`], { cwd: root, encoding: 'utf8' })));
+    const rows = ['phone', 'desktop'].flatMap((value) => JSON.parse(execFileSync(process.execPath, ['--import', './scripts/bake-loader.mjs', 'scripts/audit-assets.mjs', `--collect=${value}`], { cwd: root, encoding: 'utf8' })));
     const publicFile = (url) => resolve(root, url.startsWith('/src/') ? '.' : 'public', `.${url.split('#')[0]}`);
     const errors = auditInventory(rows, (url) => existsSync(publicFile(url)));
     // Licenced audio has its attribution beside its inventory. CC0/procedural art needs no credit row.

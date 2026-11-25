@@ -1980,6 +1980,22 @@ because `"from"` names it. Check after: `wildshard build-shards` passes.
 A baked map whose stamp is now stale is named by the build: rebake it,
 and a map a generator paints is rebuilt with the shard.
 
+#### migrate-0-7-0
+
+Node 26. From 0.7.0 the SDK runs on an engine that is plain
+strip-only TypeScript, so a shard repo runs on Node 24 or 26 and no
+longer passes `--experimental-transform-types` (Node 26 refuses it).
+The internal `@wildshard/sdk/internal/engine/game/looks/speciesBook`
+re-export is gone with the engine's packed species catalogue (FORMAT-PRUNE
+FP20); no shard repo read it at 0.7.0. The migration:
+
+- moves `engines.node` in `package.json` from `<25` to `<27`;
+- drops `--experimental-transform-types` from `package.json` scripts.
+
+Its manual steps name each other file that still passes the flag (a
+workflow, a script, a test that spawns node) and each import of the
+removed re-export. Check after: `pnpm test` passes on Node 26.
+
 ## 8. Primitives
 
 A **primitive** is engine code your shard switches on with data: no host list, no engine change. The server reads your

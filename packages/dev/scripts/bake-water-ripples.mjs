@@ -9,7 +9,7 @@
 // march. Raw bytes, not an image: no phone / KTX2 copy can make it lossy. Writes only differing bytes; --check
 // (bake-check.mjs) fails when stale.
 //
-//   node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake-water-ripples.mjs [--check]
+//   node --import ./scripts/bake-loader.mjs scripts/bake-water-ripples.mjs [--check]
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { byteWriter } from '@wildshard/engine/scripts/bake-output.mjs';

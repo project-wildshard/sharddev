@@ -45,7 +45,7 @@ async function witness(root, slug, mode, logs) {
   const out = resolve(logs, `${slug}-${mode}.out`), err = resolve(logs, `${slug}-${mode}.err`);
   const outFd = openSync(out, 'w'), errFd = openSync(err, 'w');
   try {
-    const child = spawn(process.execPath, ['--experimental-transform-types', '--import', './scripts/sim-node-loader.mjs', `test/proof/${slug}/run.mjs`, mode], { cwd: root, stdio: ['ignore', outFd, errFd] });
+    const child = spawn(process.execPath, ['--import', './scripts/sim-node-loader.mjs', `test/proof/${slug}/run.mjs`, mode], { cwd: root, stdio: ['ignore', outFd, errFd] });
     const [code] = await once(child, 'close');
     return { code, stdout: readFileSync(out, 'utf8'), stderr: readFileSync(err, 'utf8') };
   } finally { closeSync(outFd); closeSync(errFd); }

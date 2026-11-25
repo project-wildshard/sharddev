@@ -2,7 +2,7 @@
 // Trusted SF30 compiler: immutable admitted modules, never dynamic git operations.
 // G348: the shards it bakes and what each compiles come from their own data (`src/shards/<slug>/generators/moverBake.ts`,
 // `MOVER_BAKE`, schema `@wildshard/format/movers` `MoverBakeSchema`), never a table here.
-// node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake/movers.mjs [--shards=<slug>,…]
+// node --import ./scripts/bake-loader.mjs scripts/bake/movers.mjs [--shards=<slug>,…]
 import { compileMoverDriver } from '../../src/sharddev/compileMovers.ts';
 import { MOVER_DRIVER_MODULES } from '@wildshard/format/moverMotion';
 import { moverBake } from '@wildshard/format/movers';

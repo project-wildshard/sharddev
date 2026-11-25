@@ -31,7 +31,7 @@ command from `packages/sdk`.
 ## Authored script-port proofs
 
 The explicit CI-only numeric output proof is
-`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/channel-values.test.mjs`.
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --test test/ci/channel-values.test.mjs`.
 Six public consumer cases preserve signed zero, clocks, private
 recurrence, mutable source values and atomic refusal/recovery. The
 actual crab/thrall generators have their 300-frame equivalence proofs
@@ -39,7 +39,7 @@ in Driftwood and Pine. These tests keep 9.5-second full-body elapsed
 and timeout guards, outside hooks. They edit no runtime or pose source.
 
 The explicit CI-only observation proof is
-`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/headless-observation.test.mjs`.
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --test test/ci/headless-observation.test.mjs`.
 It uses public installed engine APIs, real workers, all offline ticks,
 an independent control and restored continuation, plus protocol fault
 and stream-ownership refusals. Every case keeps a 9.5-second limit.
@@ -210,7 +210,7 @@ the disposable installed fixture, never the live checkout or workspace.
 The explicit CI-only route proof runs after a real build:
 
 ```sh
-node --experimental-transform-types --test test/ci/owned-journey.test.mjs
+node --test test/ci/owned-journey.test.mjs
 ```
 
 It drives 1,800 actual input ticks, checks waypoint progress and grounded
@@ -329,7 +329,7 @@ are removed at the end. The reviewed SDK waiting ceiling is now 47.
 ## Installed keyed sky codec
 
 After the frozen install, run
-`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/keyed-sky-codec.test.mjs`.
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --test test/ci/keyed-sky-codec.test.mjs`.
 CI runs this explicitly outside hooks. Its 9.5-second timeout and elapsed
 assertion include actual package installation, all calculations and
 cleanup. The installed public author export packs every colour/gain byte
@@ -342,7 +342,7 @@ the original waiting SDK file remains for its owner to retire.
 ## Installed interaction placements
 
 Run the explicit CI-only case with
-`node --import @wildshard/engine/scripts/sim-node-loader.mjs --experimental-transform-types --test test/ci/interaction-placement.test.mjs`.
+`node --import @wildshard/engine/scripts/sim-node-loader.mjs --test test/ci/interaction-placement.test.mjs`.
 It resolves the public binding/reader from the actual packed SDK install,
 keeps original table law and order, checks immutable source rows, and
 retains every missing, duplicate, foreign, mismatched and nonfinite

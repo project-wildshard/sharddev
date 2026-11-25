@@ -33,7 +33,7 @@ test('native triangular author intake refuses incomplete, nonfinite and over-cap
 
 
 test('the bounded triangular field stays available under the original native renderer guard', () => {
-  const value = execFileSync(process.execPath, ['--experimental-transform-types', '--import', '@wildshard/engine/scripts/sim-node-loader.mjs', '--input-type=module', '-e',
+  const value = execFileSync(process.execPath, ['--import', '@wildshard/engine/scripts/sim-node-loader.mjs', '--input-type=module', '-e',
     "import {readNativeTriangleField} from './src/sharddev/bake/terrain.ts'; const field=readNativeTriangleField({resolution:2,x:0,z:0,size:1,heights:new Float32Array([0,1,2,3])}); if(field.sample(.25,.25)!==.75) throw new Error('Native triangle differs'); console.log('triangle-native');"], { encoding: 'utf8', timeout: 30_000 });
   expect(value.trim()).toBe('triangle-native');
 });

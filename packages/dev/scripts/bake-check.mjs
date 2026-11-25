@@ -24,10 +24,10 @@ if (only !== undefined && !NODE_BAKERS.includes(only)) { console.error(`bake-che
 if (only !== undefined && !nodeOnly) { console.error('bake-check: --only needs --node-only'); process.exit(64); }
 for (const baker of NODE_BAKERS) if (only === undefined || only === baker) {
   if (baker === 'directors') {
-    run(['--experimental-transform-types', '--import', './scripts/bake-loader.mjs', '--input-type=module', '-e', `import { runCli } from './src/sharddev/cli.ts'; await runCli(['build', 'src/shards/nalati-grasslands', '--behaviour-only', '--check']);`]);
+    run(['--import', './scripts/bake-loader.mjs', '--input-type=module', '-e', `import { runCli } from './src/sharddev/cli.ts'; await runCli(['build', 'src/shards/nalati-grasslands', '--behaviour-only', '--check']);`]);
   } else {
     const entry = baker.startsWith('pine-') ? `src/shards/pine-hollow/generators/bake-${baker}.mjs` : baker.startsWith('nalati-') ? `src/shards/nalati-grasslands/generators/bake-${baker === 'nalati-places' ? 'nalati-painted' : baker}.mjs` : `scripts/bake-${baker}.mjs`;
-    run(['--experimental-transform-types', '--import', './scripts/bake-loader.mjs', entry, '--check']);
+    run(['--import', './scripts/bake-loader.mjs', entry, '--check']);
   }
 }
 

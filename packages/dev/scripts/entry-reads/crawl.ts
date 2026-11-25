@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { KEYCHAIN_ARGS } from '../chromium-keychain.mjs';
-// Plain post-build bake: browser-lane.sh node --experimental-transform-types
+// Plain post-build bake: browser-lane.sh node
 // --import ./scripts/shard-platform-format.mjs scripts/entry-reads/crawl.ts
 // --base=http://127.0.0.1:4400 --pin=<landed full SHA> [--shards=a,b]
 // A fresh context per region/tier walks the maintained declared entry. No new

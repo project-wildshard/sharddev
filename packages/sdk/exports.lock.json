@@ -271,7 +271,6 @@
   "@wildshard/sdk/internal/engine/game/inventoryLaw",
   "@wildshard/sdk/internal/engine/game/ledger",
   "@wildshard/sdk/internal/engine/game/loadout/itemCatalogue",
-  "@wildshard/sdk/internal/engine/game/looks/speciesBook",
   "@wildshard/sdk/internal/engine/game/loot/Bounty",
   "@wildshard/sdk/internal/engine/game/loot/CoinMotion",
   "@wildshard/sdk/internal/engine/game/loot/Owned",

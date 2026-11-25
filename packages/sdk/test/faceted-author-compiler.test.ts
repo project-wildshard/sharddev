@@ -55,7 +55,7 @@ test('the actual author compiler runs beneath the unchanged native renderer guar
     import {BoxGeometry} from 'three'; const kit=new FacetedGeometryBuilder(1);
     kit.add(new BoxGeometry(1,1,1),'#abcdef');const g=kit.finish({ao:{floorY:0}});
     console.log(g.getAttribute('position').count);g.dispose();`;
-  const result = execFileSync(process.execPath, ['--experimental-transform-types', '--import', import.meta.resolve('@wildshard/engine/scripts/sim-node-loader.mjs'), '--input-type=module', '-e', source], { encoding: 'utf8', timeout: 30_000 });
+  const result = execFileSync(process.execPath, ['--import', import.meta.resolve('@wildshard/engine/scripts/sim-node-loader.mjs'), '--input-type=module', '-e', source], { encoding: 'utf8', timeout: 30_000 });
   expect(result.trim()).toBe('36');
 });
 

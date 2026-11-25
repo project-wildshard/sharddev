@@ -9,3 +9,11 @@ reading the re-export, and the refreshed census lets `sdk-exports check` pass.
 
 Left for the release lane: the engine pin (an engine next past `279b5ed0d`, none on npm yet) and format 0.79.3 (Node
 <27; not on npm yet), with `wildshardStagingClients` and devClient.test.ts naming the new build.
+
+Node 26 (QA 11-25 row 69's SDK half, opus-nalati2): every package's `engines.node` moves to `<27` and the 23 files
+that passed `--experimental-transform-types` stop (Node 26 refuses it; engine main is strip-only since `66fa7cd9e`).
+The removed export makes the next SDK a minor, so `codemods/0.7.0.mjs` (with `test/node26-codemod.test.ts` and GUIDE
+`migrate-0-7-0`) moves a shard repo's Node cap, drops the flag from its scripts and names every other file that passes
+it. On Node 26.13.1 against a linked engine main: typecheck green, sdk 1411 of 1413 (2 skipped), content green; dev
+fails only devClient (a linked engine is no prerelease) and dev-signal (a linked worktree has no
+`dist/dev-server/bundle.json`), both the engine pin's to clear.

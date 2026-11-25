@@ -9,7 +9,7 @@
 // Output: public/assets/baked/<slug>/navmesh.bin (format below; src/shared/engine/physics/navmesh.ts reads it) + navmesh.json (the
 // output hash and stats). Every run bakes in memory and writes only differing bytes. Offline: run it after a builder / terrain change and commit the output.
 //
-//   node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake-navmesh.mjs [--check] [slug…]
+//   node --import ./scripts/bake-loader.mjs scripts/bake-navmesh.mjs [--check] [slug…]
 //
 // Format (little-endian): 'WSNM' u32 version=1 · u32 layers · then per layer:
 //   f32 radius · f32 height · f32 climb · f32 cellSize · f32 cellHeight · f32 origin[3] · f32 tileSize · u32 tiles · per tile:

@@ -1,4 +1,4 @@
-// node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake-pickups.mjs [--check]
+// node --import ./scripts/bake-loader.mjs scripts/bake-pickups.mjs [--check]
 // GR9 / GR10 (a) (G798): a plain script, run by hand when pickups change; its outputs (src/client/game/data/pickupCatalogue.json
 // and public/assets/baked/common/pickups/*.bin) are committed files, not catalogue outputs. --check verifies them.
 import { createHash } from 'node:crypto';

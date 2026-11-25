@@ -6,7 +6,7 @@ import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-li
 // browser, no game page), harvested as prototypes with their placed copies, reduced by the SDK producer
 // (`@wildshard/sdk/bake/nearPlaceholder`) to a low-LOD budget, and merged over its terrain at L1 density (17 × 17 per
 // 125 m region) in its own far look: one draw, regions in TEXCOORD_0.x, no colliders.
-// node --experimental-transform-types --import ./scripts/bake-loader.mjs scripts/bake/near-placeholder.mjs <slug> [--report]
+// node --import ./scripts/bake-loader.mjs scripts/bake/near-placeholder.mjs <slug> [--report]
 //
 // G348: why this runner stays beside `wildshard build` (which bakes any shardfile's near row from its own terrain
 // collider and its L1 tiles' meshes, `projectPlaceholders`): the first-party hybrids (Driftwood, Nalati, Pine) have no

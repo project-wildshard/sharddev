@@ -14,7 +14,7 @@
     "wildshard": "./bin/wildshard.mjs"
   },
   "engines": {
-    "node": ">=24.18.0 <25"
+    "node": ">=24.18.0 <27"
   },
   "files": [
     "bin",

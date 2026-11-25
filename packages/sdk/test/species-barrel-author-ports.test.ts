@@ -32,6 +32,6 @@ test('barrel metadata preserves native complete identity and stays renderer-free
   expect(puzzleBarrelBody()).toEqual(BARREL_BODY);
   expect(puzzleBarrelBody().shape.cylinder.halfHeight).toBe(BARREL_HALF);
   const code = "import {puzzleBarrelBody} from '@wildshard/kit/bake/nativeInteractionFacts'; console.log(JSON.stringify(puzzleBarrelBody()));";
-  const result = execFileSync(process.execPath, ['--experimental-transform-types', '--import', import.meta.resolve('@wildshard/engine/scripts/sim-node-loader.mjs'), '--input-type=module', '-e', code], { encoding: 'utf8', timeout: 30_000 });
+  const result = execFileSync(process.execPath, ['--import', import.meta.resolve('@wildshard/engine/scripts/sim-node-loader.mjs'), '--input-type=module', '-e', code], { encoding: 'utf8', timeout: 30_000 });
   expect(JSON.parse(result)).toEqual(BARREL_BODY);
 });

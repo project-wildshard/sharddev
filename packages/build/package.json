@@ -4,7 +4,7 @@
   "description": "The build: read a shard source, run its generators, write and validate the shard file (SDK-SPLIT SP9c; the build verb, SP9d1). Engine-free; published with the sdk at one version (D5, SP12).",
   "type": "module",
   "engines": {
-    "node": ">=24.18.0 <25"
+    "node": ">=24.18.0 <27"
   },
   "bin": {
     "wildshard-build": "./dist/build.mjs"

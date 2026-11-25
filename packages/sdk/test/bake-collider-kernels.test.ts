@@ -56,6 +56,6 @@ test('all author collider kernels execute beneath the unchanged native renderer 
     const row={x:1,y:2,z:3,yaw:0.4,leanX:0.2,scale:1.3},geometry=new BoxGeometry(1,2,3);
     bakePlacedGeometry(geometry,row);const hull=bakeWorldHull([geometry],bakePlacementPose(row));
     console.log(JSON.stringify({kind:hull.kind,vertices:hull.points.length,support:bakeSupportPoints(geometry,new Matrix4()).length}));geometry.dispose();`;
-  const result = execFileSync(process.execPath, ['--experimental-transform-types', '--import', '@wildshard/engine/scripts/sim-node-loader.mjs', '--input-type=module', '-e', source], { encoding: 'utf8', timeout: 30_000 });
+  const result = execFileSync(process.execPath, ['--import', '@wildshard/engine/scripts/sim-node-loader.mjs', '--input-type=module', '-e', source], { encoding: 'utf8', timeout: 30_000 });
   expect(JSON.parse(result)).toEqual({ kind: 'hull', vertices: 72, support: 24 });
 });

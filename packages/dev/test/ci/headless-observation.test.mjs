@@ -16,7 +16,7 @@ const options = { timeout: 9500 };
 
 function host(mode) {
   return new TickWorkerHost(new URL('./fixtures/observation-worker.mjs', import.meta.url), { mode },
-    { tickMicros: 1000, commandsPerTick: 1 }, ['--experimental-transform-types', '--import', loader], 'advisory');
+    { tickMicros: 1000, commandsPerTick: 1 }, ['--import', loader], 'advisory');
 }
 
 test('offline observation retains every real step and an isolated restored continuation', options, async () => {
