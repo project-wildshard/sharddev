@@ -50,6 +50,18 @@ export function handwrittenIdentity(source: string): Identity {
   return { slug: identity.slug, name: identity.name };
 }
 
+// A lean repo keeps repo-kit's scripts and tests in its source's top-level scripts/ and test/ (repo-kit D31); a shard
+// file folder never holds either name (blobs, mounts, sections, shard.json and receipts), so they are not the shard file.
+const TOOLING = ['scripts', 'test'];
+/** `source` as format packs it: itself, or a copy beside `tar` without the tooling folders when it holds one. */
+function packable(source: string, tar: string): string {
+  if (!TOOLING.some(name => existsSync(resolve(source, name)))) return source;
+  const copy = `${tar}.source`;
+  rmSync(copy, { recursive: true, force: true });
+  cpSync(source, copy, { recursive: true, filter: from => !TOOLING.some(name => from === resolve(source, name)) });
+  return copy;
+}
+
 /**
  * Settle the hand-written folder `source` into `into` (the same folder, or a built folder it replaces): format's
  * `shard-format pack` measures every section again and validates the whole folder, and its tarball's files are written
@@ -58,8 +70,9 @@ export function handwrittenIdentity(source: string): Identity {
 export function settleHandwritten(source: string, into: string): string {
   const tar = `${into}.settle.tar`;
   mkdirSync(dirname(tar), { recursive: true });
+  const packed = packable(source, tar);
   try {
-    const done = spawnSync(process.execPath, [resolve(formatRoot(), 'src/cli/bin.mjs'), 'pack', source, '--out', tar], { encoding: 'utf8' });
+    const done = spawnSync(process.execPath, [resolve(formatRoot(), 'src/cli/bin.mjs'), 'pack', packed, '--out', tar], { encoding: 'utf8' });
     if (done.status !== 0) {
       const reason = `${done.stderr}${done.stdout}`.split('\n').find(line => line.startsWith('shard-format:')) ?? done.error?.message ?? `exit ${String(done.status)}`;
       throw new Error(`hand-written shard file does not pack: ${reason.replace(/^shard-format: /u, '')}`);
@@ -72,7 +85,10 @@ export function settleHandwritten(source: string, into: string): string {
       mkdirSync(dirname(target), { recursive: true });
       writeFileSync(target, bytes);
     }
-  } finally { rmSync(tar, { force: true }); }
+  } finally {
+    rmSync(tar, { force: true });
+    if (packed !== source) rmSync(packed, { recursive: true, force: true });
+  }
   return handwrittenIdentity(into).slug;
 }
 

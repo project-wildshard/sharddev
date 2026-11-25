@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- A hand-written source is a folder of JSON a person edits in place.
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Fixture output stays beneath the lane's repository scratch.
 import { join } from 'node:path';
 import { afterAll, expect, test } from 'vitest';
@@ -39,6 +39,20 @@ test('a hand-written creature composes on the seed and packs', () => {
     rabbit(source);
     expect(settleHandwritten(source, settled)).toBe('tiny');
     expect((read(settled, 'actors/species')['rows'] as { species: { id: string }[] }).species.map(row => row.id)).toEqual(['tiny.rabbit']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+}, 120_000);
+
+test('a lean repo\'s tooling beside the shard file (scripts/, test/) is not packed, and stays in the source', () => {
+  const root = fixtureRoot('handwritten-seed-'), source = join(root, 'tiny');
+  try {
+    writeHandwrittenSource(source, 'tiny');
+    mkdirSync(join(source, 'scripts', '.kit'), { recursive: true });
+    writeFileSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'), 'export {}\n');
+    mkdirSync(join(source, 'test', '.kit'), { recursive: true });
+    writeFileSync(join(source, 'test', '.kit', 'owned-scratch.mjs'), 'export {}\n');
+    expect(settleHandwritten(source, source)).toBe('tiny');
+    expect(existsSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'))).toBe(true);
+    expect(existsSync(join(source, 'test', '.kit', 'owned-scratch.mjs'))).toBe(true);
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 120_000);
 
