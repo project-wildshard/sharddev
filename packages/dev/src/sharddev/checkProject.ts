@@ -23,6 +23,7 @@ import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwri
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { engineMusicLine } from './engineMusic';
 import { admissionLine, type AdmissionApi } from './admissionLine';
+import { rewardCheck } from './rewardCheck';
 import { lintOutcome, runCheck, type CheckResult, type StepOutcome } from './check';
 import { pinRefusals, sdkPins } from './pinCheck';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
@@ -133,9 +134,11 @@ export async function checkProject(projectPath: string, outputPath: string | und
       const geometry = shardGeometry(checked.assets.values());
       layoutLine = vertexLayoutLine(geometry.copied);
       budgetLine = triangleBudgetLine(geometry);
-      const refusals = [...creatureCapRefusals(creatures), ...vertexLayoutRefusals(geometry.copied)];
-      return await Promise.resolve({ status: refusals.length === 0 ? 'pass' : 'fail', note, refusals,
-        warnings: [...spawnWarnings(checked.shard), ...creatureCapWarnings(creatures), ...triangleBudgetWarnings(geometry)] });
+      // FORMAT-PRUNE FP56: a catalogue reward the platform's /api/items.json refuses would refuse the whole shard at load.
+      const rewards = await rewardCheck(checked.shard.ledger, options.api);
+      const refusals = [...creatureCapRefusals(creatures), ...vertexLayoutRefusals(geometry.copied), ...rewards.refusals.map(message => ({ message }))];
+      return { status: refusals.length === 0 ? 'pass' : 'fail', note, refusals,
+        warnings: [...spawnWarnings(checked.shard), ...creatureCapWarnings(creatures), ...triangleBudgetWarnings(geometry), ...rewards.warnings.map(message => ({ message }))] };
     },
     prove: async (): Promise<StepOutcome> => {
       const tape = resolve(project, PROOF_FILE);
