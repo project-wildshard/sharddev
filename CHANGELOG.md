@@ -16,6 +16,10 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.6.2 (2026-11-25)
+
+- A shard's hero no longer goes stale when the kit re-stamps tooling: a top-level `scripts/` or `test/` is not hero content.
+
 ## v0.6.1 (2026-11-25)
 
 - Shards build on shard-format 0.79.2: grass card clumps may be left out, all of them or none.
