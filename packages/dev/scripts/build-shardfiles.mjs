@@ -22,7 +22,7 @@ import { orderFolderBuilds, readFolderBuildTimes, recordFolderBuildTimes } from 
 import { basisPreparer, prepareProductBuildTools } from '@wildshard/sdk/scripts/product-build-tools.mjs';
 import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
-import { runtimeCopyIssues, folderMapInput, publishFolderMap, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
+import { runtimeCopyIssues, folderMapInput, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
 import { isWorktreePath } from '@wildshard/sdk/scripts/worktree-ignore.mjs';
 import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
@@ -180,7 +180,9 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     if (strict && how !== 'built') await buildOne(['validate',destination]);
     const tiles = checkTileBake(root, name, destination);
     reportTileBake(root, name, destination);
-    if (map !== undefined && map.image === undefined) await publishFolderMap(root, name, destination, map.tilesHash);
+    // sdk 0.5.0: no public/ map alias. The product packs its generated map as a blob under /shardfiles/<slug>/,
+    // which dev, hero and upload read; the engine's publishFolderMap wrote <repo>/public/assets/<slug>/map/top.webp,
+    // which only the engine's own Vite app served, and it recreated public/ in every migrated shard repo.
     console.info(`tile bake: ${name} ${tiles.l0} L0/${tiles.l1} L1, 16 full 5x5 windows checked, ${Object.keys(tiles.debt).length} existing debt metrics`);
     console.info(`wildshard build: ${name} ${how === 'built' ? 'built' : `reused (${how})`} in ${((performance.now() - started) / 1000).toFixed(1)}s`);
     count++;
