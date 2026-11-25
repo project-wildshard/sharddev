@@ -215,10 +215,38 @@ async function liveEdit(
   expect(await serial(watch.url)).toBe(watch.serial)
 }
 
+// A gameplay edit is a new shell: a full product rebuild (17 s on hosted ci), the world restarted (the release serial
+// moves when the old world stops, before the new one is ready), then the page reloads into a cold boot (about 18 s
+// there). Wait for each of those, not one clock from the edit.
+async function reshellEdit(
+  page: Readonly<Page>,
+  watch: {
+    readonly url: string
+    readonly serial: number
+  },
+  change: {
+    readonly file: string
+    readonly from: string
+    readonly to: string
+  },
+): Promise<void> {
+  const reloaded = page.waitForEvent('load', { timeout: 60_000 })
+  edit(change.file, change.from, change.to)
+  await expect
+    .poll(async (): Promise<number> => await serial(watch.url), {
+      timeout: 45_000,
+    })
+    .toBeGreaterThan(watch.serial)
+  await reloaded
+  await page.waitForFunction(control, undefined, { timeout: 45_000 })
+}
+
 test('watch applies ground and collider edits and restarts the world for gameplay edits', async ({
   browser,
 }): Promise<void> => {
-  test.setTimeout(120_000)
+  // Hosted ci spends ~116 s before the last check: install and first build 29 s, a cold boot 27 s, two live edits 41 s,
+  // a new shell 17 s and a second cold boot 18 s (main run 45557997235, 11-25); 120 s failed 8 of 27 main runs.
+  test.setTimeout(180_000)
   await authorWorld(
     browser,
     'watch',
@@ -242,16 +270,11 @@ test('watch applies ground and collider edits and restarts the world for gamepla
         from: 'hx: W / 2, hy: Hh / 2, hz: 0.25, rotY: 0',
         to: 'hx: W / 2, hy: Hh / 2, hz: 0.3, rotY: 0',
       })
-      edit(
-        path.join(source, 'generators/quests.ts'),
-        "'Walk up to the hut door'",
-        "'Find the hut door'",
-      )
-      await expect
-        .poll(async (): Promise<number> => await serial(url), {
-          timeout: 25_000,
-        })
-        .toBeGreaterThan(watch.serial)
+      await reshellEdit(page, watch, {
+        file: path.join(source, 'generators/quests.ts'),
+        from: "'Walk up to the hut door'",
+        to: "'Find the hut door'",
+      })
       await expect(
         page.getByText('Find the hut door', { exact: true }).first(),
       ).toBeAttached({ timeout: 25_000 })
