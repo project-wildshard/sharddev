@@ -36,4 +36,4 @@ this repo's own decisions are D-numbers.
   First used for 0.5.0: a shard's mounted files move to
   `src/static/`. Gate: `packages/sdk/test/codemod-gate.test.ts`;
   procedure: `.agents/skills/sdk-breaking-release`. Plan
-  `docs/plans/opus-2026-11-24-sdk-migrate-static.md`.
+  `project/archive/2026-11-25-opus-2026-11-24-sdk-migrate-static.md`.

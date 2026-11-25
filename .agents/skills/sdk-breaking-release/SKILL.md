@@ -7,8 +7,9 @@ argument-hint: "What is changing? (one line)"
 # sdk-breaking-release
 
 > Written by: Claude (opus, session 015pj4Rw), 2026-11-25, SDK 0.5.0
-> plan M6 (`docs/plans/opus-2026-11-24-sdk-migrate-static.md`). The
-> sdk counterpart of engine `.agents/skills/breaking-release` §4.
+> plan M6
+> (`project/archive/2026-11-25-opus-2026-11-24-sdk-migrate-static.md`).
+> The sdk counterpart of engine `.agents/skills/breaking-release` §4.
 
 The rule (D29; Jake, 2026-11-24: *"0.4.$PATCH is non breaking, and
 0.5.0 is for breaking, we bump the minor on every break"*): a patch

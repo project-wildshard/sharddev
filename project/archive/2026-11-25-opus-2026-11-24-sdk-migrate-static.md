@@ -2,12 +2,15 @@
 
 > Written by: Claude (opus, session 015pj4Rw)
 
-> **State:** in progress, 2026-11-25. Jake approved the plan in session (plan mode, 2026-11-24 ~23:45 Cancún)
-> and said to build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7.
-> Done, on main: M1 to M6, S1 to S3, B1 (dry run clean on all 12 shard repos); SF1 in shard-format
-> `0ea842f`; R1 (0.5.0 on npm 11-25, 0.5.1 for `engines.node`); R2 (Driftwood `69ed5b0`, t16; outside-author journey passed 11-25 on a scratch copy). Open: R3
-> (the other 10, trial green on 8), R4 (Showcase, in the same roll), F1 to F5. Owner from 11-25 ~02:10 Cancún: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
-> finishing this whole plan"). By hc with t16 (015pj4Rw): R2 Driftwood is t16's; R1, R3 and R4 are 015pj4Rx's.
+> **State:** done, 2026-11-25, every row built (ask A7). M1 to M6, S1 to S3, B1 and SF1 (shard-format
+> `0ea842f`). R1: sdk 0.5.0, then 0.5.1 (`engines.node`). R2: Driftwood `69ed5b0` (t16), outside-author journey passed.
+> R3/R4: roll `sdk-0.5.1` landed in all 11 (dunes `4af9a46`+`745e98a`, nalati `79ed4b6`, nine-dragon `b4065d1`,
+> open-plots `91ce0b6`+`e87570d`, pine-hollow `3d9af38`, sky-reach `69e693a`+`b318ae8`, brasscap `737be3e`+`00dc26c`,
+> glowfen `02b4a82`, mirror-salt `2486fc3`, stranger `7a36e63`, showcase `7c0fe6d`+`a27e836`); products byte-identical to
+> 0.4.34 but each moved map's tilesHash; Showcase agent-sync `--check` passes, guide at docs/GUIDE.md. F1 `203899e2`,
+> F2 `5c2b4332`, F3 `439bcf7c` (a break: sdk 0.6.0 with codemods/0.6.0.mjs), F5 `bb36c8af`; all on npm as 0.6.0.
+> F4 `97be3eb2`, on Jake's word ("Yes, delete"). Owner: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
+> finishing this whole plan"); R2 by t16 (015pj4Rw).
 
 ## Why
 
