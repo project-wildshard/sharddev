@@ -620,8 +620,8 @@
 | `TemplateName` | type | @wildshard/sdk/internal/newProject | — |
 | `templateNamed` | function | @wildshard/sdk/internal/newProject | The template named by `--template`, or a refusal, thrown before anything is written. |
 | `TEMPLATES` | const | @wildshard/sdk/internal/newProject | SA16 (J314, J317): `new --template <name>`. `scene` (AP37a) is Mossgate Hollow's three.js scene module |
-| `writeEmptyShardSource` | function | @wildshard/sdk/internal/newProject | The bare shard source alone at `source`, with no repo around it (sdk API; tests build it in place). |
-| `writeNewProject` | function | @wildshard/sdk/internal/newProject | `new <dir> --empty`: the bare shard source as a whole repo. |
+| `writeEmptyShardSource` | function | @wildshard/sdk/internal/newProject | The bare shard file source (`emptyShardfile`) alone at `source`, with no repo around it (sdk API; tests build it in |
+| `writeNewProject` | function | @wildshard/sdk/internal/newProject | `new <dir> --empty`: the bare scene as a whole repo. |
 | `writeReferenceProject` | function | @wildshard/sdk/internal/newProject | `new <dir>`: the reference world (Mossgate Hollow, J434) as a whole repo. |
 | `writeShardRepo` | function | @wildshard/sdk/internal/newProject | `wildshard new <dir> [slug] [--template scene] [--empty]` (and the retired `blender` shape, for tests): a whole single-shard repo, its shard source at `src/`. |
 | `projectPerformancePolicy` | function | @wildshard/sdk/internal/performancePolicy | Offline policy is selected by host-owned checkout provenance, never by author slug or a product flag. |

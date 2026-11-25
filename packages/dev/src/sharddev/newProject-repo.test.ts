@@ -60,6 +60,21 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(shard.describe().identity.slug).toBe('my-scene');
   });
 
+  // A9: `--empty` is no gray void (emptyShardfile's flat 0.5 ground, no sky) but a bare scene shard: defineShard over one
+  // world.ts with a blue sky, flat green ground, a hemisphere light, a sun and the spawn, watched like any scene.
+  it('--empty gives a bare scene shard: sky, green ground, light, sun and spawn', async () => {
+    const repo = resolve(scratch, 'bare-scene');
+    await runCli(['new', repo, 'bare-scene', '--empty']);
+    expect(readdirSync(resolve(repo, 'src'), { recursive: true }).map(String).sort()).toEqual(['generators', 'generators/shard.ts', 'generators/world.ts', 'identity.json', 'shard.config.ts']);
+    const world = readFileSync(resolve(repo, 'src/generators/world.ts'), 'utf8');
+    for (const call of ['world.sky(', 'world.ground(', 'new HemisphereLight(', 'new DirectionalLight(', 'world.spawn(']) expect(world).toContain(call);
+    expect(world).not.toMatch(/import \* as/u);
+    expect((JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { scripts: Record<string, string> }).scripts).toEqual({ check: 'wildshard check .', watch: 'wildshard watch .' });
+    const { shard } = await import(resolve(repo, 'src/generators/shard.ts')) as { shard: { describe: () => { identity: { slug: string } } } };
+    expect(shard.describe().identity.slug).toBe('bare-scene');
+    expect(shardFolderName(resolve(repo, 'src'))).toBe('bare-scene');
+  });
+
   it('an unknown template refuses before writing, naming scene', async () => {
     const repo = resolve(scratch, 'unknown');
     await expect(runCli(['new', repo, '--template', 'x'])).rejects.toThrow(/unknown template x: leave out --template, or pass --template scene/u);

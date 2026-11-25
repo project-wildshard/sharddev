@@ -395,7 +395,7 @@ async function withDiscovery(project: string, manifest: unknown, values: Discove
     {url: discoveryUrl(folder), bytes: new TextEncoder().encode(`${packed.slice(0, -1)},"art":${JSON.stringify(Object.fromEntries(art))}}`)}]};
 }
 /** Create the runtime-free source layout without replacing existing work. */
-/** A bare shard source at `project` (`wildshard new --empty` writes the same one at a new repo's `src/`). */
+/** A bare shard file source (`emptyShardfile`) at `project`; `wildshard new --empty` writes a bare scene instead (A9). */
 export function newProject(project: string, slug: string): void { writeEmptyShardSource(project, slug); }
 
 /** OF9b4: the manifest without `species`, `spawns` and `faunaTuning`; a source with none of them comes back as it was. */

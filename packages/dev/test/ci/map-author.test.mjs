@@ -73,7 +73,7 @@ export default async function generate(ctx) {
 let baseline;
 test('the installed author owns its source inputs', cap, () => {
   run(['new', repo, 'map-isle', '--empty']);
-  rmSync(join(source, 'generators/output.ts'));
+  rmSync(join(source, 'generators/output.ts'), { force: true });
   writeFileSync(join(source, 'floor.glb'), floor);
   config();
 });

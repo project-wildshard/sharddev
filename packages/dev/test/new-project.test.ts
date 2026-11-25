@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve only owned author and output paths.
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
-import { buildProject } from '@wildshard/build/project';
+import { buildProject, newProject } from '@wildshard/build/project';
 import { SHARDFILE_VERSION } from '@wildshard/format/version';
 import { validateOutputProduct } from '@wildshard/sdk/outputProduct';
 import { writeNewProject } from '../../sdk/src/sharddev/newProject';
@@ -15,6 +15,10 @@ test('new projects build the current format from build-only data without a custo
     const repo = resolve(scratch, 'new-world'), project=resolve(repo,'src'), output = resolve(scratch, 'output');
     await runCli(['new', repo, 'new-world', '--empty']);
     expect(() => writeNewProject(repo, 'new-world')).toThrow('fresh directory');
+    // `--empty` is a bare scene (A9), whose generator returns its own output; build-only rows ride the bare shard file's
+    // `generators/output.ts` sidecar, so this author starts its `src/` from that fixture.
+    rmSync(project, { recursive: true, force: true });
+    newProject(project, 'new-world');
     // Add a real platform row through the generated sidecar, as an author would.
     writeFileSync(resolve(project, 'generators/output.ts'), `import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 export const output = { platform: emitPlatformSections(new Map([['actors/moves', [

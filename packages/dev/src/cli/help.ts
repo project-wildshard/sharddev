@@ -24,7 +24,8 @@ const VERBS: Readonly<Record<string, string>> = {
                        quest and its proof tape (--template scene, the
                        default; sdk and blender are retired: Blender makes
                        models, code makes the shard). --empty writes a
-                       bare shard source instead`,
+                       bare scene instead: blue sky, flat green
+                       ground, a sun`,
   upgrade: `upgrade [version] [dir]
                        Move the shard repo (dir: default the current
                        folder) to a newer sdk, npm's latest unless a

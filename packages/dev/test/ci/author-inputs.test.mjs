@@ -49,11 +49,11 @@ test('the author derives level metadata from its real packed discovery',{timeout
  cli(['pack',join(app,'base'),'--out',join(root,'base.tar')]);
  const files=readTar(readFileSync(join(root,'base.tar'))),entry=[...files].find(([name])=>name.endsWith('/discovery.json'));
  assert.ok(entry);manifest=JSON.parse(new TextDecoder().decode(entry[1])).data;assert.equal(manifest.slug,'input-isle');
- // This author chooses a generated output instead of the empty sidecar it owns.
- rmSync(join(source,'generators/output.ts'));
+ // This author chooses a generated output instead of a sidecar (a bare scene has none, A9).
+ rmSync(join(source,'generators/output.ts'),{force:true});
 });
 test('generated input bytes reach the admitted product through the installed build',{timeout:45_000},async()=>{
- writeFileSync(join(source,'assets/token.bin'),new Uint8Array([11]));config(token);
+ mkdirSync(join(source,'assets'),{recursive:true});writeFileSync(join(source,'assets/token.bin'),new Uint8Array([11]));config(token);
  const product=await build('token-a');assert.deepEqual([...await product.file('authored/token.bin')],[11]);
 });
 test('editing an author input invalidates generation without changing the prior product',{timeout:45_000},async()=>{

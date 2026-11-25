@@ -137,7 +137,7 @@ export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMP
   }
   const sorted = Object.fromEntries(Object.entries(dependencies).sort(([a], [b]) => a.localeCompare(b)));
   // AP22, AP37b: a scene-module repo gets `pnpm watch` (each saved edit swapped into the running page); the Template is one
-  // too now (AP36). The retired hand-written shape and a bare `--empty` source have no scene to watch.
+  // too now (AP36), and so is `--empty` (A9). The retired hand-written shape has no scene to watch.
   const scripts = scene ? { check: 'wildshard check .', watch: 'wildshard watch .' } : { check: 'wildshard check .' };
   // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
   return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
@@ -174,9 +174,9 @@ const HANDWRITTEN_LAYOUT = `- \`src/\` is the shard source, written by hand: a s
 
 function repoReadme(slug: string, template: RepoShape, empty: boolean): string {
   const handwritten = template === 'blender' && !empty;
-  const world = empty ? 'a bare shard source (`--empty`)' : template === 'scene' ? 'Mossgate Hollow, a three.js scene module'
+  const world = empty ? 'a bare scene (`--empty`): blue sky, flat green ground, a sun' : template === 'scene' ? 'Mossgate Hollow, a three.js scene module'
     : 'the hand-written Blender template (`blender-template`)';
-  const files = empty ? '`data/`, `generators/`,\n  `behaviour/` and `assets/`'
+  const files = empty ? '`identity.json` (the slug and name) and\n  `generators/` (`shard.ts` defines the shard, `world.ts` builds its scene;\n  `wildshard watch .` shows each save)'
     : '`identity.json` (the slug and name),\n  `generators/` (a file per region: `world.ts`, `yard.ts` and `garden.ts` the Hollow,\n  `meadow.ts`, `thicket.ts`, `bog.ts`, `quarry.ts`, `ridge.ts` and `downs.ts` the six round it; a file per mechanic:\n  `play.ts` the braziers, gates, lever, chest, rack and lift, `creatures.ts` and `fights.ts` the camps and fights,\n  `quests.ts` and `gameplay.ts` the quests and talks, `finds.ts` the finds; GUIDE.md section 2b lists them all;\n  `wildshard watch .` shows each save) and\n  `proof.json` (the proof tape `check` plays)';
   const layout = handwritten ? HANDWRITTEN_LAYOUT : `- \`src/\` is the shard source: \`shard.config.ts\` (the build entry), ${files}.
 - \`package.json\` pins \`@wildshard/cli\` (the \`wildshard\` command), the
@@ -232,7 +232,7 @@ export function repoAuthorLint(): string {
 /** Write the repo files around a shard source at `src/`: package.json, tsconfig, ignores, README, and the agent files
  * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
 function writeRepoFiles(project: string, slug: string, template: RepoShape, empty: boolean): void {
-  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template, registryVersions, !empty && template !== 'blender'));
+  writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template, registryVersions, empty || template !== 'blender'));
   // SDK 0.5.0 M5: the source `new` writes is this sdk's layout, so the repo starts migrated to it (migrations.ts).
   writeStamp(project, sdkPackage().version);
   // A hand-written repo holds no TypeScript to check.
@@ -265,7 +265,14 @@ function writeSceneSource(source: string, slug: string): void {
   writeFileSync(resolve(source, 'shard.config.ts'), `// The shard is one three.js scene module: \`generators/world.ts\`. \`wildshard build\` runs it as the generator;\n// \`wildshard watch\` reads its describe() and streams each saved edit to a running page.\nimport { shard } from './generators/shard';\n\nexport const generate: typeof shard = shard;\n// oxlint-disable-next-line import/no-default-export -- The author CLI executes this project entry.\nexport default generate;\n/** The decision scripts' AssemblyScript line budget (behaviour/warden.as). */\nexport const buildOptions = { asLineCeiling: 100 };\n`);
 }
 
-/** Write the runtime-free bare shard source (`new --empty`) into `source`. */
+/** A9: `new --empty`'s source, a bare scene shard (`empty-scene/`): `defineShard` over one `generators/world.ts` with a
+ * blue sky, flat green ground, a hemisphere light, a sun and the spawn, under this project's identity. */
+function writeEmptySceneSource(source: string, slug: string): void {
+  cpSync(resolve(import.meta.dirname, 'empty-scene'), source, { recursive: true, errorOnExist: true, force: false });
+  writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 1 }));
+}
+
+/** Write the runtime-free bare shard file source (`emptyShardfile`, no scene) into `source`: the sdk API's fixture. */
 function writeEmptySource(source: string, slug: string): void {
   for (const folder of ['generators', 'data', 'behaviour', 'assets']) mkdirSync(resolve(source, folder), { recursive: true });
   const identity = encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 1 }).trim();
@@ -276,7 +283,8 @@ function writeEmptySource(source: string, slug: string): void {
   writeFileSync(resolve(source, 'shard.config.ts'), `import declared from './generators/product';\n\n/** The build entry: the bare shard file \`generators/product.ts\` declares. */\nexport const product: typeof declared = declared;\n// oxlint-disable-next-line import/no-default-export -- The author CLI loads this build entry.\nexport default product;\n`);
 }
 
-/** The bare shard source alone at `source`, with no repo around it (sdk API; tests build it in place). */
+/** The bare shard file source (`emptyShardfile`) alone at `source`, with no repo around it (sdk API; tests build it in
+ * place). `new --empty` writes a bare scene instead (A9). */
 export function writeEmptyShardSource(source: string, slug: string): void {
   assertTarget(source, slug);
   writeEmptySource(source, slug);
@@ -289,7 +297,7 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
   mkdirSync(project, { recursive: true });
   const source = resolve(project, SHARD_SOURCE_FOLDER);
   try {
-    if (options.empty === true) writeEmptySource(source, slug);
+    if (options.empty === true) writeEmptySceneSource(source, slug);
     else if (template === 'blender') writeHandwrittenSource(source, slug);
     else writeSceneSource(source, slug);
     writeRepoFiles(project, slug, template, options.empty === true);
@@ -303,5 +311,5 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
 /** `new <dir>`: the reference world (Mossgate Hollow, J434) as a whole repo. */
 export function writeReferenceProject(project: string, slug: string): void { writeShardRepo(project, slug); }
 
-/** `new <dir> --empty`: the bare shard source as a whole repo. */
+/** `new <dir> --empty`: the bare scene as a whole repo. */
 export function writeNewProject(project: string, slug: string): void { writeShardRepo(project, slug, { empty: true }); }

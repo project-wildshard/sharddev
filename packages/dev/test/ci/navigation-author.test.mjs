@@ -74,7 +74,7 @@ async function navigation(directory) {
 }
 
 test('the installed author creates its real navigation project', { timeout: 45000 }, () => {
-  run(['new', repo, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts')); config();
+  run(['new', repo, 'marsh-road', '--empty']); rmSync(join(source, 'generators/output.ts'), { force: true }); config();
 });
 
 test('an installed author builds a real wetland road with dry queries', { timeout: 45000 }, async () => {

@@ -3,6 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve only owned author and output paths.
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, expect, test, vi } from 'vitest';
+import { newProject } from '@wildshard/build/project';
 import { runCli } from '../src/sharddev/cli';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 
@@ -20,6 +21,9 @@ beforeAll(async () => {
   project = resolve(repo, 'src');
   vi.spyOn(console, 'info').mockImplementation(() => undefined);
   await runCli(['new', repo, 'my-isle', '--empty']);
+  // `--empty` is a bare scene (A9); these errors are the bare shard file's (`generators/product.ts` and its sidecar).
+  rmSync(project, { recursive: true, force: true });
+  newProject(project, 'my-isle');
 });
 afterAll(() => { vi.restoreAllMocks(); rmSync(scratch, { recursive: true, force: true }); });
 

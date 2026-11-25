@@ -1,7 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Spawn the planned oxlint run over a scaffolded repo.
 import { spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold new repos into a scratch folder and link their packages.
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync } from 'node:fs';
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the scratch repos and this sdk checkout.
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -20,7 +20,15 @@ describe('a new repo lints from its first check (TC-NE4)', () => {
   it.each([['scene', {}], ['empty', { empty: true }]] as const)('%s: the config names the installed sdk\'s plugins and the source passes it', (name, options) => {
     const repo = resolve(scratch, name);
     writeShardRepo(repo, `lint-${name}`, options);
-    const config = readFileSync(resolve(repo, AUTHOR_LINT_CONFIG), 'utf8');
+    let config = readFileSync(resolve(repo, AUTHOR_LINT_CONFIG), 'utf8');
+    // A9: the bare scene passes the strictest gate too (shard-showcase's): nursery rules and unused disables are errors.
+    // (Type-aware needs oxlint-tsgolint, which this suite does not install; A9's receipt has that run.)
+    if (name === 'empty') {
+      config = config.replace('"nursery": "off"', '"nursery": "error"').replace('"reportUnusedDisableDirectives": "off"', '"reportUnusedDisableDirectives": "error"');
+      expect(config).toContain('"nursery": "error"');
+      expect(config).toContain('"reportUnusedDisableDirectives": "error"');
+      writeFileSync(resolve(repo, AUTHOR_LINT_CONFIG), config);
+    }
     expect(config).toContain('"./node_modules/@wildshard/sdk/lint/engine-plugin.mjs"');
     expect(config).toContain('"./node_modules/@wildshard/sdk/lint/sdk-plugin.mjs"');
     expect(config).not.toMatch(/src\/shards\/\*\/|"\.\/lint\/|\$schema/u);
