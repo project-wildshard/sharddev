@@ -275,6 +275,7 @@
     "./internal/newProject": "./src/sharddev/newProject.ts",
     "./internal/agentFiles": "./src/sharddev/agentFiles.ts",
     "./internal/updatePins": "./src/sharddev/updatePins.ts",
+    "./internal/migrations": "./src/sharddev/migrations.ts",
     "./internal/scene/hash": "./src/sharddev/scene/hash.ts",
     "./internal/nativeHuntSource": "./src/sharddev/nativeHuntSource.ts",
     "./internal/combatSource": "./src/sharddev/combatSource.ts",

@@ -427,6 +427,7 @@
   "@wildshard/sdk/internal/journalIconSource",
   "@wildshard/sdk/internal/lint/host-files",
   "@wildshard/sdk/internal/materialGraphFiles",
+  "@wildshard/sdk/internal/migrations",
   "@wildshard/sdk/internal/nativeHuntSource",
   "@wildshard/sdk/internal/newProject",
   "@wildshard/sdk/internal/performancePolicy",

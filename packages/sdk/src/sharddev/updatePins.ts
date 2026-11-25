@@ -8,7 +8,8 @@ import { basename, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 // oxlint-disable-next-line import/no-nodejs-modules -- The new sdk's CLI runs under this same Node.
 import process from 'node:process';
-import { assertShardRepo, updateShardRepo } from './agentFiles';
+// `.ts`: migrations.ts loads this module straight under Node (the bin's status and migration gate), with no bundle.
+import { assertShardRepo, updateShardRepo } from './agentFiles.ts';
 
 // SHARD-AUTHORING SA18 (J314 Q7, Q27; J317 Q16): `wildshard update --pins[=<version>] [dir]`. Move the repo's pins to one
 // sdk release (the sdk, and the shard-format, engine and three specs that release pins), install with pnpm, apply the
@@ -43,7 +44,8 @@ export interface PinsRunner {
   readonly log: (line: string) => void;
 }
 
-const SEMVER = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/u;
+/** A release version `x.y.z[-pre]`. */
+export const SEMVER = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/u;
 /** Compare two versions `x.y.z[-pre]`: negative, zero or positive. A prerelease sorts before its release. */
 export function compareVersions(a: string, b: string): number {
   const left = SEMVER.exec(a), right = SEMVER.exec(b);
@@ -192,16 +194,25 @@ function githubTarget(pin: SdkPin & { readonly github: NonNullable<SdkPin['githu
  * `({ project, from, to }) => void | string[] | Promise<…>` that edits the shard repo for that release. */
 export const CODEMODS_FOLDER = 'codemods';
 
-/** The codemods for a move `from` → `to`: every `<v>.mjs` with from < v <= to, oldest first. */
-export function codemodsBetween(sdkRoot: string, from: string, to: string): string[] {
+/** One release codemod the installed sdk ships: its version and its file. */
+export interface CodemodFile { readonly version: string; readonly file: string }
+
+/** Every `codemods/<version>.mjs` in the sdk at `sdkRoot`, oldest first. */
+export function codemodFiles(sdkRoot: string): CodemodFile[] {
   const folder = resolve(sdkRoot, CODEMODS_FOLDER);
   if (!existsSync(folder)) return [];
   return readdirSync(folder)
     .map(file => /^(.+)\.mjs$/u.exec(file)?.[1])
-    .filter((version): version is string => version !== undefined && SEMVER.test(version)
-      && compareVersions(version, from) > 0 && compareVersions(version, to) <= 0)
+    .filter((version): version is string => version !== undefined && SEMVER.test(version))
     .sort(compareVersions)
-    .map(version => resolve(folder, `${version}.mjs`));
+    .map(version => ({ version, file: resolve(folder, `${version}.mjs`) }));
+}
+
+/** The codemods for a move `from` → `to`: every `<v>.mjs` with from < v <= to, oldest first. */
+export function codemodsBetween(sdkRoot: string, from: string, to: string): string[] {
+  return codemodFiles(sdkRoot)
+    .filter(({ version }) => compareVersions(version, from) > 0 && compareVersions(version, to) <= 0)
+    .map(({ file }) => file);
 }
 
 /** Apply each codemod from `codemodsBetween` to `project`, in order; returns what each says it changed. */

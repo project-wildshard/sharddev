@@ -202,6 +202,7 @@
     "./internal/newProject": "internal",
     "./internal/agentFiles": "internal",
     "./internal/updatePins": "internal",
+    "./internal/migrations": "internal",
     "./internal/scene/hash": "internal",
     "./internal/nativeHuntSource": "internal",
     "./internal/combatSource": "internal",
