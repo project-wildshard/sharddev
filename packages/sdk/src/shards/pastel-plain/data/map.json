@@ -122,6 +122,7 @@
     "../../sharddev/projectOutput.ts",
     "../../sharddev/quests.ts",
     "../../sharddev/reportCard.ts",
+    "../../sharddev/retiredSections.ts",
     "../../sharddev/returnProjectionV2.ts",
     "../../sharddev/rows.ts",
     "../../sharddev/runtimeImports.ts",
