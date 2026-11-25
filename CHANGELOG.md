@@ -16,6 +16,14 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.5.0 (2026-11-25)
+
+- **Breaking:** a shard repo's `public/` moves into `src/static/`, builds go to `out/<slug>`; `wildshard upgrade 0.5.0` moves it.
+- Every command says when an sdk migration has not run in a repo, and `wildshard migrate` runs it.
+- `wildshard upgrade` moves a repo to a new sdk in one step; `update --pins` still works as its old name.
+- `wildshard status` shows the installed sdk and any pending migration, and new repos show it at session start.
+- `wildshard new --empty` starts from a blue sky over flat green ground instead of a gray void.
+
 ## v0.4.34 (2026-11-25)
 
 - A shard publish that stalls while the zone loads now says what the page was waiting on, and stops at once on an engine error.
