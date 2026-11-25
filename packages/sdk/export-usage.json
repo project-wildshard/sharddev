@@ -1,5 +1,5 @@
 {
- "at": "2026-11-23T05:14:16.704Z",
+ "at": "2026-11-25T08:08:28.908Z",
  "repos": [
   "shard-brasscap",
   "shard-driftwood",
@@ -11,8 +11,7 @@
   "shard-open-plots",
   "shard-pine-hollow",
   "shard-showcase",
-  "shard-sky-reach",
-  "shard-templates"
+  "shard-sky-reach"
  ],
  "users": {
   "@wildshard/build/project": [
@@ -51,6 +50,15 @@
   ],
   "@wildshard/dev/scripts/*": [
    "shard-nalati"
+  ],
+  "@wildshard/dev/test/node": [
+   "shard-mirror-salt"
+  ],
+  "@wildshard/dev/test/proof": [
+   "shard-mirror-salt"
+  ],
+  "@wildshard/dev/test/quest": [
+   "shard-mirror-salt"
   ],
   "@wildshard/dev/test/scriptScenario": [
    "shard-driftwood",
@@ -491,6 +499,233 @@
    "shard-pine-hollow",
    "shard-sky-reach"
   ],
+  "@wildshard/sdk/headless": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/app/resources": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/headless/app/scope": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/headless/core/tier": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/headless/game/shardCook": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/game/shardfile/outputDescriptor": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/game/shardfile/serverPack": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/game/systems/viewmodel/armRig": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/headless/game/types": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/headless/host/headless": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/host/headlessFolder": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/host/headlessJourney": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/headless/host/headlessRuntime": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/host/headlessSections": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/host/headlessTape": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/host/tickProtocol": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/physics/rapier": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/authored-manifest.mjs": [
+   "shard-dunes",
+   "shard-nine-dragon",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/bake-input-hashes.mjs": [
+   "shard-nalati",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/headless/scripts/bake-loader.mjs": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/headless/scripts/bake-output.mjs": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/headless/scripts/built-folder.mjs": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/debug-settings.mjs": [
+   "shard-brasscap",
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/headless/scripts/format-hook.mjs": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/frame-floor-grid.mjs": [
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/headless/scripts/frame-floor-navigation.mjs": [
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/headless/scripts/frame-floor-settings.mjs": [
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/headless/scripts/native-recorder-cache.mjs": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/headless/scripts/program-discovery.mjs": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/shard-outputs.mjs": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/shardfile-inputs.mjs": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/headless/scripts/sim-node-loader.mjs": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/scripts/tile-bake-report.mjs": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/headless/sim/snapshot": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/headless/test/FakeGame": [
+   "shard-nalati",
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/headless/world/Heightfield": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/headless/world/terrainHeight": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
   "@wildshard/sdk/immutable": [
    "shard-driftwood",
    "shard-dunes",
@@ -503,8 +738,745 @@
    "shard-driftwood",
    "shard-pine-hollow"
   ],
+  "@wildshard/sdk/internal/engine/ai/BossBrain": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/eliteRoster": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/eliteScript": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/hunt": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/pinning": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/reach": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/strikeRows": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/strikes": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/ai/weighted": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/app/identity": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/app/runtime": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/boot/plan": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/combat/bowDraw": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/combat/bowLaw": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/combat/contactWeapon": [
+   "shard-dunes"
+  ],
+  "@wildshard/sdk/internal/engine/combat/pipeline": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/combat/projectileFlight": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/combat/projectileLaw": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/combat/sweptMeleeCore": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/core/bootstrap": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/core/byteCodec": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/core/deflate": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/core/fixedStep": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/core/gpuOnly": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/core/portableMath": [
+   "shard-driftwood",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/core/portableMathFirst": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/core/practiceRoom": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/core/practiceRoomState": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/core/workSlice": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/entities/animalPose": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/entities/animalRig": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/entities/AnimalSim": [
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/entities/animalStates": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/entities/AnimalView": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/entities/species/look": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/entities/species/registry": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/entities/species/rigs": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/fx/groundFx": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/arenaCollision": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/arenaGround": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/arenaPortal": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/arenaRoomRows": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/arenaRoomView": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/headlessArenaViews": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/headlessCloudBody": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/native": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/nativeArenaSand": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/openArenaFight": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/openArenaNative": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/patrolNative": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/slotLaw": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/boss/slotsNative": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/compendium/rules": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/eliteSystem": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/grid/assembly": [
+   "shard-nine-dragon",
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/internal/engine/game/grid/simulation": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/game/identity": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/inventoryLaw": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/ledger": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/loadout/itemCatalogue": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/looks/speciesBook": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/Bounty": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/coinAmounts": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/coinBurstState": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/coinModel": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/CoinMotion": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/deaths": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/exchange": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/Owned": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/Purse": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/loot/tableRows": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/binarySource": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/fixedDraws": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/islandLibrary": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/pickupRows": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/specimenCatalogue": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/models/worldSceneCatalogue": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/animation": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/bakedGeometry": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/bossPhase": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/channelPrograms": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/channels": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/creatureFrame": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/director": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/geometry": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/moduleHash": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/mover": [
+   "shard-dunes"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/nativeItems": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/quests": [
+   "shard-dunes",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/scene": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/simulation": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/game/plugin/ui": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/actorProjectionV2": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/census": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/encounterBook": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/encounterIntake": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/environment": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/groupNotices": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/nativeBake": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/returnProgram": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/population/spawnScript": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/carriedRound": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/chapterDecision": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/chapterFlow": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/chapterRecords": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/contractBoard": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/contracts": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/declared": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/effectPresentation": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/effects": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/figureOrbit": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/interactionRows": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/nativeComposition": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/nativeInputs": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/quest/questObservation": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/riding/companions": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/riding/native": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/riding/nativePopulation": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/riding/nativeTaming": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/riding/pastureCues": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/saves": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/game/shard/context": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shard/declaredRows": [
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/bakedTiles": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/buildingCloud": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/buildingDoor": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/customSchema": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/declaredPortalRide": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/entryOwners": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/groupRuntime": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/lentLooks": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/nativeAssembly": [
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/nativeAssemblyHosts": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/nativeAssemblyInput": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/nativePlan": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/nativeRuntimeLoans": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/sceneDressing": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/sceneHandles": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/serverSkinRigs": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/shardFolder": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/skinPlayback": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/wholeGeometryPieces": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/game/shardfile/worldAssembly": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/stealth/stealthLaw": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/systems/npc/figureRows": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/systems/npc/kitFigure": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/game/weapons/heldBowBase": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/weapons/heldLauncher": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/game/weapons/nativeHeld": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/host/author": [
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/host/formatJsonSchema": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/host/openWorld": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/host/tickWorkerHost": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/input/netButtons": [
+   "shard-nine-dragon",
+   "shard-open-plots"
+  ],
+  "@wildshard/sdk/internal/engine/models/model": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/models/nativeGeometry": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/models/place": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/net/client": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/net/room": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/net/simWorld": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/net/transport": [
+   "shard-nine-dragon"
+  ],
+  "@wildshard/sdk/internal/engine/physics/box": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/physics/heightPatch": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/physics/mover": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/physics/navmesh": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/physics/query": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/physics/surface": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/player/firstPersonArms": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/player/modes": [
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/quest/core": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/quest/dialogueClock": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/quest/discovery": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/quest/players": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/saves/store": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/script/decision": [
+   "shard-driftwood",
+   "shard-dunes"
+  ],
+  "@wildshard/sdk/internal/engine/script/decisionModule": [
+   "shard-dunes"
+  ],
+  "@wildshard/sdk/internal/engine/script/groupStepV2": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/script/host": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/script/moduleV2": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/script/viewLane": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/sim": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/sim/actRoutes": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/sim/cableTraversal": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/sim/encounterRows": [
+   "shard-brasscap"
+  ],
+  "@wildshard/sdk/internal/engine/sim/leadPlayer": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/sim/restore": [
+   "shard-brasscap",
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/sim/shardRows": [
+   "shard-brasscap",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/sim/shore": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/test/builtFolder": [
+   "shard-dunes",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless-native": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless-worker": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/admittedFolderCache": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/checkedReplayPipeline": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/folderSession": [
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/nativeBounds": [
+   "shard-driftwood",
+   "shard-nine-dragon",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/processUsage": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/test/headless/ropeBodies": [
+   "shard-driftwood",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/test/simState": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-nalati",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "@wildshard/sdk/internal/engine/world/interact/barrel": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/world/interact/flags": [
+   "shard-nalati",
+   "shard-pine-hollow"
+  ],
+  "@wildshard/sdk/internal/engine/world/interact/prompts": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/world/lowpolyKit": [
+   "shard-driftwood"
+  ],
+  "@wildshard/sdk/internal/engine/world/registry": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/world/scalarChannel": [
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/world/skyRig": [
+   "shard-driftwood",
+   "shard-nalati"
+  ],
+  "@wildshard/sdk/internal/engine/world/steppeWind": [
+   "shard-nalati"
+  ],
   "@wildshard/sdk/internal/materialGraphFiles": [
    "shard-driftwood",
+   "shard-nalati",
    "shard-nine-dragon"
   ],
   "@wildshard/sdk/kit/bakedGeometry": [
@@ -530,7 +1502,8 @@
   "@wildshard/sdk/materials": [
    "shard-brasscap",
    "shard-glowfen",
-   "shard-mirror-salt"
+   "shard-mirror-salt",
+   "shard-showcase"
   ],
   "@wildshard/sdk/math/portableMath": [
    "shard-driftwood",
@@ -566,12 +1539,16 @@
    "shard-pine-hollow"
   ],
   "@wildshard/sdk/package.json": [
+   "shard-brasscap",
    "shard-driftwood",
    "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
    "shard-nalati",
    "shard-nine-dragon",
    "shard-open-plots",
    "shard-pine-hollow",
+   "shard-showcase",
    "shard-sky-reach"
   ],
   "@wildshard/sdk/phasedBoss": [
@@ -648,7 +1625,8 @@
   "@wildshard/sdk/scene/author": [
    "shard-brasscap",
    "shard-glowfen",
-   "shard-mirror-salt"
+   "shard-mirror-salt",
+   "shard-showcase"
   ],
   "@wildshard/sdk/scene/canvas": [
    "shard-brasscap",
@@ -665,7 +1643,8 @@
   "@wildshard/sdk/scene/shard": [
    "shard-brasscap",
    "shard-glowfen",
-   "shard-mirror-salt"
+   "shard-mirror-salt",
+   "shard-showcase"
   ],
   "@wildshard/sdk/sections": [
    "shard-driftwood",
@@ -677,8 +1656,7 @@
    "shard-nine-dragon"
   ],
   "@wildshard/sdk/spawns": [
-   "shard-driftwood",
-   "shard-pine-hollow"
+   "shard-driftwood"
   ],
   "@wildshard/sdk/species": [
    "shard-driftwood",
@@ -770,7 +1748,6 @@
    "shard-nine-dragon",
    "shard-open-plots",
    "shard-pine-hollow",
-   "shard-showcase",
    "shard-sky-reach"
   ],
   "verb:check": [
@@ -786,8 +1763,14 @@
    "shard-showcase",
    "shard-sky-reach"
   ],
+  "verb:dev": [
+   "shard-showcase"
+  ],
   "verb:memory": [
    "shard-nine-dragon"
+  ],
+  "verb:new": [
+   "shard-showcase"
   ],
   "verb:prepare": [
    "shard-brasscap",

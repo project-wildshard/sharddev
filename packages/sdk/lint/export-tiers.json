@@ -204,7 +204,6 @@
     "./internal/updatePins": "internal",
     "./internal/migrations": "internal",
     "./internal/scene/hash": "internal",
-    "./internal/nativeHuntSource": "internal",
     "./internal/combatSource": "internal",
     "./internal/test/ownedScratch": "internal",
     "./internal/harvestSource": "internal",
