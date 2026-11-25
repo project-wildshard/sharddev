@@ -43,7 +43,7 @@ function dropInput(text, input) {
   const key = /"inputs"\s*:\s*\[/u.exec(text);
   if (key === null) return undefined;
   const start = key.index + key[0].length, end = text.indexOf(']', start);
-  if (end < 0) return undefined;
+  if (end === -1) return undefined;
   const span = text.slice(start, end);
   // The element and the comma after it (with its line, when it has one), else the comma before it (the last element).
   const before = span.replace(new RegExp(`(?:\\n[ \\t]*)?${quoted}\\s*,[ \\t]*`, 'u'), '');
