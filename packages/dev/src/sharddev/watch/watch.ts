@@ -30,6 +30,7 @@ import { spawn, type ChildProcess } from 'node:child_process';
 import { acceptSocket, type WatchSocket } from './socket';
 import { diagnosticNow } from '@wildshard/sdk/internal/diagnosticClock';
 import { DEV_ROOT } from '../devRoot';
+import { takePageReport } from '../pageReports';
 
 
 /**
@@ -371,6 +372,7 @@ export async function watchProject(project: string, options: { port?: number; cl
         response.setHeader('Content-Type', kind === 'part' || kind === 'gameplay' ? 'application/json' : 'application/octet-stream');
         response.end(body); return;
       }
+      if (takePageReport(path, request, response, log, 'wildshard watch')) return;
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
       // AP17: the client's service worker would serve a reloaded page its cached index.html, which has no page script (and
       // an older shell); a watched page runs without one, so watch serves one that removes itself

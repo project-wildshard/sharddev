@@ -11,6 +11,7 @@ import { Scope } from '@wildshard/engine/app/scope';
 import { scratchDir } from '@wildshard/sdk/scripts/scratch-dir.mjs';
 import { createDevWorld, DEV_RELEASE, type DevWorld } from '../../scripts/dev-world.mjs';
 import { renderDevMap } from './devMap';
+import { takePageReport } from './pageReports';
 
 // NEW-SHARD-E2E F18: a new build opens the same page under a new `devrev`, not location.reload(): Chromium reports a reload
 // (or a same-URL replace) as navigation type `reload`, which engine's lastEnd reads as the player's own reload and sends to the title.
@@ -128,6 +129,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
       if (path === '/__wildshard_dev_revision') {
         response.setHeader('Content-Type', 'application/json'); response.end(JSON.stringify({ revision, error })); return;
       }
+      if (takePageReport(path, request, response, (line) => { console.error(line); }, 'wildshard dev')) return;
       if (request.method !== 'GET' && request.method !== 'HEAD') { response.writeHead(405); response.end(); return; }
       // NEW-SHARD-E2E F19: no service worker on a dev page. Once one controls the tab, the next load of the page (a rebuild's
       // reload, or the URL typed again) is answered from its cache with the app's own shell, not this build's page with its

@@ -7,3 +7,8 @@
 - F40: prepare printed `-> tmp/wildshard-prepare-*/recording.json`, a folder it deletes before it exits. Prepare now
   passes `--scratch` to the recorder, whose line then says `recorded` with no path.
 - F40 lands on its own: `scripts/recording-line.mjs` formats the recorder's line, with a vitest for both forms.
+- GUIDE: check records the built world's `look` in hero.json after a new hero, so the Uploading steps now run check
+  before commit; a commit made first left hero.json dirty and the upload refused it as uncommitted.
+- OB10b (meta MMO-OBSERVABILITY): `wildshard dev` and `watch` answered the page's `/api/errors` and `/api/telemetry`
+  posts with 405. `pageReports.ts` takes both (204, 413 over 64 KB) and prints each error in the terminal. Proved on
+  a local watch: a thrown page error printed `wildshard watch: page error [window]: Error: ...`.
