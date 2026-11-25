@@ -223,6 +223,21 @@ describe('wildshard update and the agent files (SA28)', () => {
     expect(agentSync(project, '--check').status).toBe(0);
   });
 
+  // sdk-migrate F1 (t16, Driftwood's 0.5.0 upgrade): a repo with its own agents:sync script gets it run, so its own
+  // check passes straight after update instead of refusing .claude/settings.json and .codex/hooks.json as out of date.
+  it('in an agent-sync repo with an agents:sync script, update runs it and sync --check passes at once', () => {
+    const project = orgRepo('org-shard-synced');
+    const pkg = JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as Record<string, unknown>;
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify({ ...pkg, scripts: { 'agents:sync': `node ${JSON.stringify(AGENT_SYNC)} --root .` } }, null, 2)}\n`);
+
+    const lines = updateShardRepo(project);
+
+    expect(lines.at(-1)).toMatch(/^ {2}ran pnpm agents:sync: /u);
+    for (const name of SKILLS) expect(readlinkSync(resolve(project, `.claude/skills/${name}`))).toBe(`../../.agents/skills/${name}`);
+    const check = agentSync(project, '--check');
+    expect(check.status, `${String(check.stdout)}${String(check.stderr)}`).toBe(0);
+  });
+
   it('in an agent-sync repo writes AGENTS.md for that layout when it is missing, and leaves a default-layout link with its fix', () => {
     const project = orgRepo('org-old');
     rmSync(resolve(project, AGENTS_FILE));

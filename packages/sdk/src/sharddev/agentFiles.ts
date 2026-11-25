@@ -1,3 +1,5 @@
+// oxlint-disable-next-line import/no-nodejs-modules -- `update` runs the repo's own agents:sync (sdk-migrate F1).
+import { spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- `new` and `update` own only a shard repo's agent files.
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, symlinkSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the shard repo and the installed sdk.
@@ -234,7 +236,18 @@ export function updateShardRepo(project: string, root: string = SDK_ROOT, option
   const skills = touched.some(change => change.action === 'added' && change.file.startsWith('.agents/skills/'));
   if (hook || skills) {
     const what = [hook ? `${AGENT_SYNC_LOCAL_SPEC} has the SessionStart hook, and sync writes it into .claude/settings.json and .codex/hooks.json` : '', skills ? 'sync links the new .agents/skills folders from .claude/skills' : ''].filter(Boolean);
-    lines.push(`  run pnpm agents:sync: ${what.join('; ')}`);
+    lines.push(runAgentSync(project) ?? `  run pnpm agents:sync: ${what.join('; ')}`);
   }
   return lines;
+}
+
+/** sdk-migrate F1 (t16, Driftwood): a repo with its own `agents:sync` script gets it run, so its check passes straight
+ * after update, upgrade or migrate (`.claude/settings.json is out of date` otherwise). The line to print, or undefined
+ * when the repo has no such script or it failed (then update prints the hint to run it). */
+function runAgentSync(project: string): string | undefined {
+  let scripts: unknown;
+  try { scripts = (JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { scripts?: unknown }).scripts; } catch { return undefined; }
+  if (typeof scripts !== 'object' || scripts === null || typeof (scripts as Record<string, unknown>)['agents:sync'] !== 'string') return undefined;
+  const ran = spawnSync('pnpm', ['run', '--silent', 'agents:sync'], { cwd: project, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'], timeout: 120_000 });
+  return ran.status === 0 ? '  ran pnpm agents:sync: .claude/settings.json, .codex/hooks.json and the .claude/skills links follow .agents/' : undefined;
 }
