@@ -29,3 +29,6 @@
   there): `update --guide docs/GUIDE.md` wrote 8 files, none under
   `.claude/`; `agent-sync --check` was red until `agents:sync`, green
   after it; a second `update` said "already up to date".
+- Exit: A8's status now names `b6214533`. Rolling it into Showcase
+  (`--guide docs/GUIDE.md`, `agents:sync`) is row R4 of the
+  sdk-migrate-static plan, after 0.5.0 ships.

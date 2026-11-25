@@ -5,7 +5,8 @@
 > **State:** in progress, 2026-11-25. Jake approved the plan in session (plan mode, 2026-11-24 ~23:45 Cancún)
 > and said to build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7.
 > Done on `plan/sdk-migrate`: M1 to M6, S1 to S3, B1 (dry run clean on all 12 shard repos); SF1 in shard-format
-> `0ea842f`. Open: R1 (release 0.5.0), R2 (Driftwood), R3 (the other 11).
+> `0ea842f`. Open: R1 (release 0.5.0), R2 (Driftwood), R3 (the other 11), R4 (Showcase's agent-sync
+> layout, A8).
 
 ## Why
 
@@ -97,6 +98,7 @@ Build output defaults to `out/<slug>`.
 | **R1** | Release 0.5.0 on the normal train (repo-kit `release.sh`); CHANGELOG `## v0.5.0` opens with **Breaking:**. | `@wildshard/sdk@0.5.0` on npm |
 | **R2** | Driftwood: record its product hash on 0.4.x, `wildshard upgrade 0.5.0`, do the manual steps, commit and push. | Product hash identical; `check .` passes from a fresh clone with no `public/`; ci green; the outside-author journey in Verification passes on a scratch copy |
 | **R3** | The other 11, in parallel after R2: Dunes, Nalati, Nine Dragon, Open Plots, Pine Hollow, Sky Reach, Showcase (each moves a `public/`); Brasscap, Glowfen, Mirror Salt, Stranger (stamp and gitignore only). Brasscap only after SF1. | Each repo: product hash identical, `check` passes, ci green, no `public/` left |
+| **R4** | Ask A8 (`b6214533`): Showcase is on repo-kit's agent-sync. In its R3 upgrade, also run `wildshard update --guide docs/GUIDE.md` and `pnpm agents:sync`, and commit the four `.agents/skills/wildshard*` folders, their `.claude/skills` links and `docs/GUIDE.md`. | In shard-showcase: `node src/scripts/.kit/agent-sync.mjs --check` passes, no root `GUIDE.md`, `package.json` has `"wildshard": { "guide": "docs/GUIDE.md" }` |
 
 Order: M1, S1, S2 and SF1 start together; M2 to M6 follow M1; S3 follows
 S1; B1 follows M1 and S1; R1 follows everything in sharddev; R2 follows
