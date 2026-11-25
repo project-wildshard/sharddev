@@ -16,12 +16,15 @@ import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
 import {preparationSaveSeed} from './preparation-seed.mjs';
-import {waitForEntry,watchPage} from './entry-wait.mjs';
+import {slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
 import {recordingLine} from './recording-line.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
 const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), scratch=args.includes('--scratch'), slugs=args.filter(arg=>!arg.startsWith('--'));
 if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs --base <url> [--check] <slug>...');
+// FR-A18: the phone's pixel density (iPhone 16 Pro: 3). WILDSHARD_PREPARATION_DENSITY overrides it for a measured trial.
+const density=Number(process.env.WILDSHARD_PREPARATION_DENSITY??devices['iPhone 16 Pro'].deviceScaleFactor);
+if(!(density>0&&density<=3))throw new Error('WILDSHARD_PREPARATION_DENSITY is a pixel density from above 0 to 3');
 
 /** Every program linked between the tap and control, in link order (the page's own WebGL2 calls, read in place). */
 async function record(browser,slug){
@@ -31,7 +34,7 @@ async function record(browser,slug){
     const flags=await(await fetch(new URL('/build-flags.json',base))).json();
     if(flags.devserver!==false)throw new Error('Preparation needs a production-renderer preview, with DEVSERVER off');
   }
-  const context=await browser.newContext({...devices['iPhone 16 Pro']});
+  const context=await browser.newContext({...devices['iPhone 16 Pro'],deviceScaleFactor:density});
   try{
     // The served epoch owns this fresh diagnostic context. The installed SDK
     // may predate that epoch; never write fixtures through its old namespace.
@@ -92,7 +95,9 @@ async function record(browser,slug){
       }
     }
     // FR-A13: the same 240 s at most, but an engine error card or a crash stops it at once, and a refusal names the wait.
-    await waitForEntry(page,seen);
+    const entry=await waitForEntry(page,seen);
+    // FR-A18: where the entry's time went, in every prepare log (Nalati took 210 to 260 s on Linux runners, 40 on macOS).
+    if(entry.steps.length>0)console.log(`${slug}: entered in ${entry.seconds} s at pixel density ${density}; slowest steps: ${slowestSteps(entry.steps)}`);
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
     const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
     const renderer=await page.evaluate(()=>globalThis.__WS_RENDERER_REVISION__);

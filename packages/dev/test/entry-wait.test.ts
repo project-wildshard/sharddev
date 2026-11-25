@@ -1,6 +1,6 @@
 // FAST-RELEASE FR-A13: the recorder's entry wait names what the page waited on and stops early on a failed page.
 import { expect, test } from 'vitest';
-import { waitForEntry } from '../scripts/entry-wait.mjs';
+import { slowestSteps, waitForEntry } from '../scripts/entry-wait.mjs';
 
 type State = { entered: boolean, error: string | null, loading: string | null };
 function fixture(states: State[], { crashAt = -1, goneAt = -1 } = {}) {
@@ -44,4 +44,22 @@ test('a crashed or closed page stops the wait', async () => {
   await expect(waitForEntry(crashed.page, crashed.seen, crashed.options)).rejects.toThrow(/page crashed after 3 s/u);
   const gone = fixture([loading('Shaders')], { goneAt: 1 });
   await expect(waitForEntry(gone.page, gone.seen, gone.options)).rejects.toThrow(/page went away .*closed/u);
+});
+
+// FR-A18: Nalati's phone WebKit entry took 210 to 260 s on Linux runners against 40 on macOS, and no log said where. The
+// wait keeps the last step rows the card showed (each with its ms) and names the slowest on entry and on a refusal.
+const steps = (rows: [string, number][]): State => ({ entered: false, error: null, loading: 'Shaders', steps: rows.map(([label, ms]) => ({ key: label.toLowerCase(), label, ms })) } as State);
+test('an entry returns its slowest steps from every row the card showed, as last seen, and its seconds', async () => {
+  // the card shows only the running phase's rows: Region world's row is gone by the time Shaders runs
+  const { page, seen, options } = fixture([steps([['Region world', 2_000]]), steps([['Region world', 3_100]]), steps([['Shaders', 150_200], ['Joining', 400]]),
+    { entered: true, error: null, loading: null }]);
+  const entry = await waitForEntry(page, seen, options);
+  expect(entry.seconds).toBe(3);
+  expect(slowestSteps(entry.steps, 2)).toBe('Shaders 150.2 s, Region world 3.1 s');
+});
+
+test('a timeout names the slowest steps too', async () => {
+  const { page, seen, options } = fixture([steps([['Shaders', 239_000], ['Region world', 1_000]])]);
+  const error = await waitForEntry(page, seen, options).catch((caught: unknown) => caught as Error);
+  expect(error.message).toMatch(/slowest steps: Shaders 239\.0 s, Region world 1\.0 s/u);
 });

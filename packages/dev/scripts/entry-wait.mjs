@@ -5,14 +5,28 @@
 // 240 s at most, but stops as soon as the engine shows its error card or the page crashes, and every refusal names
 // what the page was waiting on: the loading card's line, the page's errors and failed requests.
 
-/** What the page shows now: entered, the engine's error card, and the loading card's line.
- * @returns {{entered:boolean,error:string|null,loading:string|null}} */
+/** @typedef {{key?:string,label:string,ms:number}} EntryStep */
+/** What the page shows now: entered, the engine's error card, the loading card's line and its step rows (label and ms).
+ * @returns {{entered:boolean,error:string|null,loading:string|null,steps?:EntryStep[]}} */
 export function entryState(){
-  const text=(/** @type {Element|null} */el)=>el?.textContent?.replace(/\s+/gu,' ').trim().slice(0,200)??null;
+  const text=(/** @type {Element|null|undefined} */el)=>el?.textContent?.replace(/\s+/gu,' ').trim().slice(0,200)??null;
   // @ts-ignore the engine's own debug handle
   const entered=window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load');
+  // FR-A18: each loading row carries its step's key and ms (engine Loading.ts `data-key`, `data-ms`). The card shows only the
+  // running phase's rows and is gone once the world is in, so the wait merges what each poll saw.
+  const steps=[...document.querySelectorAll('.ws-load [data-key][data-ms]')].map(row=>{
+    const {key='',ms}=/** @type {HTMLElement} */(row).dataset;
+    return {key,label:text(row.children[0])??'',ms:Number(ms)};
+  });
   return {entered,error:text(document.querySelector('.ws-load-error')),
-    loading:text(document.querySelector('.ws-load [data-el="line"]'))??text(document.querySelector('.ws-load'))};
+    loading:text(document.querySelector('.ws-load [data-el="line"]'))??text(document.querySelector('.ws-load')),steps};
+}
+
+/** FR-A18: the slowest loading steps, slowest first, for a log line: `Shaders 150.2 s, Region world 30.1 s`.
+ * @param {EntryStep[]} steps @param {number} [count] */
+export function slowestSteps(steps,count=6){
+  return steps.filter(step=>Number.isFinite(step.ms)&&step.ms>0).toSorted((a,b)=>b.ms-a.ms).slice(0,count)
+    .map(step=>`${step.label} ${(step.ms/1000).toFixed(1)} s`).join(', ');
 }
 
 /** Collects what a refusal must name. @param {import('playwright').Page} page */
@@ -33,11 +47,15 @@ export function watchPage(page){
 export async function waitForEntry(page,seen,{timeout=240_000,poll=1000,now=Date.now,sleep=ms=>new Promise(done=>setTimeout(done,ms))}={}){
   const start=now();
   /** @type {ReturnType<typeof entryState>|null} */ let state=null;
+  /** Every step row the card showed, by key, as last seen (FR-A18: where the entry's time went). @type {Map<string,EntryStep>} */
+  const seenSteps=new Map();
+  const steps=()=>[...seenSteps.values()];
   /** @param {string} why */
   const refuse=why=>{
     const lines=[`Phone WebKit entry ${why} after ${Math.round((now()-start)/1000)} s`,
       `  loading card: ${state?.loading??'(none)'}`,
       ...(state?.error?[`  engine error card: ${state.error}`]:[]),
+      ...(seenSteps.size>0?[`  slowest steps: ${slowestSteps(steps())}`]:[]),
       ...seen.errors.map(line=>`  page ${line}`),
       ...seen.failed.map(line=>`  request ${line}`)];
     return new Error(lines.join('\n'));
@@ -48,7 +66,8 @@ export async function waitForEntry(page,seen,{timeout=240_000,poll=1000,now=Date
       if(seen.crashed())throw refuse('stopped: the page crashed');
       throw refuse(`stopped: the page went away (${error instanceof Error?error.message:String(error)})`);
     }
-    if(state.entered)return state;
+    for(const step of state.steps??[])if(step.key!=='gap')seenSteps.set(step.key??step.label,step);
+    if(state.entered)return {...state,steps:steps(),seconds:Math.round((now()-start)/1000)};
     if(state.error!==null)throw refuse('stopped: the engine showed its error card');
     if(now()-start>=timeout)throw refuse(`timed out (${Math.round(timeout/1000)} s)`);
     await sleep(poll);
