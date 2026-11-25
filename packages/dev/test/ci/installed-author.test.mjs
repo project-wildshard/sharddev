@@ -19,9 +19,11 @@ const root = mkdtempSync(join(parent, 'installed-author-'));
 after(() => rmSync(root, { recursive: true, force: true }));
 const bin = installWildshard(root), app = join(root, 'app'), repo = join(app, 'isle'), source = join(repo, 'src');
 let cache = 0;
+// A spawn may take up to 14 s: `check` took 5.5 s on fast runners and 7.4 to 7.9 s on slow ones (9c658b97, 93515cf0,
+// 216bd54a), and bfbeecf7 hit the old 8 s cap. Each test keeps its own budget; only check's two get 15 s.
 function run(args, success = true, environment = {}) {
   const done = spawnSync(process.execPath, [bin, ...args], {
-    cwd: app, encoding: 'utf8', timeout: 8_000,
+    cwd: app, encoding: 'utf8', timeout: 14_000,
     // The quick author's day reuses its verified compiler. Ring 2 owns the
     // separate fully cold compiler + generation proofs on all real templates.
     env: { ...process.env, ...environment, WILDSHARD_GEN_CACHE: join(root, `generation-${cache++}`), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') },
@@ -120,7 +122,7 @@ test('installed validation accepts the outside author output', { timeout: 9_500 
   run(['validate', join(app, 'first')]);
 });
 // SA4: the loop's third step is one verb with one verdict; --json keeps stdout to the verdict document alone.
-test('installed check --json gives a verdict on the new author project', { timeout: 9_500 }, () => {
+test('installed check --json gives a verdict on the new author project', { timeout: 15_000 }, () => {
   const done = run(['check', source, join(app, 'checked'), '--json']);
   const result = JSON.parse(done.stdout);
   assert.equal(result.verdict, 'pass', done.stdout);
@@ -135,7 +137,7 @@ test('installed check --json gives a verdict on the new author project', { timeo
   assert.match(result.steps[1].note.split('; ', 1)[0], /outside-isle\.shardfile$/u);
   assert.equal(sha(shardfile), built);
 });
-test('installed check prints the draft warning once, in its verdict', { timeout: 9_500 }, () => {
+test('installed check prints the draft warning once, in its verdict', { timeout: 15_000 }, () => {
   const done = run(['check', source, join(app, 'checked')]);
   assert.equal(`${done.stdout}${done.stderr}`.match(/unprepared draft/gu)?.length, 1, done.stdout);
   assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(no preparation\)/mu);
