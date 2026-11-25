@@ -17,10 +17,6 @@ blob-report/
 tmp/
 .cache/
 out/
-/packages/sdk/public/assets/pastel-plain/map/top.webp
-/packages/sdk/public/assets/ink-cel-valley/map/top.webp
-/packages/sdk/public/assets/pastel-plain/entry-reads.json
-/packages/sdk/public/assets/ink-cel-valley/entry-reads.json
 /packages/sdk/src/shards/ink-cel-valley/discovery.generated.ts
 /packages/sdk/src/shards/pastel-plain/discovery.generated.ts
 
