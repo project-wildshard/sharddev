@@ -114,7 +114,7 @@ export async function prepareProduct(dir,base,inline=false){
     // engine browser-lane wrapper. Do not acquire a second nested browser slot.
     // Not spawnSync: with no --base this process serves the preview the recorder reads (SA43).
     const run=await new Promise(done=>{
-      const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,...(inline?['--inline']:[]),index.identity.slug],{stdio:['inherit','inherit','pipe'],timeout:300000});
+      const child=spawn(process.execPath,[script,'--base',base,'--out',out,'--header',hash(header),'--title',index.identity.name,'--scratch',...(inline?['--inline']:[]),index.identity.slug],{stdio:['inherit','inherit','pipe'],timeout:300000});
       let stderr='';
       const debug=process.env.WILDSHARD_PREPARATION_DEBUG==='1'||process.env.DEBUG?.includes('pw:');
       child.stderr.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-16384);if(debug)process.stderr.write(bytes);});

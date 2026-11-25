@@ -6,3 +6,4 @@
   check now finds the repo root above `public/shardfiles` and reads `src/shards/<slug>` or a single-shard `src/`.
 - F40: prepare printed `-> tmp/wildshard-prepare-*/recording.json`, a folder it deletes before it exits. Prepare now
   passes `--scratch` to the recorder, whose line then says `recorded` with no path.
+- F40 lands on its own: `scripts/recording-line.mjs` formats the recorder's line, with a vitest for both forms.

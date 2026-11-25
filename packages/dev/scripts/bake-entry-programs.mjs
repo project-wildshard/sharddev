@@ -17,9 +17,10 @@ import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mj
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
 import {preparationSaveSeed} from './preparation-seed.mjs';
 import {waitForEntry,watchPage} from './entry-wait.mjs';
+import {recordingLine} from './recording-line.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
-const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), slugs=args.filter(arg=>!arg.startsWith('--'));
+const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), scratch=args.includes('--scratch'), slugs=args.filter(arg=>!arg.startsWith('--'));
 if(base===null||slugs.length===0)throw new Error('usage: bake-entry-programs.mjs --base <url> [--check] <slug>...');
 
 /** Every program linked between the tap and control, in link order (the page's own WebGL2 calls, read in place). */
@@ -124,6 +125,6 @@ try{
     for(const [vs,fs] of pairs){const pair=[index(vs),index(fs)],key=pair.join(',');if(!seen.has(key)){seen.add(key);programs.push(pair);}}
     const list={version:2,build,lines,shaders,programs};
     writeFileSync(file,`${JSON.stringify(wantedHeader===null?list:{headerHash:wantedHeader,renderer,reads,hashes,programs:list})}\n`);
-    console.log(`${slug}: ${programs.length} programs, ${shaders.length} shaders, ${lines.length} lines, ${(readFileSync(file).length/1048576).toFixed(2)} MB -> ${file} (${build})`);
+    console.log(recordingLine({slug,programs:programs.length,shaders:shaders.length,lines:lines.length,bytes:readFileSync(file).length,file,build,scratch}));
   }
 }finally{await browser.close();}
