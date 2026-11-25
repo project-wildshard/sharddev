@@ -14,7 +14,7 @@ import { locatedError } from '@wildshard/sdk/internal/authorError';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { writeShardfile } from '@wildshard/upload/cli/shardfile/shardfile';
 import { refusalCode, refusalHint, refusalNote } from '@wildshard/upload/sharddev/refusals';
-import { findShardSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource';
+import { findShardSource, shardFolderName, shardImageRoots } from '@wildshard/upload/sharddev/shardSource';
 import { decisionLegacyLines } from '../../scripts/decision-legacy-lines.mjs';
 import { outputManifest, shardCardFile, shardOutputs } from '../../scripts/shard-outputs.mjs';
 import { runBuild, ShardfileRefusalError, type BuildVerbOptions } from './buildVerb';
@@ -33,7 +33,7 @@ function buildOptions(root: string, project: string, selected: string | undefine
   const manifest: ProjectManifestSource | undefined = !existsSync(resolve(project, 'shard.config.ts')) ? undefined : {
     folder: output?.slug ?? folder,
     ...(output !== undefined ? { composed: outputManifest(root, folder, output.row) } : card !== null ? { file: card } : {}),
-    imageRoots: [{ prefix: `/src/shards/${folder}/`, directory: project }, { prefix: '/assets/', directory: resolve(root, 'public/assets') }],
+    imageRoots: shardImageRoots(project, folder),
   };
   const legacy = decisionLegacyLines(root, folder);
   return {

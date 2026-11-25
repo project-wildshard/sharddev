@@ -10,7 +10,7 @@ import { newProject } from '@wildshard/build/project';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 
 // SHARD-AUTHORING SA44: a single-shard repo keeps its source at `src/` (J317), one folder below the repo root, where
-// `src/shards/<slug>/` is three. The build's mounts (`public/`), the hero's served name (`out/`) and the author lint
+// `src/shards/<slug>/` is three. The build's mounts (the source's `static/`, A7), the hero's served name (`out/`) and the author lint
 // find the repo and the shard from either layout, with the same result.
 const scratch = resolve(import.meta.dirname, '../tmp');
 mkdirSync(scratch, { recursive: true });
@@ -20,14 +20,14 @@ afterAll(() => { rmSync(base, { recursive: true, force: true }); });
 const SLUG = 'mount-isle', MOUNT = '/assets/mount-isle/sign.bin';
 const LAYOUTS = [['src', 'src'], ['shards', `src/shards/${SLUG}`]] as const;
 
-/** A repo whose shard (at `source`) mounts one `public/` file, as driftwood's `mounts.json` does. */
+/** A repo whose shard (at `source`) mounts one `static/` file, as driftwood's `mounts.json` does. */
 function repo(name: string, source: string): { root: string; shard: string } {
   // An empty source has no manifest.json, so a src/ source is named by its repo folder (SA16): name that the slug.
   const root = join(base, name, SLUG), shard = join(root, source);
   newProject(shard, SLUG);
   writeFileSync(join(root, 'package.json'), '{"name":"fixture","private":true}\n');
-  mkdirSync(join(root, 'public/assets/mount-isle'), { recursive: true });
-  writeFileSync(join(root, 'public', MOUNT.slice(1)), 'mounted bytes');
+  mkdirSync(join(shard, 'static/assets/mount-isle'), { recursive: true });
+  writeFileSync(join(shard, 'static', MOUNT.slice(1)), 'mounted bytes');
   writeFileSync(join(shard, 'mounts.json'), JSON.stringify({ version: 1, outputs: { [SLUG]: [MOUNT] } }));
   return { root, shard };
 }
@@ -53,7 +53,7 @@ describe('a shard at src/ finds its repo root (SA44)', () => {
     expect(shardRepoRoot(loose)).toBe(join(base, 'loose'));
   });
 
-  it('reads a mounts.json file from the repo public/ at src/, as at src/shards/<slug>/', () => {
+  it('reads a mounts.json file from the source static/ at src/, as at src/shards/<slug>/', () => {
     for (const { shard } of Object.values(repos)) {
       expect(readCookInput(shard, SLUG)?.mounts.map(row => [row.url, Buffer.from(row.bytes).toString()])).toEqual([[MOUNT, 'mounted bytes']]);
     }

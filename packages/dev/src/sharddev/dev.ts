@@ -76,7 +76,7 @@ export function devFile(dirs: readonly string[], shardRoot: string, path: string
   }
   return undefined;
 }
-/** SDK-SPLIT SP13f: a file under one of the manifest's image roots (`/assets/` is the repo's `public/assets/`), which a
+/** SDK-SPLIT SP13f: a file under one of the manifest's image roots (`/assets/` is the source's `static/assets/`), which a
  *  release serves beside the shard and the page asks for at run time (Signal Dunes' painted skies). */
 export function imageRootFile(manifest: ProjectManifestSource | undefined, path: string): { dir: string; file: string } | undefined {
   const root = manifest?.imageRoots.find(each => path.startsWith(each.prefix));

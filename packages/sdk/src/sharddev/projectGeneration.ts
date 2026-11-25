@@ -46,7 +46,7 @@ export interface ProjectGenerationStep {
   readonly inputs?: readonly string[];
   readonly native?: boolean;
 }
-/** Explicit filesystem capability for authored public assets; never inferred from a shard name or parent path. */
+/** Explicit filesystem capability for authored static assets; never inferred from a shard name or parent path. */
 export interface ProjectGenerationInputRoot { readonly prefix: string; readonly directory: string }
 /** GR9: a multi-output folder's build program for one output (`programs[slug]` beside `outputs` in shard.config.ts), run
  *  when that output builds: its world GLB bytes stand in for reading the declaration's `world.glb`, and its map lattice is

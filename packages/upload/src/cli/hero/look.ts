@@ -122,7 +122,7 @@ async function git(cwd: string, args: readonly string[]): Promise<string> {
 }
 
 /**
- * QA 11-23-b row 14: untracked files under the repo's `src/` or `public/` (assets a worktree holds but git does not)
+ * QA 11-23-b row 14: untracked files under the repo's `src/` (A7: its `static/` too; assets a worktree holds but git does not)
  * reach the product, so a look stamped beside them is not the look CI builds from the commit. Empty outside git.
  */
 async function untrackedInputs(shard: string): Promise<readonly string[]> {
@@ -134,7 +134,6 @@ async function untrackedInputs(shard: string): Promise<readonly string[]> {
       '--untracked-files=all',
       '--',
       'src',
-      'public',
     ])
     return status
       .split('\n')

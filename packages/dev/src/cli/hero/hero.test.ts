@@ -78,9 +78,9 @@ test('NB10: a source edit that builds the same world keeps the hero, re-stamped'
   )
 })
 
-// QA 11-23-b row 14 (meta): a worktree's untracked public/ assets reach its build but not CI's, so the look it would
+// QA 11-23-b row 14 (meta): a worktree's untracked static/ assets reach its build but not CI's, so the look it would
 // record is not the one CI builds from the commit (Dunes and Sky stopped on src/hero.json); the cut records nothing.
-/** The project committed to a new git repo, then one untracked asset under its public/. */
+/** The project committed to a new git repo, then one untracked asset under its source's static/ (A7). */
 async function committedWithLooseAsset(space: Project): Promise<void> {
   for (const args of [
     ['init', '-q'],
@@ -90,24 +90,31 @@ async function committedWithLooseAsset(space: Project): Promise<void> {
     execFileSync(
       'git',
       ['-c', 'user.email=t@example.invalid', '-c', 'user.name=t', ...args],
-      { cwd: space.root, stdio: 'ignore' },
+      {
+        cwd: space.root,
+        stdio: 'ignore',
+      },
     )
   }
-  await mkdir(path.join(space.root, 'public', 'assets'), { recursive: true })
+  await mkdir(path.join(space.shard, 'static', 'assets'), { recursive: true })
   await writeFile(
-    path.join(space.root, 'public', 'assets', 'loose.png'),
+    path.join(space.shard, 'static', 'assets', 'loose.png'),
     'not in git',
   )
 }
 
-test('a look is not recorded beside untracked src/ or public/ inputs', async (context: TestContext): Promise<void> => {
+test('a look is not recorded beside untracked src/ inputs', async (context: TestContext): Promise<void> => {
   const space = await project(context)
   await writeHeroStamp(space.shard, { base: BASE })
   await committedWithLooseAsset(space)
+  // The loose asset is the source's own content, so the hero is stamped over it: only its being untracked stops the cut.
+  await writeHeroStamp(space.shard, { base: BASE })
   const lines = await cut(space)
   assert.ok(
     lines.some((line: string): boolean =>
-      line.includes('untracked inputs (public/assets/loose.png)'),
+      line.includes(
+        'untracked inputs (src/shards/hero-test/static/assets/loose.png)',
+      ),
     ),
   )
   assert.doesNotMatch(

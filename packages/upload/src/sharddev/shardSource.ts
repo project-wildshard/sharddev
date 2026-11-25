@@ -47,7 +47,7 @@ export function isRepoSource(source: string): boolean {
 }
 
 /**
- * SA44: the repo a shard source sits in, where its `public/` and `out/` are. The two layouts name it: a single-shard
+ * SA44: the repo a shard source sits in, where its `out/` is. The two layouts name it: a single-shard
  * repo's `src/` is one folder below it and a multi-shard repo's `src/shards/<slug>/` three. Any other source takes the
  * nearest folder above it with a `package.json` or `.git`, else its own parent. Layout comes first, so a fixture under
  * some repo's `tmp/` is its own repo, as it always was.
@@ -60,6 +60,24 @@ export function shardRepoRoot(source: string): string {
     if (existsSync(resolve(at, 'package.json')) || existsSync(resolve(at, '.git'))) return at;
     if (dirname(at) === at) return given;
   }
+}
+
+/**
+ * A7 (sdk 0.5.0): where the files a shard mounts live. A mounted file named `/<path>` is `<source>/static/<path>`:
+ * `src/static/…` in a single-shard repo, `src/shards/<slug>/static/…` in a multi-shard one. The names a shard mounts
+ * (`/assets/…`, `/programs/…`) are the same as when these bytes sat in the repo's `public/`; only the folder moved.
+ */
+export function shardStaticRoot(source: string): string {
+  return resolve(source, 'static');
+}
+
+/**
+ * The image roots a build and `dev` give a shard source's manifest (SDK-SPLIT SP13f): `/src/shards/<folder>/` is the
+ * source itself, `/assets/` its `static/assets/` (A7). The prefixes never overlap, so a manifest image matches exactly
+ * one root (`projectManifest.ts`).
+ */
+export function shardImageRoots(source: string, folder: string): { prefix: string; directory: string }[] {
+  return [{ prefix: `/src/shards/${folder}/`, directory: source }, { prefix: '/assets/', directory: resolve(shardStaticRoot(source), 'assets') }];
 }
 
 /** Where build output lands for a shard source: the repo root for `src/`, the source folder itself otherwise. */

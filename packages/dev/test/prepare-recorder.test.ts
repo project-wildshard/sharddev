@@ -35,7 +35,7 @@ test('the mount recorder mounts every target the product texture table names, on
     };
     put('out/fen/mounts/shardfiles/fen/discovery.json', JSON.stringify({ native: { ktx2: { $call: 'pageModeKtx2', args: [table] } } }));
     for (const url of ['/assets/fen/creatures/wolf.rigged.glb', '/assets/gpu/fen/creatures/wolf.phone.rigged-0a1b2c3d.glb', '/assets/gpu/fen/creatures/wolf.rigged-4e5f6a7b.glb',
-      '/assets/gpu/fen/life/birds.phone-11aa22bb.glb', '/assets/gpu/fen/life/birds-33cc44dd.glb']) put(`public${url}`, 'glb');
+      '/assets/gpu/fen/life/birds.phone-11aa22bb.glb', '/assets/gpu/fen/life/birds-33cc44dd.glb']) put(`src/shards/fen/static${url}`, 'glb');
     const run = spawnSync(process.execPath, [resolve('scripts/record-shard-mounts.mjs'), `--root=${root}`, `--dist=${resolve(root, 'dist')}`], { encoding: 'utf8' });
     expect(run.stderr).not.toMatch(/Error/u);
     expect(run.status).toBe(0);

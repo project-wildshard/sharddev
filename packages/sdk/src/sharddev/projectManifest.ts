@@ -41,7 +41,7 @@ export async function readManifestSource(source: ProjectManifestSource, declared
     const generated = generatedMap !== undefined && url === authored.minimap.image;
     const matches = (generated ? source.imageRoots : roots).filter(root => url.startsWith(root.prefix)), root = matches[0];
     // NEW-SHARD-E2E F14: say where an image may live, not only that this one is in no image folder
-    if (matches.length !== 1 || root === undefined) throw new Error(`Manifest image needs exactly one declared root: ${url} is in no image folder. Name an image under ${(generated ? source.imageRoots : roots).map(r => r.prefix).join(' or ') || 'the shard source'} (a file in the shard source or its repo's public/assets/), or use a data: image; a scene shard (defineShard) needs no manifest.json at all, delete it`);
+    if (matches.length !== 1 || root === undefined) throw new Error(`Manifest image needs exactly one declared root: ${url} is in no image folder. Name an image under ${(generated ? source.imageRoots : roots).map(r => r.prefix).join(' or ') || 'the shard source'} (a file in the shard source or its static/assets/), or use a data: image; a scene shard (defineShard) needs no manifest.json at all, delete it`);
     const tail = url.slice(root.prefix.length);
     if (/[\\%?#]/u.test(tail) || tail.includes(String.fromCodePoint(0)) || tail.split('/').some(part => part === '' || part === '.' || part === '..')) throw new Error(`Manifest image path escapes its root: ${url}`);
     if (generated && generatedMap !== undefined) {

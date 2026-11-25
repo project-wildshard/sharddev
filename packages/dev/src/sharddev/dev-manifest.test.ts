@@ -17,7 +17,7 @@ afterAll(() => {
 // SDK-SPLIT SP13f: Signal Dunes' generators read `/assets/...` inputs; dev refused them ("Generation input needs exactly
 // one declared root") because only build handed the generation its manifest's image roots.
 test('dev builds with the manifest source build is given', async () => {
-  const manifest = { folder: 'dunes', imageRoots: [{ prefix: '/assets/', directory: resolve(scratch, 'public/assets') }] };
+  const manifest = { folder: 'dunes', imageRoots: [{ prefix: '/assets/', directory: resolve(scratch, 'static/assets') }] };
 
   const seen: unknown[] = [];
   const build = (_source: string, _target?: string, options?: unknown): Promise<never> => { seen.push(options); return Promise.reject(new Error('stop after the build call')); };
@@ -28,12 +28,12 @@ test('dev builds with the manifest source build is given', async () => {
 });
 
 test('dev serves a file under an image root, and nothing outside it', () => {
-  mkdirSync(resolve(scratch, 'public/assets/dunes/sky'), { recursive: true });
-  writeFileSync(resolve(scratch, 'public/assets/dunes/sky/dusk.webp'), 'sky');
-  writeFileSync(resolve(scratch, 'public/secret.txt'), 'no');
-  const manifest = { folder: 'dunes', imageRoots: [{ prefix: '/assets/', directory: resolve(scratch, 'public/assets') }] };
+  mkdirSync(resolve(scratch, 'static/assets/dunes/sky'), { recursive: true });
+  writeFileSync(resolve(scratch, 'static/assets/dunes/sky/dusk.webp'), 'sky');
+  writeFileSync(resolve(scratch, 'static/secret.txt'), 'no');
+  const manifest = { folder: 'dunes', imageRoots: [{ prefix: '/assets/', directory: resolve(scratch, 'static/assets') }] };
 
-  expect(imageRootFile(manifest, '/assets/dunes/sky/dusk.webp')?.file).toBe(resolve(scratch, 'public/assets/dunes/sky/dusk.webp'));
+  expect(imageRootFile(manifest, '/assets/dunes/sky/dusk.webp')?.file).toBe(resolve(scratch, 'static/assets/dunes/sky/dusk.webp'));
   expect(imageRootFile(manifest, '/assets/../secret.txt')).toBeUndefined();
   expect(imageRootFile(manifest, '/other/dusk.webp')).toBeUndefined();
   expect(imageRootFile(undefined, '/assets/dunes/sky/dusk.webp')).toBeUndefined();

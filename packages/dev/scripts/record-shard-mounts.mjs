@@ -1,27 +1,30 @@
 #!/usr/bin/env node
-// C0 (J137): record which public files each product owns, so a shardfile stands alone. A product's list goes to
+// C0 (J137): record which static files each product owns, so a shardfile stands alone. A product's list goes to
 // src/shards/<folder>/mounts.json; `writeOutputProduct` copies those files into the product under mounts/, and `cook` then
 // needs nothing from the tree. Run it over a finished build, after a change to what a shard reads:
 //   node scripts/record-shard-mounts.mjs [--root=<tree>] [--dist=dist] [--check]
-// A product reads a public file when its spawn manifests list it (the default and packs books, both tiers), its sections
+// A product reads a static file (its source's static/, A7: `shardStaticRoot`) when its spawn manifests list it (the default and packs books, both tiers), its sections
 // name it (or a folder holding it, or its tier variant), its boot inventory lists it, its legacy boot pack holds it, or it
 // sits in an audio folder named for the shard, or its texture table (discovery `native.ktx2`) names it as a stand-in. A file more than one shard folder reads belongs to the engine (the shared
 // sfx, the piano stings): it stays out of every list, and a product of the same folder may share one.
 import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { builtShardFolders } from '@wildshard/build/scripts/shard-outputs.mjs';
+import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
 const argument = (name) => process.argv.find(row => row.startsWith(`--${name}=`))?.slice(name.length + 3);
-// --root: the tree whose src/shards, public and out are recorded (a shard repo; this repo by default).
+// --root: the tree whose src/shards (each with its static/) and out are recorded (a shard repo; this repo by default).
 const root = resolve(argument('root') ?? resolve(import.meta.dirname, '..'));
 const dist = resolve(root, argument('dist') ?? 'dist'), check = process.argv.includes('--check');
-const publicRoot = resolve(root, 'public'), out = resolve(root, 'out');
+const out = resolve(root, 'out');
+/** A7: the folder a shard source's mounted files live in, `src/shards/<folder>/static`. */
+const staticOf = (folder) => shardStaticRoot(resolve(root, 'src/shards', folder));
 
 const bare = (url) => url.split('?')[0] ?? url;
-const onDisk = (url) => { const file = join(publicRoot, url.slice(1)); return existsSync(file) && statSync(file).isFile(); };
-const isFolder = (url) => { const file = join(publicRoot, url.slice(1)); return existsSync(file) && statSync(file).isDirectory(); };
-const filesUnder = (url) => readdirSync(join(publicRoot, url.slice(1)), { recursive: true, withFileTypes: true })
-  .filter(row => row.isFile()).map(row => `/${relative(publicRoot, join(row.parentPath, row.name)).split(sep).join('/')}`);
+const onDisk = (here, url) => { const file = join(here, url.slice(1)); return existsSync(file) && statSync(file).isFile(); };
+const isFolder = (here, url) => { const file = join(here, url.slice(1)); return existsSync(file) && statSync(file).isDirectory(); };
+const filesUnder = (here, url) => readdirSync(join(here, url.slice(1)), { recursive: true, withFileTypes: true })
+  .filter(row => row.isFile()).map(row => `/${relative(here, join(row.parentPath, row.name)).split(sep).join('/')}`);
 /** The tier and encoding variants the boot's `tierUrl` and stand-in table can read for a section's URL. */
 function variants(url) {
   const dot = url.lastIndexOf('.'), stem = url.slice(0, dot), extension = url.slice(dot);
@@ -29,8 +32,8 @@ function variants(url) {
   return [...rows, ...rows.map(row => row.replace(/^\/assets\//u, '/assets/gpu/'))];
 }
 /** A .gltf's external buffers and images, which load beside it. */
-function gltfParts(url) {
-  const body = JSON.parse(readFileSync(join(publicRoot, url.slice(1)), 'utf8')), folder = dirname(url);
+function gltfParts(here, url) {
+  const body = JSON.parse(readFileSync(join(here, url.slice(1)), 'utf8')), folder = dirname(url);
   return [...body.buffers ?? [], ...body.images ?? []].flatMap(row => typeof row.uri === 'string' && !row.uri.startsWith('data:') ? [`${folder}/${row.uri}`] : []);
 }
 function sectionUrls(slug) {
@@ -80,14 +83,14 @@ const products = builtShardFolders(root, folders).filter(row => existsSync(join(
 
 const reads = new Map(), folderOf = new Map(products.map(row => [row.slug, row.folder]));
 for (const { slug } of products) {
-  const pending = new Set();
+  const pending = new Set(), here = staticOf(folderOf.get(slug));
   for (const shelf of [bank.spawnManifests.client[slug], book.client[slug]]) for (const address of Object.values(shelf ?? {})) {
     for (const row of JSON.parse(readFileSync(join(dist, address.url.slice(1)), 'utf8')).files) pending.add(bare(row.url));
   }
   const extra = bank.extras[`/shardfiles/${slug}/`];
   if (extra !== undefined) for (const [url] of JSON.parse(readFileSync(join(dist, extra[0].slice(1)), 'utf8'))) pending.add(bare(url));
   for (const url of sectionUrls(slug)) {
-    if (isFolder(url)) for (const file of filesUnder(url)) pending.add(file);
+    if (isFolder(here, url)) for (const file of filesUnder(here, url)) pending.add(file);
     else for (const variant of variants(url)) pending.add(variant);
   }
   for (const url of legacyMembers(slug)) pending.add(bare(url));
@@ -96,19 +99,19 @@ for (const { slug } of products) {
   // The boot tables name audio by slot, and a slot can load long after control: a folder named for the shard is its own.
   const names = new Set([slug, slug.replace(/^open-plot-/u, ''), slug.split('-')[0]]);
   // A bake names its blobs inside its own files, so the folder is the unit (Nalati's held bow reads one that way).
-  for (const name of names) if (isFolder(`/assets/${name}/baked`)) for (const file of filesUnder(`/assets/${name}/baked`)) pending.add(file);
-  for (const kind of ['sfx', 'music']) for (const name of isFolder(`/assets/${kind}`) ? readdirSync(join(publicRoot, 'assets', kind)) : []) {
-    if ((names.has(name) || name.startsWith(`${slug}-`)) && isFolder(`/assets/${kind}/${name}`)) for (const file of filesUnder(`/assets/${kind}/${name}`)) pending.add(file);
+  for (const name of names) if (isFolder(here, `/assets/${name}/baked`)) for (const file of filesUnder(here, `/assets/${name}/baked`)) pending.add(file);
+  for (const kind of ['sfx', 'music']) for (const name of isFolder(here, `/assets/${kind}`) ? readdirSync(join(here, 'assets', kind)) : []) {
+    if ((names.has(name) || name.startsWith(`${slug}-`)) && isFolder(here, `/assets/${kind}/${name}`)) for (const file of filesUnder(here, `/assets/${kind}/${name}`)) pending.add(file);
   }
   const seen = new Set(), raws = rawForms(folderOf.get(slug));
   for (const [url, cooked] of raws) if (pending.has(url)) for (const row of cooked) pending.add(row);
   for (const url of pending) {
-    if (!url.startsWith('/assets/') || shellOwned(url) || !onDisk(url) || seen.has(url) || raws.has(url)) continue;
+    if (!url.startsWith('/assets/') || shellOwned(url) || !onDisk(here, url) || seen.has(url) || raws.has(url)) continue;
     seen.add(url);
-    if (url.endsWith('.gltf')) for (const part of gltfParts(url)) if (onDisk(part)) seen.add(part);
+    if (url.endsWith('.gltf')) for (const part of gltfParts(here, url)) if (onDisk(here, part)) seen.add(part);
   }
-  // A target not in public/ cannot be mounted: name it, so the gap shows here and not as a 404 on play.
-  for (const url of named) if (url.startsWith('/assets/') && !shellOwned(url) && !onDisk(url)) console.warn(`${slug}: texture table names ${url}, not in public/`);
+  // A target not in static/ cannot be mounted: name it, so the gap shows here and not as a 404 on play.
+  for (const url of named) if (url.startsWith('/assets/') && !shellOwned(url) && !onDisk(here, url)) console.warn(`${slug}: texture table names ${url}, not in static/`);
   reads.set(slug, seen);
 }
 const users = new Map();
@@ -116,13 +119,13 @@ for (const [slug, urls] of reads) for (const url of urls) (users.get(url) ?? use
 
 let stale = 0;
 for (const folder of folders) {
-  const outputs = {};
+  const outputs = {}, here = staticOf(folder);
   for (const { slug } of products.filter(row => row.folder === folder)) {
     const owned = [...reads.get(slug)].filter(url => users.get(url).size === 1).sort((left, right) => left.localeCompare(right));
     // A shard's recorded programs: its page reads them by name, so the tarball carries them (D5).
-    if (existsSync(join(publicRoot, 'programs', `${slug}.json`))) owned.push(`/programs/${slug}.json`);
+    if (existsSync(join(here, 'programs', `${slug}.json`))) owned.push(`/programs/${slug}.json`);
     if (owned.length > 0) outputs[slug] = owned;
-    const bytes = owned.reduce((sum, url) => sum + statSync(join(publicRoot, url.slice(1))).size, 0);
+    const bytes = owned.reduce((sum, url) => sum + statSync(join(here, url.slice(1))).size, 0);
     console.log(`${slug}: ${owned.length} mounts, ${(bytes / 1e6).toFixed(1)} MB`);
   }
   const file = resolve(root, 'src/shards', folder, 'mounts.json'), text = `${JSON.stringify({ version: 1, outputs }, null, 1)}\n`;

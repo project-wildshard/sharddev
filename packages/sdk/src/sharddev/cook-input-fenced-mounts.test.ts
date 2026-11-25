@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
 import { tmpdir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
@@ -22,7 +22,7 @@ function shard(files: Record<string, unknown>, assets: readonly string[]): strin
   const project = join(root, 'src');
   mkdirSync(project, { recursive: true });
   for (const [name, value] of Object.entries(files)) writeFileSync(join(project, name), JSON.stringify(value));
-  for (const url of assets) { const file = join(root, 'public', url.slice(1)); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, url); }
+  for (const url of assets) { const file = join(project, 'static', url.slice(1)); mkdirSync(dirname(file), { recursive: true }); writeFileSync(file, url); }
   return project;
 }
 
@@ -36,10 +36,19 @@ it('mounts a fenced original the shard holds beside its listed twin', () => {
   expect(new TextDecoder().decode(input?.mounts[1]?.bytes)).toBe(ORIGINAL);
 });
 
-it('leaves out fenced reads the shard does not hold and paths that leave public/', () => {
+it('leaves out fenced reads the shard does not hold and paths that leave static/', () => {
   const project = shard({
     'mounts.json': { version: 1, outputs: { nine: [TWIN] } },
     'fence-reads.json': { version: 1, files: ['asset:/assets/sfx/shared/hit.m4a', 'asset:/assets/../package.json', 'asset:/assets/nine'] },
   }, [TWIN, '/assets/nine/a.webp']);
   expect(readCookInput(project, 'nine')?.mounts.map(row => row.url)).toEqual([TWIN]);
+});
+
+// A7 (sdk 0.5.0): a mounted file named `/<path>` lives at `<source>/static/<path>`; the repo's `public/` is not read.
+it('cooks every listed mount from the source static/ with no public/ in the repo', () => {
+  const own = '/assets/nine/x.bin', baked = '/assets/baked/y.bin';
+  const project = shard({ 'mounts.json': { version: 1, outputs: { nine: [own, baked] } } }, [own, baked]);
+  expect(existsSync(join(dirname(project), 'public'))).toBe(false);
+  const input = readCookInput(project, 'nine');
+  expect(input?.mounts.map(row => [row.url, new TextDecoder().decode(row.bytes)])).toEqual([[own, own], [baked, baked]]);
 });

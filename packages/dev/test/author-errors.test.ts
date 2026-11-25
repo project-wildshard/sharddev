@@ -6,7 +6,7 @@ import { afterAll, beforeAll, expect, test, vi } from 'vitest';
 import { runCli } from '../src/sharddev/cli';
 import { shardfileValidationRevision } from '@wildshard/engine/scripts/shardfile-validation-revision.mjs';
 
-/** An author outside this tree (SD-1, SD-21): no lockfile and no `public/`, and an error must say where. Each runs the
+/** An author outside this tree (SD-1, SD-21): no lockfile and no `static/`, and an error must say where. Each runs the
  *  real CLI on one scaffolded project. */
 let scratch = '', project = '';
 const output = (text: string): void => { writeFileSync(resolve(project, 'generators/output.ts'), text); };
@@ -29,9 +29,9 @@ test('a folder with no lockfile takes the tools\' validation revision', () => {
   expect(shardfileValidationRevision(empty)).toBe(shardfileValidationRevision());
 });
 
-test('a project with no public/ builds', async () => {
+test('a project with no static/ builds', async () => {
   output(sections(''));
-  const manifest = { folder: 'my-isle', imageRoots: [{ prefix: '/assets/', directory: resolve(scratch, 'public/assets') }] };
+  const manifest = { folder: 'my-isle', imageRoots: [{ prefix: '/assets/', directory: resolve(project, 'static/assets') }] };
 
   await expect(runCli(['build', project, resolve(scratch, 'out'), '--product-only'], { manifest })).resolves.toBeUndefined();
 });
