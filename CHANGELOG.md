@@ -16,6 +16,12 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.6.1 (2026-11-25)
+
+- Shards build on shard-format 0.79.2: grass card clumps may be left out, all of them or none.
+- `wildshard new --template blender` works on the new format, from a seed the sdk now ships itself.
+- `prepare` names the engine's longest boot operations when an entry is slow or refused.
+
 ## v0.6.0 (2026-11-25)
 
 - **Breaking:** `build-shards` refuses a map input that names no file; `wildshard upgrade 0.6.0` drops such inputs.
