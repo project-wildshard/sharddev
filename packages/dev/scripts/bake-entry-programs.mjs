@@ -16,6 +16,7 @@ import {createHash} from 'node:crypto';
 import {hideDeveloperOverlays} from '@wildshard/engine/scripts/debug-settings.mjs';
 import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/catalogue.mjs';
 import {preparationSaveSeed} from './preparation-seed.mjs';
+import {waitForEntry,watchPage} from './entry-wait.mjs';
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
 const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), slugs=args.filter(arg=>!arg.startsWith('--'));
@@ -54,6 +55,7 @@ async function record(browser,slug){
       };
     })();`);
     const page=await context.newPage();page.setDefaultTimeout(30000);
+    const seen=watchPage(page);
     const reads=new Set(),headers=[],metadata=[],hashes=new Set();
     page.on('response',response=>{
       const url=new URL(response.url());reads.add(url.pathname);
@@ -88,7 +90,8 @@ async function record(browser,slug){
         await page.locator('.ws-menu-play').click();
       }
     }
-    await page.waitForFunction(()=>window.__wildshard?.world?.hud?.entered===true&&!document.querySelector('.ws-load'),undefined,{timeout:240000});
+    // FR-A13: the same 240 s at most, but an engine error card or a crash stops it at once, and a refusal names the wait.
+    await waitForEntry(page,seen);
     const version=await(await page.request.get(new URL('/version.json',base).href)).json();
     const documentBuild=await page.evaluate(()=>globalThis.__WS_BUILD_ID__);
     const renderer=await page.evaluate(()=>globalThis.__WS_RENDERER_REVISION__);

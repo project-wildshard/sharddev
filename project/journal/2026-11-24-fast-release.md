@@ -16,3 +16,9 @@ pushes. Every one of v0.4.29 to v0.4.32 would have qualified.
 Playwright now retries once on CI, reported as flaky: the 0.4.32 timeout was a slow runner, green on main.
 
 Plan: meta docs/plans/FAST-RELEASE-PLAN.md.
+
+## FR-A13: the phone WebKit entry wait names what it waited on
+
+The recorder (`bake-entry-programs.mjs`) died at 240 s with an empty log on 11% of shard publishes. Healthy entries take
+about 60 s; the reds were pages that had already failed (Driftwood on v0.1.84 threw "no weapon declared") or stopped. `packages/dev/scripts/entry-wait.mjs` stops at once on the engine error card or a crash, and every refusal names the
+loading card line, page errors and failed requests.
