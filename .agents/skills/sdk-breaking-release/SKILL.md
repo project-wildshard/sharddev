@@ -78,7 +78,20 @@ Done when every step's line holds and `pnpm test` is green.
    --repos @<list> --run "pnpm dlx @wildshard/cli upgrade X.Y.0"
    --check "pnpm exec wildshard check ."`, then `status`, fix each
    `red` (its manual steps), then `land`. Done when every repo is
-   `landed`.
+   `landed` and its main ci is green.
+   - The `--check` runs what each repo's ci runs, not just `check`:
+     `check:shard` and `test:shards` where `package.json` has them,
+     and the pre-push gates (a hero stamp hashes the source tree, so
+     a layout move makes it stale: capture it again with `wildshard
+     dev` and `wildshard hero <source> --base <url>`). The 0.5.1
+     roll's `--check` ran only `pnpm check`, and ci found three reds
+     after land.
+   - A multi-shard repo's files live in `src/shards/<slug>/static/`,
+     never `src/static/`: a path rewrite names the source's own
+     folder.
+   - Mains move during a long roll: fetch before `land`, and after a
+     rebase under an uncommitted move, `git reset` so `status` lists
+     the paths `start` recorded.
 3. Outside authors need nothing from us: every verb refuses with
    `migration-pending` until `wildshard migrate` runs, and their
    SessionStart hook prints the line.

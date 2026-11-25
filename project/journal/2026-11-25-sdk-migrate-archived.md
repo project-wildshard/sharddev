@@ -21,3 +21,7 @@ Next time, the roll check should run every script ci runs, not just
 
 repo-kit-73 is taking the hero hash's `scripts`/`test` skip (0.6.1)
 and its lean-layout moves from here.
+
+Follow-up: the roll lessons (run what ci runs, multi-shard static
+folders, mains moving mid-roll) are now in the sdk-breaking-release
+skill, section 3, so the next minor's roll does not repeat them.
