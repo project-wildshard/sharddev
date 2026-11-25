@@ -67,6 +67,17 @@ test('a watch loop goes whole: the unreadable tail shares the marked ugrep\'s pr
   assert.match(result.kill[0].reason, /process group 310 with 311/);
 });
 
+// Meta QA 11-25 row 23: on Linux every own process's markers are readable, and a CI job runs its steps in one process
+// group, so the group rule is off there: the hook passes groupSweep false and only marked processes go.
+test('with the group rule off (Linux), only marked processes go, never their unmarked group', () => {
+  const procs = table(...base(),
+    row(320, 1, 'node -e setTimeout(() => {}, 300000)', { pgid: 8348 }),
+    row(321, 1, 'node -e setTimeout(() => {}, 300000)', { owner: 200, pgid: 8348 }),
+  );
+  assert.deepEqual(killed(select(procs, { now: NOW, groupSweep: false })), [321]);
+  assert.deepEqual(killed(select(procs, { now: NOW })), [320, 321]);
+});
+
 test('a live session\'s processes are left alone', () => {
   const result = select(table(...base()), { now: NOW });
   assert.deepEqual(killed(result), []);
