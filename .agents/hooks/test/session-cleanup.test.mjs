@@ -7,7 +7,7 @@ import { dirname, join, resolve } from 'node:path';
 import { chmodSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { after, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseMarkers, select } from '../session-cleanup.mjs';
+import { parseMarkers, procEnviron, select } from '../session-cleanup.mjs';
 import { landingSpared } from '../lib/procs.mjs';
 
 const repoDir = resolve(dirname(new URL(import.meta.url).pathname), '../../..');
@@ -138,6 +138,20 @@ test('a young orphan, a process with a terminal, an app, a land and a kept pid a
   assert.deepEqual(left(result), [901, 902, 903, 904, 905]);
 });
 
+// Meta QA 11-25 row 23: on a Linux runner the job's node is actions-runner/_work/_tool/node/..., so a marked
+// session's process run with it was spared as "the CI runner". Only the runner's own processes are.
+test('a job process under the runner\'s _work tree is not the runner; the runner and its externals are', () => {
+  const procs = table(...base(),
+    row(910, 1, '/home/runner/actions-runner/_work/_tool/node/26.13.1/arm64/bin/node -e setTimeout(() => {}, 300000)', { owner: 200 }),
+    row(911, 1, '/home/runner/actions-runner/bin/Runner.Worker spawnclient 1 2'),
+    row(912, 911, '/home/runner/actions-runner/externals/node20/bin/node /home/runner/actions-runner/_work/_actions/x/dist/index.js', { owner: 200 }),
+    row(913, 1, '/bin/bash /home/runner/actions-runner/run.sh', { owner: 200 }),
+  );
+  const result = select(procs, { now: NOW });
+  assert.deepEqual(killed(result), [910]);
+  assert.deepEqual(left(result), [912, 913]);
+});
+
 test('parseMarkers reads the environment after the command', () => {
   const line = 'node dev.mjs TERM=xterm CLAUDECODE=1 CLAUDE_PID=35321 CLAUDE_CODE_SESSION_ID=abc-1 HOME=/Users/x';
   assert.deepEqual(parseMarkers(line), { CLAUDECODE: '1', CLAUDE_PID: '35321', CLAUDE_CODE_SESSION_ID: 'abc-1' });
@@ -153,6 +167,13 @@ test('the hook exits 0 on bad input and an unknown event, and a dry sweep kills 
   const dry = spawnSync('node', [HOOK, '--sweep'], { env, encoding: 'utf8', timeout: 10_000 });
   assert.equal(dry.status, 0);
   assert.match(dry.stdout, /session-cleanup: \d+ to kill, \d+ left \(dry run/);
+});
+
+// Linux's ps has no -E, so the hook reads /proc/<pid>/environ there (engine main run 45574235533 went red without it).
+test('on Linux the markers come from /proc/<pid>/environ; a gone or foreign process has none', () => {
+  const environ = 'PATH=/usr/bin\0CLAUDECODE=1\0CLAUDE_PID=4242\0CLAUDE_CODE_SESSION_ID=abc\0NOTE=a=b\0';
+  assert.deepEqual(procEnviron(7, (path) => (assert.equal(path, '/proc/7/environ'), environ)), { CLAUDECODE: '1', CLAUDE_PID: '4242', CLAUDE_CODE_SESSION_ID: 'abc' });
+  assert.deepEqual(procEnviron(8, () => { throw Object.assign(new Error('EACCES'), { code: 'EACCES' }); }), {});
 });
 
 // End to end with real processes: a fake session process named `claude` starts three sleepers (its own, one from
