@@ -8,6 +8,11 @@ import { pathToFileURL } from 'node:url';
 import { buildBin, inPackage } from './route.mjs';
 
 const build = buildBin(process.argv.slice(2));
-// Build's bin reads its operands from argv[2]; dev's bin reads the verb from argv[2] as before.
-if (build !== undefined) process.argv.splice(1, 2, build);
-await import(pathToFileURL(build ?? inPackage('@wildshard/dev', 'bin/wildshard.mjs')).href);
+// SDK 0.5.0 plan M2: dev's bin refuses a verb while a migration is pending; `build` skips dev's bin, so ask here.
+const gate = build === undefined ? undefined : await import(pathToFileURL(inPackage('@wildshard/dev', 'scripts/migration-gate.mjs')).href);
+if (gate !== undefined && await gate.migrationGate(process.argv.slice(2), process.cwd())) process.exitCode = 1;
+else {
+  // Build's bin reads its operands from argv[2]; dev's bin reads the verb from argv[2] as before.
+  if (build !== undefined) process.argv.splice(1, 2, build);
+  await import(pathToFileURL(build ?? inPackage('@wildshard/dev', 'bin/wildshard.mjs')).href);
+}

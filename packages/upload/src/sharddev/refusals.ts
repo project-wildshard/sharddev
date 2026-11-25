@@ -43,6 +43,9 @@ export const GUIDE_FILE = 'GUIDE.md';
 export const REFUSAL_RULES: readonly RefusalRule[] = [
   { id: 'three-version', anchor: 'three-version', steps: 'any', match: /^\[three-version\] /,
     fix: 'Install the three the sdk pins: pnpm add three@<the version named> --save-exact.' },
+  // SDK 0.5.0 plan M2: dev, watch, build, check and upload refuse before any work while a migration is pending.
+  { id: 'migration-pending', anchor: 'migration-pending', steps: 'any', match: /^wildshard: this repo (?:is migrated to sdk |has no migration stamp)/u,
+    fix: 'Run `pnpm exec wildshard migrate`, do each manual step it prints, then run `wildshard check .`.' },
   { id: 'usage', anchor: 'usage', steps: 'any', match: /^usage: |^unknown (?:wildshard command|build flag|command)|unknown or incomplete build map flag|^Unknown schema root|accepts no pointer|^dev port must be|^invalid --port\b|^(?:validate|prove) requires a format-2 shard\.json or (?:shard source|author project)/u,
     fix: 'Run `wildshard --help` and give the verb the arguments and flags it lists.' },
   // new

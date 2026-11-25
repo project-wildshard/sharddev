@@ -1083,6 +1083,23 @@ import is the version it pins, and refuses naming both before anything else runs
 
 A verb got arguments or flags it does not take. `wildshard <verb> --help` prints what it takes.
 
+#### migration-pending
+
+The installed sdk has a migration this repo has not run: a breaking
+release (0.5.0, 0.6.0, ...) changed how a shard repo is laid out or
+written, and nothing has moved this one yet, for example because the sdk
+was installed by hand (`pnpm add @wildshard/sdk@0.5.0`). `dev`, `watch`,
+`build`, `check` and `upload` refuse before doing anything and name each
+pending migration, its title and its own GUIDE.md heading.
+`package.json` `"wildshard": { "migrated": "<v>" }` records the sdk a
+repo was last migrated to; a repo with no stamp is asked only whether it
+is still in an old layout. Run `pnpm exec wildshard migrate`, do each
+manual step it prints, then `wildshard check .`. An agent reads
+`node_modules/@wildshard/sdk/skills/wildshard-upgrade/SKILL.md` (the
+installed sdk's copy) and follows it. `wildshard status` prints the
+installed sdk, the stamp and what is pending; `wildshard status --brief`
+prints one line when something is, and nothing otherwise.
+
 ### New
 
 #### new-target

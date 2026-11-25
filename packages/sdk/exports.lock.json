@@ -527,6 +527,7 @@
   "verb:prove",
   "verb:schema",
   "verb:serve",
+  "verb:status",
   "verb:synth",
   "verb:update",
   "verb:upload",

@@ -26,7 +26,12 @@ const [command, operand] = process.argv.slice(2);
 const verbHelp = command === 'help' || (command !== undefined && !command.startsWith('-') && process.argv.slice(3).some(arg => arg === '--help' || arg === '-h'));
 const builtFolder = command === 'build' && operand !== undefined && !operand.startsWith('--')
   && existsSync(resolve(operand, 'shard.json')) && !existsSync(resolve(operand, 'shard.config.ts'));
-if (verbHelp) {
+// SDK 0.5.0 plan M2: dev, watch, build, check and upload refuse before any work while the installed sdk has a migration
+// this repo has not run (src/sharddev/migrationGate.ts); `status` says what is pending.
+const { migrationGate, runStatus } = await import('../src/sharddev/migrationGate.ts');
+if (await migrationGate(process.argv.slice(2), process.cwd())) {
+  process.exitCode = 1;
+} else if (verbHelp) {
   const help = await import('../src/cli/help.ts');
   const verb = command === 'help' ? operand : command;
   const text = verb === undefined ? help.USAGE : help.verbHelp(verb);
@@ -48,6 +53,8 @@ if (verbHelp) {
   const script = resolve(import.meta.dirname, '../scripts/wildshard.mjs');
   process.argv[1] = script;
   await import(pathToFileURL(script).href);
+} else if (command === 'status') {
+  process.exitCode = await runStatus(process.argv.slice(3), process.cwd());
 } else if (command === 'memory') {
   const script = resolve(import.meta.dirname, '../scripts/memory-product.mjs');
   process.argv.splice(1, 2, script);

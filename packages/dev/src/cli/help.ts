@@ -56,6 +56,15 @@ const VERBS: Readonly<Record<string, string>> = {
                        rule, a fix and its GUIDE.md section. A warning (an
                        unprepared draft) does not fail the verdict. Exits 1
                        on fail`,
+  status: `status [--brief] [dir]
+                       Print the installed sdk, the repo's migration stamp
+                       (package.json "wildshard": { "migrated" }) and each
+                       migration it has not run, with its GUIDE.md section
+                       (dir: the shard repo, default the current folder).
+                       Reads only; no network. --brief prints one line
+                       when a migration is pending and nothing otherwise.
+                       While one is, dev, watch, build, check and upload
+                       refuse (migration-pending)`,
   hero: `hero <source> --base <served-build-url>
                        Capture the shard's hero (thumb, portrait,
                        landscape) in headless Chromium from a served build
