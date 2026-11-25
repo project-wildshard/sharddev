@@ -59,7 +59,12 @@ Done when every step's line holds and `pnpm test` is green.
 5. **Release** `X.Y.0` on the normal train (`../repo-kit/release.sh
    vX.Y.0 ...`), never a patch number: the gate cannot see the
    release branch (it reuses main's run), so check the version you
-   type.
+   type. Notes go in by `--notes <file>` (one to five bullets, 142
+   characters each), never into CHANGELOG.md on main: prepare refuses
+   a version whose section is already there. A peer range one package
+   holds on another of the six must admit the new minor before the
+   cut (`test/tooling/own-peers.test.mjs`); 0.5.0's first branch
+   failed packed-install on kit's `^0.3.2 || ^0.4.0`.
 
 ## 3. Roll the org's shard repos
 
