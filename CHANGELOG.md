@@ -1,11 +1,11 @@
 # @wildshard/sdk changelog
 
-Every release has a section here before it is tagged: one to five
-bullets in plain language, for shard authors and Jake, never commit
-subjects. Notes for work that has landed but not shipped wait under
-"Unreleased" at the top. To release, rename that heading by hand to
-the next version and date, commit and push it, then run repo-kit's
-`release.sh` (it does not read or edit this file).
+Every release has a section here: one to five bullets in plain
+language, for shard authors and Jake, never commit subjects, each at
+most 142 characters. Write them in a notes file, never here on main:
+repo-kit's `release.sh vX.Y.Z --prepare --notes <file>` writes the
+section on the release branch (and refuses a version whose section is
+already here), and `--merge-back` brings it to main.
 
 **Versions (Jake, 2026-11-24: *"0.4.$PATCH is non breaking, and 0.5.0
 is for breaking, we bump the minor on every break"*).** A patch never
@@ -15,14 +15,6 @@ minor's section opens with a **Breaking:** line saying what an author
 does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
-
-## v0.5.0 (2026-11-25)
-
-- **Breaking:** a shard repo's `public/` folder moves into `src/static/`, and builds go to `out/<slug>`. Authors run nothing by hand: `wildshard upgrade 0.5.0` moves the files and prints any manual steps left.
-- Every command says when an sdk migration has not run in a repo, and `wildshard migrate` runs it, however the sdk got installed.
-- `wildshard upgrade` moves a repo to a new sdk in one command; `update --pins` still works as its old name.
-- `wildshard status` tells you the installed sdk and any pending migration, and new shard repos show it to Claude and Codex when a session starts.
-- `wildshard update` works in repos on repo-kit's agent-sync (skills go in `.agents/skills/`, so `agent-sync --check` stays green), and `--guide docs/GUIDE.md` keeps the guide out of the repo root.
 
 ## v0.4.33 (2026-11-24)
 
