@@ -394,7 +394,6 @@
     "./internal/engine/game/inventoryLaw": "./src/sharddev/internal-engine/game/inventoryLaw.ts",
     "./internal/engine/game/ledger": "./src/sharddev/internal-engine/game/ledger.ts",
     "./internal/engine/game/loadout/itemCatalogue": "./src/sharddev/internal-engine/game/loadout/itemCatalogue.ts",
-    "./internal/engine/game/looks/speciesBook": "./src/sharddev/internal-engine/game/looks/speciesBook.ts",
     "./internal/engine/game/loot/Bounty": "./src/sharddev/internal-engine/game/loot/Bounty.ts",
     "./internal/engine/game/loot/CoinMotion": "./src/sharddev/internal-engine/game/loot/CoinMotion.ts",
     "./internal/engine/game/loot/Owned": "./src/sharddev/internal-engine/game/loot/Owned.ts",

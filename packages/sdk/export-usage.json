@@ -1,5 +1,5 @@
 {
- "at": "2026-11-25T08:08:28.908Z",
+ "at": "2026-11-25T22:34:25.419Z",
  "repos": [
   "shard-brasscap",
   "shard-driftwood",
@@ -851,9 +851,6 @@
   "@wildshard/sdk/internal/engine/entities/AnimalView": [
    "shard-nalati"
   ],
-  "@wildshard/sdk/internal/engine/entities/species/look": [
-   "shard-nalati"
-  ],
   "@wildshard/sdk/internal/engine/entities/species/registry": [
    "shard-nalati",
    "shard-pine-hollow"
@@ -935,9 +932,6 @@
   ],
   "@wildshard/sdk/internal/engine/game/loadout/itemCatalogue": [
    "shard-pine-hollow"
-  ],
-  "@wildshard/sdk/internal/engine/game/looks/speciesBook": [
-   "shard-nalati"
   ],
   "@wildshard/sdk/internal/engine/game/loot/Bounty": [
    "shard-driftwood"
@@ -1496,9 +1490,6 @@
    "shard-pine-hollow",
    "shard-sky-reach"
   ],
-  "@wildshard/sdk/looks/tileField": [
-   "shard-nalati"
-  ],
   "@wildshard/sdk/materials": [
    "shard-brasscap",
    "shard-glowfen",
@@ -1764,13 +1755,27 @@
    "shard-sky-reach"
   ],
   "verb:dev": [
+   "shard-driftwood",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
    "shard-showcase"
   ],
   "verb:memory": [
    "shard-nine-dragon"
   ],
   "verb:new": [
-   "shard-showcase"
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-showcase",
+   "shard-sky-reach"
   ],
   "verb:prepare": [
    "shard-brasscap",
@@ -1783,6 +1788,28 @@
    "shard-open-plots",
    "shard-pine-hollow",
    "shard-showcase",
+   "shard-sky-reach"
+  ],
+  "verb:status": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
+   "shard-sky-reach"
+  ],
+  "verb:update": [
+   "shard-driftwood",
+   "shard-dunes",
+   "shard-glowfen",
+   "shard-mirror-salt",
+   "shard-nalati",
+   "shard-nine-dragon",
+   "shard-open-plots",
+   "shard-pine-hollow",
    "shard-sky-reach"
   ],
   "verb:upload": [

@@ -320,7 +320,6 @@
     "./internal/engine/game/inventoryLaw": "internal",
     "./internal/engine/game/ledger": "internal",
     "./internal/engine/game/loadout/itemCatalogue": "internal",
-    "./internal/engine/game/looks/speciesBook": "internal",
     "./internal/engine/game/loot/Bounty": "internal",
     "./internal/engine/game/loot/CoinMotion": "internal",
     "./internal/engine/game/loot/Owned": "internal",

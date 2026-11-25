@@ -45,7 +45,8 @@ test('shared names require the defining type and keep private neighbours custom'
     ['src/game/population/productCreatures.ts', 'src/game/population/folderCreatures.ts']]);
   // ONE-FORMAT OF30 cut B (engine 5eb35ecee): folderCreatures.ts went with no successor; format keeps the
   // product-creatures families only so Driftwood r4/r5 originals still admit (J506), and no engine reads them.
-  const gone = new Set(['src/game/population/productCreatures.ts']);
+  // FORMAT-PRUNE FP20 (engine 5dac625fc): looks/speciesBook.ts went too; the packed-looks families stay for kept originals.
+  const gone = new Set(['src/game/population/productCreatures.ts', 'src/game/looks/speciesBook.ts']);
   for (const family of PLATFORM_FILE_FAMILIES) {
     if (gone.has(family.reader)) continue;
     const reader = retired.get(family.reader) ?? family.reader;
