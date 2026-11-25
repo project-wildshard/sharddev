@@ -137,6 +137,24 @@ describe('wildshard update --pins (SA18)', () => {
     expect(JSON.parse(github.text)).toEqual({ dependencies: { '@wildshard/sharddev': 'github:project-wildshard/sharddev#bbb' } });
   });
 
+  it('moves kit\'s override of the format under its real name with the format pin, as a bare version', () => {
+    // shard-nalati on 0.4.33: `update --pins` moved every `>@wildshard/format` override but left
+    // `@wildshard/kit>@wildshard/shard-format` at 0.74.1, so kit linked a second format and the build's named-JSON
+    // provenance refused it.
+    const release: SdkRelease = { version: '0.5.0', pins: { '@wildshard/format': 'npm:@wildshard/shard-format@0.78.0', '@wildshard/engine': '0.1.84', '@wildshard/kit': '0.5.0' } };
+    const nalati = `${JSON.stringify({ dependencies: { '@wildshard/format': 'npm:@wildshard/shard-format@0.74.1', '@wildshard/sdk': '0.4.30', '@wildshard/kit': '0.4.30' },
+      pnpm: { overrides: { '@wildshard/sdk>@wildshard/format': 'npm:@wildshard/shard-format@0.74.1', '@wildshard/kit>@wildshard/shard-format': '0.74.1',
+        '@wildshard/format': 'npm:@wildshard/shard-format@0.74.1' } } }, null, 2)}\n`;
+    const { text: after, moves } = movePins(nalati, release);
+    expect(JSON.parse(after).pnpm.overrides).toEqual({ '@wildshard/sdk>@wildshard/format': 'npm:@wildshard/shard-format@0.78.0',
+      '@wildshard/kit>@wildshard/shard-format': '0.78.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.78.0' });
+    expect(moves).toContainEqual({ name: '@wildshard/kit>@wildshard/shard-format', field: 'pnpm.overrides', from: '0.74.1', to: '0.78.0' });
+    expect(movePins(after, release).moves).toEqual([]);
+    // A GitHub format pin is already a real-name spec, so the override takes it as written.
+    const github = movePins(JSON.stringify({ pnpm: { overrides: { '@wildshard/kit>@wildshard/shard-format': '0.74.1' } } }), NEXT);
+    expect(JSON.parse(github.text).pnpm.overrides['@wildshard/kit>@wildshard/shard-format']).toBe(NEXT.pins['@wildshard/format']);
+  });
+
   it('moves pnpm.overrides for the packages it moves, in the form they are written, and leaves the rest', () => {
     const format = 'github:project-wildshard/shard-format#629b9442dd9ec2298be041b322664af41c00dcd8';
     const text = `${JSON.stringify({ dependencies: { '@wildshard/format': format, '@wildshard/sdk': '0.2.4' }, pnpm: { ignoredOptionalDependencies: ['a'], overrides: {

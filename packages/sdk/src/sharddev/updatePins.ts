@@ -61,6 +61,9 @@ const stringAt = (record: Json, key: string): string | undefined => typeof recor
 export interface PinMove { readonly name: string; readonly field: string; readonly from: string; readonly to: string | undefined }
 
 const SDK_ALIAS = /^npm:@wildshard\/sdk@(.+)$/u;
+/** The format package's own name, and the `npm:` alias a repo pins it under as `@wildshard/format`. */
+const FORMAT_REAL_NAME = '@wildshard/shard-format';
+const FORMAT_ALIAS = /^npm:@wildshard\/shard-format@(.+)$/u;
 const GITHUB_PIN = /^github:([\w.-]+\/[\w.-]+)#(.+)$/u;
 /** The package a `pnpm.overrides` key overrides: the last `parent>` step, without its `@<range>` selector (which may
  * hold a `>` of its own, as in `three@>=0.180`). */
@@ -94,6 +97,14 @@ export function movePins(text: string, release: SdkRelease, sdkSpec?: string): {
     moves.push({ name: key, field, from, to });
     if (to !== undefined) record[key] = to;
   };
+  const moveFormatOverride = (record: Json, key: string): void => {
+    const from = stringAt(record, key), pin = release.pins['@wildshard/format'];
+    if (from === undefined || pin === undefined) return;
+    const to = FORMAT_ALIAS.exec(pin)?.[1] ?? pin;
+    if (to === from) return;
+    moves.push({ name: key, field: 'pnpm.overrides', from, to });
+    record[key] = to;
+  };
   for (const field of DEPENDENCY_FIELDS) {
     const listed = parsed[field];
     if (isRecord(listed)) for (const name of PINNED) move(listed, name, name, field);
@@ -102,6 +113,10 @@ export function movePins(text: string, release: SdkRelease, sdkSpec?: string): {
   if (isRecord(overrides)) for (const key of Object.keys(overrides)) {
     const name = overriddenPackage(key);
     if (isPinned(name)) move(overrides, key, name, 'pnpm.overrides');
+    // The format under its real name, as kit depends on it (`@wildshard/kit>@wildshard/shard-format`), is the format
+    // pin too: left behind, kit linked an older format beside the sdk's and named-JSON provenance refused the build
+    // (shard-nalati on 0.4.33). It takes the format pin's version, without the `npm:` alias.
+    else if (name === FORMAT_REAL_NAME) moveFormatOverride(overrides, key);
   }
   const engines = parsed['engines'], node = isRecord(engines) ? stringAt(engines, 'node') : undefined;
   if (isRecord(engines) && node !== undefined && release.node !== undefined && node !== release.node) {
