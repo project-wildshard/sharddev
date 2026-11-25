@@ -3,7 +3,6 @@ import { dirname, resolve, sep } from 'node:path';
 import { createHash } from 'node:crypto';
 import { outputSectionPayloads } from '@wildshard/format/outputFields';
 import { expandCreatureLayers } from '../src/sharddev/creatureLayers.ts';
-import { expandNativeHuntSections } from '../src/sharddev/nativeHuntSource.ts';
 import { validateOutputProduct, writeOutputProduct } from '../src/sharddev/outputProduct.ts';
 const [source, output] = process.argv.slice(2).map(value => resolve(value));
 if (!source || !output?.startsWith(resolve('tmp') + sep) || source === output) throw new Error('Oracle output must be separate owned scratch');
@@ -13,7 +12,7 @@ const expanded = expandCreatureLayers(checked.shard, message => warnings.push(me
 const standard = outputSectionPayloads(expanded), files = new Map();
 const sections = checked.index.sections.filter(row => !standard.has(row.name));
 for (const row of [...sections, ...checked.index.schemas]) files.set(row.path, Uint8Array.from(readFileSync(resolve(source, row.path))));
-const platform = expandNativeHuntSections({ sections, files });
+const platform = { sections, files };
 const server = (checked.index.admission.server ?? []).map(file => ({ file, bytes: Uint8Array.from(readFileSync(resolve(source, file.path))) }));
 const cookSource = checked.index.cook ? JSON.parse(readFileSync(resolve(source, checked.index.cook.path), 'utf8')) : undefined;
 const cook = cookSource ? { mounts: cookSource.mounts.map(row => ({ url: row.url, bytes: Uint8Array.from(readFileSync(resolve(source, row.path))) })),

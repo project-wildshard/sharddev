@@ -2,7 +2,6 @@
 import { Buffer } from 'node:buffer';
 // oxlint-disable-next-line import/no-nodejs-modules -- Proxy inputs retain their original getter/callback path.
 import { isProxy } from 'node:util/types';
-import { parseRiggedHullBook } from '@wildshard/format/riggedHulls';
 import { AdmissionLateSchema, lateLibraryRootsValid, type AdmissionLate, type LateFile } from '@wildshard/format/admissionLate';
 import * as v from 'valibot';
 import { ScriptContractSchema, decisionModuleContracts, type ScriptContractInput, type ScriptContract } from '@wildshard/format/scriptContract';
@@ -14,11 +13,10 @@ import { encodeCanonicalJson } from './immutable';
 import { copyAssetBytes, hashAssetBytes } from './assetHandle';
 import { defineMirror, type RuntimeMirror } from './runtimeMirrors';
 import type { EmittedSections } from './sections';
-import { outputDecisionScripts, outputPlatformPayloads, outputScriptAdmissionRows, type OutputProductOptions } from './outputProduct';
+import { outputDecisionScripts, outputScriptAdmissionRows, type OutputProductOptions } from './outputProduct';
+import { refuseRetiredSections } from './retiredSections';
 import { prepareProjectDecisions, replacedDecisionBlob, decisionBlobNames } from './projectDecisions';
 import type { DecisionBuildOptions } from './buildDecisionScripts';
-import { expandNativeHuntSections } from './nativeHuntSource';
-import { expandNativeLookSections } from './nativeLookSource';
 
 const bytes = v.custom<Uint8Array>(value => value instanceof Uint8Array);
 const assetMap = v.map(v.string(), bytes);
@@ -69,30 +67,6 @@ function ownedSections(input: EmittedSections): EmittedSections {
   return { sections: input.sections.map(row => ({ ...row })), files: new Map([...input.files].map(([path, value]) => [path, copyAssetBytes(value)])) };
 }
 
-/** Product hull bodies, maps and coat fallbacks have asynchronous readers, not synchronous admitted-map inputs.
- * Keep their complete files/costs; early demand and critical/dependency roots still win. */
-function riggedHullLate(platform: EmittedSections | undefined, files: readonly OutputFile[], critical: ReadonlySet<string>): LateFile[] {
-  const section = platform?.sections.find(row => row.name === 'look/rigged-hulls');
-  if (section === undefined) return [];
-  const wire = platform?.files.get(section.path);
-  if (wire === undefined || wire.length !== section.bytes || hashAssetBytes(wire) !== section.hash)
-    throw new Error('Rigged hull coat section differs from its declared bytes');
-  const book = parseRiggedHullBook(JSON.parse(new TextDecoder().decode(wire)));
-  if (!book.productFiles) return [];
-  const names = new Set(Object.values(book.tiers).flatMap(tier =>
-    Object.values(tier.files).flatMap(file => typeof file === 'string' ? [file] : [file.rig, file.base, file.normal])
-      .concat(Object.values(tier.coats).map(coat => coat.image), tier.parts === undefined ? [] : [tier.parts.file])));
-  return lateHullFiles(names, files, critical);
-}
-
-/** The hull book's named files (`names`) that may load late: never a critical file, nor one in `held` (a critical root, or
- *  a dependency of another file: ONE-FORMAT OF23a, a species skin that shares a hull map's bytes needs it before the
- *  world, so a late map left the skin with a missing texture at level.world, on both tiers). */
-export function lateHullFiles(names: ReadonlySet<string>, files: readonly OutputFile[], held: ReadonlySet<string>): LateFile[] {
-  return [...new Set(files.filter(file => (file.kind === 'image' || file.kind === 'glb' || file.kind === 'ktx2') && !file.critical && !held.has(file.hash) && file.name !== undefined && names.has(file.name)).map(file => file.hash))]
-    .map(hash => ({ hash }));
-}
-
 interface PreparedOutputInput {
   blobs: v.InferOutput<typeof declaration>[];
   platform?: EmittedSections;
@@ -109,19 +83,18 @@ const preparedInputs = new WeakMap<object, PreparedOutputInput>();
 export function prepareProjectOutputInput(input: unknown): PreparedOutputInput {
   const prepared = typeof input === 'object' && input !== null ? preparedInputs.get(input) : undefined;
   if (prepared !== undefined) return prepared;
-  let parsed = v.parse(output, input === undefined ? {} : input);
-  if (parsed.platform !== undefined) {
-    const platform = expandNativeLookSections(expandNativeHuntSections(parsed.platform));
-    if (platform !== parsed.platform) parsed = { ...parsed, platform: v.parse(emitted, platform) };
-  }
+  const parsed = v.parse(output, input === undefined ? {} : input);
+  refuseRetiredSections(parsed.platform?.sections.map(row => row.name) ?? []);
   preparedInputs.set(parsed, parsed);
   return parsed;
 }
 
 /** Verify the declared native namespace before parsing item targets. */
-export function projectOutputContext(input: PreparedOutputInput): ReadonlyMap<string, unknown> {
-  return outputPlatformPayloads(input.platform, ['actors/species-programs']);
+export function projectOutputContext(_input: PreparedOutputInput): ReadonlyMap<string, unknown> {
+  // FORMAT-PRUNE FP20: the native species programs were the only context section; ordinary declarations name every species.
+  return new Map();
 }
+
 
 /** Parse the optional output export and compile project-contained inputs (including glTF) into immutable blobs. */
 export async function prepareProjectOutput(project: string, input: unknown, decisions?: { source: Shardfile; options: DecisionBuildOptions }): Promise<PreparedProjectOutput> {
@@ -150,12 +123,8 @@ export async function prepareProjectOutput(project: string, input: unknown, deci
       blobs.push({ file, bytes: owned, ...(script === undefined ? {} : { script }) });
     }
   }
-  const explicit = new Set(parsed.late?.map(row => row.hash));
-  const critical = new Set([...inventory.filter(file => file.critical).map(file => file.hash), ...(decisions?.source.critical ?? []), ...(decisions?.source.files.filter(file => file.critical).map(file => file.hash) ?? [])]);
-  // OF23a: a file another file depends on loads with it, never late
-  const held = new Set([...critical, ...[...inventory, ...(decisions?.source.files ?? [])].flatMap(file => file.dependencies ?? [])]);
-  const late = [...parsed.late ?? [], ...riggedHullLate(parsed.platform, inventory, held).filter(row => !explicit.has(row.hash))];
-  return { blobs, assets: ownedAssets(parsed.assets), ...(parsed.late === undefined && late.length === 0 ? {} : { late }), options: {
+  // FORMAT-PRUNE FP20: only the producer's explicit late rows remain; the rigged-hull book's late files went with it
+  return { blobs, assets: ownedAssets(parsed.assets), ...(parsed.late === undefined ? {} : { late: [...parsed.late] }), options: {
     namedFiles: overlays,
     ...(parsed.platform === undefined ? {} : { platform: ownedSections(parsed.platform) }),
     ...(parsed.server === undefined ? {} : { server: parsed.server }),

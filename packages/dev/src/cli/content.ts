@@ -166,9 +166,7 @@ function readContent(dir: string, bar?: string): ContentReport {
     ...array(get(uiTargets, 'interactions')),
     ...array(get(uiTargets, 'itemActions')),
   ]
-  const nativePrograms = record(section(dir, 'actors/species-programs'))
-  const nativeSpecies = array(get(nativePrograms, 'species')).map(record)
-  const allSpecies = [...species, ...nativeSpecies]
+  const allSpecies = [...species]
   const nativeBodies = array(section(dir, 'sim/bodies'))
   // A talk is an NPC too: a row-authored shard's NPCs are its `targets.talks` (Mossgate's Lamplighter and Pond Hermit)
   const talks = array(get(uiTargets, 'talks')).map(record)

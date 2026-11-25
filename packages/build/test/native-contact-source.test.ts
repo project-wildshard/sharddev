@@ -11,7 +11,6 @@ import { resolve } from 'node:path'
 import { emptyShardfile } from '@wildshard/sdk/author'
 import { afterEach, expect, test } from 'vitest'
 
-import { validateOutputProduct } from '@wildshard/sdk/outputProduct'
 import { emitPlatformSections } from '@wildshard/sdk/platformSections'
 import { buildProject } from '../src/sharddev/project'
 
@@ -26,11 +25,7 @@ const items: unknown = JSON.parse(
     'utf8',
   ),
 )
-function author(
-  kind: 'plain' | 'generator' | 'sidecar',
-  target = 'fixture.shell',
-  corrupt = false,
-) {
+function author(kind: 'plain' | 'generator' | 'sidecar') {
   mkdirSync('tmp/codex-te2e', { recursive: true })
   const root = mkdtempSync(resolve('tmp/codex-te2e/native-source-'))
   roots.push(root)
@@ -52,7 +47,7 @@ function author(
           page: [],
           native: [
             {
-              id: target,
+              id: 'fixture.shell',
               kind: 'different.kind',
               label: 'Shell',
               variants: [
@@ -70,7 +65,7 @@ function author(
       ],
     ]),
   )
-  const emitted = `{sections:${JSON.stringify(platform.sections)},files:new Map(${JSON.stringify([...platform.files].map(([path, bytes]) => [path, corrupt ? [123, 125] : [...bytes]]))}.map(([path, bytes])=>[path,new Uint8Array(bytes)]))}`
+  const emitted = `{sections:${JSON.stringify(platform.sections)},files:new Map(${JSON.stringify([...platform.files].map(([path, bytes]) => [path, [...bytes]]))}.map(([path, bytes])=>[path,new Uint8Array(bytes)]))}`
   const output = `{platform:${emitted}}`
   writeFileSync(
     resolve(root, 'shard.config.ts'),
@@ -87,76 +82,23 @@ function author(
   }
   return root
 }
+// FORMAT-PRUNE FP20: the species-program family is retired (the engine refuses it at admission, engine b75b5f57d), so a
+// product whose platform emits `actors/species-programs` is refused at build on every author path, naming the section,
+// and a prior product is left as it was.
 for (const kind of ['plain', 'generator', 'sidecar'] as const)
   test(
-    `native contact source builds through the real ${kind} author path`,
+    `a native species program is refused at build through the ${kind} author path`,
     { timeout: 45000 },
     async () => {
       const root = author(kind),
         destination = resolve(root, 'built')
-      await buildProject(root, destination, { client: null })
-      const checked = validateOutputProduct(destination)
-      expect(checked.shard.items).toEqual(items)
-      expect(checked.sections.get('actors/species-programs')).toMatchObject({
-        native: [{ id: 'fixture.shell' }],
-      })
+      mkdirSync(destination)
+      writeFileSync(resolve(destination, 'sentinel'), 'previous product')
+      await expect(
+        buildProject(root, destination, { client: null }),
+      ).rejects.toThrow('Section actors/species-programs is retired (FORMAT-PRUNE FP20)')
+      expect(readFileSync(resolve(destination, 'sentinel'), 'utf8')).toBe(
+        'previous product',
+      )
     },
   )
-test(
-  'unknown native contact targets refuse before changing a prior product',
-  { timeout: 45000 },
-  async () => {
-    const root = author('sidecar', 'wrong.target'),
-      destination = resolve(root, 'built')
-    mkdirSync(destination)
-    writeFileSync(resolve(destination, 'sentinel'), 'previous product')
-    await expect(
-      buildProject(root, destination, { client: null }),
-    ).rejects.toThrow()
-    expect(readFileSync(resolve(destination, 'sentinel'), 'utf8')).toBe(
-      'previous product',
-    )
-  },
-)
-
-test(
-  'changed native section bytes refuse before changing a prior product',
-  { timeout: 45000 },
-  async () => {
-    const root = author('sidecar', 'fixture.shell', true),
-      destination = resolve(root, 'built')
-    mkdirSync(destination)
-    writeFileSync(resolve(destination, 'sentinel'), 'previous product')
-    await expect(
-      buildProject(root, destination, { client: null }),
-    ).rejects.toThrow('declared bytes')
-    expect(readFileSync(resolve(destination, 'sentinel'), 'utf8')).toBe(
-      'previous product',
-    )
-  },
-)
-
-test(
-  'map packing preserves explicit native item targets and charged image bytes',
-  { timeout: 45000 },
-  async () => {
-    const root = author('sidecar'),
-      destination = resolve(root, 'built')
-    const bytes = new Uint8Array(
-      readFileSync(
-        new URL(
-          '../../kit/content/journal-icons/bear.png',
-          import.meta.url,
-        ),
-      ),
-    )
-    await buildProject(root, destination, {
-      client: null,
-      map: { bytes, tilesHash: 'a'.repeat(64) },
-    })
-    const checked = validateOutputProduct(destination)
-    expect(checked.shard.items).toEqual(items)
-    expect(checked.shard.map?.tilesHash).toBe('a'.repeat(64))
-    expect(checked.assets.get(checked.shard.map?.image ?? '')).toEqual(bytes)
-  },
-)

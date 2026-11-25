@@ -11,7 +11,7 @@ import { encodeCanonicalJson } from './immutable';
 import { validateOutputProduct } from './outputProduct';
 import { requireJournalImages } from './journalIconSource';
 import { expandCombatSource } from './combatSource';
-import { expandNativeHuntSource } from './nativeHuntSource';
+import { refuseRetiredSections } from './retiredSections';
 
 /** Hand-held JSON enters the same source expansion, then format settles the changed section's real hashes again. */
 export function settleHandwrittenCreatureLayers(source: string, output: string): ReturnType<typeof validateOutputProduct> {
@@ -19,15 +19,13 @@ export function settleHandwrittenCreatureLayers(source: string, output: string):
   settleHandwritten(source, output);
   const checked = validateOutputProduct(output), sections = new Map(checked.sections);
   requireJournalImages(checked.shard);
-  const native = sections.get('actors/species-programs');
-  const expandedNative = native === undefined ? undefined : expandNativeHuntSource(native);
-  if (expandedNative !== native) sections.set('actors/species-programs', expandedNative);
+  // FORMAT-PRUNE FP20: the species-program family is retired; a hand-written product naming one is refused
+  refuseRetiredSections(checked.index.sections.map(row => row.name));
   const creatures = expandCreatureHitVolumes(expandCreatureLayers(checked.shard, console.warn, sections), checked.assets);
   const layers = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
-  if (layers === checked.shard && expandedNative === native) return checked;
+  if (layers === checked.shard) return checked;
   const payloads = new Map(outputSectionPayloads(layers));
-  if (expandedNative !== native) payloads.set('actors/species-programs', expandedNative);
-  for (const name of ['actors/species', 'combat/items', ...(expandedNative === native ? [] : ['actors/species-programs'])]) {
+  for (const name of ['actors/species', 'combat/items']) {
     const section = checked.index.sections.find(row => row.name === name), payload = payloads.get(name);
     if (section === undefined || payload === undefined) throw new Error('Missing admitted section for source expansion');
     writeFileSync(resolve(output, section.path), encodeCanonicalJson(payload));

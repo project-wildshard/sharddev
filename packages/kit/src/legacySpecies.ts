@@ -9,12 +9,7 @@ import {
   type CreatureType,
 } from '@wildshard/shard-format/creatureLayers'
 import { HuntTuningSchema } from '@wildshard/shard-format/speciesPrograms'
-import {
-  parse,
-  strictObject,
-  type GenericSchema,
-  type InferOutput,
-} from 'valibot'
+import { parse, strictObject, type GenericSchema } from 'valibot'
 
 import bear from '../content/species/bear.json' with { type: 'json' }
 import boar from '../content/species/boar.json' with { type: 'json' }
@@ -110,13 +105,6 @@ const profiles: ReadonlyMap<string, LegacyCreatureProfile> = new Map([
     },
   ],
 ])
-
-/** Exact former hunt-owner baseline for an old native declaration's explicit aggressive flag. */
-export function legacyHuntTuning(
-  aggressive: boolean,
-): InferOutput<typeof HuntTuningSchema> {
-  return parse(HuntTuningSchema, aggressive ? boar.tuning : deerTuning)
-}
 
 /** A fresh validated compatibility profile for an old source label, or no implicit expansion. */
 export function legacyCreatureProfile(

@@ -56,7 +56,7 @@ function cookRow(input: CookInput | undefined, emitted: Map<string,Uint8Array>, 
   return {path:COOK_DATA_PATH,hash:hashAssetBytes(bytes),bytes:bytes.length};
 }
 /** Read the named canonical platform payloads, each only after checking its emitted hash and size. */
-export function outputPlatformPayloads(platform: EmittedSections | undefined, names: readonly string[] = [...HEADLESS_CONTEXT_SECTIONS, 'actors/species-programs']): ReadonlyMap<string, unknown> {
+export function outputPlatformPayloads(platform: EmittedSections | undefined, names: readonly string[] = HEADLESS_CONTEXT_SECTIONS): ReadonlyMap<string, unknown> {
   const payloads = new Map<string, unknown>();
   for (const entry of platform?.sections ?? []) {
     if (!names.includes(entry.name)) continue;

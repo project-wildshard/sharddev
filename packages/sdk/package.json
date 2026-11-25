@@ -277,7 +277,6 @@
     "./internal/updatePins": "./src/sharddev/updatePins.ts",
     "./internal/migrations": "./src/sharddev/migrations.ts",
     "./internal/scene/hash": "./src/sharddev/scene/hash.ts",
-    "./internal/nativeHuntSource": "./src/sharddev/nativeHuntSource.ts",
     "./internal/combatSource": "./src/sharddev/combatSource.ts",
     "./internal/test/ownedScratch": "./src/sharddev/test/ownedScratch.ts",
     "./internal/harvestSource": "./src/sharddev/harvestSource.ts",

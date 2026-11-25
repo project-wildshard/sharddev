@@ -1,27 +1,15 @@
 import { compileIncomingCapPolicy } from '@wildshard/format/incomingCapPolicy';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
-import { readSpeciesPrograms } from '@wildshard/format/speciesPrograms';
 import { legacySwordDebris } from '@wildshard/kit/legacyCombat';
 
-/** Ordinary declarations retain their identity; native declarations complete
- * the same namespace before the kit writes explicit item effects. */
-function contactSpecies(source: Shardfile, sections: ReadonlyMap<string, unknown> | undefined): readonly Readonly<{id: string; kind: string}>[] {
-  const rows = new Map(source.rows.species.map(row => [row.id, row] as const));
-  const payload = sections?.get('actors/species-programs');
-  if (payload === undefined) return [...rows.values()];
-  const native = readSpeciesPrograms(payload);
-  const roster: Readonly<{id: string; kind: string}>[] = [...rows.values()];
-  const known = new Set(rows.keys());
-  for (const row of [...native.page, ...native.native, ...native.program?.species ?? []]) {
-    if (known.has(row.id)) continue;
-    known.add(row.id); roster.push(row);
-  }
-  return roster;
+/** The species a sword's contact debris reads: the ordinary declarations (FORMAT-PRUNE FP20 retired the native programs). */
+function contactSpecies(source: Shardfile): readonly Readonly<{id: string; kind: string}>[] {
+  return source.rows.species;
 }
 
 /** Copy each older source's cap and sword policies into ordinary declarations; explicit rows remain authoritative. */
 export function expandCombatSource(source: Shardfile, warn: (message: string) => void = console.warn, sections?: ReadonlyMap<string, unknown>): Shardfile {
-  const copied = new Set<string>(), contacts = contactSpecies(source, sections);
+  const copied = new Set<string>(), contacts = contactSpecies(source);
   const fight = source.manifest?.fight, capExemptTags = compileIncomingCapPolicy(fight ?? {});
   const compileFight = fight !== undefined && fight.capExemptTags === undefined;
   if (compileFight) copied.add('manifest exact cap tags');
