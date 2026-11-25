@@ -25,3 +25,8 @@ I tried the packed-install script locally first. It needs `RUNNER_TEMP`
 for its scratch, and this machine's pnpm then refuses the install
 (`ERR_PNPM_IGNORED_BUILDS`), so it can't stand in for CI here; the
 focused test can.
+
+Follow-up: typing `BOAR_ITEMS` moved the source content hash, so the
+push lane's build re-stamped Mossgate's `hero.json` (look unchanged:
+`6cf9116f…`, so no recapture). The re-stamp is committed in its own
+commit, as 661da3e7 did, so a local check leaves the tree clean.
