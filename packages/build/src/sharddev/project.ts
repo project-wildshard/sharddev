@@ -309,7 +309,7 @@ export async function buildProject(project: string, output?: string, options: { 
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
   await options.admit?.(shard, assets, projectPerformancePolicy(project, shard), outputPlatformPayloads(loaded.output.platform));
   phase('simulation-admission');
-  const destination = output ?? resolve(shardOutputRoot(project), 'public/shardfiles', shard.identity.slug);
+  const destination = output ?? resolve(shardOutputRoot(project), 'out', shard.identity.slug);
   const clientPlan = shard.runtime !== null;
   if (options.copyRuntime === true || clientPlan) {
     const root = realpathSync(project), target = resolve(destination);

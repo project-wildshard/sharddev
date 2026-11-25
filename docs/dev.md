@@ -61,7 +61,7 @@ fixture and its explicit CI-only, sub-ten-second runner.
 step (meta SHARD-AUTHORING SA4, J317: new, dev, check, hero, upload). It
 runs, in order: `lint` (the SDK's `.oxlintrc.author.json`; skipped when
 oxlint is not installed with the sdk), `build` (product only, to `output`
-or `<project>/public/shardfiles/<slug>`), `validate` (the built product's
+or `out/<slug>`), `validate` (the built product's
 format checks), `prove` (only when the project has a `proof.json` author
 tape) and `report` (the report card, measured during the build). A failed
 build skips the three steps after it; any failed step fails the verdict

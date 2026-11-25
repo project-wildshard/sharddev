@@ -17,6 +17,6 @@ test('a new reference project points at its own shard file, never the template',
     expect((JSON.parse(text) as { slug: string }).slug).toBe('my-shard');
     expect(readFileSync(resolve(project, 'src/generators/shard.ts'), 'utf8')).not.toMatch(/_template|mossgate/u);
     // The checkout's own built Template output is never copied into a new project.
-    expect(existsSync(resolve(project, 'src/public/shardfiles'))).toBe(false);
+    for (const built of ['src/public', 'src/out']) expect(existsSync(resolve(project, built)), built).toBe(false);
   } finally { rmSync(parent, { recursive: true, force: true }); }
 });

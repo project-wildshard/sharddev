@@ -107,8 +107,6 @@ test('a look is not recorded beside untracked src/ inputs', async (context: Test
   const space = await project(context)
   await writeHeroStamp(space.shard, { base: BASE })
   await committedWithLooseAsset(space)
-  // The loose asset is the source's own content, so the hero is stamped over it: only its being untracked stops the cut.
-  await writeHeroStamp(space.shard, { base: BASE })
   const lines = await cut(space)
   assert.ok(
     lines.some((line: string): boolean =>

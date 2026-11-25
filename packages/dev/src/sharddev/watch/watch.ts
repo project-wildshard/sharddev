@@ -49,7 +49,7 @@ import { DEV_ROOT } from '../devRoot';
 export interface WatchProject { url: string; close: () => Promise<void> }
 
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
-const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees', 'tmp']);
+const ignored = new Set(['node_modules', '.git', 'dist', 'out', 'public', '.worktrees', 'tmp']);
 
 /**
  * AP17: the modules a watched revision shares with this process instead of bundling and evaluating its own copy: `three`

@@ -151,8 +151,7 @@ const TSCONFIG = `${JSON.stringify({
 }, null, 2)}\n`;
 const GITIGNORE = `node_modules/
 # Build output: the built folder and <slug>.shardfile. Never commit it.
-public/shardfiles/
-public/assets/*/map/
+out/
 tmp/
 .DS_Store
 `;
@@ -202,7 +201,7 @@ pnpm exec wildshard check .
 \`\`\`
 
 ${layout}
-- \`public/shardfiles/\` is build output. Never edit or commit it.
+- \`out/\` is build output. Never edit or commit it.
 `;
 }
 
@@ -251,7 +250,7 @@ function writeSceneSource(source: string, slug: string): void {
   cpSync(scene, source, { recursive: true, errorOnExist: true, force: false,
     // Mossgate's captured card and hero stamp are its own art: a new project wears a generated card until its author
     // captures one (NEW-SHARD-E2E F28), never another shard's.
-    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
+    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'out') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
   // TEMPLATE-E2E TC-NE5, TR-2, TR-12: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`,
   // then on to brazier A and through the moss gate it opens, which files `mossgate.first-light`) lives
   // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.

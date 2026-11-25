@@ -16,9 +16,11 @@ import { sceneCardUrls } from './scene-card.ts'
 const STAMP = 'hero.json'
 const SLOTS = ['thumb', 'portrait', 'landscape'] as const
 // Generated, ignored, test or prose files are not the world a hero shows.
-// The directories are skipped at the shard folder's top level only.
+// The directories are skipped at the shard folder's top level only. `out`
+// is build output; `static` holds the mounted files, which sat outside the
+// source in the repo's public/ until A7, so a stamped hero stays current.
 const SKIPPED_DIRECTORIES = new Set(
-  '.cache .git .worktrees dist node_modules public tmp'.split(' '),
+  '.cache .git .worktrees dist node_modules out public static tmp'.split(' '),
 )
 const SKIPPED_SUFFIXES = '.generated.ts .test.ts .test.mjs .md .DS_Store'.split(
   ' ',

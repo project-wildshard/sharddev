@@ -154,7 +154,7 @@ export async function runBuild(
       folder === undefined
         ? resolve(
             shardOutputRoot(resolve(input)),
-            'public/shardfiles',
+            'out',
             shard.identity.slug,
           )
         : resolve(folder),

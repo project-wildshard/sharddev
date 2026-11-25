@@ -94,7 +94,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
   const settleInto = async (source: string): Promise<Shardfile> => {
     // Its build output goes beside src/, never inside the folder pack reads (or a built folder named as a source).
     if (!isRepoSource(source)) throw new Error(`${source}: a hand-written shard file builds only from a repo's src/: run wildshard check on the repo`);
-    output ??= resolve(shardOutputRoot(source), 'public/shardfiles', handwrittenIdentity(source).slug);
+    output ??= resolve(shardOutputRoot(source), 'out', handwrittenIdentity(source).slug);
     const checked = settleHandwrittenCreatureLayers(source, output);
     await admit(checked.shard, checked.assets, checked.shard.runtime === null ? 'refuse' : 'warn', checked.sections);
     return checked.shard;
@@ -111,7 +111,7 @@ export async function checkProject(projectPath: string, outputPath: string | und
         ...(options.output === undefined ? {} : { output: options.output }),
         ...(options.decisionLegacyLines === undefined ? {} : { decisionLegacyLines: options.decisionLegacyLines }),
         ...(options.manifest === undefined ? {} : { manifest: options.manifest }) });
-      output ??= resolve(shardOutputRoot(project), 'public/shardfiles', shard.identity.slug);
+      output ??= resolve(shardOutputRoot(project), 'out', shard.identity.slug);
       let file: string | undefined;
       // The draft warning goes in the verdict (below), so the writer leaves it out.
       try { file = await options.writeShardfile?.(output, project, { draftWarning: false }); }

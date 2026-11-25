@@ -24,6 +24,6 @@ export function projectPerformancePolicy(project: string | undefined, source: Pi
   // SA16 (J317): a single-shard repo holds it at src/ (SA24 moves the six there), a multi-shard repo at src/shards/<slug>/.
   const canonical = existsSync(resolve(root, 'src/shard.config.ts')) ? resolve(root, 'src') : resolve(root, 'src/shards', source.identity.slug);
   if (!existsSync(project) || !existsSync(canonical)) return 'refuse';
-  const actual = realpathSync(project), products = [resolve(root, 'public/shardfiles', source.identity.slug),resolve(root,'out',source.identity.slug)];
+  const actual = realpathSync(project), products = [resolve(root,'out',source.identity.slug)];
   return actual === realpathSync(canonical) || products.some(product => existsSync(product) && actual === realpathSync(product)) ? 'warn' : 'refuse';
 }

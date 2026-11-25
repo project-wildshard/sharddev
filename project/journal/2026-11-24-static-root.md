@@ -25,3 +25,13 @@ FORMAT-PRUNE FP40) took a repo bake's far proxy from
 `<repo>/public/assets/baked/<slug>/far.*`. Left alone, a migrated repo
 would build with no far row, and its product would change. It now reads
 `<source>/static/assets/baked/<slug>/`, where migration 0.5.0 puts it.
+
+S2, build output defaults to `out/<slug>` (was `public/shardfiles/`):
+the repo's `out/` for a `src/` source, the source folder's own `out/`
+for any other, as before with `public/`. `new` writes a `.gitignore`
+with `out/` and no `public/` lines. Two follow-ons the survey did not
+list: the hero content hash skipped a top-level `public/` (the old
+output beside a non-repo source), so it now skips `out/` too, and also
+`static/`, so a hero stamped before the move stays current after it (its
+files were outside the source in `public/`, never hashed). The dev and
+watch watchers ignore `out/` as they ignored `public/`.

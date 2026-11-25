@@ -10,7 +10,7 @@ import { decisionLegacyLines } from '@wildshard/build/scripts/decision-legacy-li
 //
 // G348: why this runner stays beside `wildshard build` (which bakes any shardfile's near row from its own terrain
 // collider and its L1 tiles' meshes, `projectPlaceholders`): the first-party hybrids (Driftwood, Nalati, Pine) have no
-// world in their shardfiles yet (no terrain, no tiles; `public/shardfiles/<slug>/shard.json`). Their props and forests
+// world in their shardfiles yet (no terrain, no tiles; `out/<slug>/shard.json`). Their props and forests
 // exist only when their TypeScript builders run, so the SDK build has nothing to harvest, and no shardfile input can
 // reproduce these bytes (the coarsest built LOD of every placement, Pine's per-tree placements, the colour maps' mean
 // texels). Nothing here is per shard (each declares its ground and tree stand-ins in data/placeholder.json); the grid

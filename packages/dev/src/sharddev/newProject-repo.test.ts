@@ -36,7 +36,8 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(Object.keys(manifest.dependencies)).not.toContain('@wildshard/sharddev');
     // Exact pins: no range operator on any of them.
     for (const spec of Object.values(manifest.dependencies)) expect(spec).not.toMatch(/^[\^~><=*]|latest/u);
-    expect(readFileSync(resolve(repo, '.gitignore'), 'utf8')).toMatch(/^public\/shardfiles\/$/mu);
+    expect(readFileSync(resolve(repo, '.gitignore'), 'utf8')).toMatch(/^out\/$/mu);
+    expect(readFileSync(resolve(repo, '.gitignore'), 'utf8')).not.toMatch(/public/u);
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).not.toMatch(/product/u);
     // The template's own README (sharddev notes) is not copied into the shard source.
     expect(existsSync(resolve(repo, 'src/README.md'))).toBe(false);
@@ -116,10 +117,10 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     expect(result.steps.map(step => [step.name, step.status])).toEqual([['lint', 'skip'], ['build', 'pass'], ['validate', 'pass'], ['prove', 'skip'], ['report', 'pass']]);
     expect(result.check).toMatchObject({slug: 'clay-hall', pass: true, performance: {policy: 'refuse'}});
     expect(result.check?.performance.scripts.scripts.samples).toBe(180);
-    expect(readdirSync(resolve(repo, 'public/shardfiles/clay-hall'))).toContain('shard.json');
+    expect(readdirSync(resolve(repo, 'out/clay-hall'))).toContain('shard.json');
     // build has nothing to build there and says so; check refuses a hand-written folder outside a repo's src/.
     await expect(runCli(['build', repo])).rejects.toThrow(/hand-written shard file .*run wildshard check/u);
-    const loose = await checkProject(resolve(repo, 'public/shardfiles/clay-hall'), undefined);
+    const loose = await checkProject(resolve(repo, 'out/clay-hall'), undefined);
     expect(loose.verdict).toBe('fail');
   });
 });

@@ -19,7 +19,7 @@ const POLL = '<script>let wsRevision=WS_REVISION;setInterval(async()=>{try{const
 export const DEV_SERVICE_WORKER = "self.addEventListener('install',()=>{self.skipWaiting()});self.addEventListener('activate',(e)=>{e.waitUntil(self.registration.unregister())});\n";
 const MIME: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.json': 'application/json', '.wasm': 'application/wasm', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.ktx2': 'image/ktx2' };
 // .worktrees: a shard repo's plan worktrees (DEV-SPEED DS11) are other checkouts, never this project's source.
-const ignored = new Set(['node_modules', '.git', 'dist', 'public', '.worktrees', 'tmp']);
+const ignored = new Set(['node_modules', '.git', 'dist', 'out', 'public', '.worktrees', 'tmp']);
 
 /** DK23: each dev process owns output inside the project's lane folder. */
 export function createDevScratch(source: string): string {
