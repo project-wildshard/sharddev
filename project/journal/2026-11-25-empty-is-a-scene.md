@@ -29,3 +29,5 @@ own typecheck and lint cover them, the way Mossgate's are.
 - `pnpm docs` locally rewrote thousands of lines of API docs (the local
   install has drifted), so only the two changed `SHARDDEV.md` rows are
   edited by hand.
+- The sdk builds its own declarations isolated, so the copied
+  `generators/shard.ts` names its type (`SceneShard`); the push hook said so.
