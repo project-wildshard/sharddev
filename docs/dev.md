@@ -264,6 +264,29 @@ The quick outer-edge proof is explicit, outside the hook test set:
 The separate native CLI boundary proof avoids paying for a second test
 loader: `node --test test/ci/generation-cli.test.mjs`.
 
+## Releases and breaking changes
+
+Releases go out on repo-kit's train (`../repo-kit/release.sh`;
+CHANGELOG.md's header says how its notes are written). On 0.x a patch
+never breaks a shard repo, and every break bumps the minor (D29). A
+break is anything a shard repo must change for: a removed or renamed
+export, bin or verb, a moved source layout, a stricter default.
+
+- A minor ships its migration: `packages/sdk/codemods/<x.Y.0>.mjs`,
+  exporting `title`, `pending({ project })`, `guide` (its `GUIDE.md`
+  `migrate-<x-Y-0>` heading, section 7) and the default function, which
+  returns `{ lines, manual }`. Or `codemods/<x.Y.0>.none.json`
+  (`{ "reason": "..." }`) when no repo needs one. `wildshard migrate`
+  and `upgrade` run it (`src/sharddev/migrations.ts`); every verb
+  refuses with `migration-pending` until it has.
+- The gate: `packages/sdk/test/codemod-gate.test.ts` (in `pnpm test`).
+  It refuses a codemod named for a patch, a minor's codemod missing an
+  export or its guide heading, an sdk at `x.Y.0` without its migration,
+  and a public name gone since the last release tag unless the next
+  release is that minor.
+- The procedure (classify, migration, guide, changelog, release, roll
+  the org's shard repos) is the `sdk-breaking-release` skill.
+
 ## Code rules
 
 - TypeScript only, imports with explicit `.ts`/`.tsx` extensions.

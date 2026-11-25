@@ -7,6 +7,15 @@ subjects. Notes for work that has landed but not shipped wait under
 the next version and date, commit and push it, then run repo-kit's
 `release.sh` (it does not read or edit this file).
 
+**Versions (Jake, 2026-11-24: *"0.4.$PATCH is non breaking, and 0.5.0
+is for breaking, we bump the minor on every break"*).** A patch never
+breaks a shard repo. Every break bumps the minor and ships its
+migration in the same release (`packages/sdk/codemods/<v>.mjs`). A
+minor's section opens with a **Breaking:** line saying what an author
+does, for example "nothing: `wildshard upgrade` runs the migration",
+or the manual step it prints. The procedure is the
+`sdk-breaking-release` skill.
+
 ## v0.4.33 (2026-11-24)
 
 - Hero shots refuse a mostly black capture instead of uploading it.
