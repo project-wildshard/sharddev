@@ -22,10 +22,11 @@ let cache = 0;
 // A spawn may take up to 14 s. Runners come in two speeds, the slow ~1.45x the fast. `new --empty` is a generated scene
 // since A9 (40c4f31a), so on a fast runner (da490408) a build takes 4.6 s, check 8.1 s and --folder-only's two builds
 // 9.0 s; slow runners took check 7.4 to 7.9 s even before A9 (9c658b97, 93515cf0, 216bd54a). A test that builds once
-// gets 12 s, check and two builds 15 s; the rest keep 9.5 s.
-function run(args, success = true, environment = {}) {
+// gets 12 s, check and two builds 15 s; the rest keep 9.5 s. 11-25: check reached 13.2 to 13.9 s on CI (90c3bb79) and
+// timed out at 14 s (52d5c211), so the two check tests spawn with 28 s and run under 30 s.
+function run(args, success = true, environment = {}, timeout = 14_000) {
   const done = spawnSync(process.execPath, [bin, ...args], {
-    cwd: app, encoding: 'utf8', timeout: 14_000,
+    cwd: app, encoding: 'utf8', timeout,
     // The quick author's day reuses its verified compiler. Ring 2 owns the
     // separate fully cold compiler + generation proofs on all real templates.
     env: { ...process.env, ...environment, WILDSHARD_GEN_CACHE: join(root, `generation-${cache++}`), WILDSHARD_SHARDFILE_CACHE: join(root, 'compiler') },
@@ -124,8 +125,8 @@ test('installed validation accepts the outside author output', { timeout: 9_500 
   run(['validate', join(app, 'first')]);
 });
 // SA4: the loop's third step is one verb with one verdict; --json keeps stdout to the verdict document alone.
-test('installed check --json gives a verdict on the new author project', { timeout: 15_000 }, () => {
-  const done = run(['check', source, join(app, 'checked'), '--json']);
+test('installed check --json gives a verdict on the new author project', { timeout: 30_000 }, () => {
+  const done = run(['check', source, join(app, 'checked'), '--json'], true, {}, 28_000);
   const result = JSON.parse(done.stdout);
   assert.equal(result.verdict, 'pass', done.stdout);
   assert.deepEqual(result.steps.map(step => step.name), ['lint', 'build', 'validate', 'prove', 'report']);
@@ -139,8 +140,8 @@ test('installed check --json gives a verdict on the new author project', { timeo
   assert.match(result.steps[1].note.split('; ', 1)[0], /outside-isle\.shardfile$/u);
   assert.equal(sha(shardfile), built);
 });
-test('installed check prints the draft warning once, in its verdict', { timeout: 15_000 }, () => {
-  const done = run(['check', source, join(app, 'checked')]);
+test('installed check prints the draft warning once, in its verdict', { timeout: 30_000 }, () => {
+  const done = run(['check', source, join(app, 'checked')], true, {}, 28_000);
   assert.equal(`${done.stdout}${done.stderr}`.match(/unprepared draft/gu)?.length, 1, done.stdout);
   assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(no preparation\)/mu);
   assert.match(done.stdout, /^check pass in /mu);

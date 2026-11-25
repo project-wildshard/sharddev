@@ -21,3 +21,8 @@ change, so my fix: budgets from the measured fast times times ~1.45 for
 slow runners. Tests that build once get 12 s; check and two builds get
 15 s. The cost is real (a scene runs its generator), and the bare scene
 is what Jake asked for, so the budgets move, not the scaffold.
+
+Later the same day the two check tests ran 13.2 and 13.9 s on CI
+(90c3bb79) and timed out at the 14 s spawn limit (52d5c211). They now
+spawn with 28 s and run under 30 s; every other test keeps its budget.
+Why check grew from 8 s is not chased here: a plan row if it matters.
