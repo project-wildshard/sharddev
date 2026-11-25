@@ -13,6 +13,7 @@
 import * as THREE from 'three';
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
 import type { ShardRows } from '@wildshard/format/rows';
+import type { Shardfile } from '@wildshard/format/shardSchema';
 import type { ShardWorld } from '@wildshard/sdk/scene/author';
 import { groundHeight, LAYOUT } from './hollow';
 import { MEADOW_PACKS } from './meadow';
@@ -29,7 +30,8 @@ type Variant = ShardRows['species'][number]['variants'][number];
  *  meat and hide from every boar, a tusk from Greyback only. gameplay.ts puts both on the shard (the catalogue must name
  *  the items before a species' harvest does). */
 export const BOAR_HARVEST = [{ item: 'boar-meat', count: 1 }, { item: 'boar-hide', count: 1 }, { item: 'boar-tusk', count: 1, variants: ['greyback'] }];
-export const BOAR_ITEMS = [
+// Typed: inferred, the icons widen to string, and a new repo's tsc on the packed graph refuses them (packed-install, 661da3e7).
+export const BOAR_ITEMS: NonNullable<Shardfile['items']['catalogue']> = [
   { id: 'boar-meat', label: 'Boar meat', icon: 'meat', travels: false },
   { id: 'boar-hide', label: 'Boar hide', icon: 'hide', travels: false },
   { id: 'boar-tusk', label: 'Boar tusk', icon: 'tusk', travels: false },
