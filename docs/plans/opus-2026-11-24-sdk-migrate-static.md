@@ -5,8 +5,8 @@
 > **State:** in progress, 2026-11-25. Jake approved the plan in session (plan mode, 2026-11-24 ~23:45 Cancún)
 > and said to build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7.
 > Done, on main: M1 to M6, S1 to S3, B1 (dry run clean on all 12 shard repos); SF1 in shard-format
-> `0ea842f`. Open: R1 (release 0.5.0), R2 (Driftwood), R3 (the other 11), R4 (Showcase's agent-sync
-> layout, A8). Owner from 11-25 ~02:10 Cancún: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
+> `0ea842f`; R1 (0.5.0 on npm 11-25, 0.5.1 for `engines.node`); R2 (Driftwood `69ed5b0`, t16). Open: R3
+> (the other 10, trial green on 8), R4 (Showcase, in the same roll), F1 to F4. Owner from 11-25 ~02:10 Cancún: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
 > finishing this whole plan"). By hc with t16 (015pj4Rw): R2 Driftwood is t16's; R1, R3 and R4 are 015pj4Rx's.
 
 ## Why
@@ -100,6 +100,10 @@ Build output defaults to `out/<slug>`.
 | **R2** | Driftwood: record its product hash on 0.4.x, `wildshard upgrade 0.5.0`, do the manual steps, commit and push. | Product hash identical; `check .` passes from a fresh clone with no `public/`; ci green; the outside-author journey in Verification passes on a scratch copy |
 | **R3** | The other 11, in parallel after R2: Dunes, Nalati, Nine Dragon, Open Plots, Pine Hollow, Sky Reach, Showcase (each moves a `public/`); Brasscap, Glowfen, Mirror Salt, Stranger (stamp and gitignore only). Brasscap only after SF1. | Each repo: product hash identical, `check` passes, ci green, no `public/` left |
 | **R4** | Ask A8 (`b6214533`): Showcase is on repo-kit's agent-sync. In its R3 upgrade, also run `wildshard update --guide docs/GUIDE.md` and `pnpm agents:sync`, and commit the four `.agents/skills/wildshard*` folders, their `.claude/skills` links and `docs/GUIDE.md`. | In shard-showcase: `node src/scripts/.kit/agent-sync.mjs --check` passes, no root `GUIDE.md`, `package.json` has `"wildshard": { "guide": "docs/GUIDE.md" }` |
+| **F1** | t16, R2: `migrate` and `update` write `.agents/hooks.local.json` but leave the repo's agent sync unrun, so a kit repo's own check refuses `.claude/settings.json` and `.codex/hooks.json` as out of date. Run the repo's `agents:sync` when it has one. | An outside kit-layout repo's `pnpm check` passes straight after `wildshard upgrade` |
+| **F2** | R3 trial: the 0.5.0 migration leaves old paths in code, tests and map inputs: `public${url}` reads, `'public'` segments in `resolve`/`join`, `'public'.length`, `../../../public/` inputs. The roll's `tmp/r3-roll/fixup.mjs` rules are the list to fold into the migration or its manual scan. | The migration's manual list names every such line in the 11 repos' pre-roll trees |
+| **F3** | R3 trial: a map input that names a missing file is dropped without a word (Sky Reach built without a GLB). Refuse it, as a minor if a green repo would go red. | A build whose map input is missing refuses, naming the file |
+| **F4** | For Jake (t16): `packages/sdk/public/assets/baked/template-props/` (80 tracked files) has no reader. Delete it on his word. | Gone, or kept with a reader named |
 
 Order: M1, S1, S2 and SF1 start together; M2 to M6 follow M1; S3 follows
 S1; B1 follows M1 and S1; R1 follows everything in sharddev; R2 follows
