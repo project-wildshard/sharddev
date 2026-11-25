@@ -30,3 +30,7 @@ The fix, before the 0.5.0 cut (`upgrade` goes through the same code):
 
 Nine Dragon carries the same stale key; it built only because nothing
 on its path reaches kit's specimen book.
+
+Landed as two commits: the commit lane ran 8.0 to 8.2 s with both
+fixes and their tests together (load ~15 on 18 cores), over its 8 s
+hard budget, so the `check` refusal went in on its own.

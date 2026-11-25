@@ -35,6 +35,16 @@ function versionOf(name: string, spec: string): string {
   return name === '@wildshard/format' ? (FORMAT.exec(spec)?.[1] ?? spec) : spec;
 }
 
+/** The package a pnpm override key targets: its last `parent>` step, without an `@<range>` selector. */
+function overridden(key: string): string {
+  return (key.split(/>(?=[@A-Za-z])/u).at(-1) ?? key).replace(/(?<=.)@[^@/]*$/u, '');
+}
+
+/** The format under either name: the `@wildshard/format` alias a repo pins, or `@wildshard/shard-format`, the name
+ * kit depends on it by. An override of either at another version links a second format beside the SDK's
+ * (shard-nalati on 0.4.33: named-JSON provenance refused the build). */
+const FORMAT_NAMES: ReadonlySet<string> = new Set(['@wildshard/format', '@wildshard/shard-format']);
+
 /** The SDK's own pins: format from its dependencies, engine from its devDependencies (the engine its dev runs). */
 export function sdkPins(sdkRoot: string): ReadonlyMap<string, string> {
   const sdk = readManifest(join(sdkRoot, 'package.json'));
@@ -54,12 +64,20 @@ export function pinRefusals(project: string, pins: ReadonlyMap<string, string>):
   const pnpm = manifest['pnpm'];
   const overrides: Manifest = isManifest(pnpm) ? pnpm : {};
   const refusals: StepRefusal[] = [];
+  const overrideRecord = overrides['overrides'];
+  const overrideKeys = isManifest(overrideRecord) ? Object.keys(overrideRecord) : [];
   for (const [name, want] of pins) {
-    const specs = [...FIELDS.map(field => listed(manifest, field, name)), listed(overrides, 'overrides', name)];
-    for (const spec of specs) {
+    // Every override that targets this package, under any key form; the format under both its names.
+    const targets = (key: string): boolean => name === '@wildshard/format' ? FORMAT_NAMES.has(overridden(key)) : key === name;
+    // Each spec with how to find it: a dependency or a bare-name override by its name, any other override by its key.
+    const specs: [string, string | undefined][] = [
+      ...FIELDS.map((field): [string, string | undefined] => [name, listed(manifest, field, name)]),
+      ...overrideKeys.filter(targets).map((key): [string, string | undefined] => [key === name ? name : `pnpm.overrides ${key}`, listed(overrides, 'overrides', key)]),
+    ];
+    for (const [label, spec] of specs) {
       if (spec === undefined || versionOf(name, spec) === want) continue;
       refusals.push({
-        message: `package.json pins ${name} ${spec}; the SDK pins ${want}. Run \`wildshard update --pins\`: a shard repo takes format and engine from its SDK (SHARD-COMPAT CP18)`,
+        message: `package.json pins ${label} ${spec}; the SDK pins ${want}. Run \`wildshard update --pins\`: a shard repo takes format and engine from its SDK (SHARD-COMPAT CP18)`,
         file: 'package.json',
       });
     }

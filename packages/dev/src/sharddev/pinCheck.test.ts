@@ -50,6 +50,17 @@ describe('pinRefusals', () => {
     expect(pinRefusals(shard('0.68.0', '0.1.66', '0.1.60'), pins)).toHaveLength(1);
   });
 
+  it('refuses a format override under either name, by any key, that is not the SDK\'s: a second format beside the SDK\'s', () => {
+    // shard-nalati on 0.4.33: `@wildshard/kit>@wildshard/shard-format` stayed at 0.74.1 and kit linked it.
+    const withOverrides = (overrides: Record<string, string>): string => folder({
+      devDependencies: { '@wildshard/sharddev': 'npm:@wildshard/sdk@0.4.24', '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0' }, pnpm: { overrides } });
+    const stale = pinRefusals(withOverrides({ '@wildshard/kit>@wildshard/shard-format': '0.61.0', 'some-tool>@wildshard/format': 'npm:@wildshard/shard-format@0.60.0' }), pins);
+    expect(stale.map(refusal => refusal.message)).toEqual([
+      expect.stringContaining('pnpm.overrides @wildshard/kit>@wildshard/shard-format 0.61.0; the SDK pins 0.68.0'),
+      expect.stringContaining('pnpm.overrides some-tool>@wildshard/format npm:@wildshard/shard-format@0.60.0; the SDK pins 0.68.0')]);
+    expect(pinRefusals(withOverrides({ '@wildshard/kit>@wildshard/shard-format': '0.68.0', '@wildshard/format': 'npm:@wildshard/shard-format@0.68.0', 'other>left-alone': '1.0.0' }), pins)).toEqual([]);
+  });
+
   it('judges only against the installed SDK, so a newer format or engine on npm needs no shard commit', () => {
     // The shard pins the SDK exactly; npm has format 0.69.0 and engine 0.1.70 now, and nothing in the shard changes.
     const onSdk = shard('0.68.0', '0.1.66');
