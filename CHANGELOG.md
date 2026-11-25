@@ -16,6 +16,13 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.5.0 (2026-11-25)
+
+- **Breaking:** a shard repo's `public/` folder moves into `src/static/`, and builds go to `out/<slug>`. Authors run nothing by hand: `wildshard upgrade 0.5.0` moves the files and prints any manual steps left.
+- Every command says when an sdk migration has not run in a repo, and `wildshard migrate` runs it, however the sdk got installed.
+- `wildshard upgrade` moves a repo to a new sdk in one command; `update --pins` still works as its old name.
+- `wildshard status` tells you the installed sdk and any pending migration, and new shard repos show it to Claude and Codex when a session starts.
+
 ## v0.4.33 (2026-11-24)
 
 - Hero shots refuse a mostly black capture instead of uploading it.
