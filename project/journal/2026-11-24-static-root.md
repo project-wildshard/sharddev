@@ -35,3 +35,25 @@ output beside a non-repo source), so it now skips `out/` too, and also
 `static/`, so a hero stamped before the move stays current after it (its
 files were outside the source in `public/`, never hashed). The dev and
 watch watchers ignore `out/` as they ignored `public/`.
+
+S3, sharddev's own shards. Surprise: neither `pastel-plain` nor
+`ink-cel-valley` has an `assets/public/` any more, so
+`publish-public.mjs` copied nothing and there was nothing to move. It is
+deleted with its `build:shards` prefix. The map bakes and
+`build-shardfiles.mjs` read and write `static/assets/<slug>/map/`; the
+engine's `folderFlags` still names a baked map under `<root>/public/`,
+so build-shardfiles rewrites that one flag. The engine's
+`publishFolderMap` still writes a `public/` alias of a program map,
+which stays gitignored.
+
+The byte proof did not come out identical at first: pastel-plain's
+`look/map` section and `build.sourceHash` moved. Its program map's
+`tilesHash` keys the sdk files the painter runs (its `data/map.json`
+inputs list `cookInput.ts`, `projectGeneration.ts` and
+`shardSource.ts`), so any edit to those files moves it. A tree copy with
+just those three files at main's bytes (the new helpers in a side file)
+builds both products byte-identical to main, so the move itself changes
+nothing. Also found: five shard repos' map inputs name `public/` files
+(Dunes, Nalati, Nine Dragon, Open Plots, Sky Reach). The hash takes the
+path, so moving those files moves their products unless migration 0.5.0
+handles it.

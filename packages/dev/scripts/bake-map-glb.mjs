@@ -15,6 +15,7 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { NodeIO } from '@gltf-transform/core';
 import { MAP_METRES, mapPixelHash, mapSettings, mapSettingsPath, mapStampPath, mapShards, mapTilesHash, writeMapStamp } from '@wildshard/engine/scripts/map-hash.mjs';
+import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
 const SIDE = 2000, OUT = 1000, PPM = SIDE / MAP_METRES, BG = [0.16, 0.18, 0.2];
 const option = (name) => process.argv.find((part) => part.startsWith(`--${name}=`))?.slice(name.length + 3);
@@ -115,7 +116,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
       const out = await rasterizeGlb(join(dir, settings.from), settings);
       const colourPath = join(work, `colour-${slug}.ppm`), heightPath = join(work, `height-${slug}.ppm`), stylePath = join(work, `style-${slug}.json`);
       writeFileSync(colourPath, out.colour); writeFileSync(heightPath, out.height); writeFileSync(stylePath, JSON.stringify(settings.style));
-      const imageDir = join(root, 'public/assets', slug, 'map'), webp = join(imageDir, 'top.webp');
+      const imageDir = join(shardStaticRoot(dir), 'assets', slug, 'map'), webp = join(imageDir, 'top.webp');
       mkdirSync(imageDir, { recursive: true });
       execFileSync('uv', ['run', '--quiet', '--with', 'numpy', '--with', 'scipy', '--with', 'pillow', 'python', join(root, 'scripts/map-stylize.py'), colourPath, heightPath, stylePath, webp, String(OUT)], { stdio: 'inherit' });
       const bytes = statSync(webp).size;

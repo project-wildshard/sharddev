@@ -24,6 +24,7 @@ import { checkTileBake } from '@wildshard/engine/scripts/tile-bakes.mjs';
 import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
 import { runtimeCopyIssues, folderMapInput, publishFolderMap, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
 import { isWorktreePath } from '@wildshard/sdk/scripts/worktree-ignore.mjs';
+import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
 /** Read CI's output or a matching immutable product without invoking the builder.
  * @param {string} root @param {string} name
@@ -135,11 +136,13 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     if (map?.image !== undefined && map.image !== `/assets/${name}/map/top.webp`) throw new Error(`Unexpected baked map path for ${name}`);
     if (map?.image !== undefined) {
       if (map.pixelHash === undefined) throw new Error(`Missing baked map pixel identity for ${name}`);
-      await verifyMapPixels(resolve(root, 'public', map.image.slice(1)), map.pixelHash);
+      await verifyMapPixels(resolve(shardStaticRoot(project), map.image.slice(1)), map.pixelHash);
     }
     const issues = copyRuntime === 'closed' ? runtimeIssues(project) : [];
     runtimeReport.push({ slug: name, runtime: issues.length > 0 ? 'source' : 'output', issues });
-    const flags = folderFlags(root, output, map, copyRuntime === true || copyRuntime === 'closed' && issues.length === 0);
+    // A7: a baked map is the source's static/ file; the engine's folderFlags still names it under <root>/public/.
+    const flags = folderFlags(root, output, map, copyRuntime === true || copyRuntime === 'closed' && issues.length === 0)
+      .map(flag => flag.startsWith('--map=') && map?.image !== undefined ? `--map=${resolve(shardStaticRoot(project), map.image.slice(1))}` : flag);
     // --no-placeholders (G348): a first-party product keeps its own bytes; its near / far views come from the repo bakes
     // until the grid reads a shardfile's `near`. The CLI's default baked a near row into Signal Dunes' product, whose play
     // stage then never ran (677bd1cf1: "Shardfile requires the normal play stage", the page held at 82 %).

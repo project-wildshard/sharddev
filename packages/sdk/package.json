@@ -42,7 +42,7 @@
     "lint:ci21": "node scripts/ci21-sdk-tail-lint.mjs",
     "test": "pnpm test:author",
     "test:author": "vitest run",
-    "build:shards": "node scripts/publish-public.mjs && node ../dev/bin/wildshard.mjs build-shards",
+    "build:shards": "node ../dev/bin/wildshard.mjs build-shards",
     "pack:shards": "node scripts/pack-all.mjs"
   },
   "dependencies": {

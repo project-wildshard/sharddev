@@ -5,7 +5,7 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { after, test } from 'node:test';
@@ -25,10 +25,9 @@ function bytes(directory, prefix = '') {
 // TEMPLATE-E2E TR-11 (J434): Mossgate, the starter, replaced the retired Template here.
 for (const slug of ['mossgate', 'ink-cel-valley', 'pastel-plain']) test(`${slug}: two cold bakes and moved source publish identical bytes`, { timeout: 120_000 }, () => {
   const source = join(app, 'src/shards', slug), moved = join(app, 'relocated', slug);
+  // A7: the files a shard mounts are its own static/, so they travel with the source.
   cpSync(resolve('src/shards', slug), source, { recursive: true });
   cpSync(source, moved, { recursive: true });
-  const published = resolve('src/shards', slug, 'assets/public');
-  if (existsSync(published)) cpSync(published, join(app, 'public/assets', slug), { recursive: true });
   const outputs = [];
   for (const [index, input] of [source, source, moved].entries()) {
     const output = join(root, `${slug}-${index}`);

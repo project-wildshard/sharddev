@@ -5,7 +5,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { MapRaster } from '@wildshard/sdk/bake/mapRaster';
-import { isRepoSource, shardFolderName } from '@wildshard/upload/sharddev/shardSource.ts';
+import { isRepoSource, shardFolderName, shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 import { readMapGeometry, stylizeMap } from '@wildshard/engine/scripts/map-painter.mjs';
 import { MAP_METRES, mapPixelHash, mapSettingsPath, mapStampPath, mapShards, mapTilesHash } from '@wildshard/engine/scripts/map-hash.mjs';
 
@@ -20,9 +20,9 @@ export async function rasterDataMap(settings, data, { output, glbs, label = 'map
   const raster = new MapRaster(1000, settings, readMapGeometry);
   const { paintMapGeometry } = await import('@wildshard/sdk/internal/bake/mapScenes');
   const source = data.input;
-  // A model URL is a file under the repo's public/. SA44: a caller that knows the shard's place passes `model`; the
-  // default is `src/shards/<slug>/`'s, three folders below the repo root.
-  const model = data.model ?? (url => source(`../../../public${url}`));
+  // A model URL is a file under the source's static/ (A7). A caller that knows the shard's place passes `model`; the
+  // default is the source's own `static/`.
+  const model = data.model ?? (url => source(`static${url}`));
   await paintMapGeometry(raster, settings, { input: source, model, json: data.json, bytes: data.bytes }, { output, glbs, label });
   const own = output === undefined ? undefined : settings.outputs?.[output];
   const style = own?.style ?? settings.style;
@@ -33,7 +33,7 @@ export async function rasterDataMap(settings, data, { output, glbs, label = 'map
 /** Paint the exact render lattice and placed prop triangles. Each address is
  * already world-space in the authored products; no second placement law exists.
  * SF88g: `output` paints one declared output of the folder (scripts/shard-outputs.mjs) from its own `glbs`, into
- * public/assets/<output>/map/top.webp with its stamp at look/map.<output>.baked.json. An output's own row in the map
+ * <source>/static/assets/<output>/map/top.webp with its stamp at look/map.<output>.baked.json. An output's own row in the map
  * settings' `outputs` (G633: a tiled open plot) gives its `style` (else the folder's) and `exclude`, node-name prefixes
  * its glbs leave out (its collision boxes stand over its roofs; its additive light pools are no ground). */
 /** Every repository file by its path, as a shard's pure map producer reads its inputs. @param {string} root */
@@ -41,7 +41,7 @@ export const repoSource = root => path => new Uint8Array(readFileSync(resolve(ro
 export async function paintDataMap(root, slug, { output, glbs, sources } = {}) {
   // SA44: a single-shard repo keeps its source at src/, one folder below the root, not src/shards/<slug>/.
   const single = resolve(root, 'src'), dir = isRepoSource(single) && shardFolderName(single) === slug ? single : resolve(root, 'src/shards', slug);
-  const settings = json(mapSettingsPath(dir)), toPublic = relative(dir, resolve(root, 'public')).split(sep).join('/');
+  const settings = json(mapSettingsPath(dir)), toStatic = relative(dir, shardStaticRoot(dir)).split(sep).join('/');
   const tilesHash = mapTilesHash(dir);
   const declared = settings.inputs.map(file => resolve(dir, file));
   const input = file => {
@@ -52,9 +52,9 @@ export async function paintDataMap(root, slug, { output, glbs, sources } = {}) {
   const source = file => sources?.get(file) ?? input(file);
   const readBytes = file => { const value = source(file); return value instanceof Uint8Array ? value : readFileSync(value); };
   const rows = file => JSON.parse(new TextDecoder('utf-8', { fatal: true }).decode(readBytes(file)));
-  const { raster, pixels } = await rasterDataMap(settings, { input: source, model: url => source(`${toPublic}${url}`), json: rows, bytes: readBytes }, { output, glbs, label: slug });
+  const { raster, pixels } = await rasterDataMap(settings, { input: source, model: url => source(`${toStatic}${url}`), json: rows, bytes: readBytes }, { output, glbs, label: slug });
   const own = output === undefined ? undefined : settings.outputs?.[output], style = own?.style ?? settings.style, painter = settings.painter;
-  const product = output ?? slug, image = resolve(root, 'public/assets', product, 'map/top.webp');
+  const product = output ?? slug, image = resolve(shardStaticRoot(dir), 'assets', product, 'map/top.webp');
   mkdirSync(dirname(image), { recursive: true });
   // Lossless VP8L stores precisely the integer raster; no lossy SIMD rounding.
   const bytes = await sharp(pixels, { raw: { width: 1000, height: 1000, channels: 4 } }).webp({ lossless: true, effort: 6 }).toBuffer();

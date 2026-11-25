@@ -4,7 +4,7 @@ import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // build, render it straight down (orthographic, the full 500 m cell centred on the origin) in 2 × 2 tiles, twice: a colour
 // pass and a height pass (every mesh drawn with its world height). scripts/map-stylize.py turns the two into flat colours
 // by ground type from the shard's own colour table (look/map.json "style"), with a hillshade and inked edges, and writes
-// public/assets/<slug>/map/top.webp (1000 px, 0.5 m per pixel). The stamp (the map inputs' hash, look/map.json included, so
+// <source>/static/assets/<slug>/map/top.webp (1000 px, 0.5 m per pixel). The stamp (the map inputs' hash, look/map.json included, so
 // a palette change rebakes) goes in src/shards/<slug>/look/map.baked.json. Only shards whose map inputs changed are baked
 // unless --all or --shards is given. A shard with no "style" fails its bake: every shard owns its colour table.
 //   node scripts/bake-maps.mjs --url=<scripts/serve-build.sh --head> [--shards=a,b] [--all] [--keep=<dir>]
@@ -20,6 +20,7 @@ import { saveFixture } from '@wildshard/engine/scripts/debug-settings.mjs';
 import { installInit } from '@wildshard/engine/scripts/parity/init.mjs';
 import { MAP_METRES, mapPixelHash, mapSettings, mapSettingsPath, mapStampPath, mapShards, mapTilesHash, writeMapStamp } from '@wildshard/engine/scripts/map-hash.mjs';
 import { saveMapFrames } from './map-bake-frames.mjs';
+import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
 
 const option = (name) => process.argv.find((part) => part.startsWith(`--${name}=`))?.slice(name.length + 3);
 const root = resolve(import.meta.dirname, '..');
@@ -180,7 +181,7 @@ try {
       await page.waitForTimeout(3000);
       const colourPng = join(work, `colour-${slug}.png`), heightPng = join(work, `height-${slug}.png`), stylePath = join(work, `style-${slug}.json`);
       const out = await saveMapFrames(page, await page.evaluateHandle(bake, { tile: TILE, height: HEIGHT, metres: MAP_METRES, bg: [0.16, 0.18, 0.2], hide: settings.hide, heightHide: settings.heightHide, keep: settings.keep, hideStanding: settings.hideStanding, clipBelow: settings.clipBelow, clipAbove: settings.clipAbove }), colourPng, heightPng);
-      const imageDir = join(root, 'public/assets', slug, 'map'), webp = join(imageDir, 'top.webp');
+      const imageDir = join(shardStaticRoot(dir), 'assets', slug, 'map'), webp = join(imageDir, 'top.webp');
       mkdirSync(imageDir, { recursive: true });
       if (settings.style === null || !out.hasHeight) throw new Error(`${slug}: no look/map.json "style" (the colour table) or no height pass`);
       writeFileSync(stylePath, JSON.stringify(settings.style));
