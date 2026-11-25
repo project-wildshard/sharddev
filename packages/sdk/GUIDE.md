@@ -1960,6 +1960,26 @@ test fixture or a workflow comment to point at `src/static/` or `out/`.
 Check after: `public/` is gone, and `wildshard check .` passes with the
 same shard file hash as before.
 
+#### migrate-0-6-0
+
+A map input must name a file. A map's settings
+(`<source>/data/map.json`, else `<source>/look/map.json`) list its
+`inputs`: the files and folders
+whose bytes its `tilesHash` covers. An input that named nothing used to
+be skipped without a word, so a typo or a path the 0.5.0 move left
+behind (`../../../public/…`) built a map that ignored it. From 0.6.0,
+`wildshard build-shards` refuses such an input and names it. The
+migration:
+
+- drops each input that names no file or folder. The map was already
+  built without it, so the map reads the same files; `map.json`'s own
+  bytes change, so its `tilesHash` moves.
+
+Its manual steps name each `map.json` it edited, and each input it left
+because `"from"` names it. Check after: `wildshard build-shards` passes.
+A baked map whose stamp is now stale is named by the build: rebake it,
+and a map a generator paints is rebuilt with the shard.
+
 ## 8. Primitives
 
 A **primitive** is engine code your shard switches on with data: no host list, no engine change. The server reads your

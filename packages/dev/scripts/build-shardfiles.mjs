@@ -5,10 +5,10 @@
 // (node scripts/bake-maps.mjs --url=<scripts/serve-build.sh --head> --shards=<slug>). test/baked-maps.test.ts is the gate's check.
 import { createBuildCacheCounters, observeBuildCache, formatBuildCacheReport } from '@wildshard/engine/scripts/build-cache-report.mjs';
 import { existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
+import { dirname, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { runWildshard } from './wildshard.mjs';
-import { mapInputHashes, mapTilesHash, verifyMapPixels } from '@wildshard/engine/scripts/map-hash.mjs';
+import { mapInputHashes, mapSettingsPath, mapTilesHash, verifyMapPixels } from '@wildshard/engine/scripts/map-hash.mjs';
 import { borrowShardfileEntry, readBuildKey, reuseOrBuild, shardfileCacheRoot, shardfileKey, treeHashes } from '@wildshard/engine/scripts/shardfile-cache.mjs';
 import { randomBytes } from 'node:crypto';
 import { InputHashMemo } from '@wildshard/engine/scripts/bake-input-hashes.mjs';
@@ -25,6 +25,18 @@ import { reportTileBake } from '@wildshard/engine/scripts/tile-bake-report.mjs';
 import { runtimeCopyIssues, folderMapInput, folderFlags, folderRecipe, retainFolderInputs, readBuiltShardfile as selectBuiltShardfile } from '@wildshard/engine/scripts/built-folder.mjs';
 import { isWorktreePath } from '@wildshard/sdk/scripts/worktree-ignore.mjs';
 import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
+
+/** sdk-migrate F3 (sdk 0.6.0): the map's own "inputs" (data/map.json, else look/map.json) each name a file or folder.
+ * The map hash skips an absent input, so a typo or a moved path once built a map that ignored it without a word.
+ * @param {string} root @param {string} project */
+export function refuseMissingMapInputs(root, project) {
+  const settings = mapSettingsPath(project);
+  if (!existsSync(settings)) return;
+  const inputs = /** @type {{ inputs?: unknown }} */ (JSON.parse(readFileSync(settings, 'utf8'))).inputs;
+  if (!Array.isArray(inputs)) return;
+  const missing = inputs.filter(input => typeof input === 'string' && !existsSync(resolve(project, input)));
+  if (missing.length > 0) throw new Error(`wildshard build: ${relative(root, settings)} lists map input(s) that name no file: ${missing.join(', ')}; point each at its file or drop it (wildshard upgrade 0.6.0 drops them)`);
+}
 
 /** Read CI's output or a matching immutable product without invoking the builder.
  * @param {string} root @param {string} name
@@ -126,6 +138,7 @@ async function buildShardfilesWork(root, { strict = [process.env.CI, process.env
     const project = shardSourceDir(root, folder);
     try {
     const started = performance.now();
+    refuseMissingMapInputs(root, project);
     const map = folderMapInput(project, output), expected = map?.tilesHash ?? null;
     let actual=mapTileHashes.get(project);
     if(actual===undefined){actual=mapTilesHash(project);mapTileHashes.set(project,actual);}

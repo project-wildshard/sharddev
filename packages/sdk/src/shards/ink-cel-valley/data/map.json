@@ -43,7 +43,6 @@
   },
   "inputs": [
     "shard.config.ts",
-    "layout.ts",
     "generators",
     "../../sharddev/bake/mapRaster.ts",
     "../../sharddev/bake/mapScenes.ts",
