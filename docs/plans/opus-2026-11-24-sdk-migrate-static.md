@@ -5,8 +5,8 @@
 > **State:** in progress, 2026-11-25. Jake approved the plan in session (plan mode, 2026-11-24 ~23:45 Cancún)
 > and said to build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7.
 > Done, on main: M1 to M6, S1 to S3, B1 (dry run clean on all 12 shard repos); SF1 in shard-format
-> `0ea842f`; R1 (0.5.0 on npm 11-25, 0.5.1 for `engines.node`); R2 (Driftwood `69ed5b0`, t16). Open: R3
-> (the other 10, trial green on 8), R4 (Showcase, in the same roll), F1 to F4. Owner from 11-25 ~02:10 Cancún: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
+> `0ea842f`; R1 (0.5.0 on npm 11-25, 0.5.1 for `engines.node`); R2 (Driftwood `69ed5b0`, t16; outside-author journey passed 11-25 on a scratch copy). Open: R3
+> (the other 10, trial green on 8), R4 (Showcase, in the same roll), F1 to F5. Owner from 11-25 ~02:10 Cancún: opus session 015pj4Rx (Jake: "your in charge for 0.5.0 etc and
 > finishing this whole plan"). By hc with t16 (015pj4Rw): R2 Driftwood is t16's; R1, R3 and R4 are 015pj4Rx's.
 
 ## Why
@@ -104,6 +104,7 @@ Build output defaults to `out/<slug>`.
 | **F2** | R3 trial: the 0.5.0 migration leaves old paths in code, tests and map inputs: `public${url}` reads, `'public'` segments in `resolve`/`join`, `'public'.length`, `../../../public/` inputs. The roll's `tmp/r3-roll/fixup.mjs` rules are the list to fold into the migration or its manual scan. | The migration's manual list names every such line in the 11 repos' pre-roll trees |
 | **F3** | R3 trial: a map input that names a missing file is dropped without a word (Sky Reach built without a GLB). Refuse it, as a minor if a green repo would go red. | A build whose map input is missing refuses, naming the file |
 | **F4** | For Jake (t16): `packages/sdk/public/assets/baked/template-props/` (80 tracked files) has no reader. Delete it on his word. | Gone, or kept with a reader named |
+| **F5** | t16, R2 journey: a partial hand bump (`@wildshard/sdk` and `cli` to 0.5.0, `dev` left at 0.4.31) keeps `wildshard` on `@wildshard/dev` 0.4.31, which has no migration gate: `dev` runs, `check` fails on the old layout without naming the migration, and `status` is unknown. Refuse a mixed sdk family (CP18 pin check, or the cli naming the version it expects). | A repo with `sdk` 0.5.0 and `dev` 0.4.x is refused, naming the family pin to move |
 
 Order: M1, S1, S2 and SF1 start together; M2 to M6 follow M1; S3 follows
 S1; B1 follows M1 and S1; R1 follows everything in sharddev; R2 follows
