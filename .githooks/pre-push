@@ -17,5 +17,8 @@ printf '%s\n' "$refs" | node "$hooks/agents-md.mjs" push
 # Escape hatch: ALLOW_FORMAT_AHEAD=1.
 top="$(git rev-parse --show-toplevel)"
 if [ -f "$top/scripts/format-api-gate.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node scripts/format-api-gate.mjs refs); fi
+# FORMAT-PRUNE FP58: shard-format's one-way ceiling (sdk.retired-vocabulary, 0) reads sharddev main, CHANGELOG included.
+# Escape hatch: ALLOW_RETIRED_WORDS=1.
+if [ -f "$top/scripts/retired-vocabulary.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node scripts/retired-vocabulary.mjs refs); fi
 export WS_PUSH_REFS="$refs"
 exec node "$hooks/run-checks.mjs" push
