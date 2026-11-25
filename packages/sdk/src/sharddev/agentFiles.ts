@@ -2,6 +2,8 @@
 import { existsSync, lstatSync, mkdirSync, readFileSync, readlinkSync, symlinkSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the shard repo and the installed sdk.
 import { dirname, resolve } from 'node:path';
+// `.ts`: updatePins.ts and migrations.ts load this module straight under Node (the migration gate).
+import { AGENT_SYNC_LOCAL_SPEC, syncSessionHook } from './sessionHook.ts';
 
 // SHARD-AUTHORING SA28 (J314 Q7, Q8, Q27): the agent files of a shard repo. `new` and `update` both run
 // `syncAgentFiles`: GUIDE.md and the four skills are the sdk's and are rewritten from the installed sdk; the
@@ -50,7 +52,8 @@ const PAST_AGENTS_TEXTS: readonly string[] = [];
 
 /** What `syncAgentFiles` did to one file. `left` is a file the author changed, kept as it is. */
 export type AgentFileAction = 'added' | 'updated' | 'unchanged' | 'left';
-export interface AgentFileChange { readonly file: string; readonly action: AgentFileAction }
+/** `note`: why a file was `left`, when it is not the author's edit (a hook file that is not valid JSON). */
+export interface AgentFileChange { readonly file: string; readonly action: AgentFileAction; readonly note?: string }
 
 /** Write `text` to `file` unless it already holds it; the sdk's files are always the sdk's. */
 function writeOwned(project: string, file: string, text: Buffer): AgentFileAction {
@@ -83,8 +86,9 @@ function writeLink(project: string, name: SkillName): AgentFileAction {
 
 /**
  * SA28: `new` and `update`. Rewrite GUIDE.md and the four skills from the sdk at `root` (the installed one), and write
- * the `.agents/skills` links, AGENTS.md and CLAUDE.md when missing. Touches nothing else: a file whose bytes already
- * match is not rewritten, and an AGENTS.md, CLAUDE.md or link the author changed is left as it is.
+ * the `.agents/skills` links, AGENTS.md and CLAUDE.md when missing. SDK 0.5.0 M5: and register the SessionStart
+ * `wildshard status --brief` hook once (sessionHook.ts). Touches nothing else: a file whose bytes already match is not
+ * rewritten, and an AGENTS.md, CLAUDE.md or link the author changed is left as it is.
  */
 export function syncAgentFiles(project: string, root: string = SDK_ROOT, pastAgentsTexts: readonly string[] = PAST_AGENTS_TEXTS): readonly AgentFileChange[] {
   const changes: AgentFileChange[] = [{ file: 'GUIDE.md', action: writeOwned(project, 'GUIDE.md', readFileSync(resolve(root, 'GUIDE.md'))) }];
@@ -92,6 +96,7 @@ export function syncAgentFiles(project: string, root: string = SDK_ROOT, pastAge
   for (const name of SKILLS) changes.push({ file: skillLink(name), action: writeLink(project, name) });
   changes.push({ file: AGENTS_FILE, action: writeAuthored(project, AGENTS_FILE, AGENTS_TEXT, pastAgentsTexts) });
   changes.push({ file: CLAUDE_FILE, action: writeAuthored(project, CLAUDE_FILE, CLAUDE_TEXT, []) });
+  changes.push(...syncSessionHook(project));
   return changes;
 }
 
@@ -118,11 +123,13 @@ export function updateShardRepo(project: string, root: string = SDK_ROOT): strin
   assertShardRepo(project);
   const changes = syncAgentFiles(project, root);
   const lines = [`wildshard update: GUIDE.md and the skills from @wildshard/sdk ${sdkVersion(root)}`];
-  for (const { file, action } of changes) {
-    if (action === 'left') lines.push(`  left ${file}: you changed it, so update kept yours`);
+  for (const { file, action, note } of changes) {
+    if (action === 'left') lines.push(`  left ${file}: ${note ?? 'you changed it, so update kept yours'}`);
     else if (action !== 'unchanged') lines.push(`  ${action} ${file}`);
   }
-  const touched = changes.filter(change => change.action === 'added' || change.action === 'updated').length;
-  lines.push(touched === 0 ? '  already up to date' : `  ${String(touched)} file${touched === 1 ? '' : 's'} written; nothing else touched`);
+  const touched = changes.filter(change => change.action === 'added' || change.action === 'updated');
+  lines.push(touched.length === 0 ? '  already up to date' : `  ${String(touched.length)} file${touched.length === 1 ? '' : 's'} written; nothing else touched`);
+  // agent-sync writes .claude/settings.json and .codex/hooks.json from the specs; until it runs, the hook is only in the spec.
+  if (touched.some(change => change.file === AGENT_SYNC_LOCAL_SPEC)) lines.push(`  run pnpm agents:sync: ${AGENT_SYNC_LOCAL_SPEC} has the SessionStart hook, and sync writes it into .claude/settings.json and .codex/hooks.json`);
   return lines;
 }

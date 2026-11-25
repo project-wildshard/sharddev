@@ -39,7 +39,7 @@ const readJson = (file: string): Json => { const parsed: unknown = JSON.parse(re
 const messageOf = (error: unknown): string => error instanceof Error ? error.message : String(error);
 
 /** The sdk names the repo's package.json lists (none: not a shard repo). */
-function listedSdks(repo: string): string[] {
+export function listedSdks(repo: string): string[] {
   const file = join(repo, 'package.json');
   if (!existsSync(file)) return [];
   const listed = readJson(file);
@@ -54,7 +54,7 @@ function installedSdk(repo: string, names: readonly string[]): string {
 }
 
 /** The shard repo at or above `dir` (a repo, or a shard source in one), or undefined when it is none. */
-function shardRepoAt(dir: string): string | undefined {
+export function shardRepoAt(dir: string): string | undefined {
   const repo = shardRepoRoot(findShardSource(dir));
   return listedSdks(repo).length === 0 ? undefined : repo;
 }
@@ -148,7 +148,8 @@ export async function migrationGate(args: readonly string[], cwd: string, output
 }
 
 /** `wildshard status [--brief] [dir]`; returns the exit code. It reads only, and never the network. `--brief` (a
- * SessionStart hook's) prints one line or nothing, and exits 0 even where it cannot tell (saying why on stderr). */
+ * SessionStart hook's) prints one line or nothing, and exits 0 even where it cannot tell (saying why on stderr) or the
+ * repo is not installed yet. */
 export async function runStatus(args: readonly string[], cwd: string, output: Output = PROCESS_OUTPUT): Promise<number> {
   const brief = args.includes('--brief'), operands = args.filter(arg => arg !== '--brief');
   if (operands.length > 1 || operands.some(arg => arg.startsWith('-'))) { output.err('usage: wildshard status [--brief] [dir]\n'); return 1; }
@@ -160,6 +161,9 @@ export async function runStatus(args: readonly string[], cwd: string, output: Ou
       output.err(`wildshard status: ${dir} is not a shard repo: its package.json lists no ${SDK_NAMES.join(' or ')}\n`);
       return 1;
     }
+    // M5: the SessionStart hook runs this before any install. With no node_modules there is no installed sdk to ask (and
+    // `pnpm install` brings one), so it says nothing rather than load this CLI's own migrations.
+    if (brief && !existsSync(join(repo, 'node_modules'))) return 0;
     const state = await migrationState(repo);
     const line = briefLine(state);
     if (!brief) output.out(`${statusLines(state).join('\n')}\n`);

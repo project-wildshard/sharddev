@@ -8,6 +8,7 @@ import { encodeCanonicalJson } from './immutable';
 import { writeHandwrittenSource } from './handwritten';
 import { syncAgentFiles } from './agentFiles';
 import { AUTHOR_LINT_CONFIG } from './authorLint';
+import { writeStamp } from './migrations';
 
 /**
  * SA39 (J319): generators may install any npm package, so a dependency's install scripts run only when listed here.
@@ -232,6 +233,8 @@ export function repoAuthorLint(): string {
  * (GUIDE.md, the four skills, their `.agents/skills` links, AGENTS.md and CLAUDE.md; SA28). */
 function writeRepoFiles(project: string, slug: string, template: RepoShape, empty: boolean): void {
   writeFileSync(resolve(project, 'package.json'), repoPackageJson(slug, empty ? DEFAULT_TEMPLATE : template, registryVersions, !empty && template !== 'blender'));
+  // SDK 0.5.0 M5: the source `new` writes is this sdk's layout, so the repo starts migrated to it (migrations.ts).
+  writeStamp(project, sdkPackage().version);
   // A hand-written repo holds no TypeScript to check.
   if (template !== 'blender' || empty) writeFileSync(resolve(project, 'tsconfig.json'), TSCONFIG);
   writeFileSync(resolve(project, '.gitignore'), GITIGNORE);

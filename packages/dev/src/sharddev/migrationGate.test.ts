@@ -132,5 +132,9 @@ describe('wildshard status (M2)', () => {
     // Outside a shard repo (a SessionStart hook anywhere): silent.
     const outside = run(DEV_BIN, ['status', '--brief'], root);
     expect([outside.status, outside.stdout]).toEqual([0, '']);
+    // M5: a fresh clone, not installed yet (the hook runs before `pnpm install`): silent, though its layout is old.
+    const fresh = shardRepo('0.4.29', true);
+    rmSync(join(fresh, 'node_modules'), { recursive: true });
+    expect(run(DEV_BIN, ['status', '--brief'], fresh)).toEqual({ status: 0, stdout: '', stderr: '' });
   });
 });
