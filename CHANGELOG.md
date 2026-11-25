@@ -16,6 +16,10 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.5.1 (2026-11-25)
+
+- `wildshard upgrade` keeps a repo's `engines.node` upper bound (`>=24.18.0 <25`); 0.5.0 wrote `>=24.18.0`, which let CI pick Node 26.
+
 ## v0.5.0 (2026-11-25)
 
 - **Breaking:** a shard repo's `public/` moves into `src/static/`, builds go to `out/<slug>`; `wildshard upgrade 0.5.0` moves it.
