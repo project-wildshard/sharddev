@@ -1920,13 +1920,35 @@ own notes for agents in `AGENTS.md`, never in this guide or a skill:
 Shard assets move from `public/` into `src/static/`. A file the shard
 mounts as `/<path>` now lives at `<source>/static/<path>`
 (`src/static/...`, or `src/shards/<slug>/static/...` in a multi-shard
-repo): `src/assets/public/` becomes `src/static/assets/<slug>/`, and
-committed `public/assets/*` and `public/programs/` move under
-`src/static/`. `scripts/publish-public.mjs` is gone, and the build
-writes to `out/<slug>`, not `public/shardfiles/<slug>`. Check after:
-`public/` is gone (or holds nothing committed), `.gitignore` names
-`out/`, and `wildshard check .` passes with the same shard file hash as
-before.
+repo). Nothing is renamed: every name the shard mounts stays the same,
+so its files come out byte-identical. The migration:
+
+- moves `<source>/assets/public/` to `<source>/static/assets/<slug>/`
+  (the slug `publish-public.mjs` copied it to);
+- moves each committed file `public/<path>` to `<source>/static/<path>`
+  (`public/programs/<slug>.json` to `src/static/programs/`); git sees
+  renames, so history follows;
+- deletes what git ignores under `public/` (the copies
+  `publish-public.mjs` made, `map/top.webp`, `public/shardfiles/`),
+  then `public/` itself;
+- deletes `scripts/publish-public.mjs` and its `build:shards` prefix,
+  the `--ignore-pattern 'public/**'` lint flags, the `public/` lines in
+  `.gitignore` (it adds `out/`) and `public/` in `ci.yml`'s watched
+  paths; a `.gitattributes` row for `public/` names `src/static/`;
+- rewrites a map input (`data/map.json` `inputs`) that named a moved
+  file, so the map's input hash changes (the map image does not); an
+  input naming a path that was never in the repo stays as written.
+
+It refuses, changing nothing, when a copy differs from its source (copy
+your edit into `<source>/assets/public/`, or delete the copy), when
+`public/` holds files git neither tracks nor ignores, and when a repo
+with several shard sources has committed `public/` files (move each
+into its source's `static/` by hand). Its manual steps name each line
+outside `src/` that still names `public/assets`, `public/programs`,
+`public/shardfiles`, `assets/public` or `publish-public`: a script, a
+test fixture or a workflow comment to point at `src/static/` or `out/`.
+Check after: `public/` is gone, and `wildshard check .` passes with the
+same shard file hash as before.
 
 ## 8. Primitives
 
