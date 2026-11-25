@@ -178,6 +178,32 @@ test('a map input naming a path that never existed in the repo stays byte-identi
   expect(read(root, 'src/static/assets/baked/navmesh.bin')).toBe('nav');
 });
 
+// sdk-migrate F2/F3 (the R3 roll): the old paths in a repo's own code under src/, test and scripts, in the forms the
+// 11 shard repos used, are each a manual step; the engine's public/, a glob list and the static/ tree are not.
+test('the manual list names old paths in src/ code, map scene pools and checks, never the engine\'s or a glob list', () => {
+  const root = repo({
+    'package.json': PACKAGE,
+    'src/shard.config.ts': 'export default {};\n',
+    'src/identity.json': '{"slug":"sunscar-dunes"}\n',
+    'src/manifest.json': '{ "slug": "sunscar-dunes", "assetGlobs": ["public/assets/models/**"] }\n',
+    'src/data/map.json': '{\n  "inputs": ["../../../public/assets/models/well.glb"],\n  "style": { "pools": ["../../../public/assets/sunscar-dunes/rest.glb"] }\n}\n',
+    'src/generators/sources.ts': "sources.set('../../../public/assets/models/well.glb', bytes);\n",
+    'src/generators/read.ts': 'const read = url => readFileSync(new URL(`../public${url}`, root));\n',
+    'src/generators/name.ts': "const name = path.startsWith('public/') ? path.slice('public'.length) : path;\n",
+    'src/generators/url.ts': "const url = `/${terrain.replace(/^public\\//u, '')}`;\n",
+    'scripts/candidate.mjs': 'assert.match(sdk, /^0\\.4\\.\\d+$/u);\n',
+    'scripts/engine.mjs': "const wasm = resolve(engine, 'public/assets/physics/rapier.wasm');\n",
+    'public/assets/models/well.glb': 'well',
+  });
+  const { manual } = run(root);
+  const files = manual.map(line => line.split(':')[0]);
+  expect(files).toEqual(expect.arrayContaining(['src/data/map.json', 'src/generators/sources.ts', 'src/generators/read.ts', 'src/generators/name.ts', 'src/generators/url.ts', 'scripts/candidate.mjs']));
+  expect(manual.join('\n')).toContain('src/data/map.json: map input ../../../public/assets/models/well.glb names public/, which is gone');
+  expect(files).not.toContain('scripts/engine.mjs');
+  expect(files).not.toContain('src/manifest.json');
+  expect(files.filter(file => file.startsWith('src/static/'))).toEqual([]);
+});
+
 test('a copy that differs from its source refuses and changes nothing', () => {
   const root = driftwood();
   write(root, { 'public/assets/driftwood-isle/baked/x.bin': 'edited by hand' });

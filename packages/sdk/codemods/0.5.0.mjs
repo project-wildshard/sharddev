@@ -105,6 +105,8 @@ function inputsSpan(text) {
 // Text outside the sources that may still name the old layout. Each pattern matches a whole path token; `now` says
 // what that path is after the move (`home`: the one source's folder; `trees`: each source's assets/public and slug).
 const TOKEN = String.raw`[\w./*$\{\}<>-]*`;
+// Where a repo path starts: not inside a longer path, or after `../` steps, or after `${x}/` / `{x}/` (sdk-migrate F2).
+const AFTER = String.raw`(?:(?<![\w/.-])|(?<=(?:^|[^\w.])(?:\.\.?\/)+)|(?<=\}\/))`;
 const STALE = [
   { pattern: new RegExp(`${TOKEN}publish-public${TOKEN}`, 'u'), now: () => 'publish-public.mjs is gone (sdk 0.5.0 reads <source>/static/); drop this step' },
   { pattern: new RegExp(`${TOKEN}public/shardfiles${TOKEN}`, 'u'), now: () => 'build output is out/<slug> now; point it there' },
@@ -113,14 +115,24 @@ const STALE = [
     return tree === undefined ? 'that folder is <source>/static/assets/<slug>/ now; point it there'
       : `now ${tree.source.rel}/static/assets/${tree.slug}${token.slice(tree.tree.length)}; point it there, or drop a check of the old copy`;
   } },
-  // Only a path this repo's public/ held: `resolve(engine, 'public/assets/physics/rapier.wasm')` is the engine's.
-  { pattern: new RegExp(String.raw`(?<![\w/.-])public/(?:assets|programs)\b${TOKEN}`, 'u'), held: true, now: (token, { home }) => `now ${home}/static/${token.slice('public/'.length)}; point it there, or drop a check of the old copy` },
+  // Only a path this repo's public/ held: `resolve(engine, 'public/assets/physics/rapier.wasm')` is the engine's. After
+  // `../` steps too: a generator's `'../../../public/assets/x.glb'` (sdk-migrate F2, the R3 roll).
+  { pattern: new RegExp(String.raw`${AFTER}public/(?:assets|programs)\b${TOKEN}`, 'u'), held: true, now: (token, { home }) => `now ${home}/static/${token.slice('public/'.length)}; point it there, or drop a check of the old copy` },
   { pattern: /(?<![\w/.-])public\/\*\*/u, now: (_, { home }) => `public/ is gone; drop it, or name ${home}/static/**` },
+  // sdk-migrate F2 (t16 and the R3 roll): the folder read through a template, as a bare path segment, by its length, or
+  // stripped by a regex: `public${url}`, `resolve(root, 'public', url)`, `path.slice('public'.length)`, `/^public\//`.
+  { pattern: new RegExp(String.raw`${AFTER}public\$\{[^}]*\}`, 'u'), now: (_, { home }) => `reads ${home}/static now; point it there` },
+  // Driftwood 479efa4: a check that pins the sdk at 0.4.x (`/0\.4\.\d+/`) refuses 0.5.
+  { pattern: /0\\\.4\\\.\\d\+/u, now: () => 'pins the sdk at 0.4.x; take any exact version' },
+  { pattern: /(['"`])public\1(?=\.length|\s*[,)\]])/u, now: (_, { home }) => `the folder is ${home}/static now (src/ already lists it); point it there, or drop it` },
+  { pattern: /\^public\\\//u, now: (_, { home }) => `the folder is ${home}/static now; match that` },
+  // An ignore or watch list naming the folder itself (`.oxlintrc.author.json`: `"ignorePatterns": [..., "public/"]`).
+  { pattern: /(['"`])public\/\1/u, now: (_, { home }) => `public/ is gone; drop it, or name ${home}/static/` },
 ];
-const SCAN_SKIP = new Set(['src', 'out', 'node_modules', '.git', '.worktrees', 'tmp', 'project', 'public', 'dist', '.cache']);
+const SCAN_SKIP = new Set(['out', 'node_modules', '.git', '.worktrees', 'tmp', 'project', 'public', 'dist', '.cache']);
 // GUIDE.md and the skills are stamped from the sdk and repo-kit (the sdk's describe this very move); plans and changelogs
 // are history.
-const NOT_SCANNED = /^(?:GUIDE\.md|\.(?:claude|agents)\/skills\/.*|docs\/plans\/.*|CHANGELOG[^/]*)$/u;
+const NOT_SCANNED = /^(?:src\/(?:.*\/)?(?:static|out)\/.*|(?:src\/)?(?:scripts|test)\/\.kit\/.*|kit\/.*|GUIDE\.md|\.(?:claude|agents)\/skills\/.*|docs\/plans\/.*|CHANGELOG[^/]*)$/u;
 /** A file with more hits than this is one manual step: a target list naming a hundred models is one edit. */
 const PER_FILE = 3;
 
@@ -134,12 +146,18 @@ function staleReferences(root, context) {
     const bytes = readFileSync(join(root, file));
     if (bytes.includes(0)) continue;
     const hits = [];
-    bytes.toString('utf8').split('\n').forEach((line, index) => {
+    // An assetGlobs list names mounted files, which keep their names: blank it (line breaks kept) before the scan.
+    const text = bytes.toString('utf8').replaceAll(/"?assetGlobs"?\s*:\s*\[[^\]]*\]/gu, span => span.replaceAll(/[^\n]/gu, ' '));
+    text.split('\n').forEach((line, index) => {
       for (const { pattern, held, now } of STALE) {
         const token = pattern.exec(line)?.[0];
         if (token === undefined) continue;
-        const literal = token.split(/[$<*{]/u)[0].replace(/\/+$/u, '');
-        if (held === true && !context.before.some(path => path.startsWith(literal))) continue;
+        const literal = token.split(/[$<*{]/u)[0].replace(/\/+$/u, '').replace(/^(?:\.\.?\/)+/u, '');
+        // Held: the repo's public/ had it, or had its `public/assets/<folder>/` (a build output it ignores, as a test
+        // pin or a map's scene pool names it: sdk-migrate F2); the engine's `public/assets/physics/` never was.
+        const parts = literal.split('/'), folder = `${parts.slice(0, 4).join('/')}/`;
+        const copied = context.trees.some(row => literal === row.target || literal.startsWith(`${row.target}/`));
+        if (held === true && !copied && !context.before.some(path => path.startsWith(literal) || (parts.length > 4 && path.startsWith(folder)))) continue;
         hits.push(`${file}:${String(index + 1)}: names ${token.length > 70 ? `${token.slice(0, 70)}…` : token}: ${now(token, context)}`);
         break;
       }
@@ -229,7 +247,10 @@ export default function codemod({ project }) {
     for (const input of parsed.inputs) {
       if (typeof input !== 'string' || !/^(?:\.\.\/){1,3}public\//u.test(input)) continue;
       const path = posix(relative(root, resolve(source.dir, input)));
-      if (path.startsWith('../') || !under(path, 'public') || !existsSync(join(root, path))) continue;
+      // sdk-migrate F2/F3: Sky Reach's `../../../public/…` resolves past the repo from its source, so nothing here can
+      // place it, and a build without it quietly drops the file. Name it.
+      if (path.startsWith('../')) { manual.push(`${source.rel}/${name}: map input ${input} names public/, which is gone; point it at its file under ${source.rel}/static/`); continue; }
+      if (!under(path, 'public') || !existsSync(join(root, path))) continue;
       const home = homeOf(path);
       if (home === undefined || !destinations.some(to => under(to, home))) {
         manual.push(`${source.rel}/${name}: map input ${input} names a file this move deletes (build output); rebake the map or drop the input`);
