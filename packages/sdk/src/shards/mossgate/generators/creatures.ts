@@ -25,6 +25,15 @@ import { CAIRN_CAMP } from './downs';
 type Strike = ShardRows['strikes'][number];
 type Variant = ShardRows['species'][number]['variants'][number];
 
+/** What a boar's kill drops, declared (QA 11-25 row 26: the kit no longer copies its old harvest law in with a warning):
+ *  meat and hide from every boar, a tusk from Greyback only. gameplay.ts puts both on the shard (the catalogue must name
+ *  the items before a species' harvest does). */
+export const BOAR_HARVEST = [{ item: 'boar-meat', count: 1 }, { item: 'boar-hide', count: 1 }, { item: 'boar-tusk', count: 1, variants: ['greyback'] }];
+export const BOAR_ITEMS = [
+  { id: 'boar-meat', label: 'Boar meat', icon: 'meat', travels: false },
+  { id: 'boar-hide', label: 'Boar hide', icon: 'hide', travels: false },
+  { id: 'boar-tusk', label: 'Boar tusk', icon: 'tusk', travels: false },
+];
 /** How long a beaten Greyback or Warden stays down before its fight re-arms, in seconds. */
 export const BOSS_RESPAWN = 120;
 /** Where the creatures stand (the Template's `data/layout.json`, moved off the starter's and ring 2's walks). */
@@ -233,19 +242,19 @@ function spot(world: ShardWorld, x: number, z: number, yaw = 0, lift = 0): THREE
 export function buildCreatures(world: ShardWorld): void {
   const blob = blobBody('#9a9a92', 0.6), mossling = blobBody('#7f9a4a', 0.32, '#4f6e22'), wisp = wispBody(), boar = boarBody(), warden = wardenBody();
   world.creature('grey.blob', blob.body, {
-    species: { kind: 'greyBlob', label: 'Grey blob', aggressive: true, lockable: true,
+    species: { kind: 'greyBlob', label: 'Grey blob', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 0.5, bodyHalfLen: 0.4, bodyRadius: 0.55, headRadius: 0.3, legLen: 0.5, feet: [], halfWidth: 0.6 },
       variants: [variant('grey', 'Grey blob', 60)], temperament: temper('mossgate.blob-pursuit', 25), senses: { notice: 12 } },
     strikes: [STRIKES.blobBump, STRIKES.blobLane], size: 'medium', clips: blob.clips, loops: LOOPS, material: PBR,
   });
   world.creature('mossling', mossling.body, {
-    species: { kind: 'greyBlob', label: 'Mossling', aggressive: true, lockable: true,
+    species: { kind: 'greyBlob', label: 'Mossling', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 0.26, bodyHalfLen: 0.22, bodyRadius: 0.3, headRadius: 0.16, legLen: 0.26, feet: [], halfWidth: 0.32 },
       variants: [variant('moss', 'Mossling', 24, { mods: mods(6, 1.3) })], temperament: temper('none', 30), senses: { notice: 20 } },
     size: 'medium', clips: mossling.clips, loops: LOOPS, material: PBR,
   });
   world.creature('bog.wisp', wisp.body, {
-    species: { kind: 'greyBlob', label: 'Bog wisp', aggressive: true, lockable: true,
+    species: { kind: 'greyBlob', label: 'Bog wisp', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 0.6, bodyHalfLen: 0.3, bodyRadius: 0.42, headRadius: 0.2, legLen: 0.6, feet: [], halfWidth: 0.42 },
       variants: [variant('bog', 'Bog wisp', 30)], temperament: temper('mossgate.wisp-dive', 30), senses: { notice: 18 },
       flight: { above: 'ground', altitude: 5, climbRate: 5, diveRate: 14, lockRange: 25 } } as never,
@@ -254,21 +263,21 @@ export function buildCreatures(world: ShardWorld): void {
   // MZ14: Wisp Mere's wisps, the same body as the pond's, circling the mere (a species' temperament names its one brain)
   const mereWisp = wispBody();
   world.creature('mere.wisp', mereWisp.body, {
-    species: { kind: 'greyBlob', label: 'Mere wisp', aggressive: true, lockable: true,
+    species: { kind: 'greyBlob', label: 'Mere wisp', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 0.6, bodyHalfLen: 0.3, bodyRadius: 0.42, headRadius: 0.2, legLen: 0.6, feet: [], halfWidth: 0.42 },
       variants: [variant('mere', 'Mere wisp', 30)], temperament: temper('mossgate.mere-wisp-dive', 30), senses: { notice: 18 },
       flight: { above: 'ground', altitude: 5, climbRate: 5, diveRate: 14, lockRange: 25 } } as never,
     strikes: [STRIKES.mereWispDive], size: 'medium', clips: mereWisp.clips, loops: LOOPS, material: PBR,
   });
   world.creature('boar', boar.body, {
-    species: { kind: 'boar', label: 'Boar', aggressive: true, lockable: true, type: 'beast',
+    species: { kind: 'boar', label: 'Boar', aggressive: true, lockable: true, capExempt: false, type: 'beast',
       dims: { bodyY: 0.62, bodyHalfLen: 0.65, bodyRadius: 0.33, headRadius: 0.2, legLen: 0.58, feet: [[-0.2, 0.45], [0.2, 0.45], [-0.2, -0.44], [0.2, -0.44]], halfWidth: 0.31 },
       variants: [variant('sow', 'Sow', 70, { scale: [0.85, 0.95] }), variant('greyback', 'Greyback', 160, { rarity: 'rare', weight: 0, scale: [1, 1] })],
       temperament: temper('none', 25), senses: { notice: 8 } } as never,
     strikes: [STRIKES.sowRam, STRIKES.boarCharge], size: 'medium', clips: boar.clips, loops: LOOPS, material: PBR,
   });
   world.creature('barrow.warden', warden.body, {
-    species: { kind: 'barrowWarden', label: 'Barrow Warden', aggressive: true, lockable: true,
+    species: { kind: 'barrowWarden', label: 'Barrow Warden', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 1.4, bodyHalfLen: 0.6, bodyRadius: 1.3, headRadius: 0.6, legLen: 1.4, feet: [], halfWidth: 1.6 },
       // MZ20: 1800 (was 420: two players felled it in one core window, 16 sword hits): about 66 hits, six or seven
       // windows alone, three or four for two
@@ -280,7 +289,7 @@ export function buildCreatures(world: ShardWorld): void {
   const gritmaw = wardenBody({ S: 0.95, stone: '#b39d7c', moss: '#7a5c3e', eye: '#ffd27a', core: '#ffb347' });
   world.creature('quarry.gritmaw', gritmaw.body, {
     // its own kind (its strikes' tag): it shared the Warden's, so a walk proof's fight by kind chased both
-    species: { kind: 'quarryGritmaw', label: 'Gritmaw', aggressive: true, lockable: true,
+    species: { kind: 'quarryGritmaw', label: 'Gritmaw', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 1.05, bodyHalfLen: 0.45, bodyRadius: 0.95, headRadius: 0.45, legLen: 1.05, feet: [], halfWidth: 1.2 },
       variants: [variant('gritmaw', 'Gritmaw', 260, { rarity: 'rare', weight: 0 })],
       temperament: { brain: 'none', reaction: 'aggressive', leash: 0, assist: 0, home: { speed: 0, stop: 0 } }, senses: { notice: 8 } } as never,
@@ -289,7 +298,7 @@ export function buildCreatures(world: ShardWorld): void {
   // MZ20: the Warden's adds, grey blobs of the ring's own stone with moss on their backs; they pursue as the yard's blobs do
   const crawler = blobBody('#7c7f74', 0.5, '#5d7a34');
   world.creature('barrow.crawler', crawler.body, {
-    species: { kind: 'barrowCrawler', label: 'Barrow crawler', aggressive: true, lockable: true,
+    species: { kind: 'barrowCrawler', label: 'Barrow crawler', aggressive: true, lockable: true, capExempt: false,
       dims: { bodyY: 0.42, bodyHalfLen: 0.34, bodyRadius: 0.46, headRadius: 0.25, legLen: 0.42, feet: [], halfWidth: 0.5 },
       variants: [variant('crawler', 'Barrow crawler', 45)], temperament: temper('mossgate.blob-pursuit', 25), senses: { notice: 14 } },
     strikes: [STRIKES.crawlerBump], size: 'medium', clips: crawler.clips, loops: LOOPS, material: PBR,

@@ -11,6 +11,7 @@ import { THICKET_TALKS } from './thicket';
 import { RIDGE_TALKS } from './ridge';
 import { QUARRYMASTER, QUARRYMASTER_TALK } from './quarry';
 import { FIND_LEDGER, FIND_TALKS } from './finds';
+import { BOAR_HARVEST, BOAR_ITEMS } from './creatures';
 
 type Items = Shardfile['items'];
 type Weapon = Items['rows'][number];
@@ -69,7 +70,8 @@ export function gameplay(shard: Shardfile): Shardfile {
     ...shard,
     quests: QUESTS as unknown as Shardfile['quests'],
     ledger: [...shard.ledger, ...LEDGER] as Shardfile['ledger'],
-    items: { ...shard.items, rows: [...shard.items.rows, MOSS_BLADE] },
+    items: { ...shard.items, rows: [...shard.items.rows, MOSS_BLADE], catalogue: [...shard.items.catalogue ?? [], ...BOAR_ITEMS] },
+    rows: { ...shard.rows, species: shard.rows.species.map((row) => row.id === 'boar' ? { ...row, harvest: BOAR_HARVEST } : row) },
     hooks: { ...shard.hooks, scenes: [...shard.hooks.scenes, RACK_TAKE.scene] },
     targets: { ...shard.targets, itemActions: [...shard.targets.itemActions ?? [], RACK_TAKE.action], talks: [...shard.targets.talks ?? [], ...TALKS, ...THICKET_TALKS, ...RIDGE_TALKS, ...FIND_TALKS] },
   });
