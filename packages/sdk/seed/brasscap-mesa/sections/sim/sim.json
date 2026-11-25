@@ -1,0 +1,1 @@
+{"sim":{"bindings":[{"actorId":"actor.player","entity":1106943697,"kind":"server","module":"b86d8afcc269fb063ebf64768fc3787635b65a7409a571115b07be2e4da39733"}],"commandVersion":0,"fixedHz":60,"scriptTickDivisor":2,"scripts":["b86d8afcc269fb063ebf64768fc3787635b65a7409a571115b07be2e4da39733"],"snapshotVersion":0}}

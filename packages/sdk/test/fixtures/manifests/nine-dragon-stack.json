@@ -1,6 +1,5 @@
 {
   "api": 1,
-  "gridShardfile": "/shardfiles/nine-dragon-stack/shard.json",
   "kitLook": "pbr",
   "creatures": {
     "lowPoly": false,

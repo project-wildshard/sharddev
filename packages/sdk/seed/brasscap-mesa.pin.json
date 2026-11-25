@@ -1,0 +1,8 @@
+{
+  "about": "The hand-written seed `wildshard new` copies (meta FORMAT-PRUNE FP61). shard-format 0.78.0's corpus/legacy/brasscap-mesa-ss3 (the SS4 export of shard-brasscap's SS3 commit, format 0.1), carried to the current format by shard-format 0.79.2's migrateShardfile (its build receipt validation.json copied as it was); format 0.79.0 deleted the legacy copy and its current export omits GLBs over 1 MB. Do not edit it by hand: migrate it again when the format moves.",
+  "repo": "https://github.com/project-wildshard/shard-brasscap",
+  "commit": "34751535e1c70f107b2352d911ac900cc08feb55",
+  "from": "@wildshard/shard-format@0.78.0 corpus/legacy/brasscap-mesa-ss3",
+  "migratedBy": "@wildshard/shard-format@0.79.2",
+  "files": 200
+}

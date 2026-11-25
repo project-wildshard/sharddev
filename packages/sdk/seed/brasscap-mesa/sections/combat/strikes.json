@@ -1,0 +1,1 @@
+{"rows":{"strikes":[{"active":0.2,"cooldown":0.5,"damage":20,"id":"brasscap.wyrm.burst","range":4,"recover":0.6,"shape":{"kind":"point","radius":1.6},"speed":0,"tags":["creature.bear"],"weight":3,"windup":1.2}]}}

@@ -22,15 +22,13 @@ const SDK_ROOT = resolve(import.meta.dirname, '../..');
 function formatRoot(): string {
   return resolve(dirname(createRequire(resolve(SDK_ROOT, 'package.json')).resolve('@wildshard/format/outputIndex')), '../..');
 }
-/** The shard file folder a hand-written source starts from, as the installed shard-format ships it: Brasscap Mesa's
- *  export (`corpus/exports/brasscap-mesa`), since J434 retired the hand-written Template 2 (meta TEMPLATE-E2E TR-10).
- *  An export whose pin omits files (format 0.74.0, J506: GLBs over the 1 MB corpus cap that its world still names) is
- *  no whole shard file, so the seed is then the whole SS3 export format keeps as `corpus/legacy/brasscap-mesa-ss3`. */
+/** The shard file folder a hand-written source starts from: the seed the SDK ships, `seed/brasscap-mesa`. It is Brasscap
+ *  Mesa's whole SS3 export (J434 retired the hand-written Template 2, meta TEMPLATE-E2E TR-10), carried to the current
+ *  format by format's own migration chain. Format 0.74.0's export omits GLBs over its 1 MB corpus cap (J506), so it is no
+ *  whole shard file, and format 0.79.0 deleted its legacy copy (ZONE-SNAPSHOTS ZS5); the SDK keeps the seed itself
+ *  (meta FORMAT-PRUNE FP61). */
 export function handwrittenTemplate(): string {
-  const root = formatRoot(), pin = resolve(root, 'corpus/exports/brasscap-mesa.pin.json');
-  const omitted = existsSync(pin) ? (readJson(pin)['omitted'] as { files?: readonly string[] } | undefined)?.files ?? [] : [];
-  const legacy = resolve(root, 'corpus/legacy/brasscap-mesa-ss3');
-  return omitted.length > 0 && existsSync(resolve(legacy, SHARD_INDEX)) ? legacy : resolve(root, 'corpus/exports/brasscap-mesa');
+  return resolve(SDK_ROOT, 'seed/brasscap-mesa');
 }
 
 interface Identity { readonly slug: string; readonly name: string }

@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict'
-import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
@@ -29,9 +28,11 @@ import { validateShardfile } from './validate.ts'
 // export carries a packed manifest card itself. Format 0.74.0 (J506) re-exported
 // it and kept the old export as corpus/legacy/brasscap-mesa-ss3, the bytes these
 // digests were taken from; the new export leaves GLBs out and does not validate.
+// Format 0.79.0 deleted the legacy copy; the SDK's hand-written seed is that
+// export carried to the current format (FORMAT-PRUNE FP61).
 
-const CORPUS = fileURLToPath(
-  new URL('../../../node_modules/@wildshard/format/corpus/', import.meta.url),
+const SEED = fileURLToPath(
+  new URL('../../../../sdk/seed/brasscap-mesa', import.meta.url),
 )
 const API_DIGEST = {
   brasscapMesa:
@@ -60,18 +61,13 @@ async function tarOf(root: string, prepared = false): Promise<Uint8Array> {
 async function templateShaped(): Promise<
   Readonly<{ tarball: Uint8Array; slug: string; heroHash: string }>
 > {
-  const tarball = await tarOf(
-    path.join(CORPUS, 'legacy', 'brasscap-mesa-ss3'),
-    true,
-  )
+  const tarball = await tarOf(SEED, true)
   const { slug } = await validateShardfile(tarball)
   return { tarball, slug, heroHash: API_DIGEST.brasscapMesa }
 }
 
 test("a packed manifest card's digest is the API's", async (): Promise<void> => {
-  const shard = await validateShardfile(
-    await tarOf(path.join(CORPUS, 'legacy', 'brasscap-mesa-ss3')),
-  )
+  const shard = await validateShardfile(await tarOf(SEED))
 
   assert.equal(
     shard.card,

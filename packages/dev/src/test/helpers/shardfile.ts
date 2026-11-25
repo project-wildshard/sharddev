@@ -19,10 +19,10 @@ import { makeTar } from './tar.ts'
 
 import type { HeroOption } from './hero-fixture.ts'
 
-// Test shardfiles: Brasscap Mesa's SS3 export as the format pin ships it under
-// corpus/legacy (format 0.74.0's J506 re-export left GLBs out of
-// corpus/exports/brasscap-mesa, so it no longer validates as a whole file; the
-// format's own chain tests read the legacy copy too) (J434
+// Test shardfiles: the SDK's hand-written seed, the one `wildshard new` copies
+// (packages/sdk/seed/brasscap-mesa: Brasscap Mesa's SS3 export carried to the
+// current format; format 0.79.0 deleted its corpus/legacy copy, FORMAT-PRUNE
+// FP61) (J434
 // retired the handwritten Template 2, meta TEMPLATE-E2E TR-10), re-stamped with a
 // slug, name and seed, its source hash recomputed with format's own functions
 // so the real validator admits it. `seed` varies the bytes (and so the hash)
@@ -30,10 +30,7 @@ import type { HeroOption } from './hero-fixture.ts'
 // writes it; `makeShardfile` is prepared (sdk 0.3), as upload sends it (J198).
 
 const CORPUS = fileURLToPath(
-  new URL(
-    '../../../../sdk/node_modules/@wildshard/format/corpus/legacy/brasscap-mesa-ss3',
-    import.meta.url,
-  ),
+  new URL('../../../../sdk/seed/brasscap-mesa', import.meta.url),
 )
 const INDEX = 'shard.json'
 const DEFAULT_SEED = 0
