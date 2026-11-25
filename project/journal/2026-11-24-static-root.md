@@ -19,3 +19,9 @@ repos pin exact sdk versions and migration 0.5.0 (row B1) moves them.
 `record-shard-mounts.mjs` now takes a static root per folder, since
 there is no one shared tree any more; its "read by two folders is the
 engine's" rule stays as it was.
+
+A reader the plan's survey missed: `withRepoFar` (`build/project.ts`,
+FORMAT-PRUNE FP40) took a repo bake's far proxy from
+`<repo>/public/assets/baked/<slug>/far.*`. Left alone, a migrated repo
+would build with no far row, and its product would change. It now reads
+`<source>/static/assets/baked/<slug>/`, where migration 0.5.0 puts it.

@@ -7,7 +7,7 @@ import { installDeterministicMath } from '@wildshard/sdk/deterministicMath';
 import { generationRecipes } from '@wildshard/sdk/internal/generationRecipe';
 import { mergeProjectSections } from '@wildshard/sdk/internal/projectSections';
 import { writeEmptyShardSource } from '@wildshard/sdk/internal/newProject';
-import { shardFolderName, shardOutputRoot, shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
+import { shardFolderName, shardOutputRoot, shardRepoRoot, shardStaticRoot } from '@wildshard/upload/sharddev/shardSource';
 import { clientPage } from '@wildshard/sdk/internal/clientPage';
 import { assertConfigBoundary } from '@wildshard/sdk/configBoundary';
 import { createProjectGeneration, finishProjectGeneration, isProjectGenerator, type ProjectGenerationContext, type ProjectGenerationInputRoot } from '@wildshard/sdk/projectGeneration';
@@ -302,8 +302,8 @@ export async function buildProject(project: string, output?: string, options: { 
   const expanded = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
   // SHARD-COMPAT PR6f2: the file says what stands at its four edges (world/edge's edgeObservations), not the engine's registry
   // FORMAT-PRUNE FP40: a product built with no generic bake (a shard repo's own, --no-placeholders) carries its repo's own
-  // far proxy (`public/assets/baked/<slug>/far.*`, byte for byte), so the engine needs no baked folder of its own
-  const placed = options.placeholders === true ? await projectPlaceholders(expanded, assets) : withRepoFar(expanded, assets, shardRepoRoot(project));
+  // far proxy (`<source>/static/assets/baked/<slug>/far.*`, A7; byte for byte), so the engine needs no baked folder of its own
+  const placed = options.placeholders === true ? await projectPlaceholders(expanded, assets) : withRepoFar(expanded, assets, shardStaticRoot(project));
   const shard = withEdgeObservations(validateProject(placed, assets, project, outputScriptAdmissionRows(loaded.output.platform), sections));
   phase('asset-admission');
   // The decision rows travel with the moves they bind, so a headless admission resolves the same registries as the build.
@@ -408,14 +408,14 @@ function withoutHerdFields<Source extends { readonly manifest?: unknown }>(sourc
 
 /**
  * FORMAT-PRUNE FP40: the repo bake's far proxy (`far.json` with `far.glb` and `far-impostor.png`, as the far-proxies runner
- * wrote them) as the shardfile's `far` row and files: each file proved by the hash far.json names, its costs recomputed
+ * wrote them, under the source's `static/assets/baked/<slug>/`, A7) as the shardfile's `far` row and files: each file proved by the hash far.json names, its costs recomputed
  * (`repoFarRows`), and its row carries the bake's own far `look` (FP40b, format 0.77.0), so engine reads how the far tier
  * draws the proxy from the product. A shard that declares its own far, or whose repo holds no bake, is returned as it is.
  * The near view stays in the repo bake until its ownership moves.
  */
-export function withRepoFar(shard: Shardfile, assets: Map<string, Uint8Array>, repo: string): Shardfile {
+export function withRepoFar(shard: Shardfile, assets: Map<string, Uint8Array>, staticRoot: string): Shardfile {
   if (shard.far !== null) return shard;
-  const folder = resolve(repo, 'public/assets/baked', shard.identity.slug), manifestPath = join(folder, 'far.json');
+  const folder = resolve(staticRoot, 'assets/baked', shard.identity.slug), manifestPath = join(folder, 'far.json');
   if (!existsSync(manifestPath)) return shard;
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8')) as { far: NonNullable<Shardfile['far']>; file: { hash: string }; impostorFile?: { hash: string }; look?: NonNullable<Shardfile['far']>['look'] };
   const proved = (name: string, hash: string): Uint8Array => {

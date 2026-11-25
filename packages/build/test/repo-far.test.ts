@@ -1,5 +1,5 @@
 // FORMAT-PRUNE FP40: a shard repo's own product (built with no generic bake) carries its repo's own far proxy, so the engine can
-// delete its `public/assets/baked/<slug>/` copies and read every legacy neighbour's far view from its product.
+// delete its `public/assets/baked/<slug>/` copies (the repo's copy is `<source>/static/assets/baked/<slug>/`, A7) and read every legacy neighbour's far view from its product.
 // oxlint-disable-next-line import/no-nodejs-modules -- Owns a temporary repo bake fixture.
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolves only the owned fixture directory.
@@ -22,7 +22,7 @@ afterEach(() => { for (const root of roots.splice(0)) rmSync(root, { recursive: 
 async function repo(tamper = false): Promise<{ root: string; baked: Awaited<ReturnType<typeof bakeFarPlaceholder>> }> {
   const baked = await bakeFarPlaceholder(grid, look);
   mkdirSync(resolve('tmp'), { recursive: true });
-  const root = mkdtempSync(resolve('tmp', 'repo-far-')), folder = join(root, 'public/assets/baked/test-isle');
+  const root = mkdtempSync(resolve('tmp', 'repo-far-')), folder = join(root, 'static/assets/baked/test-isle');
   roots.push(root);
   mkdirSync(folder, { recursive: true });
   writeFileSync(join(folder, 'far.glb'), tamper ? baked.bytes.slice(1) : baked.bytes); writeFileSync(join(folder, 'far-impostor.png'), baked.impostor);
@@ -33,7 +33,7 @@ const shard = (far: Shardfile['far'] = null): Shardfile => ({ identity: { slug: 
 
 test("a product with no far row takes its repo bake's far row, look and files, byte for byte", async () => {
   const { root, baked } = await repo(), assets = new Map<string, Uint8Array>();
-  const out = withRepoFar(shard(), assets, root);
+  const out = withRepoFar(shard(), assets, join(root, 'static'));
   expect(out.far).toEqual({ ...baked.manifest.far, look: baked.manifest.look });
   expect(out.far?.look).toEqual({ family: 'toon', haze: { colour: [0.7, 0.7, 0.8] } });
   expect(out.files).toEqual([baked.manifest.file, baked.manifest.impostorFile]);
@@ -43,13 +43,13 @@ test("a product with no far row takes its repo bake's far row, look and files, b
 
 test('a bake file that is not the one far.json names refuses', async () => {
   const { root } = await repo(true);
-  expect(() => withRepoFar(shard(), new Map(), root)).toThrow('far.glb is not the bake');
+  expect(() => withRepoFar(shard(), new Map(), join(root, 'static'))).toThrow('far.glb is not the bake');
 });
 
 test('a shard that declares its own far, or whose repo holds no bake, is kept as it is', async () => {
   const { root, baked } = await repo();
   const own = shard(baked.manifest.far);
-  expect(withRepoFar(own, new Map(), root)).toBe(own);
+  expect(withRepoFar(own, new Map(), join(root, 'static'))).toBe(own);
   const none = shard();
   expect(withRepoFar(none, new Map(), resolve('tmp', 'no-such-repo'))).toBe(none);
 });
