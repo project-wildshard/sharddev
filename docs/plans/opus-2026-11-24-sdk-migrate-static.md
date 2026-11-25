@@ -2,8 +2,10 @@
 
 > Written by: Claude (opus, session 015pj4Rw)
 
-> **State:** in progress, 2026-11-24. Jake approved the plan in session (plan mode, ~23:45 Cancún) and said to
-> build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7. Open rows: all.
+> **State:** in progress, 2026-11-25. Jake approved the plan in session (plan mode, 2026-11-24 ~23:45 Cancún)
+> and said to build it with subagents, Driftwood first, then the other shards in parallel. Ask: A7.
+> Done on `plan/sdk-migrate`: M1 to M6, S1 to S3, B1 (dry run clean on all 12 shard repos); SF1 in shard-format
+> `0ea842f`. Open: R1 (release 0.5.0), R2 (Driftwood), R3 (the other 11).
 
 ## Why
 
