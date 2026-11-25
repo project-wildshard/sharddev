@@ -530,6 +530,7 @@
   "verb:status",
   "verb:synth",
   "verb:update",
+  "verb:upgrade",
   "verb:upload",
   "verb:validate",
   "verb:watch",
