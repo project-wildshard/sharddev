@@ -35,7 +35,11 @@ export async function blockedEntryTarball(){
     load('src/test/helpers/tar.ts'),import('@wildshard/format/outputIndex'),
     import('@wildshard/format/validationReceipt'),
   ]);
-  const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2'}),index=parseOutputIndex(jsonOf(files,'shard.json'));
+  // FORMAT-PRUNE FP61: the pinned API's helper still writes `requires.sdk`, which format 0.79 deleted; this shard file is
+  // rebuilt below at the SDK's format, so the field goes before the strict parse (the API mends it the same way, FP60).
+  const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2'}),raw=jsonOf(files,'shard.json');
+  if(raw?.requires!==undefined)delete raw.requires.sdk;
+  const index=parseOutputIndex(raw);
   const water=index.sections.find(row=>row.name==='world/water');
   const bytes=validationSourceBytes({water:[{id:'blocked-route',kind:'pool',level:1,shape:{kind:'circle',x:0,z:205,radius:3}}]});
   files.set(water.path,bytes);water.hash=sha256(bytes);water.bytes=bytes.length;
