@@ -56,8 +56,11 @@ describe('the wildshard skills', () => {
     expect(skill).not.toMatch(/SA15/u);
     expect(skill).toMatch(/\*\*dev\*\*: `wildshard dev \.`/u);
     expect(skill).toMatch(/not built yet \(SA36, SA37\)/u);
-    // J314 Q27 retired the verb `upgrade`; the pin move is `update --pins` (SA18).
-    expect(skills.get('wildshard-upgrade')).toMatch(/`wildshard update --pins` does the move/u);
+    // SDK 0.5.0 M4, M5 (ask A7): the move is `upgrade` again (`update --pins` is its alias), and an sdk installed any
+    // other way is brought up to date by `migrate`.
+    expect(skills.get('wildshard-upgrade')).toMatch(/`pnpm dlx @wildshard\/cli upgrade \[version\]`/u);
+    expect(skills.get('wildshard-upgrade')).toMatch(/`pnpm exec wildshard migrate`/u);
+    expect(skills.get('wildshard-upgrade')).toMatch(/^description: .*migration-pending.*breaking change/mu);
     expect(skills.get('wildshard-upgrade')).not.toMatch(/not built yet/u);
   });
 

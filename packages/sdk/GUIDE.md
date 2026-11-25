@@ -1829,48 +1829,104 @@ Get engine services from `ShardContext`.
 
 Code the headless simulation imports must not render.
 
-## 7. `wildshard update`
+## 7. Upgrading and migrations
 
-`wildshard update` (or `wildshard update <dir>`) rewrites this guide and the four `wildshard` skills in
-`.claude/skills/` from the installed sdk, and prints each file it wrote. Run it after you move to a newer sdk; the
-`wildshard-upgrade` skill walks the whole move. It touches nothing else: your shard source, `package.json`, README and
-every other file stay as they are. It adds the `.agents/skills/` links, `AGENTS.md` and `CLAUDE.md` only if one is
-missing, and it leaves an `AGENTS.md` or `CLAUDE.md` you changed and says so (`left AGENTS.md: you changed it`). So
-keep your own notes for agents in `AGENTS.md`, never in this guide or a skill: `update` rewrites those. Done when it
-prints `already up to date` or the files it wrote, and `git status` shows only `GUIDE.md`, `.claude/skills/` and any
-agent file it added.
+**Versions.** All six packages share one version. On 0.x, a patch
+(`0.4.x`) never breaks a shard repo. Every break bumps the minor
+(`0.5.0`, `0.6.0`, ...) and ships, in the same release, a **migration**:
+a script that moves your repo to the new layout or API, plus a
+`migrate-<version>` heading below saying what changed and what to check
+after. What a script cannot change safely it prints as a manual step,
+naming the file and what to do.
 
-To move to a newer sdk, run the newest CLI once, whatever sdk the repo is on now:
+**Move to a newer sdk** with one command, whatever sdk the repo is on
+now:
 
 ```sh
-pnpm --package=@wildshard/sdk@latest dlx wildshard update --pins
+pnpm dlx @wildshard/cli upgrade            # npm's latest
+pnpm dlx @wildshard/cli upgrade 0.5.0      # one release
 ```
 
-An older installed CLI cannot do the move: 0.2.4 and earlier refuse the flag, and 0.2.5 refuses a repo that lists
-the sdk as `@wildshard/sharddev` or by a GitHub pin. Once the repo is on the newest sdk, `pnpm exec wildshard
-update --pins` works too.
+Once installed, `pnpm exec wildshard upgrade [version]` does the same;
+`wildshard update --pins[=<version>]` is its old name and still works.
+`upgrade` refuses to start unless `git status` is clean
+(`update-pins-dirty`). In order, it:
 
-`wildshard update --pins` moves the repo to a newer sdk release first: npm's latest, or the one you name with
-`--pins=<version>` (`--pins=0.2.5`). In order, it:
+1. moves every pin `package.json` lists to what the release names: the
+   sdk and the cli to the release, `@wildshard/format`, `three` and
+   `@types/three` to the exact specs it pins, each `pnpm.overrides`
+   entry for one of those with it, and `engines.node`. The sdk keeps the
+   name and form the repo lists it with (`@wildshard/sdk` or
+   `@wildshard/sharddev`; an exact version, an `npm:` alias, or a GitHub
+   pin, moved to the release's tag);
+2. runs `pnpm install`, and refuses if pnpm did not install that sdk
+   (and `three`);
+3. runs `wildshard migrate` (below);
+4. runs `wildshard check .`.
 
-1. reads the release from npm (`pnpm view`) and refuses one older than the repo's sdk;
-2. moves every pin `package.json` lists to what that release names: the sdk to the release, `@wildshard/format`,
-   `@wildshard/engine` and `three` to the exact specs it pins, each `pnpm.overrides` entry for one of those packages
-   with it, and `engines.node` to the Node it needs. The sdk keeps the name and form the repo lists it with:
-   `@wildshard/sdk` or `@wildshard/sharddev`; an exact version, an `npm:@wildshard/sdk@<version>` alias, or a GitHub
-   pin, which moves to the commit the release's `v<version>` tag names (or to that tag, if it named a tag). It changes
-   nothing else in the file and prints each move;
-3. runs `pnpm install`, and refuses if pnpm did not install that sdk and, when the repo lists `three`, that `three`;
-4. applies the release's codemods: each `codemods/<version>.mjs` the new sdk ships, for every version above the old
-   sdk and up to the new one, oldest first. A codemod edits your shard source for a change that would otherwise
-   break it, and prints what it changed;
-5. runs the new sdk's own `wildshard update`, which rewrites this guide and the skills as above;
-6. runs the new sdk's `wildshard check .`.
+If step 2 or 3 fails, it puts `package.json` and `pnpm-lock.yaml` back
+and installs the old sdk again. Done when its last line reads
+`on @wildshard/sdk <version>, check pass`. Commit everything it changed
+together. A refusal is `update-pins` (section 6).
 
-If step 3 or 4 fails, it puts `package.json` and `pnpm-lock.yaml` back and installs the old sdk again. It refuses to
-start unless `git status` is clean (`update-pins-dirty`, `update-pins-no-git`): a codemod edits your files. Done when
-its last line reads `on @wildshard/sdk <version>, check pass`. Commit `package.json`, `pnpm-lock.yaml`, the guide,
-the skills and any codemod edit together. A refusal is `update-pins` (section 6).
+**`wildshard migrate [dir]`** brings the repo up to the sdk *installed*
+in its `node_modules`, however it got there (`upgrade`, a hand
+`pnpm add @wildshard/sdk@0.5.0`, a lockfile bump). It refuses a dirty
+tree, then:
+
+1. rewrites this guide and the four skills from the installed sdk (as
+   `wildshard update` does), so an agent reads the new instructions
+   first;
+2. runs each pending migration, oldest first, and prints what it moved;
+3. writes the stamp;
+4. prints **Manual steps**: each edit no script can make safely. Do each
+   one, then run `wildshard check .`.
+
+It is safe to run again: a migration that has run reports nothing. A
+refusal is `migrate-dirty`, `migrate-no-git` or `migrate` (section 6).
+
+**The stamp.** `package.json` `"wildshard": { "migrated": "<version>" }`
+is the sdk the source was last migrated to, not its pin. Only `new` and
+`migrate` write it. A migration is pending when it is newer than the
+stamp and no newer than the installed sdk, or when its own check finds
+the repo still in the old layout (a repo with no stamp relies on that
+check alone). `wildshard status` prints the installed sdk, the stamp and
+each pending migration; `wildshard status --brief` prints one line when
+one is pending and nothing otherwise. `new` and `update` register
+`status --brief` as a SessionStart hook for Claude Code and Codex
+(`.claude/settings.json` and `.codex/hooks.json`, or
+`.agents/hooks.local.json` in a repo whose hooks come from
+`pnpm agents:sync`), so an agent knows at the start of a session.
+
+**The refusal.** While a migration is pending, `dev`, `watch`, `build`,
+`check` and `upload` stop before doing anything and print the block
+`migration-pending` (section 6) describes. Run
+`pnpm exec wildshard migrate`.
+
+**`wildshard update [dir]`** rewrites this guide and the four
+`wildshard` skills in `.claude/skills/` from the installed sdk, adds the
+SessionStart hook, and prints each file it wrote. It touches nothing
+else: your shard source, `package.json`, README and every other file
+stay as they are. It adds the `.agents/skills/` links, `AGENTS.md` and
+`CLAUDE.md` only if one is missing, and leaves an `AGENTS.md` or
+`CLAUDE.md` you changed (`left AGENTS.md: you changed it`). Keep your
+own notes for agents in `AGENTS.md`, never in this guide or a skill:
+`update` rewrites those.
+
+### Migrations
+
+#### migrate-0-5-0
+
+Shard assets move from `public/` into `src/static/`. A file the shard
+mounts as `/<path>` now lives at `<source>/static/<path>`
+(`src/static/...`, or `src/shards/<slug>/static/...` in a multi-shard
+repo): `src/assets/public/` becomes `src/static/assets/<slug>/`, and
+committed `public/assets/*` and `public/programs/` move under
+`src/static/`. `scripts/publish-public.mjs` is gone, and the build
+writes to `out/<slug>`, not `public/shardfiles/<slug>`. Check after:
+`public/` is gone (or holds nothing committed), `.gitignore` names
+`out/`, and `wildshard check .` passes with the same shard file hash as
+before.
 
 ## 8. Primitives
 

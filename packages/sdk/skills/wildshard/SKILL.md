@@ -49,4 +49,4 @@ passes.
   sources; this skill carries none.
 - Run `wildshard check .` as the loop's check: it runs build, validate and prove for you. Run `wildshard build
   <folder>` only after prepare (`GUIDE.md#1-the-loop`).
-- After the sdk moves to a newer version, follow `GUIDE.md#7-wildshard-update`.
+- After the sdk moves to a newer version, follow `GUIDE.md#7-upgrading-and-migrations`.
