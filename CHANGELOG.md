@@ -16,6 +16,10 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.4.34 (2026-11-25)
+
+- A shard publish that stalls while the zone loads now says what the page was waiting on, and stops at once on an engine error.
+
 ## v0.4.33 (2026-11-24)
 
 - Hero shots refuse a mostly black capture instead of uploading it.
