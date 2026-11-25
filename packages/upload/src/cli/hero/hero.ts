@@ -4,6 +4,7 @@ import path from 'node:path'
 import { shardCardPath } from '../../sharddev/shardSource.ts'
 import { heroLook, untrackedLine } from './look.ts'
 import { isSceneShard } from './scene-card.ts'
+import { sourceShard } from './source.ts'
 import {
   NONE,
   STAMP,
@@ -37,13 +38,6 @@ function captureCommand(shard: string): string {
 /** The no-capture stamp, for hero files that already show this content. */
 function stampExistingCommand(shard: string): string {
   return `${CAPTURE} ${sourceOperand(shard)} --stamp-existing`
-}
-
-/** The source shard folder of a product built at `<root>/out/<name>`. */
-function sourceShard(product: string): string {
-  const resolved = path.resolve(product)
-  const root = path.dirname(path.dirname(resolved))
-  return path.join(root, 'src', 'shards', path.basename(resolved))
 }
 
 /** Every file name in the product, without its extension: blobs are named by hash. */
@@ -265,7 +259,7 @@ async function assertHeroCurrent(
   }> = {},
 ): Promise<void> {
   // SA3: `build` names the project it built; a bare folder is read by layout.
-  const shard = source ?? sourceShard(product)
+  const shard = source ?? (await sourceShard(product))
   // F28: a scene shard keeps no manifest; its folder (a shard.config.ts) is still the source a hero shows
   if (
     (await readJson(shardCardPath(shard))) === undefined &&
