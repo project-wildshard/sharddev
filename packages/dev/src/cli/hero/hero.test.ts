@@ -159,6 +159,30 @@ test('tests and prose are not content; a hand-swapped hero file is not the one s
   assert.equal(await stateOf(space.shard), 'stale')
 })
 
+test("a lean repo's tooling at the source's top (scripts/, test/) is not content; a nested scripts/ is", async (context: TestContext): Promise<void> => {
+  const space = await project(context)
+  await writeHeroStamp(space.shard, { base: BASE })
+  await mkdir(path.join(space.shard, 'scripts', '.kit'), { recursive: true })
+  await writeFile(
+    path.join(space.shard, 'scripts', '.kit', 'bin-pins.mjs'),
+    'export {}\n',
+  )
+  await mkdir(path.join(space.shard, 'test', '.kit'), { recursive: true })
+  await writeFile(
+    path.join(space.shard, 'test', '.kit', 'owned-scratch.mjs'),
+    'export {}\n',
+  )
+  assert.equal(await stateOf(space.shard), 'fresh')
+  await mkdir(path.join(space.shard, 'generators', 'scripts'), {
+    recursive: true,
+  })
+  await writeFile(
+    path.join(space.shard, 'generators', 'scripts', 'ramp.ts'),
+    'export {}\n',
+  )
+  assert.equal(await stateOf(space.shard), 'stale')
+})
+
 test('a product built before the capture does not carry the new hero and is refused', async (context: TestContext): Promise<void> => {
   const space = await project(context)
   await writeFile(path.join(space.shard, 'card', 'portrait.jpg'), 'new shot')
