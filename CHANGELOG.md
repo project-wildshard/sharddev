@@ -22,6 +22,7 @@ or the manual step it prints. The procedure is the
 - Every command says when an sdk migration has not run in a repo, and `wildshard migrate` runs it, however the sdk got installed.
 - `wildshard upgrade` moves a repo to a new sdk in one command; `update --pins` still works as its old name.
 - `wildshard status` tells you the installed sdk and any pending migration, and new shard repos show it to Claude and Codex when a session starts.
+- `wildshard update` works in repos on repo-kit's agent-sync (skills go in `.agents/skills/`, so `agent-sync --check` stays green), and `--guide docs/GUIDE.md` keeps the guide out of the repo root.
 
 ## v0.4.33 (2026-11-24)
 

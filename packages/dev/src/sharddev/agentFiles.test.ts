@@ -1,9 +1,11 @@
+// oxlint-disable-next-line import/no-nodejs-modules -- repo-kit's agent-sync runs as a process.
+import { spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffold shard repos and a fake newer sdk into a scratch folder.
 import { appendFileSync, cpSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, readlinkSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the package root and scratch projects.
 import { relative, resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { AGENTS_FILE, AGENTS_TEXT, CLAUDE_FILE, CLAUDE_TEXT, GUIDE_SOURCE, SDK_ROOT, SKILLS, skillFile, skillLink, skillLinkTarget, skillSource, syncAgentFiles, updateShardRepo } from '../../../sdk/src/sharddev/agentFiles';
+import { AGENTS_FILE, AGENTS_TEXT, CLAUDE_FILE, CLAUDE_TEXT, GUIDE_SOURCE, SDK_ROOT, SKILLS, agentSkillFile, agentsText, readGuide, skillFile, skillLink, skillLinkTarget, skillSource, syncAgentFiles, updateShardRepo } from '../../../sdk/src/sharddev/agentFiles';
 import { projectPerformancePolicy } from '../../../sdk/src/sharddev/performancePolicy';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import { writeShardRepo } from '../../../sdk/src/sharddev/newProject';
@@ -170,5 +172,96 @@ describe('wildshard update and the agent files (SA28)', () => {
     }
     writeFileSync(resolve(project, 'package.json'), '{ not json');
     await expect(runCli(['update', project])).rejects.toThrow(/package\.json is not valid JSON[\s\S]*\[update-target\]/u);
+  });
+
+  // Ask A8: a repo on repo-kit's agent-sync keeps skills as real folders in .agents/skills/, which sync links from
+  // .claude/skills/, and its hooks in .agents/hooks.json; update follows that layout, and `--guide` moves GUIDE.md.
+  /** An org shard repo as repo-kit stamps it: a hooks spec, a skill of its own linked by sync, and an AGENTS.md. */
+  function orgRepo(name: string): string {
+    const project = resolve(scratch, name);
+    mkdirSync(resolve(project, '.agents/skills/grill-me'), { recursive: true });
+    mkdirSync(resolve(project, '.claude/skills'), { recursive: true });
+    writeFileSync(resolve(project, 'package.json'), `${JSON.stringify({ name, private: true, dependencies: { '@wildshard/sdk': '0.4.12' } }, null, 2)}\n`);
+    writeFileSync(resolve(project, AGENTS_FILE), '# AGENTS.md\n\nThe org\'s rules.\n');
+    writeFileSync(resolve(project, CLAUDE_FILE), CLAUDE_TEXT);
+    writeFileSync(resolve(project, '.agents/hooks.json'), `${JSON.stringify({ hooks: [] }, null, 2)}\n`);
+    writeFileSync(resolve(project, '.agents/skills/grill-me/SKILL.md'), '---\nname: grill-me\ndescription: mine\n---\n');
+    symlinkSync('../../.agents/skills/grill-me', resolve(project, '.claude/skills/grill-me'), 'dir');
+    return project;
+  }
+  const AGENT_SYNC = resolve(ROOT, '../../scripts/agent-sync.mjs');
+  const agentSync = (project: string, ...args: string[]): ReturnType<typeof spawnSync> => spawnSync(process.execPath, [AGENT_SYNC, '--root', project, ...args], { encoding: 'utf8' });
+
+  it('in an agent-sync repo writes the skills as real .agents/skills folders, never touches .claude/, and sync --check passes once synced', () => {
+    const project = orgRepo('org-shard');
+    const before = snapshot(project);
+
+    const lines = updateShardRepo(project);
+
+    const after = snapshot(project), touched = changed(before, after);
+    // Nothing under .claude/: no skill folders, no links, no settings.json hooks (.agents/hooks.json owns them).
+    expect(touched.filter(file => file.startsWith('.claude/'))).toEqual([]);
+    expect(touched).toEqual(['.agents/hooks.local.json', '.agents/hooks/wildshard-status.sh', 'GUIDE.md', ...SKILLS.map(agentSkillFile)].toSorted());
+    for (const name of SKILLS) {
+      expect(lstatSync(resolve(project, skillLink(name))).isDirectory()).toBe(true);
+      expect(after.get(agentSkillFile(name))).toBe(readFileSync(skillSource(name), 'utf8'));
+    }
+    expect(lines).toContain(`  added ${agentSkillFile('wildshard')}`);
+    expect(lines.at(-1)).toMatch(/^ {2}run pnpm agents:sync: .*sync links the new \.agents\/skills folders from \.claude\/skills$/u);
+    expect(after.get(AGENTS_FILE)).toBe('# AGENTS.md\n\nThe org\'s rules.\n');
+
+    // repo-kit's sync links them; then its check is green and a second update writes nothing.
+    expect(agentSync(project, '--check').status).not.toBe(0);
+    const sync = agentSync(project);
+    expect(sync.status, String(sync.stderr)).toBe(0);
+    for (const name of SKILLS) expect(readlinkSync(resolve(project, `.claude/skills/${name}`))).toBe(`../../.agents/skills/${name}`);
+    const check = agentSync(project, '--check');
+    expect(check.status, `${String(check.stdout)}${String(check.stderr)}`).toBe(0);
+    const synced = snapshot(project);
+    expect(updateShardRepo(project).at(-1)).toBe('  already up to date');
+    expect(changed(synced, snapshot(project))).toEqual([]);
+    expect(agentSync(project, '--check').status).toBe(0);
+  });
+
+  it('in an agent-sync repo writes AGENTS.md for that layout when it is missing, and leaves a default-layout link with its fix', () => {
+    const project = orgRepo('org-old');
+    rmSync(resolve(project, AGENTS_FILE));
+    symlinkSync(skillLinkTarget('wildshard-goldens'), resolve(project, skillLink('wildshard-goldens')), 'dir');
+    const lines = updateShardRepo(project);
+    expect(readFileSync(resolve(project, AGENTS_FILE), 'utf8')).toBe(agentsText('GUIDE.md', 'agent-sync'));
+    expect(agentsText('GUIDE.md', 'agent-sync')).toMatch(/skills are in `\.agents\/skills\/`/u);
+    const link = skillLink('wildshard-goldens');
+    expect(lines).toContain(`  left ${agentSkillFile('wildshard-goldens')}: ${link} is a link to ${skillLinkTarget('wildshard-goldens')}, but agent-sync keeps skills as real folders there: rm ${link} && git mv .claude/skills/wildshard-goldens ${link}, then wildshard update and pnpm agents:sync`);
+    expect(lstatSync(resolve(project, '.claude/skills/wildshard-goldens'), { throwIfNoEntry: false })).toBeUndefined();
+  });
+
+  it('--guide docs/GUIDE.md writes the guide there, records it, and later updates keep it there', async () => {
+    const project = resolve(scratch, 'my-shard');
+    writeShardRepo(project, 'my-shard', { empty: true });
+    const info = vi.spyOn(console, 'info').mockImplementation(() => undefined);
+    let lines: string[];
+    try {
+      await runCli(['update', project, '--guide', 'docs/GUIDE.md']);
+      lines = info.mock.calls.map(call => String(call[0]));
+    } finally { info.mockRestore(); }
+    expect(readFileSync(resolve(project, 'docs/GUIDE.md'), 'utf8')).toBe(readFileSync(GUIDE_SOURCE, 'utf8'));
+    expect(readGuide(project)).toBe('docs/GUIDE.md');
+    expect((JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { wildshard: unknown }).wildshard).toEqual({ migrated: expect.any(String), guide: 'docs/GUIDE.md' });
+    expect(lines[0]).toMatch(/^wildshard update: docs\/GUIDE\.md and the skills from/u);
+    expect(lines).toContain('  left GUIDE.md: the guide now lives at docs/GUIDE.md: delete this copy');
+    expect(lines).toContain('  added docs/GUIDE.md');
+    // The untouched AGENTS.md new wrote moves with the guide; the old root copy stays until the author deletes it.
+    expect(readFileSync(resolve(project, AGENTS_FILE), 'utf8')).toBe(agentsText('docs/GUIDE.md'));
+    rmSync(resolve(project, 'GUIDE.md'));
+    // A plain update (as upgrade and migrate run it) reads the path back and writes no root GUIDE.md.
+    const sdk = newerSdk(resolve(scratch, 'sdk-9.9.9'));
+    expect(updateShardRepo(project, sdk)).toContain('  updated docs/GUIDE.md');
+    expect(lstatSync(resolve(project, 'GUIDE.md'), { throwIfNoEntry: false })).toBeUndefined();
+    // --guide GUIDE.md moves it back and drops the key.
+    updateShardRepo(project, sdk, { guide: 'GUIDE.md' });
+    expect((JSON.parse(readFileSync(resolve(project, 'package.json'), 'utf8')) as { wildshard: Record<string, unknown> }).wildshard['guide']).toBeUndefined();
+    expect(readFileSync(resolve(project, AGENTS_FILE), 'utf8')).toBe(AGENTS_TEXT);
+    for (const bad of ['/abs/GUIDE.md', '../GUIDE.md', 'docs/GUIDE.txt']) expect(() => updateShardRepo(project, sdk, { guide: bad })).toThrow(/--guide .* must be a \.md file inside the repo/u);
+    for (const args of [['--guide'], ['--guide', '--pins'], ['--guide=a.md', '--guide=b.md'], ['--guide=a.md', '--pins']]) await expect(runCli(['update', project, ...args])).rejects.toThrow(/usage: wildshard update \[dir\] \[--guide <path>\]/u);
   });
 });

@@ -50,15 +50,14 @@ const VERBS: Readonly<Record<string, string>> = {
                        what would play (the SHA-256 the API records).
                        Reads WILDSHARD_API_URL when --server is absent,
                        else https://api.wildshard.io`,
-  update: `update [dir] [--pins[=<version>]]
-                       Rewrite GUIDE.md and the four wildshard skills in
-                       .claude/skills/ from the installed sdk (dir: the
-                       shard repo, default the current folder). Adds the
-                       .agents/skills links, AGENTS.md and CLAUDE.md if
-                       missing; touches nothing else, and leaves an
-                       AGENTS.md you changed (it says so). --pins is an
-                       alias of upgrade: update --pins=<version> is
-                       upgrade <version>`,
+  update: `update [dir] [--guide <path>] [--pins[=<version>]]
+                       Rewrite GUIDE.md and the four wildshard skills
+                       from the installed sdk (in .agents/skills/ when
+                       the repo has .agents/hooks.json, else in
+                       .claude/skills/); add AGENTS.md, CLAUDE.md and
+                       links if missing, and leave an AGENTS.md you
+                       changed. --guide <path> moves GUIDE.md and records
+                       it in package.json. --pins[=<version>] is upgrade`,
   dev: `dev <source> [port]
                        Serve the shard source on localhost (port 0, the
                        default, picks a free one) and build it again on

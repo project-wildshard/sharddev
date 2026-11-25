@@ -83,7 +83,7 @@ with `rule`, `fix` and `guide`) for agents and scripts.
 | Verb | What it is for |
 |---|---|
 | `wildshard new <dir> [slug] [--template scene] [--empty]` | Start a shard repo in a folder that does not exist yet, its shard source at `src/`. The slug is the folder's name unless you give one. It copies Mossgate Hollow as one three.js scene module (`--template scene`, the default: `src/generators/world.ts` is the world, `play.ts` what the player uses in it, `quests.ts` and `gameplay.ts` its quests, talks and rack, `src/proof.json` the tape `check` plays, and `wildshard watch .` shows each save); any other template refuses before writing, and `--template sdk` and `--template blender` are retired (below). `--empty` writes a bare shard source instead of the reference world |
-| `wildshard update [dir] [--pins[=<version>]]` | Rewrite this guide and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
+| `wildshard update [dir] [--guide <path>] [--pins[=<version>]]` | Rewrite this guide (at `--guide`'s path, which `package.json` remembers) and the four `wildshard` skills from the installed sdk. `--pins` first moves the repo to a newer sdk release (npm's latest, or `--pins=<version>`), installs it and applies its codemods, and runs `check` after (section 7) |
 | `wildshard dev <source>` | Serve the shard source on localhost and rebuild on every save (section 4). The first run fetches engine's dev client once ("Walking your shard") |
 | `wildshard watch <source>` | For a shard written as a three.js scene (`@wildshard/sdk/scene/shard`): serve it once, then swap each edited part into the running page in about a second, no reload. A look, ground or spawn edit still reloads. A repo `new` made runs it as `pnpm watch` |
 | `wildshard check <source> [folder] [--json]` | The loop's check: lint, build, validate, prove, report card, verdict |
@@ -1912,6 +1912,15 @@ stay as they are. It adds the `.agents/skills/` links, `AGENTS.md` and
 `CLAUDE.md` you changed (`left AGENTS.md: you changed it`). Keep your
 own notes for agents in `AGENTS.md`, never in this guide or a skill:
 `update` rewrites those.
+
+In a repo on repo-kit's agent-sync (it has `.agents/hooks.json`),
+`update` writes the skills as real folders in `.agents/skills/`, never
+touches `.claude/skills/` or `.claude/settings.json`, and puts the hook
+in `.agents/hooks.local.json`; run `pnpm agents:sync` after it to link
+the skills for Claude Code. `update --guide docs/GUIDE.md` keeps this
+guide there instead of at the root and records the path in
+`package.json` (`"wildshard": { "guide": "docs/GUIDE.md" }`), so later
+`update`, `upgrade` and `migrate` runs write it there too.
 
 ### Migrations
 

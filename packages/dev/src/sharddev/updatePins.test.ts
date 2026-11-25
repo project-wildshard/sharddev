@@ -352,7 +352,7 @@ export default ({ project, from, to }) => { renameSync(resolve(project, 'old-lay
     const project = resolve(scratch, 'my-shard');
     writeShardRepo(project, 'my-shard', { empty: true });
     for (const args of [['--pins='], ['--pins', '--pins=1.0.0'], [project, 'extra', '--pins'], ['-x', '--pins']]) {
-      await expect(runCli(['update', ...args])).rejects.toThrow(/usage: wildshard update \[dir\] \[--pins\[=<version>\]\]/u);
+      await expect(runCli(['update', ...args])).rejects.toThrow(/usage: wildshard update \[dir\] \[--guide <path>\] \[--pins\[=<version>\]\]/u);
     }
     await expect(runCli(['update', '--pins', '0.2.4'])).rejects.toThrow(/name a version as --pins=0\.2\.4/u);
     // M4: `upgrade [version] [dir]`, each at most once, no flags.

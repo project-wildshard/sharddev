@@ -87,12 +87,22 @@ async function runCommand(given: readonly string[], options: CliOptions): Promis
     // SA28 (J314 Q7, Q27): one verb. SA18: `--pins[=<version>]` also moves the pins, installs, applies the release's
     // codemods and runs check (updatePins.ts); with no version it takes npm's latest. M4: it is `upgrade`'s alias, the
     // same move with the same output.
-    const rest = args.slice(1), pins = rest.filter(value => value === '--pins' || value.startsWith('--pins='));
-    const positional = rest.filter(value => !pins.includes(value)), version = pins[0]?.startsWith('--pins=') === true ? pins[0].slice('--pins='.length) : 'latest';
-    if (pins.length > 1 || version === '' || positional.length > 1 || positional.some(value => value.startsWith('-'))) throw new Error('usage: wildshard update [dir] [--pins[=<version>]]');
-    if (pins.length === 1 && /^\d+\.\d+\.\d+/u.test(positional[0] ?? '') && !existsSync(resolve(positional[0] ?? ''))) throw new Error(`usage: wildshard update [dir] [--pins[=<version>]]: name a version as --pins=${positional[0] ?? ''}`);
+    // A8: `--guide <path>` (or `--guide=<path>`) puts GUIDE.md elsewhere in the repo and records it in package.json.
+    const usage = 'usage: wildshard update [dir] [--guide <path>] [--pins[=<version>]]';
+    const rest = args.slice(1), guides: string[] = [], others: string[] = [];
+    for (let index = 0; index < rest.length; index += 1) {
+      const value = rest[index] ?? '';
+      if (value.startsWith('--guide=')) guides.push(value.slice('--guide='.length));
+      else if (value === '--guide') { const path = rest[index + 1]; if (path === undefined || path.startsWith('-')) throw new Error(`${usage}: --guide takes a path`); guides.push(path); index += 1; }
+      else others.push(value);
+    }
+    const pins = others.filter(value => value === '--pins' || value.startsWith('--pins='));
+    const positional = others.filter(value => !pins.includes(value)), version = pins[0]?.startsWith('--pins=') === true ? pins[0].slice('--pins='.length) : 'latest';
+    if (pins.length > 1 || guides.length > 1 || version === '' || positional.length > 1 || positional.some(value => value.startsWith('-'))) throw new Error(usage);
+    if (pins.length === 1 && guides.length === 1) throw new Error(`${usage}: run update --guide on its own first; upgrade keeps the guide where package.json records it`);
+    if (pins.length === 1 && /^\d+\.\d+\.\d+/u.test(positional[0] ?? '') && !existsSync(resolve(positional[0] ?? ''))) throw new Error(`${usage}: name a version as --pins=${positional[0] ?? ''}`);
     if (pins.length === 1) { await updatePins(resolve(positional[0] ?? '.'), version); return; }
-    for (const line of updateShardRepo(resolve(positional[0] ?? '.'))) console.info(line);
+    for (const line of updateShardRepo(resolve(positional[0] ?? '.'), undefined, guides[0] === undefined ? {} : { guide: guides[0] })) console.info(line);
     return;
   }
   if (input === undefined) throw new Error('usage: wildshard new <dir> | check <source> [folder] [--json] | synth <source> | build <source> [folder] [--shardfile-only|--folder-only] [--no-placeholders] [--output=<slug>] | build <source> --behaviour-only | validate <source|shard.json> | dev <source> [port] | watch <source> [port] (wildshard --help lists them all)');
