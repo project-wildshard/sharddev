@@ -17,3 +17,7 @@ The removed export makes the next SDK a minor, so `codemods/0.7.0.mjs` (with `te
 it. On Node 26.13.1 against a linked engine main: typecheck green, sdk 1411 of 1413 (2 skipped), content green; dev
 fails only devClient (a linked engine is no prerelease) and dev-signal (a linked worktree has no
 `dist/dev-server/bundle.json`), both the engine pin's to clear.
+
+The pin (opus-nalati2, after engine v0.1.93's npm next went out): `@wildshard/engine` 0.1.93-next.4daadc70 (carries
+`279b5ed0d`, `e477966a3` and the strip-only engine) and format 0.79.3 (Node <27) in every package; the dev client map
+and devClient.test.ts name build `4daadc70f0`. `pnpm check` green on Node 26.13.1, dev-signal and devClient included.
