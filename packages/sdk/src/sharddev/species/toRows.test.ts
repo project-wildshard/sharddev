@@ -8,7 +8,7 @@ import type { BrainedSpecies } from '../speciesBrains';
 import type { StrikeData } from '../species';
 import { programSpawnPhase, speciesProgramToRows, withConvertedRows, type ProgramLook, type SpeciesProgramInput } from './toRows';
 
-// Dunes' four species, as its built `actors/species-programs` program and physics bake carry them (shard-dunes 959969f).
+// Dunes' four species, as its built species program and physics bake carried them (shard-dunes 959969f).
 const program = DUNES.program as unknown as SpeciesProgramInput & { species: BrainedSpecies[]; strikes: StrikeData[] };
 const physics = DUNES.physics as Record<string, { scale: [number, number]; spec: unknown }>;
 const looks = new Map(Object.entries(physics).map(([kind, row]) =>

@@ -136,8 +136,9 @@ test('emission inlines computed modes and ordered bindings without source import
   try {
     // Inline data URLs add no static image edge; declare that exact empty
     // program-art source catalogue instead of borrowing repository metadata.
-    mkdirSync(resolve(root, 'scripts'));
-    writeFileSync(resolve(root, 'scripts/manifest-art-inputs.json'), JSON.stringify({ [slug]: [] }));
+    // Engine 0.1.96's lean layout reads it from src/scripts/.
+    mkdirSync(resolve(root, 'src/scripts'), { recursive: true });
+    writeFileSync(resolve(root, 'src/scripts/manifest-art-inputs.json'), JSON.stringify({ [slug]: [] }));
     const source = authoredManifestSource(root, slug, { discovery });
     expect(source).not.toContain('generators/');
     expect(source).not.toContain('binding0');

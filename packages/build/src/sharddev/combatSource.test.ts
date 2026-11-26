@@ -13,7 +13,6 @@ import { expandCombatSource } from '@wildshard/sdk/internal/combatSource';
 import { buildProject } from './project';
 import { validateOutputProduct, writeOutputProduct } from '@wildshard/sdk/outputProduct';
 import { settleHandwrittenCreatureLayers } from '@wildshard/sdk/internal/handwrittenCreatureLayers';
-import { emitPlatformSections } from '@wildshard/sdk/platformSections';
 import { closeFixtures, fixtureRoot } from '@wildshard/sdk/internal/test/ownedScratch';
 
 afterAll(closeFixtures);
@@ -65,17 +64,6 @@ test('normal SDK and handwritten source builds emit the same complete admitted c
     expect(settled.shard.rows.species).toEqual(built.shard.rows.species); expect(settled.shard.items).toEqual(built.shard.items);
     expect(readFileSync(resolve(root, 'data.json'), 'utf8')).toBe(text);
   } finally { warning.mockRestore(); rmSync(root, { recursive: true, force: true }); }
-});
-
-// FORMAT-PRUNE FP20: the species-program family is retired (the engine refuses it at admission, engine b75b5f57d); the
-// native hunt expansion and its native contact roster went with it, so a hand-written product naming one is refused.
-test('a hand-written product with a native species program is refused at build, naming the section (FP20)', () => {
-  const root = fixtureRoot('combat-native-retired-');
-  try {
-    const metadata = {page: [], native: [], hunt: {limit: 8, player: 'host', fight: {capExempt: ['crab']}, bands: {states: [], legacyKinds: []}, hit: {namespace: 'creature', tags: []}}};
-    writeOutputProduct(fixture(), new Map(), resolve(root, 'source'), {platform: emitPlatformSections(new Map([['actors/species-programs', metadata]]))});
-    expect(() => settleHandwrittenCreatureLayers(resolve(root, 'source'), resolve(root, 'settled'))).toThrow('Section actors/species-programs is retired (FORMAT-PRUNE FP20)');
-  } finally {rmSync(root, {recursive: true, force: true});}
 });
 
 test('ordinary cap compilation keeps conditional request tags and authored overrides', () => {

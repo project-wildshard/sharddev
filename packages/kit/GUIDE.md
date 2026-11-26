@@ -204,7 +204,7 @@ The six defining modules now belong to kit: `bake/species`,
 `weapons/meleeProfile` and `weapons/bowProfile`. SDK no longer exports
 these paths. Their original numeric, pose and data values are preserved.
 
-`MeleeProfile<Icon, Slot, Touch>` lets a host specialize its UI vocabulary
+`MeleeProfile<Icon, Touch>` lets a host specialize its UI vocabulary
 at its adapter without importing that host into kit. The default names
 are author strings; the starter sword keeps its concrete names. Host
 specialization retains the complete prior weapon type contract.

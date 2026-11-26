@@ -86,10 +86,10 @@ it('data pages allocate the original native roster, looks and stable actor ident
 it('both data pages require their complete real feature, quest and encounter owners', () => {
   for (const [legacy, client, recipe] of [[skyProductRows(originalSkyNavigation(), originalSkyMovers()), SKY_CLIENT_PLAN, SKY_NATIVE_WORLD], [signalProductRows(), SIGNAL_CLIENT_PLAN, SIGNAL_NATIVE_WORLD]] as const) {
     const source = { ...legacy, runtime: null };
-    const sections = new Map<string, unknown>([['client/plan', client], ['world/scenes', {}], ['world/targets', {}], ['actors/species-programs', {}],
+    const sections = new Map<string, unknown>([['client/plan', client], ['world/scenes', {}], ['world/targets', {}],
       ['look/painted', {}], ['sim/scripts', []], ['sim/runtime-plan', { kind: 'held-melee', recipe, baked: { pieces: [] } }]]);
     expect(clientOwnershipRules(source, sections)).toEqual([]);
-    for (const kind of ['held.melee', 'quest.page', 'population.homes', 'motion.channels', 'species.program'] as const) {
+    for (const kind of ['held.melee', 'quest.page', 'population.homes', 'motion.channels'] as const) {
       sections.set('client/plan', { ...client, features: client.features.filter(row => row.kind !== kind) });
       expect(clientOwnershipRules(source, sections)).toContain(`Data page requires ${kind}`);
     }

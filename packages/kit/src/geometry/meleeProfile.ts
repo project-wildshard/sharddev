@@ -65,11 +65,9 @@ export interface EquipmentUi<
  */
 export interface MeleeProfile<
   Icon extends string = string,
-  Slot extends string = string,
   Touch extends string = string,
 > {
   id: `weapon.${string}` | `tool.${string}`
-  legacySlot?: Slot
   ui: EquipmentUi<Icon, Touch>
   meta: { name: string; icon: Icon; blurb: string; category: string }
   /** Sound cues: fire, reload, impact, and the optional dry, hit, heavy and charge cues. */
@@ -224,11 +222,7 @@ export function meleeColour(hex: number, gain = 1): THREE.Color {
 /** A detached copy of the shared authored melee policy, including complete native poses.
  * Preserve original property order and every metadata field; restore owned rich
  * pose values after cloning plain state. No runtime view or owner is constructed. */
-export function sharedMeleeAuthorBase(): MeleeProfile<
-  'sword',
-  'sword' | 'sword-iron',
-  'melee'
-> {
+export function sharedMeleeAuthorBase(): MeleeProfile<'sword', 'melee'> {
   const owned = structuredClone(SWORD_WOOD),
     native = SWORD_WOOD.moves
   if (native === undefined) return owned

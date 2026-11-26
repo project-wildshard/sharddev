@@ -11,16 +11,9 @@ import {
 
 import type { MeleeProfile as AuthoredMeleeProfile } from './meleeProfile.ts'
 
-type MeleeProfile = AuthoredMeleeProfile<
-  'sword',
-  'sword' | 'sword-iron',
-  'melee'
->
+type MeleeProfile = AuthoredMeleeProfile<'sword', 'melee'>
 
-type EquipmentRow = Pick<
-  MeleeProfile,
-  'id' | 'legacySlot' | 'ui' | 'meta' | 'cues'
->
+type EquipmentRow = Pick<MeleeProfile, 'id' | 'ui' | 'meta' | 'cues'>
 
 /** The starter wooden sword equipment row and existing UI metadata. */
 export const WOODEN_SWORD: EquipmentRow = {
@@ -30,7 +23,6 @@ export const WOODEN_SWORD: EquipmentRow = {
     impact: 'cue.sword.hit',
   },
   id: 'weapon.sword',
-  legacySlot: 'sword',
   ui: {
     swapIcon: SWAP_GLYPHS.sword,
     name: 'Wooden sword',
@@ -56,7 +48,6 @@ export const IRON_SWORD: EquipmentRow = {
     impact: 'cue.sword.hit',
   },
   id: 'weapon.sword-iron',
-  legacySlot: 'sword-iron',
   ui: {
     swapIcon: SWAP_GLYPHS.sword,
     name: 'Iron sword',

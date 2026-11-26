@@ -14,7 +14,6 @@ import { copyAssetBytes, hashAssetBytes } from './assetHandle';
 import { defineMirror, type RuntimeMirror } from './runtimeMirrors';
 import type { EmittedSections } from './sections';
 import { outputDecisionScripts, outputScriptAdmissionRows, type OutputProductOptions } from './outputProduct';
-import { refuseRetiredSections } from './retiredSections';
 import { prepareProjectDecisions, replacedDecisionBlob, decisionBlobNames } from './projectDecisions';
 import type { DecisionBuildOptions } from './buildDecisionScripts';
 
@@ -84,7 +83,6 @@ export function prepareProjectOutputInput(input: unknown): PreparedOutputInput {
   const prepared = typeof input === 'object' && input !== null ? preparedInputs.get(input) : undefined;
   if (prepared !== undefined) return prepared;
   const parsed = v.parse(output, input === undefined ? {} : input);
-  refuseRetiredSections(parsed.platform?.sections.map(row => row.name) ?? []);
   preparedInputs.set(parsed, parsed);
   return parsed;
 }

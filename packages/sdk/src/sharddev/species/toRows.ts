@@ -1,6 +1,6 @@
-// ONE-FORMAT OF11a: a species program (`BrainedSpecies` and its look) becomes CC1's layered rows, so a shard moving off
-// `actors/species-programs` (M8) writes plain `actors/species`, `creatures.brains` and `rows.strikes` with the same
-// numbers. The program's own brain keeps owning its home, leash and perception: the layer adds nothing it would override.
+// ONE-FORMAT OF11a: a species program (`BrainedSpecies` and its look) becomes CC1's layered rows, so a shard writes
+// plain `actors/species`, `creatures.brains` and `rows.strikes` with the same numbers (the old program section is
+// deleted, FORMAT-PRUNE FP20). The program's own brain keeps owning its home, leash and perception: the layer adds nothing it would override.
 import type { BorrowedDecision } from '@wildshard/format/decisionScripts';
 import type { CreatureAbility, CreatureTemperament } from '@wildshard/format/creatureLayers';
 import type { ShardCreatures } from '@wildshard/format/creatures';
@@ -13,7 +13,7 @@ type Dims = SpeciesRow['dims'];
 
 /** One species' look: the look row id the body draws with and the physics dimensions its bake already uses. */
 export interface ProgramLook { readonly look: string; readonly dims: Dims }
-/** A species program's catalogue, as `actors/species-programs` `program` carries it. */
+/** A species program's catalogue: its brained species and their strikes. */
 export interface SpeciesProgramInput { readonly species: readonly BrainedSpecies[]; readonly strikes: readonly StrikeData[] }
 /** A decision brain stays its `sim/scripts` binding: the shard keeps it on its spawn group or encounter. */
 export interface ProgramDecision { readonly species: string; readonly decision: BorrowedDecision }

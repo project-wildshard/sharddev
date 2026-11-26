@@ -11,7 +11,6 @@ import { encodeCanonicalJson } from './immutable';
 import { validateOutputProduct } from './outputProduct';
 import { requireJournalImages } from './journalIconSource';
 import { expandCombatSource } from './combatSource';
-import { refuseRetiredSections } from './retiredSections';
 
 /** Hand-held JSON enters the same source expansion, then format settles the changed section's real hashes again. */
 export function settleHandwrittenCreatureLayers(source: string, output: string): ReturnType<typeof validateOutputProduct> {
@@ -19,8 +18,6 @@ export function settleHandwrittenCreatureLayers(source: string, output: string):
   settleHandwritten(source, output);
   const checked = validateOutputProduct(output), sections = new Map(checked.sections);
   requireJournalImages(checked.shard);
-  // FORMAT-PRUNE FP20: the species-program family is retired; a hand-written product naming one is refused
-  refuseRetiredSections(checked.index.sections.map(row => row.name));
   const creatures = expandCreatureHitVolumes(expandCreatureLayers(checked.shard, console.warn, sections), checked.assets);
   const layers = expandCombatSource(expandHarvestSource(creatures, console.warn, sections), console.warn, sections);
   if (layers === checked.shard) return checked;

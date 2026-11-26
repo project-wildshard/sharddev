@@ -13,10 +13,10 @@ import type * as PhasedBoss from '@wildshard/sdk/phasedBoss';
 import type * as SpeciesBrains from '@wildshard/sdk/speciesBrains';
 import type * as BowProfile from '@wildshard/kit/weapons/bowProfile';
 import type * as MeleeProfile from '@wildshard/kit/weapons/meleeProfile';
-import type { EquipmentIcon, WeaponId, EquipmentTouchMap } from '@wildshard/engine/combat/Equipment';
+import type { EquipmentIcon, EquipmentTouchMap } from '@wildshard/engine/combat/Equipment';
 import { expectTypeOf, test } from 'vitest';
 
-type HostMeleeProfile = MeleeProfile.MeleeProfile<EquipmentIcon, WeaponId, keyof EquipmentTouchMap>;
+type HostMeleeProfile = MeleeProfile.MeleeProfile<EquipmentIcon, keyof EquipmentTouchMap>;
 
 test('the SDK clip row types equal the engine animation types', () => {
   expectTypeOf<Clips.ClipClock>().toEqualTypeOf<Animation.ClipClock>();

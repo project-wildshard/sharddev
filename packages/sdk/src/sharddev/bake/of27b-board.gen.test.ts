@@ -1,4 +1,4 @@
-// Scratch only (opus-of27b): writes the OF27b parity board's inputs, the old hull-book files and the new skin look's
+// Scratch only (opus-of27b): writes the OF27b parity board's inputs, the old hull look files and the new skin look's
 // shard files, for Pine's deer and Nalati's wolf at both tiers.
 // oxlint-disable-next-line import/no-nodejs-modules
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs';

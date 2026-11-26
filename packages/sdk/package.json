@@ -53,7 +53,7 @@
     "@types/three": "0.186.0",
     "@typescript/typescript6": "6.0.2",
     "@valibot/to-json-schema": "1.8.0",
-    "@wildshard/format": "npm:@wildshard/shard-format@0.79.3",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.80.0",
     "@wildshard/kit": "workspace:*",
     "@wildshard/upload": "workspace:*",
     "ajv": "6.15.0",
@@ -74,7 +74,7 @@
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@types/node": "24.3.1",
-    "@wildshard/engine": "0.1.93-next.b2c9e9f3",
+    "@wildshard/engine": "0.1.96",
     "@wildshard/sdk": "link:.",
     "happy-dom": "21.0.4",
     "postprocessing": "6.39.5",
