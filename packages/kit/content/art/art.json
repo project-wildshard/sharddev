@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "about": "SF2 (meta standalone shardfiles, Jake SD1): zone art two or more zones use. Each set names the zones that place it; a set fewer than two zones name belongs in its one zone's repo. A shard names a file by its own URL, /assets/<slug>/<path under content/art>, and the SDK copies it into the shardfile from here. Images only: the cook makes every KTX2 (J525).",
+  "sets": {
+    "tex/leafy_grass": {
+      "zones": ["nalati-grasslands", "nine-dragon-stack", "pine-hollow"]
+    },
+    "tex/stony_dirt_path": {
+      "zones": ["nalati-grasslands", "nine-dragon-stack", "pine-hollow"]
+    },
+    "tex/rock_ground": {
+      "zones": ["nalati-grasslands", "nine-dragon-stack", "pine-hollow"]
+    },
+    "tex/forest_ground_04": {
+      "zones": ["nalati-grasslands", "nine-dragon-stack"]
+    },
+    "hdri/kloofendal_48d_partly_cloudy_puresky_2k": {
+      "zones": ["nalati-grasslands", "nine-dragon-stack"]
+    }
+  }
+}

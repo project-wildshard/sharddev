@@ -1,10 +1,11 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
-import { existsSync, mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
 import { tmpdir } from 'node:os';
 // oxlint-disable-next-line import/no-nodejs-modules -- the reader reads a real shard folder
 import { dirname, join } from 'node:path';
 import { afterEach, expect, it } from 'vitest';
+import { KIT_ART_ROOT } from '@wildshard/kit/art';
 import { readCookInput } from './cookInput';
 
 // NINE QA 53: Nine's phone (`textures: 'img'`) reads the originals of its GPU twins. `mounts.json` lists only the twins,
@@ -51,4 +52,19 @@ it('cooks every listed mount from the source static/ with no public/ in the repo
   expect(existsSync(join(dirname(project), 'public'))).toBe(false);
   const input = readCookInput(project, 'nine');
   expect(input?.mounts.map(row => [row.url, new TextDecoder().decode(row.bytes)])).toEqual([[own, own], [baked, baked]]);
+});
+
+// SF2: shared zone art lives in @wildshard/kit; a listed mount the source's static/ lacks comes from the kit, and the shard's
+// own copy wins when it has one.
+it('mounts shared kit art a shard lists but does not hold, and keeps its own copy first', () => {
+  const kit = '/assets/nalati-grasslands/tex/leafy_grass/diffuse.jpg', own = '/assets/nalati-grasslands/tex/leafy_grass/arm.jpg';
+  const project = shard({ 'mounts.json': { version: 1, outputs: { 'nalati-grasslands': [kit, own] } } }, [own]);
+  const input = readCookInput(project, 'nalati-grasslands');
+  expect(input?.mounts.map(row => row.url)).toEqual([kit, own]);
+  expect(Buffer.from(input?.mounts[0]?.bytes ?? []).equals(readFileSync(`${KIT_ART_ROOT}tex/leafy_grass/diffuse.jpg`))).toBe(true);
+  expect(new TextDecoder().decode(input?.mounts[1]?.bytes)).toBe(own);
+  const missing = shard({ 'mounts.json': { version: 1, outputs: { nine: ['/assets/nine/tex/leafy_grass/diffuse.jpg'] } } }, []);
+  expect(readCookInput(missing, 'nine')?.mounts).toHaveLength(1);
+  const absent = shard({ 'mounts.json': { version: 1, outputs: { nine: ['/assets/nine/tex/no_such/diffuse.jpg'] } } }, []);
+  expect(() => readCookInput(absent, 'nine')).toThrow(/ENOENT/u);
 });

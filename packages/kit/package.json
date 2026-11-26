@@ -30,6 +30,7 @@
     "./temperament": "./src/temperament.ts",
     "./abilities": "./src/abilities.ts",
     "./clips": "./src/clips.ts",
+    "./art": "./src/art.ts",
     "./content/*": "./content/*",
     "./geometry/*": "./src/geometry/*.ts",
     "./arms": "./src/geometry/arms.ts",

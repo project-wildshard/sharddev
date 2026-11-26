@@ -5,6 +5,7 @@ import { resolve } from 'node:path';
 import * as v from 'valibot';
 import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource';
 import { AudioWaiverSchema, type AudioWaiver } from '@wildshard/format/audioWaiver';
+import { kitArtFile } from '@wildshard/kit/art';
 
 /** C0 (J137): what a product carries so it stands alone. The list is the shard's `mounts.json`, per output
  *  (`scripts/record-shard-mounts.mjs`); the bytes are the source's own `static/` (A7: `shardStaticRoot`). */
@@ -38,7 +39,8 @@ function fencedOwnFiles(files: readonly string[], staticRoot: string, listed: Re
 }
 
 /** Read a project's cook input for one output, or nothing for a project with none. D5: the fence and packs lists are
- *  optional author data; a listed mount missing from the source's `static/` refuses, because that file is what the shard stands on. */
+ *  optional author data; a listed mount missing from the source's `static/` and from the kit's shared art (SF2) refuses, because
+ *  that file is what the shard stands on. */
 export function readCookInput(project: string, slug: string): CookInput | undefined {
   const json = (name: string): unknown => { const file = resolve(project, name); return existsSync(file) ? JSON.parse(readFileSync(file, 'utf8')) : undefined; };
   const list = json('mounts.json'), fence = json('fence-reads.json'), packs = json('packs-set.json'), audioWaiver = readAudioWaiver(json('audio-waiver.json'), slug);
@@ -46,7 +48,9 @@ export function readCookInput(project: string, slug: string): CookInput | undefi
   const staticRoot = shardStaticRoot(project);
   const files = fence === undefined ? undefined : v.parse(FenceReadsSchema, fence).files;
   const urls = [...listed, ...fencedOwnFiles(files ?? [], staticRoot, new Set(listed))];
-  const mounts = urls.map(url => ({url, bytes: readFileSync(resolve(staticRoot, url.slice(1)))}));
+  // SF2: shared zone art (ground sets, skies) lives in @wildshard/kit; a listed mount the source's static/ lacks is the kit's.
+  const fileOf = (url: string): string => { const own = resolve(staticRoot, url.slice(1)); return existsSync(own) ? own : kitArtFile(url, slug) ?? own; };
+  const mounts = urls.map(url => ({url, bytes: readFileSync(fileOf(url))}));
   const set = packs === undefined ? undefined : v.parse(PacksSetSchema, packs).set;
   if (mounts.length === 0 && fence === undefined && set === undefined && audioWaiver === undefined) return undefined;
   return {mounts, ...(set === undefined ? {} : {packs: set}), ...(files === undefined ? {} : {fence: files}), ...(audioWaiver === undefined ? {} : {audioWaiver})};
