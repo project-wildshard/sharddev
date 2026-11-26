@@ -31,7 +31,7 @@ Write the class and one line of reason in the commit body.
 - *Would a repo green on the last release go red with no edit?* Yes:
   a break.
 - A rename keeps the old name working for one release when it can
-  (`node scripts/sdk-exports.mjs alias <old> <new>`): then the minor's
+  (`node src/scripts/sdk-exports.mjs alias <old> <new>`): then the minor's
   migration rewrites the imports, and a later minor deletes the alias.
 
 ## 2. Ship the break
@@ -64,7 +64,7 @@ Done when every step's line holds and `pnpm test` is green.
    characters each), never into CHANGELOG.md on main: prepare refuses
    a version whose section is already there. A peer range one package
    holds on another of the six must admit the new minor before the
-   cut (`test/tooling/own-peers.test.mjs`); 0.5.0's first branch
+   cut (`src/test/own-peers.test.mjs`); 0.5.0's first branch
    failed packed-install on kit's `^0.3.2 || ^0.4.0`.
 
 ## 3. Roll the org's shard repos

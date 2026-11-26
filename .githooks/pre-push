@@ -2,7 +2,7 @@
 # 1. Outgoing-commit checks: .githooks/check-push.mjs (reads git's ref
 #    lines on stdin). Bypasses: ALLOW_BIG=1, ALLOW_SECRET=1.
 # 2. AGENTS.md (J241): .githooks/agents-md.mjs, the same ref lines.
-# 2b. SHARD-COMPAT CP3: scripts/format-api-gate.mjs refs (ALLOW_FORMAT_AHEAD=1).
+# 2b. SHARD-COMPAT CP3: src/scripts/format-api-gate.mjs refs (ALLOW_FORMAT_AHEAD=1).
 # 3. Push lane (full `pnpm check`): .githooks/run-checks.mjs.
 #    Bypass: SKIP_CHECK=1.
 # Enable once per clone: git config core.hooksPath .githooks
@@ -16,9 +16,9 @@ printf '%s\n' "$refs" | node "$hooks/agents-md.mjs" push
 # SHARD-COMPAT CP3 (J486): API first; a main push moving the format pin above the API's is refused.
 # Escape hatch: ALLOW_FORMAT_AHEAD=1.
 top="$(git rev-parse --show-toplevel)"
-if [ -f "$top/scripts/format-api-gate.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node scripts/format-api-gate.mjs refs); fi
+if [ -f "$top/scripts/format-api-gate.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node src/scripts/format-api-gate.mjs refs); fi
 # FORMAT-PRUNE FP58: shard-format's one-way ceiling (sdk.retired-vocabulary, 0) reads sharddev main, CHANGELOG included.
 # Escape hatch: ALLOW_RETIRED_WORDS=1.
-if [ -f "$top/scripts/retired-vocabulary.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node scripts/retired-vocabulary.mjs refs); fi
+if [ -f "$top/scripts/retired-vocabulary.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node src/scripts/retired-vocabulary.mjs refs); fi
 export WS_PUSH_REFS="$refs"
 exec node "$hooks/run-checks.mjs" push

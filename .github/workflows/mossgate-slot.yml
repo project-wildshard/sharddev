@@ -52,7 +52,7 @@ jobs:
       - name: Is staging's Mossgate already this template
         id: slot
         run: |
-          if node scripts/mossgate-slot.mjs drift --ref=HEAD; then echo current=true >> "$GITHUB_OUTPUT"; else echo current=false >> "$GITHUB_OUTPUT"; fi
+          if node src/scripts/mossgate-slot.mjs drift --ref=HEAD; then echo current=true >> "$GITHUB_OUTPUT"; else echo current=false >> "$GITHUB_OUTPUT"; fi
 
   build:
     needs: slot
@@ -181,7 +181,7 @@ jobs:
           WILDSHARD_CREATOR_PRIVATE_KEY: ${{ secrets.WILDSHARD_CREATOR_PRIVATE_KEY }}
         run: |
           test -n "$WILDSHARD_API_KEY" || { echo '::error::no WILDSHARD_API_KEY org secret reaches sharddev'; exit 1; }
-          version=$(node scripts/mossgate-slot.mjs version)
+          version=$(node src/scripts/mossgate-slot.mjs version)
           set -o pipefail
           node packages/cli/bin/wildshard.mjs upload tmp/publish/mossgate.shardfile --channel staging --version "$version" --commit "$GITHUB_SHA" 2>&1 | tee tmp/publish/upload.log
           echo "mossgate $version from $GITHUB_SHA uploaded to staging" >> "$GITHUB_STEP_SUMMARY"
@@ -202,4 +202,4 @@ jobs:
       - name: Staging's Mossgate holds the template's last change
         run: |
           set -o pipefail
-          node scripts/mossgate-slot.mjs drift --ref=origin/main | tee -a "$GITHUB_STEP_SUMMARY"
+          node src/scripts/mossgate-slot.mjs drift --ref=origin/main | tee -a "$GITHUB_STEP_SUMMARY"

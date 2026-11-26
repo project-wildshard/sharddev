@@ -3,7 +3,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
-import { lintEnvironment } from '../../../kit/scripts/bin-tools.mjs';
+import { lintEnvironment } from '../../../src/scripts/.kit/bin-tools.mjs';
 import { titles } from './ci21-test-declarations.mjs';
 
 const manifest = JSON.parse(readFileSync(new URL('../test/ci21-sdk-tail.json', import.meta.url), 'utf8'));
@@ -54,7 +54,7 @@ if (selected.some(file => !admitted.includes(file))) throw new Error('CI21 lint 
 const paths = selected.length === 0 ? admitted : selected;
 process.stdout.write(`CI21 typed lint: ${targets.length} recorded tests, ${manifest.supportPaths.length} support files; linting ${paths.length} paths\n`);
 // Explicit admission includes only the recorded boundary helpers, alongside the port tests.
-const lint = (cwd, group) => group.length === 0 ? 0 : spawnSync(process.execPath, ['../../kit/scripts/bin-tools.mjs', '--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...group], {
+const lint = (cwd, group) => group.length === 0 ? 0 : spawnSync(process.execPath, ['../../src/scripts/.kit/bin-tools.mjs', '--type-aware', '--tsconfig', 'tsconfig.author.json', '-c', '.oxlintrc.author.json', '--deny-warnings', ...group], {
   cwd, stdio: 'inherit', env: { ...lintEnvironment(new URL('../../..', import.meta.url).pathname), WILDSHARD_RATCHET_FILE: 'lint/ratchet.json' },
 });
 const runs = [lint(new URL('..', import.meta.url).pathname, paths.filter(path => !inDev(path))), lint(new URL('../../dev', import.meta.url).pathname, paths.filter(inDev))];

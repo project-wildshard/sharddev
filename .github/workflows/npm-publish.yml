@@ -60,7 +60,7 @@ jobs:
         run: |
           # shellcheck disable=SC2016 # The quoted JavaScript reads the environment itself.
           node -e 'if (process.env.RELEASE_TAG !== `v${require("./package.json").version}`) throw new Error("Tag and package version differ")'
-          node scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+          node src/scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
       - name: Publish kit, upload, sdk, build, dev, then cli
         run: |
           node --input-type=module <<'NODE'

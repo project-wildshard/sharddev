@@ -22,7 +22,7 @@ import {
   parseLock,
   PEER_TIERS,
   productionTree,
-} from '../../scripts/dep-guard.mjs'
+} from '../../src/scripts/dep-guard.mjs'
 
 // SDK-SPLIT SP1: the guard reads the lockfile, so a fixture lockfile with
 // one clean and one dirty workspace package is the whole contract.

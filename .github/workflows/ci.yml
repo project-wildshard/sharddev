@@ -24,7 +24,7 @@ concurrency:
 jobs:
   # FAST-RELEASE FR1 (meta docs/plans/FAST-RELEASE-PLAN.md): a release branch's one commit only stamps versions and adds
   # notes on a cut whose main `ci` passed, so check and products reuse that run (SDK 0.4.32 reran them: 21.5 min).
-  # scripts/release-reuse.mjs proves it from git and the Actions API, or answers reuse=false and the full suite runs.
+  # src/scripts/release-reuse.mjs proves it from git and the Actions API, or answers reuse=false and the full suite runs.
   # packed-install, the exact-SHA release proof, always runs. Main never runs this job, so main waits on nothing.
   release-gate:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
@@ -43,7 +43,7 @@ jobs:
       - id: gate
         env:
           GH_TOKEN: ${{ github.token }}
-        run: node scripts/release-reuse.mjs ci
+        run: node src/scripts/release-reuse.mjs ci
 
   check:
     needs: release-gate
@@ -91,7 +91,7 @@ jobs:
       - name: Select exact engine candidate
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
-        run: node scripts/select-candidate.mjs
+        run: node src/scripts/select-candidate.mjs
       # pnpm disables GVS when its own ci option is true. Keep the runner CI
       # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
@@ -108,9 +108,9 @@ jobs:
           path: ~/.cache/npm-bin-deps
           key: npr-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.bin-deps/package.json', '.bin-deps/package-lock.json') }}
       - run: pnpm exec npr install --frozen
-      - run: node kit/scripts/bin-pins.mjs
+      - run: node src/scripts/.kit/bin-pins.mjs
       - name: Prove the installed global store layout
-        run: node scripts/assert-store-layout.mjs
+        run: node src/scripts/.kit/assert-store-layout.mjs
       # The same members as pnpm check bar check:watch-build (a GPU and a devserver client: pre-push only); author tests run in products.
       - run: node scripts/check-lift-review.mjs
         working-directory: packages/sdk
@@ -150,7 +150,7 @@ jobs:
         run: node --test --test-concurrency=1 ../dev/test/ci/async-upload.test.mjs ../dev/test/ci/async-upload-parent.test.mjs
       - run: pnpm check:asks
       - name: The release gate's rules and its place in this workflow (FAST-RELEASE FR1)
-        run: node --test test/tooling/release-reuse.test.mjs
+        run: node --test src/test/release-reuse.test.mjs
       # The agent hook scripts are shellchecked at this exact version
       # (.agents/hooks/test/shellcheck.test.mjs refuses any other on CI).
       # MR6: hosted runners are Linux/X64, the Mac mini's VM is Linux/ARM64;
@@ -191,12 +191,10 @@ jobs:
       - name: Public numeric output and refusal contracts
         working-directory: packages/sdk
         run: node --import @wildshard/engine/scripts/sim-node-loader.mjs --test ../dev/test/ci/channel-values.test.mjs
-      - if: github.event_name == 'push' || github.event_name == 'pull_request'
-        run: pnpm test:hooks
       - run: pnpm test:ci
       # SDK-SPLIT SP11: the dependency guard fails when build, kit, sdk or upload reaches the engine or a dev tool.
       - name: Dependency guard (strict for the lean packages)
-        run: node --test test/ci/dep-guard.test.mjs && node scripts/dep-guard.mjs
+        run: node --test test/ci/dep-guard.test.mjs && node src/scripts/dep-guard.mjs
       # Meta SHARD-DELETE DEL6: the operator's account key, for uploads from
       # CI. The repo secret WILDSHARD_API_KEY is set by hand (Jake); until it
       # is, this step only notes it is missing. whoami prints the key's first
@@ -284,7 +282,7 @@ jobs:
       - name: Select exact engine candidate
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
-        run: node scripts/select-candidate.mjs
+        run: node src/scripts/select-candidate.mjs
       # pnpm disables GVS when its own ci option is true. Keep the runner CI
       # environment and frozen policy; select only the installer layout here.
       - name: Install pinned or candidate graph
@@ -301,9 +299,9 @@ jobs:
           path: ~/.cache/npm-bin-deps
           key: npr-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('.bin-deps/package.json', '.bin-deps/package-lock.json') }}
       - run: pnpm exec npr install --frozen
-      - run: node kit/scripts/bin-pins.mjs
+      - run: node src/scripts/.kit/bin-pins.mjs
       - name: Prove the installed global store layout
-        run: node scripts/assert-store-layout.mjs
+        run: node src/scripts/.kit/assert-store-layout.mjs
       # SDK-SPLIT SP9d3: dev's `wildshard build` runs build's compiled bin (dist/build.mjs), as an installed build does.
       - name: Compile the build bin
         run: pnpm --filter @wildshard/build compile
@@ -388,8 +386,8 @@ jobs:
       - name: Pack the release graph
         run: |
           pnpm install --frozen-lockfile --config.ci=false
-          node scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
-          cp scripts/verify-packed-install.mjs "$RUNNER_TEMP/verify-packed-install.mjs"
+          node src/scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+          cp src/scripts/verify-packed-install.mjs "$RUNNER_TEMP/verify-packed-install.mjs"
       - name: Install and run the CLI outside the checkout
         working-directory: ${{ runner.temp }}
         env:

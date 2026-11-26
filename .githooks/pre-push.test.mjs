@@ -4,7 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ENV, ok, roots, sandbox } from './test-helpers.mjs';
+import { ENV, nameHatches, ok, roots, sandbox } from './test-helpers.mjs';
 
 describe('pre-push hook', () => {
   const MSG = ok('feat: add files');
@@ -39,7 +39,7 @@ describe('pre-push hook', () => {
     const box = withRemote();
     box.write('old.ts', token());
     box.git(['add', 'old.ts']);
-    box.git(['commit', '-q', '--no-verify', '-m', MSG]);
+    box.git(['commit', '-q', '--no-verify', '-m', nameHatches(MSG, { ALLOW_SECRET: '1' })]);
     assert.equal(box.push({ ALLOW_SECRET: '1' }).status, 0);
     box.git(['switch', '-q', '-c', 'plan/foo']);
     box.git(['commit', '-q', '--allow-empty', '--no-verify', '-m', MSG]);
@@ -60,18 +60,18 @@ describe('pre-push hook', () => {
     const box = withRemote();
     box.write('old.ts', token());
     box.git(['add', 'old.ts']);
-    box.git(['commit', '-q', '--no-verify', '-m', MSG]);
+    box.git(['commit', '-q', '--no-verify', '-m', nameHatches(MSG, { ALLOW_SECRET: '1' })]);
     assert.equal(box.push({ ALLOW_SECRET: '1' }).status, 0);
     box.commit({ 'new.txt': 'n\n' }, MSG);
     const result = box.push();
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.stderr, /1 outgoing commit\(s\)/);
   });
-  test('a push that only deletes plan/* branches skips the gate; anything else keeps it (J240)', () => {
+  test('a push that only deletes plan/* or release/vX.Y.Z branches skips the gate; anything else keeps it (J240)', () => {
     const box = withRemote();
     box.commit({ 'a.txt': 'a\n' }, MSG);
     assert.equal(box.push().status, 0);
-    for (const branch of ['plan/foo', 'plan/bar', 'feature']) {
+    for (const branch of ['plan/foo', 'plan/bar', 'release/v0.1.1', 'feature']) {
       assert.equal(box.git(['push', '-q', 'origin', `main:refs/heads/${branch}`]).status, 0);
     }
     // From here on the push gate always fails, so only a skipped gate lets a push out.
@@ -80,6 +80,11 @@ describe('pre-push hook', () => {
     const gone = box.git(['push', '-q', 'origin', '--delete', 'plan/foo', 'plan/bar']);
     assert.equal(gone.status, 0, gone.stderr);
     assert.match(gone.stderr, /delete-only push of refs\/heads\/plan\/bar, refs\/heads\/plan\/foo: no commit leaves this machine/);
+    // merge-back deletes the shipped release branch after main has the merge: a gate failure there read as a failed
+    // release (shard-format, meta STAGING-BUGBASH side fix)
+    const shipped = box.git(['push', '-q', 'origin', '--delete', 'release/v0.1.1']);
+    assert.equal(shipped.status, 0, shipped.stderr);
+    assert.match(shipped.stderr, /delete-only push of refs\/heads\/release\/v0\.1\.1: no commit leaves this machine/);
     assert.notEqual(box.git(['push', '-q', 'origin', '--delete', 'feature']).status, 0, 'a non-plan deletion keeps the gate');
     // The gate runs on the pushed commit (a clean copy, M1), so the failing check must be committed.
     box.commit({ 'b.txt': 'b\n', 'package.json': JSON.stringify({ scripts: { check: 'exit 1' } }) }, MSG);

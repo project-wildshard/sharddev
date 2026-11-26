@@ -1,5 +1,5 @@
 test/fixtures/** -whitespace
-scripts/** -whitespace
+src/scripts/** -whitespace
 src/sharddev/** -whitespace
 src/commons/** -whitespace
 src/shards/** -whitespace

@@ -24,7 +24,7 @@ or the manual step it prints. The procedure is the
 
 ## v0.6.2 (2026-11-25)
 
-- A shard's hero no longer goes stale when the kit re-stamps tooling: a top-level `scripts/` or `test/` is not hero content.
+- A shard's hero no longer goes stale when the kit re-stamps tooling: a top-level `src/scripts/` or `test/` is not hero content.
 
 ## v0.6.1 (2026-11-25)
 

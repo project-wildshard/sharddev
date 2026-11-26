@@ -10,7 +10,7 @@
 //           checkout neither refuse the push nor leak into it.
 //   both:   .githooks/pinned-links.mjs first (commit warns, push refuses;
 //           SKIP_CHECK does not skip it).
-// The hooks only check; `pnpm lint:fix` / `pnpm format` fix.
+// The hooks only check; `pnpm fix` (or `pnpm lint:fix` / `pnpm format`) fixes.
 // Bypass a lane: SKIP_CHECK=1 (last resort; CI still runs it).
 import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
@@ -31,11 +31,12 @@ const LINTABLE = /\.(?:ts|tsx|js|mjs|cjs)$/;
 const FORMATTABLE = /\.(?:ts|tsx|js|mjs|cjs|json|jsonc)$/;
 
 // A push that only deletes plan/* branches (`git push --delete origin plan/<slug>`
-// after a landing, J240) sends no commit, so there is nothing to check. Any
-// other deleted ref, or any update pushed alongside, keeps the gate.
+// after a landing, J240) or a shipped release/vX.Y.Z branch (release.sh
+// --merge-back, after main has the merge) sends no commit, so there is nothing
+// to check. Any other deleted ref, or any update pushed alongside, keeps the gate.
 if (lane === 'push') {
   const lines = (process.env.WS_PUSH_REFS ?? '').split('\n').map((line) => line.trim().split(/\s+/u)).filter((row) => row[0] !== '');
-  if (lines.length > 0 && lines.every(([, local = '', remote = '']) => /^0+$/u.test(local) && /^refs\/heads\/plan\/[a-z0-9][a-z0-9._-]*$/u.test(remote))) {
+  if (lines.length > 0 && lines.every(([, local = '', remote = '']) => /^0+$/u.test(local) && /^refs\/heads\/(?:plan\/[a-z0-9][a-z0-9._-]*|release\/v\d+\.\d+\.\d+)$/u.test(remote))) {
     console.error(`  - delete-only push of ${lines.map(([, , remote]) => remote).join(', ')}: no commit leaves this machine; push lane skipped`);
     process.exit(0);
   }
@@ -46,10 +47,10 @@ if (lane === 'push') {
 if (!guardPinnedLinks(root, lane)) process.exit(1);
 // FAST-RELEASE FR2 (meta docs/plans/FAST-RELEASE-PLAN.md): a release-only push (a tag on a commit origin has, a
 // stamp-only release branch over origin/main, a stamp-only merge-back, a release branch delete) sends no new code, so
-// the push lane has nothing to gate; SDK 0.4.32 spent about 6 min on each. scripts/release-reuse.mjs decides; its
+// the push lane has nothing to gate; SDK 0.4.32 spent about 6 min on each. src/scripts/release-reuse.mjs decides; its
 // release ci still runs packed-install on the exact SHA, and main's ci runs the merge.
-if (lane === 'push' && existsSync(join(root, 'scripts/release-reuse.mjs'))) {
-  const { releaseOnlyPush } = await import(pathToFileURL(join(root, 'scripts/release-reuse.mjs')).href);
+if (lane === 'push' && existsSync(join(root, 'src/scripts/release-reuse.mjs'))) {
+  const { releaseOnlyPush } = await import(pathToFileURL(join(root, 'src/scripts/release-reuse.mjs')).href);
   /** @type {{ ok: boolean, reason: string }} */ let verdict = { ok: false, reason: '' };
   try {
     verdict = releaseOnlyPush(root, process.env.WS_PUSH_REFS ?? '');
@@ -89,7 +90,7 @@ const scripts = manifest.scripts ?? {};
 const jobs = [];
 if (lane === 'commit') {
   // Staged code under src/ and kit/ (J329) and each packages/<name>/src (SDK-SPLIT SP2b),
-  // passed relative to the repo root; scripts/lint-dispatch.mjs routes them. Code outside them (.githooks, docs) has its own checks.
+  // passed relative to the repo root; src/scripts/lint-dispatch.mjs routes them. Code outside them (.githooks, docs) has its own checks.
   const staged = git(['diff', '--cached', '--name-only', '-z', '--diff-filter=ACMR']).split('\0').filter(Boolean)
     .filter((path) => /^(?:src|kit|packages\/[^/]+\/src)\//u.test(path));
   const lint = staged.filter((path) => LINTABLE.test(path));
@@ -164,7 +165,7 @@ const failed = results.filter((result) => result.code !== 0);
 const logOf = (name) => join(root, 'tmp', 'push-gate', `${lane}-${name.replaceAll(/[^\w.-]/gu, '-')}.log`);
 for (const { name, output } of failed) console.error(`\n${failureReport({ name, output, logPath: logOf(name) })}`);
 if (failed.length) {
-  const fix = lane === 'commit' ? ' (pnpm lint:fix / pnpm format fix most of it)' : '';
+  const fix = lane === 'commit' ? ` (${scripts.fix ? 'pnpm fix fixes' : 'pnpm lint:fix / pnpm format fix'} most of it)` : '';
   console.error(`\n  ${lane} blocked. Fix it${fix}; SKIP_CHECK=1 is a last resort.\n`);
   process.exit(1);
 }

@@ -19,8 +19,8 @@ importers:
         specifier: 24.3.1
         version: 24.3.1
       npm-bin-deps:
-        specifier: 2.1.0
-        version: 2.1.0
+        specifier: 2.2.0
+        version: 2.2.0
       oxlint:
         specifier: 1.89.0
         version: 1.89.0
@@ -1154,8 +1154,8 @@ packages:
   ndarray@1.1.1:
     resolution: {integrity: sha512-AsE8w/M2MS+0pD3nP5qbRRtJFeJJJaJ+qXZaZr0XjVGXhy6LIj2TERTlkpdK2AI3WufoOP+pwPk3q2ilAJcZ9g==}
 
-  npm-bin-deps@2.1.0:
-    resolution: {integrity: sha512-lHzsAszPtclbMFnS+9J/N7KwGpo/vYeA6nMT9lxA8X72SLyEOcaY0F95PSeC9Yo7D8SvXMC9WJH+PQdDBgEQxQ==}
+  npm-bin-deps@2.2.0:
+    resolution: {integrity: sha512-NSmlhxChyX0f3+TiPsSfrx7jTho8JkGtnFtRFjkuBA46NpMib3CW3yrupogAQqaGWwWnDMXMQ0o56xsGLNQU8Q==}
     engines: {node: '>=20'}
     hasBin: true
 
@@ -2214,7 +2214,7 @@ snapshots:
       iota-array: 1.0.0
       is-buffer: 1.1.6
 
-  npm-bin-deps@2.1.0: {}
+  npm-bin-deps@2.2.0: {}
 
   obug@2.2.1: {}
 

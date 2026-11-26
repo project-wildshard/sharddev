@@ -189,7 +189,7 @@ describe('wildshard update and the agent files (SA28)', () => {
     symlinkSync('../../.agents/skills/grill-me', resolve(project, '.claude/skills/grill-me'), 'dir');
     return project;
   }
-  const AGENT_SYNC = resolve(ROOT, '../../scripts/agent-sync.mjs');
+  const AGENT_SYNC = resolve(ROOT, '../../src/scripts/.kit/agent-sync.mjs');
   const agentSync = (project: string, ...args: string[]): ReturnType<typeof spawnSync> => spawnSync(process.execPath, [AGENT_SYNC, '--root', project, ...args], { encoding: 'utf8' });
 
   it('in an agent-sync repo writes the skills as real .agents/skills folders, never touches .claude/, and sync --check passes once synced', () => {

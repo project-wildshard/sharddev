@@ -4,7 +4,7 @@ import {createHash} from 'node:crypto';
 import {readFileSync,readdirSync} from 'node:fs';
 import {spawnSync} from 'node:child_process';
 import {titles} from './ci21-test-declarations.mjs';
-import {lintEnvironment} from '../../../kit/scripts/bin-tools.mjs';
+import {lintEnvironment} from '../../../src/scripts/.kit/bin-tools.mjs';
 const manifest=JSON.parse(readFileSync('test/ci21-source/manifest.json','utf8'));
 const files=manifest.files.map(row=>row.targetPath);
 assert.equal(new Set(files).size,files.length,'Every source port is recorded once');

@@ -38,8 +38,8 @@
   ],
   "scripts": {
     "docs": "node scripts/docs.mjs",
-    "lint:kit": "node ../../kit/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --no-error-on-unmatched-pattern src",
-    "lint:author": "WILDSHARD_RATCHET_FILE=lint/ratchet.json node ../../kit/scripts/bin-tools.mjs -c .oxlintrc.author.json --deny-warnings src/sharddev src/commons src/shards codemods",
+    "lint:kit": "node ../../src/scripts/lint.mjs --type-aware --deny-warnings --ignore-pattern 'src/sharddev/**' --ignore-pattern 'src/commons/**' --ignore-pattern 'src/shards/**' --no-error-on-unmatched-pattern src",
+    "lint:author": "WILDSHARD_RATCHET_FILE=lint/ratchet.json node ../../src/scripts/.kit/bin-tools.mjs -c .oxlintrc.author.json --deny-warnings src/sharddev src/commons src/shards codemods",
     "lint:ci21": "node scripts/ci21-sdk-tail-lint.mjs",
     "test": "pnpm test:author",
     "test:author": "vitest run",

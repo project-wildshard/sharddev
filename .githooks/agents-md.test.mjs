@@ -9,7 +9,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HEADING, MARKER, guard, guardMerge, isAiMessage, lintAgents, lintClaude } from './agents-md.mjs';
-import { ENV, TRAILER, ok, roots, sandbox } from './test-helpers.mjs';
+import { ENV, TRAILER, nameHatches, ok, roots, sandbox } from './test-helpers.mjs';
 
 const HOOKS = dirname(fileURLToPath(import.meta.url));
 const AI = ok('docs(agents): note the browser lane');
@@ -165,7 +165,7 @@ describe('the hooks, in sandbox repos', () => {
   test('commit: deleting AGENTS.md is refused', () => {
     const box = seeded();
     box.git(['rm', '-q', 'AGENTS.md']);
-    const result = box.git(['commit', '-q', '-m', HUMAN], { SKIP_ATTRIB: '1' });
+    const result = box.git(['commit', '-q', '-m', nameHatches(HUMAN, { SKIP_ATTRIB: '1' })], { SKIP_ATTRIB: '1' });
     assert.notEqual(result.status, 0);
     assert.match(result.stderr, /deletes AGENTS\.md/);
   });
@@ -346,8 +346,9 @@ describe('the hooks, in sandbox repos', () => {
   });
   test('push: a new branch whose tip deleted AGENTS.md is refused; a tag of a good tip goes out', () => {
     const box = withRemote();
-    box.git(['tag', '-a', 'v0.0.1', '-m', 'release']);
-    const tagged = box.git(['push', '-q', 'origin', 'v0.0.1']);
+    // Keep this AGENTS shape proof independent of version-tag release admission.
+    box.git(['tag', '-a', 'agents-fixture', '-m', 'fixture']);
+    const tagged = box.git(['push', '-q', 'origin', 'agents-fixture']);
     assert.equal(tagged.status, 0, tagged.stderr);
     box.git(['rm', '-q', 'AGENTS.md']);
     assert.equal(box.git(['commit', '-q', '--no-verify', '-m', HUMAN]).status, 0);

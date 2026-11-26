@@ -9,7 +9,7 @@ on:
       - '.github/actions/**'
       - 'src/**'
       - 'test/**'
-      - 'scripts/**'
+      - 'src/scripts/**'
       - 'public/**'
       - 'drafts/**'
       - 'lint/**'
@@ -87,7 +87,7 @@ jobs:
       - name: Select exact engine candidate
         env:
           CANDIDATE_ENGINE: ${{ inputs.engine || github.event.client_payload.engine }}
-        run: node scripts/select-candidate.mjs
+        run: node src/scripts/select-candidate.mjs
       # Select pnpm installer layout without changing the runner CI environment.
       - name: Install pinned or candidate graph
         env:
@@ -99,7 +99,7 @@ jobs:
             pnpm install --frozen-lockfile --config.ci=false
           fi
       - name: Prove the installed global store layout
-        run: node scripts/assert-store-layout.mjs
+        run: node src/scripts/.kit/assert-store-layout.mjs
       - name: Ring 2 cold and relocated complete template bakes
         working-directory: packages/sdk
         if: ${{ !inputs.browser_only }}

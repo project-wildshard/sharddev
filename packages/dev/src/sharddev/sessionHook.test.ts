@@ -14,7 +14,7 @@ import { AGENT_SYNC_LOCAL_SPEC, CLAUDE_SETTINGS, CODEX_HOOKS, STATUS_COMMAND, ST
 // merged into the repo's own hooks and never duplicated; a repo on repo-kit's agent-sync gets it in its own spec. `new`
 // stamps the repo at its sdk's version.
 const ROOT = resolve(import.meta.dirname, '../..');
-const AGENT_SYNC = resolve(ROOT, '../../scripts/agent-sync.mjs');
+const AGENT_SYNC = resolve(ROOT, '../../src/scripts/.kit/agent-sync.mjs');
 const SDK_VERSION = (JSON.parse(readFileSync(resolve(SDK_ROOT, 'package.json'), 'utf8')) as { version: string }).version;
 const CLAUDE_HANDLER = { type: 'command', command: STATUS_COMMAND, timeout: 10 };
 const CODEX_HANDLER = { ...CLAUDE_HANDLER, statusMessage: 'Checking for a pending sdk migration' };

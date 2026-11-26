@@ -138,8 +138,8 @@ plus the engine's piano boot set 4 MB or less, green by AU6's report.
 ## Rows
 
 Mode: J290 mode 2. Branch `plan/mossgate-v2` in
-`sharddev/.worktrees/mossgate-v2` (`node scripts/worktree.mjs new
-mossgate-v2`), landed with `WS_LANE_NAME=<lane> node scripts/land.mjs`
+`sharddev/.worktrees/mossgate-v2` (`node src/scripts/.kit/worktree.mjs new
+mossgate-v2`), landed with `WS_LANE_NAME=<lane> node src/scripts/.kit/land.mjs`
 at milestones L1, L2, L3 only, or once a day. Graphical rows are Opus
 only (lane-model-routing); rows marked Codex may go to Codex.
 Every row is approved (J312); D1 to D6 are settled, so no row waits on
@@ -148,7 +148,7 @@ Jake. Low priority: see State.
 | Row | Work | Done when |
 |---|---|---|
 | MG1 | **Clean slate (Codex or Opus).** Delete the old world: `world.ts` set pieces, `districts.ts`, `kit.ts` measure boxes, the `measure` family and labels in `look.json`, `style: greybox`. Keep every declared system and its ids: items, quests, encounters, creatures, `behaviour/*.as`, `bossDecision.json`, water, ledger, audio cues, the 4 entry sockets and the 4 copy plots (`copyLayout.ts` reads them) | `wildshard build` and `wildshard validate out/_template` pass; the shard boots on a local dev page to a flat cell; `rg -n "measureBox\|greybox\|2x3" src/shards/_template` finds nothing; `test/scripts/_template-boss.test.ts` passes |
-| MG2 | **The budget gate (Codex).** A capture script in `scripts/` that boots the built shard headless at 402x874 and at desktop, stands at each zone camera (`data/cameras.json`, 7 zones) and writes frame p95, draw calls, triangles and GPU MB to JSON; `data/budgets.json` gets the table above | The script runs on MG1's empty slate and prints all 7 cameras; a test fails when a number in the JSON is over its budget |
+| MG2 | **The budget gate (Codex).** A capture script in `src/scripts/` that boots the built shard headless at 402x874 and at desktop, stands at each zone camera (`data/cameras.json`, 7 zones) and writes frame p95, draw calls, triangles and GPU MB to JSON; `data/budgets.json` gets the table above | The script runs on MG1's empty slate and prints all 7 cameras; a test fails when a number in the JSON is over its budget |
 | MG3 | **Terrain and layout.** The hollow, ridge, old wall line, paths and the 7 zone sites as the table and the board's sketch; POIs in `manifest.json`; spawn on the green. Plain toon ground colour, no kit yet | The baked top map matches the sketch; a walk test (engine `walkLeg`) reaches every zone POI on foot from spawn; no POI stands on a slope over 25 degrees |
 | MG4 | **Palette, sky and light** (D1, D2). `data/palette.json` (16 colours) is the only colour source; morning sky, sun, hemisphere, fog and grade in `manifest.json`; `style: toon` | A test reads the built product and finds no material colour outside `palette.json`; the 7 zone captures are saved to the board folder. **L1 lands here** |
 | MG5 | **Kit 1, buildings** (D4). `blender/kit.py`: hut with interior, Moss Gate (closed and open parts), old wall pieces, brazier, barrow door, lamp post; bevelled, one palette atlas | `blender -b -P blender/kit.py` twice gives byte-equal GLBs; each under 6k triangles; placed in the hollow; MG2's gate green |

@@ -14,7 +14,7 @@ on:
       - scripts/gen-shards.mjs
       - scripts/push-tables.mjs
       - scripts/blender/**
-      - kit/scripts/bin-tools.mjs
+      - src/scripts/.kit/bin-tools.mjs
       - .github/workflows/ci21-sdk-source.yml
       - package.json
       - pnpm-lock.yaml
@@ -75,7 +75,7 @@ jobs:
           git config --global --add url."$base".insteadOf "git@github.com:"
           git config --global --add url."$base".insteadOf "ssh://git@github.com/"
       - name: Select the immutable engine graph
-        run: node scripts/select-candidate.mjs
+        run: node src/scripts/select-candidate.mjs
       - name: Install candidate graph
         run: pnpm install --no-frozen-lockfile --config.ci=false
       - name: Install the frozen native tool pins

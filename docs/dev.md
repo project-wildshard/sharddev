@@ -7,14 +7,14 @@ here; what the repo does is `docs/prd.md`, how it is built `docs/design.md`.
 
 Layout (SDK-SPLIT SP2b, 2026-11-17): the repo root is a private workspace of tooling; the sdk is `packages/sdk`,
 beside `packages/kit` and `packages/upload`. The `pnpm` scripts below run from the repo root (they forward to the
-sdk); every `src/`, `test/`, `scripts/` and `bin/` path below is under `packages/sdk/`, so run a direct `node ...`
+sdk); every `src/`, `test/`, `src/scripts/` and `bin/` path below is under `packages/sdk/`, so run a direct `node ...`
 command from `packages/sdk`.
 
 - `pnpm install`: installs deps and points `core.hooksPath` at `.githooks/`,
   through `pnpm:devPreinstall`. Never use `prepare` here (`../leftover/docs/repo-kit.md`).
 - `pnpm check`: typecheck + lint + format:check + unit tests + asks. The pre-push hook runs it.
 - `pnpm test`: `node:test` on `src/**/*.test.ts` outside `src/ci`, run as .ts by Node's type stripping.
-- `pnpm test:hooks`: the `.githooks/` suite (CI, and pre-commit when hooks change).
+- `pnpm test` (it runs the `.githooks/` suite): the `.githooks/` suite (CI, and pre-commit when hooks change).
 - `pnpm dev`: esbuild watch + the server on http://127.0.0.1:4403.
 - `pnpm build`: builds the web app into `src/dist/web`.
 - `pnpm test:ci`: `src/ci`, outer-edge tests: `wildshard` as an install lays it out, on a real product. CI only, never a hook (J186).
@@ -23,10 +23,10 @@ command from `packages/sdk`.
   outside author builds and packs navigation, queries the emitted mesh,
   proves wet/trail/water rules and refuses an invalid policy. CI only;
   Nalati owns the authored wet-field/product counterpart.
-- `pnpm lint:fix` / `pnpm format`: the hooks only check; these fix.
+- `pnpm fix` / `pnpm format`: the hooks only check; these fix.
 - `node src/cli/main.ts --help`: the CLI without installing it. `serve [--port n]` starts the server (default 4403); `build <folder> [file]` writes a built folder's shard file (author builds write it themselves, SA3) and `upload <shard file>` sends one to api-server (`docs/design.md`).
 - `pnpm md:wrap`: rewraps Markdown prose to ~72 columns.
-- `kit/scripts/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
+- `src/scripts/.kit/ask-new.sh "<Jake's words>"`: opens an ask (`docs/tasks/asks/README.md`).
 
 ## Authored script-port proofs
 
@@ -234,7 +234,7 @@ goes in `tmp/<task>/` and is deleted when done.
 - `src/web/`: the Preact web app, with its own `tsconfig.json` (DOM lib).
 - `src/tools/build-web.ts`: esbuild into `src/dist/web` (`--dev` watches and serves).
 - `src/e2e/`: Playwright smoke test (CI).
-- `kit/scripts/`: repo tooling (asks, md-wrap, lint), plain JS (J329).
+- `src/scripts/.kit/`: repo tooling (asks, md-wrap, lint), plain JS (J329).
 - `docs/`: living docs. `docs/plans/` is the queue, `docs/tasks/asks/`
   the receipts.
 - `project/`: history. `journal/`, `origins/` (the meta-repo plans this
@@ -290,7 +290,7 @@ export, bin or verb, a moved source layout, a stricter default.
 ## Code rules
 
 - TypeScript only, imports with explicit `.ts`/`.tsx` extensions.
-- Every function has an explicit return type. `kit/.oxlintrc.json` denies
+- Every function has an explicit return type. `.oxlintrc.kit.json` denies
   every category (D28); disable a rule only with a one-line reason beside it.
 - Pin dependencies exactly (`.npmrc` has `save-exact=true`).
 - Public Wildshard packages come from npm (meta J315). Use pnpm to

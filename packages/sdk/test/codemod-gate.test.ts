@@ -7,7 +7,7 @@ import { join, resolve } from 'node:path';
 // oxlint-disable-next-line import/no-nodejs-modules -- A codemod is a module; it loads by file URL.
 import { pathToFileURL } from 'node:url';
 import { afterAll, describe, expect, it } from 'vitest';
-import { publicNames } from '../../../scripts/sdk-exports.mjs';
+import { publicNames } from '../../../src/scripts/sdk-exports.mjs';
 
 // SDK 0.5.0 plan M6 (ask A7). Jake, 2026-11-24: "0.4.$PATCH is non breaking, and 0.5.0 is for breaking, we bump the
 // minor on every break." These gates hold the rule without anyone remembering it:

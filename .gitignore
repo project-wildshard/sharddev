@@ -10,7 +10,7 @@ blob-report/
 .env
 .env.*
 # Plan worktrees live at .worktrees/<slug> on plan/<slug> (J221, J240, DEV-SPEED DS11); every repo tool
-# skips them too (scripts/worktree-ignore.mjs, guarded by test/tooling/worktree-guard.test.mjs).
+# skips them too (src/scripts/.kit/worktree-ignore.mjs, guarded by src/test/.kit/worktree-guard.test.mjs).
 /.worktrees/
 
 # Lifted from singleplayer (P4).

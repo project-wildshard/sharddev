@@ -144,7 +144,7 @@ jobs:
       - name: Select exact candidate runtime after the build
         env:
           CANDIDATE_ENGINE: ${{ env.COOKED_ENGINE_CANDIDATE }}
-        run: node scripts/select-candidate.mjs
+        run: node src/scripts/select-candidate.mjs
       - name: Install candidate runtime
         run: pnpm install --no-frozen-lockfile --config.ci=false
       - name: Prove actual runtime provenance
