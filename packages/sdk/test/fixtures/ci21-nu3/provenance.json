@@ -100,8 +100,8 @@
       {
         "path": "src/game/client/shard/manifest.ts",
         "sourcePath": "src/client/game/shard/manifest.ts",
-        "sourceBlob": "26229aea9d93a053aeff129e3f60948c6046df4f",
-        "sha256": "a18ccce21edd31847494d4736e0269c6df5c24515b0f9f92b3bf0fd1c3c8ab77"
+        "sourceBlob": "7746bfa10b024707da55504dc1ff24f29f292893",
+        "sha256": "a2dbc868ec5b483b086435018f7cbe59f9dfb6ea49713b46561839ece27bc8fd"
       },
       {
         "path": "lint/no-binary-json.json",
