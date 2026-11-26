@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { clientPage } from '@wildshard/sdk/internal/clientPage';
 import { preparationPreview } from '@wildshard/sdk/scripts/preparation-preview.mjs';
 import { fetchPreparationClient, preparationClient } from '../src/sharddev/devClient.ts';
-import { createDevWorld, DEV_RELEASE } from './dev-world.mjs';
+import { createDevWorld, DEV_RELEASE, engineScriptUrl } from './dev-world.mjs';
 
 const ENGINE = '@wildshard/engine';
 const PROBE = `${ENGINE}/scripts/boot-memory-peak.mjs`;
@@ -44,7 +44,7 @@ async function memoryProduct(folder, out) {
   try {
     // An online page asks the device's Name once before the world (engine namePrompt.ts); the probe of engine 0.1.48 does
     // not answer it, so the page starts with the device marked as asked.
-    const { NAME_ASKED, saveFixtureCode } = await import(pathToFileURL(resolve(dirname(engine), 'scripts/debug-settings.mjs')).href);
+    const { NAME_ASKED, saveFixtureCode } = await import(engineScriptUrl(engine, 'debug-settings.mjs'));
     const asked = `<script>${saveFixtureCode(NAME_ASKED)}</script>`;
     preview = await preparationPreview(client, folder, { clientPage, online: {
       releasePath: DEV_RELEASE, open: async origin => {

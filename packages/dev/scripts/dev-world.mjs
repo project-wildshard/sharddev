@@ -46,10 +46,15 @@ function stopChild(child) {
   });
 }
 
-export async function createDevWorld(origin, work, engineManifest = installedEngine) {
+/** The file URL of one of an installed engine's scripts, by its package.json path. A lean engine (f928fdae2 on, npm 0.1.96)
+ *  keeps them in src/scripts/; a package cut before it, in scripts/. Read every engine script by path through this. */
+export function engineScriptUrl(engineManifest, name) {
   const engineRoot = dirname(engineManifest);
-  // A lean engine (f928fdae2 on) keeps them in src/scripts/; a package cut before it, in scripts/.
-  const engineScript = name => pathToFileURL([join(engineRoot, 'src', 'scripts', name), join(engineRoot, 'scripts', name)].find(existsSync) ?? join(engineRoot, 'src', 'scripts', name)).href; // script-paths: an engine package from before the lean move
+  return pathToFileURL([join(engineRoot, 'src', 'scripts', name), join(engineRoot, 'scripts', name)].find(existsSync) ?? join(engineRoot, 'src', 'scripts', name)).href; // script-paths: an engine package from before the lean move
+}
+
+export async function createDevWorld(origin, work, engineManifest = installedEngine) {
+  const engineRoot = dirname(engineManifest), engineScript = name => engineScriptUrl(engineManifest, name);
   const { devKey } = await import(engineScript('dev-world.mjs'));
   const { childListener, rigFront } = await import(engineScript('rig-listeners.mjs'));
   await mkdir(work, { recursive: true });
