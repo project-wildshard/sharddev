@@ -175,7 +175,7 @@ async function findStored(
 }
 
 /** The slug's entry in `GET /api/catalogue`, if it has one. */
-/** Every catalogued shard: its newest version, hero digest and armed word. */
+/** Every catalogued shard: its newest shardVersion, hero digest and armed word. */
 async function readCatalogue(
   options: ApiOptions,
 ): Promise<readonly CatalogueShard[]> {
@@ -257,7 +257,7 @@ async function commitUpload(
   signed: UploadIdentity,
   body: CommitBody,
 ): Promise<CommitAnswer> {
-  const { contentEncoding, version, commit, channel, place } = body
+  const { contentEncoding, shardVersion, commit, channel, place } = body
   const { sharddev, engine, shardFormat, heroCurated, listNew } = body
   return await postUpload(
     options,
@@ -266,7 +266,9 @@ async function commitUpload(
       signature: signed.signature,
       body: {
         ...(contentEncoding === undefined ? {} : { contentEncoding }),
-        version,
+        shardVersion,
+        // J524: the deployed API still reads the legacy request during rollout.
+        version: shardVersion,
         commit,
         channel,
         sharddev,

@@ -52,8 +52,8 @@ const EngineVersionSchema = pipe(string(), regex(ENGINE_VERSION))
 
 const CommitBodySchema = object({
   contentEncoding: optional(literal('br')),
-  // The shard revision keeps the API's stable version format.
-  version: VersionSchema,
+  // The shard version keeps the API's stable version format.
+  shardVersion: VersionSchema,
   commit: pipe(string(), regex(/^[\da-f]{40}$/u)),
   channel: optional(picklist(['staging', 'production'])),
   engine: optional(EngineVersionSchema),
@@ -67,7 +67,8 @@ type CommitBody = InferOutput<typeof CommitBodySchema>
 /** A catalogue shard as the double serves it. */
 interface CatalogueShard {
   readonly slug: string
-  readonly version: string
+  readonly shardVersion?: string
+  readonly version?: string
   readonly heroHash?: string
 }
 
@@ -95,7 +96,7 @@ function commitBodyOf(raw: unknown): CommitBody | undefined {
 function missingVersion(): Reply {
   return {
     status: UNPROCESSABLE,
-    body: { error: 'pass `--version X.Y.Z` and `--commit <sha>`' },
+    body: { error: 'pass `--shard-version X.Y.Z` and `--commit <sha>`' },
   }
 }
 
@@ -107,11 +108,11 @@ function answer(
   return {
     hash,
     shard: SHARD,
-    revision: recorded.revision,
+    uploadNumber: recorded.revision,
     staged: false,
     signedBy: 'test',
     notified: false,
-    version: recorded.version,
+    shardVersion: recorded.version,
     formatVersion: FORMAT_VERSION,
     migrations: [],
     ...created,

@@ -24,7 +24,7 @@ const BYPASS_HEADER = 'x-vercel-protection-bypass'
 // The grid line and the two links a staging upload prints last (SA32).
 const AFTER_COMMIT = 4
 
-test('compresses, signs, uploads and prints the revision', async (context: TestContext): Promise<void> => {
+test('compresses, signs, uploads and prints the uploadNumber', async (context: TestContext): Promise<void> => {
   const run = await open(context)
 
   const outcome = await upload(run)
@@ -32,9 +32,9 @@ test('compresses, signs, uploads and prints the revision', async (context: TestC
   assert.deepEqual(outcome, {
     hash: sha256(TARBALL),
     shard: 'upload-test',
-    revision: 1,
+    uploadNumber: 1,
     alreadyStored: false,
-    version: VERSION,
+    shardVersion: VERSION,
     formatVersion: '0.1',
     migrations: [],
     gridReport: [
@@ -57,6 +57,7 @@ test('sends the version and commit in the commit body (AC16, V1)', async (contex
   assert.deepEqual(run.server.state.commits, [
     {
       contentEncoding: 'br',
+      shardVersion: VERSION,
       version: VERSION,
       commit: COMMIT,
       channel: 'staging',
@@ -71,7 +72,9 @@ test("prints the API's version, formatVersion and migrations", async (context: T
   await upload(run)
 
   assert.ok(
-    run.lines.includes('api: version 0.0.3, formatVersion 0.1, migrations []'),
+    run.lines.includes(
+      'api: shardVersion 0.0.3, formatVersion 0.1, migrations []',
+    ),
     run.lines.join('\n'),
   )
 })
@@ -83,12 +86,12 @@ test('stored bytes under another version carry on as that version, not stored (r
   const outcome = await upload(run, undefined, '0.0.4')
 
   assert.equal(outcome.alreadyStored, true)
-  assert.equal(outcome.version, VERSION)
-  assert.equal(outcome.revision, 1)
+  assert.equal(outcome.shardVersion, VERSION)
+  assert.equal(outcome.uploadNumber, 1)
   assert.equal(run.server.state.commits.length, 3)
   assert.match(
     JSON.stringify(run.server.state.commits),
-    /"version":"0\.0\.3".*"version":"0\.0\.4".*"version":"0\.0\.3"/u,
+    /"shardVersion":"0\.0\.3".*"shardVersion":"0\.0\.4".*"shardVersion":"0\.0\.3"/u,
   )
   assert.ok(
     run.lines.includes(
@@ -131,8 +134,8 @@ test('sends nothing when the bytes are already stored', async (context: TestCont
   const outcome = await upload(run)
 
   assert.equal(outcome.alreadyStored, true)
-  assert.equal(outcome.revision, 1)
-  assert.equal(outcome.version, VERSION)
+  assert.equal(outcome.uploadNumber, 1)
+  assert.equal(outcome.shardVersion, VERSION)
   onlyPut(run)
   assert.match(
     run.lines.at(-AFTER_COMMIT) ?? '',
@@ -151,13 +154,14 @@ test('held bytes the listing misses still commit, and send nothing', async (cont
   onlyPut(run)
   assert.deepEqual(run.server.state.commits.at(-1), {
     contentEncoding: 'br',
+    shardVersion: VERSION,
     version: VERSION,
     commit: COMMIT,
     channel: 'staging',
     ...BUILT_WITH,
   })
   const again = await upload(run, undefined, '0.0.4')
-  assert.equal(again.version, VERSION)
+  assert.equal(again.shardVersion, VERSION)
 })
 
 test('retries a PUT the store answered 5xx', async (context: TestContext): Promise<void> => {
@@ -166,7 +170,7 @@ test('retries a PUT the store answered 5xx', async (context: TestContext): Promi
 
   const outcome = await upload(run)
 
-  assert.equal(outcome.revision, 1)
+  assert.equal(outcome.uploadNumber, 1)
   onlyPut(run)
 })
 
@@ -229,7 +233,7 @@ test('reads the channel and versions the API echoes (UP2)', async (context: Test
 
   assert.ok(
     run.lines.includes(
-      'api: version 0.0.3, formatVersion 0.1, migrations [], channel staging, sharddev 0.2.2, engine 0.1.13, shardFormat 0.4.4',
+      'api: shardVersion 0.0.3, formatVersion 0.1, migrations [], channel staging, sharddev 0.2.2, engine 0.1.13, shardFormat 0.4.4',
     ),
     run.lines.join('\n'),
   )
@@ -248,7 +252,7 @@ test('an unchanged hero refuses before the PUT and names wildshard hero', async 
   const run = await open(context)
   run.server.state.catalogue.push({
     slug: 'upload-test',
-    version: '0.0.2',
+    shardVersion: '0.0.2',
     heroHash: await heroDigest(),
   })
 
@@ -268,13 +272,13 @@ test('an unchanged hero refuses before the PUT and names wildshard hero', async 
 test('a new hero, or none on record, passes the pre-check', async (context: TestContext): Promise<void> => {
   const run = await open(context)
   run.server.state.catalogue.push(
-    { slug: 'upload-test', version: '0.0.2', heroHash: 'f'.repeat(64) },
-    { slug: 'other', version: '0.0.2', heroHash: await heroDigest() },
+    { slug: 'upload-test', shardVersion: '0.0.2', heroHash: 'f'.repeat(64) },
+    { slug: 'other', shardVersion: '0.0.2', heroHash: await heroDigest() },
   )
 
   const outcome = await upload(run)
 
-  assert.equal(outcome.revision, 1)
+  assert.equal(outcome.uploadNumber, 1)
   onlyPut(run)
 })
 
@@ -283,7 +287,7 @@ test('a retry of the catalogued version is not re-checked', async (context: Test
   await upload(run)
   run.server.state.catalogue.push({
     slug: 'upload-test',
-    version: VERSION,
+    shardVersion: VERSION,
     heroHash: await heroDigest(),
   })
 

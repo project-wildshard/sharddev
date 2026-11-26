@@ -158,8 +158,11 @@ function commitReply(
   const known = double.state.revisions.get(call.hash)
   const reply =
     known === undefined
-      ? freshReply(double, request, { hash: call.hash, version: body.version })
-      : knownReply(call.hash, known, body.version)
+      ? freshReply(double, request, {
+          hash: call.hash,
+          version: body.shardVersion,
+        })
+      : knownReply(call.hash, known, body.shardVersion)
   return dressed(reply, body, double.state)
 }
 

@@ -110,7 +110,7 @@ test("defaults to the project's package.json version and HEAD", async (context: 
       cwd: dir,
     }),
     {
-      version: '0.0.3',
+      shardVersion: '0.0.3',
       commit: head,
       ...(await carried()),
     },
@@ -128,7 +128,7 @@ test('finds the project from a folder inside it', async (context: TestContext): 
       cwd: inner,
     }),
     {
-      version: '0.0.3',
+      shardVersion: '0.0.3',
       commit: head,
       ...(await carried()),
     },
@@ -142,10 +142,10 @@ test('flags override both, and need no git checkout', async (context: TestContex
     await resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      version: '1.2.3',
+      shardVersion: '1.2.3',
       commit: SHA,
     }),
-    { version: '1.2.3', commit: SHA, ...(await carried()) },
+    { shardVersion: '1.2.3', commit: SHA, ...(await carried()) },
   )
 })
 
@@ -154,7 +154,7 @@ test('the three versions match the installed packages (J306)', async (context: T
   const { sharddev, engine, shardFormat } = await resolveProvenance({
     sharddev: SDK,
     cwd: dir,
-    version: '0.0.1',
+    shardVersion: '0.0.1',
     commit: SHA,
   })
 
@@ -175,7 +175,7 @@ test("reads engine and shard-format from the shard's own install", async (contex
   const provenance = await resolveProvenance({
     sharddev: SDK,
     cwd: inner,
-    version: '0.0.1',
+    shardVersion: '0.0.1',
     commit: SHA,
   })
 
@@ -192,7 +192,7 @@ test('@wildshard/shard-format wins over the @wildshard/format alias', async (con
   const { shardFormat } = await resolveProvenance({
     sharddev: SDK,
     cwd: dir,
-    version: '0.0.1',
+    shardVersion: '0.0.1',
     commit: SHA,
   })
 
@@ -207,7 +207,7 @@ test('refuses an installed version the API would refuse', async (context: TestCo
     resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      version: '0.0.1',
+      shardVersion: '0.0.1',
       commit: SHA,
     }),
     /@wildshard\/engine 0\.1\.0-rc\.1 .* is not X\.Y\.Z or X\.Y\.Z-next\.<sha>/u,
@@ -252,18 +252,18 @@ test('needs --commit outside a git checkout', async (context: TestContext): Prom
   })
 
   await assert.rejects(
-    resolveProvenance({ sharddev: SDK, cwd: dir, version: '0.0.1' }),
+    resolveProvenance({ sharddev: SDK, cwd: dir, shardVersion: '0.0.1' }),
     /not a git checkout.*--commit <sha>/u,
   )
 })
 
-test('needs --version without a package.json version', async (context: TestContext): Promise<void> => {
+test('needs --shard-version without a package.json version', async (context: TestContext): Promise<void> => {
   const dir = await scratch(context)
   await writeFile(path.join(dir, 'package.json'), '{"name":"x"}\n')
 
   await assert.rejects(
     resolveProvenance({ sharddev: SDK, cwd: dir, commit: SHA }),
-    /no version in .*package\.json; pass --version X\.Y\.Z/u,
+    /no version in .*package\.json; pass --shard-version X\.Y\.Z/u,
   )
 })
 
@@ -274,25 +274,25 @@ test('refuses a version or commit the API would refuse', async (context: TestCon
     resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      version: 'v1.0',
+      shardVersion: 'v1.0',
       commit: SHA,
     }),
-    /--version v1\.0 is not X\.Y\.Z/u,
+    /--shard-version v1\.0 is not X\.Y\.Z/u,
   )
   await assert.rejects(
     resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      version: '01.0.0',
+      shardVersion: '01.0.0',
       commit: SHA,
     }),
-    /--version 01\.0\.0 is not X\.Y\.Z/u,
+    /--shard-version 01\.0\.0 is not X\.Y\.Z/u,
   )
   await assert.rejects(
     resolveProvenance({
       sharddev: SDK,
       cwd: dir,
-      version: '0.0.1',
+      shardVersion: '0.0.1',
       commit: 'abc123',
     }),
     /--commit abc123 is not a full 40-hex sha/u,

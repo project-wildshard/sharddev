@@ -51,10 +51,10 @@ test('row 45 an idempotent re-upload under a new version reaches the cook wait o
   const first = await uploadWith(run, { wait: false })
   run.server.state.async.sequence = ['live']
 
-  const again = await uploadWith(run, { version: '0.0.4' })
+  const again = await uploadWith(run, { shardVersion: '0.0.4' })
 
   assert.equal(again.uploadId, first.uploadId)
-  assert.equal(again.version, VERSION)
+  assert.equal(again.shardVersion, VERSION)
   assert.equal(again.status, 'live')
   assert.equal(run.server.state.async.reads.length, 1)
   assert.ok(
@@ -68,7 +68,7 @@ test('row 45 with --no-wait it prints the queued line publish.yml hands to the c
   run.server.state.async.enabled = true
   const first = await uploadWith(run, { wait: false })
 
-  const again = await uploadWith(run, { version: '0.0.4', wait: false })
+  const again = await uploadWith(run, { shardVersion: '0.0.4', wait: false })
 
   assert.equal(again.uploadId, first.uploadId)
   assert.equal(

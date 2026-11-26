@@ -49,7 +49,7 @@ test('a curated hero may stay unchanged: it passes the pre-check and says so in 
   const run = await open(context)
   run.server.state.catalogue.push({
     slug: 'upload-test',
-    version: '0.0.2',
+    shardVersion: '0.0.2',
     heroHash: await heroDigest(),
   })
 
@@ -57,10 +57,11 @@ test('a curated hero may stay unchanged: it passes the pre-check and says so in 
     heroSource: await stampedProject(context, true),
   })
 
-  assert.equal(outcome.revision, 1)
+  assert.equal(outcome.uploadNumber, 1)
   assert.deepEqual(run.server.state.commits, [
     {
       contentEncoding: 'br',
+      shardVersion: VERSION,
       version: VERSION,
       commit: COMMIT,
       channel: 'staging',
@@ -74,7 +75,7 @@ test('a stamp without "curated" still refuses an unchanged hero', async (context
   const run = await open(context)
   run.server.state.catalogue.push({
     slug: 'upload-test',
-    version: '0.0.2',
+    shardVersion: '0.0.2',
     heroHash: await heroDigest(),
   })
 

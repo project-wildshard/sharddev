@@ -69,7 +69,7 @@ repo's one `src/shards/<slug>/`).
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
 | 5 | Prepare | `wildshard prepare out/my-shard`, then `wildshard build out/my-shard` | The first run fetches engine's preparation client once. See "Uploading" below |
-| 6 | Upload to staging | `wildshard upload out/my-shard.shardfile --channel staging --version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
+| 6 | Upload to staging | `wildshard upload out/my-shard.shardfile --channel staging --shard-version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
 | 7 | Upload to production | the same with `--channel prod` and a higher version | The same. Try staging first |
 | 8 | Share | `https://staging.wildshard.io/slug/my-shard` | **Not built yet (SA36, SA37).** See section 5 |
 
@@ -333,10 +333,10 @@ before every upload:
    bytes, and the server verifies that signature. Never commit either key. Done when `wildshard whoami` prints
    `key wsk_…` and `account <your email>`.
 6. **Upload,** with a version `X.Y.Z` higher than the last one uploaded (`0.0.1` the first time). Upload reads
-   `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--version`:
+   `version` from the repo's `package.json` (`new` writes `0.0.1`; raise it before each upload), or pass `--shard-version`:
 
 ```sh
-wildshard upload out/my-shard.shardfile --channel staging --version 0.0.1
+wildshard upload out/my-shard.shardfile --channel staging --shard-version 0.0.1
 ```
 
 Upload checks the shard file as the API will, checks the hero, signs, compresses and sends it, then prints the

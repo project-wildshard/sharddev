@@ -55,7 +55,7 @@ async function cli(
   return { status: child.exitCode, stdout: await stdout, stderr: await stderr }
 }
 
-const PROVENANCE = ['--version', VERSION, '--commit', COMMIT]
+const PROVENANCE = ['--shard-version', VERSION, '--commit', COMMIT]
 
 async function installed(name: string): Promise<string> {
   const file = new URL(`node_modules/${name}/package.json`, ROOT)
@@ -83,6 +83,7 @@ test('--channel prod goes on the wire as production', async (context: TestContex
   assert.deepEqual(run.server.state.commits, [
     {
       contentEncoding: 'br',
+      shardVersion: VERSION,
       version: VERSION,
       commit: COMMIT,
       channel: 'production',
@@ -126,6 +127,7 @@ test('the CLI sends the exact installed engine next pin to staging', async (cont
   assert.deepEqual(run.server.state.commits, [
     {
       contentEncoding: 'br',
+      shardVersion: VERSION,
       version: VERSION,
       commit: COMMIT,
       channel: 'staging',

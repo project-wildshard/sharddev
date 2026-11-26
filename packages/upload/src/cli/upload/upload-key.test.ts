@@ -121,7 +121,7 @@ test('a key the API does not know is refused at the ticket', async (context: Tes
   const sent = uploadShardfile({
     ...options,
     apiKey: 'wsk_not-this-one',
-    version: VERSION,
+    shardVersion: VERSION,
     commit: COMMIT,
     channel: 'staging',
     ...BUILT_WITH,

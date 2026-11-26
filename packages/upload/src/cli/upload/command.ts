@@ -55,11 +55,11 @@ async function provenanceOf(
       cwd: process.cwd(),
       sharddev: uploader.version,
       installDir: uploader.installDir,
-      version: args.shardVersion,
+      shardVersion: args.shardVersion,
       commit: args.commit,
     })
     reportLine(
-      `shard source version ${provenance.version}, commit ${provenance.commit}`,
+      `shard source version ${provenance.shardVersion}, commit ${provenance.commit}`,
     )
     return provenance
   } catch (error: unknown) {

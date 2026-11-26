@@ -99,7 +99,7 @@ const VERBS: Readonly<Record<string, string>> = {
                        those images show the current content; a wrong
                        stamp hides a stale hero from the cut`,
   upload: `upload <file> --channel staging|prod [--server <url>]
-         [--level <n>] [--version <X.Y.Z>] [--commit <sha>] [--no-place]
+         [--level <n>] [--shard-version <X.Y.Z>] [--commit <sha>] [--no-place]
          [--no-new|--new] [--no-wait]
                        Check a shard file (an unprepared draft, no preparation,
                        is refused before anything is sent), compress it
@@ -282,7 +282,7 @@ ${Object.values(VERBS)
 
 Options:
   --version            Print the sdk, engine, shard-format and three
-                       versions (after upload: the shard source version)
+                       versions
   --help               Print this help (after a command: that command's)
 
 Also installed as \`sharddev\`. wildshard help <command> prints one command.

@@ -1,7 +1,7 @@
 import { parseArgs } from 'node:util'
 
 // The sharddev CLI's arguments. `--version` prints sharddev's version,
-// except after the `upload` command, where it is the shard version
+// and `upload --shard-version` sets the shard version
 // (API-CLOUDFLARE AC16). `--channel` is the upload's channel (J301).
 
 interface CliArgs {
@@ -75,11 +75,19 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     allowPositionals: true,
     options: {
       ...OPTIONS,
+      'shard-version': { type: 'string' },
       version: upload ? { type: 'string' } : { type: 'boolean' },
     },
   })
   const [command, operand, target] = positionals
   const { version } = values
+  const shardVersion = values['shard-version']
+  if (
+    shardVersion !== undefined &&
+    (command !== 'upload' || typeof version === 'string')
+  ) {
+    throw new Error('use --shard-version once, on upload')
+  }
   if (values.new === true && values['no-new'] === true) {
     throw new Error('choose one of --new or --no-new')
   }
@@ -89,7 +97,8 @@ function parseCliArgs(argv: readonly string[]): CliArgs {
     target,
     channel: values.channel,
     commit: values.commit,
-    shardVersion: typeof version === 'string' ? version : undefined,
+    shardVersion:
+      shardVersion ?? (typeof version === 'string' ? version : undefined),
     help: values.help,
     force: values.force,
     level: values.level,

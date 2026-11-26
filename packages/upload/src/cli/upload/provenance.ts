@@ -7,7 +7,7 @@ import { text as readAll } from 'node:stream/consumers'
 import { object, optional, safeParse, string } from 'valibot'
 
 // What every upload names (API-CLOUDFLARE AC16, J275 V1): the shard version
-// and the commit of the shard project it was built from. `--version`
+// and the commit of the shard project it was built from. `--shard-version`
 // defaults to the project's package.json version and `--commit` to its git
 // HEAD, and a HEAD with uncommitted changes to tracked files is refused, as
 // it does not describe the bytes. Untracked files (the packed tarball, build
@@ -49,14 +49,14 @@ interface ProvenanceRequest {
   readonly sharddev: string
   /** Where the running `wildshard` resolves its own installs when the shard has none (the sdk's folder). */
   readonly installDir?: string | undefined
-  /** `--version`, if passed. */
-  readonly version?: string | undefined
+  /** `--shard-version`, if passed. */
+  readonly shardVersion?: string | undefined
   /** `--commit`, if passed. */
   readonly commit?: string | undefined
 }
 
 interface Provenance {
-  readonly version: string
+  readonly shardVersion: string
   readonly commit: string
   /** The sharddev that uploads (J306). */
   readonly sharddev: string
@@ -94,13 +94,13 @@ async function projectVersion(cwd: string): Promise<string> {
   const found = await nearestPackage(path.resolve(cwd))
   if (found === undefined) {
     throw new Error(
-      `no ${PACKAGE_JSON} at or above ${cwd}; pass --version X.Y.Z`,
+      `no ${PACKAGE_JSON} at or above ${cwd}; pass --shard-version X.Y.Z`,
     )
   }
   const parsed = safeParse(PackageJsonSchema, JSON.parse(found.text))
   const version = parsed.success ? parsed.output.version : undefined
   if (version === undefined) {
-    throw new Error(`no version in ${found.file}; pass --version X.Y.Z`)
+    throw new Error(`no version in ${found.file}; pass --shard-version X.Y.Z`)
   }
   return version
 }
@@ -188,16 +188,16 @@ async function installedVersion(
 async function resolveProvenance(
   request: ProvenanceRequest,
 ): Promise<Provenance> {
-  const version = request.version ?? (await projectVersion(request.cwd))
+  const version = request.shardVersion ?? (await projectVersion(request.cwd))
   if (!VERSION.test(version)) {
-    throw new Error(`--version ${version} is not X.Y.Z`)
+    throw new Error(`--shard-version ${version} is not X.Y.Z`)
   }
   const commit = request.commit ?? (await headCommit(request.cwd))
   if (!COMMIT.test(commit)) {
     throw new Error(`--commit ${commit} is not a full 40-hex sha`)
   }
   return {
-    version,
+    shardVersion: version,
     commit,
     sharddev: request.sharddev,
     engine: await installedVersion(

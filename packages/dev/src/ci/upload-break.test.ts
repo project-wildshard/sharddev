@@ -32,7 +32,7 @@ test('stored bytes the server now refuses fail the upload', async (context: Test
       apiKey: server.apiKey,
       privateKey: server.privateKey,
       level: 5,
-      version: '0.0.1',
+      shardVersion: '0.0.1',
       commit: 'c'.repeat(40),
       channel: 'staging',
       sharddev: '0.2.2',

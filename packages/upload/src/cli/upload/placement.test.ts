@@ -29,6 +29,7 @@ test('--no-place sends place: false; a default upload sends no place', async (co
   const [noPlace, retry] = run.server.state.commits
   assert.deepEqual(noPlace, {
     contentEncoding: 'br',
+    shardVersion: VERSION,
     version: VERSION,
     commit: COMMIT,
     channel: 'staging',
@@ -120,7 +121,7 @@ test('a placement the CLI cannot read still uploads', async (context: TestContex
 
   const outcome = await upload(run)
 
-  assert.equal(outcome.revision, 1)
+  assert.equal(outcome.uploadNumber, 1)
   assert.deepEqual(run.lines.slice(-3), [
     "grid: the API's placement answer was not understood",
     ...LINKS,
@@ -143,14 +144,14 @@ test('--no-place past the first upload leaves a held cell alone', (): void => {
   const answer = {
     hash: 'a'.repeat(64),
     shard: 'upload-test',
-    revision: 2,
+    uploadNumber: 2,
     created: true,
     staged: false,
     notified: false,
     signedBy: 'test',
     bytes: 1,
     storedBytes: 1,
-    version: '0.0.4',
+    shardVersion: '0.0.4',
     formatVersion: '0.1',
     migrations: [],
     placement: { placed: false, reason: 'not placed (place: false)' },

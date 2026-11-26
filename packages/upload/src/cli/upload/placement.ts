@@ -40,7 +40,7 @@ type ChannelName = keyof typeof HOSTS
 interface Asked {
   readonly place: boolean
   /** The answer's catalogue number: 1 is the shard's first upload. */
-  readonly revision: number
+  readonly uploadNumber: number
   readonly moved: readonly ChannelName[]
 }
 
@@ -59,7 +59,7 @@ function placedLine(
 
 /** The `--no-place` line: a first upload took no cell; a later one left the grid alone. */
 function noPlaceLine(asked: Asked): string {
-  return asked.revision === FIRST_UPLOAD ? NO_PLACE_LINE : LEFT_ALONE_LINE
+  return asked.uploadNumber === FIRST_UPLOAD ? NO_PLACE_LINE : LEFT_ALONE_LINE
 }
 
 /** The line for `{ placed: false }`, by the API's reason. */
@@ -117,7 +117,11 @@ function placementLines(
   options: Readonly<{ channel: Channel; place: boolean }>,
 ): readonly string[] {
   const moved = movedChannels(options.channel, answer.revived === true)
-  const asked = { place: options.place, revision: answer.revision, moved }
+  const asked = {
+    place: options.place,
+    uploadNumber: answer.uploadNumber,
+    moved,
+  }
   const links = moved.map(
     (name: ChannelName): string =>
       `${name}: https://${HOSTS[name]}/slug/${answer.shard} ${PAGE_NOT_BUILT}`,

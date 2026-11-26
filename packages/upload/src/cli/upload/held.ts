@@ -37,14 +37,17 @@ async function commitHeld(
   try {
     return await commitUpload(options, signed, body)
   } catch (error) {
-    const version = heldAs(error, body.version)
+    const version = heldAs(error, body.shardVersion)
     if (version === undefined) {
       throw error
     }
     options.report(
-      `these bytes are already ${version}, not ${body.version}: carrying on with the upload that holds them`,
+      `these bytes are already ${version}, not ${body.shardVersion}: carrying on with the upload that holds them`,
     )
-    return await commitUpload(options, signed, { ...body, version })
+    return await commitUpload(options, signed, {
+      ...body,
+      shardVersion: version,
+    })
   }
 }
 

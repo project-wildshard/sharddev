@@ -120,7 +120,11 @@ test('a first data: hero version and its retry pass', async (context: TestContex
   const run = await open(context, tarball)
 
   const first = await upload(run)
-  run.server.state.catalogue.push({ slug, version: first.version, heroHash })
+  run.server.state.catalogue.push({
+    slug,
+    shardVersion: first.shardVersion,
+    heroHash,
+  })
   const retry = await upload(run)
 
   assert.equal(first.alreadyStored, false)

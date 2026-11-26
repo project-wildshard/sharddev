@@ -1,21 +1,23 @@
 import { installFormatHook } from '@wildshard/format/formatHook'
 import {
   array,
-  intersect,
+  boolean,
   literal,
   nullable,
   number,
   object,
   optional,
   picklist,
+  pipe,
   string,
+  transform,
   tuple,
   unknown,
   variant,
 } from 'valibot'
 
 import type { UploadResult } from '@wildshard/format/uploadWire'
-import type { GenericSchema } from 'valibot'
+import type { GenericSchema, InferOutput } from 'valibot'
 
 // The replies `sharddev upload` reads from api-server (J61, J96), from
 // format, which both depend on (J27). A wire change reaches both through a
@@ -30,6 +32,9 @@ const {
   ErrorBodySchema,
   ShardfileListSchema,
   UploadResultSchema,
+  RevisionNumberSchema,
+  ShardSlugSchema,
+  ShardfileHashSchema,
   DirectUploadTicketSchema,
 } = wire
 
@@ -77,10 +82,11 @@ const UploadStateSchema = picklist([
 ])
 type UploadState = (typeof UploadStateSchema.options)[number]
 
-interface CommitAnswer extends UploadResult {
+interface CommitAnswer extends Omit<UploadResult, 'revision'> {
+  readonly uploadNumber: number
   readonly uploadId?: string | undefined
   readonly status?: UploadState | undefined
-  readonly version: string
+  readonly shardVersion: string
   readonly formatVersion: string
   readonly migrations: readonly unknown[]
   /** UP2's echo of the channel and the versions; absent before it. */
@@ -105,10 +111,17 @@ const MigrationsSchema = array(unknown())
 /** A string the API may leave out, or send as null. */
 const EchoSchema = optional(nullable(string()))
 
-const CommitFieldsSchema = object({
+const commitFields = {
+  hash: ShardfileHashSchema,
+  shard: ShardSlugSchema,
+  created: boolean(),
+  staged: boolean(),
+  bytes: number(),
+  storedBytes: number(),
+  signedBy: string(),
+  notified: boolean(),
   uploadId: optional(string()),
   status: optional(UploadStateSchema),
-  version: string(),
   formatVersion: string(),
   migrations: MigrationsSchema,
   channel: EchoSchema,
@@ -118,12 +131,42 @@ const CommitFieldsSchema = object({
   placement: optional(unknown()),
   revived: optional(unknown()),
   held: optional(string()),
-})
+}
 
-const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
-  UploadResultSchema,
-  CommitFieldsSchema,
-])
+// J524: normalize the deployed API's old fields at the boundary.
+const CommitWireSchema = object({
+  ...commitFields,
+  uploadNumber: optional(RevisionNumberSchema),
+  shardVersion: optional(string()),
+  revision: optional(RevisionNumberSchema),
+  version: optional(string()),
+})
+type NormalizedCommitWire = Omit<
+  InferOutput<typeof CommitWireSchema>,
+  'revision' | 'version'
+>
+
+const CommitAnswerSchema = pipe(
+  CommitWireSchema,
+  transform(
+    (
+      // oxlint-disable-next-line typescript/prefer-readonly-parameter-types -- Valibot supplies a mutable migrations array.
+      input: Readonly<InferOutput<typeof CommitWireSchema>>,
+    ): NormalizedCommitWire => {
+      const { uploadNumber, revision, shardVersion, version, ...row } = input
+      return {
+        ...row,
+        uploadNumber: uploadNumber ?? revision,
+        shardVersion: shardVersion ?? version,
+      }
+    },
+  ),
+  object({
+    ...commitFields,
+    uploadNumber: RevisionNumberSchema,
+    shardVersion: string(),
+  }),
+)
 
 /**
  * `GET /api/catalogue`, as far as the hero pre-check reads it: each slug's
@@ -131,7 +174,7 @@ const CommitAnswerSchema: GenericSchema<CommitAnswer> = intersect([
  */
 interface CatalogueShard {
   readonly slug: string
-  readonly version?: string | null | undefined
+  readonly shardVersion?: string | null | undefined
   readonly heroHash?: string | null | undefined
   /** FORMAT-PRUNE FP27c (J426): set when the API arms this shard under the memory lines. */
   readonly armed?: Readonly<{ since: string; epoch: number }> | null | undefined
@@ -139,12 +182,19 @@ interface CatalogueShard {
 
 const ArmedWord = object({ since: string(), epoch: number() })
 const ArmedSchema = optional(nullable(ArmedWord))
-const CatalogueShardSchema = object({
-  slug: string(),
-  version: EchoSchema,
-  heroHash: EchoSchema,
-  armed: ArmedSchema,
-})
+const CatalogueShardSchema = pipe(
+  object({
+    slug: string(),
+    shardVersion: EchoSchema,
+    version: EchoSchema,
+    heroHash: EchoSchema,
+    armed: ArmedSchema,
+  }),
+  transform(({ shardVersion, version, ...row }): CatalogueShard => ({
+    ...row,
+    shardVersion: shardVersion ?? version,
+  })),
+)
 
 const CatalogueSchema: GenericSchema<{
   readonly shards: readonly CatalogueShard[]

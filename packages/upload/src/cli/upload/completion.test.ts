@@ -6,11 +6,11 @@ import { completeUpload } from './completion.ts'
 import type { CommitAnswer } from './wire.ts'
 
 const LIVE: CommitAnswer = {
-  version: '0.1.0',
+  shardVersion: '0.1.0',
   formatVersion: '0.12.0',
   migrations: [],
   shard: 'live-isle',
-  revision: 1,
+  uploadNumber: 1,
   hash: 'a'.repeat(64),
   created: false,
   staged: true,

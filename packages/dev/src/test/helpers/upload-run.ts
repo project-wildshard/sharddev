@@ -49,7 +49,12 @@ type More = Readonly<
   Partial<
     Pick<
       UploadOptions,
-      'bypassSecret' | 'channel' | 'heroSource' | 'place' | 'version' | 'wait'
+      | 'bypassSecret'
+      | 'channel'
+      | 'heroSource'
+      | 'place'
+      | 'shardVersion'
+      | 'wait'
     >
   >
 >
@@ -62,7 +67,7 @@ async function uploadWith(run: Run, more: More): Promise<UploadOutcome> {
     apiKey: run.server.apiKey,
     privateKey: run.server.privateKey,
     level: 5,
-    version: VERSION,
+    shardVersion: VERSION,
     commit: COMMIT,
     channel: 'staging',
     ...BUILT_WITH,
@@ -79,7 +84,7 @@ async function upload(
   version: string = VERSION,
 ): Promise<UploadOutcome> {
   return await uploadWith(run, {
-    version,
+    shardVersion: version,
     ...(bypassSecret === undefined ? {} : { bypassSecret }),
   })
 }

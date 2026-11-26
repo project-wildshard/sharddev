@@ -22,7 +22,7 @@ const ONE_DECIMAL = 1
 
 interface CheckOptions extends ApiOptions {
   /** The shard version this upload sends. */
-  readonly version: string
+  readonly shardVersion: string
   /** The shard project upload runs in, whose hero stamp may mark the hero curated. */
   readonly heroSource?: string
   readonly report: (line: string) => void
@@ -95,9 +95,12 @@ async function checkHero(
   const newest = rows.find(
     (row: Readonly<CatalogueShard>): boolean => row.slug === shard.slug,
   )
-  if (newest?.heroHash === shard.hero && newest.version !== options.version) {
+  if (
+    newest?.heroHash === shard.hero &&
+    newest.shardVersion !== options.shardVersion
+  ) {
     throw new Error(
-      `the hero is unchanged since ${[shard.slug, newest.version].filter(Boolean).join(' ')}: run wildshard hero, then build and upload again`,
+      `the hero is unchanged since ${[shard.slug, newest.shardVersion].filter(Boolean).join(' ')}: run wildshard hero, then build and upload again`,
     )
   }
 }

@@ -18,15 +18,15 @@ import type { CommitAnswer } from './wire.ts'
 // sign the tarball, then ticket, PUT, commit. api-server only checks and
 // stores what arrives. The commit carries the shard version and commit
 // (API-CLOUDFLARE AC16, V1), and is sent for held bytes too, so the API
-// answers which version holds them: a retry, or a 409 for another version.
+// answers which shard version holds them: a retry, or a 409 for another shard version.
 // SHARD-AUTHORING UP3 adds the channel the upload is for (J301) and the
 // versions it was built with (J306), and refuses a hero unchanged since the
-// slug's newest catalogued version before any byte moves, as UP4's API will.
+// slug's newest catalogued shard version before any byte moves, as UP4's API will.
 // An unprepared draft (sdk 0.2) refuses here too, before any request: the
 // API answers it 422 at commit (J259), after the whole file was sent.
 // SA32 sends `place: false` for `--no-place` and prints the API's grid
 // answer and each moved channel's `/slug/<slug>` link (placement.ts).
-// Bytes the API holds as another version commit again as it (held.ts).
+// Bytes the API holds as another shard version commit again as it (held.ts).
 
 const MS_PER_SECOND = 1000
 const BYTES_PER_MB = 1_000_000
@@ -61,11 +61,11 @@ interface UploadOutcome extends Completion {
   readonly gridReport: readonly string[]
   readonly hash: string
   readonly shard: string
-  readonly revision: number
+  readonly uploadNumber: number
   /** The bytes were stored already, so nothing new was recorded. */
   readonly alreadyStored: boolean
   /** The shard version the API holds these bytes as. */
-  readonly version: string
+  readonly shardVersion: string
   /** The API's format version. */
   readonly formatVersion: string
   /** The migrations the API ran. */
@@ -165,7 +165,7 @@ function reportAnswer(options: UploadOptions, answer: CommitAnswer): void {
     created,
     staged,
     notified,
-    version,
+    shardVersion,
     formatVersion,
     migrations,
   } = answer
@@ -177,11 +177,11 @@ function reportAnswer(options: UploadOptions, answer: CommitAnswer): void {
     `sent: channel ${channel}, sharddev ${sharddev}, engine ${engine}, shardFormat ${shardFormat}`,
   )
   options.report(
-    `api: version ${version}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}${echoOf(answer)}`,
+    `api: shardVersion ${shardVersion}, formatVersion ${formatVersion}, migrations ${JSON.stringify(migrations)}${echoOf(answer)}`,
   )
 }
 
-/** The commit, always: the API names the version that holds the bytes (V1). */
+/** The commit, always: the API names the shard version that holds the bytes (V1). */
 async function commit(
   options: UploadOptions,
   signed: UploadIdentity,
@@ -193,15 +193,22 @@ async function commit(
     place,
     listNew: options.listNew,
     ...sent,
-    version: options.version,
+    shardVersion: options.shardVersion,
     commit: options.commit,
     channel,
     sharddev,
     engine,
     shardFormat,
   })
-  const { hash, shard, revision, created, version, formatVersion, migrations } =
-    answer
+  const {
+    hash,
+    shard,
+    uploadNumber,
+    created,
+    shardVersion,
+    formatVersion,
+    migrations,
+  } = answer
   if (hash !== signed.hash) {
     throw new Error(
       'the API commit hash does not match the uploaded shard file',
@@ -212,9 +219,9 @@ async function commit(
     ...(await completeUpload(options, answer)),
     hash,
     shard,
-    revision,
+    uploadNumber,
     alreadyStored: !created,
-    version,
+    shardVersion,
     formatVersion,
     migrations,
   }
@@ -225,8 +232,8 @@ function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
   const verb = outcome.alreadyStored ? 'already stored' : 'committed'
   options.report(
     outcome.uploadId === undefined || outcome.status === 'live'
-      ? `${verb}: ${outcome.shard} ${outcome.version} catalogue number ${String(outcome.revision)} for ${options.channel} (${outcome.hash})`
-      : `queued: ${outcome.shard} ${outcome.version} for ${options.channel} (upload ${outcome.uploadId})`,
+      ? `${verb}: ${outcome.shard} ${outcome.shardVersion} catalogue number ${String(outcome.uploadNumber)} for ${options.channel} (${outcome.hash})`
+      : `queued: ${outcome.shard} ${outcome.shardVersion} for ${options.channel} (upload ${outcome.uploadId})`,
   )
   if (options.listNew === false && !outcome.alreadyStored) {
     options.report('not listed in New (--no-new)')
