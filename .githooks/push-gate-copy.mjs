@@ -13,9 +13,15 @@
 //      was killed is swept by the next one (its pid is gone).
 // It copies in the canonical checkout always (other lanes may write while the gate runs), and in a linked worktree
 // only when that worktree is dirty or not at the pushed tree. CI never copies. WS_PUSH_GATE_COPY=0 gates in place.
+//
+// Meta QA 11-25 row 149: a gate red that a local run does not show is reproduced the gate's way, never skipped:
+//   node .githooks/push-gate-copy.mjs [<commit>] -- <command...>   e.g. -- pnpm check:watch-build
+// runs the command in a clean copy of the commit (HEAD by default) with the gate's environment, then removes the copy;
+// it exits with the command's status.
 import { execFileSync, spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 /** Where copies live, under the checkout (gitignored tmp/; AGENTS.md: never the system tmp). */
 export const GATE_DIR = 'tmp/push-gate';
@@ -156,4 +162,29 @@ export function makeGateCopy(root, sha, { say = (line) => process.stderr.write(`
   }
   say(`  - push-gate copy (M1): ${sha.slice(0, 10)} at ${GATE_DIR}/${path.split('/').at(-1)} in ${((performance.now() - began) / 1000).toFixed(1)} s; ${steps.join(', ')}`);
   return { path, remove };
+}
+
+/** Run `command` in a clean copy of `commit`, as the push gate runs `pnpm check` (the gate's environment: no GIT_*, the
+ * watch parity's frames outside the copy). Returns the command's exit status. @param {string} root
+ * @param {string} commit @param {string[]} command @param {{env?:NodeJS.ProcessEnv,stdio?:import('node:child_process').StdioOptions}} [options] */
+export function runInGateCopy(root, commit, command, { env = process.env, stdio = 'inherit' } = {}) {
+  const sha = git(root, ['rev-parse', '--verify', `${commit}^{commit}`]);
+  const copy = makeGateCopy(root, sha, { env });
+  try {
+    const child = spawnSync(command[0], command.slice(1), { cwd: copy.path, stdio,
+      env: { ...cleanEnv(env), WS_PARITY_FRAMES: env.WS_PARITY_FRAMES ?? join(root, GATE_DIR, 'watch-parity') } });
+    return child.status ?? 1;
+  } finally {
+    copy.remove();
+  }
+}
+
+if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) {
+  const args = process.argv.slice(2), dash = args.indexOf('--');
+  if (dash === -1 || dash > 1 || dash === args.length - 1) {
+    console.error('usage: node .githooks/push-gate-copy.mjs [<commit>] -- <command...>');
+    process.exit(2);
+  }
+  const root = git(process.cwd(), ['rev-parse', '--show-toplevel']);
+  process.exit(runInGateCopy(root, dash === 1 ? args[0] : 'HEAD', args.slice(dash + 1)));
 }

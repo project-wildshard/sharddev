@@ -130,6 +130,8 @@ if (copy === null && !existsSync(join(pkgDir, 'node_modules'))) {
 // Hooks export GIT_INDEX_FILE and friends; tools that shell out to git
 // (knip, tests that build repos) must see a normal environment.
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+// Meta QA 11-25 row 149: the watch parity's frames outlive the clean copy, so a gate red can be looked at, not skipped.
+if (copy !== null) env.WS_PARITY_FRAMES ??= join(root, 'tmp', 'push-gate', 'watch-parity');
 // Install a missing shared tool cache from its committed lock before checks.
 // Frozen mode refuses stale pins instead of silently rewriting the checkout.
 if (manifest.binDependencies !== undefined) {

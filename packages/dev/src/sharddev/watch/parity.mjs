@@ -9,7 +9,8 @@
 // guard is a ratchet: `parity-baseline.json` holds each camera's measured drift, and a camera over it by `MEAN` or `SHARE`
 // is red. A fix that lowers the drift lowers the baseline (`--rebase`); nothing raises it unseen.
 //
-//   node src/sharddev/watch/parity.mjs [--source <dir>] [--out <dir>]   one comparison; exit 1 when red
+//   node src/sharddev/watch/parity.mjs [--source <dir>] [--out <dir>]   one comparison; exit 1 when red (frames: --out, else
+//                                                                        $WS_PARITY_FRAMES, else the repo's tmp/watch-parity)
 //   node src/sharddev/watch/parity.mjs --check                           sharddev's pre-push: the clean run must be green,
 //                                                                        and the live page with its roof colour halved (a
 //                                                                        planted material difference) must be red
@@ -42,8 +43,33 @@ let builtLights = true;
 const CAMERAS = [['hut-front', -3.9, -5.6, 0.03, -0.04], ['door-lamp', -4.6, -7.8, 0.03, 0.05], ['hut-back', -3.9, -10.4, 3.4, -0.05], ['pond', -10.4, 0.3, 1.571, -0.08]];
 /** The eye's height (m): the cameras' 1.68 m over the slice's ground, which is flat at 0 by every camera. */
 const EYE = 1.68;
-/** Red over the baseline by these, at any camera. Two clean runs differ by under 0.002/255; the planted roof adds over 1/255. */
+/** Red over the baseline by these, at any camera. Two clean runs differ by up to about 0.16/255 (the grass and motes
+ *  move, QA 11-25 row 149's follow-up); the planted roof adds over 1/255. */
 const MEAN = 0.25, SHARE = 0.005, OFF = 24;
+/** A frame shot twice from a still camera differs by under these (the slice's grass sways and its motes drift on their own
+ *  clocks, about 0.3/255 over 0.6% of the frame, QA 11-25 row 149's follow-up); a caption or banner over it is far over
+ *  (the reveal's ARRIVING AT caption: 13/255 over 29%). */
+const STILL_MEAN = 1, STILL_SHARE = 0.02;
+// QA 11-25 row 149: the frames are always written, so a red can be looked at. The push gate runs in a clean copy it
+// deletes after, so its run-checks names a folder outside the copy (`$WS_PARITY_FRAMES`); else the repo's tmp/.
+const out = resolve(values.out ?? process.env['WS_PARITY_FRAMES'] ?? join(ROOT, '../../tmp/watch-parity'));
+mkdirSync(out, { recursive: true });
+/** Page texts, quoted, for a message. */
+const said = (texts) => texts.map((text) => JSON.stringify(text)).join(', ');
+/** QA 11-25 row 149: the page text a frame shows (a caption, a banner), so a red names what one back end drew over its
+ *  scene and the other did not; the push gate's red was the grid reveal's ARRIVING AT caption over the first camera. */
+const VISIBLE_TEXT = `(() => {
+  const seen = new Set();
+  for (const el of document.body.querySelectorAll('*')) {
+    if (el.closest('#wildshard-watch') !== null || [...el.childNodes].every((node) => node.nodeType !== 3 || node.textContent.trim() === '')) continue;
+    const box = el.getBoundingClientRect();
+    if (box.width < 1 || box.height < 1 || box.bottom < 0 || box.right < 0 || box.top > innerHeight || box.left > innerWidth) continue;
+    let shown = getComputedStyle(el).visibility === 'visible';
+    for (let at = el; shown && at !== null; at = at.parentElement) { const style = getComputedStyle(at); shown = style.display !== 'none' && Number(style.opacity) > 0; }
+    if (shown) seen.add(el.textContent.trim().replaceAll(/\\s+/gu, ' ').slice(0, 60));
+  }
+  return [...seen].sort();
+})()`;
 
 /** Start `wildshard <command> <source> 0` and resolve its page URL; `stop` kills the child. */
 function serve(command) {
@@ -132,12 +158,29 @@ async function shoot(browser, url, live, after = []) {
           const lamps = await page.evaluate(() => { const st = window.__wildshard?.shard?.grid?.state?.(); const row = st?.sceneLife?.find((r) => r.instance === st.inside); return row === undefined ? null : { declared: row.lampsDeclared, lit: row.lampsLit, pool: row.lamps }; });
           if (lamps === null || lamps.declared < 1 || lamps.lit !== Math.min(lamps.declared, lamps.pool) || lamps.pool < 1) throw new Error(`The built page's grid cell lights ${JSON.stringify(lamps)} of its declared look lamps`);
         }
-        frames.push({ id, png: await page.screenshot() });
+        frames.push({ id, png: await page.screenshot(), texts: await page.evaluate(VISIBLE_TEXT) });
       }
+      if (change === null) await settled(page, live, frames[0]);
       sets.push(frames);
     }
     return sets;
   } finally { await page.close(); }
+}
+
+/** QA 11-25 row 149: the first camera, shot again after the others, must match its first shot. A frame that changes while
+ *  its camera stands still was shot before the page settled (the gate's red: the grid reveal's caption, still up on a
+ *  loaded machine, over the build's first frame), and comparing it measures the machine's speed, not the back ends. */
+async function settled(page, live, first) {
+  const [id, x, z, yaw, pitch] = CAMERAS[0];
+  await page.evaluate((eye) => { window.__ap20Eye = eye; }, [x, EYE, z, yaw, pitch]);
+  await page.waitForTimeout(2500);
+  const again = { png: await page.screenshot(), texts: await page.evaluate(VISIBLE_TEXT) };
+  const score = await compare(first.png, again.png);
+  if (score.mean <= STILL_MEAN && score.share <= STILL_SHARE) return;
+  const side = live ? 'watch' : 'build';
+  writeFileSync(join(out, `${id}-${side}-unsettled-first.png`), first.png); writeFileSync(join(out, `${id}-${side}-unsettled-again.png`), again.png);
+  const gone = first.texts.filter((text) => !again.texts.includes(text)), came = again.texts.filter((text) => !first.texts.includes(text));
+  throw new Error(`watch equals build: the ${side} page's ${id} frame changed while its camera stood still (${score.mean}/255 ${(score.share * 100).toFixed(2)}% between its first shot and one after the other cameras${gone.length > 0 ? `; gone since: ${said(gone)}` : ''}${came.length > 0 ? `; new since: ${said(came)}` : ''}): the page was shot before it settled, so the parity would measure this machine's speed. Wait for what changed before the first shot (both shots: ${out}).`);
 }
 
 /** The planted difference: the live page's roof colour halved (page code, passed as text). */
@@ -156,7 +199,7 @@ async function compare(a, b) {
 }
 
 /** Both back ends, every camera: the clean comparison, and with `plant` the planted one too. */
-async function run(plant, out) {
+async function run(plant) {
   const live = serve('watch'), built = serve('dev');
   const browser = await chromium.launch({ headless: true, args: ['--use-mock-keychain', '--password-store=basic', '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist'] });
   try {
@@ -167,11 +210,11 @@ async function run(plant, out) {
       const rows = [];
       for (const [i, frame] of frames.entries()) {
         const score = await compare(frame.png, baked[i].png), base = baseline[frame.id] ?? { mean: 0, share: 0 };
-        rows.push({ id: frame.id, ...score, red: score.mean > base.mean + MEAN || score.share > base.share + SHARE });
-        if (out !== undefined) {
-          writeFileSync(join(out, `${n > 0 ? 'planted-' : ''}${frame.id}-watch.png`), frame.png);
-          if (n === 0) writeFileSync(join(out, `${frame.id}-build.png`), baked[i].png);
-        }
+        const red = score.mean > base.mean + MEAN || score.share > base.share + SHARE;
+        const watchOnly = frame.texts.filter((text) => !baked[i].texts.includes(text)), buildOnly = baked[i].texts.filter((text) => !frame.texts.includes(text));
+        rows.push({ id: frame.id, ...score, red, ...(red && watchOnly.length + buildOnly.length > 0 ? { text: { watchOnly, buildOnly } } : {}) });
+        writeFileSync(join(out, `${n > 0 ? 'planted-' : ''}${frame.id}-watch.png`), frame.png);
+        if (n === 0) writeFileSync(join(out, `${frame.id}-build.png`), baked[i].png);
       }
       results.push({ rows, red: rows.some((row) => row.red) });
     }
@@ -185,13 +228,12 @@ function readBaselineFile() {
   try { return JSON.parse(readFileSync(BASELINE, 'utf8')); } catch { return {}; }
 }
 
-const line = (label, result) => `${label}: ${result.red ? 'RED' : 'green'} ${result.rows.map((row) => `${row.id} ${row.mean}/255 ${(row.share * 100).toFixed(2)}%${row.red ? ' (over its baseline)' : ''}`).join(', ')}`;
-const out = values.out === undefined ? undefined : resolve(values.out);
-if (out !== undefined) mkdirSync(out, { recursive: true });
+const line = (label, result) => `${label}: ${result.red ? 'RED' : 'green'} ${result.rows.map((row) => `${row.id} ${row.mean}/255 ${(row.share * 100).toFixed(2)}%${row.red ? ' (over its baseline)' : ''}`).join(', ')}${
+  result.rows.filter((row) => row.text !== undefined).map((row) => `\n  ${row.id}: page text differs (${row.text.buildOnly.length > 0 ? `build only ${said(row.text.buildOnly)}` : ''}${row.text.buildOnly.length > 0 && row.text.watchOnly.length > 0 ? '; ' : ''}${row.text.watchOnly.length > 0 ? `watch only ${said(row.text.watchOnly)}` : ''}): an overlay drawn over one scene, not drift`).join('')}`;
 
 async function main() {
   let results;
-  try { results = await run(values.check === true, out); }
+  try { results = await run(values.check === true); }
   catch (cause) {
     // an engine pin from before this sdk's dev hook serves no page watch can drive, and a machine with no client (offline, no
     // release asset) or no browser has nothing to compare: the check says so and passes. Only a comparison goes red.
@@ -203,13 +245,13 @@ async function main() {
   const [clean, planted] = results;
   console.info(line('watch equals build', clean));
   if (!builtLights) console.info('watch equals build: this engine client draws no look lamps on the grid (QA 11-25 row 138): held to the unlit baseline');
-  if (out !== undefined) writeFileSync(join(out, 'parity.json'), `${JSON.stringify(results, null, 2)}\n`);
+  writeFileSync(join(out, 'parity.json'), `${JSON.stringify(results, null, 2)}\n`);
   if (values.rebase === true) {
     const file = readBaselineFile(), measured = Object.fromEntries(clean.rows.map((row) => [row.id, { mean: row.mean, share: row.share }]));
     writeFileSync(BASELINE, `${JSON.stringify({ note: 'AP20: each camera\'s measured watch-against-build drift; parity.mjs --rebase writes it. unlitGrid: an engine pin whose grid draws no look lamps (before engine f837437c3, QA 11-25 row 138); drop it once the pin is past that', source: 'src/shards/authoring-slice',
       cameras: builtLights ? measured : file.cameras, ...(builtLights ? (file.unlitGrid === undefined ? {} : { unlitGrid: file.unlitGrid }) : { unlitGrid: measured }) }, null, 2)}\n`);
     console.info(`wrote ${BASELINE}`);
-  } else if (clean.red) { console.error('watch equals build: the two back ends drifted past the baseline (parity.mjs --out <dir> writes the frames)'); process.exitCode = 1; }
+  } else if (clean.red) { console.error(`watch equals build: the two back ends drifted past the baseline; the frames are in ${out}`); process.exitCode = 1; }
   if (planted !== undefined) {
     console.info(line('planted roof difference', planted));
     if (!planted.red) { console.error('watch equals build: a planted material difference went unseen'); process.exitCode = 1; }

@@ -315,6 +315,12 @@ export, bin or verb, a moved source layout, a stricter default.
 Bypasses are for the case they name, never for a red gate: fix the code,
 not the gate.
 
+pre-push runs `pnpm check` in a clean copy of the pushed commit. When it
+is red and a local run is green, run the step the gate's way:
+`node .githooks/push-gate-copy.mjs -- pnpm check:watch-build` (any
+command; a commit before `--`). The watch parity keeps its frames in
+`tmp/push-gate/watch-parity/` (meta QA 11-25 row 149).
+
 ## Installed map author proof
 
 Run `node --test test/ci/map-author.test.mjs` explicitly, outside hooks.
