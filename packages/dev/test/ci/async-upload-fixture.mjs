@@ -13,12 +13,12 @@ assert.ok(SOURCE, 'WILDSHARD_API_SOURCE must name the pinned API contract checko
 const root=resolve(SOURCE);
 const load=path=>import(pathToFileURL(resolve(root,path)).href);
 const [{createApp},{openPglite},{applyMigrations},{createCatalogueStore},
-  {depsFromEnv},{createR2ObjectStore},{startS3Double},{makeShardfile},
+  {depsFromEnv},{createR2ObjectStore},{startS3Double},
   {runMigrateJob},{doubles},{activateUpload,uploadActivator},{maintainUploads}]=await Promise.all([
   load('src/server/app.ts'),load('src/server/catalogue/pglite.ts'),
   load('src/server/catalogue/migrations.ts'),load('src/server/catalogue/catalogue-store.ts'),
   load('src/server/env.ts'),load('src/server/storage/r2-object-store.ts'),
-  load('src/test/helpers/s3-double.ts'),load('src/test/helpers/shardfile.ts'),
+  load('src/test/helpers/s3-double.ts'),
   load('src/server/migrate/run-job.ts'),load('src/test/helpers/migrate.ts'),
   load('src/server/uploads/activate.ts'),
   load('src/server/uploads/maintain.ts'),
@@ -29,6 +29,17 @@ export {maintainUploads};
 /** Valid static admission, but a real 50 m entry walk reaches this flooded pool
  * beyond the 15 m socket footprint. No validator, execution or cook double. */
 export async function blockedEntryTarball(){
+  return sdkShardfile((files,index,{sha256,validationSourceBytes})=>{
+    const water=index.sections.find(row=>row.name==='world/water');
+    const bytes=validationSourceBytes({water:[{id:'blocked-route',kind:'pool',level:1,shape:{kind:'circle',x:0,z:205,radius:3}}]});
+    files.set(water.path,bytes);water.hash=sha256(bytes);water.bytes=bytes.length;
+  });
+}
+
+/** The pinned API's fixture shard file, prepared at the SDK's format; `edit(files, index, helpers)` changes it first.
+ *  The API's own helper stamps the format 0.71 marker `sdk: '0.3'`, which the engine's cook at format 0.79 refuses as an
+ *  unknown key, so every shard file this suite uploads is prepared here. */
+async function sdkShardfile(edit=()=>{}){
   const [{shardfileFiles},{prepare,sha256,jsonOf},{makeTar},
     {assembleOutputShardfile,parseOutputIndex},{validationSourceBytes}]=await Promise.all([
     load('src/test/helpers/shardfile.ts'),load('src/test/helpers/preparation.ts'),
@@ -40,9 +51,7 @@ export async function blockedEntryTarball(){
   const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2'}),raw=jsonOf(files,'shard.json');
   if(raw?.requires!==undefined)delete raw.requires.sdk;
   const index=parseOutputIndex(raw);
-  const water=index.sections.find(row=>row.name==='world/water');
-  const bytes=validationSourceBytes({water:[{id:'blocked-route',kind:'pool',level:1,shape:{kind:'circle',x:0,z:205,radius:3}}]});
-  files.set(water.path,bytes);water.hash=sha256(bytes);water.bytes=bytes.length;
+  edit(files,index,{sha256,validationSourceBytes});
   for(const pack of index.packs)files.delete(pack.path);
   index.packs=[];
   const sections=new Map(index.sections.map(row=>[row.name,jsonOf(files,row.path)]));
@@ -62,7 +71,7 @@ export async function blockedEntryTarball(){
 }
 
 export const REPORT={failures:[{path:'entries',reason:'portal walk refused',detail:{cell:[1,-2]}}]};
-export const TARBALL=await makeShardfile({slug:'async-sdk-isle'});
+export const TARBALL=await sdkShardfile();
 export const COOK_KEY='fixture-cook-signing-key-with-32-bytes';
 
 async function acknowledgeGame(fixture,upload){
