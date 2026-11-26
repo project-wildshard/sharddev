@@ -1,7 +1,6 @@
 {
  "about": "meta CHUNK-PARAM-REMOVAL CP23: files that still read or write ?chunk=, with counts; shrink only (node .githooks/chunk-param-guard.mjs --prune).",
  "files": {
-  ".agents/skills/look-loop/SKILL.md": 1,
   "packages/dev/test/shardfile-inputs.test.ts": 1,
   "packages/sdk/test/tile-bake-report.test.ts": 1
  }
