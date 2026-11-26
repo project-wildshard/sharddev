@@ -21,6 +21,7 @@ import { budgetVerdict, machineLoad } from './commit-budget.mjs';
 import { copyReason, makeGateCopy, pushedCommit } from './push-gate-copy.mjs';
 import { git } from './lib.mjs';
 import { guardPinnedLinks } from './pinned-links.mjs';
+import { failureReport } from './gate-report.mjs';
 
 const lane = process.argv[2];
 const root = git(['rev-parse', '--show-toplevel']).trim();
@@ -158,7 +159,10 @@ const seconds = (Date.now() - started) / 1000;
 copy?.remove();
 
 const failed = results.filter((result) => result.code !== 0);
-for (const { name, output } of failed) console.error(`\n  X pnpm ${name} failed:\n${output.trim().replace(/^/gm, '    ')}`);
+// Meta QA 11-25 row 75 (repo-kit's stamped gate, hand-wired into this fork): a long output goes whole to
+// tmp/push-gate/, and the report ends with the failing step.
+const logOf = (name) => join(root, 'tmp', 'push-gate', `${lane}-${name.replaceAll(/[^\w.-]/gu, '-')}.log`);
+for (const { name, output } of failed) console.error(`\n${failureReport({ name, output, logPath: logOf(name) })}`);
 if (failed.length) {
   const fix = lane === 'commit' ? ' (pnpm lint:fix / pnpm format fix most of it)' : '';
   console.error(`\n  ${lane} blocked. Fix it${fix}; SKIP_CHECK=1 is a last resort.\n`);
