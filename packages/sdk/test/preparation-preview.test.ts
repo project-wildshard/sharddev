@@ -27,7 +27,9 @@ function folder(files: Record<string, string>): string {
 
 test('the page carries the candidate inline; its files are served beside the page and where a release serves them', async () => {
   const header = JSON.stringify({ identity: { slug: 'isle', name: 'Isle' }, note: '</script>' });
-  const client = folder({ 'index.html': '<html><head></head><body></body></html>', 'version.json': '{"preparationOnly":true}', 'shard.json': 'client' });
+  // CHUNK-PARAM-REMOVAL CP11 (J522): the client's catalogue (the channel's grid) becomes a one-cell world of the candidate
+  const catalogue = '<script type="application/json" id="ws-catalogue">{"placements":[],"grid":{"version":0,"cells":[{"instance":"pine-hollow","slug":"pine-hollow","cell":[0,1]}]}}</script>';
+  const client = folder({ 'index.html': `<html><head>${catalogue}</head><body></body></html>`, 'version.json': '{"preparationOnly":true}', 'shard.json': 'client' });
   const candidate = folder({ 'shard.json': `${header}\n`, 'sections/a.json': 'A' });
   const outside = folder({ 'secret.txt': 'no' });
   symlinkSync(join(outside, 'secret.txt'), join(candidate, 'link.txt'));
@@ -39,6 +41,8 @@ test('the page carries the candidate inline; its files are served beside the pag
     const [, page] = await get('/');
     expect(page).toContain('<script id="ws-shardfile" type="application/json">');
     expect(page).toContain(String.raw`</script>`);
+    expect(JSON.parse(/id="ws-catalogue">([^<]*)</u.exec(page)?.[1] ?? 'null'), 'a one-cell world, the candidate at (0, 0)')
+      .toEqual({ placements: [], grid: { version: 0, cells: [{ instance: 'isle', slug: 'isle', cell: [0, 0] }] } });
     expect(await get('/shardfiles/isle/shard.json')).toEqual([200, `${header}\n`]);
     expect(await get('/sections/a.json')).toEqual([200, 'A']);
     expect(await get('/shard.json')).toEqual([200, 'client']);

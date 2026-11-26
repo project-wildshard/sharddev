@@ -16,6 +16,14 @@ describe('clientPage', () => {
     expect(clientPage(page('{}'), '{"name":"$&"}', 'isle', true)).toContain('{"name":"$&"}</script></head>');
     expect(clientPage(page('{}'), '{}', 'a<b', false)).toContain(`"a${String.fromCodePoint(92)}u003cb":false`);
   });
+  it('CP11 (J522): makes the page a one-cell world, the shard at (0, 0), keeping the rest of the catalogue', () => {
+    const catalogue = { placements: [{ slug: 'pine-hollow' }], grid: { version: 0, pitch: 562.5, cells: [{ instance: 'pine-hollow', slug: 'pine-hollow', cell: [0, 1] }, { instance: 'glowfen', slug: 'glowfen', cell: [1, 0] }] } };
+    const html = `<html><head><script type="application/json" id="ws-catalogue">${JSON.stringify(catalogue)}</script></head><body></body></html>`;
+    const read = (out: string): unknown => JSON.parse(/id="ws-catalogue">([^<]*)</u.exec(out)?.[1] ?? 'null');
+    expect(read(clientPage(html, '{}', 'isle', true))).toEqual({ ...catalogue, grid: { version: 0, pitch: 562.5, cells: [{ instance: 'isle', slug: 'isle', cell: [0, 0] }] } });
+    expect(clientPage(html, '{}', 'a<b', true)).toContain(`"slug":"a${String.fromCodePoint(92)}u003cb"`);
+    expect(clientPage(page('{}'), '{}', 'isle', true), 'a client with no catalogue gets none').not.toContain('ws-catalogue');
+  });
   it('leaves the bank alone when the programs are recorded', () => {
     expect(bank(clientPage(page('{"common":[]}'), '{}', 'isle', true))).toEqual({ common: [] });
   });

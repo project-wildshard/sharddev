@@ -1,21 +1,13 @@
 /* oxlint-disable typescript/prefer-readonly-parameter-types -- Playwright handles represent live, mutable browser objects. */
 import { execFileSync, spawn } from 'node:child_process'
 import { once } from 'node:events'
-import {
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import path from 'node:path'
-import { setTimeout as sleep } from 'node:timers/promises'
-
-import { number, object, parse, string } from 'valibot'
 
 import { expect, test } from '../../scripts/browser-test.mjs'
 import { KEYCHAIN_ARGS } from '../../scripts/chromium-keychain.mjs'
 import { devClient } from '../sharddev/devClient.ts'
+import { edit, reloadsIntoOneCell, serial } from './author-page.ts'
 
 import type { Browser, Page, Response } from '@playwright/test'
 
@@ -151,42 +143,15 @@ async function authorWorld(
 test('the packed dev command plays the Mossgate starter over loopback', async ({
   browser,
 }): Promise<void> => {
-  test.setTimeout(120_000)
-  await authorWorld(browser, 'dev', async (page): Promise<void> => {
+  test.setTimeout(180_000)
+  await authorWorld(browser, 'dev', async (page, source): Promise<void> => {
     // The door objective can complete on the first server ticks at spawn.
     await expect(
       page.getByText('Walk up to the hut door', { exact: true }).first(),
     ).toBeAttached()
+    await reloadsIntoOneCell(page, source, control)
   })
 })
-
-function edit(file: string, from: string, to: string): void {
-  const original = readFileSync(file, 'utf8')
-  expect(original).toContain(from)
-  writeFileSync(file, original.replace(from, to))
-}
-
-// A watch rebuild can drop a connection mid-read (hosted ci saw ECONNRESET), so the read retries a few times.
-async function readRelease(
-  url: string,
-  tries: number,
-): Promise<globalThis.Response> {
-  try {
-    return await fetch(new URL('/__dev/release.json', url))
-  } catch (error) {
-    if (tries <= 1) {
-      throw error
-    }
-    await sleep(250)
-    return await readRelease(url, tries - 1)
-  }
-}
-
-async function serial(url: string): Promise<number> {
-  const response = await readRelease(url, 5)
-  const envelope = parse(object({ body: string() }), await response.json())
-  return parse(object({ serial: number() }), JSON.parse(envelope.body)).serial
-}
 
 const controlFor =
   (field: string): ((response: Readonly<Response>) => boolean) =>
