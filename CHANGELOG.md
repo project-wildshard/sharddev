@@ -16,6 +16,12 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.7.0 (2026-11-25)
+
+- **Breaking:** Node 26: engines.node is now <27 and --experimental-transform-types is gone; `wildshard upgrade` runs the 0.7.0 migration.
+- **Breaking:** the species book re-export is removed; a shard repo test that imported it reads its own fixture instead.
+- Every package pins @wildshard/engine 0.1.93-next.4daadc70 (strip-only engine) and shard-format 0.79.3.
+
 ## v0.6.2 (2026-11-25)
 
 - A shard's hero no longer goes stale when the kit re-stamps tooling: a top-level `scripts/` or `test/` is not hero content.
