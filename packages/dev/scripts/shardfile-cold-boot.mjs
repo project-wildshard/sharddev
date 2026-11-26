@@ -11,6 +11,11 @@ import { brotliDecompressSync } from 'node:zlib';
 import { extname, join, resolve as resolvePath } from 'node:path';
 import { chromium, devices, webkit } from "./browser-playwright.mjs";
 import { readTar } from '@wildshard/format/tar';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): no address names a zone; the tool enters it the way a player taps it, through engine's
+// enterZone (it imports engine .ts, so it loads after the format hook, J82)
+const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const flag = name => process.argv.find(row => row.startsWith(`--${name}=`))?.slice(name.length + 3);
 const dist = resolvePath(flag('dist') ?? 'dist'), tars = resolvePath(flag('tars') ?? 'tmp/shardfiles'), engine = flag('engine') ?? 'chromium';
@@ -67,7 +72,7 @@ try {
     page.on('console', message => { if (message.type() === 'error') errors.push(message.text().slice(0, 200)); });
     let control = false;
     try {
-      await page.goto(`${origin}/?chunk=${slug}&tier=phone&skipintro=1&nolock=1&mute=1`, { waitUntil: 'load' });
+      await enterZone(page, { zone: slug, base: origin, flags: 'tier=phone&skipintro=1&nolock=1&mute=1', alone: true }); // Q1 (a): one zone's cold boot
       await page.waitForFunction(() => window.__wildshard?.world?.hud?.entered === true, undefined, { timeout: Number(flag('timeout') ?? 150_000) });
       control = true;
     } catch (error) { errors.push(String(error).slice(0, 160)); }

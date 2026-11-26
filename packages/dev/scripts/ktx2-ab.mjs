@@ -14,6 +14,11 @@ import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-sett
 //
 // One headless Chromium on Metal, muted (`--mute-audio`, `mute=1`), closed at the end. Writes <out>/<shard>-<pose>-<mode>.png.
 import { readShards } from '@wildshard/engine/scripts/shards.mjs';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): no address names a zone; the tool enters it the way a player taps it, through engine's
+// enterZone (it imports engine .ts, so it loads after the format hook, J82)
+const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 import { mkdirSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 
@@ -77,8 +82,8 @@ try {
       const errors = [];
       page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
       page.on('console', (m) => { if (m.type() === 'error') errors.push(m.text().slice(0, 200)); });
-      const url = `${URL_BASE}/?chunk=${shard}&mute=1&skipintro=1&nolock=1&sw=0&tier=${TIER}${TIER === 'phone' ? '&touch=1' : ''}&clock=100000000&${spec.q}`;
-      await page.goto(url, { waitUntil: 'domcontentloaded' });
+      const flags = `mute=1&skipintro=1&nolock=1&sw=0&tier=${TIER}${TIER === 'phone' ? '&touch=1' : ''}&clock=100000000&${spec.q}`;
+      await enterZone(page, { zone: shard, base: URL_BASE, flags, alone: true, waitUntil: 'domcontentloaded' }); // Q1 (a): one zone's A/B
       await page.waitForFunction(() => Boolean(window.__wildshard?.world?.game && window.__wildshard.world.player), undefined, { timeout: 300000, polling: 500 });
       await sleep(8000);
       const start = await page.evaluate(() => {

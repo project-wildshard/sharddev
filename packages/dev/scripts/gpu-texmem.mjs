@@ -20,13 +20,18 @@ import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-sett
 import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 import { ledger, report } from '@wildshard/sdk/scripts/texmem-probe.mjs';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): no address names a zone; the tool enters it the way a player taps it, through engine's
+// enterZone (it imports engine .ts, so it loads after the format hook, J82)
+const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const { chromium, devices } = await import("./browser-playwright.mjs");
 const ROOT = resolvePath(new URL('..', import.meta.url).pathname);
 const argv = process.argv.slice(2);
 const flag = (name, d) => { const a = argv.find((x) => x.startsWith(`--${name}=`)); return a ? a.slice(name.length + 3) : d; };
 const URL_BASE = flag('url', 'http://localhost:4391');
-const CHUNK = flag('chunk', 'pine-hollow');
+const CHUNK = flag('zone', 'pine-hollow');
 const TIER = flag('tier', 'phone');
 const EXTRA = flag('query', '');
 /** --tex=ktx2|img: the textures (E157) — a harness pin (`__wildshardHarness.textures`, G386), never a setting or URL switch;
@@ -63,9 +68,9 @@ try {
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
   page.on('console', (m) => { if (m.type() === 'error' || /ktx2|KTX2|basis/i.test(m.text())) errors.push(`[${m.type()}] ${m.text().slice(0, 200)}`); });
-  const q = [`chunk=${CHUNK}`, 'mute=1', 'skipintro=1', 'nolock=1', 'sw=0', `tier=${TIER}`, phone ? 'touch=1' : '', EXTRA].filter(Boolean).join('&');
+  const q = ['mute=1', 'skipintro=1', 'nolock=1', 'sw=0', `tier=${TIER}`, phone ? 'touch=1' : '', EXTRA].filter(Boolean).join('&');
   const t0 = Date.now();
-  await page.goto(`${URL_BASE}/?${q}`, { waitUntil: 'domcontentloaded' });
+  await enterZone(page, { zone: CHUNK, base: URL_BASE, flags: q, alone: true, waitUntil: 'domcontentloaded' }); // Q1 (a): a measure of one zone
   await page.waitForFunction(() => Boolean(window.__wildshard?.world?.game), undefined, { timeout: 300000, polling: 500 });
   const readyS = (Date.now() - t0) / 1000;
   await sleep(SETTLE);

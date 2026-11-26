@@ -2,17 +2,7 @@
  "about": "meta CHUNK-PARAM-REMOVAL CP23: files that still read or write ?chunk=, with counts; shrink only (node .githooks/chunk-param-guard.mjs --prune).",
  "files": {
   ".agents/skills/look-loop/SKILL.md": 1,
-  "packages/dev/scripts/bake-check.mjs": 1,
-  "packages/dev/scripts/bake-entry-programs.mjs": 2,
-  "packages/dev/scripts/bake-maps.mjs": 1,
-  "packages/dev/scripts/gpu-texmem.mjs": 1,
-  "packages/dev/scripts/ktx2-ab.mjs": 1,
-  "packages/dev/scripts/shard-progress.mjs": 1,
-  "packages/dev/scripts/shardfile-cold-boot.mjs": 1,
-  "packages/dev/src/e2e/author-page.ts": 2,
   "packages/dev/test/shardfile-inputs.test.ts": 1,
-  "packages/sdk/scripts/worldclaw/capture-front.sh": 1,
-  "packages/sdk/test/fixtures/ci21-nu3/src/game/client/shard/manifest.ts": 1,
   "packages/sdk/test/tile-bake-report.test.ts": 1
  }
 }

@@ -21,6 +21,11 @@ import { installInit } from '@wildshard/engine/scripts/parity/init.mjs';
 import { MAP_METRES, mapPixelHash, mapSettings, mapSettingsPath, mapStampPath, mapShards, mapTilesHash, writeMapStamp } from '@wildshard/engine/scripts/map-hash.mjs';
 import { saveMapFrames } from './map-bake-frames.mjs';
 import { shardStaticRoot } from '@wildshard/upload/sharddev/shardSource.ts';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): no address names a zone; the tool enters it the way a player taps it, through engine's
+// enterZone (it imports engine .ts, so it loads after the format hook, J82)
+const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const option = (name) => process.argv.find((part) => part.startsWith(`--${name}=`))?.slice(name.length + 3);
 const root = resolve(import.meta.dirname, '..');
@@ -172,7 +177,8 @@ try {
     await installInit(context, { lane: 'bake-maps', sha: '', browser: 'chromium', capture: 30 });
     const page = await context.newPage();
     try {
-      await page.goto(`${base}?chunk=${encodeURIComponent(slug)}&mute=1&skipintro=1&nolock=1&sw=0`, { waitUntil: 'domcontentloaded' });
+      // Q1 (a): the zone alone, its one cell at the origin the bake frames (no neighbour in the shot)
+      await enterZone(page, { zone: slug, base, flags: 'mute=1&skipintro=1&nolock=1&sw=0', alone: true, waitUntil: 'domcontentloaded' });
       await page.waitForFunction(() => Boolean(window.__wildshard?.world?.game && !document.querySelector('.ws-load')), null, { timeout: 180_000, polling: 250 });
       // late streamed pieces and models load with the world held; then exactly 6 s of game time (180 capture frames) run,
       // and anything those frames streamed in loads, held again, before the bake

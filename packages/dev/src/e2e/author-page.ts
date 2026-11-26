@@ -47,7 +47,7 @@ function pageAddresses(page: Readonly<Page>): string[] {
 }
 
 // CHUNK-PARAM-REMOVAL CP11 (J522): the page is a one-cell world on `/`, and a source edit reloads into it with no page address
-// naming a zone. (It boots its inline shard on its own page until CP25; the world socket drops `?chunk=` in CP5.)
+// naming a zone.
 async function reloadsIntoOneCell(
   page: Readonly<Page>,
   source: string,
@@ -71,7 +71,7 @@ async function reloadsIntoOneCell(
   expect(
     addresses.filter((address): boolean => {
       const url = new URL(address)
-      return url.pathname !== '/' || url.searchParams.has('chunk')
+      return url.pathname !== '/' || /[?&]chunk=/u.test(url.search)
     }),
   ).toEqual([])
 }

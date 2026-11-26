@@ -32,7 +32,7 @@ const argv = process.argv.slice(2);
 const flag = (n, d) => { const a = argv.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : d; };
 const only = flag('only', '').split(',').filter(Boolean);
 const tilde = (p) => p.replace(/^~/, homedir());
-const CHUNK = flag('chunk', 'pine-hollow');
+const CHUNK = flag('zone', 'pine-hollow'); // the zone's creature table (`--zone=`)
 const GT = join(ROOT, 'node_modules/.bin/gltf-transform');
 
 /**

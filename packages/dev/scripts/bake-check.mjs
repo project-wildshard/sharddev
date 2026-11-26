@@ -36,7 +36,7 @@ if (only !== undefined) { /* one node baker: no GPU bakers */ }
 else if (!metal) console.log('bake-check: GPU bakers skipped (no Metal): bake-textures');
 else if (skipGpu) console.log('bake-check: GPU bakers queued: bake-textures');
 else if (!state.failed) {
-  // SF87 (G320): the sky textures render on their own bake page (no game build, no preview, no ?chunk= boot)
+  // SF87 (G320): the sky textures render on their own bake page (no game build, no preview, no zone boot)
   run(['scripts/browser-lane.sh', '--max', '4', process.execPath, 'scripts/bake-textures.mjs', '--check', '--all'], 'bash');
 }
 if (only !== undefined) { /* one node baker for the gate's per-baker cache */ }

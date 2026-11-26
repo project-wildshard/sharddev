@@ -65,7 +65,7 @@ test('Nine-only baseline is exact by coordinate and ring; other advisory shards 
 test('new chunk bytes refuse only above4MB; oversized3Dheight is reported without falsifying original geometry',()=>{
   const source=input();source.chunks=[{id:'slab',tile:0,bytes:4_000_000,box:[0,0,0,1,130,1],geometricError:0}];
   let report=tileTilingReport(source);expect(()=>checkNineTiling(report,baseline)).not.toThrow();expect(tilingMarkdown(report)).toContain('130');
-  const chunk=source.chunks[0];if(chunk===undefined)throw new Error('Missing chunk');chunk.bytes++;report=tileTilingReport(source);expect(()=>checkNineTiling(report,baseline)).toThrow('chunk');
+  const chunk=source.chunks[0];if(chunk===undefined)throw new Error('Missing chunk');chunk.bytes++;report=tileTilingReport(source);expect(()=>checkNineTiling(report,baseline)).toThrow(/chunk/u);
   chunk.box[4]=-1;expect(()=>tileTilingReport(source)).toThrow('bounds');
 });
 

@@ -27,6 +27,11 @@ import { saveFixture } from '@wildshard/engine/scripts/debug-settings.mjs';
 import { browserBakeBytes } from '@wildshard/engine/scripts/bake-output.mjs';
 import { recordProgressClip } from '@wildshard/engine/scripts/progress-recording.mjs';
 import { uploadRecordedClip } from '@wildshard/engine/scripts/model-spin-recording.mjs';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): no address names a zone; the tool enters it the way a player taps it, through engine's
+// enterZone (it imports engine .ts, so it loads after the format hook, J82)
+const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const { chromium } = await import("./browser-playwright.mjs");
 const ROOT = resolvePath(new URL('..', import.meta.url).pathname);
@@ -98,7 +103,7 @@ try {
   const page = await ctx.newPage();
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
   const t0 = Date.now();
-  await page.goto(`${URL_BASE}/?chunk=${SLUG}&tier=phone&touch=1&mute=1&nolock=1&sw=0&skipintro=1`, { waitUntil: 'domcontentloaded' });
+  await enterZone(page, { zone: SLUG, base: URL_BASE, flags: 'tier=phone&touch=1&mute=1&nolock=1&sw=0&skipintro=1', alone: true, waitUntil: 'domcontentloaded' });
   await page.waitForFunction(() => document.documentElement.dataset.wsState === 'error'
     || (Boolean(window.__wildshard?.world?.player && window.__wildshard?.world?.game) && document.querySelector('.ws-load') === null),
   undefined, { timeout: 480000, polling: 1000 });

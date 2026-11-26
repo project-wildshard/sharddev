@@ -18,6 +18,11 @@ import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/cata
 import {preparationDensity,preparationSaveSeed} from './preparation-seed.mjs';
 import {slowestSpans,slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
 import {recordingLine} from './recording-line.mjs';
+import '@wildshard/engine/scripts/format-hook.mjs';
+
+// CHUNK-PARAM-REMOVAL CP19 (J522): a zone with no picker card is entered the way a player taps it (zone-entry imports
+// engine .ts, so it loads after the format hook, J82)
+const {enterZone}=await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const args=process.argv.slice(2), flag=name=>{const at=args.indexOf(name);if(at===-1)return null;const [value]=args.splice(at,2).slice(1);return value;};
 const base=flag('--base'), output=flag('--out'), wantedHeader=flag('--header'), title=flag('--title'), check=args.includes('--check'), inline=args.includes('--inline'), scratch=args.includes('--scratch'), slugs=args.filter(arg=>!arg.startsWith('--'));
@@ -77,16 +82,10 @@ async function record(browser,slug){
       const matches=title===null?[]:names.flatMap((name,index)=>name.toLowerCase().includes(title.toLowerCase())?[index]:[]);
       if(matches.length>1)throw new Error(`Candidate card ambiguous: ${title}`);
       if(title!==null&&matches.length===0){
-        // Grid-only products have no standalone picker card. Exercise the
-        // existing one-shot arrival contract, as the full-catalogue boot proof.
-        await context.addInitScript(({epoch,slug,title})=>{
-          if(new URL(location.href).searchParams.get('chunk')!==slug)return;
-          const prefix=epoch===0?'wildshard.save.v2.':`wildshard.save.v2@${epoch}.`;
-          const data=JSON.stringify({slug,name:title,mode:'enter',at:Date.now()});
-          sessionStorage.setItem(`${prefix}session`,JSON.stringify({keys:{titleArrival:{v:1,data},'travel.handoff':{v:1,data:{v:1,from:null,to:slug,mode:'enter',arrive:null,carry:[],at:Date.now()}}}}));
-        },{epoch,slug,title});
-        const arrival=new URL(base);arrival.searchParams.set('chunk',slug);
-        await page.goto(arrival.href,{waitUntil:'load'});
+        // Grid-only products have no standalone picker card: the tap the title writes, then a bare `/` (no zone in any
+        // address, J522), as the full-catalogue boot proof.
+        const prefix=epoch===0?'wildshard.save.v2.':`wildshard.save.v2@${epoch}.`;
+        await enterZone(page,{zone:slug,base,name:title,prefix});
       }else{
         await page.locator(`.ws-menu-dots i[data-i="${title===null?loadingCardIndex(names,slug):matches[0]}"]`).click();
         // ENTER WORLD opens a fresh document and a fresh measured link list.
