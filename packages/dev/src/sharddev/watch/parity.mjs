@@ -115,7 +115,9 @@ async function shoot(browser, url, live, after = []) {
         await page.evaluate((eye) => { window.__ap20Eye = eye; }, [x, EYE, z, yaw, pitch]);
         await page.waitForTimeout(2500);
         const phases = await page.evaluate(() => window.__ap20Phases);
-        if (phases === undefined || phases.water < 1 || phases.lamps < 1) throw new Error('Parity scene lacks its controlled water or lamp presentation');
+        // CHUNK-PARAM-REMOVAL CP25: the built page is the slice's one grid cell, and a grid cell draws no look lamps of its
+        // own (engine grid/cellSceneLife.ts), so only the live page holds lamps to sample; both hold the pond's water
+        if (phases === undefined || phases.water < 1 || (live && phases.lamps < 1)) throw new Error('Parity scene lacks its controlled water or lamp presentation');
         frames.push({ id, png: await page.screenshot() });
       }
       sets.push(frames);

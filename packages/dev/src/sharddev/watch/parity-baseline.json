@@ -3,20 +3,20 @@
   "source": "src/shards/authoring-slice",
   "cameras": {
     "hut-front": {
-      "mean": 2.155,
-      "share": 0.03402
+      "mean": 3.187,
+      "share": 0.03922
     },
     "door-lamp": {
-      "mean": 4.239,
-      "share": 0.07664
+      "mean": 5.929,
+      "share": 0.09671
     },
     "hut-back": {
-      "mean": 0.471,
-      "share": 0.00751
+      "mean": 0.599,
+      "share": 0.00606
     },
     "pond": {
-      "mean": 3.499,
-      "share": 0.0484
+      "mean": 3.267,
+      "share": 0.04156
     }
   }
 }
