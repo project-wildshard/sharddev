@@ -150,8 +150,8 @@ it('keeps package metadata as content when native resolution changes its main en
     const result=await build({root,configFile:false,publicDir:false,logLevel:'silent',build:{write:false,lib:{entry:resolve(root,'entry.ts'),formats:['es'],fileName:'fixture'}}});
     const output=Array.isArray(result)?result.at(0):result;
     if(output===undefined||!('output'in output))throw new Error('Missing native fixture output');
-    const chunk=output.output.find(row=>row.type==='chunk');if(chunk===undefined)throw new Error('Missing native fixture chunk');
-    const value=v.parse(v.object({answer:v.number()}),await import(`data:text/javascript,${encodeURIComponent(chunk.code)}`));expect(value.answer).toBe(1);
+    const emitted=output.output.find(row=>row.type==='chunk');if(emitted===undefined)throw new Error('Missing native fixture chunk');
+    const value=v.parse(v.object({answer:v.number()}),await import(`data:text/javascript,${encodeURIComponent(emitted.code)}`));expect(value.answer).toBe(1);
   });
   const memo=new InputHashMemo(root);expect(folderInputKey(root,receipt,[],memo)).toMatch(/^[a-f0-9]{64}$/u);
   writeFileSync(packageFile,JSON.stringify({main:'b.js'}));expect(folderInputKey(root,receipt,[],memo)).toBeUndefined();
