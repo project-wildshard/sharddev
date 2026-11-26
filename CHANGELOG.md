@@ -16,6 +16,13 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.8.0 (2026-11-26)
+
+- **Breaking:** kit's MeleeProfile drops legacySlot and its Slot type parameter; `wildshard upgrade` runs the 0.8.0 migration.
+- A weapon plays as its declared item id: write MeleeProfile<Icon, Touch>, and drop legacySlot from weapon rows (GUIDE migrate-0-8-0).
+- Every package pins @wildshard/engine 0.1.96 (npm latest, no prerelease) and shard-format 0.80.0.
+- @wildshard/sdk/headless/scripts/zone-entry.mjs reaches engine's enterZone from a shard repo's headless tests.
+
 ## v0.7.0 (2026-11-25)
 
 - **Breaking:** Node 26: engines.node is now <27 and --experimental-transform-types is gone; `wildshard upgrade` runs the 0.7.0 migration.
