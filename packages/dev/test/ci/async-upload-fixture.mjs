@@ -36,6 +36,10 @@ export async function blockedEntryTarball(){
   });
 }
 
+/** The format every shard file here is written at: the first envelope the pinned API's helper writes, at or above format
+ *  0.80's floor (0.1.0.1). The API's channels default to the legacy 0.1, so openApi serves them at this one. */
+const UPLOAD_FORMAT='0.1.0.2';
+
 /** The pinned API's fixture shard file, prepared at the SDK's format; `edit(files, index, helpers)` changes it first.
  *  The API's own helper stamps the format 0.71 marker `sdk: '0.3'`, which the engine's cook at format 0.79 refuses as an
  *  unknown key, so every shard file this suite uploads is prepared here. */
@@ -48,7 +52,9 @@ async function sdkShardfile(edit=()=>{}){
   ]);
   // FORMAT-PRUNE FP61: the pinned API's helper still writes `requires.sdk`, which format 0.79 deleted; this shard file is
   // rebuilt below at the SDK's format, so the field goes before the strict parse (the API mends it the same way, FP60).
-  const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2'}),raw=jsonOf(files,'shard.json');
+  // Format 0.80 reads nothing below 0.1.0.1, and the helper's default is the legacy 0.1 layout: ask it for UPLOAD_FORMAT
+  // (sharddev QA 11-25 row 139, SDK 0.8.0 on format 0.80.0). openApi moves the channels to it.
+  const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2',formatVersion:UPLOAD_FORMAT}),raw=jsonOf(files,'shard.json');
   if(raw?.requires!==undefined)delete raw.requires.sdk;
   const index=parseOutputIndex(raw);
   edit(files,index,{sha256,validationSourceBytes});
@@ -143,6 +149,8 @@ export async function openApi(context,mode,extraPorts={}){
   const sql=await openPglite();
   context.after(sql.close);
   await applyMigrations(sql);
+  // A channel serves an upload at its own format or a migration to it; the shard files here are UPLOAD_FORMAT.
+  await sql.query('update channels set format_version = $1',[UPLOAD_FORMAT]);
   const s3=await startS3Double();
   context.after(s3.close);
   const store=createR2ObjectStore(s3);

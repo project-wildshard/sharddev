@@ -19,9 +19,15 @@ test('engineScriptUrl finds the installed engine\'s debug-settings, dev-world an
   for (const name of ['debug-settings.mjs', 'dev-world.mjs', 'rig-listeners.mjs']) expect(existsSync(fileURLToPath(engineScriptUrl(manifest, name))), name).toBe(true);
 });
 
-test('no dev script joins an engine root with scripts/ by hand', () => {
-  const files = readdirSync(join(dev, 'scripts'), { recursive: true, withFileTypes: true })
-    .filter(entry => entry.isFile() && /\.m?[jt]s$/u.test(entry.name)).map(entry => join(entry.parentPath, entry.name));
-  const hand = files.filter(file => /(?:dirname\(engine\w*\)|engineRoot|engineDir)\s*,\s*['"](?:src\/)?scripts\//u.test(readFileSync(file, 'utf8')));
+test('no dev script or test joins an engine root with scripts/ by hand', () => {
+  const files = ['scripts', 'test', 'src'].flatMap(folder => readdirSync(join(dev, folder), { recursive: true, withFileTypes: true })
+    .filter(entry => entry.isFile() && /\.m?[jt]s$/u.test(entry.name) && !entry.parentPath.includes('node_modules')).map(entry => join(entry.parentPath, entry.name)));
+  // A file whose `root` is the installed engine's folder (async-upload-parent joined `scripts/bake-loader.mjs` to it).
+  const engineRootNamed = /\broot\s*=\s*dirname\([^;]*@wildshard\/engine\/package\.json/u;
+  const hand = files.filter(file => {
+    const text = readFileSync(file, 'utf8');
+    return /(?:dirname\(engine\w*\)|engineRoot|engineDir)\s*,\s*['"](?:src\/)?scripts\//u.test(text)
+      || (engineRootNamed.test(text) && /join\(root\s*,\s*['"](?:src\/)?scripts\//u.test(text));
+  });
   expect(hand).toEqual([]);
 });

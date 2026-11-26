@@ -10,9 +10,10 @@ import {createRequire} from 'node:module';
 import {dirname,join,resolve} from 'node:path';
 import {text} from 'node:stream/consumers';
 import {setTimeout as delay} from 'node:timers/promises';
-import {pathToFileURL} from 'node:url';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {test} from 'node:test';
 import {installWildshard} from '../../src/test/helpers/install.ts';
+import {engineScriptUrl} from '../../scripts/dev-world.mjs';
 import {COOK_KEY,TARBALL,openApi,migratePending,blockedEntryTarball,maintainUploads} from './async-upload-fixture.mjs';
 
 // runJob already supplies a credential-free environment. Retain its five
@@ -23,7 +24,9 @@ const cookWrap=process.platform==='darwin'?['sandbox-exec','-p','(version 1)(all
     'unshare','--net','--','setpriv',`--reuid=${process.getuid()}`,`--regid=${process.getgid()}`,'--init-groups'];
 
 const root=dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
-await import(pathToFileURL(join(root,'scripts/bake-loader.mjs')).href);
+// A lean engine (npm 0.1.96 on) keeps its scripts in src/scripts/: read them through dev-world's resolver.
+const engineScript=name=>fileURLToPath(engineScriptUrl(join(root,'package.json'),name));
+await import(engineScriptUrl(join(root,'package.json'),'bake-loader.mjs'));
 const engine=path=>import(pathToFileURL(join(root,path)).href);
 const [{readTar},{validateShardfileFolder},{checkShardfile}]=await Promise.all([
   import('@wildshard/format/tar'),import('@wildshard/format/shardfileValidation'),
@@ -60,7 +63,7 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
   assert.ok(fixture.id,await Promise.race([stderr,Promise.resolve('upload must be recorded')]));
   assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'cooking');
   const client=cookApi(fixture.url,COOK_KEY),source=pendingSource(client,apiSource(fixture.url));
-  const packs=join(work,'packs'),build='async-contract',worker=createCookWorker({build,store:folderStore(packs),source,serverPacks:join(work,'server-packs'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:join(root,'scripts/bake-loader.mjs'),script:join(root,'scripts/cook-job.mjs'),wrap:cookWrap,limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
+  const packs=join(work,'packs'),build='async-contract',worker=createCookWorker({build,store:folderStore(packs),source,serverPacks:join(work,'server-packs'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:engineScript('bake-loader.mjs'),script:engineScript('cook-job.mjs'),wrap:cookWrap,limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
   const outbox=new VerdictOutbox(join(work,'outbox')),delivery=uploadDelivery({api:client,source,worker,outbox,build,log:line=>context.diagnostic(line)});
   await delivery.sweep();await delivery.idle();
   assert.equal(outbox.rows().length,0);
@@ -122,7 +125,7 @@ for(const late of [false,true])test(`SP20c3 real entry refusal and packed CLI, l
     assert.equal(child.exitCode,3,await stderr);assert.ok((await stdout).includes(`upload ${fixture.id}: stalled`));
   }
   const client=cookApi(fixture.url,COOK_KEY,fetch,()=>clock.now),source=pendingSource(client,apiSource(fixture.url));
-  const build='async-refusal',worker=createCookWorker({build,store:folderStore(join(work,'packs')),source,serverPacks:join(work,'server'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:join(root,'scripts/bake-loader.mjs'),script:join(root,'scripts/cook-job.mjs'),wrap:cookWrap,limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
+  const build='async-refusal',worker=createCookWorker({build,store:folderStore(join(work,'packs')),source,serverPacks:join(work,'server'),scratch:join(work,'cook'),launcher:{root,execPath:process.execPath,loader:engineScript('bake-loader.mjs'),script:engineScript('cook-job.mjs'),wrap:cookWrap,limits:{seconds:60,memoryMB:4096,heapMB:2048,cpuSlots:2}}});
   const outbox=new VerdictOutbox(join(work,'outbox')),delivery=uploadDelivery({api:client,source,worker,outbox,build,log:line=>context.diagnostic(line)});
   await delivery.sweep();await delivery.idle();
   const settled=await fixture.catalogue.uploads.byHash(fixture.hash);
