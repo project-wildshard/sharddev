@@ -43,13 +43,19 @@ let builtLights = true;
 const CAMERAS = [['hut-front', -3.9, -5.6, 0.03, -0.04], ['door-lamp', -4.6, -7.8, 0.03, 0.05], ['hut-back', -3.9, -10.4, 3.4, -0.05], ['pond', -10.4, 0.3, 1.571, -0.08]];
 /** The eye's height (m): the cameras' 1.68 m over the slice's ground, which is flat at 0 by every camera. */
 const EYE = 1.68;
-/** Red over the baseline by these, at any camera. Two clean runs differ by up to about 0.16/255 (the grass and motes
- *  move, QA 11-25 row 149's follow-up); the planted roof adds over 1/255. */
+/** QA 11-25 row 155: the shader clocks the page holds at the parity's instant, by uniform name. The built slice's sway, cards
+ *  and motes read the emissive look's clock (engine render/families: `famEmitTime`, shared as the pbr sway's `wsSceneTime`
+ *  and the cards' `wsCardTime`); wind-patched sway reads the wind clock (engine world/wind.ts `uWindTime`). */
+const PRESENTATION_CLOCKS = ['famEmitTime', 'wsSceneTime', 'wsCardTime', 'uWindTime'];
+/** Red over the baseline by these, at any camera. Two clean runs on one machine shoot the same pixels (QA 11-25 row 155
+ *  holds the sway and motes; before, they read up to 0.16/255 apart); the margin is for another machine's GPU and the
+ *  planted roof adds over 1/255. */
 const MEAN = 0.25, SHARE = 0.005, OFF = 24;
-/** A frame shot twice from a still camera differs by under these (the slice's grass sways and its motes drift on their own
- *  clocks, about 0.3/255 over 0.6% of the frame, QA 11-25 row 149's follow-up); a caption or banner over it is far over
- *  (the reveal's ARRIVING AT caption: 13/255 over 29%). */
-const STILL_MEAN = 1, STILL_SHARE = 0.02;
+/** A frame shot twice from a still camera differs by under these. The page holds every presentation clock at its
+ *  instant (QA 11-25 row 155: the sway and motes once moved the second shot 0.3/255 over 0.6% of the frame), so both
+ *  shots are the same pixels; a caption or banner over it is far over (the reveal's ARRIVING AT caption: 13/255 over
+ *  29%), and so is a clock the page no longer holds. */
+const STILL_MEAN = 0.01, STILL_SHARE = 0.0005;
 // QA 11-25 row 149: the frames are always written, so a red can be looked at. The push gate runs in a clean copy it
 // deletes after, so its run-checks names a folder outside the copy (`$WS_PARITY_FRAMES`); else the repo's tmp/.
 const out = resolve(values.out ?? process.env['WS_PARITY_FRAMES'] ?? join(ROOT, '../../tmp/watch-parity'));
@@ -99,9 +105,9 @@ async function shoot(browser, url, live, after = []) {
     await page.waitForFunction((watched) => window.__wildshard?.world?.player !== undefined && (!watched || (window.__wsDevScene?.framedRevision ?? 0) > 0)
       && (window.__wsReveal === undefined || window.__wsReveal.endedMs !== null),
       live, { timeout: 180_000, polling: 500 });
-    await page.evaluate(() => {
+    await page.evaluate((clockNames) => {
       const w = window.__wildshard.world, camera = w.game.camera;
-      const lampUpdates = new WeakMap();
+      const lampUpdates = new WeakMap(), compiled = w.game.renderer.properties;
       if (w.animals) w.animals.calm = true;
       // the camera leaves the player (whose body stands where colliders put it, which this test does not compare): each
       // frame it is set to the shot's eye, one field of view, no viewmodel
@@ -110,9 +116,20 @@ async function shoot(browser, url, live, after = []) {
         const eye = window.__ap20Eye;
         // Sample this static material fixture at one presentation instant.
         // Capture mode holds the tier's render scale; pause holds scheduled
-        // systems. Water and lamp accumulators need their own explicit sample.
+        // systems. Water, lamp, sway and mote accumulators need their own explicit sample.
         let water = 0, lamps = 0;
+        const clocks = new Set();
         w.game.rootScene.traverse((object) => {
+          // QA 11-25 row 155: the presentation ticks the sway and mote clocks in update; their uniforms live in the
+          // renderer's compiled program (a patched material's own `uniforms` is empty), so the late sample holds them there
+          for (const material of Array.isArray(object.material) ? object.material : object.material === undefined ? [] : [object.material]) {
+            for (const uniforms of [compiled.has(material) ? compiled.get(material).uniforms : undefined, material.uniforms]) {
+              for (const name of clockNames) {
+                const clock = uniforms?.[name];
+                if (typeof clock?.value === 'number') { clock.value = 5; clocks.add(clock); }
+              }
+            }
+          }
           if (object.name.startsWith('water:') && object.material?.uniforms?.uTime !== undefined) {
             object.material.uniforms.uTime.value = 5; water++;
           }
@@ -128,13 +145,13 @@ async function shoot(browser, url, live, after = []) {
             update(5, camera.getWorldPosition(camera.position.clone())); lamps++;
           }
         });
-        window.__ap20Phases = { water, lamps };
+        window.__ap20Phases = { water, lamps, clocks: clocks.size };
         for (const child of camera.children) child.visible = false;
         if (Math.abs(camera.fov - 72) > 0.01) { camera.fov = 72; camera.updateProjectionMatrix(); }
         if (eye !== undefined) { camera.position.set(eye[0], eye[1], eye[2]); camera.rotation.set(eye[4], eye[3], 0, 'YXZ'); camera.updateMatrixWorld(true); }
         w.game.app.clock.restore({ version: 1, elapsed: 5, wall: 5, frames: 300, captureFps: 60, paused: true, scale: 1 });
       }, 'ap20.camera');
-    });
+    }, PRESENTATION_CLOCKS);
     // The watch panel and minimap are overlays: the map intentionally differs
     // between the authored preview and dev's cooked tile (MSZ41b). Compare the scene.
     await page.addStyleTag({ content: '#wildshard-watch { display: none !important; } .ws-minimap, .ws-grid-reveal { visibility: hidden !important; }' });
@@ -153,6 +170,9 @@ async function shoot(browser, url, live, after = []) {
         // An engine pin from before that fix (its grid readout names no lampsDeclared) still draws the cell unlit: then the built
         // page is held to the unlit baseline (`unlitGrid`), which goes when the pin moves past engine f837437c3
         if (phases === undefined || phases.water < 1 || ((live || gridLamps) && phases.lamps < 1)) throw new Error('Parity scene lacks its controlled water or lamp presentation');
+        // QA 11-25 row 155: the built slice sways and drifts its motes on a presentation clock the page must hold (a renamed
+        // engine uniform would set them moving again unseen; the still check would catch the motion, this names it)
+        if (!live && phases.clocks < 1) throw new Error(`The built page holds none of its presentation clocks (${PRESENTATION_CLOCKS.join(', ')}): its sway and motes would move between shots`);
         if (!live && gridLamps) {
           // the grid cell lights every declared lamp the page's reserve holds (the slice's nearest to the camera when more)
           const lamps = await page.evaluate(() => { const st = window.__wildshard?.shard?.grid?.state?.(); const row = st?.sceneLife?.find((r) => r.instance === st.inside); return row === undefined ? null : { declared: row.lampsDeclared, lit: row.lampsLit, pool: row.lamps }; });

@@ -21,20 +21,20 @@
   },
   "unlitGrid": {
     "hut-front": {
-      "mean": 3.187,
-      "share": 0.03922
+      "mean": 3.318,
+      "share": 0.04019
     },
     "door-lamp": {
-      "mean": 5.929,
-      "share": 0.09671
+      "mean": 5.937,
+      "share": 0.09685
     },
     "hut-back": {
-      "mean": 0.599,
-      "share": 0.00606
+      "mean": 0.589,
+      "share": 0.00578
     },
     "pond": {
-      "mean": 3.267,
-      "share": 0.04156
+      "mean": 3.27,
+      "share": 0.04149
     }
   }
 }
