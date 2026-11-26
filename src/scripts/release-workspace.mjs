@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, posix, resolve } from 'node:path'
-import { ownPeerProblems } from './own-peers.mjs'
+import { ownPeerProblems, prereleaseEngineProblems } from './own-peers.mjs'
 
 const root = resolve(import.meta.dirname, '..', '..')
 const read = path => JSON.parse(readFileSync(path, 'utf8'))
@@ -131,6 +131,10 @@ if (command === 'stamp' && destination === undefined) {
     // A peer range on another workspace package admits this release version (own-peers.mjs; release/v0.5.0 refused).
     const peers = ownPeerProblems(manifest, OWN, workspace.version)
     if (peers.length > 0) throw new Error(`Packed ${peers.join('; ')}`)
+    // QA 11-25 row 139: the npm publish (RELEASE_TAG set, npm-publish.yml) of a final version puts it on `latest`, which
+    // may not depend on an engine prerelease; main's packed install keeps its `next` engine pin.
+    const engine = process.env.RELEASE_TAG === undefined ? [] : prereleaseEngineProblems(manifest, workspace.version)
+    if (engine.length > 0) throw new Error(`Packed ${engine.join('; ')}`)
     // Each workspace package a packed one depends on is pinned at this one release version (D5).
     for (const [name, spec] of Object.entries(manifest.dependencies ?? {}))
       if (OWN.has(name) && spec !== workspace.version)

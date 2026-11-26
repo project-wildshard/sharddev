@@ -33,3 +33,18 @@ export function ownPeerProblems(manifest, own, version) {
     .filter(([name, range]) => own.has(name) && !satisfies(range, version))
     .map(([name, range]) => `${manifest.name} peers ${name} ${range}, which ${version} does not satisfy`);
 }
+
+// Meta QA 11-25 row 139 (from CP24): sdk 0.7.0 went to npm `latest` depending on engine 0.1.93-next.4daadc70. A final
+// release (no prerelease part: npm `latest`) may depend only on a final engine; a prerelease SDK may pin a `next` one.
+/** Each engine dependency a final release would carry onto npm `latest` that is a prerelease, as a refusal line.
+ * @param {{ name: string, dependencies?: Record<string, string>, optionalDependencies?: Record<string, string> }} manifest
+ * @param {string} version @returns {string[]} */
+export function prereleaseEngineProblems(manifest, version) {
+  if (version.includes('-')) return [];
+  return ['dependencies', 'optionalDependencies'].flatMap((field) => {
+    const spec = /** @type {Record<string, string> | undefined} */ (Reflect.get(manifest, field))?.['@wildshard/engine'];
+    return spec !== undefined && spec.includes('-')
+      ? [`${manifest.name} ${version} would reach npm latest depending on @wildshard/engine ${spec}, a prerelease: pin a final engine`]
+      : [];
+  });
+}

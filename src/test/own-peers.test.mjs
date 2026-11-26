@@ -2,7 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { ownPeerProblems, satisfies } from '../scripts/own-peers.mjs';
+import { ownPeerProblems, prereleaseEngineProblems, satisfies } from '../scripts/own-peers.mjs';
 
 test('a caret below 1.0.0 keeps its minor; bounds and || combine as npm reads them', () => {
   assert.equal(satisfies('^0.3.2 || ^0.4.0', '0.4.34'), true);
@@ -30,4 +30,13 @@ test('the workspace\'s own peer ranges admit its version and the next minor', ()
     // A minor is cut from main without editing these ranges (release:stamp writes versions only), so it must fit already.
     assert.deepEqual(ownPeerProblems(manifest, own, `${major}.${minor + 1}.0`), [], `${name}, next minor`);
   }
+});
+
+test('a final release refuses an engine prerelease dependency; a prerelease SDK may carry one (QA 11-25 row 139)', () => {
+  const dev = { name: '@wildshard/dev', dependencies: { '@wildshard/engine': '0.1.93-next.4daadc70' } };
+  assert.equal(prereleaseEngineProblems(dev, '0.7.0').length, 1);
+  assert.deepEqual(prereleaseEngineProblems(dev, '0.7.1-next.1'), []);
+  assert.deepEqual(prereleaseEngineProblems({ ...dev, dependencies: { '@wildshard/engine': '0.1.96' } }, '0.7.1'), []);
+  assert.equal(prereleaseEngineProblems({ name: '@wildshard/x', optionalDependencies: { '@wildshard/engine': '0.1.96-next.48084eb2' } }, '0.7.1').length, 1);
+  assert.deepEqual(prereleaseEngineProblems({ name: '@wildshard/sdk', peerDependencies: { '@wildshard/engine': '*' } }, '0.7.1'), []);
 });
