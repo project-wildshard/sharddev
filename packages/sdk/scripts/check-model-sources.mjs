@@ -5,23 +5,31 @@
 //   node scripts/check-model-sources.mjs          (test/model-sources.test.ts runs it in `pnpm test`: < 1 s, no Blender)
 //
 // It refuses:
-//   1. a target in scripts/blender/targets.json that names a file that isn't there: its script, sources, post, inputs,
+//   1. a target in the manifest (src/blender/targets.json; the SDK's own and, for this SDK minor, a shard's old
+//      scripts/blender/targets.json) that names a file that isn't there: its script, sources, post, inputs,
 //      outputs, or the repo side of a meshopt / copy pair;
 //   2. a GLB in a folder a Blender target writes that no target lists as an output: a Blender-built GLB with no source
 //      script (NOT_BLENDER lists the GLBs from other pipelines that share such a folder);
-//   3. an orphan under scripts/blender/: a file that isn't a target's script, source or post, and isn't lib/, build.sh,
-//      targets.json or a README;
+//   3. an orphan under src/blender/ or scripts/blender/: a file that isn't a target's script, source or post, and isn't
+//      lib/, build.sh, targets.json or a README;
 //   4. a tracked .blend / .blend1 (and, outside git, any .blend in the tree).
 import { execFileSync } from 'node:child_process';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve } from 'node:path';
 
 const ROOT = resolve(process.argv[2] ?? process.cwd());
-const MANIFEST = 'scripts/blender/targets.json';
+const SDK = resolve(import.meta.dirname, '..');
+// Meta QA 11-25 row 126: a repo's Blender manifest lives under src/. The SDK's own inspection fixture keeps its manifest
+// beside build.sh; a shard's old scripts/blender/targets.json is read, with a note, for this SDK minor only.
+const MANIFEST = existsSync(join(ROOT, 'src/blender/targets.json')) || (ROOT !== SDK && !existsSync(join(ROOT, 'scripts/blender/targets.json')))
+  ? 'src/blender/targets.json' : 'scripts/blender/targets.json';
+if (MANIFEST === 'scripts/blender/targets.json' && ROOT !== SDK) {
+  console.log('check-model-sources: reading the old scripts/blender/targets.json; move scripts/blender/ to src/blender/ (the next SDK minor reads only src/blender/targets.json)');
+}
 /** GLBs from other pipelines that share a folder with a Blender target's outputs: path → where they come from */
 // Each content repo owns exceptions in its own target manifest.
 /** files under scripts/blender/ that belong to no single target */
-const SHARED = new Set(['scripts/blender/build.sh', 'scripts/blender/targets.json']);
+const SHARED = new Set(['scripts/blender/build.sh', 'scripts/blender/targets.json', 'src/blender/targets.json']);
 
 const errors = [];
 const at = (p) => join(ROOT, p.replace(/\/$/, ''));
@@ -84,7 +92,7 @@ for (const d of outDirs) {
 
 // ── 3. no orphan under shared or shard-owned Blender sources ──
 const shardRoot = at('src/shards');
-const sourceRoots = ['scripts/blender', ...(existsSync(shardRoot) ? readdirSync(shardRoot, { withFileTypes: true })
+const sourceRoots = ['scripts/blender', 'src/blender', ...(existsSync(shardRoot) ? readdirSync(shardRoot, { withFileTypes: true })
   .filter(entry => entry.isDirectory() && !entry.name.endsWith('-legacy') && existsSync(at(`src/shards/${entry.name}/blender`)))
   .map(entry => `src/shards/${entry.name}/blender`) : [])];
 for (const f of sourceRoots.flatMap(dir => listFiles(dir))) {

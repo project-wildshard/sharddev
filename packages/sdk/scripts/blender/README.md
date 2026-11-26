@@ -3,7 +3,14 @@
 > Written by: Codex
 > State: source ownership, 2026-11-16.
 
-`targets.json` owns the SDK inspection producer `sdk-world-fixture`.
+`build.sh` runs from a repo's root and reads its manifest at
+`src/blender/targets.json`; a shard runs the installed copy,
+`bash node_modules/@wildshard/sdk/scripts/blender/build.sh <target>`,
+and a manifest's `pre`, `post` and `args` name this package as `$SDK`.
+A shard's old `scripts/blender/targets.json` still reads, with a
+warning, for this SDK minor only (meta QA 11-25 row 126).
+
+This folder's `targets.json` owns the SDK inspection producer `sdk-world-fixture`.
 Its script is `lib/world_fixture.py`; it builds a local `world.glb` for
 inspection, and stores no generated GLB in this package. Run it through
 `build.sh sdk-world-fixture` when a Blender inspection is needed.

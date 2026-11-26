@@ -2,10 +2,15 @@
 # build.sh — the one runner for every model a Blender script builds (M10, E315; docs/design/blender-practice.md §4).
 # The scripts are the source, the GLB they export is committed, a .blend never is.
 #
+# Run it from the repo root; a shard repo runs the installed copy (bash node_modules/@wildshard/sdk/scripts/blender/build.sh).
 #   bash scripts/blender/build.sh <target>... [flags] [-- <script args>]
-#   bash scripts/blender/build.sh --list                 the targets in scripts/blender/targets.json
+#   bash scripts/blender/build.sh --list                 the targets in the repo's src/blender/targets.json
 #   bash scripts/blender/build.sh --check <target>...    rebuild into the cache and compare with the committed GLBs
 #   bash scripts/blender/build.sh --check --all          every target (one Blender run at a time, under the model lock)
+#
+# The manifest is the repo's src/blender/targets.json (meta QA 11-25 row 126: a shard's sources live under src/). The SDK's
+# own inspection fixture keeps scripts/blender/targets.json beside this script. A shard's old scripts/blender/targets.json
+# is still read, with a warning, for this SDK minor only: move the folder to src/blender/.
 #
 # Flags: --check · --all · --save-blend (also save the scene as ~/.cache/wildshard-blender/<target>/<name>.blend, to open
 # and inspect) · --no-copy (build into the cache, write nothing into the repo) · --no-lock. Any other --flag, and
@@ -20,11 +25,22 @@
 # differ). A `manual` target is not built here; --check runs its `check` command instead.
 #
 # Environment for pre / post / args: REPO, CACHE (~/.cache/wildshard-blender/<target>), BUILD (CACHE/build, or
-# CACHE/check under --check), SHARED (~/.cache/wildshard-blender: downloads shared between targets), BLENDER.
+# CACHE/check under --check), SHARED (~/.cache/wildshard-blender: downloads shared between targets), BLENDER, and SDK
+# (this package's root: its scripts/blender/lib/ helpers).
 set -euo pipefail
-cd "$(dirname "${BASH_SOURCE[0]}")/../.."
+SDK=$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)
 REPO=$PWD
-MANIFEST=scripts/blender/targets.json
+if [ -f src/blender/targets.json ]; then
+  MANIFEST=src/blender/targets.json
+elif [ "$REPO" = "$SDK" ] && [ -f scripts/blender/targets.json ]; then
+  MANIFEST=scripts/blender/targets.json
+elif [ -f scripts/blender/targets.json ]; then
+  MANIFEST=scripts/blender/targets.json
+  echo "build.sh: WARNING reading the old scripts/blender/targets.json; move scripts/blender/ to src/blender/ (the next SDK minor reads only src/blender/targets.json)" >&2
+else
+  echo "build.sh: no src/blender/targets.json in $REPO (run it from the repo root)" >&2
+  exit 2
+fi
 BLENDER="${BLENDER:-$(jq -r '.blender.path' "$MANIFEST")}"
 command -v "$BLENDER" >/dev/null || BLENDER=$(command -v blender || true)
 LOCK="${HOME}/$(jq -r '.lock' "$MANIFEST" | sed 's#^~/##')"
@@ -54,16 +70,17 @@ if [ "$LIST" = 1 ]; then
   exit 0
 fi
 if [ "$ALL" = 1 ]; then TARGETS=(); while IFS= read -r t; do TARGETS+=("$t"); done < <(jq -r '.targets | keys[]' "$MANIFEST"); fi
-[ ${#TARGETS[@]} -gt 0 ] || { sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
+[ ${#TARGETS[@]} -gt 0 ] || { sed -n '2,29p' "$0" | sed 's/^# \{0,1\}//'; exit 2; }
 
 want="$(jq -r '.blender.version' "$MANIFEST")"
 have="$("$BLENDER" --version 2>/dev/null | head -1 | awk '{print $2}')"
 [ "$have" = "$want" ] || echo "build.sh: WARNING Blender $have, targets.json pins $want. Adopt a new version with a --check of every target." >&2
 
-# $REPO / $CACHE / $BUILD / $SHARED / $BLENDER in a manifest string
+# $REPO / $CACHE / $BUILD / $SHARED / $BLENDER / $SDK in a manifest string
 expand() {
   local s=$1
   s=${s//\$REPO/$REPO}; s=${s//\$CACHE/$CACHE}; s=${s//\$BUILD/$BUILD}; s=${s//\$SHARED/$SHARED}; s=${s//\$BLENDER/$BLENDER}
+  s=${s//\$SDK/$SDK}
   printf '%s' "$s"
 }
 field() { jq -r --arg t "$T" ".targets[\$t]$1" "$MANIFEST"; }
@@ -75,7 +92,7 @@ for T in "${TARGETS[@]}"; do
   [ "$(jq --arg t "$T" '.targets | has($t)' "$MANIFEST")" = true ] || { echo "build.sh: no target \"$T\" (bash $0 --list)" >&2; exit 2; }
   CACHE="$SHARED/$T"
   BUILD="$CACHE/$([ "$CHECK" = 1 ] && echo check || echo build)"
-  export REPO CACHE BUILD SHARED BLENDER
+  export REPO CACHE BUILD SHARED BLENDER SDK
   echo "── $T $([ "$CHECK" = 1 ] && echo '(check)')"
 
   manual=$(field '.manual // empty')
@@ -106,7 +123,7 @@ for T in "${TARGETS[@]}"; do
   while IFS= read -r a; do args+=("$(expand "$a")"); done < <(fields '.args')
   cmd=("$BLENDER" -b --factory-startup -noaudio --python-exit-code 1 -P "$script")
   if [ "$SAVE" = 1 ]; then
-    cmd+=(-P scripts/blender/lib/save_blend.py)
+    cmd+=(-P "$SDK/scripts/blender/lib/save_blend.py")
     export WILDSHARD_SAVE_BLEND="$CACHE/$(basename "$T").blend"
   fi
   cmd+=(-- ${args[@]+"${args[@]}"} ${PASS[@]+"${PASS[@]}"})
@@ -134,7 +151,7 @@ for T in "${TARGETS[@]}"; do
       out="$BUILD/meshopt/$(basename "$to")"
       "$GT" meshopt "$BUILD/$from" "$out" --level medium >/dev/null
       echo "  $to"
-      node scripts/blender/lib/glb-digest.mjs "$out" "$to" --json "$out.check.json" | sed 's/^/  /' || ok=0
+      node "$SDK/scripts/blender/lib/glb-digest.mjs" "$out" "$to" --json "$out.check.json" | sed 's/^/  /' || ok=0
     done < <(pairs meshopt)
     while IFS=$'\t' read -r from to; do
       [ -n "$from" ] || continue
