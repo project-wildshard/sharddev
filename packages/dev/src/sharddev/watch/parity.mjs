@@ -36,6 +36,8 @@ const SDK = resolve(ROOT, '../sdk');
 const { values } = parseArgs({ options: { source: { type: 'string' }, out: { type: 'string' }, check: { type: 'boolean' }, rebase: { type: 'boolean' } } });
 const SOURCE = resolve(values.source ?? join(SDK, 'src/shards/authoring-slice'));
 const BASELINE = join(import.meta.dirname, 'parity-baseline.json');
+/** QA 11-25 row 138: whether the built page's grid cell lights its look lamps (an engine with f837437c3); set by `shoot` */
+let builtLights = true;
 // The slice's own cameras (Mossgate cleanroom scripts/cameras.json): [id, x, z, yaw, pitch]
 const CAMERAS = [['hut-front', -3.9, -5.6, 0.03, -0.04], ['door-lamp', -4.6, -7.8, 0.03, 0.05], ['hut-back', -3.9, -10.4, 3.4, -0.05], ['pond', -10.4, 0.3, 1.571, -0.08]];
 /** The eye's height (m): the cameras' 1.68 m over the slice's ground, which is flat at 0 by every camera. */
@@ -67,7 +69,9 @@ async function shoot(browser, url, live, after = []) {
     // MEMORY-STRUCTURE STR5: dev boots online, and an online page asks the device's Name once before the world.
     await page.addInitScript({ content: saveFixtureCode(NAME_ASKED) });
     await page.goto(`${url}?skipintro`);
-    await page.waitForFunction((watched) => window.__wildshard?.world?.player !== undefined && (!watched || (window.__wsDevScene?.framedRevision ?? 0) > 0),
+    // the grid page's arrival reveal (engine grid/reveal.ts) ends first: its caption over the first shot read as drift
+    await page.waitForFunction((watched) => window.__wildshard?.world?.player !== undefined && (!watched || (window.__wsDevScene?.framedRevision ?? 0) > 0)
+      && (window.__wsReveal === undefined || window.__wsReveal.endedMs !== null),
       live, { timeout: 180_000, polling: 500 });
     await page.evaluate(() => {
       const w = window.__wildshard.world, camera = w.game.camera;
@@ -92,9 +96,10 @@ async function shoot(browser, url, live, after = []) {
               update = object.update.bind(object); lampUpdates.set(object, update);
               // The built look updates after late; watch holds the original
               // callback, so both the property and this late sample are needed.
-              object.update = () => { update(5); };
+              // keep the eye: a crowded look lights its lamps nearest the camera (engine lookLight.ts AP28)
+              object.update = (_time, at) => { update(5, at); };
             }
-            update(5); lamps++;
+            update(5, camera.getWorldPosition(camera.position.clone())); lamps++;
           }
         });
         window.__ap20Phases = { water, lamps };
@@ -106,7 +111,9 @@ async function shoot(browser, url, live, after = []) {
     });
     // The watch panel and minimap are overlays: the map intentionally differs
     // between the authored preview and dev's cooked tile (MSZ41b). Compare the scene.
-    await page.addStyleTag({ content: '#wildshard-watch { display: none !important; } .ws-minimap { visibility: hidden !important; }' });
+    await page.addStyleTag({ content: '#wildshard-watch { display: none !important; } .ws-minimap, .ws-grid-reveal { visibility: hidden !important; }' });
+    const gridLamps = !live && await page.evaluate(() => (window.__wildshard?.shard?.grid?.state?.()?.sceneLife ?? []).some((row) => 'lampsDeclared' in row));
+    if (!live) builtLights = gridLamps;
     const sets = [];
     for (const change of [null, ...after]) {
       if (change !== null) await page.evaluate(change);
@@ -115,9 +122,16 @@ async function shoot(browser, url, live, after = []) {
         await page.evaluate((eye) => { window.__ap20Eye = eye; }, [x, EYE, z, yaw, pitch]);
         await page.waitForTimeout(2500);
         const phases = await page.evaluate(() => window.__ap20Phases);
-        // CHUNK-PARAM-REMOVAL CP25: the built page is the slice's one grid cell, and a grid cell draws no look lamps of its
-        // own (engine grid/cellSceneLife.ts), so only the live page holds lamps to sample; both hold the pond's water
-        if (phases === undefined || phases.water < 1 || (live && phases.lamps < 1)) throw new Error('Parity scene lacks its controlled water or lamp presentation');
+        // QA 11-25 row 138: the built page is the slice's one grid cell (CHUNK-PARAM-REMOVAL CP25), whose entered cell lights
+        // its look lamps (engine grid/cellSceneLife.ts); both pages hold lamps and the pond's water, or the parity is void
+        // An engine pin from before that fix (its grid readout names no lampsDeclared) still draws the cell unlit: then the built
+        // page is held to the unlit baseline (`unlitGrid`), which goes when the pin moves past engine f837437c3
+        if (phases === undefined || phases.water < 1 || ((live || gridLamps) && phases.lamps < 1)) throw new Error('Parity scene lacks its controlled water or lamp presentation');
+        if (!live && gridLamps) {
+          // the grid cell lights every declared lamp the page's reserve holds (the slice's nearest to the camera when more)
+          const lamps = await page.evaluate(() => { const st = window.__wildshard?.shard?.grid?.state?.(); const row = st?.sceneLife?.find((r) => r.instance === st.inside); return row === undefined ? null : { declared: row.lampsDeclared, lit: row.lampsLit, pool: row.lamps }; });
+          if (lamps === null || lamps.declared < 1 || lamps.lit !== Math.min(lamps.declared, lamps.pool) || lamps.pool < 1) throw new Error(`The built page's grid cell lights ${JSON.stringify(lamps)} of its declared look lamps`);
+        }
         frames.push({ id, png: await page.screenshot() });
       }
       sets.push(frames);
@@ -165,8 +179,10 @@ async function run(plant, out) {
   } finally { await browser.close(); live.stop(); built.stop(); }
 }
 
-function readBaseline() {
-  try { return JSON.parse(readFileSync(BASELINE, 'utf8')).cameras ?? {}; } catch { return {}; }
+/** The lamp-lit baseline (`cameras`), or for an engine pin whose grid draws no look lamps the unlit one (`unlitGrid`). */
+function readBaseline(file = readBaselineFile()) { return (builtLights ? file.cameras : file.unlitGrid ?? file.cameras) ?? {}; }
+function readBaselineFile() {
+  try { return JSON.parse(readFileSync(BASELINE, 'utf8')); } catch { return {}; }
 }
 
 const line = (label, result) => `${label}: ${result.red ? 'RED' : 'green'} ${result.rows.map((row) => `${row.id} ${row.mean}/255 ${(row.share * 100).toFixed(2)}%${row.red ? ' (over its baseline)' : ''}`).join(', ')}`;
@@ -186,10 +202,12 @@ async function main() {
   }
   const [clean, planted] = results;
   console.info(line('watch equals build', clean));
+  if (!builtLights) console.info('watch equals build: this engine client draws no look lamps on the grid (QA 11-25 row 138): held to the unlit baseline');
   if (out !== undefined) writeFileSync(join(out, 'parity.json'), `${JSON.stringify(results, null, 2)}\n`);
   if (values.rebase === true) {
-    writeFileSync(BASELINE, `${JSON.stringify({ note: 'AP20: each camera\'s measured watch-against-build drift; parity.mjs --rebase writes it', source: 'src/shards/authoring-slice',
-      cameras: Object.fromEntries(clean.rows.map((row) => [row.id, { mean: row.mean, share: row.share }])) }, null, 2)}\n`);
+    const file = readBaselineFile(), measured = Object.fromEntries(clean.rows.map((row) => [row.id, { mean: row.mean, share: row.share }]));
+    writeFileSync(BASELINE, `${JSON.stringify({ note: 'AP20: each camera\'s measured watch-against-build drift; parity.mjs --rebase writes it. unlitGrid: an engine pin whose grid draws no look lamps (before engine f837437c3, QA 11-25 row 138); drop it once the pin is past that', source: 'src/shards/authoring-slice',
+      cameras: builtLights ? measured : file.cameras, ...(builtLights ? (file.unlitGrid === undefined ? {} : { unlitGrid: file.unlitGrid }) : { unlitGrid: measured }) }, null, 2)}\n`);
     console.info(`wrote ${BASELINE}`);
   } else if (clean.red) { console.error('watch equals build: the two back ends drifted past the baseline (parity.mjs --out <dir> writes the frames)'); process.exitCode = 1; }
   if (planted !== undefined) {
