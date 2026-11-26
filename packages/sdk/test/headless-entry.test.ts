@@ -12,6 +12,8 @@ const rows = Object.entries(pkg.exports).filter(([key]) => key.startsWith('./hea
 const SIDE_EFFECTS = new Set(['scripts/sim-node-loader.mjs', 'scripts/format-hook.mjs', 'scripts/bake-loader.mjs']);
 /** SI7: the engine's ambient declarations for a shard tsconfig's `types` list; a `.d.ts`, so it is checked, not imported. */
 const TYPES_ONLY = new Set(['game/types']);
+/** CP20: an entry whose engine module imports engine .ts loads it after the sdk's format hook (J82), by `await import()`. */
+const HOOKED = new Set(['scripts/zone-entry.mjs']);
 const engineOf = (key: string): string => `@wildshard/engine/${key.slice('./headless/'.length)}`;
 
 test('the engine is a peer of the sdk, so each re-export resolves the shard\'s own engine', () => {
@@ -27,14 +29,17 @@ test('every harness path the shards read has its sdk row, and each file re-expor
     'scripts/bake-output.mjs', 'scripts/built-folder.mjs', 'scripts/debug-settings.mjs', 'scripts/format-hook.mjs',
     'scripts/frame-floor-grid.mjs', 'scripts/frame-floor-navigation.mjs', 'scripts/frame-floor-settings.mjs',
     'scripts/native-recorder-cache.mjs', 'scripts/program-discovery.mjs', 'scripts/proof-state.mjs', 'scripts/shard-outputs.mjs', 'scripts/shardfile-inputs.mjs',
-    'scripts/sim-node-loader.mjs', 'scripts/tile-bake-report.mjs', 'sim/snapshot', 'test/FakeGame', 'world/Heightfield',
+    'scripts/sim-node-loader.mjs', 'scripts/tile-bake-report.mjs', 'scripts/zone-entry.mjs', 'sim/snapshot', 'test/FakeGame', 'world/Heightfield',
     'world/terrainHeight',
   ]);
   const require = createRequire(resolve(SDK, 'package.json'));
   for (const [key, file] of rows) {
     const text = readFileSync(resolve(SDK, file), 'utf8');
     const from = [...text.matchAll(/from '([^']+)'/gu)].map(match => match[1]);
-    expect(new Set(from), key).toEqual(new Set([engineOf(key)]));
+    if (HOOKED.has(key.slice('./headless/'.length))) {
+      expect(text, key).toMatch(/^import '\.\/format-hook\.mjs';$/mu);
+      expect([...text.matchAll(/await import\('([^']+)'\)/gu)].map(match => match[1]), key).toEqual([engineOf(key)]);
+    } else expect(new Set(from), key).toEqual(new Set([engineOf(key)]));
     expect(() => require.resolve(engineOf(key)), key).not.toThrow();
   }
 });

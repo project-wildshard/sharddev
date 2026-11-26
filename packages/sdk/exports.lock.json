@@ -185,6 +185,7 @@
   "@wildshard/sdk/headless/scripts/shardfile-inputs.mjs",
   "@wildshard/sdk/headless/scripts/sim-node-loader.mjs",
   "@wildshard/sdk/headless/scripts/tile-bake-report.mjs",
+  "@wildshard/sdk/headless/scripts/zone-entry.mjs",
   "@wildshard/sdk/headless/sim/snapshot",
   "@wildshard/sdk/headless/test/FakeGame",
   "@wildshard/sdk/headless/world/Heightfield",

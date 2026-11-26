@@ -240,6 +240,7 @@
     "./headless/scripts/format-hook.mjs": "headless",
     "./headless/scripts/bake-loader.mjs": "headless",
     "./headless/scripts/debug-settings.mjs": "headless",
+    "./headless/scripts/zone-entry.mjs": "headless",
     "./headless/scripts/bake-output.mjs": "headless",
     "./headless/test/FakeGame": "headless",
     "./headless/scripts/native-recorder-cache.mjs": "headless",

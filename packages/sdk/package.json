@@ -74,7 +74,7 @@
   "devDependencies": {
     "@dimforge/rapier3d-simd": "0.21.0",
     "@types/node": "24.3.1",
-    "@wildshard/engine": "0.1.93-next.4daadc70",
+    "@wildshard/engine": "0.1.93-next.b2c9e9f3",
     "@wildshard/sdk": "link:.",
     "happy-dom": "21.0.4",
     "postprocessing": "6.39.5",
@@ -314,6 +314,7 @@
     "./headless/scripts/format-hook.mjs": "./src/sharddev/headless/scripts/format-hook.mjs",
     "./headless/scripts/bake-loader.mjs": "./src/sharddev/headless/scripts/bake-loader.mjs",
     "./headless/scripts/debug-settings.mjs": "./src/sharddev/headless/scripts/debug-settings.mjs",
+    "./headless/scripts/zone-entry.mjs": "./src/sharddev/headless/scripts/zone-entry.mjs",
     "./headless/scripts/bake-output.mjs": "./src/sharddev/headless/scripts/bake-output.mjs",
     "./headless/test/FakeGame": "./src/sharddev/headless/test/FakeGame.ts",
     "./headless/scripts/native-recorder-cache.mjs": "./src/sharddev/headless/scripts/native-recorder-cache.mjs",
