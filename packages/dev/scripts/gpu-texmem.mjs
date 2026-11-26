@@ -12,12 +12,10 @@ import { debugSettings, harnessPins } from '@wildshard/engine/scripts/debug-sett
 // its WebGLTexture (renderer.properties) and labelled with the mesh that draws it, so the table says whose bytes they are.
 //
 //   node scripts/gpu-texmem.mjs --url=http://localhost:4391 --chunk=pine-hollow --tier=phone [--tex=ktx2|img] [--tag=x]
-//   … --record                      record individual files through the unavailable-pack fallback and merge the
-//                                    files this boot loaded into scripts/bake-ktx2.list.json (bake-ktx2's list)
 //
 // Phone: 390×844 @3, iPhone UA, `touch=1&tier=phone`. Desktop: 1600×900 @1, `tier=desktop`. One headless Chromium on
 // Metal, muted (`--mute-audio`, `mute=1`), closed at the end. Writes progress/texmem/<tag>-<chunk>-<tier>.json.
-import { writeFileSync, mkdirSync, readFileSync } from 'node:fs';
+import { writeFileSync, mkdirSync } from 'node:fs';
 import { resolve as resolvePath } from 'node:path';
 import { ledger, report } from '@wildshard/sdk/scripts/texmem-probe.mjs';
 import '@wildshard/engine/scripts/format-hook.mjs';
@@ -40,8 +38,6 @@ const TEX = flag('tex', '');
 const TAG = flag('tag', 'latest');
 const SETTLE = Number(flag('settle', '10')) * 1000;
 const TOP = Number(flag('top', '25'));
-/** --record: merge the texture / model URLs this boot fetched into scripts/bake-ktx2.list.json (what bake-ktx2 bakes) */
-const RECORD = argv.includes('--record');
 
 const sleep = (ms) => new Promise((resolve) => { setTimeout(resolve, ms); });
 const browser = await chromium.launch({ args: [...KEYCHAIN_ARGS, '--mute-audio', '--use-angle=metal', '--ignore-gpu-blocklist', '--enable-precise-memory-info', '--js-flags=--expose-gc'] });
@@ -54,16 +50,6 @@ try {
   await ctx.addInitScript(ledger);
   await debugSettings(ctx, { prefetch: 'off' });
   if (TEX !== '') await harnessPins(ctx, { textures: TEX });
-  // G221: CLI-only fetch adapter; no in-game option, saved state or network error.
-  // The engine's normal unavailable-part fallback fetches each original URL for the ledger.
-  if (RECORD) await ctx.addInitScript(() => {
-    const fetchNow = window.fetch.bind(window);
-    window.fetch = (input, init) => {
-      const url = typeof input === 'string' ? input : input instanceof URL ? input.href : input.url;
-      return new URL(url, location.href).pathname.startsWith('/assets/packs/')
-        ? Promise.resolve(new Response(null, { status: 503 })) : fetchNow(input, init);
-    };
-  });
   const page = await ctx.newPage();
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message.slice(0, 200)));
@@ -89,15 +75,6 @@ try {
   for (const x of r.top) console.log(`  ${String(x.mb).padStart(6)} MB ${`${x.w}x${x.h}${x.d > 1 ? `x${x.d}` : ''}`.padEnd(14)} ${x.fmt.padEnd(12)} ${x.mips.padEnd(7)} ${String(x.src).slice(-40).padEnd(40)} ${x.where.slice(0, 90)}`);
   if (errors.length > 0) console.log(`  errors: ${errors.slice(0, 5).join(' / ')}`);
   console.log(`  → ${file}`);
-  if (RECORD) {
-    const listFile = resolvePath(ROOT, 'scripts/bake-ktx2.list.json');
-    const list = JSON.parse(readFileSync(listFile, 'utf8'));
-    const keep = (u) => /\.(glb|gltf|png|jpe?g|webp)$/.test(u) && !/^\/(?:assets|b\/[\w.-]+)\/[^/]+-[\w-]{8}\.\w+$/.test(u) && !u.includes('/hdri/') && !u.startsWith('/assets/gpu/');
-    const before = list[TIER].length;
-    list[TIER] = [...new Set([...list[TIER], ...r.fetched.filter(keep)])].sort((a, b) => a.localeCompare(b));
-    writeFileSync(listFile, `${JSON.stringify(list, null, 1)}\n`);
-    console.log(`  recorded: ${list[TIER].length - before} new ${TIER} URLs → ${listFile}`);
-  }
 } finally {
   await browser.close();
 }

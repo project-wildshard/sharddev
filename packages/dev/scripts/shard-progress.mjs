@@ -22,7 +22,7 @@ import { KEYCHAIN_ARGS } from './chromium-keychain.mjs';
 // The stamp is the commit's date (git), so a back-filled old SHA sorts where it belongs.
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync, rmSync } from 'node:fs';
-import { resolve as resolvePath, join } from 'node:path';
+import { join } from 'node:path';
 import { saveFixture } from '@wildshard/engine/scripts/debug-settings.mjs';
 import { browserBakeBytes } from '@wildshard/engine/scripts/bake-output.mjs';
 import { recordProgressClip } from '@wildshard/engine/scripts/progress-recording.mjs';
@@ -34,7 +34,9 @@ import '@wildshard/engine/scripts/format-hook.mjs';
 const { enterZone } = await import('@wildshard/engine/scripts/zone-entry.mjs');
 
 const { chromium } = await import("./browser-playwright.mjs");
-const ROOT = resolvePath(new URL('..', import.meta.url).pathname);
+// The shard repo it runs in (art/<slug>/progress/cameras.json, progress/, tmp/): run it from there, as @wildshard/dev's
+// script (meta QA 11-25 row 84: its root was this package, which holds no shard art).
+const ROOT = process.cwd();
 const argv = process.argv.slice(2);
 const flag = (n, d) => { const a = argv.find((x) => x.startsWith(`--${n}=`)); return a ? a.slice(n.length + 3) : d; };
 const SLUG = flag('shard', '');
@@ -72,7 +74,7 @@ const store = (png, name) => {
  * @returns {{ skipped: string | null, shots: Record<string, { screen: string, pWorld: number, flagged: boolean }> }}
  */
 const checkFrames = (ids, force) => {
-  const decide = join(ROOT, 'scripts', 'decide', 'decide.sh');
+  const decide = new URL(import.meta.resolve('@wildshard/sdk/scripts/decide/decide.sh')).pathname; // the sdk ships it
   const args = ['qa', ...force.flatMap((id) => ['--force-flag', id]), ...ids.map((id) => join(OUT, `${id}.jpg`))];
   const r = spawnSync(decide, args, { encoding: 'utf8', env: { ...process.env, DECIDE_LOCK_WAIT: String(QA_WAIT) } });
   if (r.status !== 0 && r.status !== 3) {

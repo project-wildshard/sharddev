@@ -145,6 +145,21 @@ if (lane === 'push' && existsSync(chunkGuard) && process.env.SKIP_CHUNK_GUARD !=
     process.exit(1);
   }
 }
+// Meta QA 11-25 rows 82 and 84 (J505): no new script pointing where nothing is (a relative import, an undeclared
+// package, a ROOT off the package root, a missing read path) beyond the repo's shrink-only baseline, empty here
+// (.githooks/script-paths.mjs, the kit's; this run-checks is sharddev's own, so the stamp can't add it).
+// Bypass: SKIP_SCRIPT_PATHS=1.
+const scriptPaths = join(root, '.githooks/script-paths.mjs');
+if (lane === 'push' && existsSync(scriptPaths) && process.env.SKIP_SCRIPT_PATHS !== '1') {
+  const { scriptPathsVerdict, refusal: pathRefusal } = await import(pathToFileURL(scriptPaths).href);
+  const { added, enforced } = scriptPathsVerdict(pkgDir);
+  if (added.length && !enforced) console.error(`  - script-paths, report only until the repo records its baseline: ${added.length} finding(s) (node .githooks/script-paths.mjs)`);
+  if (added.length && enforced) {
+    console.error(`\n  X push blocked: ${pathRefusal(added)}\n    SKIP_SCRIPT_PATHS=1 is a last resort (J381).\n`);
+    copy?.remove();
+    process.exit(1);
+  }
+}
 const run = ({ name, args }) => new Promise((done) => {
   const child = spawn('pnpm', ['run', '--silent', ...args], { cwd: pkgDir, env });
   let output = '';
