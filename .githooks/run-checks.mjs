@@ -129,6 +129,20 @@ if (manifest.binDependencies !== undefined) {
     process.exit(tools.status || 1);
   }
 }
+// meta CHUNK-PARAM-REMOVAL CP23 (J522): no new `chunk` address param beyond the repo's shrink-only baseline
+// (.githooks/chunk-param-guard.mjs, the kit's; this run-checks is sharddev's own, so the stamp can't add it). Bypass:
+// SKIP_CHUNK_GUARD=1.
+const chunkGuard = join(root, '.githooks/chunk-param-guard.mjs');
+if (lane === 'push' && existsSync(chunkGuard) && process.env.SKIP_CHUNK_GUARD !== '1') {
+  const { chunkGuardVerdict, refusal } = await import(pathToFileURL(chunkGuard).href);
+  const { added, enforced } = chunkGuardVerdict(pkgDir);
+  if (added.length && !enforced) console.error(`  - chunk-param-guard, report only until the repo records its baseline: ${added.join(', ')}`);
+  if (added.length && enforced) {
+    console.error(`\n  X push blocked: ${refusal(added)}\n    SKIP_CHUNK_GUARD=1 is a last resort (J381).\n`);
+    copy?.remove();
+    process.exit(1);
+  }
+}
 const run = ({ name, args }) => new Promise((done) => {
   const child = spawn('pnpm', ['run', '--silent', ...args], { cwd: pkgDir, env });
   let output = '';
