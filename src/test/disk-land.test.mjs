@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { chmodSync, mkdirSync, writeFileSync, existsSync, readFileSync, readdirSync } from 'node:fs';
+import { chmodSync, mkdirSync, mkdtempSync, writeFileSync, existsSync, readFileSync, readdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { test } from 'node:test';
-import { LONG, fixture } from './.kit/land-fixture.mjs';
+import { LONG, SCRATCH, fixture } from './.kit/land-fixture.mjs';
 
 test('J358: copy failure keeps its worktree and local branch', LONG, () => {
   const f = fixture(), wt = f.worktree('copy-failure');
@@ -57,4 +57,24 @@ test('J358: unreadable process evidence retains the landed worktree', LONG, () =
   assert.match(result.stdout, /worktree kept: process cleanup failed/u);
   assert.ok(existsSync(wt));
   assert.equal(f.git(f.repo, ['rev-parse', 'plan/unreadable-processes']), f.remoteMain());
+});
+
+test('J521: a fixture land logs its branch deletes in scratch, never under HOME', LONG, () => {
+  // The fixture spreads process.env, so a stale copy would write the real ~/.cache/wildshard/deleted-branches.log
+  // (QA 11-25 row 117). Point HOME at an empty folder for this fixture and prove nothing lands there.
+  mkdirSync(SCRATCH, { recursive: true });
+  const home = mkdtempSync(join(SCRATCH, 'home-')), realHome = process.env.HOME;
+  process.env.HOME = home;
+  let f;
+  try { f = fixture(); } finally { process.env.HOME = realHome; }
+  try {
+    assert.equal(f.env.HOME, home);
+    const wt = f.worktree('branch-log');
+    f.commit(wt, 'src/feature.ts', 'export const feature = true;', 'feature');
+    const result = f.land(wt, []);
+    assert.equal(result.status, 0, result.stdout + result.stderr);
+    assert.equal(existsSync(wt), false);
+    assert.equal(existsSync(join(home, '.cache/wildshard/deleted-branches.log')), false);
+    assert.match(readFileSync(f.env.WS_BRANCH_LOG ?? '', 'utf8'), /\splan\/branch-log\s/u);
+  } finally { rmSync(home, { recursive: true, force: true }); }
 });
