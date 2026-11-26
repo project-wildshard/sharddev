@@ -4,7 +4,8 @@
 # 2. AGENTS.md (J241): .githooks/agents-md.mjs, the same ref lines.
 # 2b. SHARD-COMPAT CP3: src/scripts/format-api-gate.mjs refs (ALLOW_FORMAT_AHEAD=1).
 # 3. Push lane (full `pnpm check`): .githooks/run-checks.mjs.
-#    Bypass: SKIP_CHECK=1.
+#    Bypass: SKIP_CHECK=1. A push that only re-creates deleted branches
+#    skips it (.githooks/branch-restore.mjs; ALLOW_BRANCH_RESTORE=1).
 # Enable once per clone: git config core.hooksPath .githooks
 set -euo pipefail
 hooks="$(git rev-parse --show-toplevel)/.githooks"
@@ -21,4 +22,5 @@ if [ -f "$top/scripts/format-api-gate.mjs" ]; then (cd "$top" && printf '%s\n' "
 # Escape hatch: ALLOW_RETIRED_WORDS=1.
 if [ -f "$top/scripts/retired-vocabulary.mjs" ]; then (cd "$top" && printf '%s\n' "$refs" | node src/scripts/retired-vocabulary.mjs refs); fi
 export WS_PUSH_REFS="$refs"
+export WS_PUSH_DESTINATION="$2"
 exec node "$hooks/run-checks.mjs" push
