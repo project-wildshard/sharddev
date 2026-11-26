@@ -223,13 +223,19 @@ describe("the upload's shard version and commit (AC16)", (): void => {
     )
   })
 
-  it('takes --version as the shard version after upload', (): void => {
-    const args = ['upload', '/nonexistent.tar', ...server, '--version', 'v1']
+  it('takes --shard-version as the shard version after upload', (): void => {
+    const args = [
+      'upload',
+      '/nonexistent.tar',
+      ...server,
+      '--shard-version',
+      'v1',
+    ]
 
     const run = cli(args, key)
 
     assert.equal(run.status, 1)
-    assert.match(run.stderr, /--version v1 is not X\.Y\.Z/u)
+    assert.match(run.stderr, /--shard-version v1 is not X\.Y\.Z/u)
     assertRule(run.stderr, 'upload-version')
   })
 })
