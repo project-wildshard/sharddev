@@ -162,8 +162,10 @@ test('tests and prose are not content; a hand-swapped hero file is not the one s
 test("a lean repo's tooling at the source's top (scripts/, test/) is not content; a nested scripts/ is", async (context: TestContext): Promise<void> => {
   const space = await project(context)
   await writeHeroStamp(space.shard, { base: BASE })
+  // Script-paths: a shard source's own scripts/.kit (src/scripts/.kit from its repo root)
   await mkdir(path.join(space.shard, 'scripts', '.kit'), { recursive: true })
   await writeFile(
+    // Script-paths: a shard source's own scripts/.kit (src/scripts/.kit from its repo root)
     path.join(space.shard, 'scripts', '.kit', 'bin-pins.mjs'),
     'export {}\n',
   )

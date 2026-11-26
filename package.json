@@ -20,7 +20,7 @@
     "release:stamp": "node src/scripts/release-workspace.mjs stamp",
     "docs": "pnpm --filter @wildshard/sdk run docs",
     "lint": "node src/scripts/lint-dispatch.mjs",
-    "lint:kit": "node src/scripts/.kit/bin-tools.mjs -c .oxlintrc.kit.json --type-aware --deny-warnings --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'tmp/**' --ignore-pattern 'packages/sdk/**' --ignore-pattern 'packages/dev/**' --ignore-pattern 'packages/build/**' --ignore-pattern 'packages/cli/**' --ignore-pattern 'packages/upload/src/sharddev/**' --ignore-pattern 'packages/kit/src/**' --ignore-pattern 'src/scripts/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'src/test/**' --no-error-on-unmatched-pattern",
+    "lint:kit": "node src/scripts/.kit/bin-tools.mjs -c .oxlintrc.kit.json --type-aware --deny-warnings --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'tmp/**' --ignore-pattern 'packages/sdk/**' --ignore-pattern 'packages/dev/**' --ignore-pattern 'packages/build/**' --ignore-pattern 'packages/cli/**' --ignore-pattern 'packages/upload/src/sharddev/**' --ignore-pattern 'packages/kit/src/**' --ignore-pattern 'src/scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'src/test/**' --no-error-on-unmatched-pattern",
     "lint:sdk": "pnpm --filter @wildshard/sdk run lint:kit",
     "lint:author": "WILDSHARD_RATCHET_FILE=packages/sdk/lint/ratchet.json node src/scripts/.kit/bin-tools.mjs -c .oxlintrc.packages.json --deny-warnings packages/upload/src/sharddev packages/kit/src",
     "lint:sdk-author": "pnpm --filter @wildshard/sdk run lint:author",
@@ -49,7 +49,7 @@
     "lint:dev": "pnpm --filter @wildshard/dev run lint:kit",
     "lint:dev-author": "pnpm --filter @wildshard/dev run lint:author",
     "prepare": "git rev-parse --is-inside-work-tree >/dev/null 2>&1 && git config core.hooksPath .githooks || true",
-    "fix": "node src/scripts/.kit/bin-tools.mjs -c .oxlintrc.kit.json --type-aware --fix --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'src/scripts/.kit/agent-parity.mjs' --ignore-pattern 'src/scripts/.kit/agent-sync.mjs' --ignore-pattern 'tmp/**' --ignore-pattern 'packages/sdk/**' --ignore-pattern 'packages/dev/**' --ignore-pattern 'packages/build/**' --ignore-pattern 'packages/cli/**' --ignore-pattern 'packages/upload/src/sharddev/**' --ignore-pattern 'packages/kit/src/**' --ignore-pattern 'src/scripts/**' --ignore-pattern 'scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'src/test/**' && pnpm format"
+    "fix": "node src/scripts/.kit/bin-tools.mjs -c .oxlintrc.kit.json --type-aware --fix --ignore-pattern '.githooks/**' --ignore-pattern '.agents/**' --ignore-pattern 'src/scripts/.kit/agent-parity.mjs' --ignore-pattern 'src/scripts/.kit/agent-sync.mjs' --ignore-pattern 'tmp/**' --ignore-pattern 'packages/sdk/**' --ignore-pattern 'packages/dev/**' --ignore-pattern 'packages/build/**' --ignore-pattern 'packages/cli/**' --ignore-pattern 'packages/upload/src/sharddev/**' --ignore-pattern 'packages/kit/src/**' --ignore-pattern 'src/scripts/**' --ignore-pattern 'test/**' --ignore-pattern 'src/test/**' && pnpm format"
   },
   "devDependencies": {
     "@types/node": "24.3.1",

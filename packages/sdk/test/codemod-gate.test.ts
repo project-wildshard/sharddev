@@ -83,7 +83,7 @@ function exportProblems(tagged: readonly string[], current: readonly string[], t
   const minor = (v: Version): boolean => v[0] > base[0] || (v[0] === base[0] && v[1] > base[1]);
   if (minor(now) || gatedFiles(folder).some(entry => entry.suffix === '' && entry.version[2] === 0 && minor(entry.version))) return [];
   const next: Version = base[0] === 0 ? [0, base[1] + 1, 0] : [base[0], base[1] + 1, 0];
-  return [`${gone.join(', ')} left the sdk since ${tag}: a removed or renamed export breaks shard repos, so the next release is ${shown(next)}, not a patch. Add codemods/${shown(next)}.mjs (or a deprecation alias, node scripts/sdk-exports.mjs alias) and release it as ${shown(next)}`];
+  return [`${gone.join(', ')} left the sdk since ${tag}: a removed or renamed export breaks shard repos, so the next release is ${shown(next)}, not a patch. Add codemods/${shown(next)}.mjs (or a deprecation alias, node src/scripts/sdk-exports.mjs alias) and release it as ${shown(next)}`];
 }
 
 /** The last release tag reachable from HEAD and its exports lock, or why there is none (a shallow clone has no tags). */

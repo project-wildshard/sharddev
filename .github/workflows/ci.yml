@@ -167,7 +167,7 @@ jobs:
           tar -xJf "$RUNNER_TEMP/shellcheck.tar.xz" -C "$RUNNER_TEMP"
           echo "$RUNNER_TEMP/shellcheck-v0.11.0" >> "$GITHUB_PATH"
       - run: pnpm check:agent-sync
-      - run: pnpm test:agent-hooks
+      - run: node --test '.agents/hooks/test/*.test.mjs'
       - run: pnpm check:parity
       - run: pnpm exec vitest run --config test/ci/generation-cache.vitest.mjs
         working-directory: packages/build

@@ -2,7 +2,7 @@
 // stable socket lets an open dev page survive replacement of the world process.
 import { spawn } from 'node:child_process';
 import { sign } from 'node:crypto';
-import { createWriteStream } from 'node:fs';
+import { createWriteStream, existsSync } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -48,7 +48,8 @@ function stopChild(child) {
 
 export async function createDevWorld(origin, work, engineManifest = installedEngine) {
   const engineRoot = dirname(engineManifest);
-  const engineScript = name => pathToFileURL(join(engineRoot, 'scripts', name)).href;
+  // A lean engine (f928fdae2 on) keeps them in src/scripts/; a package cut before it, in scripts/.
+  const engineScript = name => pathToFileURL([join(engineRoot, 'src', 'scripts', name), join(engineRoot, 'scripts', name)].find(existsSync) ?? join(engineRoot, 'src', 'scripts', name)).href; // script-paths: an engine package from before the lean move
   const { devKey } = await import(engineScript('dev-world.mjs'));
   const { childListener, rigFront } = await import(engineScript('rig-listeners.mjs'));
   await mkdir(work, { recursive: true });

@@ -46,12 +46,12 @@ test('a lean repo\'s tooling beside the shard file (scripts/, test/) is not pack
   const root = fixtureRoot('handwritten-seed-'), source = join(root, 'tiny');
   try {
     writeHandwrittenSource(source, 'tiny');
-    mkdirSync(join(source, 'scripts', '.kit'), { recursive: true });
-    writeFileSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'), 'export {}\n');
+    mkdirSync(join(source, 'scripts', '.kit'), { recursive: true }); // Script-paths: a shard source's own scripts/.kit (src/scripts/.kit from its repo root)
+    writeFileSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'), 'export {}\n'); // Script-paths: a shard source's own scripts/.kit (src/scripts/.kit from its repo root)
     mkdirSync(join(source, 'test', '.kit'), { recursive: true });
     writeFileSync(join(source, 'test', '.kit', 'owned-scratch.mjs'), 'export {}\n');
     expect(settleHandwritten(source, source)).toBe('tiny');
-    expect(existsSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'))).toBe(true);
+    expect(existsSync(join(source, 'scripts', '.kit', 'agent-marker-check.mjs'))).toBe(true); // Script-paths: a shard source's own scripts/.kit (src/scripts/.kit from its repo root)
     expect(existsSync(join(source, 'test', '.kit', 'owned-scratch.mjs'))).toBe(true);
   } finally { rmSync(root, { recursive: true, force: true }); }
 }, 120_000);

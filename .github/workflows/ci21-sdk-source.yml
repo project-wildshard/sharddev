@@ -5,15 +5,13 @@ on:
   push:
     branches: [main]
     paths:
-      - src/**
-      - lint/**
-      - test/ci21-source/**
-      - test/fixtures/ci21-*/**
-      - scripts/ci21-*.mjs
-      - scripts/check-model-sources.mjs
-      - scripts/gen-shards.mjs
-      - scripts/push-tables.mjs
-      - scripts/blender/**
+      - packages/sdk/src/**
+      - packages/sdk/lint/**
+      - packages/sdk/test/ci21-source/**
+      - packages/sdk/test/fixtures/ci21-*/**
+      - packages/sdk/scripts/ci21-*.mjs
+      - packages/sdk/scripts/check-model-sources.mjs
+      - packages/sdk/scripts/blender/**
       - src/scripts/.kit/bin-tools.mjs
       - .github/workflows/ci21-sdk-source.yml
       - package.json
