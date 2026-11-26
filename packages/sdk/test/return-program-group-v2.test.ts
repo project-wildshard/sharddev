@@ -15,7 +15,8 @@ type EngineRng = NonNullable<Parameters<ReturnProgram['project']>[2]>;
 const Rng = FormatRng as unknown as new (seed: number) => EngineRng;
 
 let fixture: Awaited<ReturnType<typeof buildGroupFixture>>;
-beforeAll(async()=>{fixture=await buildGroupFixture();});
+// The fixture builds a whole grouped shard; under a loaded push gate (load over 50) it ran past the 10 s default.
+beforeAll(async()=>{fixture=await buildGroupFixture();}, 120_000);
 test('numeric and distinct group profiles use one entered programme and exactly one Wasm instance', () => {
   const {descriptor}=fixture;
   const owner = new Scope('shared-groups'), Native = WebAssembly.Instance;let instances = 0;
