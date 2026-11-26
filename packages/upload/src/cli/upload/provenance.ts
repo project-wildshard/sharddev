@@ -24,6 +24,11 @@ import { object, optional, safeParse, string } from 'valibot'
 
 const VERSION_CORE = String.raw`(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})\.(?:0|[1-9]\d{0,8})`
 const VERSION = new RegExp(`^${VERSION_CORE}$`, 'u')
+const PRE_ID = String.raw`(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)`
+const SHARD_VERSION = new RegExp(
+  String.raw`^${VERSION_CORE}(?:-${PRE_ID}(?:\.${PRE_ID})*)?$`,
+  'u',
+)
 // J475: npm next names an exact build. A numeric SemVer identifier cannot start with zero.
 const ENGINE_VERSION = new RegExp(
   String.raw`^${VERSION_CORE}(?:-next\.(?!0\d+$)[0-9a-f]{8,40})?$`,
@@ -189,7 +194,7 @@ async function resolveProvenance(
   request: ProvenanceRequest,
 ): Promise<Provenance> {
   const version = request.shardVersion ?? (await projectVersion(request.cwd))
-  if (!VERSION.test(version)) {
+  if (!SHARD_VERSION.test(version)) {
     throw new Error(`--shard-version ${version} is not X.Y.Z`)
   }
   const commit = request.commit ?? (await headCommit(request.cwd))
@@ -213,4 +218,9 @@ async function resolveProvenance(
   }
 }
 
-export { type Provenance, type ProvenanceRequest, resolveProvenance }
+export {
+  type Provenance,
+  type ProvenanceRequest,
+  projectVersion,
+  resolveProvenance,
+}

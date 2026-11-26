@@ -201,3 +201,16 @@ test('build warns on a draft and still writes it; upload refuses it unsent', asy
   )
   assert.equal(upload.requests(), 0)
 })
+
+test('pack refuses when the authored shard and package versions differ', async (context: TestContext): Promise<void> => {
+  const space = await workspace(context)
+  const header = path.join(space.product, 'shard.json')
+  const index: unknown = JSON.parse(await readFile(header, 'utf8'))
+  assert.ok(typeof index === 'object' && index !== null)
+  await writeFile(header, JSON.stringify({ ...index, shardVersion: '2.3.4' }))
+  await writeFile(path.join(space.root, 'package.json'), '{"version":"2.3.5"}')
+  await assert.rejects(
+    pack(space),
+    /package\.json version=2\.3\.5, shard\.json shardVersion=2\.3\.4/u,
+  )
+})

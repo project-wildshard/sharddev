@@ -35,6 +35,7 @@ function jsonBytes(value: unknown): Uint8Array { return encoder.encode(encodeCan
 function put(destination: string, path: string, bytes: Uint8Array): void { const target = resolve(destination,path); mkdirSync(dirname(target),{recursive:true});writeFileSync(target,bytes); }
 /** Optional build-only extensions. Runtime bytes themselves are written by the P3 copier. */
 export interface OutputProductOptions {
+  readonly shardVersion?: string;
   /** Build metadata only; discovery inlines these admitted values after the product is built. */
   readonly discovery?: DiscoveryValues;
   readonly platform?: EmittedSections;
@@ -132,7 +133,7 @@ export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Ui
   const cook=cookRow(options.cook,emitted,files);
   const {spawns:_spawns,...runtime} = source.runtime ?? {};
   // SHARD-COMPAT CP14: outputIndexEnvelope writes the envelope source.version spells (0.1.0.2: formatVersion is the version).
-  const index = parseOutputIndex(outputIndexEnvelope({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,identity:source.identity,requires:source.requires,
+  const index = parseOutputIndex(outputIndexEnvelope({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,...(options.shardVersion===undefined?{}:{shardVersion:options.shardVersion}),identity:source.identity,requires:source.requires,
     build:{sourceHash:hashImmutableBytes(jsonBytes(source)),validator:validationRevision() ?? 'source'},admission:{budgets:source.budgets,serverBudget:source.serverBudget,authorCaps:source.authorCaps,critical:source.critical,library:source.library,...(source.late===undefined?{}:{late:source.late}),...(options.cook?.audioWaiver===undefined?{}:{audioWaiver:options.cook.audioWaiver}),...(options.server===undefined||options.server.length===0?{}:{server:options.server.map(blob=>blob.file).sort((a,b)=>a.name.localeCompare(b.name))})},
     ...(Object.keys(ktx2Costs).length===0?{}:{ktx2Costs}),
     sections:sections.sort((a,b)=>a.name.localeCompare(b.name)),schemas:schemas.sort((a,b)=>a.path.localeCompare(b.path)),files:files.sort((a,b)=>a.hash.localeCompare(b.hash)||a.path.localeCompare(b.path)),...(cook===undefined?{}:{cook}),runtime:source.runtime === null ? null : {...runtime,files:options.runtime?.files ?? [],lines:options.runtime?.lines ?? 0}}));

@@ -31,6 +31,7 @@ import { hashAssetBytes } from '@wildshard/sdk/assetHandle';
 
 import { projectPerformancePolicy } from '@wildshard/sdk/internal/performancePolicy';
 import { checkProjectRuntime } from '@wildshard/sdk/internal/runtimePerformance';
+import { assertShardVersion, authoredShardVersion } from '@wildshard/upload/cli/upload/shard-version';
 import { admitProduct, assertBuildSides, assertProductTargets, namedJsonReader, SIDE_SECTIONS } from '@wildshard/sdk/productOutput';
 import { bakeAuthoredWorld } from '@wildshard/sdk/internal/bake/authoredWorld';
 import { parseWorldSource } from '@wildshard/sdk/worldSource';
@@ -323,7 +324,10 @@ export async function buildProject(project: string, output?: string, options: { 
     // FORMAT-PRUNE FP36: discovery carries none of the words that live in sections (their values sit there: `readProjectAssets`)
     // FP47b: nor the level look: engine reads `look.level` first since 577c013ef and 839c8ba08 (OF9b2 kept a copy for its shell)
     const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
-    descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
+    const header = resolve(project, 'shard.json');
+    const shardVersion = existsSync(header) ? authoredShardVersion(readFileSync(header)) : undefined;
+    if (shardVersion !== undefined) await assertShardVersion(project, shardVersion);
+    descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(shardVersion === undefined ? {} : { shardVersion }), ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');
     // AUDIO AU18's engine music line moved to `wildshard check`'s validate step (SDK-SPLIT SP7b): naming engine music

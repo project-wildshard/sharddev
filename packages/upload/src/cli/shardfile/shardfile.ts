@@ -8,6 +8,10 @@ import { draftMessage } from '../../sharddev/draft.ts'
 import { refusalHint, refusalNote } from '../../sharddev/refusals.ts'
 import { audioLines } from '../audio/audio.ts'
 import { assertHeroCurrent } from '../hero/hero.ts'
+import {
+  assertShardVersion,
+  authoredShardVersion,
+} from '../upload/shard-version.ts'
 import { validateShardfile } from '../upload/validate.ts'
 
 // The shard file (C0, J137): `wildshard build` (SHARD-AUTHORING SA3, J170)
@@ -105,10 +109,14 @@ async function readProduct(
   return new Map(pairs)
 }
 
-async function tarOf(dir: string): Promise<Tarball> {
+async function tarOf(dir: string, source: string): Promise<Tarball> {
   installFormatHook()
   const { writeTar } = await import('@wildshard/format/tar')
   const files = await readProduct(dir)
+  const authored = authoredShardVersion(files.get('shard.json'))
+  if (authored !== undefined) {
+    await assertShardVersion(source, authored)
+  }
   return { tarball: writeTar(files), fileCount: files.size }
 }
 
@@ -158,7 +166,10 @@ async function checkedTarball(
     source: options.source,
     writes: options.stampWrites,
   })
-  const { tarball, fileCount } = await tarOf(options.dir)
+  const { tarball, fileCount } = await tarOf(
+    options.dir,
+    options.source ?? options.dir,
+  )
   const { slug, name, audio, draft } = await validateShardfile(tarball)
   options.report(`valid: ${slug} (${name}), ${String(fileCount)} files`)
   reportDraft(options, slug, draft)

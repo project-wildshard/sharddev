@@ -229,3 +229,42 @@ test('upload help shows the sticky New flags and a conflicting choice refuses lo
   assert.match(both.stderr, /choose one of --new or --no-new/u)
   assert.equal(run.server.state.apiRequests.length, 0)
 })
+
+async function versionInArchive(file: string): Promise<void> {
+  const { readTar, writeTar } = await import('@wildshard/format/tar')
+  const files = new Map(readTar(await readFile(file)))
+  const header = files.get('shard.json')
+  assert.ok(header)
+  const index: unknown = JSON.parse(new TextDecoder().decode(header))
+  assert.ok(typeof index === 'object' && index !== null)
+  files.set(
+    'shard.json',
+    new TextEncoder().encode(
+      JSON.stringify({ ...index, shardVersion: '2.3.4' }),
+    ),
+  )
+  await writeFile(file, writeTar(files))
+}
+
+test('upload refuses a version that differs from the package and shard versions', async (context: TestContext): Promise<void> => {
+  const run = await open(context)
+  await versionInArchive(run.file)
+  const directory = fileURLToPath(new URL('.', pathToFileURL(run.file)))
+  await writeFile(
+    new URL('package.json', pathToFileURL(run.file)),
+    '{"version":"2.3.4"}',
+  )
+
+  const result = await cli(
+    run,
+    ['--shard-version', '2.3.5', '--commit', COMMIT, '--channel', 'staging'],
+    directory,
+  )
+
+  assert.equal(result.status, 3, result.stderr)
+  assert.match(
+    result.stderr,
+    /package\.json version=2\.3\.4, shard\.json shardVersion=2\.3\.4, upload shardVersion=2\.3\.5/u,
+  )
+  assert.equal(run.server.state.apiRequests.length, 0)
+})

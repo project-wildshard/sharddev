@@ -5,6 +5,7 @@ import { checkShardfile } from './checked.ts'
 import { completeUpload } from './completion.ts'
 import { storedForm } from './compress.ts'
 import { commitHeld } from './held.ts'
+import { checkUploadShardVersion } from './shard-version.ts'
 import { hashTarball, signTarball } from './signature.ts'
 
 import type { ApiOptions, Channel } from './api.ts'
@@ -247,6 +248,13 @@ function reportCommitted(options: UploadOptions, outcome: UploadOutcome): void {
 async function uploadShardfile(options: UploadOptions): Promise<UploadOutcome> {
   const bytes = await readFile(options.file)
   const tarball = new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.length)
+  if (options.heroSource !== undefined) {
+    await checkUploadShardVersion(
+      options.heroSource,
+      tarball,
+      options.shardVersion,
+    )
+  }
   const shard = await checkShardfile(options, tarball)
   const signed =
     options.privateKey === undefined
