@@ -38,6 +38,14 @@ function fencedOwnFiles(files: readonly string[], staticRoot: string, listed: Re
   return [...new Set(urls)].filter(url => !listed.has(url) && !url.split('/').includes('..') && held(url)).sort();
 }
 
+/** SF7c: the navmesh's URL is the platform's (`navigationSourceRows`: `/assets/<slug>/baked/navmesh.bin`), so a shard that
+ *  holds it in static/ carries it even when `mounts.json` left it out. Nine Dragon and Signal Dunes did, and the standalone-art
+ *  check refused the build ("Missing shardfile asset .../baked/navmesh.bin"). */
+function ownNavmesh(slug: string, staticRoot: string, listed: ReadonlySet<string>): string[] {
+  const url = `/assets/${slug}/baked/navmesh.bin`, file = resolve(staticRoot, url.slice(1));
+  return listed.has(url) || !existsSync(file) || !statSync(file).isFile() ? [] : [url];
+}
+
 /** Read a project's cook input for one output, or nothing for a project with none. D5: the fence and packs lists are
  *  optional author data; a listed mount missing from the source's `static/` and from the kit's shared art (SF2) refuses, because
  *  that file is what the shard stands on. */
@@ -47,7 +55,8 @@ export function readCookInput(project: string, slug: string): CookInput | undefi
   const listed = list === undefined ? [] : v.parse(MountsSchema, list).outputs[slug] ?? [];
   const staticRoot = shardStaticRoot(project);
   const files = fence === undefined ? undefined : v.parse(FenceReadsSchema, fence).files;
-  const urls = [...listed, ...fencedOwnFiles(files ?? [], staticRoot, new Set(listed))];
+  const fenced = fencedOwnFiles(files ?? [], staticRoot, new Set(listed));
+  const urls = [...listed, ...fenced, ...(list === undefined ? [] : ownNavmesh(slug, staticRoot, new Set([...listed, ...fenced])))];
   // SF2: shared zone art (ground sets, skies) lives in @wildshard/kit; a listed mount the source's static/ lacks is the kit's.
   const fileOf = (url: string): string => { const own = resolve(staticRoot, url.slice(1)); return existsSync(own) ? own : kitArtFile(url, slug) ?? own; };
   const mounts = urls.map(url => ({url, bytes: readFileSync(fileOf(url))}));
