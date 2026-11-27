@@ -152,7 +152,8 @@ jobs:
           token: ${{ steps.app-token.outputs.token || github.token }}
           persist-credentials: false
       - name: Install the pinned cook contract
-        run: pnpm --dir tmp/codex-wire/engine-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
+        working-directory: tmp/codex-wire/engine-contract-source
+        run: pnpm install --frozen-lockfile --config.ci=false
       - name: Prove async upload with the real API and PGlite
         working-directory: packages/sdk
         env:
