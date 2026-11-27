@@ -87,46 +87,46 @@ test('a packed CLI scaffolds outside its checkout and refuses overwriting it', {
   run(['hero', source, '--stamp-existing']);
 });
 // SA3 (J170): build writes the shard file, <slug>.shardfile beside the folder; there is no pack step.
-const shardfile = join(app, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
+const shardfile = join(repo, 'outside-isle.shardfile'), sha = file => createHash('sha256').update(readFileSync(file)).digest('hex');
 let built;
 // J198 and PR4: the draft has no preparation marker until it is recorded.
 const DRAFT = /^warning: outside-isle is an unprepared draft \(no preparation\): .*\n {2}\[shardfile-draft\] fix: Run `wildshard prepare /mu;
 test('the new author builds without making undocumented asset folders', { timeout: 12_000 }, () => {
-  const done = run(['build', source, join(app, 'first'), '--shardfile-only']);
+  const done = run(['build', source, join(repo, 'first'), '--shardfile-only']);
   assert.match(done.stdout, DRAFT);
   built = sha(shardfile);
 });
 test('a second fresh-generation build has exactly the same shipped bytes', { timeout: 12_000 }, () => {
-  run(['build', source, join(app, 'second'), '--shardfile-only']);
-  assert.deepEqual(bytes(join(app, 'second')), bytes(join(app, 'first')));
+  run(['build', source, join(repo, 'second'), '--shardfile-only']);
+  assert.deepEqual(bytes(join(repo, 'second')), bytes(join(repo, 'first')));
   assert.equal(sha(shardfile), built);
 });
 test('build of a built folder writes the same shard file, and pack is its deprecated alias', { timeout: 9_500 }, () => {
-  run(['build', join(app, 'first'), join(app, 'again.shardfile')]);
+  run(['build', join(repo, 'first'), join(app, 'again.shardfile')]);
   assert.equal(sha(join(app, 'again.shardfile')), built);
-  const packed = run(['pack', join(app, 'first'), '--out', join(app, 'packed.tar')]);
+  const packed = run(['pack', join(repo, 'first'), '--out', join(app, 'packed.tar')]);
   assert.equal(sha(join(app, 'packed.tar')), built);
   assert.match(packed.stderr, /pack is deprecated: `wildshard build` writes the shard file/u);
 });
 test('--folder-only (old name --product-only) builds the folder and writes no shard file', { timeout: 15_000 }, () => {
   rmSync(shardfile);
-  run(['build', source, join(app, 'folder'), '--folder-only']);
-  run(['build', source, join(app, 'product'), '--product-only']);
-  assert.deepEqual(bytes(join(app, 'folder')), bytes(join(app, 'first')));
-  assert.deepEqual(bytes(join(app, 'product')), bytes(join(app, 'first')));
+  run(['build', source, join(repo, 'folder'), '--folder-only']);
+  run(['build', source, join(repo, 'product'), '--product-only']);
+  assert.deepEqual(bytes(join(repo, 'folder')), bytes(join(repo, 'first')));
+  assert.deepEqual(bytes(join(repo, 'product')), bytes(join(repo, 'first')));
   assert.equal(existsSync(shardfile), false);
 });
 test('moving the authored source does not change the shipped bytes', { timeout: 12_000 }, () => {
-  cpSync(source, join(app, 'moved'), { recursive: true });
-  run(['build', join(app, 'moved'), join(app, 'third'), '--product-only']);
-  assert.deepEqual(bytes(join(app, 'third')), bytes(join(app, 'first')));
+  cpSync(source, join(repo, 'moved'), { recursive: true });
+  run(['build', join(repo, 'moved'), join(repo, 'third'), '--product-only']);
+  assert.deepEqual(bytes(join(repo, 'third')), bytes(join(repo, 'first')));
 });
 test('installed validation accepts the outside author output', { timeout: 9_500 }, () => {
-  run(['validate', join(app, 'first')]);
+  run(['validate', join(repo, 'first')]);
 });
 // SA4: the loop's third step is one verb with one verdict; --json keeps stdout to the verdict document alone.
 test('installed check --json gives a verdict on the new author project', { timeout: 30_000 }, () => {
-  const done = run(['check', source, join(app, 'checked'), '--json'], true, {}, 28_000);
+  const done = run(['check', source, join(repo, 'checked'), '--json'], true, {}, 28_000);
   const result = JSON.parse(done.stdout);
   assert.equal(result.verdict, 'pass', done.stdout);
   assert.deepEqual(result.steps.map(step => step.name), ['lint', 'build', 'validate', 'prove', 'report']);
@@ -141,7 +141,7 @@ test('installed check --json gives a verdict on the new author project', { timeo
   assert.equal(sha(shardfile), built);
 });
 test('installed check prints the draft warning once, in its verdict', { timeout: 30_000 }, () => {
-  const done = run(['check', source, join(app, 'checked')], true, {}, 28_000);
+  const done = run(['check', source, join(repo, 'checked')], true, {}, 28_000);
   assert.equal(`${done.stdout}${done.stderr}`.match(/unprepared draft/gu)?.length, 1, done.stdout);
   assert.match(done.stdout, /^ {2}build: warning: outside-isle is an unprepared draft \(no preparation\)/mu);
   assert.match(done.stdout, /^check pass in /mu);
@@ -163,7 +163,7 @@ test('installed --version names the sdk, engine, shard-format and three chain', 
   assert.deepEqual(names, ['@wildshard/sdk', '@wildshard/engine', '@wildshard/format', 'three']);
 });
 test('installed packing admits the outside author output', { timeout: 9_500 }, () => {
-  run(['pack', join(app, 'first'), '--out', join(root, 'isle.tar')]);
+  run(['pack', join(repo, 'first'), '--out', join(root, 'isle.tar')]);
 });
 test('the installed build refuses an invalid invocation', { timeout: 9_500 }, () => {
   run(['build', source, join(app, 'bad'), '--unknown-flag'], false);
@@ -198,7 +198,7 @@ async function upload(context, server, file) {
   const { spawn } = await import('node:child_process');
   const { once } = await import('node:events');
   const child = spawn(process.execPath, [bin, 'upload', file, '--channel', 'staging', '--server', server.url], {
-    cwd: app, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey, WILDSHARD_API_KEY: server.apiKey }, stdio: ['ignore', 'pipe', 'pipe'],
+    cwd: repo, env: { ...process.env, WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey, WILDSHARD_API_KEY: server.apiKey }, stdio: ['ignore', 'pipe', 'pipe'],
   });
   context.after(() => { if (child.exitCode === null) child.kill('SIGTERM'); });
   let output = ''; child.stdout.on('data', bytes => { output += bytes; }); child.stderr.on('data', bytes => { output += bytes; });
@@ -207,9 +207,9 @@ async function upload(context, server, file) {
 }
 test('the outside author uploads its newly built and prepared tarball through the real CLI to the local service double', { timeout: 12_000 }, async context => {
   const server = await openUploadServer(context);
-  // A real author's app has a package.json and a git HEAD; upload sends both (AC16).
-  writeFileSync(join(app, 'package.json'), '{ "name": "outside-author", "version": "1.0.0", "private": true }\n');
-  const git = args => assert.equal(spawnSync('git', ['-c', 'user.name=Outside Author', '-c', 'user.email=author@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: app, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
+  // The authored repo keeps the version stamped into the built shard. Upload sends it and the repo's HEAD (AC16).
+  const { version } = JSON.parse(readFileSync(join(repo, 'package.json'), 'utf8'));
+  const git = args => assert.equal(spawnSync('git', ['-c', 'user.name=Outside Author', '-c', 'user.email=author@example.invalid', '-c', 'commit.gpgsign=false', ...args], { cwd: repo, encoding: 'utf8' }).status, 0, `git ${args.join(' ')}`);
   git(['init', '-q']); git(['add', 'package.json']); git(['commit', '-q', '--no-verify', '-m', 'outside author']);
   // J198, J259: the draft refuses before any request; api-server would answer it 422 after the whole file.
   const draft = await upload(context, server, join(root, 'isle.tar'));
@@ -217,23 +217,23 @@ test('the outside author uploads its newly built and prepared tarball through th
   assert.match(draft.output, /outside-isle is an unprepared draft \(no preparation\)[^\n]*\n {2}\[shardfile-draft\] fix: /u);
   assert.equal(server.state.apiRequests.length, 0);
   // Prepared, then written again by build <folder>, it uploads as before.
-  cpSync(join(app, 'first'), join(app, 'prepared'), { recursive: true });
-  prepare(join(app, 'prepared'));
-  assert.doesNotMatch(run(['build', join(app, 'prepared'), join(root, 'prepared.tar')]).stdout, /draft/u);
+  cpSync(join(repo, 'first'), join(repo, 'prepared'), { recursive: true });
+  prepare(join(repo, 'prepared'));
+  assert.doesNotMatch(run(['build', join(repo, 'prepared'), join(root, 'prepared.tar')]).stdout, /draft/u);
   const prepared = await upload(context, server, join(root, 'prepared.tar'));
   assert.equal(prepared.code, 0, prepared.output);
-  assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version: '1.0.0' }]);
+  assert.deepEqual([...server.state.revisions.values()], [{ revision: 1, version }]);
 });
 test('the newly built outside-author product boots and accepts real worker input', { timeout: 9_500 }, async () => {
   const { loadHeadlessFolder } = await import('@wildshard/engine/host/headlessFolder');
   const { HeadlessSimulation } = await import('@wildshard/engine/host/headless');
   const { folderHeadlessSections } = await import('@wildshard/engine/host/headlessSections');
   const { outputDescriptor } = await import('@wildshard/engine/game/shardfile/outputDescriptor');
-  const product = await loadHeadlessFolder(join(app, 'first'));
+  const product = await loadHeadlessFolder(join(repo, 'first'));
   const descriptor = outputDescriptor(product.shardfile);
   assert.ok(descriptor);
-  const assets = new Map(descriptor.index.files.map(file => [file.commons === true ? `commons:${file.hash}` : file.hash, readFileSync(join(app, 'first', file.path))]));
-  const runtime = await HeadlessSimulation.create(product.shardfile, assets, undefined, { deadline: 'advisory', sections: folderHeadlessSections(product), ...(product.shardfile.runtime === null ? {} : { product: join(app, 'first') }) });
+  const assets = new Map(descriptor.index.files.map(file => [file.commons === true ? `commons:${file.hash}` : file.hash, readFileSync(join(repo, 'first', file.path))]));
+  const runtime = await HeadlessSimulation.create(product.shardfile, assets, undefined, { deadline: 'advisory', sections: folderHeadlessSections(product), ...(product.shardfile.runtime === null ? {} : { product: join(repo, 'first') }) });
   try {
     const commit = await runtime.step([{ source: 'outside-author', commands: [{ kind: 'player', moveX: 0, moveZ: -1, yaw: 0 }] }]);
     assert.equal(commit.tick, 1);
