@@ -67,6 +67,7 @@
     "../../sharddev/bake/gltfSource.ts",
     "../../sharddev/bake/groundMap.ts",
     "../../sharddev/bake/image.ts",
+    "../../sharddev/bake/imageBlob.ts",
     "../../sharddev/bake/isleMap.ts",
     "../../sharddev/bake/keyedSky.ts",
     "../../sharddev/bake/keyedSkyMemo.ts",

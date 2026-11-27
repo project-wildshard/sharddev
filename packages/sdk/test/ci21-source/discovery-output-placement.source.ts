@@ -14,6 +14,7 @@ import {afterAll,expect,test} from 'vitest';
 import {authoredManifestSource,folderManifestPath} from '@wildshard/engine/scripts/authored-manifest.mjs';
 import {relocateDiscoverySource,shardSource,manifestClosure} from '../../../dev/scripts/gen-shards.mjs';
 import {outputManifest,builtShardFolders} from '@wildshard/engine/scripts/shard-outputs.mjs';
+import {outputManifest as buildOutputManifest} from '../../../build/scripts/shard-outputs.mjs';
 import {pushTables} from '../../../dev/scripts/push-tables.mjs';
 
 // Exact source/data/card witnesses, recorded in fixtures/ci21-nu3/provenance.json.
@@ -116,7 +117,9 @@ test('the normal push metadata writer emits complete relocated wrappers without 
  put('src/shards/open-plots/outputs.json',JSON.stringify({outputs:selected.map(row=>row.output)}));
  pushTables(directory);
  for(const row of selected){
-  const file=folderManifestPath(directory,row),source=authoredManifestSource(directory,row.slug,{folder:row.folder,composed:outputManifest(directory,row.folder,row.output),generation:true,metadataOnly:true});
+  // The frozen image fixtures above use the historical per-output URLs. The
+  // current writer keeps the authored minimap until the product is built.
+  const file=folderManifestPath(directory,row),source=authoredManifestSource(directory,row.slug,{folder:row.folder,composed:buildOutputManifest(directory,row.folder,row.output),generation:true,metadataOnly:true});
   expect(readFileSync(resolve(directory,file),'utf8')).toBe(relocateDiscoverySource(directory,row,source));
   expect(existsSync(resolve(directory,oldPath(row)))).toBe(false);
  }

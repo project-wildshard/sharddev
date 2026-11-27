@@ -100,7 +100,7 @@
         "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
         "the normal push metadata writer emits complete relocated wrappers without a product build"
       ],
-      "changes": "All five original cases and four actual NU3 rows retained. Public engine and owning SDK imports, type annotations, one relocated native fixture path. The retired engine generation catalogue assertion reads actual SDK pushTables output paths instead; actual wrappers, physical import graph, source refusal, relocation and byte-identical no-build metadata publication remain checked. Frozen actual source/data/card/policy/native witnesses have recorded hashes; no invented plot content.",
+      "changes": "All five original cases and four actual NU3 rows retained. Public engine and owning SDK imports, type annotations, one relocated native fixture path. The retired engine generation catalogue assertion reads actual SDK pushTables output paths instead; actual wrappers, physical import graph, source refusal, relocation and byte-identical no-build metadata publication remain checked. Frozen actual source/data/card/policy/native witnesses have recorded hashes; no invented plot content. The no-build writer comparison uses the owning build package's metadata after SF9, while the frozen wrappers retain their historical per-output image URLs.",
       "fixtureProvenance": "test/fixtures/ci21-nu3/provenance.json",
       "state": "source verified on main; blocking/default admission and paired removal still owed",
       "engineSourceCandidate": "8762a373db80d2710e454a9ba699beb4547d0882",
@@ -125,7 +125,7 @@
         "the unchanged original all-files guard refuses actual src wrappers and accepts their relocated bytes",
         "the normal push metadata writer emits complete relocated wrappers without a product build"
       ],
-      "targetSha256": "26f37da5c9c3bc045133112cfdce22af37c8b832019effec247ec305f4d48e74"
+      "targetSha256": "0bd1128061b4d156e328a20f7957b3bca1abb3c78813c3133f663d2d70975f2d"
     },
     {
       "sourcePath": "test/map-source-inputs.test.ts",
