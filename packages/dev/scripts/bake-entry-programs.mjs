@@ -18,6 +18,7 @@ import {loadingCardIndex} from '@wildshard/engine/scripts/loading-benchmark/cata
 import {preparationDensity,preparationSaveSeed} from './preparation-seed.mjs';
 import {slowestSpans,slowestSteps,waitForEntry,watchPage} from './entry-wait.mjs';
 import {recordingLine} from './recording-line.mjs';
+import {settle,settledValues} from './response-reads.mjs';
 import '@wildshard/engine/scripts/format-hook.mjs';
 
 // CHUNK-PARAM-REMOVAL CP19 (J522): a zone with no picker card is entered the way a player taps it (zone-entry imports
@@ -69,10 +70,10 @@ async function record(browser,slug){
       const url=new URL(response.url());reads.add(url.pathname);
       // The page can probe optional manifests. WebKit provides no body for some failed responses.
       if(wantedHeader===null||!response.ok())return;
-      if(url.pathname.endsWith('/shard.json'))headers.push(response.body().then(bytes=>createHash('sha256').update(bytes).digest('hex')));
-      if(/\/assets\/spawn\/[^/]+\.json$/u.test(url.pathname))metadata.push(response.json().then(manifest=>{
+      if(url.pathname.endsWith('/shard.json'))headers.push(settle(response.body().then(bytes=>createHash('sha256').update(bytes).digest('hex'))));
+      if(/\/assets\/spawn\/[^/]+\.json$/u.test(url.pathname))metadata.push(settle(response.json().then(manifest=>{
         for(const file of manifest.files??[])if(typeof file.hash==='string')hashes.add(file.hash);
-      }));
+      })));
     });
     if(inline){
       const entry=new URL(base);entry.searchParams.set('skipintro','');entry.searchParams.set('sw','0');
@@ -105,9 +106,9 @@ async function record(browser,slug){
     if(wantedHeader!==null&&(documentBuild!==String(version.build??'')||documentBuild!==String(before.build??'')||version.saveEpoch!==before.saveEpoch))throw new Error('Preview changed renderer documents during preparation');
     if(wantedHeader!==null&&(typeof renderer!=='string'||!/^[a-f0-9]{64}$/u.test(renderer)||renderer!==before.rendererRevision||renderer!==version.rendererRevision))throw new Error('Preview does not expose one matching engine renderer revision; build a D5 preparation preview');
     const admitted=await page.evaluate(()=>globalThis.__WS_SHARDFILE_VERDICTS__??[]);
-    const direct=(await Promise.all(headers)).includes(wantedHeader),receipt=admitted.some(row=>row.indexHash===wantedHeader);
+    const direct=settledValues(await Promise.all(headers)).includes(wantedHeader),receipt=admitted.some(row=>row.indexHash===wantedHeader);
     if(wantedHeader!==null&&!direct&&!receipt)throw new Error('Preparation boot has no exact candidate header or built admission receipt');
-    await Promise.all(metadata);
+    settledValues(await Promise.all(metadata));
     return {build:String(documentBuild??version.build??''),renderer,pairs:await page.evaluate(()=>window.__entryPrograms),reads:[...reads],hashes:[...hashes]};
   }finally{await context.close();}
 }
