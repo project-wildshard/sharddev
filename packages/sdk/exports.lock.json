@@ -1,5 +1,5 @@
 {
- "about": "SHARD-COMPAT ST19a: every public SDK export, bin and CLI verb; scripts/sdk-exports.mjs check refuses deleting one a shard repo uses",
+ "about": "SHARD-COMPAT ST19a: every public SDK export, bin and CLI verb; src/scripts/sdk-exports.mjs check refuses deleting one a shard repo uses",
  "names": [
   "@wildshard/build/buildMain",
   "@wildshard/build/buildVerb",
@@ -26,6 +26,7 @@
   "@wildshard/kit",
   "@wildshard/kit/abilities",
   "@wildshard/kit/arms",
+  "@wildshard/kit/art",
   "@wildshard/kit/bake/nativeInteractionFacts",
   "@wildshard/kit/bake/riderArms",
   "@wildshard/kit/bake/species",
