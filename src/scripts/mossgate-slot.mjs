@@ -3,17 +3,26 @@
 // template's gameplay landed on main (TR-12a/b) while staging kept serving rev 3, and nothing noticed.
 // `.github/workflows/mossgate-slot.yml` republishes on every template change and runs `drift` after it and daily.
 //   node src/scripts/mossgate-slot.mjs version              the declared shard version, refused unless above staging
+//   node src/scripts/mossgate-slot.mjs stamp <shard.json>   stamp the built index before preparing it
 //   node src/scripts/mossgate-slot.mjs drift [--staging=<sha>] [--ref=<ref>]
 //       red (exit 1) when staging's Mossgate commit does not contain the template's last change on <ref> (default
 //       HEAD); --staging= checks a given commit instead of reading the API (rev 3's f97831a8 is red)
 import { agentFetch as fetch } from '../../packages/dev/scripts/wildshard-agent-requests.mjs';
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, writeFileSync } from 'node:fs';
 
 const API = (process.env.WILDSHARD_API_URL ?? 'https://api.wildshard.io').replace(/\/$/u, '');
 const SLUG = 'mossgate', TEMPLATE = 'packages/sdk/src/shards/mossgate';
+const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u;
 const flag = (/** @type {string} */ name) => process.argv.find(arg => arg.startsWith(`--${name}=`))?.slice(name.length + 3);
 const git = (/** @type {string[]} */ ...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+
+/** @returns {string} */
+function templateVersion() {
+  const own = JSON.parse(readFileSync(new URL(`../../${TEMPLATE}/package.json`, import.meta.url), 'utf8')).version;
+  if (typeof own !== 'string' || !SEMVER.test(own)) throw new Error(`${SLUG}: declared version must be X.Y.Z`);
+  return own;
+}
 
 /** @returns {Promise<{ version: string, commit: string, channel: string }>} */
 async function staging() {
@@ -27,13 +36,21 @@ async function staging() {
 const command = process.argv[2];
 if (command === 'version') {
   const { version } = await staging();
-  const own = JSON.parse(readFileSync(new URL(`../../${TEMPLATE}/package.json`, import.meta.url), 'utf8')).version;
-  const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u;
-  if (typeof own !== 'string' || !semver.test(own) || !semver.test(version)) throw new Error(`${SLUG}: declared and staging versions must be X.Y.Z`);
+  const own = templateVersion();
+  if (!SEMVER.test(version)) throw new Error(`${SLUG}: staging version must be X.Y.Z`);
   const live = version.split('.').map(Number);
   const delta = own.split('.').map((part, index) => Number(part) - live[index]).find(value => value !== 0) ?? 0;
   if (delta <= 0) throw new Error(`${SLUG}: declared version ${own} is not above staging ${version}; bump ${TEMPLATE}/package.json`);
   console.log(own);
+} else if (command === 'stamp') {
+  const file = process.argv[3];
+  if (file === undefined) throw new Error('stamp needs the built shard.json');
+  const index = JSON.parse(readFileSync(file, 'utf8'));
+  const version = templateVersion();
+  if (index.identity?.slug !== SLUG || index.shardVersion !== undefined && index.shardVersion !== version) {
+    throw new Error(`stamp needs the built ${SLUG} index for ${version}`);
+  }
+  writeFileSync(file, `${JSON.stringify({...index, shardVersion: version})}\n`);
 } else if (command === 'drift') {
   const ref = flag('ref') ?? 'HEAD', last = git('log', '-1', '--format=%H', ref, '--', TEMPLATE);
   const live = flag('staging') ?? (await staging()).commit;
@@ -46,6 +63,6 @@ if (command === 'version') {
     process.exitCode = 1;
   }
 } else {
-  console.error('usage: mossgate-slot.mjs version | drift [--staging=<sha>] [--ref=<ref>]');
+  console.error('usage: mossgate-slot.mjs version | stamp <shard.json> | drift [--staging=<sha>] [--ref=<ref>]');
   process.exitCode = 2;
 }

@@ -26,6 +26,9 @@ on:
 permissions:
   contents: read
 
+env:
+  MOSS_SOURCE: packages/sdk/src/shards/mossgate
+
 concurrency:
   group: mossgate-slot
   cancel-in-progress: false
@@ -108,7 +111,9 @@ jobs:
           key: basis-${{ runner.os }}-${{ runner.arch }}-glibc${{ steps.libc.outputs.libc }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: basis-${{ runner.os }}-${{ runner.arch }}-glibc${{ steps.libc.outputs.libc }}-
       - name: Build Mossgate (a draft folder)
-        run: node packages/cli/bin/wildshard.mjs build packages/sdk/src/shards/mossgate tmp/publish/mossgate --folder-only
+        run: |
+          node packages/cli/bin/wildshard.mjs build "$MOSS_SOURCE" "$MOSS_SOURCE/tmp/publish" --folder-only
+          node src/scripts/mossgate-slot.mjs stamp "$MOSS_SOURCE/tmp/publish/shard.json"
       - name: Install phone WebKit for prepare
         run: pnpm --filter @wildshard/dev exec playwright install --with-deps webkit
       - name: Prepare in phone WebKit
@@ -116,10 +121,10 @@ jobs:
           WILDSHARD_PREPARATION_DEBUG: ${{ runner.debug }}
         run: |
           start=$(date +%s)
-          node packages/cli/bin/wildshard.mjs prepare tmp/publish/mossgate
+          node packages/cli/bin/wildshard.mjs prepare "$MOSS_SOURCE/tmp/publish"
           echo "prepare: $(( $(date +%s) - start )) s on $RUNNER_OS/$RUNNER_ARCH" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Write the prepared shard file
-        run: node packages/cli/bin/wildshard.mjs build tmp/publish/mossgate tmp/publish/mossgate.shardfile
+        run: node packages/cli/bin/wildshard.mjs build "$MOSS_SOURCE/tmp/publish" tmp/publish/mossgate.shardfile
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mossgate-shardfile
@@ -183,7 +188,8 @@ jobs:
           test -n "$WILDSHARD_API_KEY" || { echo '::error::no WILDSHARD_API_KEY org secret reaches sharddev'; exit 1; }
           version=$(node src/scripts/mossgate-slot.mjs version)
           set -o pipefail
-          node packages/cli/bin/wildshard.mjs upload tmp/publish/mossgate.shardfile --channel staging --version "$version" --commit "$GITHUB_SHA" 2>&1 | tee tmp/publish/upload.log
+          cd "$MOSS_SOURCE"
+          node "$GITHUB_WORKSPACE/packages/cli/bin/wildshard.mjs" upload "$GITHUB_WORKSPACE/tmp/publish/mossgate.shardfile" --channel staging --version "$version" --commit "$GITHUB_SHA" 2>&1 | tee "$GITHUB_WORKSPACE/tmp/publish/upload.log"
           echo "mossgate $version from $GITHUB_SHA uploaded to staging" >> "$GITHUB_STEP_SUMMARY"
 
   drift:
