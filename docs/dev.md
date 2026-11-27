@@ -272,7 +272,7 @@ never breaks a shard repo, and every break bumps the minor (D29). A
 break is anything a shard repo must change for: a removed or renamed
 export, bin or verb, a moved source layout, a stricter default.
 
-For a release pinned to an exact engine prerelease, the trusted workflow
+For a release pinned to an exact engine prerelease, the publish workflow
 publishes the six packages to npm `next`. After that workflow succeeds,
 run `node src/scripts/release-next.mjs vX.Y.Z` before announcing the
 release. It waits until every package resolves to that version on
