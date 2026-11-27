@@ -24,6 +24,11 @@ export async function preparationPreview(client,dir,{clientPage,online}){
   // The inline descriptor is the candidate's own index bytes, `<` escaped as `wildshard build` writes it.
   const recorded=existsSync(resolve(dir,'programs',`${slug}.json`));
   const page=clientPage(readFileSync(resolve(client,'index.html'),'utf8'),header.trim().replaceAll('<','\\u003c'),slug,recorded);
+  const versionFile=inside(client,'version.json');
+  const version=versionFile===undefined?null:JSON.parse(readFileSync(versionFile,'utf8'));
+  // An inline preparation client has no cooked packs, but the engine asks its build's book for optional mounts.
+  const emptyBook=online===undefined&&version?.preparationOnly===true&&typeof version.build==='string'&&/^[\w.-]{1,64}$/u.test(version.build)
+    ?`/assets/spawn/packs-${version.build}.json`:undefined;
   const shardRoot=`/shardfiles/${slug}/`;
   // S12f: the candidate's mounts (its discovery.json under mounts/shardfiles/<slug>/, the public files it owns) are
   // served at their URLs from where cook.json says the product keeps them (mounts/, or the blob with the same bytes).
@@ -48,6 +53,11 @@ export async function preparationPreview(client,dir,{clientPage,online}){
       // client's file wins); the in-page server reads where a release serves the shard.
       const mounted=mounts.get(path);
       const file=mounted!==undefined?inside(dir,mounted):path.startsWith(shardRoot)?inside(dir,path.slice(shardRoot.length)):inside(client,path.slice(1))??inside(dir,path.slice(1));
+      if(file===undefined&&path===emptyBook){
+        response.setHeader('Content-Type','application/json');
+        response.end(request.method==='HEAD'?undefined:JSON.stringify({book:'packs',build:version.build,client:{},grid:{}}));
+        return;
+      }
       if(file===undefined){response.writeHead(404);response.end();return;}
       response.setHeader('Content-Type',MIME[extname(file)]??'application/octet-stream');
       if(request.method==='HEAD')response.end();else createReadStream(file).on('error',()=>{response.destroy();}).pipe(response);

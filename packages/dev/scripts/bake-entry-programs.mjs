@@ -67,8 +67,10 @@ async function record(browser,slug){
     const reads=new Set(),headers=[],metadata=[],hashes=new Set();
     page.on('response',response=>{
       const url=new URL(response.url());reads.add(url.pathname);
-      if(wantedHeader!==null&&url.pathname.endsWith('/shard.json'))headers.push(response.body().then(bytes=>createHash('sha256').update(bytes).digest('hex')));
-      if(wantedHeader!==null&&/\/assets\/spawn\/[^/]+\.json$/u.test(url.pathname))metadata.push(response.json().then(manifest=>{
+      // The page can probe optional manifests. WebKit provides no body for some failed responses.
+      if(wantedHeader===null||!response.ok())return;
+      if(url.pathname.endsWith('/shard.json'))headers.push(response.body().then(bytes=>createHash('sha256').update(bytes).digest('hex')));
+      if(/\/assets\/spawn\/[^/]+\.json$/u.test(url.pathname))metadata.push(response.json().then(manifest=>{
         for(const file of manifest.files??[])if(typeof file.hash==='string')hashes.add(file.hash);
       }));
     });

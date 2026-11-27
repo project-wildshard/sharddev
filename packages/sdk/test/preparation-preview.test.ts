@@ -71,6 +71,21 @@ test("S12f: the candidate's mounts are served at their URLs, from mounts/ or the
   } finally { await preview.close(); }
 });
 
+test('an inline preparation client describes its absent packs for its own build only', async () => {
+  const client = folder({ 'index.html': '<html><head></head><body></body></html>', 'version.json': '{"build":"prepared-1","preparationOnly":true}' });
+  const candidate = folder({ 'shard.json': '{"identity":{"slug":"isle"}}' });
+  const { preparationPreview } = await import('../scripts/preparation-preview.mjs') as { preparationPreview: Serve };
+  const preview = await preparationPreview(client, candidate, { clientPage });
+  const book = 'assets/spawn/packs-prepared-1.json';
+  try {
+    expect(await (await fetch(preview.url + book)).json()).toEqual({ book: 'packs', build: 'prepared-1', client: {}, grid: {} });
+    expect((await fetch(`${preview.url}assets/spawn/packs-other.json`)).status).toBe(404);
+    mkdirSync(join(client, 'assets/spawn'), { recursive: true });
+    writeFileSync(join(client, book), '{"client":{"isle":{}}}');
+    expect(await (await fetch(preview.url + book)).json()).toEqual({ client: { isle: {} } });
+  } finally { await preview.close(); }
+});
+
 test('the online preview serves its release while the local world starts', async () => {
   const client = folder({ 'index.html': '<html><head></head><body></body></html>' });
   const candidate = folder({ 'shard.json': '{"identity":{"slug":"isle"}}' });
