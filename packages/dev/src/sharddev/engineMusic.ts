@@ -14,9 +14,10 @@ export const ENGINE_TABLES: AssetTables = { bytes: PUBLIC_BYTES, versions: ASSET
  *  when the rows name engine music this engine's style lacks. */
 export function engineMusicLine(shard: string, section: unknown, tables: AssetTables = ENGINE_TABLES): string | undefined {
   if (typeof section !== 'object' || section === null || !('audio' in section)) return undefined;
-  const data = section.audio as AudioData, dir = musicDir(ENGINE_MUSIC_STYLE);
-  let files: string[];
-  try { files = withAssetTables(tables, () => engineMusicFiles(data)); }
+  // SF7: the music folder reads the tables too (SF4: a zone style keeps its own), so both lookups run inside them
+  const data = section.audio as AudioData;
+  let files: string[], dir: string;
+  try { [files, dir] = withAssetTables(tables, () => [engineMusicFiles(data), musicDir(ENGINE_MUSIC_STYLE)] as const); }
   catch (error) { throw new Error(`${shard}: ${error instanceof Error ? error.message : String(error)}`, { cause: error }); }
   const bytes = files.reduce((sum, url) => sum + (tables.bytes[url] ?? 0), 0);
   return `${shard}: engine music: ${files.length} files, ${(bytes / 1e6).toFixed(2)} MB${files.length === 0 ? '' : ` (${files.map(url => url.slice(dir.length)).join(', ')})`}`;
