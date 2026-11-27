@@ -124,7 +124,9 @@ jobs:
           node packages/cli/bin/wildshard.mjs prepare "$MOSS_SOURCE/tmp/publish"
           echo "prepare: $(( $(date +%s) - start )) s on $RUNNER_OS/$RUNNER_ARCH" | tee -a "$GITHUB_STEP_SUMMARY"
       - name: Write the prepared shard file
-        run: node packages/cli/bin/wildshard.mjs build "$MOSS_SOURCE/tmp/publish" tmp/publish/mossgate.shardfile
+        run: |
+          mkdir -p tmp/publish
+          node packages/cli/bin/wildshard.mjs build "$MOSS_SOURCE/tmp/publish" tmp/publish/mossgate.shardfile
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: mossgate-shardfile
