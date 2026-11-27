@@ -17,7 +17,13 @@ export type EngineSlot = 'title' | 'island' | 'pine';
 const SLOTS: readonly EngineSlot[] = ['title', 'island', 'pine'];
 
 /** What `world.music` plays: an engine slot by day, and optionally another by night and while a boss fights. */
-export interface MusicOptions { readonly day: EngineSlot; readonly night?: EngineSlot; readonly boss?: EngineSlot }
+export interface MusicOptions {
+  readonly day: EngineSlot; readonly night?: EngineSlot; readonly boss?: EngineSlot;
+  /** Meta SF23: the shard carries its own copy of its pine and island slots, `static/assets/<slug>/music/<slug>-piano/`
+   *  (a `music.json` and its recordings, listed in `mounts.json`), so each slot but `title` plays from it: its set is the
+   *  slug, and the format counts only a slot set `base` as engine music. The engine retires its island and pine slots. */
+  readonly own?: boolean;
+}
 
 /** One wind of the bed (format `audio.ambience.winds`): band-passed noise at `frequency` Hz (20 to 20,000) with
  *  resonance `q` (0.01 to 20), panned -1 to 1, its gain (at most 0.2) swelling at `rate` cycles a second (0.01 to 10). */
@@ -30,7 +36,7 @@ type MusicRows = NonNullable<AudioRows['music']>;
 
 /** The score `world.music` declares: the day slot its base; the boss scene first, then night, then day. */
 export function musicRows(slug: string, options: MusicOptions): MusicRows {
-  const { day, night, boss } = options;
+  const { day, night, boss, own = false } = options;
   for (const slot of [day, night, boss]) if (slot !== undefined && !SLOTS.includes(slot)) throw new SceneRefusalError('music', `music slot ${String(slot)} is not one of the engine's piano slots`, `Name one of ${SLOTS.join(', ')} (J304: the engine plays one style)`);
   const when = (scene: string): MusicRows['selection'][number]['when'] => [{ field: 'scene', op: 'equals', value: scene }];
   const selection: MusicRows['selection'] = [
@@ -38,9 +44,10 @@ export function musicRows(slug: string, options: MusicOptions): MusicRows {
     ...(night === undefined ? [] : [{ slots: [night], when: when('night') }]),
     { slots: [day], when: when('day') },
   ];
+  const slots = [...new Set([day, night ?? day, boss ?? day])];
   return {
-    id: `score.${slug}`, base: day, slots: [...new Set([day, night ?? day, boss ?? day])], bootSlots: [day], synthLead: 'pluck', minFade: 0, source: null,
-    sets: {}, selection, selectMode: 'first', catalogue: { mode: 'slots', extraStings: [], stingSets: {} },
+    id: `score.${slug}`, base: day, slots, bootSlots: [day], synthLead: 'pluck', minFade: 0, source: null,
+    sets: own ? Object.fromEntries(slots.filter(slot => slot !== 'title').map(slot => [slot, slug])) : {}, selection, selectMode: 'first', catalogue: { mode: 'slots', extraStings: [], stingSets: {} },
     lifecycle: { persistent: false, dispose: true, logChanges: false, ...(boss === undefined ? {} : { bossScene: 'boss' }) },
   } as MusicRows;
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { engineSlotsKnown } from '@wildshard/format/engineMusic';
+import { engineMusicSlots, engineSlotsKnown } from '@wildshard/format/engineMusic';
 import { lowerShard } from './lower';
 import { SceneRefusalError } from './refusal';
 import { sceneShardfile } from './shardfile';
@@ -40,4 +40,13 @@ test('music and ambience refuse what the engine cannot play', () => {
   expect(() => lower((world) => { world.music({ day: 'pine' }); world.music({ day: 'island' }); })).toThrow(/twice/u);
   expect(() => lower((world) => { world.ambience({ winds: [] }); })).toThrow(/1 to 8/u);
   expect(() => lower((world) => { world.ambience({ winds: [{ frequency: 240, q: 0.6, pan: 0, rate: 0.06, gain: 0.5 }] }); })).toThrow(/ranges/u);
+});
+
+test("SF23: an own score plays the shard's copy of its pine and island slots, the engine's title alone", () => {
+  const scene = lowerShard({ slug: 'mossgate', name: 'Mossgate' }, (world) => { world.music({ day: 'pine', night: 'island', boss: 'title', own: true }); });
+  const music = sceneShardfile(scene).shard.audio.music;
+  if (music === undefined) throw new Error('no score');
+  expect(music.sets).toEqual({ pine: 'mossgate', island: 'mossgate' });
+  expect(engineMusicSlots(music)).toEqual(['title']); // the boss's title theme alone is the engine's
+  expect(engineSlotsKnown(music)).toBe(true);
 });
