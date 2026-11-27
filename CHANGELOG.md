@@ -16,6 +16,14 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.9.1 (2026-11-27)
+
+- Pin the author tools to engine 0.1.100-next.922b9d45 and shard-format 0.82.4 for Dunes, the plots, Pine, Nine and Nalati.
+- Bake GLBs from a shard with its own Three.js copy and report only set texture maps under J525.
+- Carry a zone’s platform navmesh when it is present in static assets and omitted from mounts.json.
+- Use the generated minimap for a composed shard output.
+- Support world.music({ own: true }) so Mossgate and other shards can carry their own piano slots.
+
 ## v0.9.0 (2026-11-27)
 
 - **Breaking:** Run `wildshard migrate` to add `shardVersion` and resolve any mismatch with `package.json`.
