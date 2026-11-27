@@ -61,13 +61,14 @@ function buildAndProve(pins) {
   manifest.pnpm = { ...manifest.pnpm, overrides: { ...manifest.pnpm?.overrides, ...pins } };
   writeFileSync(file, JSON.stringify(manifest));
   console.info(run(pnpm, installArgs, project));
-  console.info(author('build', source, 'built', '--folder-only'));
-  const report = JSON.parse(author('prove', 'built/shard.json', `${source}/proof.json`));
+  const fromProject = (...args) => run(bin, args, project);
+  console.info(fromProject('build', 'src', 'built', '--folder-only'));
+  const report = JSON.parse(fromProject('prove', 'built/shard.json', 'src/proof.json'));
   assert.ok(report.ticks > 0 && report.ledger.facts.length > 0, 'starter tape must file a fact');
   console.info(`proved ${report.ticks} ticks, ${report.ledger.facts.length} facts`);
-  console.info(author('build', 'built', 'built.shardfile'));
-  console.info(author('pack', 'built', '--out', 'packed.shardfile'));
-  assert.equal(digest(join(app, 'built.shardfile')), digest(join(app, 'packed.shardfile')));
+  console.info(fromProject('build', 'built', 'built.shardfile'));
+  console.info(fromProject('pack', 'built', '--out', 'packed.shardfile'));
+  assert.equal(digest(join(project, 'built.shardfile')), digest(join(project, 'packed.shardfile')));
 }
 
 // SHARD-COMPAT CP18 (the mini, 11-21): a shard typechecks on the published graph. TypeScript comes from the installed

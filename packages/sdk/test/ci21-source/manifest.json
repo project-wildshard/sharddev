@@ -296,9 +296,9 @@
         "an individually bounded image cannot overflow the combined GLB allocation",
         "the unused writer bundles as one config-safe chunk with no file, process or generated imports"
       ],
-      "changes": "Whole original cases and byte assertions retained; current SDK defining guard and relocated immutable Sky fixture only.",
+      "changes": "Whole original cases and byte assertions retained; relocated immutable Sky fixture and explicit use of the deprecated writer for this legacy proof.",
       "state": "C10 default blocking source suite",
-      "targetSha256": "176014395ac951277e5386bbf99647251424ba4ff6b194cf5f5fac2e8e87891f"
+      "targetSha256": "00b6fda35c0359abaa88ee541f2f47bf6a9fa8a1c3de78fe8607eee338e3475c"
     },
     {
       "sourcePath": "test/glb-embedded-basis.test.ts",

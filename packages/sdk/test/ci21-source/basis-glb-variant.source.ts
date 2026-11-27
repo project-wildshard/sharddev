@@ -1,3 +1,4 @@
+// oxlint-disable typescript/no-deprecated -- This fixture is the byte proof for the supported legacy GLB writer.
 // oxlint-disable-next-line import/no-nodejs-modules -- Complete shipped GLBs are immutable byte oracles for this producer-only fixture.
 import { readFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve the pure source bundle without file services in its output.
