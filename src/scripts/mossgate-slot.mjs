@@ -27,7 +27,7 @@ async function staging() {
 const command = process.argv[2];
 if (command === 'version') {
   const { version } = await staging();
-  const own = JSON.parse(readFileSync(new URL(`../${TEMPLATE}/package.json`, import.meta.url), 'utf8')).version;
+  const own = JSON.parse(readFileSync(new URL(`../../${TEMPLATE}/package.json`, import.meta.url), 'utf8')).version;
   const semver = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/u;
   if (typeof own !== 'string' || !semver.test(own) || !semver.test(version)) throw new Error(`${SLUG}: declared and staging versions must be X.Y.Z`);
   const live = version.split('.').map(Number);
