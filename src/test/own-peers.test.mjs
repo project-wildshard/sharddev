@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
 import { runInNewContext } from 'node:vm';
 import { ownPeerProblems, prereleaseEngineProblems, satisfies } from '../scripts/own-peers.mjs';
+import { pendingNextPackages } from '../scripts/release-next.mjs';
 
 test('a caret below 1.0.0 keeps its minor; bounds and || combine as npm reads them', () => {
   assert.equal(satisfies('^0.3.2 || ^0.4.0', '0.4.34'), true);
@@ -66,4 +67,21 @@ test('the SDK publisher routes all six packages with an exact next engine to npm
   assert.match(workflow, /test "\$DIST_TAG" = next[^]*?test "\$verdict" = success/u);
   assert.match(workflow, /RELEASE_TAG="\$RELEASE_REF" node src\/scripts\/release-workspace\.mjs pack/u);
   assert.match(workflow, /execFileSync\('npm', \['publish'[^\n]*'--tag', tag\]/u);
+});
+
+test('SDK next waits even when only Dev still resolves to the previous version', async () => {
+  const seen = [];
+  const read = stale => async url => {
+    const [encoded, route] = new URL(url).pathname.split('/').slice(-2);
+    const name = decodeURIComponent(encoded);
+    if (route === 'dist-tags') {
+      seen.push(name);
+      return Response.json({ next: stale && name === '@wildshard/dev' ? '0.9.0' : '0.9.1' });
+    }
+    assert.equal(route, 'next');
+    return Response.json({ version: '0.9.1' });
+  };
+  assert.deepEqual(await pendingNextPackages('0.9.1', read(true)), ['@wildshard/dev (next is 0.9.0)']);
+  assert.deepEqual(seen.sort(), ['build', 'cli', 'dev', 'kit', 'sdk', 'upload'].map(name => `@wildshard/${name}`));
+  assert.deepEqual(await pendingNextPackages('0.9.1', read(false)), []);
 });
