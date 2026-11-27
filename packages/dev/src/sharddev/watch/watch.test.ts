@@ -345,5 +345,7 @@ test('the idle full build runs at the lowest cpu priority, so the page boots fir
   if (process.platform === 'win32') return;
   expect(backgroundCommand('node', ['build'], '/usr/bin/nice')).toEqual({ command: '/usr/bin/nice', args: ['-n', '19', 'node', 'build'] });
   const low = backgroundCommand(process.execPath, ['-e', 'console.log(require("node:os").getPriority())']);
-  expect(execFileSync(low.command, low.args, { encoding: 'utf8' }).trim()).toBe('19');
+  // nice -n 19 is relative: from a shell already niced (an agent's background shell runs at 5) the kernel clamps it to
+  // its floor (20 on macOS), still the lowest priority.
+  expect(Number(execFileSync(low.command, low.args, { encoding: 'utf8' }).trim())).toBeGreaterThanOrEqual(19);
 });
