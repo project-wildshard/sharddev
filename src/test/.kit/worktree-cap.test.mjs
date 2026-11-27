@@ -35,10 +35,20 @@ function fixture() {
   execFileSync('git', ['commit', '--quiet', '-m', 'seed'], { cwd: repo, env: { ...env, GIT_AUTHOR_DATE: old, GIT_COMMITTER_DATE: old }, stdio: 'ignore' });
   git(repo, ['push', '--quiet', 'origin', 'main']);
   /** Plant a worktree on plan/<slug> at origin/main, its Git activity `hoursAgo` in the past. */
-  const plant = (slug, hoursAgo, { unlanded = false, dirty = false, owner = false } = {}) => {
+  const plant = (slug, hoursAgo, { unlanded = false, dirty = false, owner = false, rebased = false } = {}) => {
     const path = join(repo, '.worktrees', slug);
+    // the plan commits carry the planted time too: a worktree's activity reads its HEAD commit's date
+    const stamp = new Date(Date.now() - hoursAgo * 3_600_000).toISOString();
+    const commitAt = (cwd, message) => execFileSync('git', ['commit', '--quiet', '-m', message], { cwd, env: { ...env, GIT_AUTHOR_DATE: stamp, GIT_COMMITTER_DATE: stamp }, stdio: 'ignore' });
     git(repo, ['worktree', 'add', '--quiet', '-b', `plan/${slug}`, path, 'origin/main']);
-    if (unlanded) { writeFileSync(join(path, `${slug}.txt`), 'work\n'); git(path, ['add', `${slug}.txt`]); git(path, ['commit', '--quiet', '-m', `${slug} work`]); }
+    // A rebased land: the branch's commit, and the same patch on main under another sha (another commit landed first).
+    if (rebased) {
+      writeFileSync(join(path, `${slug}.txt`), 'work\n'); git(path, ['add', `${slug}.txt`]); commitAt(path, `${slug} work`);
+      const tip = git(path, ['rev-parse', 'HEAD']);
+      writeFileSync(join(repo, `first-${slug}.txt`), 'x\n'); git(repo, ['add', `first-${slug}.txt`]); git(repo, ['commit', '--quiet', '-m', 'first']);
+      git(repo, ['cherry-pick', tip]); git(repo, ['push', '--quiet', 'origin', 'main']); git(repo, ['fetch', '--quiet', 'origin']);
+    }
+    if (unlanded) { writeFileSync(join(path, `${slug}.txt`), 'work\n'); git(path, ['add', `${slug}.txt`]); commitAt(path, `${slug} work`); }
     if (dirty) writeFileSync(join(path, 'a.txt'), 'edited\n');
     if (owner) writeFileSync(join(path, '.owner'), JSON.stringify({ lane: 'gone', pid: process.pid }));
     const gitDir = git(path, ['rev-parse', '--absolute-git-dir']);
@@ -65,6 +75,9 @@ test(`a full cap refuses the ${String(MAX_WORKTREES + 1)}th and lists each ended
   assert.match(result.stderr, /ended worktrees \(J358: nothing removes them for you; copy first, then remove/u);
   const listed = [...result.stderr.matchAll(/node src\/scripts\/\.kit\/keep-copy\.mjs \.worktrees\/(?<slug>\S+) && git worktree remove \.worktrees\/\k<slug> && git branch -d plan\/\k<slug>/gu)].map((match) => match.groups?.['slug']);
   assert.deepEqual(listed, ['parked-old', 'parked-mid', 'parked-new']);
+  // meta QA 11-26 row 23: a clean unlanded worktree idle over 12 h is listed too, its branch kept
+  assert.match(result.stderr, /\n  node src\/scripts\/\.kit\/keep-copy\.mjs \.worktrees\/busy-unlanded && git worktree remove \.worktrees\/busy-unlanded   # busy-unlanded: not landed, clean, idle 9\d\.\d h, nothing running; branch plan\/busy-unlanded kept/u);
+  assert.doesNotMatch(result.stderr, /worktree remove \.worktrees\/busy-dirty/u);
   for (const kept of ['busy-unlanded', 'busy-dirty', 'parked-old', 'parked-mid', 'parked-new', 'parked-newest']) assert.equal(existsSync(join(f.repo, '.worktrees', kept)), true, kept);
   assert.equal(spawnSync('git', ['rev-parse', '--verify', '--quiet', 'refs/heads/plan/parked-old'], { cwd: f.repo }).status, 0);
   assert.equal(existsSync(join(f.repo, '.worktrees/seventh')), false);
@@ -72,7 +85,8 @@ test(`a full cap refuses the ${String(MAX_WORKTREES + 1)}th and lists each ended
 
 test(`the ${String(MAX_WORKTREES + 1)}th worktree is refused while every parked one is fresh, naming the oldest`, { timeout: 120_000 }, () => {
   const f = fixture();
-  f.plant('busy-unlanded', 90, { unlanded: true });
+  // unlanded and idle under PARKED_IDLE_MS (12 h): not ended
+  f.plant('busy-unlanded', 10, { unlanded: true });
   f.plant('busy-dirty', 80, { dirty: true });
   for (const slug of ['parked-a', 'parked-b', 'parked-c', 'parked-d']) f.plant(slug, 0);
   const result = f.run('seventh', { WS_WORKTREE_FREE_GIB: '500' });
@@ -108,6 +122,19 @@ test('with no parked worktree the refusal says so; a removed folder does not cou
   rmSync(join(f.repo, '.worktrees/work-0'), { recursive: true, force: true });
   const room = f.run('more', { WS_WORKTREE_FREE_GIB: '500' });
   assert.equal(room.status, 0, room.stdout + room.stderr);
+});
+
+test('meta QA 11-26 row 23: a rebased land counts as landed, and a fresh unlanded worktree is not listed', { timeout: 120_000 }, () => {
+  const f = fixture();
+  f.plant('rebased', 1, { rebased: true });
+  f.plant('fresh-unlanded', 5, { unlanded: true });
+  for (const slug of ['a', 'b', 'c', 'd']) f.plant(slug, 0);
+  const result = f.run('seventh', { WS_WORKTREE_FREE_GIB: '500' });
+  assert.equal(result.status, 1, result.stdout + result.stderr);
+  assert.match(result.stderr, /oldest parked worktree is \.worktrees\/rebased \(landed, clean, idle 1\.\d h\)/u);
+  assert.match(result.stderr, /git worktree remove \.worktrees\/rebased   # rebased: landed by patch \(a rebased land\), clean, idle 1\.\d h, nothing running; branch plan\/rebased kept/u);
+  assert.doesNotMatch(result.stderr, /fresh-unlanded:/u);
+  for (const kept of ['rebased', 'fresh-unlanded']) assert.equal(existsSync(join(f.repo, '.worktrees', kept)), true, kept);
 });
 
 test('a non-number fake is refused, not read as zero', { timeout: 60_000 }, () => {
