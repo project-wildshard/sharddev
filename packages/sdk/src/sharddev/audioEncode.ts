@@ -61,7 +61,8 @@ export interface AudioEncodeOptions {
 interface Mount { readonly url: string; readonly bytes: Uint8Array }
 type Role = 'music' | 'sfx';
 
-const SOURCE = /^\/assets\/(?<role>music|sfx)\/.+\.(?<ext>m4a|wav|flac|aiff?)$/u;
+// SF4: a zone carries its audio under its slug, `/assets/<slug>/(music|sfx)/`, beside the engine-wide folders.
+const SOURCE = /^\/assets\/(?:[a-z0-9]+(?:-[a-z0-9]+)*\/)?(?<role>music|sfx)\/.+\.(?<ext>m4a|wav|flac|aiff?)$/u;
 const SCHEMA = 'audio-encode/1';
 const MAX_BYTES = 256_000_000;
 const MB = 1_000_000;

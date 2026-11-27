@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 import { measureRecording } from '@wildshard/format/audioMeasure';
 import { audioReport } from '@wildshard/format/audioRules';
 import { afterEach, expect, it } from 'vitest';
-import { audioEncodeLine, contentHashedUrl, encodeMountAudio, findAudioEncoder, readStereoMarks } from './audioEncode';
+import { audioEncodeLine, contentHashedUrl, encodeMountAudio, findAudioEncoder, isSourceRecordingUrl, readStereoMarks } from './audioEncode';
 
 // AUDIO AU7: the build encodes source recordings to AU5's targets, sound effects mono unless marked stereo, and a
 // rebuild takes every encoded file from the cache.
@@ -149,4 +149,13 @@ it.skipIf(encoder === null)('gives a re-encoded hashed recording a new URL every
   for (const mount of mounts) if (/-[a-f0-9]{8,64}\.[a-z0-9]+$/u.test(mount.url) && before.has(mount.url)) expect(mount.bytes).toEqual(before.get(mount.url));
   // A rebuild from the cache lands on the same names.
   expect((await encodeMountAudio(input, { cacheRoot })).renamed).toEqual(renamed);
+});
+
+// SF4: a zone's own audio folder under its slug is a source recording too; another folder is not.
+it("reads a zone's own music and sfx folders as source recordings", () => {
+  expect(isSourceRecordingUrl('/assets/music/piano/title.m4a')).toBe(true);
+  expect(isSourceRecordingUrl('/assets/pine-hollow/music/pine/calm.wav')).toBe(true);
+  expect(isSourceRecordingUrl('/assets/open-plot-thin-ice/sfx/thin-ice/bed.m4a')).toBe(true);
+  expect(isSourceRecordingUrl('/assets/pine-hollow/models/bed.m4a')).toBe(false);
+  expect(isSourceRecordingUrl('/assets/a/b/music/x/calm.m4a')).toBe(false);
 });

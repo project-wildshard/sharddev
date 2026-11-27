@@ -55,6 +55,9 @@ export async function readManifestSource(source: ProjectManifestSource, declared
   return { authored, ...packManifestImages(source.folder, authored, images) };
 }
 
+/** A zone's mounted sky set named by its stem URL (SF4): no file extension. */
+const SKY_STEM=/^\/assets\/[a-z0-9]+(?:-[a-z0-9]+)*\/hdri\/[A-Za-z0-9_-]+$/u;
+
 /** Build-only image inputs. Every non-data image is resolved by orchestration
  * before packing, never by runtime source imports or network fallback. */
 export function manifestImages(metadata: ManifestMetadata): readonly { readonly name: string; readonly url: string }[] {
@@ -65,7 +68,9 @@ export function manifestImages(metadata: ManifestMetadata): readonly { readonly 
     ...(metadata.explore.compare?.flatMap((row,index)=>[{name:`compare-${index}-live`,url:row.live},{name:`compare-${index}-target`,url:row.image}])??[]),
   ];
   const hdri=metadata.sky?.hdri;
-  if(hdri!==undefined&&(hdri.startsWith('/')||hdri.startsWith('data:image/')))rows.push({name:'sky',url:hdri});
+  // SF4: `/assets/<slug>/hdri/<name>` with no extension names a mounted sky set by its stem (the engine adds `_2k.hdr`, `_2k.sky.jpg`,
+  // `_2k.gain.png`), not one image to pack; a URL with an image extension stays the painted sky image it always was.
+  if(hdri!==undefined&&(hdri.startsWith('data:image/')||(hdri.startsWith('/')&&!SKY_STEM.test(hdri))))rows.push({name:'sky',url:hdri});
   const horizon=metadata.horizonStrips;
   if(horizon!==undefined){rows.push({name:'horizon-day',url:horizon.day},{name:'horizon-night',url:horizon.night});if(horizon.phone!==undefined)rows.push({name:'horizon-phone-day',url:horizon.phone.day},{name:'horizon-phone-night',url:horizon.phone.night});}
   return rows;

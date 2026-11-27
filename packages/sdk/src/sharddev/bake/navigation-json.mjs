@@ -34,5 +34,5 @@ const bytes = result.assets.get(navigation.file);
 if (!(bytes instanceof Uint8Array) || hashImmutableBytes(bytes) !== navigation.file) throw new Error('Navigation author changed bytes');
 const metadata = confined(output), folder = confined(assets);
 mkdirSync(dirname(metadata), { recursive: true }); mkdirSync(folder, { recursive: true });
-writeFileSync(metadata, `${JSON.stringify({ navigation, url: `/assets/baked/${owner}/navmesh.bin`, files: result.shardfile.files, critical: result.shardfile.critical })}\n`);
+writeFileSync(metadata, `${JSON.stringify({ navigation, url: `/assets/${owner}/baked/navmesh.bin`, files: result.shardfile.files, critical: result.shardfile.critical })}\n`);
 writeFileSync(resolve(folder, navigation.file), bytes);

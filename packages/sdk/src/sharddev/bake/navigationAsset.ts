@@ -8,11 +8,11 @@ export function declareNavigation(bytes: Uint8Array): { navigation: Navigation; 
     critical: [hash], assets: new Map([[hash, Uint8Array.from(bytes)]]) };
 }
 
-/** Original navigation discovery transport. The platform owns its conventional public URL. */
+/** Original navigation discovery transport. The platform owns its conventional public URL, under the zone's own slug (SF4). */
 export function navigationSourceRows(bytes: Uint8Array, slug: string): {
   navigation: Navigation; url: string; files: ReturnType<typeof declareNavigation>['files']; critical: string[];
 } {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/u.test(slug)) throw new Error('Invalid navigation owner');
   const rows = declareNavigation(bytes);
-  return { navigation: rows.navigation, url: `/assets/baked/${slug}/navmesh.bin`, files: rows.files, critical: rows.critical };
+  return { navigation: rows.navigation, url: `/assets/${slug}/baked/navmesh.bin`, files: rows.files, critical: rows.critical };
 }
