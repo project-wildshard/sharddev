@@ -22,6 +22,9 @@ const env = {
   PATH: (process.env.PATH ?? '').split(delimiter)
     .filter(path => isAbsolute(path) && !path.includes(`${sep}node_modules${sep}`)).join(delimiter),
   CI: 'true',
+  // The caller already bootstrapped pnpm. A generated project can pin a
+  // different version, which would otherwise spawn pnpm add in the cold home.
+  npm_config_manage_package_manager_versions: 'false',
 };
 const run = (command, args, cwd = app) => execFileSync(command, args, {
   cwd, env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], timeout: 180_000,
