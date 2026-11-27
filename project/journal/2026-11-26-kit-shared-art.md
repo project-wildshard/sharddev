@@ -7,3 +7,5 @@ SF2 of the standalone shardfiles plan. Jake (SD1): art two shards use belongs in
 A shard lists the file under its own URL, /assets/<slug>/tex/<set>/diffuse.jpg, in mounts.json. readCookInput reads the shard's own static/ first and falls back to the kit, so the shardfile carries the bytes and no zone reads art from the engine. The kit test keeps the folder honest: every set names two or more zones, every file belongs to a named set, and nothing is a KTX2 or phone copy.
 
 The package grows by about 38 MB. That is the price of standalone shardfiles until the format admits a kit-hosted commons file; the re-pack lanes copy from here.
+
+Later the same evening: a build-level test (packages/dev/test/kit-art-pack.test.ts) runs the real `build --folder-only` on a fixture shard that names leafy_grass and holds none of it, and checks the folder's cook mounts carry the kit's exact bytes with no engine URL named. That is SF2's done-when at the shardfile, not just the cook input.
