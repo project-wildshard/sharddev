@@ -8,3 +8,7 @@ With format 0.81.0, the CLI requires an authored shardVersion before it
 contacts the API. Build checks the source values before changing the output.
 The async contract uses the exact API commit that implements the same check.
 The composed local proof uses the new engine sources and the packed CLI.
+
+The installed CLI proof authors matching versions beside the built product
+and runs the signed upload from the fixture project. This keeps the test on
+the normal packed CLI path with all three declarations.

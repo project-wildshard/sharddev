@@ -118,9 +118,16 @@ function installWildshard(target: string): string {
 }
 
 /** The real product on disk, as `wildshard build` reads it. */
-async function writeProduct(dir: string, name: string): Promise<string> {
+async function writeProduct(
+  dir: string,
+  name: string,
+  shardVersion?: string,
+): Promise<string> {
   const folder = path.join(dir, name)
-  const files = await shardfileFiles({ slug: 'upload-test' })
+  const files = await shardfileFiles({
+    slug: 'upload-test',
+    ...(shardVersion === undefined ? {} : { shardVersion }),
+  })
   for (const [file, bytes] of files) {
     const target = path.join(folder, file)
     mkdirSync(path.dirname(target), { recursive: true })
@@ -136,8 +143,13 @@ async function writeProduct(dir: string, name: string): Promise<string> {
 async function writePreparedProduct(
   dir: string,
   name: string,
+  shardVersion: string,
 ): Promise<string> {
-  const folder = await writeProduct(dir, name)
+  const folder = await writeProduct(dir, name, shardVersion)
+  writeFileSync(
+    path.join(dir, 'package.json'),
+    JSON.stringify({ version: shardVersion }),
+  )
   await prepareFolder(folder)
   return folder
 }

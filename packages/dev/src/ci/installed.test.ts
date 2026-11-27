@@ -31,12 +31,15 @@ after((): void => {
   rmSync(dir, { recursive: true, force: true })
 })
 const BIN = installWildshard(dir)
+const SHARD_VERSION = '1.0.0'
 
 async function wildshard(
   args: readonly string[],
   env: Readonly<Record<string, string>> = {},
+  cwd = dir,
 ): Promise<Ran> {
   const child = spawn(process.execPath, [BIN, ...args], {
+    cwd,
     env,
     stdio: ['ignore', 'pipe', 'inherit'],
   })
@@ -60,36 +63,35 @@ function assertBuiltWith(commit: unknown): void {
 test('an installed wildshard builds a real shard file and uploads it (SA3)', async (context: TestContext): Promise<void> => {
   const server = await openUploadServer(context)
   const tar = path.join(dir, 'real.tar')
-  // J198: upload refuses the draft a bare build writes.
-  const folder = await writePreparedProduct(dir, 'real')
+  const author = path.join(dir, 'author')
+  const folder = await writePreparedProduct(author, 'real', SHARD_VERSION)
   const packed = await wildshard(['build', folder, tar])
-  const key = {
-    WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey,
-    WILDSHARD_API_KEY: server.apiKey,
-  }
-  // Explicit provenance (AC16): this bin runs from no shard project, so the
-  // package.json and git HEAD defaults would read whatever the cwd holds.
+  // The fixture carries both authored version declarations and supplies its commit explicitly.
   const uploaded = await wildshard(
     [
       'upload',
       tar,
       '--server',
       server.url,
-      '--version',
-      '1.0.0',
+      '--shard-version',
+      SHARD_VERSION,
       '--commit',
       'a'.repeat(40),
       '--channel',
       'staging',
     ],
-    key,
+    {
+      WILDSHARD_CREATOR_PRIVATE_KEY: server.privateKey,
+      WILDSHARD_API_KEY: server.apiKey,
+    },
+    author,
   )
 
   assert.equal(packed.code, 0)
   assert.equal(uploaded.code, 0)
   assert.deepEqual(
     [...server.state.revisions.values()],
-    [{ revision: 1, version: '1.0.0' }],
+    [{ revision: 1, version: SHARD_VERSION }],
   )
   assertBuiltWith(server.state.commits[0])
 })
