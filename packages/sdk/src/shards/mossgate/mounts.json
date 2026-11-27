@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "outputs": {
+    "mossgate": [
+      "/assets/mossgate/music/mossgate-piano/island-calm-05125ed8.m4a",
+      "/assets/mossgate/music/mossgate-piano/island-tension-7faf0468.m4a",
+      "/assets/mossgate/music/mossgate-piano/music.json",
+      "/assets/mossgate/music/mossgate-piano/pine-calm-923e0056.m4a",
+      "/assets/mossgate/music/mossgate-piano/pine-tension-cc014e5b.m4a",
+      "/assets/mossgate/music/mossgate-piano/sting-chunk-1f540734.m4a",
+      "/assets/mossgate/music/mossgate-piano/sting-death-8ee9ff5d.m4a",
+      "/assets/mossgate/music/mossgate-piano/sting-pickup-5ba19a30.m4a"
+    ]
+  }
+}

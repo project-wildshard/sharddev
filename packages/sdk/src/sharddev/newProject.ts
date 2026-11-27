@@ -1,5 +1,5 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Scaffolding owns only a fresh author directory.
-import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Asks npm which sdk and cli releases a new repo can install.
 import { execFileSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve files beneath the new project root.
@@ -259,12 +259,33 @@ function writeSceneSource(source: string, slug: string): void {
   // TEMPLATE-E2E TC-NE5, TR-2, TR-12: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`,
   // then on to brazier A and through the moss gate it opens, which files `mossgate.first-light`) lives
   // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.
+  // SF23: Mossgate plays its own piano set, named for its slug (`static/assets/mossgate/music/mossgate-piano/`, listed in
+  // mounts.json); world.music({ own: true }) names the set for this project's slug, so the copy's folder and rows follow it
+  renameOwnScoreSet(source, 'mossgate', slug);
   cpSync(resolve(import.meta.dirname, 'starter-proof.json'), resolve(source, 'proof.json'));
   writeFileSync(resolve(source, 'identity.json'), encodeCanonicalJson({ slug, name: slug, author: 'Local author', revision: 1, seed: 357 }));
   // TR-12: the scene is the cleanroom's (\`world.ts\`) plus what the player uses in it (\`play.ts\`) and fights (TR-12b,
   // \`creatures.ts\`); \`extend\` adds the quests, talks, rack and fights (\`gameplay.ts\`, \`fights.ts\`)
   writeFileSync(resolve(source, 'generators/shard.ts'), `import { defineShard } from '@wildshard/sdk/scene/shard';\nimport identity from '../identity.json' with { type: 'json' };\nimport { DECISIONS } from './fights';\nimport { gameplay } from './gameplay';\nimport { buildLandings } from './landings';\nimport { buildHollow } from './play';\n\n/** This shard: the scene \`world.ts\`, \`play.ts\` and \`creatures.ts\` build, and the quest beats \`landings.ts\` lands, under this project's identity, with the quests, talks, rack and fights \`gameplay.ts\` adds and the Warden's decision script (\`behaviour/warden.as\`). */\nexport const shard = defineShard(identity, (world) => { buildHollow(world); buildLandings(world); }, { extend: gameplay, decisions: DECISIONS });\n`);
   writeFileSync(resolve(source, 'shard.config.ts'), `// The shard is one three.js scene module: \`generators/world.ts\`. \`wildshard build\` runs it as the generator;\n// \`wildshard watch\` reads its describe() and streams each saved edit to a running page.\nimport { shard } from './generators/shard';\n\nexport const generate: typeof shard = shard;\n// oxlint-disable-next-line import/no-default-export -- The author CLI executes this project entry.\nexport default generate;\n/** The decision scripts' AssemblyScript line budget (behaviour/warden.as). */\nexport const buildOptions = { asLineCeiling: 100 };\n`);
+}
+
+/** SF23: move a copied template's own score set (`static/assets/<from>/music/<from>-<style>/`) and its mounts.json rows to
+ * `slug`, so the set a scene's `world.music({ own: true })` names for this project is where its files are. */
+function renameOwnScoreSet(source: string, from: string, slug: string): void {
+  const folder = resolve(source, 'static/assets', from), mountsPath = resolve(source, 'mounts.json');
+  const destination = resolve(source, 'static/assets', slug);
+  if (folder === destination || !existsSync(folder)) return;
+  const music = resolve(folder, 'music');
+  for (const name of existsSync(music) ? readdirSync(music) : []) {
+    if (name.startsWith(`${from}-`)) renameSync(resolve(music, name), resolve(music, `${slug}${name.slice(from.length)}`));
+  }
+  renameSync(folder, destination);
+  if (!existsSync(mountsPath)) return;
+  const mounts = JSON.parse(readFileSync(mountsPath, 'utf8')) as { version: number; outputs: Record<string, string[]> };
+  const moved = (url: string): string => url.replace(`/assets/${from}/music/${from}-`, `/assets/${slug}/music/${slug}-`).replace(`/assets/${from}/`, `/assets/${slug}/`);
+  const outputs = Object.fromEntries(Object.entries(mounts.outputs).map(([key, urls]) => [key === from ? slug : key, urls.map(moved)]));
+  writeFileSync(mountsPath, encodeCanonicalJson({ ...mounts, outputs }));
 }
 
 /** A9: `new --empty`'s source, a bare scene shard (`empty-scene/`): `defineShard` over one `generators/world.ts` with a

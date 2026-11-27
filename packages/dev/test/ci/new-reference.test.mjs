@@ -54,7 +54,16 @@ function cli(args, success=true) {
 test('default new builds an independently named playable reference', {timeout:120_000},()=>{
  cli(['new',repo,'first-island']);
  cli(['new',repo,'first-island'],false);
- cli(['build',source,output,'--product-only']);
+ const score = JSON.parse(readFileSync(join(source, "mounts.json"), "utf8")).outputs;
+ assert.equal(Object.keys(score).join(","), "first-island");
+ const set = "/assets/first-island/music/first-island-piano/";
+ assert.equal(score["first-island"].length, 8);
+ assert.ok(score["first-island"].every(url => url.startsWith(set) && existsSync(join(source, "static", url.slice(1)))));
+ cli(["build",source,output,"--product-only"]);
+ const cook = JSON.parse(readFileSync(join(output, "cook.json"), "utf8"));
+ const scoreName = url => url.slice(set.length).replace(/-[a-f0-9]{8}(?=\.m4a$)/u, "");
+ const packedScore = cook.mounts.map(row => row.url).filter(url => url.startsWith(set));
+ assert.deepEqual(packedScore.map(scoreName).sort(), score["first-island"].map(scoreName).sort());
 });
 // SA4: the loop's check step gives the default new project a passing verdict.
 test('check --json passes the default new project', {timeout:120_000},()=>{

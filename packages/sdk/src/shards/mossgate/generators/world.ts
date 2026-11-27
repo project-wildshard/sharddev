@@ -66,9 +66,10 @@ export function buildMossgate(world: ShardWorld): void {
   world.part('flora', (part) => { flora(part, tex, world); });
   grass(world, tex);
   world.part('fireflies', (part) => { fireflies(part, tex); });
-  // MZ23: the engine's piano score, pine by day, island by night and the title theme while the Warden fights (engine
-  // 30c22f00 and 756b6dba, in 0.1.59 and up), and a low wind through the hollow, so a quest step's sting is heard (MZ31)
-  world.music({ day: 'pine', night: 'island', boss: 'title' });
+  // MZ23: the piano score, pine by day, island by night and the engine's title theme while the Warden fights (engine
+  // 30c22f00 and 756b6dba, in 0.1.59 and up), and a low wind through the hollow, so a quest step's sting is heard (MZ31).
+  // SF23: the pine and island takes are the shard's own copy (static/assets/mossgate/music/mossgate-piano/, mounts.json)
+  world.music({ day: 'pine', night: 'island', boss: 'title', own: true });
   world.ambience({ winds: [{ frequency: 260, q: 0.5, pan: -0.55, rate: 0.07, gain: 0.08 }, { frequency: 520, q: 0.9, pan: 0.5, rate: 0.11, gain: 0.04 }] });
   world.spawn(LAYOUT.SPAWN.x, 0, LAYOUT.SPAWN.z, LAYOUT.SPAWN.yaw);
 }
