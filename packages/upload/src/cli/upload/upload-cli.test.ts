@@ -21,7 +21,7 @@ import type { Run } from '../../../../dev/src/test/helpers/upload-run.ts'
 const MAIN = fileURLToPath(
   new URL('../../../../dev/src/cli/main.ts', import.meta.url),
 )
-const ROOT = new URL('../../../../sdk/', import.meta.url)
+const CLI_ROOT = new URL('../../../../dev/', import.meta.url)
 
 // UP3 (J301, J306): the channel the upload is for, and the versions it was
 // built with, through the real CLI against the double.
@@ -58,7 +58,7 @@ async function cli(
 const PROVENANCE = ['--shard-version', VERSION, '--commit', COMMIT]
 
 async function installed(name: string): Promise<string> {
-  const file = new URL(`node_modules/${name}/package.json`, ROOT)
+  const file = new URL(`node_modules/${name}/package.json`, CLI_ROOT)
   const raw: unknown = JSON.parse(await readFile(file, 'utf8'))
   assert.ok(typeof raw === 'object' && raw !== null && 'version' in raw)
   return String(raw.version)
