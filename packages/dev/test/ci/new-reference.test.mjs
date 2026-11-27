@@ -17,7 +17,7 @@ const parent=process.env.WS_PROOF_SCRATCH??tmpdir();
 mkdirSync(parent,{recursive:true});
 const root=mkdtempSync(join(parent,'new-reference-'));
 after(()=>rmSync(root,{recursive:true,force:true}));
-const bin=installWildshard(root), app=join(root,'app'), repo=join(app,'first-island'), source=join(repo,'src'), output=join(app,'product');
+const bin=installWildshard(root), app=join(root,'app'), repo=join(app,'first-island'), source=join(repo,'src'), output=join(repo,'product');
 // TEMPLATE-E2E TR-2 (J434): `new` starts from Mossgate Hollow, whose real gate is the north gate in the yard's north
 // wall (TR-12a): east along the spawn row to x 7.2, north up to the shut gate, a step back to the lever, pull it, then
 // through the gap (the yard's north wall stands at z -18.6).

@@ -78,8 +78,8 @@ test('the installed author creates its real navigation project', { timeout: 4500
 });
 
 test('an installed author builds a real wetland road with dry queries', { timeout: 45000 }, async () => {
-  run(['build', source, join(app, 'road'), '--product-only']);
-  const { nav } = await navigation(join(app, 'road'));
+  run(['build', source, join(repo, 'road'), '--product-only']);
+  const { nav } = await navigation(join(repo, 'road'));
   const route = nav.findPath({x:-4,y:2,z:0}, {x:12,y:2,z:0}, .3);
   assert.ok(route && route.length >= 2, 'The authored trail through wet ground must remain traversable');
   assert.ok(Math.abs(route.at(-1).x - 12) < .5, 'The real path must reach its goal');
@@ -88,23 +88,23 @@ test('an installed author builds a real wetland road with dry queries', { timeou
 });
 
 test('the installed CLI packs the admitted navigation product', { timeout: 45000 }, () => {
-  run(['pack', join(app, 'road'), '--out', join(root, 'road.tar')]);
+  run(['pack', join(repo, 'road'), '--out', join(root, 'road.tar')]);
 });
 
 test('the strict wet threshold survives a second actual author build', { timeout: 45000 }, async () => {
-  config(1); run(['build', source, join(app, 'equality'), '--product-only']);
-  const { nav, bytes } = await navigation(join(app, 'equality'));
+  config(1); run(['build', source, join(repo, 'equality'), '--product-only']);
+  const { nav, bytes } = await navigation(join(repo, 'equality'));
   assert.ok(nav.closestWalkable({x:4,y:2,z:12}, .3), 'Wet equality must remain dry enough to walk');
   assert.equal(nav.closestWalkable({x:-12,y:0,z:0}, .3), null, 'Water exclusion remains active at wet equality');
-  const baseline = await navigation(join(app, 'road'));
+  const baseline = await navigation(join(repo, 'road'));
   assert.notDeepEqual(bytes, baseline.bytes, 'Changing the author policy must change real baked polygons');
 });
 
 test('an invalid policy refuses the real author build and preserves prior bytes', { timeout: 45000 }, async () => {
-  const before = await navigation(join(app, 'road'));
+  const before = await navigation(join(repo, 'road'));
   config(.5, -1);
-  const refused = run(['build', source, join(app, 'invalid'), '--product-only'], false);
+  const refused = run(['build', source, join(repo, 'invalid'), '--product-only'], false);
   assert.match(`${refused.stdout}\n${refused.stderr}`, /(?:waterMargin|>=0|>= 0)/);
-  const after = await navigation(join(app, 'road'));
+  const after = await navigation(join(repo, 'road'));
   assert.deepEqual(after.bytes, before.bytes);
 });

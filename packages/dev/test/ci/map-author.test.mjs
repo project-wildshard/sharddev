@@ -78,12 +78,12 @@ test('the installed author owns its source inputs', cap, () => {
   config();
 });
 test('owned map pixels survive actual build, lossless encoding and product readmission', cap, async () => {
-  run(['build', source, join(app, 'first'), '--product-only']);
+  run(['build', source, join(repo, 'first'), '--product-only']);
   const read = name => { assert.equal(name, 'floor.glb'); return floor; };
   const direct = await rasterSceneMap(settings, { input: read, bytes: read, json: () => { throw new Error('No JSON'); } });
   const legacy = await rasterDataMap(settings, { input: read, bytes: read, json: () => { throw new Error('No JSON'); } });
   assert.deepEqual(Buffer.from(direct.pixels), Buffer.from(legacy.pixels));
-  const product = await loadHeadlessFolder(join(app, 'first'));
+  const product = await loadHeadlessFolder(join(repo, 'first'));
   baseline = Buffer.from(await product.file('ui/map'));
   const { data, info } = await sharp(baseline).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
   assert.deepEqual([info.width, info.height, info.channels], [1000, 1000, 4]);
@@ -93,16 +93,16 @@ test('owned map pixels survive actual build, lossless encoding and product readm
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
 });
 test('a second map build keeps every encoded byte and packs the real product', cap, async () => {
-  run(['build', source, join(app, 'second'), '--product-only']);
-  const product = await loadHeadlessFolder(join(app, 'second'));
+  run(['build', source, join(repo, 'second'), '--product-only']);
+  const product = await loadHeadlessFolder(join(repo, 'second'));
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
-  run(['pack', join(app, 'second'), '--out', join(root, 'map.tar')]);
+  run(['pack', join(repo, 'second'), '--out', join(root, 'map.tar')]);
 });
 test('an undeclared map input fails the real build without changing its prior product', cap, async () => {
   config(true);
-  const failed = run(['build', source, join(app, 'refused'), '--product-only'], false);
+  const failed = run(['build', source, join(repo, 'refused'), '--product-only'], false);
   assert.match(`${failed.stdout}\n${failed.stderr}`, /Undeclared map input absent.glb/);
-  const product = await loadHeadlessFolder(join(app, 'first'));
+  const product = await loadHeadlessFolder(join(repo, 'first'));
   assert.deepEqual(Buffer.from(await product.file('ui/map')), baseline);
 });
 test('owned baked selectors and repeated placements reach the packed map without a file handoff', cap, async () => {
@@ -122,13 +122,13 @@ test('owned baked selectors and repeated placements reach the packed map without
     bakes: [{ piece: 'fixture', rows: { file: 'bake.json', path: [] }, directory: 'bakes' }],
     recipes: [{ file: 'scene.json', path: [] }] } } };
   config(false, selected, [...sources.keys()]);
-  run(['build', source, join(app, 'selected'), '--product-only']);
+  run(['build', source, join(repo, 'selected'), '--product-only']);
   const read = name => { const bytes = sources.get(name); assert.ok(bytes, `Undeclared ${name}`); return bytes; };
   const readers = { input: read, bytes: read, json: name => JSON.parse(read(name).toString()) };
   const legacy = await rasterDataMap(selected, readers);
   assert.equal(legacy.raster.triangles, 3);
   assert.equal(legacy.raster.height.reduce((maximum, value) => Math.max(maximum, value), -Infinity), 4 * 65536);
-  const product = await loadHeadlessFolder(join(app, 'selected'));
+  const product = await loadHeadlessFolder(join(repo, 'selected'));
   const pixels = await sharp(await product.file('ui/map')).ensureAlpha().raw().toBuffer();
   assert.deepEqual(pixels, Buffer.from(legacy.pixels));
 });
