@@ -16,6 +16,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { gateTestEnvironment } from './gate-workers.mjs';
 import { availableParallelism } from 'node:os';
 import { budgetVerdict, machineLoad } from './commit-budget.mjs';
 import { copyReason, makeGateCopy, pushedCommit } from './push-gate-copy.mjs';
@@ -129,7 +130,8 @@ if (copy === null && !existsSync(join(pkgDir, 'node_modules'))) {
 
 // Hooks export GIT_INDEX_FILE and friends; tools that shell out to git
 // (knip, tests that build repos) must see a normal environment.
-const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+const cleanEnv = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('GIT_')));
+const env = lane === 'push' ? gateTestEnvironment(cleanEnv, 2) : cleanEnv;
 // Meta QA 11-25 row 149: the watch parity's frames outlive the clean copy, so a gate red can be looked at, not skipped.
 if (copy !== null) env.WS_PARITY_FRAMES ??= join(root, 'tmp', 'push-gate', 'watch-parity');
 // Install a missing shared tool cache from its committed lock before checks.
