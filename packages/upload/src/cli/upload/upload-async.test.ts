@@ -88,6 +88,7 @@ async function cli(
     process.execPath,
     [MAIN, 'upload', ...invocation.args, '--server', run.server.url],
     {
+      cwd: path.dirname(run.file),
       env: {
         PATH: process.env['PATH'],
         HOME: path.dirname(run.file),

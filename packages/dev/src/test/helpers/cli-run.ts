@@ -8,10 +8,9 @@ import type { TestContext } from 'node:test'
 import { fileURLToPath } from 'node:url'
 
 // The real CLI (src/cli/main.ts) in a child process with only the
-// environment a test gives it, from the repository root, and a scratch HOME
-// for the account key file (meta SHARD-DELETE DEL6). `input`, when given,
-// is what the author types on stdin (DEL10's typed slug); else stdin is
-// empty, closed at once.
+// environment a test gives it and a scratch HOME for the account key file
+// (meta SHARD-DELETE DEL6). A string supplies stdin for DEL10's typed slug.
+// An upload fixture can supply its source project's working directory.
 
 const MAIN = fileURLToPath(new URL('../../cli/main.ts', import.meta.url))
 const ROOT = fileURLToPath(new URL('../../../../sdk', import.meta.url))
@@ -26,16 +25,16 @@ interface CliRun {
 async function runCli(
   args: readonly string[],
   env: Readonly<Record<string, string>>,
-  input?: string,
+  input?: string | Readonly<{ cwd: string }>,
 ): Promise<CliRun> {
   const child = spawn(process.execPath, [MAIN, ...args], {
-    cwd: ROOT,
+    cwd: typeof input === 'object' ? input.cwd : ROOT,
     env: { PATH: process.env['PATH'], ...env },
     stdio: ['pipe', 'pipe', 'pipe'],
   })
   // A child that exits before reading its input is not a test failure.
   child.stdin.on('error', (): void => undefined)
-  child.stdin.end(input ?? '')
+  child.stdin.end(typeof input === 'string' ? input : '')
   const [stdout, stderr] = [text(child.stdout), text(child.stderr)]
   await once(child, 'close')
   return { status: child.exitCode, stdout: await stdout, stderr: await stderr }

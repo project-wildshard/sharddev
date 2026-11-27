@@ -1,6 +1,7 @@
 // oxlint-disable typescript/prefer-readonly-parameter-types -- a run collects what the double saw
 import assert from 'node:assert/strict'
 import type { IncomingMessage } from 'node:http'
+import path from 'node:path'
 import { test } from 'node:test'
 import type { TestContext } from 'node:test'
 
@@ -50,10 +51,11 @@ async function cliUpload(
     '--channel',
     'staging',
   ]
-  return await runCli([...args, '--version', VERSION, '--commit', COMMIT], {
-    WILDSHARD_CREATOR_PRIVATE_KEY: run.server.privateKey,
-    ...keys,
-  })
+  return await runCli(
+    [...args, '--version', VERSION, '--commit', COMMIT],
+    { WILDSHARD_CREATOR_PRIVATE_KEY: run.server.privateKey, ...keys },
+    { cwd: path.dirname(run.file) },
+  )
 }
 
 test('sends the account key on the ticket and the commit only', async (context: TestContext): Promise<void> => {
@@ -101,6 +103,7 @@ test('the real CLI uploads with only its saved account key and no creator key', 
       COMMIT,
     ],
     { HOME: await scratchHome(context, run.server.apiKey) },
+    { cwd: path.dirname(run.file) },
   )
 
   assert.equal(result.status, 0, result.stderr)
