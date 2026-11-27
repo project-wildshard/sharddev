@@ -1,5 +1,5 @@
 import * as schema from 'valibot';
-import { BufferAttribute, Float16BufferAttribute, Matrix4, type Color, type InterleavedBufferAttribute, MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3, Group, Mesh, type Material, type Object3D, BufferGeometry, Euler } from 'three';
+import { BufferAttribute, Float16BufferAttribute, Matrix4, type Color, type InterleavedBufferAttribute, type MeshBasicMaterial, MeshStandardMaterial, Quaternion, Vector3, Group, Mesh, type Material, type Object3D, BufferGeometry, Euler } from 'three';
 import { packStaticGlb, staticVertexPacking } from './packedVertex';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { parseGlb } from '../assets';
@@ -102,6 +102,17 @@ export function clientSceneGlb(root: Group, ports: ReadonlyMap<Material, string>
     const scene = parsePrivateScene({ version: 1, root: root.name, nodes, materials });
     return { scene, glb: staticGlb(primitives, root.name) };
   } finally { geometryMaterial.dispose(); for (const geometry of ownedCurves) geometry.dispose(); }
+}
+/** Whether a primitive's material is unlit, by three's own flag rather than `instanceof`: a generator's three can be a different
+ *  copy of the same version from the SDK's (a linked SDK), and its MeshBasicMaterial then failed `instanceof`, so the bake
+ *  read its absent PBR maps as textures and refused (SF7c), or would have written it lit. */
+export function unlit(material: MeshStandardMaterial | MeshBasicMaterial): material is MeshBasicMaterial {
+  return (material as { readonly isMeshBasicMaterial?: boolean }).isMeshBasicMaterial === true;
+}
+/** Whether a material names a texture: a GLB carries none (J525: textures are separate image declarations the cook encodes). */
+export function hasTexture(material: MeshStandardMaterial | MeshBasicMaterial): boolean {
+  const maps = material as { readonly map?: unknown; readonly alphaMap?: unknown; readonly normalMap?: unknown; readonly roughnessMap?: unknown; readonly metalnessMap?: unknown };
+  return [maps.map, maps.alphaMap, maps.normalMap, maps.roughnessMap, maps.metalnessMap].some(map => map !== undefined && map !== null);
 }
 /** A primitive's geometry, material and optional instanced local transforms; textures are separate declared assets. */
 export interface GlbPrimitive {
@@ -236,7 +247,7 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
     return { position, rotation, scale };
   };
   for (const { geometry, material, instances, exactInstances, instanceColours, castShadow = true, customAttributes = {}, name: nodeName = name, transform, compactIndex, nativeAttributes, nativeOnce, extras, pose, quantizedChannels, meshoptReady } of primitives) {
-    if (material.map !== null || material.alphaMap !== null || (!(material instanceof MeshBasicMaterial) && (material.normalMap !== null || material.roughnessMap !== null || material.metalnessMap !== null))) throw new Error('GLB textures must be external KTX2 declarations');
+    if (hasTexture(material)) throw new Error('GLB textures must be separate image declarations: a shardfile carries images and the cook encodes them (J525)');
     if (!geometry.hasAttribute('position')) throw new Error('Missing GLB positions');
     const p = geometry.getAttribute('position'); if ( p.count > 400_000) throw new Error('Unsupported GLB geometry');
     const packedPosition = meshoptReady === true && p instanceof BufferAttribute && p.array instanceof Int16Array && !p.normalized;
@@ -295,10 +306,10 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
     const index = geometry.getIndex(), indices = index === null ? Array.from({ length: p.count }, (_, i) => i) : Array.from(index.array);
     if (indices.length % 3 !== 0 || indices.some((i) => !Number.isInteger(i) || i < 0 || i >= p.count)) throw new Error('Invalid triangle indices');
     const materialIndex = materials.length;
-    materials.push({ name: material.name, pbrMetallicRoughness: { baseColorFactor: [...material.color, material.opacity], metallicFactor: material instanceof MeshBasicMaterial ? 0 : material.metalness, roughnessFactor: material instanceof MeshBasicMaterial ? 1 : material.roughness }, doubleSided: material.side === 2,
+    materials.push({ name: material.name, pbrMetallicRoughness: { baseColorFactor: [...material.color, material.opacity], metallicFactor: unlit(material) ? 0 : material.metalness, roughnessFactor: unlit(material) ? 1 : material.roughness }, doubleSided: material.side === 2,
       alphaMode: material.transparent ? 'BLEND' : material.alphaTest > 0 ? 'MASK' : 'OPAQUE',
       ...(material.alphaTest > 0 ? { alphaCutoff: material.alphaTest } : {}),
-      ...(material instanceof MeshBasicMaterial ? { extensions: { KHR_materials_unlit: {} } } : material.emissive.r !== 0 || material.emissive.g !== 0 || material.emissive.b !== 0 ? { emissiveFactor: [...material.emissive].map(value => value * material.emissiveIntensity) } : {}),
+      ...(unlit(material) ? { extensions: { KHR_materials_unlit: {} } } : material.emissive.r !== 0 || material.emissive.g !== 0 || material.emissive.b !== 0 ? { emissiveFactor: [...material.emissive].map(value => value * material.emissiveIntensity) } : {}),
     });
     const compact = compactIndex === true, short = compact && index !== null && index.array instanceof Uint16Array;
     meshes.push({ name: nodeName, primitives: [{ attributes, ...(compact && index === null ? {} : { indices: accessor(indices, 1, 'SCALAR', true, false, short) }), material: materialIndex }] });
@@ -333,7 +344,7 @@ export function staticGlb(primitives: readonly GlbPrimitive[], name = 'baked'): 
     nodes.push(node);
   }
   const doc: Record<string, Json> = { asset: { version: '2.0', generator: 'wildshard-static-v1' }, scene: 0, scenes: [{ nodes: nodes.map((_, i) => i) }], nodes, meshes, materials, accessors, bufferViews: views, buffers: [{ byteLength: offset }] };
-  const extensions = [...(primitives.some(p => p.instances !== undefined) ? ['EXT_mesh_gpu_instancing'] : []), ...(primitives.some(p => p.material instanceof MeshBasicMaterial) ? ['KHR_materials_unlit'] : []), ...(quantized ? ['KHR_mesh_quantization'] : [])];
+  const extensions = [...(primitives.some(p => p.instances !== undefined) ? ['EXT_mesh_gpu_instancing'] : []), ...(primitives.some(p => unlit(p.material)) ? ['KHR_materials_unlit'] : []), ...(quantized ? ['KHR_mesh_quantization'] : [])];
   if (extensions.length > 0) { doc['extensionsUsed'] = extensions; doc['extensionsRequired'] = extensions; }
   const raw = new TextEncoder().encode(JSON.stringify(doc)), length = Math.ceil(raw.length / 4) * 4, bytes = new Uint8Array(28 + length + offset), v = new DataView(bytes.buffer);
   v.setUint32(0, 0x46546c67, true); v.setUint32(4, 2, true); v.setUint32(8, bytes.length, true); v.setUint32(12, length, true); v.setUint32(16, 0x4e4f534a, true); bytes.fill(32, 20, 20 + length); bytes.set(raw, 20);
