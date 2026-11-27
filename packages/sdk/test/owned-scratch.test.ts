@@ -1,7 +1,7 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- Two worker processes share one lane's scratch, as a push gate's do.
 import { spawn, spawnSync } from 'node:child_process';
 // oxlint-disable-next-line import/no-nodejs-modules -- The test checks the folders the workers leave.
-import { existsSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Worker and scratch paths.
 import { resolve } from 'node:path';
 import { expect, test } from 'vitest';
@@ -45,7 +45,21 @@ test('a worker closing its fixtures leaves another worker on the same lane able 
     b.stdin.write('close\n');
     expect(await next()).toBe('closed');
     expect(existsSync(bRoot)).toBe(false);
-    expect(existsSync(laneDir)).toBe(false);
+    // Row 42: a lane's folder stays with its .owner (the lane or the gate copy removes it), never ownerless.
+    expect(readdirSync(laneDir)).toEqual(['.owner']);
     b.stdin.end('exit\n');
+  } finally { rmSync(laneDir, { recursive: true, force: true }); }
+}, 30_000);
+
+// Meta QA 11-26 row 42: scratchDir makes tmp/<lane>, then its .owner. A sibling worker importing in between found the
+// folder ownerless and was refused: "tmp/codex-cookkeys already exists with no .owner" in codex-cookkeys' gate. Here
+// the folder is left exactly as the first worker's scratchDir leaves it between those two steps.
+test('a worker arriving while a sibling has made the lane folder but not its .owner still gets a fixture', () => {
+  try {
+    mkdirSync(laneDir, { recursive: true });
+    const a = spawnSync(process.execPath, ['--input-type=module', '-e', WORKER, owned], { env: env('3'), input: 'make\nclose\nexit\n', encoding: 'utf8' });
+    expect(a.status, a.stderr).toBe(0);
+    expect(a.stdout.trim().split('\n')).toHaveLength(3);
+    expect(readdirSync(laneDir)).toEqual(['.owner']);
   } finally { rmSync(laneDir, { recursive: true, force: true }); }
 }, 30_000);
