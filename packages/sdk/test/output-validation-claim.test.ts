@@ -26,3 +26,18 @@ test('the SDK publishes the source residency and post cost in its validation rec
     rmSync(directory, { recursive: true, force: true });
   }
 });
+
+test('the SDK writes the authored version in both the descriptor and raw cook', () => {
+  mkdirSync('tmp', { recursive: true });
+  const directory = mkdtempSync(resolve('tmp/versioned-cook-'));
+  try {
+    const source = emptyShardfile({ slug: 'versioned-zone', name: 'Versioned', author: 'Test', revision: 1, seed: 1 });
+    writeOutputProduct(source, new Map(), directory, { shardVersion: '0.0.13', cook: { mounts: [] } });
+    const header: unknown = JSON.parse(readFileSync(join(directory, 'shard.json'), 'utf8'));
+    const cook: unknown = JSON.parse(readFileSync(join(directory, 'cook.json'), 'utf8'));
+    expect(header).toMatchObject({ shardVersion: '0.0.13' });
+    expect(cook).toMatchObject({ shardVersion: '0.0.13', version: 1 });
+  } finally {
+    rmSync(directory, { recursive: true, force: true });
+  }
+});

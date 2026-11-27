@@ -50,7 +50,9 @@ async function loadBasis(): Promise<BasisModule> {
     loaded.initializeBasis(); return loaded;
   } finally { rmSync(temporary, { recursive: true }); }
 }
-/** Encode embedded PNG/JPEG/WebP to deterministic single-threaded UASTC KTX2 with a complete mip chain.
+/** @deprecated SF18 (J525): the SDK's build no longer calls this; a shardfile carries images only and the cook makes every KTX2.
+ * Kept for the generators still on it until their zone's re-pack moves them to PNG; then it goes.
+ * Encode embedded PNG/JPEG/WebP to deterministic single-threaded UASTC KTX2 with a complete mip chain.
  * Colour/emissive uses sRGB; normal/ORM uses linear transfer. Source flipY is baked into raster rows for the glTF/KTX2 convention; atlas UVs stay unchanged. No system binary, CDN or author code is executed. */
 export async function bakeWorldTexture(image: Uint8Array, colourSpace: 'srgb' | 'linear', options: { flipY?: boolean } = {}): Promise<Uint8Array> {
   if (!['srgb', 'linear'].includes(colourSpace)) throw new Error('World texture transfer must be srgb or linear');

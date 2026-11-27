@@ -21,7 +21,9 @@ const integer = (value: unknown): number => {
   return value;
 };
 
-/** Producer-only byte rewrite: preserve every decoded geometry/skin/clip view and all non-storage JSON.
+/** @deprecated SF18 (J525): the SDK's build no longer calls this; a shardfile carries images only and the cook makes every KTX2.
+ * Kept for the generators still on it until their zone's re-pack moves them to PNG; then it goes.
+ * Producer-only byte rewrite: preserve every decoded geometry/skin/clip view and all non-storage JSON.
  * Replace embedded WebP with injected Basis KTX2, removing meshopt storage for the original raw variant form.
  * Both complete GLBs cross normal admission; there is no public-artifact, file, encoder or compiler fallback. */
 export async function basisGlbVariant(source: Uint8Array, encode: GlbBasisEncoder): Promise<Uint8Array> {

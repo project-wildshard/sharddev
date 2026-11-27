@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import type { GraphIr } from '@wildshard/format/materialGraph';
 import { StaticMaterialCatalogue } from './staticMaterials';
-import { bakeRawColourPixels } from './rawTexture';
+import { pngFromPixels } from './imageBlob';
 import type { WorldMaterial } from './world';
 
 const graph: GraphIr = { version: 1, kind: 'material', model: 'unlit', effectState: { fog: false },
@@ -14,7 +14,7 @@ function poster(): WorldMaterial {
       normal: null, metallicRoughness: null, occlusion: null, emissive: null } };
 }
 test('opaque graph pictures preserve the complete sRGB colour slot and sampler', () => {
-  const bytes = bakeRawColourPixels({ width: 1, height: 1, pixels: new Uint8ClampedArray([18, 24, 43, 255]) });
+  const bytes = pngFromPixels({ width: 1, height: 1, pixels: new Uint8ClampedArray([18, 24, 43, 255]) });
   const resolve = vi.fn(() => bytes), source = poster();
   const catalogue = new StaticMaterialCatalogue([source], { poster: { family: 'graph', graph } }, new Map([['poster', graph]]), resolve);
   try {

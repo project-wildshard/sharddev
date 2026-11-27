@@ -12,6 +12,7 @@ import {
 } from 'node:fs'
 import path from 'node:path'
 import { after, test } from 'node:test'
+import { fileURLToPath, pathToFileURL } from 'node:url'
 
 import {
   installWildshard,
@@ -79,17 +80,65 @@ function finish(folder: string, file: string): number | null {
   return run.status
 }
 
-test('installed producer prepares and packs exact candidate bytes', async (): Promise<void> => {
-  const folder = await writeProduct(dir, 'prepared')
+function assertCookedHeaderUnchanged(
+  archive: string,
+  folder: string,
+  shardVersion: string,
+): void {
+  const engine =
+    process.env['WILDSHARD_ENGINE_PROOF'] ??
+    path.dirname(
+      fileURLToPath(import.meta.resolve('@wildshard/engine/package.json')),
+    )
+  const cooker = pathToFileURL(
+    path.join(engine, 'src/cook/game/shardCook.ts'),
+  ).href
+  const roundTrip = `import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createHash} from 'node:crypto';
+const {openShardfile}=await import(${JSON.stringify(cooker)});
+const [tar,folder,shardVersion]=process.argv.slice(1);
+const rawCook=readFileSync(folder+'/cook.json');
+assert.equal(JSON.parse(rawCook.toString()).shardVersion,shardVersion);
+const cooked=openShardfile(readFileSync(tar),{shardVersion});
+const sha=bytes=>createHash('sha256').update(bytes).digest('hex');
+assert.equal(sha(cooked.header),sha(readFileSync(folder+'/shard.json')));
+assert.deepEqual(Buffer.from(cooked.read('cook.json')),rawCook);`
+  const opened = spawnSync(
+    process.execPath,
+    [
+      '--import',
+      path.join(engine, 'src/scripts/bake-loader.mjs'),
+      '--input-type=module',
+      '-e',
+      roundTrip,
+      archive,
+      folder,
+      shardVersion,
+    ],
+    { encoding: 'utf8' },
+  )
+  assert.equal(opened.status, 0, opened.stderr)
+}
+
+test('installed producer prepares and packs the authored version without changing its header in the cook', async (): Promise<void> => {
+  const shardVersion = '0.0.13'
+  const project = path.join(dir, 'versioned-author')
+  mkdirSync(project)
+  writeFileSync(
+    path.join(project, 'package.json'),
+    JSON.stringify({ version: shardVersion }),
+  )
+  const folder = await writeProduct(project, 'prepared', shardVersion)
   assert.equal(finish(folder, recording(folder)), 0)
   const out = path.join(dir, 'prepared.tar')
   const packed = spawnSync(
     process.execPath,
     [bin, 'pack', folder, '--out', out],
-    { encoding: 'utf8' },
+    { cwd: project, encoding: 'utf8' },
   )
   assert.equal(packed.status, 0, packed.stderr)
-  assert.ok(readFileSync(out).length > 0)
+  assertCookedHeaderUnchanged(out, folder, shardVersion)
 })
 
 test('a capture from another candidate cannot finish this product', async (): Promise<void> => {

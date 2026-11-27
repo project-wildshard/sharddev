@@ -47,12 +47,12 @@ export interface OutputProductOptions {
   readonly cook?: CookInput;
 }
 /** C0: the mounts' bytes and their `cook.json` join the product's emitted files. */
-function cookRow(input: CookInput | undefined, emitted: Map<string,Uint8Array>, files: readonly {readonly path:string;readonly hash:string}[]): NonNullable<OutputIndex['cook']> | undefined {
+function cookRow(input: CookInput | undefined, emitted: Map<string,Uint8Array>, files: readonly {readonly path:string;readonly hash:string}[], shardVersion?: string): NonNullable<OutputIndex['cook']> | undefined {
   if (input === undefined) return undefined;
   // A mount with the bytes of a listed blob names that blob: a shardfile holds a file once, however many URLs serve it.
   const blobs = new Map(files.map(file=>[file.hash,file.path]));
   const mounts = input.mounts.map(({url,bytes}) => { const hash=hashAssetBytes(bytes),blob=blobs.get(hash),path=blob??cookMountPath(url);if(blob===undefined)emitted.set(path,bytes);return {url,path,hash,bytes:bytes.length}; });
-  const {packs,fence} = input, bytes = jsonBytes({version:1,mounts,...(packs===undefined?{}:{packs}),...(fence===undefined?{}:{fence})});
+  const {packs,fence} = input, bytes = jsonBytes({version:1,mounts,...(packs===undefined?{}:{packs}),...(fence===undefined?{}:{fence}),...(shardVersion===undefined?{}:{shardVersion})});
   emitted.set(COOK_DATA_PATH,bytes);
   return {path:COOK_DATA_PATH,hash:hashAssetBytes(bytes),bytes:bytes.length};
 }
@@ -130,7 +130,7 @@ export function writeOutputProduct(input: unknown, assets: ReadonlyMap<string,Ui
     const bytes=emitted.get(file.path);if(bytes===undefined)throw new Error('Missing KTX2 cost bytes');
     ktx2Costs[file.hash]=ktx2DeviceCosts(bytes);
   }
-  const cook=cookRow(options.cook,emitted,files);
+  const cook=cookRow(options.cook,emitted,files,options.shardVersion);
   const {spawns:_spawns,...runtime} = source.runtime ?? {};
   // SHARD-COMPAT CP14: outputIndexEnvelope writes the envelope source.version spells (0.1.0.2: formatVersion is the version).
   const index = parseOutputIndex(outputIndexEnvelope({format:'wildshard.shardfile',formatVersion:2,sdk:'0.2',version:source.version,...(options.shardVersion===undefined?{}:{shardVersion:options.shardVersion}),identity:source.identity,requires:source.requires,

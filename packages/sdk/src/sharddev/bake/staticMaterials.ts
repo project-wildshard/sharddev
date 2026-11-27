@@ -1,6 +1,6 @@
 import { MeshStandardMaterial, type BufferGeometry } from 'three';
 import type { Shardfile } from '@wildshard/format/shardSchema';
-import { parseKtx2 } from '../assets';
+import { parseImageAsset } from '@wildshard/format/stillImage';
 import { hashImmutableBytes } from '../immutable';
 import type { WorldMaterial, WorldTexture } from './world';
 import type { GlbPrimitive } from './glb';
@@ -29,8 +29,9 @@ function checkSource(row: WorldMaterial): void {
     || !Number.isFinite(row.normalScale) || row.normalScale < 0 || row.normalScale > 4 || !['OPAQUE', 'MASK', 'BLEND'].includes(row.alpha)) throw new Error('Static material factors require an explicit bounded adapter');
 }
 
-/** Return complete mipmapped KTX2 pixels for this exact original image, orientation and colour/data role.
- * Canvas atlases must be captured with the real producer/font/rasteriser. Atlas UV rectangles are never repacked. */
+/** Return the PNG or JPEG for this exact original image and orientation (SF18, J525: the cook makes its KTX2, reading the
+ * slot's colour/data role from the binding). Canvas atlases must be captured with the real producer/font/rasteriser.
+ * Atlas UV rectangles are never repacked. */
 export type StaticTextureResolver = (source: Readonly<WorldTexture>, role: 'srgb' | 'linear') => Uint8Array;
 
 /** Named multi-material transport for both native-world and normalized-GLB bakes.
@@ -65,13 +66,13 @@ export class StaticMaterialCatalogue {
         if (![33071, 33648, 10497].includes(map.wrapS) || ![33071, 33648, 10497].includes(map.wrapT)
           || (map.minFilter !== null && ![9728, 9729, 9984, 9985, 9986, 9987].includes(map.minFilter)) || (map.magFilter !== null && ![9728, 9729].includes(map.magFilter))
           || !Number.isInteger(map.anisotropy ?? 1) || (map.anisotropy ?? 1) < 1 || (map.anisotropy ?? 1) > 16) throw new Error('Unsupported static texture sampler');
-        const bytes = resolve(structuredClone(map), colourSlot(slot) ? 'srgb' : 'linear'); parseKtx2(bytes);
-        const header = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength), dfd = header.getUint32(48, true);
-        if (bytes[dfd + 14] !== (colourSlot(slot) ? 2 : 1)) throw new Error('Static texture transfer differs from its source slot role');
-        if ((map.width !== undefined && header.getUint32(20, true) !== map.width) || (map.height !== undefined && header.getUint32(24, true) !== map.height)) throw new Error('Static atlas extent changed; cropping/repacking requires an explicit UV adapter');
+        const bytes = resolve(structuredClone(map), colourSlot(slot) ? 'srgb' : 'linear'), image = parseImageAsset(bytes);
+        if (image.mime === 'image/webp') throw new Error('Static texture must be a PNG or JPEG: the cook encodes those (J525)');
+        if ((map.width !== undefined && image.width !== map.width) || (map.height !== undefined && image.height !== map.height)) throw new Error('Static atlas extent changed; cropping/repacking requires an explicit UV adapter');
         const file = hashImmutableBytes(bytes), sampler = { file, wrapS: wrap(map.wrapS), wrapT: wrap(map.wrapT), minFilter: minFilter(map.minFilter), magFilter: magFilter(map.magFilter), anisotropy: map.anisotropy ?? 1 };
-        const identity = JSON.stringify({ ...sampler, role: colourSlot(slot) ? 'srgb' : 'linear' }), previous = this.samplers.get(file);
-        if (previous !== undefined && previous !== identity) throw new Error('Static texture bytes cannot mix samplers or colour/data roles');
+        // one image, one sampler: the cook gives an image two slots read the strictest role (colour over normal over data)
+        const identity = JSON.stringify(sampler), previous = this.samplers.get(file);
+        if (previous !== undefined && previous !== identity) throw new Error('Static texture bytes cannot mix samplers');
         this.samplers.set(file, identity); this.textures.set(file, Uint8Array.from(bytes)); dependencies.push(file);
         if (slot === 'normal') binding.normal = { ...sampler, scale: source.normalScale };
         else if (slot === 'occlusion') binding.occlusion = { ...sampler, strength: source.occlusion };

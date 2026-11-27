@@ -1269,6 +1269,12 @@ and its budget tier. Give it a phone LOD with fewer triangles, or a larger size 
 Each size class has a decoded-bytes mark per creature, mostly its textures: tiny 1 MB, small 2 MB, medium 4 MB, large
 8 MB, giant 16 MB. Over it `check` warns. Use a smaller atlas or fewer maps.
 
+#### carried-ktx2
+
+A shardfile carries images only (J525): a texture is a PNG or JPEG, and a GLB holds `image/png` or `image/jpeg`.
+The cook makes every KTX2 from them, for each tier. An upload that carries a KTX2 blob or a `.ktx2` path is refused;
+carry the image the KTX2 was made from instead.
+
 #### triangle-budget
 
 The report card prints the shard's static triangles: every GLB's, each geometry once (instances share it). A phone at
@@ -2022,6 +2028,15 @@ The migration:
 Its manual steps name each other line that still names `legacySlot`
 (a read, a `Pick`, a JSON fixture row). Check after: `pnpm test` and
 `wildshard check .` pass.
+
+#### migrate-0-9-0
+
+Upload now requires an authored `shardVersion` in the source's
+`shard.json`. Run `wildshard migrate` to fill a missing field from the
+source's owning `package.json`. If both fields already exist and differ,
+set them to the intended version. Rebuild the shard before uploading.
+An explicit `wildshard upload --shard-version` must use that same version.
+
 
 ## 8. Primitives
 

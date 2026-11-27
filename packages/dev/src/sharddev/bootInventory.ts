@@ -41,6 +41,15 @@ export function bakedBootTextureSource<const Owner extends string>(owner: Owner)
   return { publicPrefix: `/assets/baked/${owner}/tex/` };
 }
 
+/** SF5: a glTF model named by its folder URL, `/assets/<slug>/models/<id>` (a zone's own model), or by an engine-wide id
+ * (`/assets/models/<id>`): its `.gltf`, `.bin` and three 1k maps, each named after the folder's last part. The same rule
+ * as engine `gltfModelFiles` (`boot/zoneAssets`); kept here until the SDK pins an engine that exports it. */
+export function gltfModelFiles(model: string): string[] {
+  const base = model.startsWith('/assets/') ? model.replace(/\/+$/u, '') : `/assets/models/${model}`;
+  const id = base.slice(base.lastIndexOf('/') + 1);
+  return [`${base}/${id}.gltf`, `${base}/${id}.bin`, ...['diff', 'nor_gl', 'arm'].map(kind => `${base}/textures/${id}_${kind}_1k.jpg`)];
+}
+
 export interface BootRecipe {
   readonly source: { readonly urls: readonly string[] | Readonly<Record<BootTier, readonly string[]>> }
     | { readonly concat: readonly string[] } | { readonly publicPrefix: string }
@@ -81,7 +90,7 @@ export function bootRecipeFiles(recipes: BootRecipes, name: string, tier: BootTi
     else if ('concat' in src) urls = src.concat.flatMap(ref => run(ref, next));
     else if ('publicPrefix' in src) urls = Object.keys(inventory).filter(url => url.startsWith(src.publicPrefix));
     else if ('pbr' in src) urls = src.pbr.flatMap(policy.pbr);
-    else if ('gltf' in src) urls = src.gltf.flatMap(assetId => [`/assets/models/${assetId}/${assetId}.gltf`, `/assets/models/${assetId}/${assetId}.bin`, ...['diff', 'nor_gl', 'arm'].map(kind => `/assets/models/${assetId}/textures/${assetId}_${kind}_1k.jpg`)]);
+    else if ('gltf' in src) urls = src.gltf.flatMap(gltfModelFiles);
     else if ('tablePrefix' in src) urls = tex === 'ktx2' ? Object.keys(table[tier]).filter(url => url.startsWith(src.tablePrefix)).sort().flatMap(url => table[tier][url] ?? []) : [];
     else if ('pages' in src) {
       const pages = inputs.pages?.[src.pages]?.[tier];

@@ -1,6 +1,6 @@
 import { expect, test } from 'vitest';
 import { resolveBootFiles, resolveBootSources } from '@wildshard/engine/boot/filePolicy';
-import { bootRecipeFiles, bootRecipeSources, type BootRecipes, type BootRecipeInputs } from './bootInventory';
+import { bootRecipeFiles, bootRecipeSources, gltfModelFiles, type BootRecipes, type BootRecipeInputs } from './bootInventory';
 
 const table = { phone: { '/fixture/a.phone.webp': '/fixture/a.ktx2', '/fixture/a.phone.webp#layer': '/fixture/a-layer.ktx2', '/page': '/fixture/page.ktx2' }, desktop: { '/fixture/a.webp': '/fixture/desktop.ktx2', '/page': '/fixture/page-desktop.ktx2' } };
 const inputs: BootRecipeInputs = { inventory: { '/fixture/a.phone.webp': 4, '/fixture/a.webp': 7, '/fixture/a.ktx2': 2, '/fixture/a-layer.ktx2': 2, '/fixture/b.bin': true, '/assets/tex/oak/diffuse_1k.jpg': 3 },
@@ -54,4 +54,15 @@ test('author boot recipes keep original missing metadata, cycle and expansion re
   expect(() => bootRecipeFiles(recipes, 'pages', 'phone', 'ktx2', { phone: {}, desktop: {} }, inputs)).toThrow('Missing boot page stand-in');
   for (const inventory of [undefined, null]) expect(() => { Reflect.apply(bootRecipeFiles, undefined, [recipes, 'direct', 'phone', 'img', table, { inventory }]); }).toThrow('explicit inventory');
   expect(() => { Reflect.apply(bootRecipeSources, undefined, [recipes, { sky: 'direct' }, 'phone', 'img', table, undefined]); }).toThrow('explicit inventory');
+});
+
+// SF5 (Pine Hollow): the `gltf` source names a zone's own model by its folder URL (`/assets/<slug>/models/<id>`), so a
+// re-packed zone needs no `urls` list for it; a bare id is still the engine-wide `/assets/models/<id>/`.
+test('a gltf recipe reads a zone model folder URL and an engine-wide id', () => {
+  const pit = '/assets/pine-hollow/models/stone_fire_pit';
+  const rows: BootRecipes = { cabins: { source: { gltf: [pit, `${pit}/`, 'arch'] } } };
+  const files = bootRecipeFiles(rows, 'cabins', 'phone', 'img', table, inputs);
+  const own = [`${pit}/stone_fire_pit.gltf`, `${pit}/stone_fire_pit.bin`, ...['diff', 'nor_gl', 'arm'].map(kind => `${pit}/textures/stone_fire_pit_${kind}_1k.jpg`)];
+  expect(files).toEqual([...own, ...own, ...gltfModelFiles('arch')]);
+  expect(gltfModelFiles('arch')).toEqual(resolveBootFiles({ g: { source: { gltf: ['arch'] } } }, 'g', 'phone', 'img', table, inputs));
 });

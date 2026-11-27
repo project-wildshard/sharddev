@@ -10,7 +10,9 @@ import { parseKtx2 } from '../assets';
 import { readImagePixels } from './image';
 import { bakeRawColourPixels } from './rawTexture';
 
-/** Bake PNG colour pixels to mipmapped sRGB UASTC KTX2; the engine's existing loader transcodes these blocks to ASTC. */
+/** @deprecated SF18 (J525): the SDK's build no longer calls this; a shardfile carries images only and the cook makes every KTX2.
+ * Kept for the generators still on it until their zone's re-pack moves them to PNG; then it goes.
+ * Bake PNG colour pixels to mipmapped sRGB UASTC KTX2; the engine's existing loader transcodes these blocks to ASTC. */
 export function bakeColourTexture(png: Uint8Array, encoder = 'basisu', options: { flipY?: boolean } = {}): Uint8Array {
   if (png.length < 24 || png.length > 25_000_000 || png[0] !== 137 || png[1] !== 80 || png[2] !== 78 || png[3] !== 71) throw new Error('Texture source must be a bounded PNG');
   const header = new DataView(png.buffer, png.byteOffset, png.byteLength), width = header.getUint32(16), height = header.getUint32(20);
@@ -23,7 +25,9 @@ export function bakeColourTexture(png: Uint8Array, encoder = 'basisu', options: 
   } finally { rmSync(directory, { recursive: true }); }
 }
 
-/** Store bounded PNG/JPEG/WebP pixels byte-exact in a single-level Zstd RGBA8 KTX2.
+/** @deprecated SF18 (J525): the SDK's build no longer calls this; a shardfile carries images only and the cook makes every KTX2.
+ * Kept for the generators still on it until their zone's re-pack moves them to PNG; then it goes.
+ * Store bounded PNG/JPEG/WebP pixels byte-exact in a single-level Zstd RGBA8 KTX2.
  * No lossy encoder or colour transform runs. flipY explicitly selects source row orientation;
  * colourSpace:'linear' retains numerical texture values (default: sRGB).
  * look.samplers mips:'gpu' uses the runtime's existing mip law, as for a painted bitmap. */

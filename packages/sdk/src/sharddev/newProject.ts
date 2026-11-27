@@ -126,6 +126,8 @@ export function releasePin(version: string, sdkVersions: readonly string[] | und
   return latest;
 }
 
+const FIRST_SHARD_VERSION = '0.0.1';
+
 /** A new repo's package.json: the shard's slug, SA39's pnpm pin, and each Wildshard package pinned exactly. */
 export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMPLATE, published: PublishedVersions = registryVersions, scene: boolean = template !== 'blender'): string {
   const sdk = sdkPackage(), release = releasePin(sdk.version, published('@wildshard/sdk'), published('@wildshard/cli'));
@@ -140,7 +142,7 @@ export function repoPackageJson(slug: string, template: RepoShape = DEFAULT_TEMP
   // too now (AP36), and so is `--empty` (A9). The retired hand-written shape has no scene to watch.
   const scripts = scene ? { check: 'wildshard check .', watch: 'wildshard watch .' } : { check: 'wildshard check .' };
   // `version` is what `wildshard upload` sends (provenance.ts reads the nearest package.json).
-  return `${JSON.stringify({ name: slug, version: '0.0.1', private: true, type: 'module', packageManager: 'pnpm@10.34.9',
+  return `${JSON.stringify({ name: slug, version: FIRST_SHARD_VERSION, private: true, type: 'module', packageManager: 'pnpm@10.34.9',
     engines: { node: sdk.node }, scripts, [template === 'blender' ? 'devDependencies' : 'dependencies']: sorted }, null, 2)}\n`;
 }
 
@@ -253,7 +255,7 @@ function writeSceneSource(source: string, slug: string): void {
   cpSync(scene, source, { recursive: true, errorOnExist: true, force: false,
     // Mossgate's captured card and hero stamp are its own art: a new project wears a generated card until its author
     // captures one (NEW-SHARD-E2E F28), never another shard's.
-    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'out') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
+    filter: from => !/\.(?:test|spec)\.[cm]?[jt]sx?$/u.test(from) && from !== resolve(scene, 'public') && from !== resolve(scene, 'out') && from !== resolve(scene, 'package.json') && from !== resolve(scene, 'card') && from !== resolve(scene, 'hero.json') });
   // TEMPLATE-E2E TC-NE5, TR-2, TR-12: the starter's proof tape (a walk from spawn to the hut door, which files `hut.visit`,
   // then on to brazier A and through the moss gate it opens, which files `mossgate.first-light`) lives
   // beside this module, not in the shard, so editing it never makes Mossgate's captured hero stale; `check .` plays it.
@@ -300,6 +302,10 @@ export function writeShardRepo(project: string, slug: string, options: { readonl
     if (options.empty === true) writeEmptySceneSource(source, slug);
     else if (template === 'blender') writeHandwrittenSource(source, slug);
     else writeSceneSource(source, slug);
+    const headerPath = resolve(source, 'shard.json');
+    const header: unknown = existsSync(headerPath) ? JSON.parse(readFileSync(headerPath, 'utf8')) : {};
+    if (typeof header !== 'object' || header === null) throw new Error('Invalid shard.json header');
+    writeFileSync(headerPath, encodeCanonicalJson({ ...header, shardVersion: FIRST_SHARD_VERSION }));
     writeRepoFiles(project, slug, template, options.empty === true);
   } catch (error) {
     // A refused `new` leaves no half-written repo, so running it again names the real cause, not `new-target`.

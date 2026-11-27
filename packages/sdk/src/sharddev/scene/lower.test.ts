@@ -116,7 +116,7 @@ test('world.detail takes the format\'s widest grid, and its mark lasts one lower
   expect(again.parts[0]?.draws.length).toBeGreaterThan(0);
 });
 
-test('a textured detail card draws its map: the look entry\'s colour map, a library KTX2, the uvs carrying its repeat (AP32d)', () => {
+test('a textured detail card draws its map: the look entry\'s colour map, a library image (SF18), the uvs carrying its repeat (AP32d)', () => {
   const mesh = meadow(200), map = new THREE.DataTexture(new Uint8Array([90, 140, 60, 255, 80, 120, 50, 0, 90, 140, 60, 255, 80, 120, 50, 0]), 2, 2);
   map.repeat.set(2, 1); map.needsUpdate = true;
   mesh.material = new THREE.MeshStandardMaterial({ map, alphaTest: 0.35, side: THREE.DoubleSide });
@@ -125,7 +125,7 @@ test('a textured detail card draws its map: the look entry\'s colour map, a libr
   const colour = entry !== undefined && entry.family === 'pbr' ? entry.maps.colour : null;
   expect(entry).toMatchObject({ family: 'pbr', alphaCutoff: 0.35, doubleSided: true, vertexColours: false });
   expect(colour).toMatch(/^[a-f0-9]{64}$/u);
-  expect(shard.files.find((f) => f.hash === colour)?.kind).toBe('ktx2');
+  expect(shard.files.find((f) => f.hash === colour)?.kind).toBe('image');
   expect(shard.library).toContain(colour);
   // the card's uvs: u spans 0 to 2 (repeat 2), v 0 to 1
   const bytes = assets.get(row?.mesh.file ?? ''), vertices = row?.mesh.vertices ?? 0;

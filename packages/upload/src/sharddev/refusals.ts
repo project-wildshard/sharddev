@@ -99,6 +99,9 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Lower the creature\'s triangles to its size class\'s mark (a phone LOD), or give it a larger size class.' },
   { id: 'creature-textures', anchor: 'creature-textures', steps: 'any', codes: ['creature-textures'],
     fix: 'Shrink the creature\'s textures (a smaller atlas, fewer maps) to its size class\'s mark.' },
+  // SF18 (J525): format 0.82.2 refuses a KTX2 blob or a .ktx2 path in a new upload; the cook makes every KTX2.
+  { id: 'carried-ktx2', anchor: 'carried-ktx2', steps: 'any', codes: ['carried-ktx2'],
+    fix: 'Carry the texture as the PNG or JPEG it was made from (a GLB holds image/png or image/jpeg); the cook makes its KTX2.' },
   // MEMORY-STRUCTURE STR13: the phone triangle budget (sdk triangleBudget.ts), a warning.
   { id: 'triangle-budget', anchor: 'triangle-budget', steps: 'any', codes: ['triangle-budget'],
     fix: 'Hold fewer static triangles: a phone LOD or simplified mesh for the heaviest models, fewer unique far models.' },

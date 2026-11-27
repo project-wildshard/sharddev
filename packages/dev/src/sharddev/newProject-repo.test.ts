@@ -50,8 +50,10 @@ describe('wildshard new writes a shard repo (SA16)', () => {
     await runCli(['new', repo, 'my-scene']);
     for (const file of ['src/shard.config.ts', 'src/identity.json', 'src/generators/shard.ts', 'src/generators/world.ts', 'src/generators/quests.ts', 'src/proof.json']) expect(existsSync(resolve(repo, file)), file).toBe(true);
     // No legacy Template data, no tests, no Mossgate card or hero stamp, and no mossgate identity carried over.
-    for (const gone of ['src/data', 'src/generators/generate.ts', 'src/generators/mossgate.test.ts', 'src/card', 'src/hero.json']) expect(existsSync(resolve(repo, gone)), gone).toBe(false);
+    for (const gone of ['src/data', 'src/generators/generate.ts', 'src/generators/mossgate.test.ts', 'src/card', 'src/hero.json', 'src/package.json']) expect(existsSync(resolve(repo, gone)), gone).toBe(false);
     expect(JSON.parse(readFileSync(resolve(repo, 'src/identity.json'), 'utf8'))).toMatchObject({ slug: 'my-scene', name: 'my-scene' });
+    const { version } = JSON.parse(readFileSync(resolve(repo, 'package.json'), 'utf8')) as { version: string };
+    expect(JSON.parse(readFileSync(resolve(repo, 'src/shard.json'), 'utf8'))).toEqual({ shardVersion: version });
     expect(readFileSync(resolve(repo, 'src/generators/shard.ts'), 'utf8')).not.toContain('mossgate');
     expect(readFileSync(resolve(repo, 'README.md'), 'utf8')).toContain('Mossgate Hollow');
     // AP22: the scene repo runs `pnpm watch`.
@@ -65,7 +67,7 @@ describe('wildshard new writes a shard repo (SA16)', () => {
   it('--empty gives a bare scene shard: sky, green ground, light, sun and spawn', async () => {
     const repo = resolve(scratch, 'bare-scene');
     await runCli(['new', repo, 'bare-scene', '--empty']);
-    expect(readdirSync(resolve(repo, 'src'), { recursive: true }).map(String).sort()).toEqual(['generators', 'generators/shard.ts', 'generators/world.ts', 'identity.json', 'shard.config.ts']);
+    expect(readdirSync(resolve(repo, 'src'), { recursive: true }).map(String).sort()).toEqual(['generators', 'generators/shard.ts', 'generators/world.ts', 'identity.json', 'shard.config.ts', 'shard.json']);
     const world = readFileSync(resolve(repo, 'src/generators/world.ts'), 'utf8');
     for (const call of ['world.sky(', 'world.ground(', 'new HemisphereLight(', 'new DirectionalLight(', 'world.spawn(']) expect(world).toContain(call);
     expect(world).not.toMatch(/import \* as/u);

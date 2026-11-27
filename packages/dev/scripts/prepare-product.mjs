@@ -77,9 +77,10 @@ export async function finishPreparation(dir,recording,originalHeader){
   // measured subset needs the existing fence policy; desktop stays whole.
   const all=index.files.filter(row=>row.tier!=='desktop'),selected=new Set(fence);
   const packs=all.some(row=>!selected.has(row.hash))?'fence':'whole';
-  const cook=spec4
+  const preparation=spec4
     ?{version:PREPARATION_SPEC,mounts,packs,fence,programs:written,inputHash:hash(cookPreparationBytes(index,mounts))}
     :{version:3,mounts,packs,fence,programs,renderer,inputHash:hash(cookPreparationBytes(index,mounts,renderer))};
+  const cook=held.shardVersion===undefined?preparation:{...preparation,shardVersion:held.shardVersion};
   const bytes=bytesOf(cook),next={...index,cook:{path:'cook.json',hash:hash(bytes),bytes:bytes.length}};
   requireCookPreparation(parseOutputIndex(next),readCookData(cook),hash);
   mkdirSync(dirname(join(dir,path)),{recursive:true});writeFileSync(join(dir,path),programBytes);

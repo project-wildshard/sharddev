@@ -3,7 +3,8 @@ import { CONTENT_CAPS, CELL_ABOVE, CELL_BELOW } from '@wildshard/format/contentB
 import { PropsSchema, type ShardProps } from '@wildshard/format/props';
 import type { Shardfile } from '@wildshard/format/shardSchema';
 import * as v from 'valibot';
-import { parseGlb, parseKtx2 } from '../assets';
+import { assetCost, parseGlb } from '../assets';
+import { textureKind } from './imageBlob';
 import { hashImmutableBytes as contentHash } from '../immutable';
 import { staticGlb, type GlbPrimitive } from './glb';
 import { compressGlb } from './glbCompression';
@@ -266,12 +267,13 @@ export function bakeProps(source: PropsBakeSource, terrain: readonly Shardfile['
   const tileWarnings = new Map<string, readonly string[]>();
   const files: Shardfile['files'] = [], assets = new Map<string, Uint8Array>(), library: string[] = [], tiles = terrain.map((t) => ({ ...t, files: [...t.files], bounds: { min: [...t.bounds.min] as [number, number, number], max: [...t.bounds.max] as [number, number, number] } }));
   const section: ShardProps = { version: 1, family: source.family ?? 'pbr', tiles: [], panels: [], models: [], far: null, textures: [], colliders: source.colliders ?? [] };
-  const store = (bytes: Uint8Array, kind: 'glb' | 'ktx2'): Shardfile['files'][number] => {
-    const hash = contentHash(bytes), cost = kind === 'glb' ? parseGlb(bytes) : parseKtx2(bytes);
+  const store = (bytes: Uint8Array, kind: 'glb' | 'image' | 'ktx2'): Shardfile['files'][number] => {
+    const hash = contentHash(bytes), cost = kind === 'glb' ? parseGlb(bytes) : assetCost(kind, bytes);
     const row = { hash, kind, compressed: bytes.length, ...cost, dependencies: [] as string[], critical: false };
     if (!assets.has(hash)) { assets.set(hash, bytes); files.push(row); } return row;
   };
-  const texture = source.colourTexture === undefined ? null : store(source.colourTexture, 'ktx2');
+  // SF18 (J525): the colour texture is carried as the PNG or JPEG it is; the cook makes its KTX2
+  const texture = source.colourTexture === undefined ? null : store(source.colourTexture, textureKind(source.colourTexture));
   const save = (primitives: readonly GlbPrimitive[], name: string, tile = false) => {
     const original = staticGlb(primitives, name);
     const packed = tile && source.tileCompression === 'meshopt' ? compressGlb(original) : original;

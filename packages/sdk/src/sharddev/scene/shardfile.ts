@@ -2,7 +2,7 @@ import { Box3, BufferAttribute, BufferGeometry, Color, DoubleSide, Float32Buffer
 import type { PoolSurface } from '@wildshard/format/pool-surface';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { emptyShardfile } from '../author';
-import { parseGlb, parseKtx2 } from '../assets';
+import { assetCost, parseGlb } from '../assets';
 import { parseSkinFile, skinFileDependencies } from '@wildshard/format/skinAssets';
 import { hashImmutableBytes } from '../immutable';
 import type { CreaturePhoneOptions } from '../bake/creaturePhone';
@@ -12,7 +12,7 @@ import { staticGlb, type GlbPrimitive } from '../bake/glb';
 import { bakeTerrain, checkEntryRoad, groundLattice } from '../bake/terrain';
 import { encodeTerrainTile } from '@wildshard/format/terrainTileBytes';
 import { lowerMoverMotion, type MoverMotion } from '@wildshard/format/moverMotion';
-import { bakeRawColourPixels } from '../bake/rawTexture';
+import { pngFromPixels, textureKind } from '../bake/imageBlob';
 import type { Rgb, SceneCollider, SceneCreature, SceneDraw, SceneGeometry, SceneLight, SceneMaterial, SceneMotion, SceneMove, ScenePart, SceneSwing, ShardScene } from './description';
 import { withLandings } from './landing';
 import { SceneRefusalError } from './refusal';
@@ -568,8 +568,8 @@ export async function builtSceneShardfile(scene: ShardScene, compile: ProjectGen
 /** The pure half of the back end: shardfile rows and asset bytes by hash. */
 export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}): { shard: Shardfile; assets: Map<string, Uint8Array>; report: ShardfileReport } {
   const assets = new Map<string, Uint8Array>(), files: Shardfile['files'] = [];
-  const store = (bytes: Uint8Array, kind: 'glb' | 'ktx2', dependencies: string[] = []): Shardfile['files'][number] => {
-    const hash = hashImmutableBytes(bytes), cost = kind === 'glb' ? parseGlb(bytes) : parseKtx2(bytes);
+  const store = (bytes: Uint8Array, kind: 'glb' | 'image' | 'ktx2', dependencies: string[] = []): Shardfile['files'][number] => {
+    const hash = hashImmutableBytes(bytes), cost = kind === 'glb' ? parseGlb(bytes) : assetCost(kind, bytes);
     const row = { hash, kind, compressed: bytes.length, ...cost, dependencies, critical: false };
     if (!assets.has(hash)) { assets.set(hash, bytes); files.push(row); }
     return files.find((f) => f.hash === hash) ?? row;
@@ -582,14 +582,14 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
   for (const [hash, bytes] of terrain.assets) assets.set(hash, bytes);
   files.push(...terrain.files);
 
-  // textures (AP2): RGBA8 KTX2, one file per painted raster
+  // textures (AP2): one lossless PNG per painted raster, rows as painted (SF18, J525: the cook makes its KTX2)
   const textureFiles = new Map<string, Shardfile['files'][number]>();
   // only the textures a drawn material or a card samples
   const sampled = new Set([...scene.parts.flatMap((part) => [...part.draws.map((d) => d.material), ...part.sprites.map((c) => c.material), ...part.points.map((c) => c.material)]), ...(scene.details ?? []).map((layer) => layer.material)]
     .map((key) => scene.materials[key]?.map).filter((key) => typeof key === 'string'));
   for (const texture of Object.values(scene.textures).filter((t) => sampled.has(t.key))) {
-    const bytes = bakeRawColourPixels({ width: texture.width, height: texture.height, pixels: new Uint8ClampedArray(texture.rgba) }, { colourSpace: texture.colourSpace });
-    textureFiles.set(texture.key, store(bytes, 'ktx2'));
+    const bytes = pngFromPixels({ width: texture.width, height: texture.height, pixels: new Uint8ClampedArray(texture.rgba) });
+    textureFiles.set(texture.key, store(bytes, 'image'));
   }
   // static parts (AP2): merged per entry (a material and the motion its draws declare) per tile
   const draws = scene.parts.filter((part) => part.panel === undefined).flatMap((part) => part.draws), byEntry = new Map<string, SceneDraw[]>(), entries = new Map<string, Entry>();
@@ -661,7 +661,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     const look = lookId(`${layer.material}.detail`);
     const entry = materialEntry({ material, motion: null, card: false });
     entry['vertexColours'] = false;
-    // AP32d: a textured card's map is its look entry's colour map (a library KTX2, as the tiles' own), its uvs carrying the
+    // AP32d: a textured card's map is its look entry's colour map (a library image, as the tiles' own), its uvs carrying the
     // map's repeat and offset as a tile merge's do
     const map = material.map === null ? undefined : textureFiles.get(material.map);
     if (map !== undefined) { entry['maps'] = { colour: map.hash, normal: null, orm: null }; detailTextures.add(map.hash); }
@@ -850,7 +850,7 @@ export function sceneShardfile(scene: ShardScene, options: ShardfileOptions = {}
     if (creature.phone !== undefined) store(creature.phone.glb, 'glb');
     if (creature.files === undefined) return creature.phone === undefined ? [skinFile(creature.skin)] : [skinFile(creature.skin), skinFile(creature.phone.skin)];
     for (const glb of creature.files.glbs) store(glb, 'glb');
-    for (const texture of creature.files.textures) store(texture, 'ktx2');
+    for (const texture of creature.files.textures) store(texture, textureKind(texture));
     for (const bytes of creature.files.skins) skinFile(bytes);
     // a variant table depends on exactly the skins it names; OF23f: the phone variant table and its default load beside
     const named = (table: Uint8Array): string[] =>

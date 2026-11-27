@@ -6,7 +6,8 @@ import { MaterialsSchema, materialGraphIr } from '@wildshard/format/materials';
 import { parseShardfile, type Shardfile } from '@wildshard/format/shardSchema';
 import { normalizeWorldGlb, type NormalizedWorld, type WorldPrimitive } from './world';
 import { parseWorldSource } from '../worldSource';
-import { bakeWorldTexture } from './textureWasm';
+import { readImagePixels, writeImagePixels } from './image';
+import { textureKind } from './imageBlob';
 import { StaticMaterialCatalogue } from './staticMaterials';
 import { compactTileGeometry, modelGrid, tileGrid, tileGridTransform, worldGeometry, mergeWorldGeometry } from './worldGeometry';
 import { compressGlb } from './glbCompression';
@@ -55,7 +56,7 @@ export function farSources(world: Pick<NormalizedWorld, 'static' | 'undrawn' | '
   return (mode === 'replace' ? world.far : [...world.static, ...world.undrawn, ...world.far]).filter(row => !light.has(row.material));
 }
 
-/** Build a static authored GLB through the pinned texture/LOD tools and the normal render/collision row packers.
+/** Build a static authored GLB through the pinned LOD tools, its images kept as images (SF18), and the normal render/collision row packers.
  * The default config is a compiled declaration plus `world`; this build-only key is removed before format parsing.
  * Existing compiled world sections refuse rather than being silently replaced.
  * Vacant L0 squares have zero-cost metadata without fabricated GLBs or model rows.
@@ -73,21 +74,20 @@ export async function bakeAuthoredWorld(input: unknown, bytes: Uint8Array, graph
     if (row.id !== 'pbr') throw new Error(`World GLB material ${row.name} needs an explicit ${row.id} look entry`);
     materials[row.id] = v.parse(PbrMaterialSchema, { family: 'pbr' });
   }
-  const encoded = new Map<string, Uint8Array>();
-  for (const material of world.materials) for (const [slot, map] of Object.entries(material.maps)) {
-    if (map === null) continue;
-    const role = slot === 'colour' || slot === 'emissive' ? 'srgb' : 'linear', key = `${map.image}/${role}`;
-    if (encoded.has(key)) continue;
+  // SF18 (J525): each embedded image is carried as itself (a WebP becomes a lossless PNG); the cook makes its KTX2
+  const kept = new Map<string, Uint8Array>();
+  for (const material of world.materials) for (const map of Object.values(material.maps)) {
+    if (map === null || kept.has(map.image)) continue;
     const image = world.images.find(row => row.hash === map.image); if (image === undefined) throw new Error('World GLB missing embedded texture');
-    encoded.set(key, await bakeWorldTexture(image.bytes, role));
+    kept.set(map.image, textureKind(image.bytes) === 'image' ? Uint8Array.from(image.bytes) : await writeImagePixels(await readImagePixels(image.bytes)));
   }
-  const catalogue = new StaticMaterialCatalogue(world.materials, materials, graphs, (map, role) => {
-    const texture = encoded.get(`${map.image}/${role}`); if (texture === undefined) throw new Error('World GLB missing encoded texture'); return texture;
+  const catalogue = new StaticMaterialCatalogue(world.materials, materials, graphs, map => {
+    const texture = kept.get(map.image); if (texture === undefined) throw new Error('World GLB missing embedded texture'); return texture;
   });
   const pack = new WorldBakeRows(), geometry: BufferGeometry[] = [], library: string[] = [];
   try {
     const bindings = catalogue.snapshot();
-    for (const texture of bindings.textures.values()) pack.asset(texture, 'ktx2');
+    for (const texture of bindings.textures.values()) pack.asset(texture, 'image');
     // RM8.2: detail rows draw only at L0; the coarse rows stand in for them at L1, as they are
     const detail = new Set(world.detail), coarse = await Promise.all(world.static.filter(row => !detail.has(row)).map(row => simplifyWorldPrimitive(row, 0.5, 0.25)));
     const sourceErrors = new Map(coarse.map(row => [row.primitive, row.errorMetres]));
