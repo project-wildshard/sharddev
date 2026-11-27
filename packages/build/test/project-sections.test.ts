@@ -35,6 +35,9 @@ test('the real sidecar pipeline emits one canonical section from declared data w
   mkdirSync('tmp', { recursive: true });
   const path = mkdtempSync(resolve('tmp', 'project-sections-')); directories.push(path);
   mkdirSync(resolve(path, 'generators'));
+  const authored = '1.2.3-beta.4';
+  writeFileSync(resolve(path, 'package.json'), JSON.stringify({ version: authored }));
+  writeFileSync(resolve(path, 'shard.json'), JSON.stringify({ shardVersion: authored }));
   writeFileSync(resolve(path, 'shard.config.ts'), `export default ${JSON.stringify(source())};`);
   writeFileSync(resolve(path, 'generators/output.ts'), `export const output = {}; export const sections = ${JSON.stringify({ 'world/movers': { movers } })};`);
   expect((await readProjectAssets(path)).shard.movers).toEqual(movers);
@@ -42,6 +45,7 @@ test('the real sidecar pipeline emits one canonical section from declared data w
   const destination = mkdtempSync(resolve('tmp', 'project-sections-out-')); directories.push(destination);
   await buildProject(path, destination, { client: null });
   const checked = validateOutputProduct(destination);
+  expect(checked.index.shardVersion).toBe(authored);
   expect(checked.index.sections.filter(row => row.name === 'world/movers')).toHaveLength(1);
   expect(JSON.parse(readFileSync(resolve(destination, 'sections/world/movers.json'), 'utf8'))).toEqual({ movers });
   // SHARD-COMPAT PR6f2: the build writes what stands at each edge into world/edge

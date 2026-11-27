@@ -30,7 +30,6 @@ const wire = await import('@wildshard/format/uploadWire')
 
 const {
   ErrorBodySchema,
-  ShardfileListSchema,
   UploadResultSchema,
   RevisionNumberSchema,
   ShardSlugSchema,
@@ -204,6 +203,11 @@ interface UploadSummary {
   readonly uploadId: string
   readonly status: UploadState
 }
+
+// The upload preflight needs only the immutable hash.
+const ShardfileListSchema = object({
+  shardfiles: array(object({ hash: ShardfileHashSchema })),
+})
 
 const UploadSummaryFields = {
   uploadId: string(),

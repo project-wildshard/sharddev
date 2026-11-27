@@ -137,16 +137,27 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: project-wildshard/api-server
-          ref: 5a099e0bba64dccf304fcbeb0933ca2fe9f69294 # api-server v0.34.4 (format 0.71.0)
+          ref: 83ccc114b3bea554d2ecf4a2828a5ac0479d54be # authored shard versions (format 0.81.0)
           path: tmp/codex-wire/api-contract-source
           token: ${{ steps.app-token.outputs.token || github.token }}
           persist-credentials: false
       - name: Install the pinned API contract
         run: pnpm --dir tmp/codex-wire/api-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
+      - name: Check out the async cook contract
+        uses: actions/checkout@3d3c42e5aac5ba805da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: project-wildshard/engine
+          ref: 28a89971bdb6c3f89e5ab9870f49a5afe9c69468 # authored shard versions in cook.json
+          path: tmp/codex-wire/engine-contract-source
+          token: ${{ steps.app-token.outputs.token || github.token }}
+          persist-credentials: false
+      - name: Install the pinned cook contract
+        run: pnpm --dir tmp/codex-wire/engine-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
       - name: Prove async upload with the real API and PGlite
         working-directory: packages/sdk
         env:
           WILDSHARD_API_SOURCE: ${{ github.workspace }}/tmp/codex-wire/api-contract-source
+          WILDSHARD_ENGINE_SOURCE: ${{ github.workspace }}/tmp/codex-wire/engine-contract-source
         run: node --test --test-concurrency=1 ../dev/test/ci/async-upload.test.mjs ../dev/test/ci/async-upload-parent.test.mjs
       - run: pnpm check:asks
       - name: The release gate's rules and its place in this workflow (FAST-RELEASE FR1)

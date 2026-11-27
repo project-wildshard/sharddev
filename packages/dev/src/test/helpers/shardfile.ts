@@ -37,6 +37,7 @@ const DEFAULT_SEED = 0
 
 interface ShardfileOptions {
   readonly slug: string
+  readonly shardVersion?: string
   readonly name?: string
   readonly seed?: number
   /** `makeShardfile` only: the draft as built, which upload refuses. */
@@ -160,7 +161,14 @@ async function shardfileFiles(
       ...parsed,
       identity,
       build,
-      cook: await heroFixture(files, options.hero, identity.seed),
+      ...(options.shardVersion === undefined
+        ? {}
+        : { shardVersion: options.shardVersion }),
+      cook: await heroFixture(files, {
+        hero: options.hero,
+        seed: identity.seed,
+        folder: options.shardVersion === undefined ? undefined : options.slug,
+      }),
     }),
   )
   return files

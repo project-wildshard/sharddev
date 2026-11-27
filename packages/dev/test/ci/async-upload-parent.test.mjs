@@ -23,24 +23,25 @@ const cookWrap=process.platform==='darwin'?['sandbox-exec','-p','(version 1)(all
   ['sudo','-n','--preserve-env=WILDSHARD_SPAWN_PART_CACHE,NODE_ENV,COOK_MAX_SHARDFILE_BYTES,COOK_CPU_SLOTS,COOK_RENDERER',
     'unshare','--net','--','setpriv',`--reuid=${process.getuid()}`,`--regid=${process.getgid()}`,'--init-groups'];
 
-const root=dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
+const root=process.env.WILDSHARD_ENGINE_SOURCE
+  ??dirname(createRequire(import.meta.url).resolve('@wildshard/engine/package.json'));
 // A lean engine (npm 0.1.96 on) keeps its scripts in src/scripts/: read them through dev-world's resolver.
 const engineScript=name=>fileURLToPath(engineScriptUrl(join(root,'package.json'),name));
 await import(engineScriptUrl(join(root,'package.json'),'bake-loader.mjs'));
 const engine=path=>import(pathToFileURL(join(root,path)).href);
 const [{readTar},{validateShardfileFolder},{checkShardfile}]=await Promise.all([
   import('@wildshard/format/tar'),import('@wildshard/format/shardfileValidation'),
-  import('@wildshard/engine/host/checkShardfile'),
+  engine('src/server/host/checkShardfile.ts'),
 ]);
 const [{cookApi,pendingSource,uploadDelivery,VerdictOutbox,activationDelivery,gameActivationClient},
   {createCookWorker,apiSource},{folderStore},{uploadActivator,uploadActivationReceiver},
   {readPlacementFile},{readPackFolder},{World},{memoryPlayerSaves},{runCells},
-  {placeCell,forgetPlacedCells},{loadRapier}, {placementWriter}]=await Promise.all([
+  {placeCell,forgetPlacedCells,gridAssembly},{loadRapier}, {placementWriter}]=await Promise.all([
   engine('src/cook/game/uploadTransport.ts'),engine('src/cook/game/cookWorker.ts'),engine('src/cook/game/packStore.ts'),
   engine('src/server/host/dedicated/uploadActivation.ts'),engine('src/server/host/dedicated/placementFile.ts'),
   engine('src/server/host/dedicated/packReader.ts'),engine('src/server/host/dedicated/world.ts'),
   engine('src/server/host/dedicated/playerSaves.ts'),engine('src/server/host/dedicated/cellHost.ts'),
-  engine('src/server/host/dedicated/gridCells.ts'),import('@wildshard/engine/physics/rapier'),
+  engine('src/server/host/dedicated/gridCells.ts'),engine('src/shared/engine/physics/rapier.ts'),
   import(pathToFileURL(resolve(process.env.WILDSHARD_API_SOURCE,'src/server/signing/placement-file.ts')).href),
 ]);
 
@@ -53,9 +54,10 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
     if(documents.get(key)?.etag!==etag)return false;
     documents.set(key,{text:value,etag:createHash('sha256').update(value).digest('hex')});return true;
   }},keys.privateKey.export({type:'pkcs8',format:'pem'}));
-  const fixture=await openApi(context,'manual',{placements});
+  const fixture=await openApi(context,'manual',{placements},gridAssembly(false).cells);
   const cli=installWildshard(join(work,'installed')),file=join(work,'shard.tar');await writeFile(file,TARBALL);
-  const child=spawn(process.execPath,[cli,'upload',file,'--server',fixture.url,'--version','0.1.0','--commit','a'.repeat(40),'--channel','staging',...(place?[]:['--no-place'])],{env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
+  await writeFile(join(work,'package.json'),'{"version":"0.1.0"}');
+  const child=spawn(process.execPath,[cli,'upload',file,'--server',fixture.url,'--shard-version','0.1.0','--commit','a'.repeat(40),'--channel','staging',...(place?[]:['--no-place'])],{cwd:work,env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
   context.after(()=>{if(child.exitCode===null)child.kill('SIGTERM');});
   const stdout=text(child.stdout),stderr=text(child.stderr),closed=once(child,'close');
   const deadline=Date.now()+30_000;
@@ -82,14 +84,14 @@ for (const place of [true,false]) test(`SP20c3 real cook/game/packed CLI, lost A
   };
   const world=await World.open({build,cells:[],workers:1,seats:8,secret:'fixture-seat-secret',boot,saves:memoryPlayerSaves(),log:()=>{},crashed:error=>{throw new Error(String(error));},restart:()=>{throw new Error('No release restart expected');}});
   context.after(()=>{world.dispose();for(const stop of stops)stop();forgetPlacedCells();});
-  const activate=uploadActivator({build,channel:'staging',read:async()=>readPlacementFile(documents.get('releases/staging-placements.json').text,publicKey),preload:async(slug,hash)=>{await readPackFolder(slug,build,rapier,options,reads,hash,[],true);},place:row=>{placeCell(row);},open:instances=>world.activateCells(instances),opened:instance=>Object.hasOwn(world.health().table,instance)});
+  const activate=uploadActivator({build,channel:'staging',read:async()=>readPlacementFile(documents.get('staging-placements.json').text,publicKey),preload:async(slug,hash)=>{await readPackFolder(slug,build,rapier,options,reads,hash,[],true);},place:row=>{placeCell(row);},open:instances=>world.activateCells(instances),opened:instance=>Object.hasOwn(world.health().table,instance)});
   const gameToken=['fixture','local','game','receiver','test','key','32bytes'].join('-'),receive=uploadActivationReceiver(gameToken,activate);
   const server=createServer((request,response)=>{if(!receive(request,response))response.writeHead(404).end();});
   await new Promise(done=>server.listen(0,'127.0.0.1',done));
   context.after(async()=>{server.closeAllConnections();await new Promise(done=>server.close(done));});
   const game=gameActivationClient({staging:{url:`http://127.0.0.1:${server.address().port}`,token:gameToken}},build);
   let lost=true;
-  const acks=activationDelivery({...client,acknowledge:async(...args)=>{if(lost){lost=false;throw new Error('lost acknowledgement');}await client.acknowledge(...args);}},game);
+  const acks=activationDelivery({...client,acknowledge:async(...args)=>{if(lost){lost=false;throw new Error('lost acknowledgement');}await client.acknowledge(...args);}},game,line=>context.diagnostic(line));
   await acks.sweep();await acks.idle();
   assert.equal(rooms.has('async-sdk-isle'),place,'actual cell opening follows the recorded placement choice');
   assert.equal((await fixture.catalogue.uploads.byHash(fixture.hash)).status,'staged');
@@ -111,8 +113,9 @@ for(const late of [false,true])test(`SP20c3 real entry refusal and packed CLI, l
   const clock={now:Date.now()},alarms=[];
   const fixture=await openApi(context,'manual',{now:()=>new Date(clock.now),errors:{report:async(error)=>{alarms.push(error.message);}}});
   const cli=installWildshard(join(work,'installed')),file=join(work,'blocked.tar');await writeFile(file,await blockedEntryTarball());
-  const args=['upload',file,'--server',fixture.url,'--version','0.1.0','--commit','a'.repeat(40),'--channel','staging'];
-  const child=spawn(process.execPath,[cli,...args],{env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
+  await writeFile(join(work,'package.json'),'{"version":"0.1.0"}');
+  const args=['upload',file,'--server',fixture.url,'--shard-version','0.1.0','--commit','a'.repeat(40),'--channel','staging'];
+  const child=spawn(process.execPath,[cli,...args],{cwd:work,env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},stdio:['ignore','pipe','pipe']});
   context.after(()=>{if(child.exitCode===null)child.kill('SIGTERM');});
   const stdout=text(child.stdout),stderr=text(child.stderr),closed=once(child,'close');
   const deadline=Date.now()+30_000;
@@ -137,11 +140,11 @@ for(const late of [false,true])test(`SP20c3 real entry refusal and packed CLI, l
   const author=await checkShardfile(product.shard,product.assets,{sections:product.sections});
   assert.deepEqual(settled.report,author,'the actual author and credential-free cook keep the same full entry refusal');
   assert.equal(outbox.rows().length,0);
-  const before=await fixture.sql.query('select name,pointers from channels order by name');
+  const before=await fixture.sql.query('select name,pointers from channel_pointers order by name');
   assert.ok(before.rows.every(row=>!Object.values(row.pointers).includes(fixture.hash)));
   assert.equal((await fixture.sql.query("select slug from grid_cells where slug='async-sdk-isle'")).rows.length,0);
   await client.verdict(fixture.id,JSON.stringify({hash:fixture.hash,result:'refused',report:settled.report}));
-  assert.deepEqual((await fixture.sql.query('select name,pointers from channels order by name')).rows,before.rows);
+  assert.deepEqual((await fixture.sql.query('select name,pointers from channel_pointers order by name')).rows,before.rows);
   if(!late){
     await closed;assert.equal(child.exitCode,3,await stderr);
     const output=await stdout;assert.ok(output.includes(`upload ${fixture.id}: refused`));

@@ -35,7 +35,7 @@ interface CliRun {
 async function cli(
   run: Run,
   args: readonly string[],
-  cwd = fileURLToPath(ROOT),
+  cwd = fileURLToPath(new URL('.', pathToFileURL(run.file))),
 ): Promise<CliRun> {
   const child = spawn(
     process.execPath,
@@ -162,7 +162,11 @@ test('any other --channel refuses and makes no request', async (context: TestCon
 test('an unprepared draft refuses with its rule and makes no request', async (context: TestContext): Promise<void> => {
   const run = await open(
     context,
-    await makeShardfile({ slug: 'upload-test', draft: true }),
+    await makeShardfile({
+      slug: 'upload-test',
+      draft: true,
+      shardVersion: VERSION,
+    }),
   )
 
   const result = await cli(run, [...PROVENANCE, '--channel', 'staging'])
@@ -265,6 +269,17 @@ test('upload refuses a version that differs from the package and shard versions'
   assert.match(
     result.stderr,
     /package\.json version=2\.3\.4, shard\.json shardVersion=2\.3\.4, upload shardVersion=2\.3\.5/u,
+  )
+  assert.equal(run.server.state.apiRequests.length, 0)
+})
+
+test('upload requires the author to declare the shard version before any request', async (context: TestContext): Promise<void> => {
+  const run = await open(context, await makeShardfile({ slug: 'upload-test' }))
+  const result = await cli(run, [...PROVENANCE, '--channel', 'staging'])
+  assert.equal(result.status, 3, result.stderr)
+  assert.match(
+    result.stderr,
+    /package\.json version=0\.0\.3, shard\.json shardVersion=\(missing\), upload shardVersion=0\.0\.3/u,
   )
   assert.equal(run.server.state.apiRequests.length, 0)
 })

@@ -283,6 +283,9 @@ export function projectAssets(project: string, shard: Shardfile, layout: 'projec
  */
 export async function buildProject(project: string, output?: string, options: { decisionLegacyLines?: number; output?: string; outputFormat?: 2; manifest?: ProjectManifestSource; copyRuntime?: boolean; devserver?: boolean; client?: string | null; map?: ProjectMap; mapSourceHash?: string; placeholders?: boolean; admit?: (shard: Shardfile, assets: ReadonlyMap<string, Uint8Array>, policy: 'warn' | 'refuse', sections: ReadonlyMap<string, unknown>) => Promise<void> } = {}): Promise<Shardfile> {
   installDeterministicMath();
+  const header = resolve(project, 'shard.json');
+  const shardVersion = existsSync(header) ? authoredShardVersion(readFileSync(header)) : undefined;
+  if (shardVersion !== undefined) await assertShardVersion(project, shardVersion);
   let phaseStarted = diagnosticNow();
   const phase = (name: string): void => {
     const now = diagnosticNow();
@@ -324,9 +327,6 @@ export async function buildProject(project: string, output?: string, options: { 
     // FORMAT-PRUNE FP36: discovery carries none of the words that live in sections (their values sit there: `readProjectAssets`)
     // FP47b: nor the level look: engine reads `look.level` first since 577c013ef and 839c8ba08 (OF9b2 kept a copy for its shell)
     const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
-    const header = resolve(project, 'shard.json');
-    const shardVersion = existsSync(header) ? authoredShardVersion(readFileSync(header)) : undefined;
-    if (shardVersion !== undefined) await assertShardVersion(project, shardVersion);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(shardVersion === undefined ? {} : { shardVersion }), ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {mkdir,mkdtemp,rm,writeFile} from 'node:fs/promises';
-import {resolve,join} from 'node:path';
+import {dirname,resolve,join} from 'node:path';
 import {text} from 'node:stream/consumers';
 import {after,before,test} from 'node:test';
 import {installWildshard} from '../../src/test/helpers/install.ts';
@@ -19,8 +19,8 @@ after(async()=>{if(installed!==undefined)await rm(installed,{recursive:true,forc
 
 async function runCli(context,fixture,file){
   const child=spawn(process.execPath,[CLI,'upload',file,'--server',fixture.url,
-    '--version','0.1.0','--commit','a'.repeat(40),'--channel','staging'],{
-    env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},
+    '--shard-version','0.1.0','--commit','a'.repeat(40),'--channel','staging'],{
+    cwd:dirname(file),env:{PATH:process.env.PATH,WILDSHARD_API_KEY:fixture.apiKey},
     stdio:['ignore','pipe','pipe'],
   });
   context.after(()=>{if(child.exitCode===null)child.kill('SIGTERM');});
@@ -36,6 +36,7 @@ for(const mode of ['live','refused','stalled']){
       context.after(()=>rm(dir,{recursive:true,force:true}));
       const file=join(dir,'shard.tar');
       await writeFile(file,TARBALL);
+      await writeFile(join(dir,'package.json'),'{"version":"0.1.0"}');
       const fixture=await openApi(context,mode);
       const done=await runCli(context,fixture,file);
       assert.ok(fixture.id,done.stderr);
@@ -43,11 +44,11 @@ for(const mode of ['live','refused','stalled']){
       assert.ok(done.stdout.includes(`upload ${fixture.id}: ${mode}`),done.stdout);
       const status=await fixture.catalogue.uploads.byHash(fixture.hash);
       assert.equal(status.status,mode);
-      const pointers=await fixture.sql.query("select name,pointers from channels order by name");
+      const pointers=await fixture.sql.query("select name,pointers from channel_pointers order by name");
       const playing=pointers.rows.filter(row=>Object.values(row.pointers).includes(fixture.hash));
       if(mode==='live'){
         assert.deepEqual(fixture.states,['cooking','staged','live']);
-        assert.equal(playing.length,2);
+        assert.deepEqual(playing.map(row=>row.name),['preview','staging']);
         assert.match(done.stdout,/placed at/u);
         assert.match(done.stdout,/committed: async-sdk-isle 0.1.0 catalogue number 1/u);
       }else{

@@ -19,6 +19,12 @@ type MountRow = Readonly<
 >
 type Row = Readonly<{ path: string; hash: string; bytes: number }>
 
+interface HeroFixtureOptions {
+  readonly hero: HeroOption | undefined
+  readonly seed: number
+  readonly folder: string | undefined
+}
+
 const COOK = 'cook.json'
 const MOUNTS = 'mounts'
 const SHADES = 200
@@ -71,25 +77,37 @@ function mountRows(
   )
 }
 
+function replaceHeroMounts(
+  files: Files,
+  mounts: readonly MountRow[],
+  options: Readonly<HeroFixtureOptions>,
+): readonly MountRow[] {
+  const { hero, seed, folder = FOLDER } = options
+  const images = imagesOf(hero, seed)
+  const path = `${MOUNTS}/shardfiles/${FOLDER}/discovery.json`
+  const source = jsonOf(files, path)
+  const discovery =
+    typeof source === 'object' && source !== null
+      ? { ...source, slug: folder }
+      : source
+  const mounted = withHero(new Map(), { folder, images, discovery })
+  const kept = mounts.filter((row: MountRow): boolean => row.path !== path)
+  files.delete(path)
+  return mountRows(files, kept, mounted)
+}
+
 /** HG2: the corpus discovery card swapped for the hero a test asks for; the new cook row. */
 async function heroFixture(
   files: Files,
-  hero: HeroOption | undefined,
-  seed: number,
+  options: Readonly<HeroFixtureOptions>,
 ): Promise<Row> {
   const { readCookData } = await import('@wildshard/format/cookData')
   const { validationSourceBytes } =
     await import('@wildshard/format/validationReceipt')
-  const images = imagesOf(hero, seed)
-  const discovery = jsonOf(
-    files,
-    `${MOUNTS}/shardfiles/${FOLDER}/discovery.json`,
-  )
-  const mounted = withHero(new Map(), { folder: FOLDER, images, discovery })
   const cook = readCookData(jsonOf(files, COOK))
   const bytes = validationSourceBytes({
     ...cook,
-    mounts: mountRows(files, cook.mounts, mounted),
+    mounts: replaceHeroMounts(files, cook.mounts, options),
   })
   files.set(COOK, bytes)
   return { path: COOK, hash: sha256(bytes), bytes: bytes.length }

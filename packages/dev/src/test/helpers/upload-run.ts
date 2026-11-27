@@ -20,8 +20,11 @@ import type {
 // as `upload-test`, a scratch folder for its tarball, and the lines the
 // client reported. Shared by upload.test.ts and upload-cli.test.ts.
 
-const TARBALL = await makeShardfile({ slug: 'upload-test' })
 const VERSION = '0.0.3'
+const TARBALL = await makeShardfile({
+  slug: 'upload-test',
+  shardVersion: VERSION,
+})
 const COMMIT = 'c'.repeat(40)
 // J306: fixed test inputs for the versions it was built with.
 const BUILT_WITH = { sharddev: '0.2.2', engine: '0.1.13', shardFormat: '0.4.4' }
@@ -42,6 +45,10 @@ async function open(
   })
   const file = path.join(directory, 'shard.tar')
   await writeFile(file, tarball)
+  await writeFile(
+    path.join(directory, 'package.json'),
+    JSON.stringify({ version: VERSION }),
+  )
   return { server: await openUploadServer(context), file, lines: [] }
 }
 

@@ -35,6 +35,10 @@ async function stampedProject(
     await rm(root, { recursive: true, force: true })
   })
   await mkdir(path.join(root, 'src'))
+  await writeFile(
+    path.join(root, 'package.json'),
+    JSON.stringify({ version: VERSION }),
+  )
   await writeFile(path.join(root, 'src', 'shard.config.ts'), '')
   const stamp = {
     content: 'c'.repeat(64),

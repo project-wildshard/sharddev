@@ -56,7 +56,7 @@ async function sdkShardfile(edit=()=>{}){
   // (sharddev QA 11-25 row 139, SDK 0.8.0 on format 0.80.0). openApi moves the channels to it.
   const files=await shardfileFiles({slug:'async-sdk-isle',sdk:'0.2',formatVersion:UPLOAD_FORMAT}),raw=jsonOf(files,'shard.json');
   if(raw?.requires!==undefined)delete raw.requires.sdk;
-  const index=parseOutputIndex(raw);
+  const index=parseOutputIndex({...raw,shardVersion:'0.1.0'});
   edit(files,index,{sha256,validationSourceBytes});
   for(const pack of index.packs)files.delete(pack.path);
   index.packs=[];
@@ -145,7 +145,20 @@ async function afterResponse(fixture,request,response,mode){
   }
 }
 
-export async function openApi(context,mode,extraPorts={}){
+/** The actual host’s occupied sites, with inner-ring gaps reserved by the test allocator. */
+function allocatorCells(baked){
+  const rows=baked.map(({instance,slug,cell})=>({instance,slug,cell}));
+  const occupied=new Set(rows.map(row=>row.cell.join(',')));
+  const outer=Math.max(...rows.map(({cell})=>Math.max(...cell.map(Math.abs))));
+  for(let x=1-outer;x<outer;x++)for(let z=1-outer;z<outer;z++){
+    if(occupied.has([x,z].join(',')))continue;
+    const slug=`fixture-cell-${x+outer}-${z+outer}`;
+    rows.push({instance:slug,slug,cell:[x,z]});
+  }
+  return rows;
+}
+
+export async function openApi(context,mode,extraPorts={},bakedCells){
   const sql=await openPglite();
   context.after(sql.close);
   await applyMigrations(sql);
@@ -166,10 +179,12 @@ export async function openApi(context,mode,extraPorts={}){
     body:JSON.stringify({email:'sdk-contract@example.test'})});
   assert.equal(account.status,201);
   fixture.apiKey=(await account.json()).key;
+  const document=JSON.parse(await readFile(resolve(root,'src/test/fixtures/first-party-grid.json'),'utf8'));
+  // An actual game host and the allocator must start with the same occupied cells.
+  if(bakedCells!==undefined)document.grid.cells=allocatorCells(bakedCells);
   const grid=await app.request('/api/catalogue/grid',{method:'PUT',
-    headers:{authorization:'Bearer fixture-grid-admin'},
-    body:await readFile(resolve(root,'src/test/fixtures/first-party-grid.json'),'utf8')});
-  assert.equal(grid.status,200);
+    headers:{authorization:'Bearer fixture-grid-admin'},body:JSON.stringify(document)});
+  assert.equal(grid.status,200,await grid.text());
   const server=serve({hostname:'127.0.0.1',port:0,fetch:async request=>{
     const response=await app.fetch(request);
     await afterResponse(fixture,request,response,mode);

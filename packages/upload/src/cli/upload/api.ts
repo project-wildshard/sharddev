@@ -17,7 +17,6 @@ import type {
   CatalogueShard,
   CommitAnswer,
   DirectUploadTicket,
-  ShardfileSummary,
   UploadStatus,
   UploadSummary,
 } from './wire.ts'
@@ -163,7 +162,7 @@ async function postUpload<Schema extends AnySchema>(
 async function findStored(
   options: ApiOptions,
   hash: string,
-): Promise<ShardfileSummary | undefined> {
+): Promise<Readonly<{ hash: string }> | undefined> {
   const path = '/api/shardfiles'
   const reply = await fetch(new URL(path, options.server), {
     headers: apiHeaders(options),

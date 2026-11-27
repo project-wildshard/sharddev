@@ -23,13 +23,14 @@ function authoredShardVersion(
 
 async function assertShardVersion(
   project: string,
-  authored: string,
+  authored: string | undefined,
   asked?: string,
 ): Promise<void> {
   const packageVersion = await projectVersion(project).catch(
     (): undefined => undefined,
   )
   if (
+    authored !== undefined &&
     packageVersion === authored &&
     (asked === undefined || asked === authored)
   ) {
@@ -37,7 +38,7 @@ async function assertShardVersion(
   }
   const upload = asked === undefined ? '' : `, upload shardVersion=${asked}`
   throw new Error(
-    `shard version mismatch: package.json version=${packageVersion ?? '(missing)'}, shard.json shardVersion=${authored}${upload}`,
+    `shard version mismatch: package.json version=${packageVersion ?? '(missing)'}, shard.json shardVersion=${authored ?? '(missing)'}${upload}`,
   )
 }
 
@@ -49,10 +50,7 @@ async function checkUploadShardVersion(
   installFormatHook()
   const { readTar } = await import('@wildshard/format/tar')
   const authored = authoredShardVersion(readTar(tarball).get(HEADER))
-  // Legacy readers still build and check already-stored products.
-  if (authored !== undefined) {
-    await assertShardVersion(project, authored, asked)
-  }
+  await assertShardVersion(project, authored, asked)
 }
 
 export { assertShardVersion, authoredShardVersion, checkUploadShardVersion }

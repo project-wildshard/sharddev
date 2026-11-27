@@ -11,7 +11,7 @@
     "!src/**/*.test.*"
   ],
   "dependencies": {
-    "@wildshard/format": "npm:@wildshard/shard-format@0.80.0",
+    "@wildshard/format": "npm:@wildshard/shard-format@0.81.0",
     "valibot": "1.5.0"
   },
   "exports": {
