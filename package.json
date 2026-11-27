@@ -1,6 +1,6 @@
 {
   "name": "@wildshard/sharddev-workspace",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "private": true,
   "description": "sharddev workspace root: repo tooling only. The packages live in packages/* (SDK-SPLIT); the version here is the one release version all of them share (D5).",
   "license": "UNLICENSED",

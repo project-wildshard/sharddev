@@ -16,6 +16,14 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.9.0 (2026-11-27)
+
+- **Breaking:** Run `wildshard migrate` to add `shardVersion` and resolve any mismatch with `package.json`.
+- Keep texture sources as images. The cook produces desktop KTX2 and phone ASTC, and new packs refuse carried KTX2.
+- Preserve the authored version in both the draft and prepared `cook.json` so the cooked header keeps its hash.
+- Let boot recipes name a zone’s glTF model folder by URL and prepare with the matching engine staging client.
+- Pin the author tools to engine 0.1.99-next.6385c3d0 and shard-format 0.82.3.
+
 ## v0.8.1 (2026-11-26)
 
 - Resolve shared kit art from the bundled CLI, including sky and ground mounts (ab504755).
