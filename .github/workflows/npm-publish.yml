@@ -12,6 +12,10 @@ on:
     tags: ['v[0-9]+.[0-9]+.[0-9]+']
   workflow_dispatch:
     inputs:
+      publish_next:
+        description: Publish an existing CI-green SDK release tag to npm next
+        type: string
+        default: ''
       placeholder:
         description: Publish a README-only placeholder of the package (no repo files)
         type: boolean
@@ -24,6 +28,7 @@ on:
 permissions:
   contents: read
   id-token: write
+  actions: read
 
 concurrency:
   group: npm-publish-${{ github.ref }}
@@ -31,12 +36,18 @@ concurrency:
 
 jobs:
   publish:
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || (github.ref == 'refs/heads/main' && inputs.publish_next != '' && !inputs.placeholder)
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      RELEASE_REF: ${{ inputs.publish_next || github.ref_name }}
     steps:
+      - name: Validate the release tag name
+        run: |
+          [[ "$RELEASE_REF" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ format('refs/tags/{0}', inputs.publish_next || github.ref_name) }}
           persist-credentials: false
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
         with:
@@ -50,23 +61,54 @@ jobs:
           node -e 'const [a,b,c]=process.argv[1].split(".").map(Number);process.exit(a>11||(a===11&&(b>5||(b===5&&c>=1)))?0:1)' "$(npm --version)" ||
             npm install --global npm@11.16.0
           npm --version
+      - name: Choose one npm channel for the workspace
+        id: channel
+        run: |
+          node <<'NODE'
+          const { appendFileSync } = require('node:fs');
+          const version = require('./package.json').version;
+          if (process.env.RELEASE_REF !== `v${version}`) throw new Error('Tag and package version differ');
+          const engine = require('./packages/dev/package.json').dependencies['@wildshard/engine'];
+          const tag = /^\d+\.\d+\.\d+-next\.[a-f0-9]{7,40}$/u.test(engine) ? 'next' : 'latest';
+          appendFileSync(process.env.GITHUB_OUTPUT, `tag=${tag}\n`);
+          NODE
+      - name: Require exact release CI for a manual next publish
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          DIST_TAG: ${{ steps.channel.outputs.tag }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$DIST_TAG" = next
+          sha=$(git rev-parse HEAD)
+          verdict=$(gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ci.yml/runs?head_sha=$sha&event=push&branch=release/$RELEASE_REF" \
+            --jq '.workflow_runs | sort_by(.id) | last | .conclusion')
+          test "$verdict" = success
       # SP12: build's prepack compiles dist/build.mjs with esbuild and reads the validator revision from dev's engine pin,
       # so the pack needs the workspace installed (every dependency is on npm; no git dependencies).
       - name: Install the workspace
         run: pnpm install --frozen-lockfile --config.ci=false
       - name: Pack and verify every workspace package from the exact tag
         env:
-          RELEASE_TAG: ${{ github.ref_name }}
+          DIST_TAG: ${{ steps.channel.outputs.tag }}
         run: |
-          # shellcheck disable=SC2016 # The quoted JavaScript reads the environment itself.
-          node -e 'if (process.env.RELEASE_TAG !== `v${require("./package.json").version}`) throw new Error("Tag and package version differ")'
-          node src/scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+          if [[ "$DIST_TAG" = latest ]]; then
+            # RELEASE_TAG activates the packed latest-only engine dependency guard.
+            RELEASE_TAG="$RELEASE_REF" node src/scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+          elif [[ "$DIST_TAG" = next ]]; then
+            node src/scripts/release-workspace.mjs pack "$RUNNER_TEMP/workspace-release"
+          else
+            exit 1
+          fi
       - name: Publish kit, upload, sdk, build, dev, then cli
+        env:
+          DIST_TAG: ${{ steps.channel.outputs.tag }}
         run: |
           node --input-type=module <<'NODE'
           import { execFileSync } from 'node:child_process';
           import { readFileSync } from 'node:fs';
           import { join } from 'node:path';
+          const tag = process.env.DIST_TAG;
+          if (tag !== 'latest' && tag !== 'next') throw new Error('Invalid npm dist-tag');
           const artifacts = JSON.parse(readFileSync(join(process.env.RUNNER_TEMP, 'workspace-release/release-artifacts.json'), 'utf8'));
           // Every name must exist before the first publish, so a missing one never leaves a half-published release.
           for (const item of artifacts) {
@@ -76,7 +118,7 @@ jobs:
           for (const item of artifacts) {
             try { execFileSync('npm', ['view', `${item.name}@${item.version}`, 'version'], { stdio: 'pipe' }); console.log(`${item.name}@${item.version} already published`); continue; }
             catch {}
-            execFileSync('npm', ['publish', item.archive, '--provenance', '--access', 'public', '--ignore-scripts'], { stdio: 'inherit' });
+            execFileSync('npm', ['publish', item.archive, '--provenance', '--access', 'public', '--ignore-scripts', '--tag', tag], { stdio: 'inherit' });
           }
           NODE
 

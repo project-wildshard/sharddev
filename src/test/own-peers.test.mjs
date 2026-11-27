@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
+import { runInNewContext } from 'node:vm';
 import { ownPeerProblems, prereleaseEngineProblems, satisfies } from '../scripts/own-peers.mjs';
 
 test('a caret below 1.0.0 keeps its minor; bounds and || combine as npm reads them', () => {
@@ -39,4 +40,30 @@ test('a final release refuses an engine prerelease dependency; a prerelease SDK 
   assert.deepEqual(prereleaseEngineProblems({ ...dev, dependencies: { '@wildshard/engine': '0.1.96' } }, '0.7.1'), []);
   assert.equal(prereleaseEngineProblems({ name: '@wildshard/x', optionalDependencies: { '@wildshard/engine': '0.1.96-next.48084eb2' } }, '0.7.1').length, 1);
   assert.deepEqual(prereleaseEngineProblems({ name: '@wildshard/sdk', peerDependencies: { '@wildshard/engine': '*' } }, '0.7.1'), []);
+});
+
+test('the SDK publisher routes all six packages with an exact next engine to npm next', () => {
+  const workflow = readFileSync(new URL('../../.github/workflows/npm-publish.yml', import.meta.url), 'utf8');
+  const selector = /- name: Choose one npm channel[^]*?node <<'NODE'\n([^]*?)\n *NODE/u.exec(workflow)?.[1];
+  assert.ok(selector);
+  const channel = (engine, ref = 'v0.9.0') => {
+    let output;
+    runInNewContext(selector, {
+      process: { env: { RELEASE_REF: ref, GITHUB_OUTPUT: 'output' } },
+      require: name => {
+        if (name === 'node:fs') return { appendFileSync: (file, value) => { output = value; } };
+        if (name === './package.json') return { version: '0.9.0' };
+        assert.equal(name, './packages/dev/package.json');
+        return { dependencies: { '@wildshard/engine': engine } };
+      },
+    });
+    return output;
+  };
+  assert.equal(channel('0.1.99-next.6385c3d0'), 'tag=next\n');
+  assert.equal(channel('0.1.99'), 'tag=latest\n');
+  assert.equal(channel('0.1.99-beta.2'), 'tag=latest\n');
+  assert.throws(() => channel('0.1.99-next.6385c3d0', 'v0.9.1'), /Tag and package version differ/u);
+  assert.match(workflow, /test "\$DIST_TAG" = next[^]*?test "\$verdict" = success/u);
+  assert.match(workflow, /RELEASE_TAG="\$RELEASE_REF" node src\/scripts\/release-workspace\.mjs pack/u);
+  assert.match(workflow, /execFileSync\('npm', \['publish'[^\n]*'--tag', tag\]/u);
 });
