@@ -5,6 +5,7 @@ import { createReadStream, existsSync, mkdtempSync, realpathSync, readdirSync, r
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
 import { extname, join, resolve, sep } from 'node:path';
 import { buildProject } from '@wildshard/build/project';
+import { COOK_DATA_PATH, readCookData } from '@wildshard/format/cookData';
 import type { ProjectManifestSource } from '@wildshard/sdk/projectManifest';
 import { shardRepoRoot } from '@wildshard/upload/sharddev/shardSource';
 import { Scope } from '@wildshard/engine/app/scope';
@@ -77,6 +78,17 @@ export function devFile(dirs: readonly string[], shardRoot: string, path: string
   }
   return undefined;
 }
+/** The author server publishes the built product's verified mount names at their runtime URLs. */
+export function devMountFile(product: string): (path: string) => ReturnType<typeof devFile> {
+  const cook = join(product, COOK_DATA_PATH);
+  const mounts = existsSync(cook) ? readCookData(JSON.parse(readFileSync(cook, 'utf8'))).mounts : [];
+  const members = new Map(mounts.map(({url, path}) => [url, path]));
+  return (path): ReturnType<typeof devFile> => {
+    const member = members.get(path);
+    return member === undefined ? undefined : devFile([product], '', `/${member}`);
+  };
+}
+
 /** SDK-SPLIT SP13f: a file under one of the manifest's image roots (`/assets/` is the source's `static/assets/`), which a
  *  release serves beside the shard and the page asks for at run time (Signal Dunes' painted skies). */
 export function imageRootFile(manifest: ProjectManifestSource | undefined, path: string): { dir: string; file: string } | undefined {
@@ -92,6 +104,7 @@ export interface DevProject { url: string; close: (options?: { exiting?: boolean
  *  buildProject in a test. */
 export async function devProject(project: string, options: { decisionLegacyLines?: number; port?: number; client?: string; manifest?: ProjectManifestSource; build?: typeof buildProject } = {}): Promise<DevProject> {
   const source = resolve(project), scratch = createDevScratch(source);
+  let mountFile: ReturnType<typeof devMountFile> = () => undefined;
   let revision = 0, error: string | null = null, current = '', previous = '', stopped = false, shardRoot = '';
   const scope = new Scope('sdk.dev');
   let debounce: Scope | undefined, work = Promise.resolve();
@@ -106,13 +119,13 @@ export async function devProject(project: string, options: { decisionLegacyLines
       const flags: unknown = JSON.parse(readFileSync(join(target, 'build-flags.json'), 'utf8'));
       if (typeof flags !== 'object' || flags === null || !('devserver' in flags) || flags.devserver !== true) throw new Error('wildshard dev requires a client compiled in devserver mode');
       await renderDevMap(target);
-      const document = readFileSync(page, 'utf8');
+      const document = readFileSync(page, 'utf8'), nextMountFile = devMountFile(target);
       world ??= await createDevWorld(origin, join(scratch, 'world'));
       await world.move(target, built.identity.slug);
       const map = `<script>globalThis.__WS_DEV_COOKED_MAP__=${JSON.stringify(built.identity.slug)};</script>`;
       writeFileSync(page, world.stamp(document).replace('</body>', `${map}${POLL.replace('WS_REVISION', String(revision + 1))}</body>`));
       if (previous !== '') rmSync(previous, { recursive: true, force: true });
-      previous = current; current = target; shardRoot = `/shardfiles/${built.identity.slug}/`; revision++; error = null;
+      previous = current; current = target; mountFile = nextMountFile; shardRoot = `/shardfiles/${built.identity.slug}/`; revision++; error = null;
     } catch (cause) {
       rmSync(target, { recursive: true, force: true }); error = cause instanceof Error ? cause.message : String(cause);
       if (current === '') throw cause;
@@ -137,7 +150,7 @@ export async function devProject(project: string, options: { decisionLegacyLines
       // `sw.js` is one that takes nothing and unregisters itself (and a worker an older `dev` left on this port).
       if (path === '/sw.js') { response.setHeader('Content-Type', 'text/javascript'); response.end(DEV_SERVICE_WORKER); return; }
       // Serve the author's product at the same shardfile path as a release.
-      const file = devFile([current, previous], shardRoot, path) ?? imageRootFile(options.manifest, path);
+      const file = mountFile(path) ?? devFile([current, previous], shardRoot, path) ?? imageRootFile(options.manifest, path);
       if (file === undefined) { response.writeHead(404); response.end(); return; }
       response.setHeader('Content-Type', MIME[extname(file.file)] ?? 'application/octet-stream');
       if (request.method === 'HEAD') response.end(); else createReadStream(file.file).on('error', () => { response.destroy(); }).pipe(response);

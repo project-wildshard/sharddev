@@ -1,16 +1,16 @@
 // oxlint-disable-next-line import/no-nodejs-modules -- The author tool serves the watched product and the scene stream.
 import { createServer } from 'node:http';
 // oxlint-disable-next-line import/no-nodejs-modules -- Author changes are watched; the product is a private disposable build.
-import { createReadStream, existsSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, watch, writeFileSync } from 'node:fs';
+import { createReadStream, existsSync, readdirSync, readFileSync, rmSync, statSync, watch, writeFileSync } from 'node:fs';
 // oxlint-disable-next-line import/no-nodejs-modules -- Resolve static requests inside the product directory.
-import { extname, join, resolve, sep } from 'node:path';
+import { extname, join, resolve } from 'node:path';
 import { build, type Plugin } from 'vite';
 import * as THREE from 'three';
 import * as liveTsl from 'three/tsl';
 import * as liveWebgpu from 'three/webgpu';
 import { Scope } from '@wildshard/engine/app/scope';
 import { buildProject } from '@wildshard/build/project';
-import { createDevScratch, projectSourceStamp } from '../dev';
+import { createDevScratch, devFile, devMountFile, projectSourceStamp } from '../dev';
 import { createDevWorld, DEV_RELEASE, type DevWorld } from '../../../scripts/dev-world.mjs';
 import { executeBundle } from '@wildshard/sdk/executeBundle';
 import type { ShardScene } from '@wildshard/sdk/scene/description';
@@ -189,6 +189,7 @@ function assertHook(client: string): void {
 export async function watchProject(project: string, options: { port?: number; client?: string | null; log?: (line: string) => void } = {}): Promise<WatchProject> {
   if (typeof options.client === 'string') assertHook(options.client);
   const source = resolve(project), scratch = createDevScratch(source), log = options.log ?? ((line: string): void => { console.info(line); });
+  let mountFile: ReturnType<typeof devMountFile> = () => undefined;
   let product = '', shardRoot = '', shell = 0, shellHash = '', revision = 0, error: string | null = null, stopped = false, script = '';
   let parts: { name: string; hash: string }[] = [], look: WatchState['look'] = { hash: '', keys: [], look: null }, reshell = false;
   let ground: WatchState['ground'] = { hash: '', shell: '' }, gameplayState: WatchState['gameplay'] = { hash: '', shell: '' }, lastBuild: WatchBuild | null = null, idle: Scope | null = null, building: ChildProcess | null = null;
@@ -206,7 +207,7 @@ export async function watchProject(project: string, options: { port?: number; cl
     process.env['WILDSHARD_SCENE_LIVE'] = '1';
     try {
       const built = await buildProject(source, target, { devserver: true, ...(options.client === undefined ? {} : { client: options.client }) });
-      const page = join(target, 'index.html');
+      const page = join(target, 'index.html'), nextMountFile = devMountFile(target);
       script ||= await pageScript();
       // the shell's number first: the page script reloads on a state for another shell, even on its first message
       const tags = `<script>window.__wsShell=${shell + 1}</script>${script}</body>`;
@@ -219,7 +220,7 @@ export async function watchProject(project: string, options: { port?: number; cl
         writeFileSync(page, world?.stamp(html) ?? html);
       } else if (online) throw new Error('wildshard watch requires a client index.html');
       if (product !== '') rmSync(product, { recursive: true, force: true });
-      product = target; shardRoot = `/shardfiles/${built.identity.slug}/`; shell++;
+      product = target; mountFile = nextMountFile; shardRoot = `/shardfiles/${built.identity.slug}/`; shell++;
     } catch (cause) {
       rmSync(target, { recursive: true, force: true });
       throw cause;
@@ -377,11 +378,10 @@ export async function watchProject(project: string, options: { port?: number; cl
       // AP17: the client's service worker would serve a reloaded page its cached index.html, which has no page script (and
       // an older shell); a watched page runs without one, so watch serves one that removes itself
       if (path === SERVICE_WORKER) { response.setHeader('Content-Type', 'text/javascript'); response.end(NO_SERVICE_WORKER); return; }
-      const served = shardRoot !== '' && path.startsWith(shardRoot) ? path.slice(shardRoot.length - 1) : path;
-      const file = resolve(product, served === '/' ? 'index.html' : served.slice(1));
-      if (!file.startsWith(`${product}${sep}`) || !existsSync(file) || !statSync(file).isFile() || !realpathSync(file).startsWith(`${product}${sep}`)) { response.writeHead(404); response.end(); return; }
-      response.setHeader('Content-Type', MIME[extname(file)] ?? 'application/octet-stream');
-      if (request.method === 'HEAD') response.end(); else createReadStream(file).on('error', () => { response.destroy(); }).pipe(response);
+      const file = mountFile(path) ?? devFile([product], shardRoot, path);
+      if (file === undefined) { response.writeHead(404); response.end(); return; }
+      response.setHeader('Content-Type', MIME[extname(file.file)] ?? 'application/octet-stream');
+      if (request.method === 'HEAD') response.end(); else createReadStream(file.file).on('error', () => { response.destroy(); }).pipe(response);
     } catch { response.writeHead(400); response.end(); }
   });
   server.on('upgrade', (request, socket) => {
