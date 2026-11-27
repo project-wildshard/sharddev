@@ -120,7 +120,8 @@
     "0.1.80-next.be7e944e": "be7e944e4c87d14e2989334ff97105466d2f289d",
     "0.1.84-next.805deb1b": "805deb1b57795ab772befce5c4ba5b3b7c0f2ad5",
     "0.1.93-next.4daadc70": "4daadc70f007eede66643cc921dc60e8484a64e3",
-    "0.1.93-next.b2c9e9f3": "b2c9e9f3827da6af0d953458ad8917fc7fa4908e"
+    "0.1.93-next.b2c9e9f3": "b2c9e9f3827da6af0d953458ad8917fc7fa4908e",
+    "0.1.99-next.6385c3d0": "6385c3d0374c36e252a72010f8b9987a23ecc78e"
   },
   "wildshardPreparationClients": {
     "0.1.54": "0.1.59"

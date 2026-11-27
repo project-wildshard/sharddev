@@ -333,8 +333,8 @@ importers:
         specifier: 24.3.1
         version: 24.3.1
       '@wildshard/engine':
-        specifier: 0.1.96
-        version: 0.1.96(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
+        specifier: 0.1.99-next.6385c3d0
+        version: 0.1.99-next.6385c3d0(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))
       '@wildshard/sdk':
         specifier: link:.
         version: 'link:'
@@ -892,26 +892,6 @@ packages:
 
   '@vitest/spy@5.0.3':
     resolution: {integrity: sha512-XhFysQTB8AZ+P4gMi+Lpo99vg2AZi0qKpaB9yXQl37+CaMEAPO3iH/wGVnSyL5MPERiLezpqTVtrR6UZH5GCXg==}
-
-  '@wildshard/engine@0.1.96':
-    resolution: {integrity: sha512-UEIPK1EnBn2vFXk6zB1xytOe0ErlEbBx0c4MuWR43zVkXS2VHPTe/mClZQSliCwq8JqXMA6QGalsdS1VdGvihg==}
-    engines: {node: '>=24.18.0 <27'}
-    hasBin: true
-    peerDependencies:
-      '@types/three': '*'
-      '@typescript/typescript6': 6.0.2
-      playwright: 1.65.0
-      sharp: 0.35.5
-      vite: 8.3.0
-    peerDependenciesMeta:
-      '@types/three':
-        optional: true
-      playwright:
-        optional: true
-      sharp:
-        optional: true
-    bundledDependencies:
-      - '@wildshard/format'
 
   '@wildshard/engine@0.1.99-next.6385c3d0':
     resolution: {integrity: sha512-8AEVGsV9osequ+QEGnhhqfqHM54X7iIsmthdAVSYKWigN95cC3dHxJFUhoc1DIXKH9L+nXByKGC3id6uHpx/YA==}
@@ -1993,40 +1973,6 @@ snapshots:
       vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
 
   '@vitest/spy@5.0.3': {}
-
-  '@wildshard/engine@0.1.96(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
-    dependencies:
-      '@dimforge/rapier3d-simd': 0.21.0
-      '@hono/node-server': 2.1.8(hono@4.13.19)
-      '@prometheus-io/client': 0.16.1
-      '@sentry/browser': 11.0.0
-      '@sentry/core': 11.0.0
-      '@typescript/typescript6': 6.0.2
-      '@valibot/to-json-schema': 1.8.0(valibot@1.5.0(typescript@6.0.3))
-      '@wildshard/wire': 1.5.0(typescript@6.0.3)
-      ajv: 6.15.0
-      fflate: 0.8.3
-      hono: 4.13.19
-      meshoptimizer: 1.2.0
-      n8ao: 2.0.1(@types/three@0.186.0)(postprocessing@6.39.5(@types/three@0.186.0)(three@0.186.0))(three@0.186.0)
-      navcat: 0.4.1(@types/three@0.186.0)(three@0.186.0)
-      pg: 8.23.1
-      postprocessing: 6.39.5(@types/three@0.186.0)(three@0.186.0)
-      preact: 11.1.1
-      three: 0.186.0
-      valibot: 1.5.0(typescript@6.0.3)
-      vite: 8.3.0(@types/node@24.3.1)(esbuild@0.28.2)
-      ws: 8.22.0
-    optionalDependencies:
-      '@types/three': 0.186.0
-      playwright: 1.65.0
-      sharp: 0.35.5(@types/node@24.3.1)
-    transitivePeerDependencies:
-      - bufferutil
-      - pg-native
-      - preact-render-to-string
-      - typescript
-      - utf-8-validate
 
   '@wildshard/engine@0.1.99-next.6385c3d0(@types/three@0.186.0)(@typescript/typescript6@6.0.2)(playwright@1.65.0)(sharp@0.35.5(@types/node@24.3.1))(typescript@6.0.3)(vite@8.3.0(@types/node@24.3.1)(esbuild@0.28.2))':
     dependencies:

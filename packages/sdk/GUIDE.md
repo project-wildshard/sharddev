@@ -1272,7 +1272,7 @@ Each size class has a decoded-bytes mark per creature, mostly its textures: tiny
 #### carried-ktx2
 
 A shardfile carries images only (J525): a texture is a PNG or JPEG, and a GLB holds `image/png` or `image/jpeg`.
-The cook makes every KTX2 from them, for each tier. An upload that carries a KTX2 blob or a `.ktx2` path is refused;
+The engine makes the KTX2 for each tier from those images. An upload that carries a KTX2 blob or a `.ktx2` path is refused;
 carry the image the KTX2 was made from instead.
 
 #### triangle-budget

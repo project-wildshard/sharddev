@@ -128,9 +128,10 @@ test('the installed SDK defaults to its engine release\'s client, and a prerelea
   const file = archive(root, { devserver: false }, { preparationOnly: true });
   const fetch = vi.spyOn(globalThis, 'fetch').mockImplementation(() => Promise.resolve(new Response(readFileSync(file))));
   const staging = 'server-staging-b2c9e9f3827da6af0d953458ad8917fc7fa4908e';
+  const stock = engineClientTag(undefined, true);
   try {
     const cache = join(root, 'cache');
-    expect(await fetchPreparationClient({ cache })).toBe(join(cache, 'v0.1.96-preparation'));
+    expect(await fetchPreparationClient({ cache })).toBe(join(cache, `${stock}-preparation`));
     expect(await fetchPreparationClient({ pin: '0.1.93-next.b2c9e9f3', cache })).toBe(join(cache, `${staging}-preparation`));
     expect(engineClientTag(undefined, false, '0.1.93-next.4daadc70')).toBe('server-staging-4daadc70f007eede66643cc921dc60e8484a64e3');
     expect(engineClientTag(undefined, false, '0.1.84-next.805deb1b')).toBe('server-staging-805deb1b57795ab772befce5c4ba5b3b7c0f2ad5');
@@ -142,7 +143,7 @@ test('the installed SDK defaults to its engine release\'s client, and a prerelea
     expect(engineClientTag(undefined, false, '0.1.54')).toBe('v0.1.54');
     expect(engineClientTag(undefined, false, '0.1.64')).toBe('v0.1.64');
     expect(fetch).toHaveBeenCalledTimes(2);
-    expect(fetch).toHaveBeenCalledWith('https://github.com/project-wildshard/engine/releases/download/v0.1.96/preparation-client.tar.gz');
+    expect(fetch).toHaveBeenCalledWith(`https://github.com/project-wildshard/engine/releases/download/${stock}/preparation-client.tar.gz`);
     expect(fetch).toHaveBeenCalledWith(`https://github.com/project-wildshard/engine/releases/download/${staging}/preparation-client.tar.gz`);
   } finally { fetch.mockRestore(); }
 });
