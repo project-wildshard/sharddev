@@ -33,6 +33,9 @@ const DEV_SRC = resolve(import.meta.dirname, '../src/sharddev');
 const SDK_DIR = realpathSync(dirname(authorRequire.resolve('@wildshard/sdk/package.json'))), SDK_SRC = resolve(SDK_DIR, 'src/sharddev');
 // The script compilers and the texture tools are the sdk's dependencies; they load from the sdk's own install.
 const sdkRequire = createRequire(resolve(SDK_SRC, 'package.json'));
+// SF7 (meta standalone shardfiles): the kit finds its shared art beside its own file, `new URL('../content/art/', import.meta.url)`.
+// Bundled, import.meta.url is the bundle's, under the repo's tmp/, so a shard naming kit art missed it (Nine Dragon's sky).
+const KIT_DIR = realpathSync(dirname(dirname(sdkRequire.resolve('@wildshard/kit/art'))));
 // P4: the project is the repo the author stands in; the tools are this package.
 const projectRoot = () => process.cwd();
 /** Compile the trusted CLI once before product children; later invocations
@@ -52,10 +55,11 @@ export function prepareWildshard() {
     const result = await build({ configFile: false, publicDir: false, resolve: { alias: rapierAlias }, logLevel: 'silent', define: { __SHARDFILE_VALIDATOR__: JSON.stringify(shardfileValidationRevision()) }, plugins: [inputRecorderPlugin({execution:true}), { name: 'author-node-vite', enforce: 'pre', transform(code, id) {
       // SDK-SPLIT SP8c: each package keeps its own src/sharddev as import.meta.dirname (the sdk finds its GUIDE.md,
       // template and tools; dev, the engine and upload find dev's): one global value pointed the sdk's modules at dev.
-      if (!code.includes('import.meta.dirname')) return null;
       const file = id.split('?')[0] ?? id;
+      const own = file.startsWith(KIT_DIR + sep) ? code.replaceAll('import.meta.url', JSON.stringify(pathToFileURL(file).href)) : code;
+      if (own === code && !code.includes('import.meta.dirname')) return null;
       const owner = file.startsWith(SDK_DIR + sep) ? SDK_SRC : DEV_SRC;
-      return { code: code.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
+      return { code: own.replaceAll('import.meta.dirname', JSON.stringify(owner)), map: null };
     }, resolveId(id, importer) {
       if (id.endsWith('/scripts/dev-world.mjs')) return { id: pathToFileURL(resolve(import.meta.dirname, 'dev-world.mjs')).href, external: true };
       if (id === 'vite') return { id: pathToFileURL(resolve(import.meta.dirname,'shardfile-vite.mjs')).href, external: true };
