@@ -40,3 +40,25 @@ export function liftDiscoveryStart(shard: Shardfile, discovery: unknown): Shardf
   const { manifest: _start, ...lifted } = liftLevelStart(liftLevelLook({ ...shard, manifest: { ...startWords(discovery), ...lookWords(discovery) } }));
   return lifted;
 }
+
+/** The extension a map image blob is served under, from its leading bytes (WebP, PNG or JPEG). */
+function mapExtension(bytes: Uint8Array): string {
+  const ascii = (from: number, to: number): string => String.fromCodePoint(...bytes.subarray(from, to));
+  if (ascii(0, 4) === 'RIFF' && ascii(8, 12) === 'WEBP') return '.webp';
+  if (bytes[0] === 0x89 && ascii(1, 4) === 'PNG') return '.png';
+  if (bytes[0] === 0xff && bytes[1] === 0xd8) return '.jpg';
+  throw new Error('generated map: its image is not WebP, PNG or JPEG');
+}
+
+/**
+ * Standalone shardfiles SF9: a product whose discovery comes from its composed manifest (each open plot) names its generated
+ * map as the image blob the product holds, as a product with a level manifest does once its images are packed. The composed
+ * manifest packs no images of its own, so its minimap still named a public `/assets/…` URL no product mounts, and the SDK
+ * refused it ("Missing shardfile asset"). A manifest with no minimap image, or a product with no generated map, is unchanged.
+ */
+export function withGeneratedMinimap(manifest: unknown, slug: string, map: { hash: string; bytes: Uint8Array } | undefined): unknown {
+  if (map === undefined || typeof manifest !== 'object' || manifest === null || Array.isArray(manifest)) return manifest;
+  const minimap: unknown = Reflect.get(manifest, 'minimap');
+  if (typeof minimap !== 'object' || minimap === null || !Object.hasOwn(minimap, 'image')) return manifest;
+  return { ...manifest, minimap: { ...minimap, image: `/shardfiles/${slug}/blobs/image/${map.hash}${mapExtension(map.bytes)}` } };
+}

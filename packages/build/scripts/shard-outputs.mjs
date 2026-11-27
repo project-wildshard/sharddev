@@ -84,13 +84,16 @@ export function builtShardFolders(root, folders) {
   if (new Set(slugs).size !== slugs.length) throw new Error('shard outputs: a product slug is declared twice');
   return products.sort((a, b) => a.slug.localeCompare(b.slug));
 }
-/** An output's authored manifest: the folder base with its overrides, its slug, canonical shardfile path and data map.
+/** An output's authored manifest: the folder base with its overrides, its slug and canonical shardfile path. Its minimap is
+ * the one it declares (or its base's): standalone shardfiles SF9 retired the forced `/assets/<slug>/map/top.webp`, a copy
+ * only the old public publish wrote, so the SDK refused every open plot for a mount it never had. The build names a
+ * generated map's image blob in its place (build `discoveryStart.ts` withGeneratedMinimap).
  * @param {string} root @param {string} folder @param {{ slug: string, manifest?: object }} output */
 export function outputManifest(root, folder, output) {
   const card = shardCardFile(shardSourceDir(root, folder));
   if (card === null) throw new Error(`${folder}: its outputs need a card (data/card.json) to compose over`);
   const base = JSON.parse(readFileSync(card, 'utf8'));
-  return mergeManifest(base, { ...output.manifest, slug: output.slug, shardfile: `/shardfiles/${output.slug}/shard.json`, minimap: { image: `/assets/${output.slug}/map/top.webp` } });
+  return mergeManifest(base, { ...output.manifest, slug: output.slug, shardfile: `/shardfiles/${output.slug}/shard.json` });
 }
 /** The shard folders with a manifest or a card (OF6a): under src/shards, or a single-shard repo's src/ (SA42). P3: a tree with no shard source has none. @param {string} root */
 export function manifestFolders(root) {

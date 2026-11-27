@@ -45,7 +45,7 @@ import { audioEncodeLine, encodeMountAudio, readStereoMarks } from '@wildshard/s
 import { AUTHOR_BUDGETS, AUTHOR_BUDGETS_MODULE, authorManifest, sceneCardUrls } from '@wildshard/sdk/internal/authorManifest';
 import { liftLevelLook } from '@wildshard/format/look-level';
 import { liftLevelStart } from '@wildshard/format/level-start';
-import { liftDiscoveryStart, withoutMovedWords } from './discoveryStart';
+import { liftDiscoveryStart, withGeneratedMinimap, withoutMovedWords } from './discoveryStart';
 import { discoveryDocument, discoveryUrl } from '@wildshard/sdk/internal/discoveryDocument';
 import { outputScriptAdmissionRows, outputPlatformPayloads, clearOutputProduct, writeOutputProduct, type OutputProductOptions } from '@wildshard/sdk/outputProduct';
 import { prepareProjectOutput, prepareProjectOutputInput, projectOutputContext, mergeProjectBlobs, projectMirrors, type PreparedProjectOutput } from '@wildshard/sdk/projectOutput';
@@ -326,7 +326,13 @@ export async function buildProject(project: string, output?: string, options: { 
     const encoded = await encodedCookInput(project, shard.identity.slug);
     // FORMAT-PRUNE FP36: discovery carries none of the words that live in sections (their values sit there: `readProjectAssets`)
     // FP47b: nor the level look: engine reads `look.level` first since 577c013ef and 839c8ba08 (OF9b2 kept a copy for its shell)
-    const cook = await withDiscovery(project, withoutMovedWords(shard.manifest === undefined ? options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))) : { ...shard.manifest, ...loaded.start }), loaded.output.discovery, encoded?.input, assets);
+    // SF9: a composed discovery names the product's generated map blob, as a packed level manifest does
+    const mapBytes = shard.map === undefined ? undefined : assets.get(shard.map.image);
+    const generated = shard.map === undefined || mapBytes === undefined ? undefined : { hash: shard.map.image, bytes: mapBytes };
+    const discovery = shard.manifest === undefined
+      ? withGeneratedMinimap(options.manifest?.composed ?? authorManifest(shard, sceneCardUrls(project, shardFolderName(project))), shard.identity.slug, generated)
+      : { ...shard.manifest, ...loaded.start };
+    const cook = await withDiscovery(project, withoutMovedWords(discovery), loaded.output.discovery, encoded?.input, assets);
     descriptor = writeOutputProduct(shard, assets, destination, { ...loaded.output, ...(shardVersion === undefined ? {} : { shardVersion }), ...(runtime === undefined ? {} : { runtime }), ...(cook === undefined ? {} : { cook }) });
     assertNoRenamedAudioNames(destination, encoded?.renamed ?? new Map());
     phase('product-write');
