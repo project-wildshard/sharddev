@@ -7,3 +7,6 @@ older format. Capture new hero art in the template's local dev world because
 the uploader refuses the previous hero hash. All three captures were
 visible. The prepared build entered in phone WebKit and its shardfile
 validated at 35.4 MB before staging upload.
+
+The clean checkout's capture matches the template content digest.
+The CLI's engine-free template build accepts the captured hero.
