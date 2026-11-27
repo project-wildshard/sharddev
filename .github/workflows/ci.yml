@@ -144,7 +144,7 @@ jobs:
       - name: Install the pinned API contract
         run: pnpm --dir tmp/codex-wire/api-contract-source install --ignore-workspace --frozen-lockfile --config.ci=false
       - name: Check out the async cook contract
-        uses: actions/checkout@3d3c42e5aac5ba805da76410c181273ba90b1 # v7.0.1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: project-wildshard/engine
           ref: 28a89971bdb6c3f89e5ab9870f49a5afe9c69468 # authored shard versions in cook.json
