@@ -16,6 +16,13 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.9.2 (2026-11-27)
+
+- Let preparation finish reading responses that arrive near the end of capture.
+- Read watch-test process priority relative to its parent shell.
+- Give new Mossgate-based projects their own scoped piano recordings.
+- Serve built shard mounts in dev and watch, including their scoped music catalogue.
+
 ## v0.9.1 (2026-11-27)
 
 - Pin the author tools to engine 0.1.100-next.922b9d45 and shard-format 0.82.4 for Dunes, the plots, Pine, Nine and Nalati.
