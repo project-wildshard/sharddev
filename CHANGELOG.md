@@ -16,6 +16,10 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.9.3 (2026-11-27)
+
+- Use shard-format 0.82.8 to match offline memory estimates to cooked textures and raw images.
+
 ## v0.9.2 (2026-11-27)
 
 - Let preparation finish reading responses that arrive near the end of capture.
