@@ -16,6 +16,12 @@ does, for example "nothing: `wildshard upgrade` runs the migration",
 or the manual step it prints. The procedure is the
 `sdk-breaking-release` skill.
 
+## v0.8.1 (2026-11-26)
+
+- Resolve shared kit art from the bundled CLI, including sky and ground mounts (ab504755).
+- Read each zone’s own navmesh, audio and sky paths (04094314).
+- List rebased and day-old worktrees in the kit (a2a963e6).
+
 ## v0.8.0 (2026-11-26)
 
 - **Breaking:** kit's MeleeProfile drops legacySlot and its Slot type parameter; `wildshard upgrade` runs the 0.8.0 migration.
