@@ -2,7 +2,7 @@
 // Node’s actual engine package path before accepting candidate receipts.
 import assert from 'node:assert/strict';
 import {spawnSync} from 'node:child_process';
-import {mkdirSync,readFileSync,realpathSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,readFileSync,realpathSync,writeFileSync} from 'node:fs';
 import {dirname,join} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import { PRODUCER_PIN, declaredEnginePin, lockedEngineSource } from '../../../src/scripts/candidate-engine-source.mjs';
@@ -23,7 +23,11 @@ if(producer){
  assert.equal(installed.version,declared);
  assert.notEqual(resolved,`https://codeload.github.com/project-wildshard/engine/tar.gz/${engine}`);
 }else assert.equal(resolved,`https://codeload.github.com/project-wildshard/engine/tar.gz/${engine}`);
-assert.equal(realpathSync(installed.path),realpathSync(dirname(fileURLToPath(import.meta.resolve('@wildshard/engine/package.json')))));
+// Node's actual engine package is the one pnpm installed. pnpm 10 under the global virtual store lists a `.pnpm`-style
+// path that does not exist (meta QA69, run 46087342493): match the path when it exists, else the exact version.
+const nodeEngine=dirname(fileURLToPath(import.meta.resolve('@wildshard/engine/package.json')));
+if(existsSync(installed.path))assert.equal(realpathSync(installed.path),realpathSync(nodeEngine));
+else assert.equal(JSON.parse(readFileSync(join(nodeEngine,'package.json'),'utf8')).version,installed.version);
 const result={complete:true,engine:producer?installed.version:engine,resolved,version:installed.version};
 const directory=process.env.COOKED_REPORT_DIR??'tmp/cooked-templates';mkdirSync(directory,{recursive:true});
 writeFileSync(join(directory,producer?'producer.json':'runtime.json'),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result));
