@@ -1,7 +1,8 @@
 name: cooked-templates-contract
 
-# New cases report for one week. Actual JSON receipts, not the green
-# continue-on-error wrapper, qualify the current change before land.
+# Every job is a real verdict: no continue-on-error, so a red cook-play
+# shows red (meta QA69). The candidate engine is the dispatch input, else
+# the exact commit behind the sdk package's engine pin.
 on:
   push:
     branches: [main]
@@ -10,7 +11,9 @@ on:
       - packages/dev/**
       - packages/build/**
       - packages/sdk/scripts/assert-candidate-engine.mjs
-      - packages/sdk/scripts/select-candidate.mjs
+      - src/scripts/select-candidate.mjs
+      - src/scripts/pinned-engine-commit.mjs
+      - src/scripts/candidate-engine-source.mjs
       - .github/workflows/cooked-templates-contract.yml
       - package.json
       - pnpm-lock.yaml
@@ -29,14 +32,15 @@ permissions:
 
 env:
   APP_CLIENT_ID: ${{ secrets.APP_CLIENT_ID }}
-  COOKED_ENGINE_CANDIDATE: ${{ inputs.engine || '9c48765562023f58f1101e7a4639f578423ec606' }}
+  COOKED_ENGINE_CANDIDATE: ${{ inputs.engine }}
   COOKED_REPORT_DIR: tmp/cooked-templates
 
 jobs:
   producer:
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
+    outputs:
+      engine: ${{ steps.candidate.outputs.engine }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -75,6 +79,9 @@ jobs:
           git config --global --add url."$base".insteadOf "ssh://git@github.com/"
       - name: Install the declared producer graph
         run: pnpm install --frozen-lockfile --config.ci=false
+      - name: Name the candidate engine (input, else the pin's commit)
+        id: candidate
+        run: node src/scripts/pinned-engine-commit.mjs
       - name: Prove the pinned producer before building
         working-directory: packages/sdk
         run: node scripts/assert-candidate-engine.mjs --producer
@@ -99,7 +106,8 @@ jobs:
     needs: producer
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    continue-on-error: true
+    env:
+      COOKED_ENGINE_CANDIDATE: ${{ needs.producer.outputs.engine }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

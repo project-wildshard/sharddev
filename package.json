@@ -29,7 +29,7 @@
     "test": "pnpm test:kit && pnpm test:author && pnpm test:content && node --test 'src/test/.kit/*.test.mjs' '.githooks/*.test.mjs' '.agents/hooks/test/*.test.mjs'",
     "test:ci": "pnpm --filter @wildshard/dev run test:ci",
     "test:e2e": "pnpm --filter @wildshard/dev run test:e2e",
-    "test:kit": "pnpm --filter @wildshard/dev run test:kit && node --test 'packages/upload/src/**/*.test.ts' src/test/one-format.test.mjs src/test/verify-packed-install.test.mjs",
+    "test:kit": "pnpm --filter @wildshard/dev run test:kit && node --test 'packages/upload/src/**/*.test.ts' src/test/one-format.test.mjs src/test/verify-packed-install.test.mjs src/test/candidate-engine-source.test.mjs",
     "test:author": "pnpm --filter @wildshard/sdk run test:author && pnpm --filter @wildshard/build run test:author && pnpm --filter @wildshard/dev run test:author && pnpm --filter @wildshard/cli test",
     "test:content": "pnpm --dir packages/kit test",
     "check:asks": "node src/scripts/.kit/asks.mjs check",

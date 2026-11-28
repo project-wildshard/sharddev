@@ -9,6 +9,7 @@ import {createRequire} from 'node:module';
 import {dirname,join,resolve} from 'node:path';
 import {brotliCompressSync,brotliDecompressSync,constants} from 'node:zlib';
 import {test} from 'node:test';
+import {PRODUCER_PIN} from '../../../../src/scripts/candidate-engine-source.mjs';
 
 assert.equal(process.env.GITHUB_ACTIONS,'true','Cold cooking runs only in hosted Actions');
 assert.equal(process.env.RUNNER_ENVIRONMENT,'github-hosted','No self-hosted cook');
@@ -33,7 +34,7 @@ assert.ok(Number.isInteger(part)&&Number.isInteger(parts)&&part>=1&&part<=parts&
 const selected=expected.filter((_,index)=>index%parts===part-1);
 const reportRoot=resolve(process.env.COOKED_REPORT_DIR??'tmp/cooked-templates');mkdirSync(reportRoot,{recursive:true});
 const producer=JSON.parse(readFileSync(join(reportRoot,'producer.json'),'utf8'));
-assert.equal(producer.complete,true);assert.match(producer.version,/^\d+\.\d+\.\d+$/u);
+assert.equal(producer.complete,true);assert.match(producer.version,PRODUCER_PIN);
 const runtime=JSON.parse(readFileSync(join(reportRoot,'runtime.json'),'utf8'));
 assert.equal(runtime.complete,true);assert.equal(runtime.engine,engine);
 assert.equal(runtime.resolved,`https://codeload.github.com/project-wildshard/engine/tar.gz/${engine}`);

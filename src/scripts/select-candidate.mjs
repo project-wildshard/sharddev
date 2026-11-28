@@ -11,7 +11,9 @@ for (const [name, sha] of choices) {
   if (!sha) continue;
   if (!/^[a-f0-9]{40}$/u.test(sha)) throw new Error(`${name}: candidate must be a full commit hash`);
   const spec = `github:project-wildshard/${name}#${sha}`;
-  sdk.dependencies[`@wildshard/${name}`] = spec;
+  // The engine edge is a devDependency (meta QA69): replace it where it is declared, never add a second edge.
+  const field = sdk.devDependencies?.[`@wildshard/${name}`] !== undefined ? 'devDependencies' : 'dependencies';
+  sdk[field] ??= {}; sdk[field][`@wildshard/${name}`] = spec;
   pkg.pnpm ??= {}; pkg.pnpm.overrides ??= {};
   pkg.pnpm.overrides[`@wildshard/${name}`] = spec;
 }
