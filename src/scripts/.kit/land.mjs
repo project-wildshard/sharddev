@@ -686,8 +686,9 @@ class Landing{
  /** Fast-forward main to HEAD. Refuses before pushing unless origin/main is
   * an ancestor; the refspec has no `+` and no force flag ever.
   * @param {boolean} carried @param {boolean} [push] J422: the repo's ordinary pre-push gates it
+  * @param {string} [proof] the current land's completed-gate receipt
   * @returns {'landed'|'moved'} */
- pushMain(carried,push=false){
+ pushMain(carried,push=false,proof){
   const head=this.holds('before the merge'),main=this.fetchMain();
   if(!isAncestor(this.root,main,head))return 'moved';
   if(main===head)return 'landed';
@@ -695,6 +696,8 @@ class Landing{
   this.say('merging',`main ${short(main)} -> ${short(head)} fast-forward only${push?'; the ordinary pre-push gates it (J422)':carried?'; static pre-push on the rebased tree, no Vitest (LS3)':'; the hosted-green SHA, no local gate'}`);
   // LS3 (J258): the pre-push knows this is land's main push and of which kind (.githooks/run-checks.mjs).
   const env={...this.env,WS_LAND_MAIN_PUSH:`${carried?'carried':'exact'}:${head}`};
+  Reflect.deleteProperty(env,'WS_LAND_GATE_FILE');
+  if(proof!==undefined)Reflect.set(env,'WS_LAND_GATE_FILE',proof);
   if(push)Reflect.deleteProperty(env,'WS_LAND_MAIN_PUSH');
   // The hook writes to stderr: keep it for the STOP receipt's cause, and still show it in the land log.
   const result=spawnSync('git',args,{cwd:this.root,env,encoding:'utf8',stdio:['ignore','pipe','pipe'],maxBuffer:64<<20});
@@ -708,17 +711,28 @@ class Landing{
   throw new StopError(`main push of ${short(head)} failed and main did not move: ${cause}\nA red pre-push names its failing check above; fix forward and run land again.`);
  }
 
+ /** Meta QA 11-26 row 15: nothing to land because the branch is already on main (an earlier land went through, or
+  * its commits arrived another way). --done still owes its cleanup: the worktree is landed, so cleanUp may remove it
+  * under its usual guards (on its branch at this SHA, clean, copied first). Only --done: a hosted land that finds
+  * nothing to land keeps its worktree, as before.
+  * @param {string} detail @returns {number} */
+ onMain(detail){
+  this.say('nothing',detail);
+  if(this.options.done)this.landedSha=this.head();
+  return 0;
+ }
+
  async run(){
   this.clean();
   const start=this.head();this.expected=start;
   let main=this.fetchMain();
-  if(start===main||isAncestor(this.root,start,main)){this.say('nothing',`${this.branch} ${short(start)} has nothing main lacks`);return 0;}
+  if(start===main||isAncestor(this.root,start,main))return this.onMain(`${this.branch} ${short(start)} has nothing main lacks`);
   this.say('start',`${this.branch} ${short(start)} -> main ${short(main)} (repo ${this.repo})`);
   // An install a stopped land owed (its rebase had already moved HEAD) runs before anything else (J206 review).
   if(existsSync(this.installMarker()))this.install(['an earlier land\'s rebase']);
   if(!isAncestor(this.root,main,start)){
    this.rebase(main);
-   if(this.head()===main){this.say('nothing',`every commit on ${this.branch} is already on main`);return 0;}
+   if(this.head()===main)return this.onMain(`every commit on ${this.branch} is already on main`);
   }
   if(this.options.mode==='push')return this.runPush(main);
   /** @type {{sha:string,base:string}|null} */let tested=null;
@@ -763,13 +777,23 @@ class Landing{
  /** J422: push main through the ordinary pre-push; a lost race rebases and pushes again. No plan push, no hosted wait.
   * @param {string} base */
  runPush(base){
+  const scratch=join(this.root,'tmp',this.lane);
+  mkdirSync(scratch,{recursive:true});
+  const proofDir=mkdtempSync(join(scratch,'land-gate-'));
+  try{
+   return this.retryPush(base,join(proofDir,'proved.json'));
+  }finally{rmSync(proofDir,{recursive:true,force:true});}
+ }
+
+ /** @param {string} base @param {string} proof */
+ retryPush(base,proof){
   let main=base;
   for(let round=1;round<=this.options.rounds;round++){
-   if(this.pushMain(false,true)==='landed')return this.landed('push','the ordinary pre-push; main ci runs the full suite',round,main);
+   if(this.pushMain(false,true,proof)==='landed')return this.landed('push','the ordinary pre-push; main ci runs the full suite',round,main);
    main=this.fetchMain();
    this.say('moved',`main moved to ${short(main)}; rebasing and pushing again (round ${round})`);
    this.rebase(main);
-   if(this.head()===main){this.say('nothing',`every commit on ${this.branch} is already on main`);return 0;}
+   if(this.head()===main)return this.onMain(`every commit on ${this.branch} is already on main`);
   }
   this.receipt(`STOP gave up after ${this.options.rounds} tries; main kept moving`);
   throw new StopError(`main kept moving: ${this.options.rounds} tries each lost the race to another push. Nothing landed; run land again`);
