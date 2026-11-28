@@ -16,8 +16,8 @@ import { placementLines } from './placement.ts'
 // prints the API's grid answer (SA30) and each moved channel's link.
 
 const LINKS = [
-  'preview: https://preview.wildshard.io/slug/upload-test (page not built yet)',
-  'staging: https://staging.wildshard.io/slug/upload-test (page not built yet)',
+  'preview: https://preview.wildshard.io/slug/upload-test',
+  'staging: https://staging.wildshard.io/slug/upload-test',
 ]
 
 test('--no-place sends place: false; a default upload sends no place', async (context: TestContext): Promise<void> => {
@@ -61,7 +61,7 @@ test('a prod upload links all three channels', async (context: TestContext): Pro
   assert.deepEqual(run.lines.slice(-4), [
     'placed at (0,3) on preview, staging, production',
     ...LINKS,
-    'production: https://play.wildshard.io/slug/upload-test (page not built yet)',
+    'production: https://play.wildshard.io/slug/upload-test',
   ])
 })
 
@@ -136,7 +136,7 @@ test('a revived shard links preview only', async (context: TestContext): Promise
 
   assert.deepEqual(run.lines.slice(-2), [
     "no new cell: grid placement is off on the API, or this is not the shard's first upload",
-    'preview: https://preview.wildshard.io/slug/upload-test (page not built yet)',
+    'preview: https://preview.wildshard.io/slug/upload-test',
   ])
 })
 

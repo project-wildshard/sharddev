@@ -39,8 +39,8 @@ test('compresses, signs, uploads and prints the uploadNumber', async (context: T
     migrations: [],
     gridReport: [
       "no new cell: grid placement is off on the API, or this is not the shard's first upload",
-      'preview: https://preview.wildshard.io/slug/upload-test (page not built yet)',
-      'staging: https://staging.wildshard.io/slug/upload-test (page not built yet)',
+      'preview: https://preview.wildshard.io/slug/upload-test',
+      'staging: https://staging.wildshard.io/slug/upload-test',
     ],
   })
   assert.match(

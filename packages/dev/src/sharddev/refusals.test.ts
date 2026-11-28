@@ -118,6 +118,10 @@ describe('the refusal table (SA21)', () => {
     const audio = issueError('audio-refused', 'Audio rules (AU5) refuse loud-test: loud-test holds 11.00 MB of its own audio');
     expect(refusalNote('upload', audio.message, { code: refusalCode(audio) }).rule).toBe('audio-refused');
     expect(refusalNote('validate', 'Build failed with 1 error: Cannot resolve entry module x/shard.config.ts.').rule).toBe('source-file-missing');
+    // J536 (2), WW18: api-server's upload gate, word for word.
+    const uninvited = '/api/shardfiles/uploads answered 403: uploads are open to invited founding builders only (J536): ask for an invite on the waitlist at https://wildshard.io and quote your account id acct_1';
+    expect(refusalNote('upload', uninvited).rule).toBe('upload-not-invited');
+    expect(refusalNote('upload', "commit answered 403: production uploads are the Wildshard team's (J536): upload with --channel staging; the team moves a shard to production").rule).toBe('upload-not-invited');
   });
 });
 

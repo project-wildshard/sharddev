@@ -34,8 +34,8 @@ instead where a step is not built yet.
 6. **upload --channel staging**: `GUIDE.md#uploading` steps 5 and 6, in order; what each channel moves in
    `GUIDE.md#5-channels-and-the-grid`. Done when upload prints the version and what moved.
 7. **upload --channel prod**: the next version, after staging. `GUIDE.md#5-channels-and-the-grid`. Done as step 6.
-8. **share**: the per-shard link is not built yet (SA36, SA37). `GUIDE.md#5-channels-and-the-grid` says how to share
-   today. Done when you have shared what it names.
+8. **share**: the `/slug/<slug>` link upload prints for each channel it moved. `GUIDE.md#5-channels-and-the-grid`
+   says what the page shows. Done when you have shared that link.
 
 ## When a command refuses
 

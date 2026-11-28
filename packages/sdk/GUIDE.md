@@ -69,9 +69,9 @@ repo's one `src/shards/<slug>/`).
 | 3 | Check | `wildshard check .` | Works: lint, build, validate, prove and the report card, one verdict |
 | 4 | Hero | `wildshard hero . --base <url>` | Works, with `wildshard dev .` running: `<url>` is the one it prints. See "The hero" below |
 | 5 | Prepare | `wildshard prepare out/my-shard`, then `wildshard build out/my-shard` | The first run fetches engine's preparation client once. See "Uploading" below |
-| 6 | Upload to staging | `wildshard upload out/my-shard.shardfile --channel staging --shard-version 0.0.1` | Works only for the Wildshard team today: it needs the team's creator key. See "Uploading" below |
-| 7 | Upload to production | the same with `--channel prod` and a higher version | The same. Try staging first |
-| 8 | Share | `https://staging.wildshard.io/slug/my-shard` | **Not built yet (SA36, SA37).** See section 5 |
+| 6 | Upload to staging | `wildshard upload out/my-shard.shardfile --channel staging --shard-version 0.0.1` | Works for the Wildshard team and invited founding builders: it needs your account key (step 5 of "Uploading"), and the team must have invited that account. Uninvited, the API refuses and names the waitlist at https://wildshard.io. A new shard's first upload takes a free cell on staging's grid (section 5) |
+| 7 | Upload to production | the same with `--channel prod` and a higher version | The Wildshard team only: the team moves a shard to production. Invited builders stop at staging |
+| 8 | Share | `https://staging.wildshard.io/slug/my-shard` | Works: upload prints this link for each channel it moved. See section 5 |
 
 `check` is the one verb to run after every change: it runs `build`, `validate` and `prove` for you. The one separate
 `build` in the loop is `build <folder>` after `prepare`. Done when the last line reads `check pass in N s` (exit code
@@ -118,7 +118,7 @@ on the same sdk, reuse it. If the download fails, `dev` stops and says which rel
 is kept, so run it again.
 
 `dev` serves this shard alone: no other shards, no grid and no other players. To see it beside the rest of the
-world, upload it to staging once the Wildshard team has placed it on the grid (section 5).
+world, upload it to staging: its first upload there takes a free cell on the grid (section 5).
 
 **Driving a `dev` page from a script** (a headless walk with Playwright or the like). The page answers
 `window.__wildshard.state()` (the player, the creatures and the flags) at once. The calls that move the world for you,
@@ -328,7 +328,10 @@ before every upload:
    upload to it. Make the account once with `wildshard account you@example.com`: it saves the key to
    `~/.config/wildshard/sharddev-key` (only you can read it) and the API never shows it again, so keep that file. An
    email that has an account already is refused (`account-exists`); a lost key needs an operator reset by the
-   Wildshard team. In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
+   Wildshard team. Uploading is open to the Wildshard team and to invited founding builders (J536): an account
+   the team has not invited is refused (`upload-not-invited`, with its account id), so ask for an invite on the
+   waitlist at https://wildshard.io, quoting that id. Invited builders upload to staging; production is the team's.
+   In CI, set `WILDSHARD_API_KEY` instead: it wins over the file. `wildshard whoami` says which key
    upload will send and whose it is. `WILDSHARD_CREATOR_PRIVATE_KEY` is optional: when set, upload also signs the
    bytes, and the server verifies that signature. Never commit either key. Done when `wildshard whoami` prints
    `key wsk_…` and `account <your email>`.
@@ -1018,12 +1021,15 @@ guide names them and points at what prints them:
 | `staging` | moves to this version | moves to this version | stays |
 | `prod` | moves | moves | moves |
 
-There is no default: upload without `--channel` refuses. Upload to staging; once the Wildshard team has placed the
-shard (below), walk it there; then upload the next version with `--channel prod`. The same bytes cannot go to staging
-and then to prod: production needs a new version, and a new version needs a new hero (J306).
+There is no default: upload without `--channel` refuses. Upload to staging: a new shard's first upload takes a cell
+there (below), so you can walk it beside the rest of the world. Production is the Wildshard team's (J536): an invited
+builder uploads to staging only, and the team moves a shard to production. The same bytes cannot go to staging and
+then to prod: production needs a new version, and a new version needs a new hero (J306).
 
 **The grid.** The world is a grid of cells, one shard per cell, and players walk from cell to cell. It is 7×7 (x and z
-from -3 to 3), and the inner 5×5 is full. Only the Wildshard team places a shard on it. `wildshard grid [--channel
+from -3 to 3), and the inner 5×5 is full. A brand-new slug's first staging upload takes the nearest free cell in the
+outer ring (J379), on preview and staging, once the cook has checked it; a full grid is the only reason it gets none.
+Production's grid is the Wildshard team's to place. The team can delete any shard. `wildshard grid [--channel
 staging|prod|preview]` prints which cells are taken and which are free, from the public
 `GET /api/catalogue.json?channel=<channel>` (no key). An uploaded shard with no cell is recorded on its channels, but no
 player can reach it there yet.
@@ -1038,27 +1044,18 @@ player can reach it there yet.
 | `not placed (--no-place)` | You passed `--no-place` on the shard's first upload |
 | `grid left as it was (--no-place)` | You passed `--no-place` on a later upload: a cell the shard has stays, and is not added to a new channel |
 | `not placed: the grid step failed; run the same upload again to retry` | The upload counts; the same `wildshard upload` again places it |
-| `no new cell: grid placement is off on the API, or this is not the shard's first upload` | Today's answer: the API does not place yet (below); or the shard had an upload before and no cell |
+| `no new cell: grid placement is off on the API, or this is not the shard's first upload` | A production upload (only staging uploads take a cell), or the shard had an upload before and no cell |
 
 `wildshard upload --no-place` uploads without taking a cell, for a proof upload you will delete. Only a shard's
 first upload can take a cell, so a shard uploaded with `--no-place` never gets one from a later upload. A shard made
 only to prove tooling (a `wildshard new` scaffold or a publish check) takes a `proof-<name>` slug: the API never
 gives a `proof-*` slug a cell, whatever upload sends, so a proof cannot land on the player grid; delete it when its proof
-is done (J453). The links point at the share page, which is not built yet (below), and each says `(page not built
-yet)`.
+is done (J453). Each link is the shard's share page (below).
 
-**Not built yet:**
-
-- **The 7×7 grid that fills itself (J314; SA29 to SA35).** A brand-new slug's first upload will get the nearest free
-  cell in the outer ring, and that cell is the slug's for life, on every channel it reaches: a staging upload places
-  it on preview and staging, and a later prod upload puts it at the same cell on production. The API side is built
-  but switched off until the MMO server and the play page can show a new cell; upload already prints its answer.
-- **The share link (SA36, SA37):** `https://staging.wildshard.io/slug/<slug>` (and the same path on preview and
-  production) will show your shard's name and hero with a Play button that spawns you at its cell, and unfurl with
-  the hero when pasted into a chat. A shard with no cell shows its card with Play off: "not on the grid yet".
-
-**How to share today:** there is no per-shard link yet. Once the Wildshard team has placed your shard, share
-`https://staging.wildshard.io` and its cell; until then, share the hero images and the shard file.
+**The share link (SA36, SA37).** `https://staging.wildshard.io/slug/<slug>`, and the same path on
+`preview.wildshard.io` and `play.wildshard.io` (production), opens the game at your shard, and its link preview shows
+the shard's name and hero when pasted into a chat. Share the link upload printed. A shard with no cell on that channel
+answers `No shard is named <slug>.` there until it has one.
 
 ## 6. Refusals and their fixes
 
@@ -1554,6 +1551,13 @@ Tracked files have uncommitted changes. Commit, then check and prepare again bef
 #### upload-sdk-missing
 
 Upload could not find the sdk, engine or shard-format version to send. Install the project's packages.
+
+#### upload-not-invited
+
+The API takes uploads from the Wildshard team and from invited founding builders (J536). Either your account is not
+invited yet, and the message names its account id: ask for an invite on the waitlist at https://wildshard.io, quoting
+that id, then upload again once the team says yes. Or you are invited and sent `--channel prod`: production is the
+team's, so upload with `--channel staging`.
 
 #### upload-refused
 

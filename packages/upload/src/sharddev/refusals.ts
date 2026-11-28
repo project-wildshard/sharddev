@@ -245,6 +245,10 @@ export const REFUSAL_RULES: readonly RefusalRule[] = [
     fix: 'Commit your changes, build again, then upload: the commit names the bytes.' },
   { id: 'upload-sdk-missing', anchor: 'upload-sdk-missing', steps: ['upload'], match: /is not installed at or above|\(.*package\.json\) is not X\.Y\.Z/u,
     fix: 'Run `pnpm install` in the shard repo.' },
+  // J536 (2), meta WWW-REFRESH WW18: the API takes uploads from the team and invited founding builders (staging only)
+  { id: 'upload-not-invited', anchor: 'upload-not-invited', steps: ['upload'],
+    match: /invited founding builders only|production uploads are the Wildshard team's/u,
+    fix: 'Ask for an invite on the waitlist at https://wildshard.io, quoting the account id shown; once invited, upload with `--channel staging`.' },
   { id: 'upload-refused', anchor: 'upload-refused', steps: ['upload'],
     fix: 'Read the reason: a format refusal means build again (`wildshard build`); a server refusal names what it wants.' },
   // lint, besides the rules below

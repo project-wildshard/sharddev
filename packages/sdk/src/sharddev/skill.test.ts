@@ -55,7 +55,9 @@ describe('the wildshard skills', () => {
     // SA15: dev works for an installed sdk, so its step names the command, not a row.
     expect(skill).not.toMatch(/SA15/u);
     expect(skill).toMatch(/\*\*dev\*\*: `wildshard dev \.`/u);
-    expect(skill).toMatch(/not built yet \(SA36, SA37\)/u);
+    // SA36, SA37: the share link shipped, so step 8 names it and no row.
+    expect(skill).not.toMatch(/SA36|SA37/u);
+    expect(skill).toMatch(/\*\*share\*\*: the `\/slug\/<slug>` link/u);
     // SDK 0.5.0 M4, M5 (ask A7): the move is `upgrade` again (`update --pins` is its alias), and an sdk installed any
     // other way is brought up to date by `migrate`.
     expect(skills.get('wildshard-upgrade')).toMatch(/`pnpm dlx @wildshard\/cli upgrade \[version\]`/u);

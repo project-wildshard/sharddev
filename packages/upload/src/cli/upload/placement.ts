@@ -12,8 +12,9 @@ import type { CommitAnswer, Placement } from './wire.ts'
 // for a shard with no cell past its first upload, so a missing answer says
 // "no new cell" rather than guess which. Only a first upload (catalogue
 // number 1) takes a cell: `--no-place` later leaves a held cell where it
-// is, so that line says the grid was left alone. The page behind the link
-// is SA36 and SA37's, not built yet, and the line says so.
+// is, so that line says the grid was left alone. The link is the shard's
+// share page (SA36, SA37; live since engine v0.1.18): its name and hero,
+// and Play when it has a cell.
 
 /** The API's words for `place: false` and for a failed grid step (SA30). */
 const NOT_ASKED = 'not placed (place: false)'
@@ -26,7 +27,6 @@ const NO_ANSWER_LINE =
 const FAILED_LINE =
   'not placed: the grid step failed; run the same upload again to retry'
 const UNREAD_LINE = "grid: the API's placement answer was not understood"
-const PAGE_NOT_BUILT = '(page not built yet)'
 
 /** Each channel's host (GUIDE.md section 5). */
 const HOSTS = {
@@ -124,7 +124,7 @@ function placementLines(
   }
   const links = moved.map(
     (name: ChannelName): string =>
-      `${name}: https://${HOSTS[name]}/slug/${answer.shard} ${PAGE_NOT_BUILT}`,
+      `${name}: https://${HOSTS[name]}/slug/${answer.shard}`,
   )
   return [
     ...heldLines(answer, options.channel),
