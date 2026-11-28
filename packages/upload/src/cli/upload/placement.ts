@@ -85,13 +85,17 @@ function gridLine(raw: unknown, asked: Asked): string {
     : notPlacedLine(placement.reason, asked)
 }
 
-/** The channels an upload moves (J301); a revived shard moves preview only (DEL7). */
+/**
+ * The channels an upload moves (J301). A revived shard moves staging only
+ * (DEL7), and preview follows staging's pointers (meta QA 11-26 rows 9 and
+ * 10): nothing moves preview alone, so a revival links staging and preview.
+ */
 function movedChannels(
   channel: Channel,
   revived: boolean,
 ): readonly ChannelName[] {
   if (revived) {
-    return ['preview']
+    return ['preview', 'staging']
   }
   return channel === 'production'
     ? ['preview', 'staging', 'production']

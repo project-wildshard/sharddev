@@ -128,15 +128,18 @@ test('a placement the CLI cannot read still uploads', async (context: TestContex
   ])
 })
 
-test('a revived shard links preview only', async (context: TestContext): Promise<void> => {
+test('a revived shard links staging, which preview follows, never preview alone', async (context: TestContext): Promise<void> => {
   const run = await open(context)
   run.server.state.grid = 'revived'
 
   await upload(run)
 
-  assert.deepEqual(run.lines.slice(-2), [
+  // Meta QA 11-26 rows 9 and 10: a revival moves staging (DEL7), and
+  // preview reads staging's pointer; no upload moves preview by itself
+  assert.deepEqual(run.lines.slice(-3), [
     "no new cell: grid placement is off on the API, or this is not the shard's first upload",
     'preview: https://preview.wildshard.io/slug/upload-test',
+    'staging: https://staging.wildshard.io/slug/upload-test',
   ])
 })
 
