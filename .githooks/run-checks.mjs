@@ -32,6 +32,15 @@ const HARD = Number(process.env.PRECOMMIT_HARD_S ?? 8);
 const LINTABLE = /\.(?:ts|tsx|js|mjs|cjs)$/;
 const FORMATTABLE = /\.(?:ts|tsx|js|mjs|cjs|json|jsonc)$/;
 
+// Meta QA 11-25 row 156: a main push this gate passes hands main's ci verdict to src/scripts/main-watch.mjs, which
+// follows the SHA once it reaches origin and writes the receipt (main green, or MAIN RED naming the landers).
+const followMain = async () => {
+  const script = join(root, 'src/scripts/main-watch.mjs');
+  if (lane !== 'push' || !existsSync(script)) return;
+  const { startFollow } = await import(pathToFileURL(script).href);
+  const said = startFollow(root, process.env);
+  if (said !== '') console.error(said);
+};
 // A push that only deletes plan/* branches (`git push --delete origin plan/<slug>`
 // after a landing, J240) or a shipped release/vX.Y.Z branch (release.sh
 // --merge-back, after main has the merge) sends no commit, so there is nothing
@@ -68,11 +77,13 @@ if (lane === 'push' && existsSync(join(root, 'src/scripts/release-reuse.mjs'))) 
   } catch {} // Anything it cannot read keeps the gate.
   if (verdict.ok) {
     console.error(`  - ${verdict.reason}: push lane skipped`);
+    await followMain();
     process.exit(0);
   }
 }
 if (process.env.SKIP_CHECK === '1') {
   console.error(`  - SKIP_CHECK=1: ${lane} lane skipped (CI still runs it)`);
+  await followMain();
   process.exit(0);
 }
 // The push lane gates the pushed commit in a clean copy of it (M1).
@@ -215,3 +226,4 @@ if (lane === 'commit') {
   else if (verdict === 'warn') console.error(`  !! commit lane took ${seconds.toFixed(1)} s (soft ${SOFT} s, hard ${HARD} s)`);
 }
 console.error(`  - ${lane} lane green in ${seconds.toFixed(1)} s`);
+await followMain();

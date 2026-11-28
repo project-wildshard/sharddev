@@ -793,16 +793,18 @@ class Landing{
   this.receipt(`canonical checkout not fast-forwarded after landing: ${outcome}`);
  }
 
- /** LAND-SIMPLIFY LS5 (J258): main's verdict belongs to scripts/main-watch.mjs. It follows this SHA in the
+ /** LAND-SIMPLIFY LS5 (J258): main's verdict belongs to the repo's own main-watch.mjs. It follows this SHA in the
   * background until main's ci judges it, writes the receipt and messages this pane on red. It runs from the
   * canonical checkout, so it outlives this worktree. WS_MAIN_WATCH=0 turns it off.
   * @param {string} head */
  startWatcher(head){
-  const own=join(this.root,'scripts/main-watch.mjs');
-  if(this.env.WS_MAIN_WATCH==='0'||!existsSync(own))return;
+  // A repo's own main-watch: src/scripts/ in the lean layout, scripts/ before it (meta QA 11-25 row 156).
+  const home=['src/scripts','scripts'].find(dir=>existsSync(join(this.root,dir,'main-watch.mjs')));
+  if(this.env.WS_MAIN_WATCH==='0'||home===undefined)return;
+  const own=join(this.root,home,'main-watch.mjs');
   // Run the canonical checkout's copy when it has one: this worktree may be removed before node has read its own
   // (J206 review). Otherwise a private copy, rooted at the canonical checkout.
-  const canonical=canonicalRoot(this.root),shared=join(canonical,'scripts/main-watch.mjs');
+  const canonical=canonicalRoot(this.root),shared=join(canonical,home,'main-watch.mjs');
   let script=shared,env=this.env;
   if(!existsSync(shared)){
    script=join(homedir(),'.cache/wildshard/main-watch/main-watch.mjs');
@@ -813,7 +815,7 @@ class Landing{
   try{
    spawn(process.execPath,args,{cwd:canonical,env,detached:true,stdio:'ignore'}).unref();
    this.say('watch',`main-watch follows ${short(head)} and reports main's ci (receipt, and a message here on red)`);
-  }catch(error){this.say('watch',`main-watch not started (${error instanceof Error?error.message:String(error)}); run node scripts/main-watch.mjs by hand`);}
+  }catch(error){this.say('watch',`main-watch not started (${error instanceof Error?error.message:String(error)}); run node ${home}/main-watch.mjs by hand`);}
  }
 
  /** LS5 (J258, Jake: "Yes, land cleans up its own"): after landing, delete origin's plan branch (under a lease on the
