@@ -1028,7 +1028,7 @@ then to prod: production needs a new version, and a new version needs a new hero
 
 **The grid.** The world is a grid of cells, one shard per cell, and players walk from cell to cell. It is 7×7 (x and z
 from -3 to 3), and the inner 5×5 is full. A brand-new slug's first staging upload takes the nearest free cell in the
-outer ring (J379), on preview and staging, once the cook has checked it; a full grid is the only reason it gets none.
+outer ring (J379), on preview and staging, once the API has checked it; a full grid is the only reason it gets none.
 Production's grid is the Wildshard team's to place. The team can delete any shard. `wildshard grid [--channel
 staging|prod|preview]` prints which cells are taken and which are free, from the public
 `GET /api/catalogue.json?channel=<channel>` (no key). An uploaded shard with no cell is recorded on its channels, but no
